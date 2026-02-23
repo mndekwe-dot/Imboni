@@ -14,7 +14,7 @@ class User(AbstractUser):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     role = models.CharField(max_length=10, choices=USER_ROLES)
-    phone_number = models.CharField(max_length=12, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     address = models.TextField(blank=True)

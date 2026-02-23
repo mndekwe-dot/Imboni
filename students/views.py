@@ -1,104 +1,102 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from .models import User, UserPreferences
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+
+from authentication.models import User
+from .models import Student, ParentStudentRelationship
 from .serializers import (
-    UserSerializer, UserRegistrationSerializer,
-    UserPreferencesSerializer, PasswordChangeSerializer
+    StudentSerializer, StudentCreateSerializer,
+    ParentStudentRelationshipSerializer, UserSerializer
 )
 
-class UserViewSet(viewsets.ModelViewSet):
+
+class StudentViewSet(viewsets.ModelViewSet):
     """
-    User management viewset
+    Student management viewset
     """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    queryset = Student.objects.select_related('user').all()
+    serializer_class = StudentSerializer
+    # Permissions disabled for development - enable later
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['grade', 'section', 'status']
+    search_fields = ['student_id', 'user__first_name', 'user__last_name', 'user__email']
+    ordering_fields = ['grade', 'section', 'created_at', 'current_gpa']
+    ordering = ['grade', 'section', 'user__last_name']
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return StudentCreateSerializer
+        return StudentSerializer
     
     def get_queryset(self):
-        user = self.request.user
-        if user.role in ['admin', 'dos']:
-            return User.objects.all()
-        return User.objects.filter(id=user.id)
-    
-    @action(detail=False, methods=['get'])
-    def me(self, request):
-        """Get current user profile"""
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['post'])
-    def register(self, request):
-        """Register new user"""
-        serializer = UserRegistrationSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        queryset = super().get_queryset()
         
-        # Create user preferences
-        UserPreferences.objects.create(user=user)
+        # Role-based filtering disabled for development
+        # user = self.request.user
+        # if user.role == 'admin' or user.role == 'dos':
+        #     return queryset
+        # elif user.role == 'teacher':
+        #     return queryset
+        # elif user.role == 'parent':
+        #     return queryset.filter(parents__parent=user).distinct()
+        # elif user.role == 'student':
+        #     return queryset.filter(user=user)
+        # return queryset.none()
         
+        return queryset
+    
+    @action(detail=True, methods=['get'])
+    def attendance(self, request, pk=None):
+        """Get attendance records for a student"""
+        student = self.get_object()
+        from attendance.models import AttendanceRecord
+        records = AttendanceRecord.objects.filter(student=student)
         return Response({
-            'user': UserSerializer(user).data,
-            'message': 'User registered successfully'
-        }, status=status.HTTP_201_CREATED)
+            'student': student.student_id,
+            'records_count': records.count()
+        })
     
-    @action(detail=False, methods=['post'])
-    def change_password(self, request):
-        """Change user password"""
-        serializer = PasswordChangeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        user = request.user
-        if not user.check_password(serializer.validated_data['old_password']):
-            return Response({
-                'error': 'Old password is incorrect'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        user.set_password(serializer.validated_data['new_password'])
-        user.save()
-        
+    @action(detail=True, methods=['get'])
+    def results(self, request, pk=None):
+        """Get academic results for a student"""
+        student = self.get_object()
+        from results.models import Result
+        results = Result.objects.filter(student=student)
         return Response({
-            'message': 'Password changed successfully'
+            'student': student.student_id,
+            'results_count': results.count()
+        })
+    
+    @action(detail=True, methods=['get'])
+    def behavior(self, request, pk=None):
+        """Get behavior reports for a student"""
+        student = self.get_object()
+        from behavior.models import BehaviorReport
+        reports = BehaviorReport.objects.filter(student=student)
+        return Response({
+            'student': student.student_id,
+            'reports_count': reports.count()
         })
 
 
-class AuthViewSet(viewsets.ViewSet):
+class ParentStudentRelationshipViewSet(viewsets.ModelViewSet):
     """
-    Authentication endpoints
+    Parent-Student relationship management
     """
+    queryset = ParentStudentRelationship.objects.select_related('parent', 'student').all()
+    serializer_class = ParentStudentRelationshipSerializer
+    # Permissions disabled for development - enable later
+    # permission_classes = [permissions.IsAuthenticated]
     permission_classes = [permissions.AllowAny]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['parent', 'student', 'relationship_type', 'is_primary_contact']
     
-    @action(detail=False, methods=['post'])
-    def login(self, request):
-        """Login user"""
-        username = request.data.get('username')
-        password = request.data.get('password')
-        
-        user = authenticate(username=username, password=password)
-        
-        if user:
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-                'user': UserSerializer(user).data
-            })
-        
-        return Response({
-            'error': 'Invalid credentials'
-        }, status=status.HTTP_401_UNAUTHORIZED)
+    def get_queryset(self):
+        return super().get_queryset()
     
-    @action(detail=False, methods=['post'])
-    def logout(self, request):
-        """Logout user"""
-        try:
-            refresh_token = request.data.get('refresh')
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({'message': 'Logout successful'})
-        except Exception:
-            return Response({
-                'error': 'Invalid token'
-            }, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save()

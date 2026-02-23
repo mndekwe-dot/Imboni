@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from datetime import timedelta
+
+import Imboni
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(0poduddq(b$#ut=h)brljaxe1xm-4er)==lv_23ek!f9+y0ia'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-(0poduddq(b$#ut=h)brljaxe1xm-4er)==lv_23ek!f9+y0ia')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -37,12 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #third party
+    # Third party
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',  # For token blacklisting
     'corsheaders',
     'django_filters',
-    #local apps
+    # Local apps
     'authentication',
     'debug_toolbar',
     'students',
@@ -63,7 +68,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    
 ]
 
 ROOT_URLCONF = 'Imboni.urls'
@@ -125,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Kigali'
 
 USE_I18N = True
 
@@ -136,6 +140,59 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-# settings.py
 
+# Media files configuration
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Custom user model
 AUTH_USER_MODEL = 'authentication.User'
+
+# REST Framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    # Permissions disabled for development - enable later
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
+# Simple JWT configuration
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# CORS configuration
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Debug toolbar configuration
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+]
+
+# Security settings for production
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True

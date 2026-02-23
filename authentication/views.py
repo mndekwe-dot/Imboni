@@ -9,23 +9,30 @@ from .serializers import (
     UserPreferencesSerializer, PasswordChangeSerializer
 )
 
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     User management viewset
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    # Permissions disabled for development - enable later
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     
     def get_queryset(self):
         user = self.request.user
-        if user.role in ['admin', 'dos']:
+        if user.is_authenticated and user.role in ['admin', 'dos']:
             return User.objects.all()
-        return User.objects.filter(id=user.id)
+        if user.is_authenticated:
+            return User.objects.filter(id=user.id)
+        return User.objects.all()  # Allow all for development
     
     @action(detail=False, methods=['get'])
     def me(self, request):
         """Get current user profile"""
+        if not request.user.is_authenticated:
+            return Response({'error': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
     
@@ -37,7 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user = serializer.save()
         
         # Create user preferences
-        UserPreferences.objects.create(user=user)
+        UserPreferences.objects.get_or_create(user=user)
         
         return Response({
             'user': UserSerializer(user).data,
@@ -47,6 +54,9 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def change_password(self, request):
         """Change user password"""
+        if not request.user.is_authenticated:
+            return Response({'error': 'Not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+            
         serializer = PasswordChangeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
@@ -102,19 +112,25 @@ class AuthViewSet(viewsets.ViewSet):
             return Response({
                 'error': 'Invalid token'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class UserPreferencesViewSet(viewsets.ModelViewSet):
     """
     User preferences viewset
     """
     serializer_class = UserPreferencesSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    http_method_names = ['get', 'put', 'patch']  # no create/delete for preferences
+    # Permissions disabled for development
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+    http_method_names = ['get', 'put', 'patch']
 
     def get_queryset(self):
-        # Users can only see their own preferences
-        return UserPreferences.objects.filter(user=self.request.user)
+        # Return all for development
+        return UserPreferences.objects.all()
 
     def get_object(self):
-        # Always return the current user's preferences
-        return self.request.user.preferences
+        # Always return the current user's preferences, create if not exists
+        if self.request.user.is_authenticated:
+            preferences, _ = UserPreferences.objects.get_or_create(user=self.request.user)
+            return preferences
+        return UserPreferences.objects.first()  # Fallback for development
