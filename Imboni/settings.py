@@ -44,17 +44,17 @@ INSTALLED_APPS = [
     'django_filters',
     #local apps
     'authentication',
+    'debug_toolbar',
     'students',
     'results',
     'attendance',
     'behavior',
-    'messages',
     'announcements',
-    'classes',
     'analytics',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    
 ]
 
 ROOT_URLCONF = 'Imboni.urls'
@@ -89,8 +91,12 @@ WSGI_APPLICATION = 'Imboni.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'Imboni',
+        'USER': 'root',
+        'PASSWORD': 'mercermerc123@M',
+        'HOST': 'localhost',
+        'PORT': 3306,
     }
 }
 
@@ -130,3 +136,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# settings.py
+
+AUTH_USER_MODEL = 'authentication.User'
