@@ -96,10 +96,10 @@ WSGI_APPLICATION = 'Imboni.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Imboni',
+        'NAME': 'imboni',
         'USER': 'root',
         'PASSWORD': 'mercermerc123@M',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': 3306,
     }
 }
