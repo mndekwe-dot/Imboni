@@ -65,7 +65,7 @@ class Student(models.Model):
     @property
     def grade_section(self):
         return f"Grade {self.grade}{self.section}"
-
+    
 
 class ParentStudentRelationship(models.Model):
     """

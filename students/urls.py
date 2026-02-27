@@ -1,9 +1,23 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
+from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 from . import views
 
+# Main router
 router = DefaultRouter()
 router.register(r'students', views.StudentViewSet, basename='student')
-router.register(r'parent-relationships', views.ParentStudentRelationshipViewSet, basename='parent-relationship')
+router.register(r'relationships', views.ParentStudentRelationshipViewSet, basename='relationship')
 
-urlpatterns = router.urls
+
+# Nested router (child of students)
+students_router = NestedDefaultRouter(router, r'students', lookup='student')
+students_router.register(
+    r'relationships',
+    views.ParentStudentRelationshipViewSet,
+    basename='student-relationships'
+)
+
+urlpatterns = router.urls + students_router.urls + [
+    path('students/<uuid:student_pk>/add_parent/', views.AddParentToStudentView.as_view(), name='student-add-parent'),
+    path('students/<uuid:pk>/dashboard/', views.StudentDashboardView.as_view(), name='student-dashboard'),
+    path('parents/my-children/', views.MyChildrenView.as_view(), name='parent-my-children'),
+]
