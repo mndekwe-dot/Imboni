@@ -70,10 +70,47 @@ class SubjectTeacherAssignment(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     class_obj = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='subject_assignments')
     term = models.ForeignKey(AcademicTerm, on_delete=models.CASCADE)
-    
+
     class Meta:
         db_table = 'subject_teacher_assignments'
         unique_together = ['teacher', 'subject', 'class_obj', 'term']
-    
+
     def __str__(self):
         return f"{self.teacher.full_name} teaches {self.subject.name} to {self.class_obj.name}"
+
+
+class Timetable(models.Model):
+    """
+    Weekly timetable — one row = one period for a class on a specific day.
+    Used by the Live Schedule section on the parent's My Children card.
+    """
+    DAY_CHOICES = [
+        ('monday', 'Monday'),
+        ('tuesday', 'Tuesday'),
+        ('wednesday', 'Wednesday'),
+        ('thursday', 'Thursday'),
+        ('friday', 'Friday'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    class_obj = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='timetable')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='timetable_entries'
+    )
+    term = models.ForeignKey(AcademicTerm, on_delete=models.CASCADE)
+
+    day = models.CharField(max_length=10, choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room_number = models.CharField(max_length=20, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'timetable'
+        unique_together = ['class_obj', 'day', 'start_time', 'term']
+        ordering = ['day', 'start_time']
+
+    def __str__(self):
+        return f"{self.class_obj} — {self.subject.name} — {self.day} {self.start_time}"

@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'behavior',
     'announcements',
     'analytics',
+    'teacher',
+    'messages.apps.MessagesConfig',
 ]
 
 MIDDLEWARE = [

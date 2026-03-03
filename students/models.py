@@ -67,6 +67,80 @@ class Student(models.Model):
         return f"Grade {self.grade}{self.section}"
     
 
+class Fee(models.Model):
+    """
+    Per-student fee record — e.g. Tuition: Cleared, Transport: Due 10/04.
+    Shown on the parent's My Children card.
+    """
+    CATEGORY_CHOICES = [
+        ('tuition', 'Tuition Fees'),
+        ('transport', 'Transport'),
+        ('lunch', 'Lunch Program'),
+        ('uniform', 'Uniform'),
+        ('activity', 'Activity Fee'),
+        ('other', 'Other'),
+    ]
+
+    STATUS_CHOICES = [
+        ('cleared', 'Cleared'),
+        ('due', 'Due'),
+        ('overdue', 'Overdue'),
+        ('partial', 'Partial'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='fees')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    due_date = models.DateField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='due')
+    paid_date = models.DateField(null=True, blank=True)
+    term = models.ForeignKey(
+        'results.AcademicTerm', on_delete=models.SET_NULL, null=True, blank=True
+    )
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'fees'
+        ordering = ['due_date']
+
+    def __str__(self):
+        return f"{self.student.full_name} — {self.category} ({self.status})"
+
+
+class StudentDocument(models.Model):
+    """
+    Documents attached to a student — e.g. Newsletter_Feb.pdf, Sports_Consent.pdf.
+    Shown on the parent's My Children card.
+    """
+    DOCUMENT_TYPES = [
+        ('newsletter', 'Newsletter'),
+        ('consent', 'Consent Form'),
+        ('report', 'Report'),
+        ('certificate', 'Certificate'),
+        ('other', 'Other'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='documents')
+    title = models.CharField(max_length=200)
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    file = models.FileField(upload_to='student_documents/')
+    uploaded_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='uploaded_documents'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'student_documents'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.student.full_name} — {self.title}"
+
+
 class ParentStudentRelationship(models.Model):
     """
     Links parents to their children (students)

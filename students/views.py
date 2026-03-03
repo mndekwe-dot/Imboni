@@ -6,10 +6,11 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from authentication.models import User, UserPreferences
 from authentication.serializers import UserSerializer
-from .models import Student, ParentStudentRelationship
+from .models import Student, ParentStudentRelationship, Fee, StudentDocument
 from .serializers import (
     StudentSerializer, ParentStudentRelationshipSerializer,
     AddParentToStudentSerializer, MyChildrenSerializer,
+    FeeSerializer, StudentDocumentSerializer,
 )
 
 
@@ -24,7 +25,7 @@ class MyChildrenView(generics.ListAPIView):
     Returns the list of students linked to the logged-in parent (used for child tabs).
     """
     serializer_class = MyChildrenSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return (
@@ -43,7 +44,7 @@ class StudentDashboardView(generics.RetrieveAPIView):
       - Unread Announcements
       - Behaviour Reports
     """
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
     def retrieve(self, request, *_args, **_kwargs):
         student = get_object_or_404(Student, pk=self.kwargs['pk'])
@@ -112,6 +113,76 @@ class StudentDashboardView(generics.RetrieveAPIView):
         })
 
 
+class StudentCardView(generics.RetrieveAPIView):
+    """
+    GET /imboni/students/<pk>/card/
+    Returns all data needed for the My Children card:
+      - student header (name, grade, student_id)
+      - is_in_school  (today's attendance)
+      - academic_focus (subjects this term)
+      - class_teacher  (for the Message button)
+    """
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def retrieve(self, _request, *_args, **_kwargs):
+        from results.models import AcademicTerm
+        from attendance.models import AttendanceRecord
+        from teacher.models import ClassAssignment, SubjectTeacherAssignment
+
+        student = get_object_or_404(Student, pk=self.kwargs['pk'])
+        today = timezone.now().date()
+        current_term = AcademicTerm.objects.filter(is_current=True).first()
+
+        # --- In School status ---
+        is_in_school = AttendanceRecord.objects.filter(
+            student=student,
+            date=today,
+            status__in=['present', 'late']
+        ).exists()
+
+        # --- Academic Focus & Class Teacher ---
+        academic_focus = []
+        class_teacher = None
+        if current_term:
+            assignment = (
+                ClassAssignment.objects
+                .filter(student=student, term=current_term)
+                .select_related('class_obj__class_teacher')
+                .first()
+            )
+            if assignment:
+                class_obj = assignment.class_obj
+                # Subjects taught in this class this term
+                academic_focus = list(
+                    SubjectTeacherAssignment.objects
+                    .filter(class_obj=class_obj, term=current_term)
+                    .select_related('subject')
+                    .values_list('subject__name', flat=True)
+                    .distinct()
+                )
+                # Class teacher for the Message button
+                if class_obj.class_teacher:
+                    t = class_obj.class_teacher
+                    class_teacher = {
+                        'id': str(t.id),
+                        'name': t.get_full_name(),
+                        'email': t.email,
+                    }
+
+        return Response({
+            'id': str(student.id),
+            'name': student.user.get_full_name(),
+            'initials': ''.join(p[0].upper() for p in student.user.get_full_name().split()[:2]),
+            'grade': student.grade,
+            'section': student.section,
+            'student_code': student.student_id,
+            'status': student.status,
+            'is_in_school': is_in_school,
+            'academic_focus': academic_focus,
+            'class_teacher': class_teacher,
+        })
+
+
 class AddParentToStudentView(generics.CreateAPIView):
     """
     POST /imboni/students/<student_pk>/add_parent/
@@ -156,6 +227,67 @@ class AddParentToStudentView(generics.CreateAPIView):
             'relationship': ParentStudentRelationshipSerializer(relationship).data,
             'message': 'Parent created and linked to student successfully'
         }, status=status.HTTP_201_CREATED)
+
+
+class StudentFeeListView(generics.ListAPIView):
+    """
+    GET /imboni/students/<pk>/fees/
+    Returns all fee records for a student (Tuition, Transport, Lunch, etc.)
+    """
+    serializer_class = FeeSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Fee.objects.filter(student_id=self.kwargs['pk'])
+
+
+class StudentDocumentListView(generics.ListAPIView):
+    """
+    GET /imboni/students/<pk>/documents/
+    Returns all documents attached to a student (PDFs, consent forms, etc.)
+    """
+    serializer_class = StudentDocumentSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return StudentDocument.objects.filter(student_id=self.kwargs['pk'])
+
+
+class StudentTodayScheduleView(generics.ListAPIView):
+    """
+    GET /imboni/students/<pk>/schedule/today/
+    Returns today's timetable periods for a student's class, ordered by start time.
+    """
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        from teacher.serializers import TimetableSerializer
+        return TimetableSerializer
+
+    def get_queryset(self):
+        from teacher.models import ClassAssignment, Timetable
+        from results.models import AcademicTerm
+
+        today = timezone.now().date()
+        day_name = today.strftime('%A').lower()  # e.g. 'monday'
+        current_term = AcademicTerm.objects.filter(is_current=True).first()
+
+        if not current_term:
+            return Timetable.objects.none()
+
+        assignment = ClassAssignment.objects.filter(
+            student_id=self.kwargs['pk'], term=current_term
+        ).first()
+
+        if not assignment:
+            return Timetable.objects.none()
+
+        return (
+            Timetable.objects
+            .filter(class_obj=assignment.class_obj, term=current_term, day=day_name)
+            .select_related('subject', 'teacher')
+            .order_by('start_time')
+        )
 
 
 class ParentStudentRelationshipViewSet(viewsets.ModelViewSet):

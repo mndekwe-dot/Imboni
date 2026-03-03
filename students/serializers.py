@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
-from .models import Student, ParentStudentRelationship
+from .models import Student, ParentStudentRelationship, Fee, StudentDocument
 
 
 class ParentStudentRelationshipSerializer(serializers.ModelSerializer):
+    """Used standalone — includes both parent and student names."""
     parent_full_name = serializers.ReadOnlyField(source='parent.get_full_name')
     student_full_name = serializers.ReadOnlyField(source='student.user.get_full_name')
 
@@ -15,11 +16,22 @@ class ParentStudentRelationshipSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 
+class NestedParentSerializer(serializers.ModelSerializer):
+    """Used inside StudentSerializer — omits redundant student fields."""
+    parent_full_name = serializers.ReadOnlyField(source='parent.get_full_name')
+
+    class Meta:
+        model = ParentStudentRelationship
+        fields = ['id', 'parent', 'relationship_type', 'is_primary_contact',
+                  'can_pickup', 'created_at', 'parent_full_name']
+        read_only_fields = ['id', 'created_at']
+
+
 class StudentSerializer(serializers.ModelSerializer):
-    full_name = serializers.ReadOnlyField(source='user.get_full_name')
+    full_name = serializers.ReadOnlyField()          # uses Student.full_name property directly
     email = serializers.ReadOnlyField(source='user.email')
-    grade_section = serializers.ReadOnlyField()
-    parents = ParentStudentRelationshipSerializer(many=True, read_only=True)
+    grade_section = serializers.ReadOnlyField()      # uses Student.grade_section property directly
+    parents = NestedParentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Student
@@ -34,15 +46,31 @@ class StudentSerializer(serializers.ModelSerializer):
 
 class MyChildrenSerializer(serializers.ModelSerializer):
     """Serializes a parent's children for the dashboard child-tabs."""
-    student_id = serializers.ReadOnlyField(source='student.id')
-    student_code = serializers.ReadOnlyField(source='student.student_id')
+    id = serializers.ReadOnlyField(source='student.id')              # UUID primary key
+    student_code = serializers.ReadOnlyField(source='student.student_id')  # e.g. STU-2024-001
     student_name = serializers.ReadOnlyField(source='student.user.get_full_name')
     grade = serializers.ReadOnlyField(source='student.grade')
     section = serializers.ReadOnlyField(source='student.section')
 
     class Meta:
         model = ParentStudentRelationship
-        fields = ['student_id', 'student_code', 'student_name', 'grade', 'section', 'relationship_type']
+        fields = ['id', 'student_code', 'student_name', 'grade', 'section', 'relationship_type']
+
+
+class FeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fee
+        fields = ['id', 'category', 'amount', 'due_date', 'status', 'paid_date', 'term', 'notes']
+        read_only_fields = ['id']
+
+
+class StudentDocumentSerializer(serializers.ModelSerializer):
+    uploaded_by_name = serializers.ReadOnlyField(source='uploaded_by.get_full_name')
+
+    class Meta:
+        model = StudentDocument
+        fields = ['id', 'title', 'document_type', 'file', 'uploaded_by_name', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 
 class AddParentToStudentSerializer(serializers.Serializer):
