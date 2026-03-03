@@ -9,8 +9,8 @@ urlpatterns = [
     path('imboni/', include('results.urls')),
     path('imboni/', include('messages.urls')),
     path('imboni/', include('teacher.urls')),
+    path('imboni/', include('attendance.urls')),
     # Uncomment as you build each app:
-    #path('imboni/', include('attendance.urls')),
     #path('imboni/', include('behavior.urls')),
     #path('imboni/', include('announcements.urls')),
 ]
