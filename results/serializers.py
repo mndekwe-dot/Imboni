@@ -1,26 +1,82 @@
 from rest_framework import serializers
-from .models import Assessment
+from .models import Assessment, Result
 
 
 class AssessmentSerializer(serializers.ModelSerializer):
     """
     Read-only serializer — used by parents viewing a child's assessments.
-    No student/subject/term FK fields since the view is already filtered by student.
+    Powers the Recent Results table: Subject, Type, Score, Grade, Date.
     """
     subject_name = serializers.ReadOnlyField(source='subject.name')
     score_display = serializers.SerializerMethodField()
+    grade = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
         fields = [
             'id', 'title', 'assessment_type', 'date',
             'score_obtained', 'max_score', 'percentage',
-            'subject_name', 'score_display', 'teacher_notes',
+            'subject_name', 'score_display', 'grade', 'teacher_notes',
         ]
 
     def get_score_display(self, obj):
         """Returns score in '18/20' format as shown in the frontend."""
         return f"{int(obj.score_obtained)}/{int(obj.max_score)}"
+
+    def get_grade(self, obj):
+        """Compute letter grade from percentage."""
+        p = float(obj.percentage)
+        if p >= 90:
+            return 'A'
+        if p >= 80:
+            return 'B'
+        if p >= 70:
+            return 'C'
+        if p >= 60:
+            return 'D'
+        return 'F'
+
+
+class ResultSerializer(serializers.ModelSerializer):
+    """
+    Powers the Summative Performance table:
+    Subject | Avg Quiz | Group Work | Exam | Final | Grade
+    """
+    subject_name = serializers.ReadOnlyField(source='subject.name')
+
+    class Meta:
+        model = Result
+        fields = [
+            'id', 'subject_name',
+            'quiz_average', 'group_work', 'exam_score', 'final_score', 'grade',
+            'status',
+        ]
+        read_only_fields = ['id']
+
+
+class TeacherReviewSerializer(serializers.ModelSerializer):
+    """
+    Powers the Teacher Reviews panel:
+    Teacher avatar/name | subject role | comment | date.
+    Only results that have a non-empty teacher_comment are returned.
+    """
+    teacher_name = serializers.ReadOnlyField(source='teacher.get_full_name')
+    teacher_avatar = serializers.ImageField(source='teacher.avatar', read_only=True)
+    subject_name = serializers.ReadOnlyField(source='subject.name')
+    teacher_role = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Result
+        fields = [
+            'id', 'teacher_name', 'teacher_avatar',
+            'subject_name', 'teacher_role',
+            'teacher_comment', 'updated_at',
+        ]
+
+    def get_teacher_role(self, obj):
+        if obj.subject:
+            return f"{obj.subject.name} Teacher"
+        return "Teacher"
 
 
 class AssessmentCreateSerializer(serializers.ModelSerializer):

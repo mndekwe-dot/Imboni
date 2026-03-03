@@ -1,6 +1,9 @@
 from rest_framework import generics, viewsets, permissions
-from .models import Assessment
-from .serializers import AssessmentSerializer, AssessmentCreateSerializer
+from .models import Assessment, Result
+from .serializers import (
+    AssessmentSerializer, AssessmentCreateSerializer,
+    ResultSerializer, TeacherReviewSerializer,
+)
 
 
 class AssessmentViewSet(viewsets.ModelViewSet):
@@ -26,7 +29,8 @@ class AssessmentViewSet(viewsets.ModelViewSet):
 
 class StudentAssessmentListView(generics.ListAPIView):
     """
-    Parent views their child's graded assessments.
+    Recent individual assessment scores for a student.
+    Powers the "Recent Results" table: Subject, Type, Score, Grade, Date.
 
     GET /imboni/results/students/<student_pk>/assessments/
     """
@@ -39,4 +43,47 @@ class StudentAssessmentListView(generics.ListAPIView):
             .filter(student_id=self.kwargs['student_pk'])
             .select_related('subject')
             .order_by('-date')
+        )
+
+
+class StudentResultListView(generics.ListAPIView):
+    """
+    Summative (term) results per subject for a student.
+    Powers the "Summative Performance" table: Subject | Avg Quiz | Group Work | Exam | Final | Grade.
+
+    GET /imboni/results/students/<student_pk>/summative/
+    """
+    serializer_class = ResultSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Result.objects
+            .filter(student_id=self.kwargs['student_pk'])
+            .select_related('subject')
+            .order_by('subject__name')
+        )
+
+
+class StudentTeacherReviewsView(generics.ListAPIView):
+    """
+    Teacher comments written on a student's term results.
+    Powers the "Teacher Reviews" panel: teacher name, subject role, comment, date.
+    Only returns results that have a non-empty teacher_comment.
+
+    GET /imboni/results/students/<student_pk>/reviews/
+    """
+    serializer_class = TeacherReviewSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Result.objects
+            .filter(
+                student_id=self.kwargs['student_pk'],
+                teacher_comment__gt='',   # exclude empty comments
+                teacher__isnull=False,
+            )
+            .select_related('subject', 'teacher')
+            .order_by('-updated_at')
         )
