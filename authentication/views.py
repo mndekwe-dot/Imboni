@@ -1,12 +1,15 @@
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, generics, status, permissions
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import User, UserPreferences
 from .serializers import (
     UserSerializer, UserRegistrationSerializer,
-    UserPreferencesSerializer, PasswordChangeSerializer
+    UserPreferencesSerializer, PasswordChangeSerializer,
+    AccountProfileSerializer, AvatarUploadSerializer,
 )
 
 
@@ -134,3 +137,39 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
             preferences, _ = UserPreferences.objects.get_or_create(user=self.request.user)
             return preferences
         return UserPreferences.objects.first()  # Fallback for development
+
+
+class AccountProfileView(generics.RetrieveUpdateAPIView):
+    """
+    Personal Profile section of Account Settings.
+
+    GET   /imboni/account/profile/  — fetch current user's profile
+    PATCH /imboni/account/profile/  — update first_name, last_name, email, phone_number
+    """
+    serializer_class = AccountProfileSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'patch']
+
+    def get_object(self):
+        # For development fall back to first user when unauthenticated
+        if self.request.user.is_authenticated:
+            return self.request.user
+        return User.objects.filter(role='parent').first()
+
+
+class AccountAvatarView(APIView):
+    """
+    Change Photo button on the Personal Profile section.
+
+    PATCH /imboni/account/avatar/
+    Body: multipart/form-data with field 'avatar' (image file)
+    """
+    parser_classes = [MultiPartParser, FormParser]
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user if request.user.is_authenticated else User.objects.filter(role='parent').first()
+        serializer = AvatarUploadSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'avatar': serializer.data['avatar']})

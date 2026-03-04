@@ -24,4 +24,6 @@ urlpatterns = router.urls + students_router.urls + [
     path('students/<uuid:pk>/fees/', views.StudentFeeListView.as_view(), name='student-fees'),
     path('students/<uuid:pk>/documents/', views.StudentDocumentListView.as_view(), name='student-documents'),
     path('students/<uuid:pk>/schedule/today/', views.StudentTodayScheduleView.as_view(), name='student-schedule-today'),
+    # Account Settings — Family Connections: link an existing student by code
+    path('account/family/link/', views.LinkStudentView.as_view(), name='account-family-link'),
 ]

@@ -45,16 +45,50 @@ class StudentSerializer(serializers.ModelSerializer):
 
 
 class MyChildrenSerializer(serializers.ModelSerializer):
-    """Serializes a parent's children for the dashboard child-tabs."""
-    id = serializers.ReadOnlyField(source='student.id')              # UUID primary key
-    student_code = serializers.ReadOnlyField(source='student.student_id')  # e.g. STU-2024-001
+    """
+    Serializes a parent's linked children.
+    Used by both the dashboard child-tabs and the Family Connections section.
+    """
+    id = serializers.ReadOnlyField(source='student.id')
+    student_code = serializers.ReadOnlyField(source='student.student_id')
     student_name = serializers.ReadOnlyField(source='student.user.get_full_name')
     grade = serializers.ReadOnlyField(source='student.grade')
     section = serializers.ReadOnlyField(source='student.section')
+    # Always True for relationships that exist in the database
+    verified = serializers.SerializerMethodField()
 
     class Meta:
         model = ParentStudentRelationship
-        fields = ['id', 'student_code', 'student_name', 'grade', 'section', 'relationship_type']
+        fields = ['id', 'student_code', 'student_name', 'grade', 'section',
+                  'relationship_type', 'is_primary_contact', 'verified']
+
+    def get_verified(self, obj):
+        return True
+
+
+class LinkStudentSerializer(serializers.Serializer):
+    """
+    Used by LinkStudentView — lets an existing parent link to a student
+    by entering the student's display code (e.g. STD2024001).
+    """
+    student_code = serializers.CharField(
+        help_text="Student's ID code, e.g. STD2024001"
+    )
+    relationship_type = serializers.ChoiceField(
+        choices=ParentStudentRelationship.RELATIONSHIP_TYPES
+    )
+    is_primary_contact = serializers.BooleanField(default=False)
+    can_pickup = serializers.BooleanField(default=True)
+
+    def validate_student_code(self, value):
+        try:
+            student = Student.objects.get(student_id=value)
+        except Student.DoesNotExist:
+            raise serializers.ValidationError(
+                f"No student found with code '{value}'."
+            )
+        self.context['student'] = student
+        return value
 
 
 class FeeSerializer(serializers.ModelSerializer):

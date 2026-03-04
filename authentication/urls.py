@@ -10,4 +10,9 @@ router.register(r'auth', views.AuthViewSet, basename='auth')
 user_nested_router = routers.NestedDefaultRouter(router, r'users', lookup='user')
 user_nested_router.register(r'preferences', views.UserPreferencesViewSet, basename='user-preferences')
 
-urlpatterns = router.urls + user_nested_router.urls
+urlpatterns = router.urls + user_nested_router.urls + [
+    # Account Settings — Personal Profile tab (GET + PATCH)
+    path('account/profile/', views.AccountProfileView.as_view(), name='account-profile'),
+    # Account Settings — Change Photo button (PATCH with image file)
+    path('account/avatar/', views.AccountAvatarView.as_view(), name='account-avatar'),
+]

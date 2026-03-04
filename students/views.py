@@ -10,7 +10,7 @@ from .models import Student, ParentStudentRelationship, Fee, StudentDocument
 from .serializers import (
     StudentSerializer, ParentStudentRelationshipSerializer,
     AddParentToStudentSerializer, MyChildrenSerializer,
-    FeeSerializer, StudentDocumentSerializer,
+    FeeSerializer, StudentDocumentSerializer, LinkStudentSerializer,
 )
 
 
@@ -296,3 +296,49 @@ class ParentStudentRelationshipViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         student_id = self.kwargs.get('student_pk')
         return ParentStudentRelationship.objects.filter(student__id=student_id)
+
+
+class LinkStudentView(generics.CreateAPIView):
+    """
+    "Link New Student" button on the Family Connections section.
+    The logged-in parent provides a student code and relationship type.
+
+    POST /imboni/account/family/link/
+    Body: { "student_code": "STD2024001", "relationship_type": "mother" }
+    """
+    serializer_class = LinkStudentSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'request': request},
+        )
+        serializer.is_valid(raise_exception=True)
+
+        student = serializer.context['student']
+        parent = request.user if request.user.is_authenticated else (
+            User.objects.filter(role='parent').first()
+        )
+
+        # Prevent duplicate links
+        if ParentStudentRelationship.objects.filter(parent=parent, student=student).exists():
+            return Response(
+                {'detail': 'You are already linked to this student.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        rel = ParentStudentRelationship.objects.create(
+            parent=parent,
+            student=student,
+            relationship_type=serializer.validated_data['relationship_type'],
+            is_primary_contact=serializer.validated_data['is_primary_contact'],
+            can_pickup=serializer.validated_data['can_pickup'],
+        )
+
+        from .serializers import MyChildrenSerializer
+        return Response(
+            MyChildrenSerializer(rel).data,
+            status=status.HTTP_201_CREATED,
+        )
+
