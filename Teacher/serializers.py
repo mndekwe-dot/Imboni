@@ -111,3 +111,38 @@ class ActivitySerializer(serializers.Serializer):
     activity_type = serializers.CharField()   # e.g. 'result' | 'attendance' | 'incident'
     description   = serializers.CharField()
     timestamp     = serializers.DateTimeField()
+
+
+class TeacherStudentSerializer(serializers.Serializer):
+    """
+    Powers the Students table on the Teacher Students page.
+    One row per student enrolled in any of the teacher's classes.
+    """
+    student_id    = serializers.UUIDField()
+    student_code  = serializers.CharField()   # e.g. STU-0001
+    full_name     = serializers.CharField()
+    initials      = serializers.CharField()   # e.g. "JD"
+    class_name    = serializers.CharField()
+    attendance_rate   = serializers.FloatField(allow_null=True)
+    performance_rate  = serializers.FloatField(allow_null=True)
+
+
+class PerformanceDistributionSerializer(serializers.Serializer):
+    """
+    Powers the Performance Distribution histogram.
+    One bucket per score band.
+    """
+    range_label   = serializers.CharField()   # e.g. "85-100%"
+    min_score     = serializers.IntegerField()
+    max_score     = serializers.IntegerField()
+    student_count = serializers.IntegerField()
+
+
+class AttendanceTrendSerializer(serializers.Serializer):
+    """
+    Powers the Attendance Trends weekly graph.
+    One entry per week (last 4 weeks).
+    """
+    week_label      = serializers.CharField()   # e.g. "Week 1"
+    week_start      = serializers.DateField()
+    attendance_rate = serializers.FloatField()

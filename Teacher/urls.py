@@ -24,4 +24,10 @@ urlpatterns = router.urls + [
     path('teacher/recent-activities/',    views.TeacherRecentActivitiesView.as_view(), name='teacher-recent-activities'),
     # Upcoming Deadlines calendar — add ?month=2&year=2026 to filter
     path('teacher/deadlines/',            views.TeacherUpcomingDeadlinesView.as_view(), name='teacher-deadlines'),
+    # Students page — list with ?search= ?class_id= ?performance= ?attendance=
+    path('teacher/students/',             views.TeacherStudentListView.as_view(),             name='teacher-students'),
+    # Performance Distribution histogram
+    path('teacher/students/performance-distribution/', views.StudentPerformanceDistributionView.as_view(), name='teacher-students-perf-dist'),
+    # Attendance Trends last 4 weeks
+    path('teacher/students/attendance-trends/',        views.StudentAttendanceTrendsView.as_view(),        name='teacher-students-att-trends'),
 ]

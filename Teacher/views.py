@@ -11,6 +11,7 @@ from .serializers import (
     TeacherSerializer, TimetableSerializer, ScheduleItemSerializer,
     MyClassSerializer, HomeworkStatusSerializer, TaskSerializer, ReminderSerializer,
     ClassPerformanceSerializer, ActivitySerializer,
+    TeacherStudentSerializer, PerformanceDistributionSerializer, AttendanceTrendSerializer,
 )
 
 
@@ -579,3 +580,269 @@ class TeacherUpcomingDeadlinesView(APIView):
 
         data = TaskSerializer(tasks, many=True).data
         return Response(data)
+
+
+# ---------------------------------------------------------------------------
+# Teacher Students page
+# ---------------------------------------------------------------------------
+
+class TeacherStudentListView(APIView):
+    """
+    GET /imboni/teacher/students/
+
+    Lists every student enrolled in any of the teacher's classes this term.
+
+    Optional query params:
+        ?search=john          — filter by name, student_code, or class name
+        ?class_id=<uuid>      — filter by specific class
+        ?performance=high     — avg final_score >= 75
+        ?performance=medium   — 50 <= avg_final_score < 75
+        ?performance=low      — avg_final_score < 50
+        ?attendance=high      — attendance_percentage >= 75
+        ?attendance=medium    — 50 <= attendance_percentage < 75
+        ?attendance=low       — attendance_percentage < 50
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import SubjectTeacherAssignment, ClassAssignment
+        from results.models import Result
+        from attendance.models import AttendanceSummary
+
+        teacher = _get_teacher(request)
+        term    = _current_term()
+
+        if not term:
+            return Response([])
+
+        # All class IDs this teacher teaches this term
+        class_ids = list(
+            SubjectTeacherAssignment.objects
+            .filter(teacher=teacher, term=term)
+            .values_list('class_obj_id', flat=True)
+            .distinct()
+        )
+
+        # Optional: filter to a single class
+        class_id_filter = request.query_params.get('class_id', '').strip()
+        if class_id_filter:
+            class_ids = [cid for cid in class_ids if str(cid) == class_id_filter]
+
+        # Fetch all student enrollments for those classes
+        enrollments = (
+            ClassAssignment.objects
+            .filter(class_obj_id__in=class_ids, term=term)
+            .select_related('student__user', 'class_obj')
+            .distinct()
+        )
+
+        # Build lookup: student_id → class_name (first class if enrolled in multiple)
+        seen_students = {}
+        for enr in enrollments:
+            sid = enr.student_id
+            if sid not in seen_students:
+                seen_students[sid] = {
+                    'enrollment': enr,
+                    'class_name': enr.class_obj.name,
+                }
+
+        search = request.query_params.get('search', '').strip().lower()
+        perf_filter = request.query_params.get('performance', '').strip().lower()
+        att_filter  = request.query_params.get('attendance', '').strip().lower()
+
+        results = []
+        for sid, info in seen_students.items():
+            student    = info['enrollment'].student
+            class_name = info['class_name']
+
+            # Search filter
+            if search:
+                haystack = f"{student.full_name} {student.student_id} {class_name}".lower()
+                if search not in haystack:
+                    continue
+
+            # Attendance rate
+            att_obj = AttendanceSummary.objects.filter(student=student, term=term).first()
+            attendance_rate = round(float(att_obj.attendance_percentage), 1) if att_obj else None
+
+            # Performance rate (average final_score this term)
+            avg_raw = Result.objects.filter(
+                student=student, term=term
+            ).aggregate(avg=Avg('final_score'))['avg']
+            performance_rate = round(float(avg_raw), 1) if avg_raw else None
+
+            # Performance filter
+            if perf_filter:
+                if performance_rate is None:
+                    continue
+                if perf_filter == 'high' and performance_rate < 75:
+                    continue
+                if perf_filter == 'medium' and not (50 <= performance_rate < 75):
+                    continue
+                if perf_filter == 'low' and performance_rate >= 50:
+                    continue
+
+            # Attendance filter
+            if att_filter:
+                if attendance_rate is None:
+                    continue
+                if att_filter == 'high' and attendance_rate < 75:
+                    continue
+                if att_filter == 'medium' and not (50 <= attendance_rate < 75):
+                    continue
+                if att_filter == 'low' and attendance_rate >= 50:
+                    continue
+
+            # Initials from full name
+            name_parts = student.full_name.split()
+            initials = ''.join(p[0].upper() for p in name_parts[:2]) if name_parts else '?'
+
+            results.append({
+                'student_id':       student.id,
+                'student_code':     student.student_id,
+                'full_name':        student.full_name,
+                'initials':         initials,
+                'class_name':       class_name,
+                'attendance_rate':  attendance_rate,
+                'performance_rate': performance_rate,
+            })
+
+        results.sort(key=lambda x: x['full_name'])
+        return Response(TeacherStudentSerializer(results, many=True).data)
+
+
+class StudentPerformanceDistributionView(APIView):
+    """
+    GET /imboni/teacher/students/performance-distribution/
+
+    Returns histogram buckets for the Performance Distribution chart.
+    Students are bucketed by their average final_score across all subjects
+    this term, for all classes taught by the teacher.
+
+    Buckets:
+        85–100%  → "85-100%"
+        70–84%   → "70-84%"
+        50–69%   → "50-69%"
+        0–49%    → "Below 50%"
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import SubjectTeacherAssignment, ClassAssignment
+        from results.models import Result
+
+        teacher = _get_teacher(request)
+        term    = _current_term()
+
+        if not term:
+            return Response([])
+
+        class_ids = list(
+            SubjectTeacherAssignment.objects
+            .filter(teacher=teacher, term=term)
+            .values_list('class_obj_id', flat=True)
+            .distinct()
+        )
+
+        student_ids = list(
+            ClassAssignment.objects
+            .filter(class_obj_id__in=class_ids, term=term)
+            .values_list('student_id', flat=True)
+            .distinct()
+        )
+
+        # Compute each student's average final_score
+        student_avgs = (
+            Result.objects
+            .filter(student_id__in=student_ids, term=term)
+            .values('student_id')
+            .annotate(avg=Avg('final_score'))
+        )
+
+        buckets = [
+            {'range_label': '85-100%',   'min_score': 85, 'max_score': 100, 'student_count': 0},
+            {'range_label': '70-84%',    'min_score': 70, 'max_score': 84,  'student_count': 0},
+            {'range_label': '50-69%',    'min_score': 50, 'max_score': 69,  'student_count': 0},
+            {'range_label': 'Below 50%', 'min_score': 0,  'max_score': 49,  'student_count': 0},
+        ]
+
+        for row in student_avgs:
+            avg = row['avg'] or 0
+            if avg >= 85:
+                buckets[0]['student_count'] += 1
+            elif avg >= 70:
+                buckets[1]['student_count'] += 1
+            elif avg >= 50:
+                buckets[2]['student_count'] += 1
+            else:
+                buckets[3]['student_count'] += 1
+
+        return Response(PerformanceDistributionSerializer(buckets, many=True).data)
+
+
+class StudentAttendanceTrendsView(APIView):
+    """
+    GET /imboni/teacher/students/attendance-trends/
+
+    Returns last 4 weeks of attendance rates (Mon–Fri) for all students
+    in the teacher's classes, as a weekly average.
+
+    Response: [ { week_label, week_start, attendance_rate }, ... ]
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import SubjectTeacherAssignment, ClassAssignment
+        from attendance.models import AttendanceRecord
+
+        teacher = _get_teacher(request)
+        term    = _current_term()
+
+        if not term:
+            return Response([])
+
+        class_ids = list(
+            SubjectTeacherAssignment.objects
+            .filter(teacher=teacher, term=term)
+            .values_list('class_obj_id', flat=True)
+            .distinct()
+        )
+
+        student_ids = list(
+            ClassAssignment.objects
+            .filter(class_obj_id__in=class_ids, term=term)
+            .values_list('student_id', flat=True)
+            .distinct()
+        )
+
+        today = timezone.localtime().date()
+        # Align to the most recent Monday
+        monday = today - timedelta(days=today.weekday())
+
+        data = []
+        for i in range(4):
+            week_start = monday - timedelta(weeks=3 - i)
+            week_end   = week_start + timedelta(days=4)   # Friday
+
+            total = AttendanceRecord.objects.filter(
+                student_id__in=student_ids,
+                date__gte=week_start,
+                date__lte=week_end,
+            ).count()
+
+            present = AttendanceRecord.objects.filter(
+                student_id__in=student_ids,
+                date__gte=week_start,
+                date__lte=week_end,
+                status='present',
+            ).count()
+
+            rate = round(present / total * 100, 1) if total else 0
+
+            data.append({
+                'week_label':      f"Week {i + 1}",
+                'week_start':      week_start,
+                'attendance_rate': rate,
+            })
+
+        return Response(AttendanceTrendSerializer(data, many=True).data)
