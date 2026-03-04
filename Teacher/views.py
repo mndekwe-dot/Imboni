@@ -13,6 +13,8 @@ from .serializers import (
     ClassPerformanceSerializer, ActivitySerializer,
     TeacherStudentSerializer, PerformanceDistributionSerializer, AttendanceTrendSerializer,
     TeacherAttendanceStudentSerializer, MarkAttendanceSerializer, AttendancePatternSerializer,
+    TeacherResultEntrySerializer, BulkSaveResultsSerializer,
+    GradeDistributionSerializer, PerformanceTrendSerializer,
 )
 
 
@@ -1085,3 +1087,326 @@ class TeacherAttendancePatternsView(APIView):
             })
 
         return Response(AttendancePatternSerializer(data, many=True).data)
+
+
+# ---------------------------------------------------------------------------
+# Teacher Results Management page
+# ---------------------------------------------------------------------------
+
+def _grade_from_pct(pct):
+    """Letter grade from a percentage (matches UI histogram buckets)."""
+    if pct >= 80: return 'A'
+    if pct >= 70: return 'B'
+    if pct >= 60: return 'C'
+    if pct >= 50: return 'D'
+    return 'F'
+
+
+class TeacherResultListView(APIView):
+    """
+    GET /imboni/teacher/results/list/?class_id=<uuid>&assessment_title=Mid-Term Exam
+
+    Returns the results table rows for the Enter Results page.
+    Each row = one student's Assessment record for the given title.
+
+    Also returns `assessment_titles` — distinct titles available for the
+    class this term (powers the dropdown).
+
+    Query params:
+        class_id          — required
+        assessment_title  — optional; omit to return all assessments for the class
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import ClassAssignment
+        from results.models import Assessment
+
+        class_id         = request.query_params.get('class_id', '').strip()
+        assessment_title = request.query_params.get('assessment_title', '').strip()
+        term             = _current_term()
+
+        if not class_id or not term:
+            return Response({'assessment_titles': [], 'results': []})
+
+        student_ids = list(
+            ClassAssignment.objects
+            .filter(class_obj_id=class_id, term=term)
+            .values_list('student_id', flat=True)
+        )
+
+        # All distinct assessment titles for this class (for the dropdown)
+        titles = list(
+            Assessment.objects
+            .filter(student_id__in=student_ids, term=term)
+            .values_list('title', flat=True)
+            .distinct()
+            .order_by('title')
+        )
+
+        qs = (
+            Assessment.objects
+            .filter(student_id__in=student_ids, term=term)
+            .select_related('student__user')
+            .order_by('student__user__last_name', 'student__user__first_name', '-date')
+        )
+        if assessment_title:
+            qs = qs.filter(title=assessment_title)
+
+        rows = []
+        for a in qs:
+            pct  = float(a.percentage)
+            name_parts = a.student.full_name.split()
+            initials   = ''.join(p[0].upper() for p in name_parts[:2]) if name_parts else '?'
+            rows.append({
+                'assessment_id':   a.id,
+                'student_id':      a.student_id,
+                'student_code':    a.student.student_id,
+                'full_name':       a.student.full_name,
+                'initials':        initials,
+                'assessment_title': a.title,
+                'score_obtained':  float(a.score_obtained),
+                'max_score':       float(a.max_score),
+                'score_display':   f"{int(a.score_obtained)}/{int(a.max_score)}",
+                'percentage':      round(pct, 1),
+                'grade':           _grade_from_pct(pct),
+                'date':            a.date,
+            })
+
+        return Response({
+            'assessment_titles': titles,
+            'results': TeacherResultEntrySerializer(rows, many=True).data,
+        })
+
+
+class TeacherBulkSaveResultsView(APIView):
+    """
+    POST /imboni/teacher/results/bulk-save/
+
+    Creates or updates Assessment records for multiple students at once.
+    Powers both "Add New Results" (new title) and "Bulk Entry Mode" (existing).
+
+    Body:
+    {
+        "class_id":         "<uuid>",
+        "subject_id":       "<uuid>",
+        "assessment_title": "Mid-Term Exam",
+        "assessment_type":  "quiz",
+        "date":             "2026-01-15",
+        "max_score":        100,
+        "entries": [
+            { "student_id": "<uuid>", "score_obtained": 85, "notes": "" },
+            ...
+        ]
+    }
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        from results.models import Assessment, Subject, AcademicTerm
+
+        serializer = BulkSaveResultsSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        d = serializer.validated_data
+        term = _current_term()
+        if not term:
+            return Response({'error': 'No current term found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        saved = 0
+        for entry in d['entries']:
+            max_s  = d['max_score']
+            score  = entry['score_obtained']
+            pct    = round(score / max_s * 100, 2) if max_s else 0
+            Assessment.objects.update_or_create(
+                student_id=entry['student_id'],
+                subject_id=d['subject_id'],
+                term=term,
+                title=d['assessment_title'],
+                defaults={
+                    'assessment_type': d['assessment_type'],
+                    'date':            d['date'],
+                    'max_score':       max_s,
+                    'score_obtained':  score,
+                    'percentage':      pct,
+                    'teacher_notes':   entry.get('notes', ''),
+                },
+            )
+            saved += 1
+
+        return Response({'saved': saved}, status=status.HTTP_200_OK)
+
+
+class TeacherGradeDistributionView(APIView):
+    """
+    GET /imboni/teacher/results/grade-distribution/
+        ?class_id=<uuid>&assessment_title=Mid-Term Exam
+
+    Powers the Grade Distribution Analysis section:
+        - Grade buckets histogram (A/B/C/D/F)
+        - class_average, avg_change (vs previous assessment of same class)
+        - highest_score + highest_scorer name
+        - pass_rate (D and above, i.e. percentage >= 50)
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import ClassAssignment, Class
+        from results.models import Assessment
+
+        class_id         = request.query_params.get('class_id', '').strip()
+        assessment_title = request.query_params.get('assessment_title', '').strip()
+        term             = _current_term()
+
+        if not class_id or not assessment_title or not term:
+            return Response({})
+
+        # Class info
+        try:
+            class_obj = Class.objects.get(id=class_id)
+        except Class.DoesNotExist:
+            return Response({})
+
+        student_ids = list(
+            ClassAssignment.objects
+            .filter(class_obj_id=class_id, term=term)
+            .values_list('student_id', flat=True)
+        )
+
+        assessments = list(
+            Assessment.objects
+            .filter(
+                student_id__in=student_ids,
+                term=term,
+                title=assessment_title,
+            )
+            .select_related('student__user', 'subject')
+            .order_by('-percentage')
+        )
+
+        if not assessments:
+            return Response({})
+
+        total = len(assessments)
+        pcts  = [float(a.percentage) for a in assessments]
+        class_average = round(sum(pcts) / total, 1)
+
+        # Highest score
+        top        = assessments[0]
+        high_score = float(top.percentage)
+        high_name  = top.student.full_name
+
+        # Pass rate (>= 50%)
+        passed     = sum(1 for p in pcts if p >= 50)
+        pass_rate  = round(passed / total * 100, 1)
+
+        # Grade buckets
+        buckets = [
+            {'grade': 'A', 'range': '80-100%', 'min': 80, 'max': 100, 'count': 0},
+            {'grade': 'B', 'range': '70-79%',  'min': 70, 'max': 79,  'count': 0},
+            {'grade': 'C', 'range': '60-69%',  'min': 60, 'max': 69,  'count': 0},
+            {'grade': 'D', 'range': '50-59%',  'min': 50, 'max': 59,  'count': 0},
+            {'grade': 'F', 'range': '<50%',    'min': 0,  'max': 49,  'count': 0},
+        ]
+        for p in pcts:
+            if   p >= 80: buckets[0]['count'] += 1
+            elif p >= 70: buckets[1]['count'] += 1
+            elif p >= 60: buckets[2]['count'] += 1
+            elif p >= 50: buckets[3]['count'] += 1
+            else:         buckets[4]['count'] += 1
+
+        # Change vs previous assessment (different title, same class, same term)
+        prev_titles = (
+            Assessment.objects
+            .filter(student_id__in=student_ids, term=term)
+            .exclude(title=assessment_title)
+            .values_list('title', flat=True)
+            .distinct()
+            .order_by('-date')
+        )
+        avg_change = 0.0
+        if prev_titles.exists():
+            prev_title = prev_titles.first()
+            prev_pcts  = list(
+                Assessment.objects
+                .filter(student_id__in=student_ids, term=term, title=prev_title)
+                .values_list('percentage', flat=True)
+            )
+            if prev_pcts:
+                prev_avg   = sum(float(p) for p in prev_pcts) / len(prev_pcts)
+                avg_change = round(class_average - prev_avg, 1)
+
+        subject_name = assessments[0].subject.name if assessments else ''
+
+        data = {
+            'assessment_title': assessment_title,
+            'class_name':       class_obj.name,
+            'subject_name':     subject_name,
+            'class_average':    class_average,
+            'avg_change':       avg_change,
+            'highest_score':    round(high_score, 1),
+            'highest_scorer':   high_name,
+            'pass_rate':        pass_rate,
+            'passed_count':     passed,
+            'total_count':      total,
+            'buckets':          buckets,
+        }
+        return Response(GradeDistributionSerializer(data).data)
+
+
+class TeacherPerformanceTrendsView(APIView):
+    """
+    GET /imboni/teacher/results/performance-trends/
+        ?class_id=<uuid>&subject_id=<uuid>
+
+    Returns month-by-month average assessment scores for the class,
+    used for the Performance Trends Over Time line graph.
+
+    Response: [ { month_label, month, year, avg_score }, ... ]
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import ClassAssignment
+        from results.models import Assessment
+        from django.db.models.functions import TruncMonth
+        from django.db.models import Avg as DAvg
+
+        class_id   = request.query_params.get('class_id', '').strip()
+        subject_id = request.query_params.get('subject_id', '').strip()
+        term       = _current_term()
+
+        if not class_id or not term:
+            return Response([])
+
+        student_ids = list(
+            ClassAssignment.objects
+            .filter(class_obj_id=class_id, term=term)
+            .values_list('student_id', flat=True)
+        )
+
+        qs = Assessment.objects.filter(student_id__in=student_ids, term=term)
+        if subject_id:
+            qs = qs.filter(subject_id=subject_id)
+
+        monthly = (
+            qs
+            .annotate(month=TruncMonth('date'))
+            .values('month')
+            .annotate(avg=DAvg('percentage'))
+            .order_by('month')
+        )
+
+        month_abbr = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        data = [
+            {
+                'month_label': month_abbr[row['month'].month],
+                'month':       row['month'].month,
+                'year':        row['month'].year,
+                'avg_score':   round(float(row['avg']), 1),
+            }
+            for row in monthly
+        ]
+        return Response(PerformanceTrendSerializer(data, many=True).data)

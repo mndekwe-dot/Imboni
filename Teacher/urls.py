@@ -38,4 +38,12 @@ urlpatterns = router.urls + [
     path('teacher/attendance/mark/',     views.MarkAttendanceView.as_view(),            name='teacher-attendance-mark'),
     # Attendance Patterns day-of-week chart (?class_id=)
     path('teacher/attendance/patterns/', views.TeacherAttendancePatternsView.as_view(), name='teacher-attendance-patterns'),
+    # Results table (?class_id=&assessment_title=)
+    path('teacher/results/list/',              views.TeacherResultListView.as_view(),         name='teacher-results-list'),
+    # Bulk save / Add New Results (POST)
+    path('teacher/results/bulk-save/',         views.TeacherBulkSaveResultsView.as_view(),    name='teacher-results-bulk-save'),
+    # Grade Distribution Analysis (?class_id=&assessment_title=)
+    path('teacher/results/grade-distribution/', views.TeacherGradeDistributionView.as_view(), name='teacher-results-grade-dist'),
+    # Performance Trends line graph (?class_id=&subject_id=)
+    path('teacher/results/performance-trends/', views.TeacherPerformanceTrendsView.as_view(), name='teacher-results-perf-trends'),
 ]

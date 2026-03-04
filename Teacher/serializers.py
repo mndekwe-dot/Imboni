@@ -189,3 +189,79 @@ class AttendancePatternSerializer(serializers.Serializer):
     """
     day             = serializers.CharField()
     attendance_rate = serializers.FloatField()
+
+
+# ---------------------------------------------------------------------------
+# Teacher Results Management page serializers
+# ---------------------------------------------------------------------------
+
+class TeacherResultEntrySerializer(serializers.Serializer):
+    """
+    One row in the results table.
+    score_display: e.g. "85/100"
+    grade: A|B|C|D|F derived from percentage
+    """
+    assessment_id  = serializers.UUIDField()
+    student_id     = serializers.UUIDField()
+    student_code   = serializers.CharField()
+    full_name      = serializers.CharField()
+    initials       = serializers.CharField()
+    assessment_title = serializers.CharField()
+    score_obtained = serializers.FloatField()
+    max_score      = serializers.FloatField()
+    score_display  = serializers.CharField()   # e.g. "85/100"
+    percentage     = serializers.FloatField()
+    grade          = serializers.CharField()   # A|B|C|D|F
+    date           = serializers.DateField()
+
+
+class ResultEntryInputSerializer(serializers.Serializer):
+    """Single row in the bulk-save payload."""
+    student_id       = serializers.UUIDField()
+    score_obtained   = serializers.FloatField(min_value=0)
+    notes            = serializers.CharField(required=False, allow_blank=True, default='')
+
+
+class BulkSaveResultsSerializer(serializers.Serializer):
+    """
+    Payload for POST /imboni/teacher/results/bulk-save/
+    Creates or updates Assessment records for all students in a class.
+    """
+    class_id         = serializers.UUIDField()
+    subject_id       = serializers.UUIDField()
+    assessment_title = serializers.CharField()
+    assessment_type  = serializers.ChoiceField(
+        choices=['quiz', 'homework', 'project', 'presentation', 'lab']
+    )
+    date             = serializers.DateField()
+    max_score        = serializers.FloatField(min_value=1)
+    entries          = ResultEntryInputSerializer(many=True)
+
+
+class GradeDistributionSerializer(serializers.Serializer):
+    """
+    Powers the Grade Distribution Analysis section.
+    Buckets + summary stats for a class assessment.
+    """
+    assessment_title  = serializers.CharField()
+    class_name        = serializers.CharField()
+    subject_name      = serializers.CharField()
+    class_average     = serializers.FloatField()
+    avg_change        = serializers.FloatField()   # vs previous assessment, e.g. +3.0
+    highest_score     = serializers.FloatField()
+    highest_scorer    = serializers.CharField()    # student full name
+    pass_rate         = serializers.FloatField()   # percentage
+    passed_count      = serializers.IntegerField()
+    total_count       = serializers.IntegerField()
+    buckets           = serializers.ListField(child=serializers.DictField())
+
+
+class PerformanceTrendSerializer(serializers.Serializer):
+    """
+    One data point for the Performance Trends Over Time line graph.
+    One entry per month that has assessment data.
+    """
+    month_label    = serializers.CharField()   # e.g. "Jan", "Feb"
+    month          = serializers.IntegerField()
+    year           = serializers.IntegerField()
+    avg_score      = serializers.FloatField()
