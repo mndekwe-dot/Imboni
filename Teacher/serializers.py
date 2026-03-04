@@ -52,13 +52,34 @@ class ScheduleItemSerializer(TimetableSerializer):
 class MyClassSerializer(serializers.Serializer):
     """
     Powers the My Classes cards:
-      class_name, subject_name, student_count, next_period_time
+      class_name, subject_name, student_count, avg_score,
+      schedule_days ("Mon, Wed, Fri"), schedule_time (08:00 AM),
+      room_number, next_period
     """
     class_id       = serializers.UUIDField()
     class_name     = serializers.CharField()
     subject_name   = serializers.CharField()
     student_count  = serializers.IntegerField()
+    avg_score      = serializers.FloatField(allow_null=True)
+    schedule_days  = serializers.CharField()         # e.g. "Mon, Wed, Fri"
+    schedule_time  = serializers.TimeField(allow_null=True)  # first period start
+    room_number    = serializers.CharField()
     next_period    = serializers.TimeField(allow_null=True)
+
+
+class HomeworkStatusSerializer(serializers.Serializer):
+    """
+    Powers the Homework Submission Status progress bars.
+    One row per class showing the most recent assessment submission rate.
+    bar_color: green (>=90%) | orange (>=75%) | red (<75%)
+    """
+    class_id         = serializers.UUIDField()
+    class_name       = serializers.CharField()
+    assessment_title = serializers.CharField()
+    submitted_count  = serializers.IntegerField()
+    total_students   = serializers.IntegerField()
+    submission_rate  = serializers.FloatField()
+    bar_color        = serializers.CharField()
 
 
 class TaskSerializer(serializers.ModelSerializer):

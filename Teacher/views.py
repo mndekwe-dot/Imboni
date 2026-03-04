@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Max, Q
 from django.utils import timezone
 from rest_framework import generics, viewsets, permissions, status
 from rest_framework.response import Response
@@ -9,7 +9,7 @@ from results.models import AcademicTerm
 from .models import Timetable, Task, Reminder
 from .serializers import (
     TeacherSerializer, TimetableSerializer, ScheduleItemSerializer,
-    MyClassSerializer, TaskSerializer, ReminderSerializer,
+    MyClassSerializer, HomeworkStatusSerializer, TaskSerializer, ReminderSerializer,
     ClassPerformanceSerializer, ActivitySerializer,
 )
 
@@ -191,17 +191,31 @@ class TeacherDashboardStatsView(APIView):
 # My Classes
 # ---------------------------------------------------------------------------
 
+_DAY_ABBR  = {'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+               'thursday': 'Thu', 'friday': 'Fri'}
+_DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+
+
 class MyClassesView(APIView):
     """
     GET /imboni/teacher/my-classes/
 
-    Returns each class the teacher teaches this term with:
-        class_id, class_name, subject_name, student_count, next_period (time)
+    Powers the My Classes grid. Each card shows:
+        class_name, subject_name, student_count, avg_score,
+        schedule_days ("Mon, Wed, Fri"), schedule_time, room_number, next_period
+
+    Optional query params:
+        ?search=form3          — filter by class or subject name
+        ?grade_filter=1-2      — only Grade 1 & 2 classes
+        ?grade_filter=3-4      — only Grade 3 & 4 classes
+        ?high_performers=true  — only classes with avg_score >= 80
     """
     # permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment, ClassAssignment
+        from results.models import Result
+
         teacher = _get_teacher(request)
         term    = _current_term()
         today   = timezone.localtime().date().strftime('%A').lower()
@@ -217,21 +231,71 @@ class MyClassesView(APIView):
             .order_by('class_obj__grade', 'class_obj__section')
         )
 
+        # ── Search filter ────────────────────────────────────────────────
+        search = request.query_params.get('search', '').strip()
+        if search:
+            assignments = assignments.filter(
+                Q(class_obj__name__icontains=search) |
+                Q(subject__name__icontains=search)
+            )
+
+        # ── Grade range filter ───────────────────────────────────────────
+        grade_filter = request.query_params.get('grade_filter', '')
+        if grade_filter == '1-2':
+            assignments = assignments.filter(class_obj__grade__in=['1', '2'])
+        elif grade_filter == '3-4':
+            assignments = assignments.filter(class_obj__grade__in=['3', '4'])
+
+        high_performers = request.query_params.get('high_performers', '').lower() == 'true'
+
         results = []
         for sta in assignments:
             class_obj = sta.class_obj
+
+            # Student count
             student_count = ClassAssignment.objects.filter(
                 class_obj=class_obj, term=term
             ).count()
 
-            next_slot = (
+            # Average score for this class
+            avg_raw = Result.objects.filter(
+                student__class_assignments__class_obj=class_obj,
+                student__class_assignments__term=term,
+                term=term,
+            ).aggregate(avg=Avg('final_score'))['avg']
+            avg_score = round(float(avg_raw), 1) if avg_raw else None
+
+            # Skip if high_performers filter is active and class doesn't qualify
+            if high_performers and (avg_score is None or avg_score < 80):
+                continue
+
+            # Schedule days sorted Mon→Fri
+            days_qs = (
+                Timetable.objects
+                .filter(class_obj=class_obj, teacher=teacher, term=term)
+                .values_list('day', flat=True)
+                .distinct()
+            )
+            days_sorted   = sorted(set(days_qs), key=lambda d: _DAY_ORDER.index(d))
+            schedule_days = ', '.join(_DAY_ABBR[d] for d in days_sorted)
+
+            # Earliest period start time + room
+            first_slot = (
+                Timetable.objects
+                .filter(class_obj=class_obj, teacher=teacher, term=term)
+                .order_by('start_time')
+                .values('start_time', 'room_number')
+                .first()
+            )
+            schedule_time = first_slot['start_time'] if first_slot else None
+            room_number   = first_slot['room_number'] if first_slot else ''
+
+            # Next upcoming period today
+            next_period = (
                 Timetable.objects
                 .filter(
-                    class_obj=class_obj,
-                    teacher=teacher,
-                    term=term,
-                    day=today,
-                    start_time__gte=now,
+                    class_obj=class_obj, teacher=teacher, term=term,
+                    day=today, start_time__gte=now,
                 )
                 .order_by('start_time')
                 .values_list('start_time', flat=True)
@@ -243,11 +307,95 @@ class MyClassesView(APIView):
                 'class_name':    class_obj.name,
                 'subject_name':  sta.subject.name,
                 'student_count': student_count,
-                'next_period':   next_slot,
+                'avg_score':     avg_score,
+                'schedule_days': schedule_days,
+                'schedule_time': schedule_time,
+                'room_number':   room_number,
+                'next_period':   next_period,
             })
 
-        serializer = MyClassSerializer(results, many=True)
-        return Response(serializer.data)
+        return Response(MyClassSerializer(results, many=True).data)
+
+
+class HomeworkSubmissionStatusView(APIView):
+    """
+    GET /imboni/teacher/my-classes/homework-status/
+
+    Powers the Homework Submission Status progress bars.
+    For each class, returns the most recent assessment and how many
+    students in that class have submitted it.
+
+        submitted_count / total_students = submission_rate (%)
+        bar_color: green (>=90%) | orange (>=75%) | red (<75%)
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import SubjectTeacherAssignment, ClassAssignment
+        from results.models import Assessment
+
+        teacher = _get_teacher(request)
+        term    = _current_term()
+
+        if not term:
+            return Response([])
+
+        assignments = (
+            SubjectTeacherAssignment.objects
+            .filter(teacher=teacher, term=term)
+            .select_related('class_obj')
+        )
+
+        data = []
+        seen = set()
+
+        for sta in assignments:
+            class_obj = sta.class_obj
+            if class_obj.id in seen:
+                continue
+            seen.add(class_obj.id)
+
+            student_ids = list(
+                ClassAssignment.objects
+                .filter(class_obj=class_obj, term=term)
+                .values_list('student_id', flat=True)
+            )
+            total = len(student_ids)
+            if total == 0:
+                continue
+
+            # Most recent assessment title for students in this class
+            recent = (
+                Assessment.objects
+                .filter(student_id__in=student_ids, term=term)
+                .values('title')
+                .annotate(latest=Max('date'))
+                .order_by('-latest')
+                .first()
+            )
+            if not recent:
+                continue
+
+            submitted = Assessment.objects.filter(
+                student_id__in=student_ids,
+                title=recent['title'],
+                term=term,
+            ).count()
+
+            rate = round(submitted / total * 100, 1) if total else 0
+            bar_color = 'green' if rate >= 90 else ('orange' if rate >= 75 else 'red')
+
+            data.append({
+                'class_id':         class_obj.id,
+                'class_name':       class_obj.name,
+                'assessment_title': recent['title'],
+                'submitted_count':  submitted,
+                'total_students':   total,
+                'submission_rate':  rate,
+                'bar_color':        bar_color,
+            })
+
+        return Response(HomeworkStatusSerializer(data, many=True).data)
 
 
 # ---------------------------------------------------------------------------

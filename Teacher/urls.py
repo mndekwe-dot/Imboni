@@ -14,8 +14,10 @@ urlpatterns = router.urls + [
     path('teacher/my-timetable/today/',   views.MyTodayScheduleView.as_view(),         name='teacher-today-schedule'),
     # Dashboard stat cards (both rows)
     path('teacher/dashboard/stats/',      views.TeacherDashboardStatsView.as_view(),   name='teacher-dashboard-stats'),
-    # My Classes cards (student count + next period)
-    path('teacher/my-classes/',           views.MyClassesView.as_view(),               name='teacher-my-classes'),
+    # My Classes grid — supports ?search= ?grade_filter=1-2|3-4 ?high_performers=true
+    path('teacher/my-classes/',                    views.MyClassesView.as_view(),                  name='teacher-my-classes'),
+    # Homework Submission Status progress bars
+    path('teacher/my-classes/homework-status/',    views.HomeworkSubmissionStatusView.as_view(),   name='teacher-homework-status'),
     # Class Performance progress bars
     path('teacher/class-performance/',    views.TeacherClassPerformanceView.as_view(), name='teacher-class-performance'),
     # Recent Activities feed
