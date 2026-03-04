@@ -89,3 +89,120 @@ class PerformanceRatingSerializer(serializers.Serializer):
     label         = serializers.CharField()    # Excellent | Good | Average | Needs Improvement
     teacher_count = serializers.IntegerField()
     percentage    = serializers.FloatField()
+
+
+# ---------------------------------------------------------------------------
+# Student Management page
+# ---------------------------------------------------------------------------
+
+class StudentManagementStatsSerializer(serializers.Serializer):
+    """4 stat cards on the Student Management page."""
+    total_students        = serializers.IntegerField()
+    new_this_term         = serializers.IntegerField()   # +15 this term badge
+    active_students       = serializers.IntegerField()
+    enrollment_pct        = serializers.FloatField()     # active / total * 100
+    new_admissions        = serializers.IntegerField()   # enrolled this term
+    avg_performance       = serializers.FloatField()     # school-wide avg final_score %
+    avg_performance_change = serializers.FloatField()    # vs previous term
+
+
+class DOSStudentSerializer(serializers.Serializer):
+    """One row in the student list table."""
+    student_id      = serializers.UUIDField()
+    student_code    = serializers.CharField()   # e.g. STU-001
+    full_name       = serializers.CharField()
+    initials        = serializers.CharField()
+    grade           = serializers.CharField()   # e.g. "6"
+    grade_label     = serializers.CharField()   # e.g. "Grade 6"
+    section         = serializers.CharField()
+    avg_performance = serializers.FloatField(allow_null=True)
+    attendance_rate = serializers.FloatField(allow_null=True)
+    status          = serializers.CharField()
+    enrollment_date = serializers.DateField()
+
+
+class AddStudentSerializer(serializers.Serializer):
+    """Payload for POST /imboni/dos/students/ (Add Student button)."""
+    first_name      = serializers.CharField()
+    last_name       = serializers.CharField()
+    email           = serializers.EmailField()
+    grade           = serializers.ChoiceField(choices=['1', '2', '3', '4', '5', '6'])
+    section         = serializers.ChoiceField(choices=['A', 'B', 'C'])
+    enrollment_date = serializers.DateField()
+    password        = serializers.CharField(write_only=True, min_length=8)
+
+
+class EnrollmentByGradeSerializer(serializers.Serializer):
+    """One progress bar row in the Student Enrollment by Grade section."""
+    grade         = serializers.CharField()    # e.g. "Grade 6"
+    student_count = serializers.IntegerField()
+    percentage    = serializers.FloatField()   # share of total active students
+
+
+class StudentPerfDistributionSerializer(serializers.Serializer):
+    """One slice in the Performance Distribution donut chart."""
+    label         = serializers.CharField()    # Excellent | Good | Average | Below
+    range_label   = serializers.CharField()    # e.g. ">80%"
+    student_count = serializers.IntegerField()
+    percentage    = serializers.FloatField()
+
+
+class EnrollmentTrendSerializer(serializers.Serializer):
+    """One data point in the Enrollment Trends line chart."""
+    year          = serializers.IntegerField()
+    student_count = serializers.IntegerField()
+
+
+# ---------------------------------------------------------------------------
+# Bulk Student Enrollment
+# ---------------------------------------------------------------------------
+
+class BulkAddStudentRowSerializer(serializers.Serializer):
+    """One student row in the bulk-create payload."""
+    first_name      = serializers.CharField()
+    last_name       = serializers.CharField()
+    email           = serializers.EmailField()
+    grade           = serializers.ChoiceField(choices=['1', '2', '3', '4', '5', '6'])
+    section         = serializers.ChoiceField(choices=['A', 'B', 'C'])
+    enrollment_date = serializers.DateField()
+    password        = serializers.CharField(write_only=True, min_length=8, required=False, default='')
+
+
+class BulkAddStudentsSerializer(serializers.Serializer):
+    """
+    Payload for POST /imboni/dos/students/bulk-create/
+
+    {
+        "default_password": "Imboni@2025",   // optional, applied when row has no password
+        "students": [
+            {"first_name": "...", "last_name": "...", "email": "...",
+             "grade": "6", "section": "A", "enrollment_date": "2025-01-10"},
+            ...
+        ]
+    }
+    """
+    default_password = serializers.CharField(required=False, default='Imboni@2025', min_length=8)
+    students         = BulkAddStudentRowSerializer(many=True)
+
+
+class BulkCreateResultSerializer(serializers.Serializer):
+    """Summary returned after a bulk-create or CSV import."""
+    created = serializers.IntegerField()
+    skipped = serializers.IntegerField()   # duplicates
+    failed  = serializers.IntegerField()   # validation / DB errors
+    errors  = serializers.ListField(child=serializers.DictField())  # [{row, email, error}]
+
+
+class CSVImportSerializer(serializers.Serializer):
+    """
+    Payload for POST /imboni/dos/students/import-csv/ (multipart/form-data)
+
+    Required field : file            — CSV file
+    Optional fields: default_password, enrollment_date (used when not in CSV)
+
+    Expected CSV columns (case-insensitive headers):
+        first_name, last_name, email, grade, section, enrollment_date (optional)
+    """
+    file             = serializers.FileField()
+    default_password = serializers.CharField(required=False, default='Imboni@2025', min_length=8)
+    enrollment_date  = serializers.DateField(required=False, allow_null=True)

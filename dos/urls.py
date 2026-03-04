@@ -2,6 +2,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # ── Bulk enrollment (term-start) ─────────────────────────────────────────
+    # JSON list of students
+    path('dos/students/bulk-create/',  views.BulkCreateStudentsView.as_view(),  name='dos-students-bulk-create'),
+    # CSV file upload
+    path('dos/students/import-csv/',   views.ImportStudentsCSVView.as_view(),   name='dos-students-import-csv'),
+
     # Stat cards — Total Students, Teaching Staff, Avg Performance, Pending Approvals
     path('dos/dashboard/stats/',               views.DOSDashboardStatsView.as_view(),      name='dos-dashboard-stats'),
     # Recent Activity feed
@@ -22,4 +28,16 @@ urlpatterns = [
     path('dos/teachers/workload-distribution/',  views.TeacherWorkloadDistributionView.as_view(), name='dos-workload-dist'),
     # Performance Ratings chart (Excellent / Good / Average / Needs Improvement)
     path('dos/teachers/performance-ratings/',    views.TeacherPerformanceRatingsView.as_view(), name='dos-perf-ratings'),
+
+    # ── Student Management ──────────────────────────────────────────────────
+    # Stat cards (Total, Active, New Admissions, Avg Performance)
+    path('dos/students/stats/',                    views.StudentManagementStatsView.as_view(),      name='dos-student-stats'),
+    # Student list (?search= ?grade= ?status=) + Add Student (POST)
+    path('dos/students/',                          views.StudentListCreateView.as_view(),            name='dos-students'),
+    # Enrollment by Grade progress bars
+    path('dos/students/enrollment-by-grade/',      views.StudentEnrollmentByGradeView.as_view(),    name='dos-enrollment-by-grade'),
+    # Performance Distribution donut chart
+    path('dos/students/performance-distribution/', views.StudentPerformanceDistributionView.as_view(), name='dos-student-perf-dist'),
+    # Enrollment Trends line chart (by year)
+    path('dos/students/enrollment-trends/',        views.StudentEnrollmentTrendsView.as_view(),     name='dos-enrollment-trends'),
 ]

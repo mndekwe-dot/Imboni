@@ -21,6 +21,15 @@ from .serializers import (
     TeachersBySubjectSerializer,
     WorkloadBucketSerializer,
     PerformanceRatingSerializer,
+    StudentManagementStatsSerializer,
+    DOSStudentSerializer,
+    AddStudentSerializer,
+    EnrollmentByGradeSerializer,
+    StudentPerfDistributionSerializer,
+    EnrollmentTrendSerializer,
+    BulkAddStudentsSerializer,
+    BulkCreateResultSerializer,
+    CSVImportSerializer,
 )
 
 
@@ -542,3 +551,573 @@ class TeacherPerformanceRatingsView(APIView):
             for label, count in buckets.items()
         ]
         return Response(PerformanceRatingSerializer(data, many=True).data)
+
+
+# ---------------------------------------------------------------------------
+# Student Management — Stat Cards
+# ---------------------------------------------------------------------------
+
+class StudentManagementStatsView(APIView):
+    """
+    GET /imboni/dos/students/stats/
+
+    Powers the 4 stat cards:
+        total_students         — all students regardless of status
+        new_this_term          — enrolled since term start (+15 badge)
+        active_students        — status='active'
+        enrollment_pct         — active / total * 100 (96% enrollment badge)
+        new_admissions         — enrolled this term (same as new_this_term)
+        avg_performance        — school-wide avg final_score % (current term)
+        avg_performance_change — vs previous term (+3% badge)
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        term      = _current_term()
+        prev_term = _previous_term()
+
+        total   = Student.objects.count()
+        active  = Student.objects.filter(status='active').count()
+        enrollment_pct = round(active / total * 100, 1) if total else 0
+
+        new_this_term = (
+            Student.objects.filter(enrollment_date__gte=term.start_date).count()
+            if term else 0
+        )
+
+        avg_raw  = Result.objects.filter(term=term).aggregate(avg=Avg('final_score'))['avg'] if term else None
+        avg_perf = round(float(avg_raw), 1) if avg_raw else 0
+
+        prev_raw  = Result.objects.filter(term=prev_term).aggregate(avg=Avg('final_score'))['avg'] if prev_term else None
+        prev_perf = float(prev_raw) if prev_raw else 0
+        avg_change = round(avg_perf - prev_perf, 1)
+
+        return Response(StudentManagementStatsSerializer({
+            'total_students':         total,
+            'new_this_term':          new_this_term,
+            'active_students':        active,
+            'enrollment_pct':         enrollment_pct,
+            'new_admissions':         new_this_term,
+            'avg_performance':        avg_perf,
+            'avg_performance_change': avg_change,
+        }).data)
+
+
+# ---------------------------------------------------------------------------
+# Student Management — Student List + Add Student
+# ---------------------------------------------------------------------------
+
+class StudentListCreateView(APIView):
+    """
+    GET  /imboni/dos/students/
+    POST /imboni/dos/students/
+
+    GET — Returns the student list.
+    Optional query params:
+        ?search=name, ID or class  — filter by name, student_code, grade/section
+        ?grade=6                   — filter by grade (matches Grade 12/11/10 tabs)
+        ?status=active|inactive
+
+    POST — Create a new student account (Add Student button).
+    Body: first_name, last_name, email, grade, section, enrollment_date, password
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from attendance.models import AttendanceSummary
+
+        term   = _current_term()
+        search = request.query_params.get('search', '').strip()
+        grade  = request.query_params.get('grade', '').strip()
+        status = request.query_params.get('status', '').strip()
+
+        students = Student.objects.select_related('user').order_by('grade', 'section', 'user__last_name')
+
+        if grade:
+            students = students.filter(grade=grade)
+        if status:
+            students = students.filter(status=status)
+        if search:
+            students = students.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search)  |
+                Q(student_id__icontains=search)       |
+                Q(grade__icontains=search)
+            )
+
+        grade_label = {
+            '1': 'Grade 1', '2': 'Grade 2', '3': 'Grade 3',
+            '4': 'Grade 4', '5': 'Grade 5', '6': 'Grade 6',
+        }
+
+        data = []
+        for s in students:
+            name_parts = s.full_name.split()
+            initials   = ''.join(p[0].upper() for p in name_parts[:2]) if name_parts else '?'
+
+            avg_raw = Result.objects.filter(student=s, term=term).aggregate(avg=Avg('final_score'))['avg'] if term else None
+            att_obj = AttendanceSummary.objects.filter(student=s, term=term).first() if term else None
+
+            data.append({
+                'student_id':      s.id,
+                'student_code':    s.student_id,
+                'full_name':       s.full_name,
+                'initials':        initials,
+                'grade':           s.grade,
+                'grade_label':     grade_label.get(s.grade, f"Grade {s.grade}"),
+                'section':         s.section,
+                'avg_performance': round(float(avg_raw), 1) if avg_raw else None,
+                'attendance_rate': round(float(att_obj.attendance_percentage), 1) if att_obj else None,
+                'status':          s.status,
+                'enrollment_date': s.enrollment_date,
+            })
+
+        return Response(DOSStudentSerializer(data, many=True).data)
+
+    def post(self, request):
+        from django.utils.crypto import get_random_string
+
+        serializer = AddStudentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+        d = serializer.validated_data
+        if User.objects.filter(email=d['email']).exists():
+            return Response(
+                {'email': 'A user with this email already exists.'},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = User.objects.create_user(
+            username   = d['email'],
+            email      = d['email'],
+            first_name = d['first_name'],
+            last_name  = d['last_name'],
+            role       = 'student',
+            password   = d['password'],
+        )
+
+        # Generate unique student_id
+        last = Student.objects.order_by('-created_at').first()
+        next_num = 1
+        if last and last.student_id.startswith('STU-'):
+            try:
+                next_num = int(last.student_id.split('-')[1]) + 1
+            except ValueError:
+                next_num = Student.objects.count() + 1
+        student_code = f"STU-{next_num:03d}"
+
+        student = Student.objects.create(
+            user            = user,
+            student_id      = student_code,
+            grade           = d['grade'],
+            section         = d['section'],
+            enrollment_date = d['enrollment_date'],
+            status          = 'active',
+        )
+
+        return Response(
+            {'id': student.id, 'student_code': student.student_id, 'full_name': student.full_name},
+            status=http_status.HTTP_201_CREATED,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Student Management — Enrollment by Grade
+# ---------------------------------------------------------------------------
+
+class StudentEnrollmentByGradeView(APIView):
+    """
+    GET /imboni/dos/students/enrollment-by-grade/
+
+    Returns active student count per grade.
+    Powers the Student Enrollment by Grade progress-bar section.
+
+    Response: [ { grade, student_count, percentage }, ... ]
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from django.db.models import Count
+
+        total = Student.objects.filter(status='active').count()
+
+        rows = (
+            Student.objects
+            .filter(status='active')
+            .values('grade')
+            .annotate(student_count=Count('id'))
+            .order_by('-grade')   # Grade 6 first (highest)
+        )
+
+        grade_label = {
+            '1': 'Grade 1', '2': 'Grade 2', '3': 'Grade 3',
+            '4': 'Grade 4', '5': 'Grade 5', '6': 'Grade 6',
+        }
+
+        data = [
+            {
+                'grade':         grade_label.get(row['grade'], f"Grade {row['grade']}"),
+                'student_count': row['student_count'],
+                'percentage':    round(row['student_count'] / total * 100, 1) if total else 0,
+            }
+            for row in rows
+        ]
+
+        return Response(EnrollmentByGradeSerializer(data, many=True).data)
+
+
+# ---------------------------------------------------------------------------
+# Student Management — Performance Distribution
+# ---------------------------------------------------------------------------
+
+class StudentPerformanceDistributionView(APIView):
+    """
+    GET /imboni/dos/students/performance-distribution/
+
+    Groups all students by their average final_score this term into 4 buckets.
+    Powers the Performance Distribution donut chart.
+
+        Excellent  — avg > 80%
+        Good       — avg 70–80%
+        Average    — avg 60–70%
+        Below      — avg < 60%
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        term = _current_term()
+        if not term:
+            return Response([])
+
+        student_avgs = (
+            Result.objects
+            .filter(term=term)
+            .values('student_id')
+            .annotate(avg=Avg('final_score'))
+        )
+
+        buckets = [
+            {'label': 'Excellent', 'range_label': '>80%',    'min': 80,  'count': 0},
+            {'label': 'Good',      'range_label': '70-80%',  'min': 70,  'count': 0},
+            {'label': 'Average',   'range_label': '60-70%',  'min': 60,  'count': 0},
+            {'label': 'Below',     'range_label': '<60%',    'min': 0,   'count': 0},
+        ]
+
+        for row in student_avgs:
+            avg = float(row['avg'] or 0)
+            if   avg > 80: buckets[0]['count'] += 1
+            elif avg >= 70: buckets[1]['count'] += 1
+            elif avg >= 60: buckets[2]['count'] += 1
+            else:           buckets[3]['count'] += 1
+
+        total = sum(b['count'] for b in buckets)
+        data = [
+            {
+                'label':         b['label'],
+                'range_label':   b['range_label'],
+                'student_count': b['count'],
+                'percentage':    round(b['count'] / total * 100, 1) if total else 0,
+            }
+            for b in buckets
+        ]
+
+        return Response(StudentPerfDistributionSerializer(data, many=True).data)
+
+
+# ---------------------------------------------------------------------------
+# Student Management — Enrollment Trends
+# ---------------------------------------------------------------------------
+
+class StudentEnrollmentTrendsView(APIView):
+    """
+    GET /imboni/dos/students/enrollment-trends/
+
+    Returns student count grouped by enrollment year.
+    Powers the Enrollment Trends line chart (2023: 1150 | 2024: 1200 | ...).
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from django.db.models import Count
+        from django.db.models.functions import ExtractYear
+
+        rows = (
+            Student.objects
+            .annotate(year=ExtractYear('enrollment_date'))
+            .values('year')
+            .annotate(student_count=Count('id'))
+            .order_by('year')
+        )
+
+        data = [
+            {'year': row['year'], 'student_count': row['student_count']}
+            for row in rows
+        ]
+
+        return Response(EnrollmentTrendSerializer(data, many=True).data)
+
+
+# ---------------------------------------------------------------------------
+# Student Management — Bulk Create
+# ---------------------------------------------------------------------------
+
+def _next_student_code():
+    """Return the next available STU-XXX code (thread-safe via select_for_update)."""
+    from students.models import Student as _Student
+    last = _Student.objects.order_by('-created_at').first()
+    if last and last.student_id.startswith('STU-'):
+        try:
+            return int(last.student_id.split('-')[1]) + 1
+        except ValueError:
+            pass
+    return _Student.objects.count() + 1
+
+
+class BulkCreateStudentsView(APIView):
+    """
+    POST /imboni/dos/students/bulk-create/
+
+    Create multiple students in one request — designed for term-start enrollment.
+
+    Request body (JSON):
+    {
+        "default_password": "Imboni@2025",
+        "students": [
+            {
+                "first_name": "Alice", "last_name": "Uwase",
+                "email": "alice@school.rw", "grade": "6",
+                "section": "A", "enrollment_date": "2025-01-10"
+            },
+            ...
+        ]
+    }
+
+    Response:
+    {
+        "created": 45,
+        "skipped": 3,   // duplicate emails
+        "failed":  1,   // validation / unexpected errors
+        "errors":  [{"row": 4, "email": "x@y.com", "error": "..."}]
+    }
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        from django.db import transaction
+        from students.models import Student
+
+        serializer = BulkAddStudentsSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+        d                = serializer.validated_data
+        default_password = d['default_password']
+        rows             = d['students']
+
+        created = skipped = failed = 0
+        errors  = []
+        counter = _next_student_code()
+
+        for idx, row in enumerate(rows, start=1):
+            email = row['email']
+            try:
+                if User.objects.filter(email=email).exists():
+                    skipped += 1
+                    errors.append({'row': idx, 'email': email, 'error': 'Email already exists (skipped)'})
+                    continue
+
+                password = row.get('password') or default_password
+
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username   = email,
+                        email      = email,
+                        first_name = row['first_name'],
+                        last_name  = row['last_name'],
+                        role       = 'student',
+                        password   = password,
+                    )
+                    Student.objects.create(
+                        user            = user,
+                        student_id      = f"STU-{counter:03d}",
+                        grade           = row['grade'],
+                        section         = row['section'],
+                        enrollment_date = row['enrollment_date'],
+                        status          = 'active',
+                    )
+                    counter += 1
+                    created += 1
+
+            except Exception as exc:
+                failed += 1
+                errors.append({'row': idx, 'email': email, 'error': str(exc)})
+
+        result = {
+            'created': created,
+            'skipped': skipped,
+            'failed':  failed,
+            'errors':  errors,
+        }
+        status_code = (
+            http_status.HTTP_201_CREATED if created > 0
+            else http_status.HTTP_400_BAD_REQUEST
+        )
+        return Response(BulkCreateResultSerializer(result).data, status=status_code)
+
+
+# ---------------------------------------------------------------------------
+# Student Management — CSV Import
+# ---------------------------------------------------------------------------
+
+class ImportStudentsCSVView(APIView):
+    """
+    POST /imboni/dos/students/import-csv/   (multipart/form-data)
+
+    Upload a CSV file to enroll students in bulk.
+    Ideal for importing from an existing spreadsheet.
+
+    Form fields:
+        file             — CSV file (required)
+        default_password — password for all students (default: Imboni@2025)
+        enrollment_date  — fallback date if CSV has no enrollment_date column (YYYY-MM-DD)
+
+    Expected CSV columns (header row required, order-independent):
+        first_name, last_name, email, grade, section, enrollment_date (optional)
+
+    Example CSV:
+        first_name,last_name,email,grade,section,enrollment_date
+        Alice,Uwase,alice@school.rw,6,A,2025-01-10
+        Bob,Nkurunziza,bob@school.rw,5,B,2025-01-10
+
+    Response: same as bulk-create (created / skipped / failed / errors)
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        import csv
+        import io
+        from django.db import transaction
+        from students.models import Student
+
+        serializer = CSVImportSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+        d                = serializer.validated_data
+        default_password = d['default_password']
+        fallback_date    = d.get('enrollment_date')
+        csv_file         = d['file']
+
+        # Read and decode the file
+        try:
+            content = csv_file.read().decode('utf-8-sig')  # utf-8-sig strips Excel BOM
+        except UnicodeDecodeError:
+            return Response(
+                {'file': 'File must be UTF-8 encoded. Save your Excel file as CSV UTF-8.'},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        reader = csv.DictReader(io.StringIO(content))
+
+        # Normalise headers (strip whitespace, lowercase)
+        if reader.fieldnames is None:
+            return Response({'file': 'CSV file is empty.'}, status=http_status.HTTP_400_BAD_REQUEST)
+
+        required_cols = {'first_name', 'last_name', 'email', 'grade', 'section'}
+        actual_cols   = {h.strip().lower() for h in reader.fieldnames}
+        missing       = required_cols - actual_cols
+        if missing:
+            return Response(
+                {'file': f"Missing required columns: {', '.join(sorted(missing))}"},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        VALID_GRADES   = {'1', '2', '3', '4', '5', '6'}
+        VALID_SECTIONS = {'A', 'B', 'C'}
+
+        created = skipped = failed = 0
+        errors  = []
+        counter = _next_student_code()
+
+        for idx, raw_row in enumerate(reader, start=2):  # row 1 is header
+            # Normalise keys
+            row = {k.strip().lower(): (v or '').strip() for k, v in raw_row.items()}
+
+            email      = row.get('email', '').lower()
+            first_name = row.get('first_name', '')
+            last_name  = row.get('last_name', '')
+            grade      = row.get('grade', '').strip()
+            section    = row.get('section', '').upper().strip()
+            date_str   = row.get('enrollment_date', '')
+
+            # Basic validation
+            if not email or '@' not in email:
+                failed += 1
+                errors.append({'row': idx, 'email': email or '(empty)', 'error': 'Invalid email'})
+                continue
+            if grade not in VALID_GRADES:
+                failed += 1
+                errors.append({'row': idx, 'email': email, 'error': f"Invalid grade '{grade}' (must be 1-6)"})
+                continue
+            if section not in VALID_SECTIONS:
+                failed += 1
+                errors.append({'row': idx, 'email': email, 'error': f"Invalid section '{section}' (must be A, B or C)"})
+                continue
+
+            # Resolve enrollment_date
+            if date_str:
+                from datetime import datetime
+                try:
+                    enroll_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    failed += 1
+                    errors.append({'row': idx, 'email': email, 'error': f"Invalid enrollment_date '{date_str}' (use YYYY-MM-DD)"})
+                    continue
+            elif fallback_date:
+                enroll_date = fallback_date
+            else:
+                from django.utils import timezone as _tz
+                enroll_date = _tz.localdate()
+
+            try:
+                if User.objects.filter(email=email).exists():
+                    skipped += 1
+                    errors.append({'row': idx, 'email': email, 'error': 'Email already exists (skipped)'})
+                    continue
+
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username   = email,
+                        email      = email,
+                        first_name = first_name,
+                        last_name  = last_name,
+                        role       = 'student',
+                        password   = default_password,
+                    )
+                    Student.objects.create(
+                        user            = user,
+                        student_id      = f"STU-{counter:03d}",
+                        grade           = grade,
+                        section         = section,
+                        enrollment_date = enroll_date,
+                        status          = 'active',
+                    )
+                    counter += 1
+                    created += 1
+
+            except Exception as exc:
+                failed += 1
+                errors.append({'row': idx, 'email': email, 'error': str(exc)})
+
+        result = {
+            'created': created,
+            'skipped': skipped,
+            'failed':  failed,
+            'errors':  errors,
+        }
+        status_code = (
+            http_status.HTTP_201_CREATED if created > 0
+            else http_status.HTTP_400_BAD_REQUEST
+        )
+        return Response(BulkCreateResultSerializer(result).data, status=status_code)
