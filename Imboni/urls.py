@@ -12,4 +12,5 @@ urlpatterns = [
     path('imboni/', include('attendance.urls')),
     path('imboni/', include('behavior.urls')),
     path('imboni/', include('announcements.urls')),
+    path('imboni/', include('dos.urls')),
 ]

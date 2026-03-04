@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'analytics',
     'teacher',
     'messages.apps.MessagesConfig',
+    'dos',
 ]
 
 MIDDLEWARE = [
