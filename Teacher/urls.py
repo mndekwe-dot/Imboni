@@ -30,4 +30,12 @@ urlpatterns = router.urls + [
     path('teacher/students/performance-distribution/', views.StudentPerformanceDistributionView.as_view(), name='teacher-students-perf-dist'),
     # Attendance Trends last 4 weeks
     path('teacher/students/attendance-trends/',        views.StudentAttendanceTrendsView.as_view(),        name='teacher-students-att-trends'),
+    # Attendance Management — stat cards (?class_id=&date=)
+    path('teacher/attendance/stats/',    views.TeacherAttendanceStatsView.as_view(),    name='teacher-attendance-stats'),
+    # Attendance Management — student list for marking (?class_id=&date=)
+    path('teacher/attendance/students/', views.TeacherAttendanceStudentsView.as_view(), name='teacher-attendance-students'),
+    # Attendance Management — bulk save (POST)
+    path('teacher/attendance/mark/',     views.MarkAttendanceView.as_view(),            name='teacher-attendance-mark'),
+    # Attendance Patterns day-of-week chart (?class_id=)
+    path('teacher/attendance/patterns/', views.TeacherAttendancePatternsView.as_view(), name='teacher-attendance-patterns'),
 ]

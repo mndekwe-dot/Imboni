@@ -146,3 +146,46 @@ class AttendanceTrendSerializer(serializers.Serializer):
     week_label      = serializers.CharField()   # e.g. "Week 1"
     week_start      = serializers.DateField()
     attendance_rate = serializers.FloatField()
+
+
+# ---------------------------------------------------------------------------
+# Teacher Attendance Management page serializers
+# ---------------------------------------------------------------------------
+
+class TeacherAttendanceStudentSerializer(serializers.Serializer):
+    """
+    One row in the attendance marking table.
+    status is null when attendance has not yet been marked for that date.
+    """
+    student_id   = serializers.UUIDField()
+    student_code = serializers.CharField()
+    full_name    = serializers.CharField()
+    initials     = serializers.CharField()
+    status       = serializers.CharField(allow_null=True)   # present|absent|late|excused|null
+    notes        = serializers.CharField(allow_blank=True)
+
+
+class AttendanceRecordInputSerializer(serializers.Serializer):
+    """Single record in the bulk mark-attendance payload."""
+    student_id = serializers.UUIDField()
+    status     = serializers.ChoiceField(choices=['present', 'absent', 'late', 'excused'])
+    notes      = serializers.CharField(required=False, allow_blank=True, default='')
+
+
+class MarkAttendanceSerializer(serializers.Serializer):
+    """
+    Payload for POST /imboni/teacher/attendance/mark/
+    Bulk-saves attendance records for a class on a given date.
+    """
+    class_id = serializers.UUIDField()
+    date     = serializers.DateField()
+    records  = AttendanceRecordInputSerializer(many=True)
+
+
+class AttendancePatternSerializer(serializers.Serializer):
+    """
+    One entry per weekday for the Attendance Patterns line chart.
+    day: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri'
+    """
+    day             = serializers.CharField()
+    attendance_rate = serializers.FloatField()

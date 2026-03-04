@@ -12,6 +12,7 @@ from .serializers import (
     MyClassSerializer, HomeworkStatusSerializer, TaskSerializer, ReminderSerializer,
     ClassPerformanceSerializer, ActivitySerializer,
     TeacherStudentSerializer, PerformanceDistributionSerializer, AttendanceTrendSerializer,
+    TeacherAttendanceStudentSerializer, MarkAttendanceSerializer, AttendancePatternSerializer,
 )
 
 
@@ -846,3 +847,241 @@ class StudentAttendanceTrendsView(APIView):
             })
 
         return Response(AttendanceTrendSerializer(data, many=True).data)
+
+
+# ---------------------------------------------------------------------------
+# Teacher Attendance Management page
+# ---------------------------------------------------------------------------
+
+class TeacherAttendanceStatsView(APIView):
+    """
+    GET /imboni/teacher/attendance/stats/?class_id=<uuid>&date=2026-02-03
+
+    Returns the 4 stat cards at the top of the Attendance Management page:
+        present_count   — students present today
+        absent_count    — students absent today
+        late_count      — students marked late today
+        class_total     — total students in the class
+        present_pct     — present_count / class_total * 100 (e.g. "90% of class")
+        weekly_rate     — attendance % across the current Mon–Fri week
+        weekly_rate_change — difference vs the previous Mon–Fri week (e.g. +2.0)
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import ClassAssignment
+        from attendance.models import AttendanceRecord
+
+        class_id = request.query_params.get('class_id', '').strip()
+        date_str = request.query_params.get('date', '').strip()
+
+        try:
+            target_date = date.fromisoformat(date_str) if date_str else timezone.localtime().date()
+        except ValueError:
+            target_date = timezone.localtime().date()
+
+        term = _current_term()
+
+        # Students in this class
+        student_ids = list(
+            ClassAssignment.objects
+            .filter(class_obj_id=class_id, term=term)
+            .values_list('student_id', flat=True)
+        ) if class_id and term else []
+
+        class_total = len(student_ids)
+
+        # Today's records
+        day_qs = AttendanceRecord.objects.filter(
+            student_id__in=student_ids, date=target_date
+        )
+        present_count = day_qs.filter(status='present').count()
+        absent_count  = day_qs.filter(status='absent').count()
+        late_count    = day_qs.filter(status='late').count()
+        present_pct   = round(present_count / class_total * 100, 1) if class_total else 0
+
+        # Current week (Mon–Fri)
+        monday = target_date - timedelta(days=target_date.weekday())
+        friday = monday + timedelta(days=4)
+
+        def _week_rate(start, end):
+            total   = AttendanceRecord.objects.filter(student_id__in=student_ids, date__gte=start, date__lte=end).count()
+            present = AttendanceRecord.objects.filter(student_id__in=student_ids, date__gte=start, date__lte=end, status='present').count()
+            return round(present / total * 100, 1) if total else 0
+
+        weekly_rate      = _week_rate(monday, friday)
+        prev_monday      = monday - timedelta(weeks=1)
+        prev_friday      = prev_monday + timedelta(days=4)
+        prev_weekly_rate = _week_rate(prev_monday, prev_friday)
+        weekly_rate_change = round(weekly_rate - prev_weekly_rate, 1)
+
+        return Response({
+            'present_count':      present_count,
+            'absent_count':       absent_count,
+            'late_count':         late_count,
+            'class_total':        class_total,
+            'present_pct':        present_pct,
+            'weekly_rate':        weekly_rate,
+            'weekly_rate_change': weekly_rate_change,
+        })
+
+
+class TeacherAttendanceStudentsView(APIView):
+    """
+    GET /imboni/teacher/attendance/students/?class_id=<uuid>&date=2026-02-03
+
+    Returns the student list for the attendance marking table.
+    Each row includes the student's existing attendance record for that date
+    (status=null and notes='' when not yet marked).
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import ClassAssignment
+        from attendance.models import AttendanceRecord
+
+        class_id = request.query_params.get('class_id', '').strip()
+        date_str = request.query_params.get('date', '').strip()
+
+        try:
+            target_date = date.fromisoformat(date_str) if date_str else timezone.localtime().date()
+        except ValueError:
+            target_date = timezone.localtime().date()
+
+        term = _current_term()
+
+        if not class_id or not term:
+            return Response([])
+
+        enrollments = (
+            ClassAssignment.objects
+            .filter(class_obj_id=class_id, term=term)
+            .select_related('student__user')
+            .order_by('student__user__last_name', 'student__user__first_name')
+        )
+
+        # Existing records for this class + date
+        existing = {
+            str(r.student_id): r
+            for r in AttendanceRecord.objects.filter(
+                student_id__in=enrollments.values_list('student_id', flat=True),
+                date=target_date,
+            )
+        }
+
+        data = []
+        for enr in enrollments:
+            student = enr.student
+            record  = existing.get(str(student.id))
+            name_parts = student.full_name.split()
+            initials   = ''.join(p[0].upper() for p in name_parts[:2]) if name_parts else '?'
+            data.append({
+                'student_id':   student.id,
+                'student_code': student.student_id,
+                'full_name':    student.full_name,
+                'initials':     initials,
+                'status':       record.status if record else None,
+                'notes':        record.notes  if record else '',
+            })
+
+        return Response(TeacherAttendanceStudentSerializer(data, many=True).data)
+
+
+class MarkAttendanceView(APIView):
+    """
+    POST /imboni/teacher/attendance/mark/
+
+    Bulk-saves attendance records for a class on a given date.
+    Creates new records or updates existing ones (upsert via unique_together).
+
+    Body:
+    {
+        "class_id": "<uuid>",
+        "date": "2026-02-03",
+        "records": [
+            { "student_id": "<uuid>", "status": "present", "notes": "" },
+            { "student_id": "<uuid>", "status": "absent",  "notes": "Sick leave" },
+            ...
+        ]
+    }
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        from attendance.models import AttendanceRecord
+
+        serializer = MarkAttendanceSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        teacher    = _get_teacher(request)
+        target_date = serializer.validated_data['date']
+        records    = serializer.validated_data['records']
+
+        saved = 0
+        for rec in records:
+            AttendanceRecord.objects.update_or_create(
+                student_id=rec['student_id'],
+                date=target_date,
+                defaults={
+                    'status':    rec['status'],
+                    'notes':     rec.get('notes', ''),
+                    'marked_by': teacher,
+                },
+            )
+            saved += 1
+
+        return Response({'saved': saved}, status=status.HTTP_200_OK)
+
+
+class TeacherAttendancePatternsView(APIView):
+    """
+    GET /imboni/teacher/attendance/patterns/?class_id=<uuid>
+
+    Returns the day-of-week attendance rate for the Attendance Patterns line chart.
+    Looks at the last 8 weeks of records for all students in the given class.
+
+    Response: [ { day: "Mon", attendance_rate: 96.0 }, ... ]
+    """
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from teacher.models import ClassAssignment
+        from attendance.models import AttendanceRecord
+
+        class_id = request.query_params.get('class_id', '').strip()
+        term     = _current_term()
+
+        if not class_id or not term:
+            return Response([])
+
+        student_ids = list(
+            ClassAssignment.objects
+            .filter(class_obj_id=class_id, term=term)
+            .values_list('student_id', flat=True)
+        )
+
+        today     = timezone.localtime().date()
+        since     = today - timedelta(weeks=8)
+
+        day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+        # Django isoweekday: Mon=1 … Fri=5
+        data = []
+        for idx, day_name in enumerate(day_names, start=1):
+            total = AttendanceRecord.objects.filter(
+                student_id__in=student_ids,
+                date__gte=since,
+                date__week_day=idx + 1,   # Django: Sun=1, Mon=2 … Fri=6
+            ).count()
+            present = AttendanceRecord.objects.filter(
+                student_id__in=student_ids,
+                date__gte=since,
+                date__week_day=idx + 1,
+                status='present',
+            ).count()
+            data.append({
+                'day':             day_name,
+                'attendance_rate': round(present / total * 100, 1) if total else 0,
+            })
+
+        return Response(AttendancePatternSerializer(data, many=True).data)
