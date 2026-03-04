@@ -114,3 +114,46 @@ class Timetable(models.Model):
 
     def __str__(self):
         return f"{self.class_obj} — {self.subject.name} — {self.day} {self.start_time}"
+
+
+class Task(models.Model):
+    """Teacher to-do tasks shown in the Pending Tasks panel."""
+    PRIORITY_CHOICES = [
+        ('high',   'High'),
+        ('medium', 'Medium'),
+        ('low',    'Low'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    due_date = models.DateField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'teacher_tasks'
+        ordering = ['is_completed', 'due_date', '-priority']
+
+    def __str__(self):
+        return f"{self.teacher.get_full_name()} — {self.title}"
+
+
+class Reminder(models.Model):
+    """Quick personal reminders shown in the Quick Reminders widget (CRUD)."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reminders')
+    content = models.TextField()
+    is_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'teacher_reminders'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.teacher.get_full_name()} — {self.content[:50]}"
