@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('results', '0001_initial'),
-        ('students', '0002_fee_studentdocument'),
+        ('parents', '0002_fee_studentdocument'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('assigned_date', models.DateField(auto_now_add=True)),
                 ('class_obj', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='students', to='teacher.class')),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='class_assignments', to='students.student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='class_assignments', to='parents.student')),
                 ('term', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='results.academicterm')),
             ],
             options={

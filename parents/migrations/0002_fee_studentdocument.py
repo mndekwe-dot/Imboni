@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('results', '0001_initial'),
-        ('students', '0001_initial'),
+        ('parents', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('notes', models.TextField(blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fees', to='students.student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fees', to='parents.student')),
                 ('term', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='results.academicterm')),
             ],
             options={
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('document_type', models.CharField(choices=[('newsletter', 'Newsletter'), ('consent', 'Consent Form'), ('report', 'Report'), ('certificate', 'Certificate'), ('other', 'Other')], max_length=20)),
                 ('file', models.FileField(upload_to='student_documents/')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='documents', to='students.student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='documents', to='parents.student')),
                 ('uploaded_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='uploaded_documents', to=settings.AUTH_USER_MODEL)),
             ],
             options={

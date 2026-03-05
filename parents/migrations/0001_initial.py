@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('can_pickup', models.BooleanField(default=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('parent', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='children', to=settings.AUTH_USER_MODEL)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='parents', to='students.student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='parents', to='parents.student')),
             ],
             options={
                 'db_table': 'parent_student_relationships',

@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('students', '0001_initial'),
+        ('parents', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                 ('percentage', models.DecimalField(decimal_places=2, max_digits=5)),
                 ('teacher_notes', models.TextField(blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assessments', to='students.student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assessments', to='parents.student')),
                 ('term', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='results.academicterm')),
                 ('subject', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='results.subject')),
             ],
@@ -88,7 +88,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('approved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='approved_results', to=settings.AUTH_USER_MODEL)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='results', to='students.student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='results', to='parents.student')),
                 ('teacher', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='submitted_results', to=settings.AUTH_USER_MODEL)),
                 ('term', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='results.academicterm')),
                 ('subject', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='results.subject')),

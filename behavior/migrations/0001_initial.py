@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('results', '0001_initial'),
-        ('students', '0001_initial'),
+        ('parents', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('reported_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='submitted_reports', to=settings.AUTH_USER_MODEL)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='behavior_reports', to='students.student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='behavior_reports', to='parents.student')),
                 ('witnesses', models.ManyToManyField(blank=True, related_name='witnessed_reports', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('comment', models.TextField(blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='conduct_grades', to='students.student')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='conduct_grades', to='parents.student')),
                 ('term', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='results.academicterm')),
             ],
             options={

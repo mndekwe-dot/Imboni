@@ -4,7 +4,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('__debug__/', include('debug_toolbar.urls')),
-    path('imboni/', include('students.urls')),
+    path('imboni/', include('parents.urls')),
     path('imboni/', include('authentication.urls')),
     path('imboni/', include('results.urls')),
     path('imboni/', include('messages.urls')),

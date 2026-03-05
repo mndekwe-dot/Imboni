@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     # Local apps
     'authentication',
     'debug_toolbar',
-    'students',
     'results',
     'attendance',
     'behavior',
@@ -59,6 +58,7 @@ INSTALLED_APPS = [
     'teacher',
     'messages.apps.MessagesConfig',
     'dos',
+    'parents',
 ]
 
 MIDDLEWARE = [

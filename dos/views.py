@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from authentication.models import User  # used for teaching_staff count
 from authentication.permissions import IsDOS
 from results.models import AcademicTerm, Result
-from students.models import Student
+from parents.models import Student
 
 from rest_framework import status as http_status
 
@@ -865,7 +865,7 @@ class StudentEnrollmentTrendsView(APIView):
 
 def _next_student_code():
     """Return the next available STU-XXX code (thread-safe via select_for_update)."""
-    from students.models import Student as _Student
+    from parents.models import Student as _Student
     last = _Student.objects.order_by('-created_at').first()
     if last and last.student_id.startswith('STU-'):
         try:
@@ -906,7 +906,7 @@ class BulkCreateStudentsView(APIView):
 
     def post(self, request):
         from django.db import transaction
-        from students.models import Student
+        from parents.models import Student
 
         serializer = BulkAddStudentsSerializer(data=request.data)
         if not serializer.is_valid():
@@ -999,7 +999,7 @@ class ImportStudentsCSVView(APIView):
         import csv
         import io
         from django.db import transaction
-        from students.models import Student
+        from parents.models import Student
 
         serializer = CSVImportSerializer(data=request.data)
         if not serializer.is_valid():

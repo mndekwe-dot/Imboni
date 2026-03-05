@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('attendance', '0001_initial'),
-        ('students', '0001_initial'),
+        ('parents', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -24,12 +24,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='attendancerecord',
             name='student',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendance_records', to='students.student'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendance_records', to='parents.student'),
         ),
         migrations.AddField(
             model_name='attendancesummary',
             name='student',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendance_summaries', to='students.student'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendance_summaries', to='parents.student'),
         ),
         migrations.AddIndex(
             model_name='attendancerecord',

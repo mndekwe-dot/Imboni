@@ -5,6 +5,7 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from authentication.models import User, UserPreferences
+from authentication.permissions import IsParent
 from authentication.serializers import UserSerializer
 from .models import Student, ParentStudentRelationship, Fee, StudentDocument
 from .serializers import (
@@ -25,7 +26,7 @@ class MyChildrenView(generics.ListAPIView):
     Returns the list of students linked to the logged-in parent (used for child tabs).
     """
     serializer_class = MyChildrenSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsParent]
 
     def get_queryset(self):
         return (
@@ -44,7 +45,7 @@ class StudentDashboardView(generics.RetrieveAPIView):
       - Unread Announcements
       - Behaviour Reports
     """
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsParent]
 
     def retrieve(self, request, *_args, **_kwargs):
         student = get_object_or_404(Student, pk=self.kwargs['pk'])
@@ -122,7 +123,7 @@ class StudentCardView(generics.RetrieveAPIView):
       - academic_focus (subjects this term)
       - class_teacher  (for the Message button)
     """
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsParent]
 
     def retrieve(self, _request, *_args, **_kwargs):
         from results.models import AcademicTerm
@@ -235,7 +236,7 @@ class StudentFeeListView(generics.ListAPIView):
     Returns all fee records for a student (Tuition, Transport, Lunch, etc.)
     """
     serializer_class = FeeSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsParent]
 
     def get_queryset(self):
         return Fee.objects.filter(student_id=self.kwargs['pk'])
@@ -247,7 +248,7 @@ class StudentDocumentListView(generics.ListAPIView):
     Returns all documents attached to a student (PDFs, consent forms, etc.)
     """
     serializer_class = StudentDocumentSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsParent]
 
     def get_queryset(self):
         return StudentDocument.objects.filter(student_id=self.kwargs['pk'])
@@ -258,7 +259,7 @@ class StudentTodayScheduleView(generics.ListAPIView):
     GET /imboni/students/<pk>/schedule/today/
     Returns today's timetable periods for a student's class, ordered by start time.
     """
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsParent]
 
     def get_serializer_class(self):
         from teacher.serializers import TimetableSerializer
@@ -307,7 +308,7 @@ class LinkStudentView(generics.CreateAPIView):
     Body: { "student_code": "STD2024001", "relationship_type": "mother" }
     """
     serializer_class = LinkStudentSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsParent]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(

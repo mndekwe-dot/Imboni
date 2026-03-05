@@ -87,7 +87,7 @@ class AccountProfileSerializer(serializers.ModelSerializer):
         if obj.role != 'parent':
             return None
         # Deferred import to avoid circular dependency
-        from students.models import ParentStudentRelationship
+        from parents.models import ParentStudentRelationship
         rel = (
             ParentStudentRelationship.objects
             .filter(parent=obj)

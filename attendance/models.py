@@ -1,5 +1,5 @@
 from django.db import models
-from students.models import Student
+from parents.models import Student
 from authentication.models import User
 from django.utils import timezone
 import uuid
