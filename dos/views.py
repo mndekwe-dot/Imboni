@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from authentication.models import User  # used for teaching_staff count
+from authentication.permissions import IsDOS
 from results.models import AcademicTerm, Result
 from students.models import Student
 
@@ -87,7 +88,7 @@ class DOSDashboardStatsView(APIView):
         avg_performance_change — vs previous term
         pending_approvals      — Results with status='submitted'
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         term      = _current_term()
@@ -131,7 +132,7 @@ class DOSRecentActivityView(APIView):
         - Pending results summary item
     Max 10 items, newest first.
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         activities = []
@@ -190,7 +191,7 @@ class DOSPerformanceOverviewView(APIView):
         school_average  — avg final_score % (current term)
         attendance_rate — avg attendance_percentage (all AttendanceSummary records)
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         from attendance.models import AttendanceSummary
@@ -222,7 +223,7 @@ class DOSPerformanceByGradeView(APIView):
 
     Response: [ { grade: "Grade 1", avg_score: 72.5 }, ... ]
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         term = _current_term()
@@ -267,7 +268,7 @@ class TeacherManagementStatsView(APIView):
         student_teacher_ratio — total active students / total teachers (e.g. "1:15")
         ratio_label           — Optimal (<20), High (20-30), Critical (>30)
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         term = _current_term()
@@ -325,7 +326,7 @@ class TeacherListCreateView(APIView):
     POST — Create a new teacher account (Add Teacher button).
     Body: first_name, last_name, email, phone_number, employment_type, password
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment
@@ -417,7 +418,7 @@ class TeachersBySubjectView(APIView):
     Response: [ { subject_id, subject_name, teacher_count, percentage }, ... ]
     percentage = subject teacher count / total teachers * 100
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment
@@ -465,7 +466,7 @@ class TeacherWorkloadDistributionView(APIView):
 
     Powers the Workload Distribution bar chart.
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment
@@ -512,7 +513,7 @@ class TeacherPerformanceRatingsView(APIView):
 
     Powers the Performance Ratings chart.
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         term = _current_term()
@@ -570,7 +571,7 @@ class StudentManagementStatsView(APIView):
         avg_performance        — school-wide avg final_score % (current term)
         avg_performance_change — vs previous term (+3% badge)
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         term      = _current_term()
@@ -621,7 +622,7 @@ class StudentListCreateView(APIView):
     POST — Create a new student account (Add Student button).
     Body: first_name, last_name, email, grade, section, enrollment_date, password
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         from attendance.models import AttendanceSummary
@@ -735,7 +736,7 @@ class StudentEnrollmentByGradeView(APIView):
 
     Response: [ { grade, student_count, percentage }, ... ]
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         from django.db.models import Count
@@ -783,7 +784,7 @@ class StudentPerformanceDistributionView(APIView):
         Average    — avg 60–70%
         Below      — avg < 60%
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         term = _current_term()
@@ -836,7 +837,7 @@ class StudentEnrollmentTrendsView(APIView):
     Returns student count grouped by enrollment year.
     Powers the Enrollment Trends line chart (2023: 1150 | 2024: 1200 | ...).
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def get(self, request):
         from django.db.models import Count
@@ -901,7 +902,7 @@ class BulkCreateStudentsView(APIView):
         "errors":  [{"row": 4, "email": "x@y.com", "error": "..."}]
     }
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def post(self, request):
         from django.db import transaction
@@ -992,7 +993,7 @@ class ImportStudentsCSVView(APIView):
 
     Response: same as bulk-create (created / skipped / failed / errors)
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDOS]
 
     def post(self, request):
         import csv

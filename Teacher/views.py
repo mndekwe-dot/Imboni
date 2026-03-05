@@ -5,6 +5,7 @@ from rest_framework import generics, viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from authentication.models import User
+from authentication.permissions import IsTeacher
 from results.models import AcademicTerm
 from .models import Timetable, Task, Reminder
 from .serializers import (
@@ -44,7 +45,7 @@ class TeacherViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = User.objects.filter(role='teacher').order_by('last_name', 'first_name')
     serializer_class = TeacherSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
 
 class MyTimetableView(generics.ListAPIView):
@@ -53,7 +54,7 @@ class MyTimetableView(generics.ListAPIView):
     Full weekly timetable for the logged-in teacher.
     """
     serializer_class = TimetableSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get_queryset(self):
         term = _current_term()
@@ -73,7 +74,7 @@ class MyTodayScheduleView(generics.ListAPIView):
     Today's periods with Completed / In Progress / Upcoming status.
     """
     serializer_class = ScheduleItemSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get_queryset(self):
         today = timezone.localtime().date().strftime('%A').lower()
@@ -111,7 +112,7 @@ class TeacherDashboardStatsView(APIView):
         classes_completed   — periods already finished today
         pending_results     — Results in draft/submitted state
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         teacher = _get_teacher(request)
@@ -214,7 +215,7 @@ class MyClassesView(APIView):
         ?grade_filter=3-4      — only Grade 3 & 4 classes
         ?high_performers=true  — only classes with avg_score >= 80
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment, ClassAssignment
@@ -332,7 +333,7 @@ class HomeworkSubmissionStatusView(APIView):
         submitted_count / total_students = submission_rate (%)
         bar_color: green (>=90%) | orange (>=75%) | red (<75%)
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment, ClassAssignment
@@ -414,7 +415,7 @@ class TeacherTaskViewSet(viewsets.ModelViewSet):
     DELETE /imboni/teacher/tasks/<id>/  — delete task
     """
     serializer_class = TaskSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get_queryset(self):
         teacher = _get_teacher(self.request)
@@ -436,7 +437,7 @@ class TeacherReminderViewSet(viewsets.ModelViewSet):
     DELETE /imboni/teacher/reminders/<id>/  — delete reminder
     """
     serializer_class = ReminderSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get_queryset(self):
         teacher = _get_teacher(self.request)
@@ -457,7 +458,7 @@ class TeacherClassPerformanceView(APIView):
     Returns average final_score per class for the current term.
     Powers the Class Performance progress-bar section.
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment, ClassAssignment
@@ -516,7 +517,7 @@ class TeacherRecentActivitiesView(APIView):
       - Behaviour incidents reported
     Ordered by most recent first, max 10 items.
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from results.models import Result
@@ -567,7 +568,7 @@ class TeacherUpcomingDeadlinesView(APIView):
     Returns tasks that have a due_date set, for the calendar dot indicators.
     Optional query param: ?month=2&year=2026 to scope to a specific month.
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         teacher = _get_teacher(request)
@@ -605,7 +606,7 @@ class TeacherStudentListView(APIView):
         ?attendance=medium    — 50 <= attendance_percentage < 75
         ?attendance=low       — attendance_percentage < 50
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment, ClassAssignment
@@ -728,7 +729,7 @@ class StudentPerformanceDistributionView(APIView):
         50–69%   → "50-69%"
         0–49%    → "Below 50%"
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment, ClassAssignment
@@ -792,7 +793,7 @@ class StudentAttendanceTrendsView(APIView):
 
     Response: [ { week_label, week_start, attendance_rate }, ... ]
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import SubjectTeacherAssignment, ClassAssignment
@@ -868,7 +869,7 @@ class TeacherAttendanceStatsView(APIView):
         weekly_rate     — attendance % across the current Mon–Fri week
         weekly_rate_change — difference vs the previous Mon–Fri week (e.g. +2.0)
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import ClassAssignment
@@ -936,7 +937,7 @@ class TeacherAttendanceStudentsView(APIView):
     Each row includes the student's existing attendance record for that date
     (status=null and notes='' when not yet marked).
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import ClassAssignment
@@ -1007,7 +1008,7 @@ class MarkAttendanceView(APIView):
         ]
     }
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def post(self, request):
         from attendance.models import AttendanceRecord
@@ -1045,7 +1046,7 @@ class TeacherAttendancePatternsView(APIView):
 
     Response: [ { day: "Mon", attendance_rate: 96.0 }, ... ]
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import ClassAssignment
@@ -1116,7 +1117,7 @@ class TeacherResultListView(APIView):
         class_id          — required
         assessment_title  — optional; omit to return all assessments for the class
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import ClassAssignment
@@ -1200,7 +1201,7 @@ class TeacherBulkSaveResultsView(APIView):
         ]
     }
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def post(self, request):
         from results.models import Assessment, Subject, AcademicTerm
@@ -1249,7 +1250,7 @@ class TeacherGradeDistributionView(APIView):
         - highest_score + highest_scorer name
         - pass_rate (D and above, i.e. percentage >= 50)
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import ClassAssignment, Class
@@ -1365,7 +1366,7 @@ class TeacherPerformanceTrendsView(APIView):
 
     Response: [ { month_label, month, year, avg_score }, ... ]
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTeacher]
 
     def get(self, request):
         from teacher.models import ClassAssignment
