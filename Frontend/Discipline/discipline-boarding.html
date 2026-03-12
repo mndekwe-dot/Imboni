@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boarding - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/discipline.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="discipline.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="discipline-students.html" class="sidebar-nav-item"><span class="material-symbols-rounded">groups</span><span>Students</span></a></li>
+            <li><a href="discipline-staff.html" class="sidebar-nav-item"><span class="material-symbols-rounded">supervisor_account</span><span>Matrons &amp; Patrons</span></a></li>
+            <li><a href="discipline-reports.html" class="sidebar-nav-item"><span class="material-symbols-rounded">summarize</span><span>Reports</span></a></li>
+            <li><a href="discipline-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+            <li><a href="discipline-activities.html" class="sidebar-nav-item"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="discipline-timetable.html" class="sidebar-nav-item"><span class="material-symbols-rounded">calendar_view_week</span><span>Timetable</span></a></li>
+            <li><a href="discipline-student-leaders.html" class="sidebar-nav-item"><span class="material-symbols-rounded">military_tech</span><span>Student Leaders</span></a></li>
+            <li><a href="discipline-boarding.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">hotel</span><span>Boarding</span></a></li>
+            <li><a href="discipline-dining.html" class="sidebar-nav-item"><span class="material-symbols-rounded">restaurant</span><span>Dining</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Boarding</h1>
+            <p>Students by house and class &mdash; report and manage conduct incidents</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">5</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Mr. David Kariuki</span>
+                <span class="header-user-role">Director of Discipline</span>
+              </div>
+              <div class="header-user-av discipline-av">DK</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- ── STATS ── -->
+          <div class="disc-stat-grid">
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon info">
+                <span class="material-symbols-rounded">hotel</span>
+              </div>
+              <div class="disc-stat-value">980</div>
+              <div class="disc-stat-label">Total Boarders</div>
+              <div class="disc-stat-trend positive">Across 4 houses</div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon warning">
+                <span class="material-symbols-rounded">pending</span>
+              </div>
+              <div class="disc-stat-value">5</div>
+              <div class="disc-stat-label">Pending Approval</div>
+              <div class="disc-stat-trend negative">Awaiting DoD review</div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon success">
+                <span class="material-symbols-rounded">check_circle</span>
+              </div>
+              <div class="disc-stat-value">23</div>
+              <div class="disc-stat-label">Approved This Term</div>
+              <div class="disc-stat-trend positive">Visible to parents</div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon positive">
+                <span class="material-symbols-rounded">supervisor_account</span>
+              </div>
+              <div class="disc-stat-value">8</div>
+              <div class="disc-stat-label">Matrons &amp; Patrons</div>
+              <div class="disc-stat-trend positive">2 per house</div>
+            </div>
+          </div>
+
+          <!-- ── PENDING INCIDENTS NOTICE ── -->
+          <div class="card mb-1-5">
+            <div class="card-content" style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;flex-wrap:wrap">
+              <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.12);color:#b45309;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span class="material-symbols-rounded">pending</span>
+              </div>
+              <div style="flex:1;min-width:200px">
+                <div style="font-weight:700;font-size:0.9rem;margin-bottom:2px">5 dormitory incidents awaiting your approval</div>
+                <div style="font-size:0.78rem;color:var(--muted-foreground)">Reported by matrons and patrons — not yet visible to parents until you approve them.</div>
+              </div>
+              <a href="discipline-reports.html" class="btn btn-primary btn-sm">
+                <span class="material-symbols-rounded">open_in_new</span> Review &amp; Approve
+              </a>
+            </div>
+          </div>
+
+          <!-- ── HOUSE TABS ── -->
+          <div class="filter-tabs">
+            <button class="tab active">All Houses</button>
+            <button class="tab">Marigold</button>
+            <button class="tab">Baobab</button>
+            <button class="tab">Jacaranda</button>
+            <button class="tab">Acacia</button>
+          </div>
+
+          <!-- ═══════════════════════════════════════════
+               MARIGOLD HOUSE
+          ═══════════════════════════════════════════ -->
+          <div class="house-block">
+            <div class="house-block-header marigold">
+              <div class="house-block-info">
+                <span class="material-symbols-rounded">hotel</span>
+                <div>
+                  <h2>Marigold House</h2>
+                  <p>Girls' Dormitory &bull; Matron: Mrs. Kamau &bull; 245 / 264 boarders</p>
+                </div>
+              </div>
+              <span class="disc-badge marigold">Girls</span>
+            </div>
+
+            <div class="house-block-body">
+              <p class="class-list-hint">
+                <span class="material-symbols-rounded">info</span>
+                Click a class to expand and view all students. Use the <strong>Report</strong> button to submit a conduct incident.
+              </p>
+
+              <!-- Form 1A -->
+              <details class="class-accordion">
+                <summary class="class-summary">
+                  <div class="class-summary-left">
+                    <span class="material-symbols-rounded expand-icon">chevron_right</span>
+                    <span class="class-label">Form 1A</span>
+                  </div>
+                  <div class="class-summary-right">
+                    <span class="class-count">28 students</span>
+                    <span class="class-room-range">Rooms 1 – 4</span>
+                  </div>
+                </summary>
+                <div class="student-roster">
+                  <div class="student-row">
+                    <div class="student-av-sm matron">AO</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Amina Odhiambo</span>
+                      <span class="student-row-meta">Rm 1, Bed 3 &bull; Adm# 2024-F1-001</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm matron">MW</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Mary Wanjiru</span>
+                      <span class="student-row-meta">Rm 2, Bed 1 &bull; Adm# 2024-F1-002</span>
+                    </div>
+                    <span class="status-pill pending">1 pending</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm matron">FK</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Faith Kamau</span>
+                      <span class="student-row-meta">Rm 2, Bed 5 &bull; Adm# 2024-F1-003</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm matron">RN</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Ruth Njeri</span>
+                      <span class="student-row-meta">Rm 3, Bed 2 &bull; Adm# 2024-F1-004</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm matron">EW</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Esther Wangari</span>
+                      <span class="student-row-meta">Rm 4, Bed 6 &bull; Adm# 2024-F1-005</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <p class="more-students-note">+ 23 more students in this class &mdash; scroll or search to view all</p>
+                </div>
+              </details>
+
+              <!-- Form 2A -->
+              <details class="class-accordion">
+                <summary class="class-summary">
+                  <div class="class-summary-left">
+                    <span class="material-symbols-rounded expand-icon">chevron_right</span>
+                    <span class="class-label">Form 2A</span>
+                  </div>
+                  <div class="class-summary-right">
+                    <span class="class-count">30 students</span>
+                    <span class="class-room-range">Rooms 5 – 8</span>
+                  </div>
+                </summary>
+                <div class="student-roster">
+                  <div class="student-row">
+                    <div class="student-av-sm matron">GK</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Grace Kamau</span>
+                      <span class="student-row-meta">Rm 5, Bed 2 &bull; Adm# 2023-F2-011</span>
+                    </div>
+                    <span class="status-pill pending">1 pending</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm matron">JA</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Janet Auma</span>
+                      <span class="student-row-meta">Rm 5, Bed 7 &bull; Adm# 2023-F2-012</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm matron">SW</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Sharon Waweru</span>
+                      <span class="student-row-meta">Rm 6, Bed 3 &bull; Adm# 2023-F2-013</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <p class="more-students-note">+ 27 more students in this class &mdash; scroll or search to view all</p>
+                </div>
+              </details>
+
+              <!-- Form 3A -->
+              <details class="class-accordion">
+                <summary class="class-summary">
+                  <div class="class-summary-left">
+                    <span class="material-symbols-rounded expand-icon">chevron_right</span>
+                    <span class="class-label">Form 3A</span>
+                  </div>
+                  <div class="class-summary-right">
+                    <span class="class-count">32 students</span>
+                    <span class="class-room-range">Rooms 9 – 13</span>
+                  </div>
+                </summary>
+                <div class="student-roster">
+                  <div class="student-row">
+                    <div class="student-av-sm matron">CA</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Catherine Achieng</span>
+                      <span class="student-row-meta">Rm 9, Bed 1 &bull; Adm# 2022-F3-021</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm matron">LM</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Lydia Mwangi</span>
+                      <span class="student-row-meta">Rm 10, Bed 4 &bull; Adm# 2022-F3-022</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <p class="more-students-note">+ 30 more students in this class &mdash; scroll or search to view all</p>
+                </div>
+              </details>
+
+              <!-- Form 4A -->
+              <details class="class-accordion">
+                <summary class="class-summary">
+                  <div class="class-summary-left">
+                    <span class="material-symbols-rounded expand-icon">chevron_right</span>
+                    <span class="class-label">Form 4A</span>
+                  </div>
+                  <div class="class-summary-right">
+                    <span class="class-count">28 students</span>
+                    <span class="class-room-range">Rooms 14 – 17</span>
+                  </div>
+                </summary>
+                <div class="student-roster">
+                  <div class="student-row">
+                    <div class="student-av-sm matron">AO</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Amina Odhiambo</span>
+                      <span class="student-row-meta">Rm 14, Bed 1 &bull; Adm# 2021-F4-031 &bull; Head Girl</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm matron">CW</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Catherine Wanjiku</span>
+                      <span class="student-row-meta">Rm 14, Bed 3 &bull; Adm# 2021-F4-032 &bull; Deputy Head Girl</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <p class="more-students-note">+ 26 more students in this class &mdash; scroll or search to view all</p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <!-- ═══════════════════════════════════════════
+               BAOBAB HOUSE
+          ═══════════════════════════════════════════ -->
+          <div class="house-block">
+            <div class="house-block-header baobab">
+              <div class="house-block-info">
+                <span class="material-symbols-rounded">hotel</span>
+                <div>
+                  <h2>Baobab House</h2>
+                  <p>Boys' Dormitory &bull; Patron: Mr. Njoroge &bull; 258 / 264 boarders</p>
+                </div>
+              </div>
+              <span class="disc-badge baobab">Boys</span>
+            </div>
+
+            <div class="house-block-body">
+              <p class="class-list-hint">
+                <span class="material-symbols-rounded">info</span>
+                Click a class to expand and view all students.
+              </p>
+
+              <!-- Form 1B -->
+              <details class="class-accordion">
+                <summary class="class-summary">
+                  <div class="class-summary-left">
+                    <span class="material-symbols-rounded expand-icon">chevron_right</span>
+                    <span class="class-label">Form 1B</span>
+                  </div>
+                  <div class="class-summary-right">
+                    <span class="class-count">30 students</span>
+                    <span class="class-room-range">Rooms 1 – 4</span>
+                  </div>
+                </summary>
+                <div class="student-roster">
+                  <div class="student-row">
+                    <div class="student-av-sm patron">PM</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Peter Mwangi</span>
+                      <span class="student-row-meta">Rm 1, Bed 2 &bull; Adm# 2024-F1-101</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <div class="student-row">
+                    <div class="student-av-sm patron">KN</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Kevin Njoroge</span>
+                      <span class="student-row-meta">Rm 2, Bed 4 &bull; Adm# 2024-F1-102</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <p class="more-students-note">+ 28 more students in this class &mdash; scroll or search to view all</p>
+                </div>
+              </details>
+
+              <!-- Form 2B -->
+              <details class="class-accordion">
+                <summary class="class-summary">
+                  <div class="class-summary-left">
+                    <span class="material-symbols-rounded expand-icon">chevron_right</span>
+                    <span class="class-label">Form 2B</span>
+                  </div>
+                  <div class="class-summary-right">
+                    <span class="class-count">32 students</span>
+                    <span class="class-room-range">Rooms 5 – 9</span>
+                  </div>
+                </summary>
+                <div class="student-roster">
+                  <div class="student-row">
+                    <div class="student-av-sm patron">SO</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Samuel Otieno</span>
+                      <span class="student-row-meta">Rm 5, Bed 1 &bull; Adm# 2023-F2-111</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <p class="more-students-note">+ 31 more students in this class &mdash; scroll or search to view all</p>
+                </div>
+              </details>
+
+              <!-- Form 3B -->
+              <details class="class-accordion">
+                <summary class="class-summary">
+                  <div class="class-summary-left">
+                    <span class="material-symbols-rounded expand-icon">chevron_right</span>
+                    <span class="class-label">Form 3B</span>
+                  </div>
+                  <div class="class-summary-right">
+                    <span class="class-count">30 students</span>
+                    <span class="class-room-range">Rooms 10 – 14</span>
+                  </div>
+                </summary>
+                <div class="student-roster">
+                  <div class="student-row">
+                    <div class="student-av-sm patron">JO</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">James Otieno</span>
+                      <span class="student-row-meta">Rm 12, Bed 3 &bull; Adm# 2022-F3-121</span>
+                    </div>
+                    <span class="status-pill pending">1 pending</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <p class="more-students-note">+ 29 more students in this class &mdash; scroll or search to view all</p>
+                </div>
+              </details>
+
+              <!-- Form 4B -->
+              <details class="class-accordion">
+                <summary class="class-summary">
+                  <div class="class-summary-left">
+                    <span class="material-symbols-rounded expand-icon">chevron_right</span>
+                    <span class="class-label">Form 4B</span>
+                  </div>
+                  <div class="class-summary-right">
+                    <span class="class-count">29 students</span>
+                    <span class="class-room-range">Rooms 15 – 18</span>
+                  </div>
+                </summary>
+                <div class="student-roster">
+                  <div class="student-row">
+                    <div class="student-av-sm patron">BK</div>
+                    <div class="student-row-info">
+                      <span class="student-row-name">Brian Kipchoge</span>
+                      <span class="student-row-meta">Rm 15, Bed 1 &bull; Adm# 2021-F4-131 &bull; Head Boy</span>
+                    </div>
+                    <span class="status-pill clean">Clean record</span>
+                    <button class="btn btn-secondary btn-sm report-btn">Report</button>
+                  </div>
+                  <p class="more-students-note">+ 28 more students in this class &mdash; scroll or search to view all</p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <!-- Jacaranda & Acacia collapsed summary cards -->
+          <div class="house-summary-row">
+            <div class="house-summary-card jacaranda">
+              <div class="house-summary-icon">
+                <span class="material-symbols-rounded">hotel</span>
+              </div>
+              <div class="house-summary-info">
+                <h3>Jacaranda House</h3>
+                <p>Girls &bull; 238 / 240 boarders &bull; Matron: Ms. Wanjiku</p>
+                <p>4 classes &bull; 30 rooms</p>
+              </div>
+              <button class="btn btn-secondary btn-sm">View Students</button>
+            </div>
+            <div class="house-summary-card acacia">
+              <div class="house-summary-icon">
+                <span class="material-symbols-rounded">hotel</span>
+              </div>
+              <div class="house-summary-info">
+                <h3>Acacia House</h3>
+                <p>Boys &bull; 239 / 248 boarders &bull; Patron: Mr. Omondi</p>
+                <p>4 classes &bull; 31 rooms</p>
+              </div>
+              <button class="btn btn-secondary btn-sm">View Students</button>
+            </div>
+          </div>
+
+          <!-- ── REPORT INCIDENT FORM ── -->
+          <div class="card mt-1-5" id="report-incident">
+            <div class="card-header">
+              <h2 class="card-title">
+                <span class="material-symbols-rounded">report</span>
+                Report New Conduct Incident
+              </h2>
+              <span class="approval-note-inline">Will be sent to DoD for approval before parents are notified</span>
+            </div>
+            <div class="card-content">
+              <div class="incident-form">
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label">Student Name</label>
+                    <input type="text" class="form-input" placeholder="Search student name or admission number..." />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Class</label>
+                    <select class="form-input">
+                      <option value="">Select class</option>
+                      <option>Form 1A</option>
+                      <option>Form 1B</option>
+                      <option>Form 2A</option>
+                      <option>Form 2B</option>
+                      <option>Form 3A</option>
+                      <option>Form 3B</option>
+                      <option>Form 4A</option>
+                      <option>Form 4B</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label">House</label>
+                    <select class="form-input">
+                      <option value="">Select house</option>
+                      <option>Marigold House</option>
+                      <option>Baobab House</option>
+                      <option>Jacaranda House</option>
+                      <option>Acacia House</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Incident Type</label>
+                    <select class="form-input">
+                      <option value="">Select type</option>
+                      <option>Lights-out violation</option>
+                      <option>Fighting / altercation</option>
+                      <option>Food in dormitory</option>
+                      <option>Absence without permission</option>
+                      <option>Noise disturbance</option>
+                      <option>Bullying / harassment</option>
+                      <option>Property damage</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Incident Description</label>
+                  <textarea class="form-input form-textarea" rows="4" placeholder="Describe what happened, when, and where. Include any witnesses or prior warnings..."></textarea>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label">Date of Incident</label>
+                    <input type="date" class="form-input" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Severity</label>
+                    <select class="form-input">
+                      <option>Minor — First warning</option>
+                      <option>Moderate — Repeat offence</option>
+                      <option>Serious — Requires immediate action</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-workflow-note did-authority">
+                  <span class="material-symbols-rounded">verified</span>
+                  <div>
+                    <strong>Director of Discipline authority:</strong> Incidents you record are <strong>immediately approved and saved</strong> to the student's conduct record. The parent is notified right away — no additional approval step is required.
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-secondary">Clear Form</button>
+                  <button class="btn btn-primary">Record Incident Now</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

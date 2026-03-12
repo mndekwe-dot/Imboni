@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Results Approval - Imboni Education Connects</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0"
+    />
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dos.css" />
+  </head>
+  <body>
+    <!-- Allows users to skip the sidebar navigation and jump directly to the main content. -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <!-- For mobile responsiveness -->
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <!-- PART 1: LOGO SECTION - FIRST (AT TOP) -->
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon">
+              <img src="../images/imboni-logo.png" alt="Imboni Logo" />
+            </div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li>
+              <a href="dos.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">dashboard</span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-analytics.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">analytics</span>
+                <span>Analytics</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-results-approval.html" class="sidebar-nav-item active">
+                <span class="material-symbols-rounded">fact_check</span>
+                <span>Results Approval</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-teachers.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">school</span>
+                <span>Teachers</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-students.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">group</span>
+                <span>Students</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-attendance.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">check_circle</span>
+                <span>Attendance</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-exam-schedule.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_today</span>
+                <span>Exams Schedule</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-timetable.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_view_week</span>
+                <span>Timetable</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-announcement.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">announcement</span>
+                <span>Announcements</span>
+              </a>
+            </li>
+          </ul>
+          <!-- Secondary Navigation (Bottom) -->
+          <ul class="nav-list secondary-nav">
+            <li>
+              <a href="../Parent/account.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">account_circle</span>
+                <span>Account</span>
+              </a>
+            </li>
+            <li>
+              <a href="index.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">logout</span>
+                <span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn">
+            <span class="material-symbols-rounded">menu</span>
+          </button>
+          <div class="dashboard-header-title">
+            <h1>Results Approval</h1>
+            <p>Review and approve examination results</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, February 09, 2026</span>
+            <button class="btn btn-primary">Bulk Approve</button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Dr. Samuel Oduya</span>
+                <span class="header-user-role">Director of Studies</span>
+              </div>
+              <div class="header-user-av dos-av">SO</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+          <div class="filter-tabs">
+            <button class="tab active">
+              Pending <span class="badge">24</span>
+            </button>
+            <button class="tab">Approved</button>
+            <button class="tab">Rejected</button>
+            <button class="tab">All</button>
+          </div>
+
+          <div class="quick-stats">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon warning">
+                  <span class="material-symbols-rounded">pending</span>
+                </div>
+                <span class="stat-trend negative">Requires review</span>
+              </div>
+              <div class="stat-value">24</div>
+              <div class="stat-label">Pending Approval</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon success">
+                  <span class="material-symbols-rounded">check_circle</span>
+                </div>
+                <span class="stat-trend positive">This term</span>
+              </div>
+              <div class="stat-value">156</div>
+              <div class="stat-label">Approved</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon danger">
+                  <span class="material-symbols-rounded">cancel</span>
+                </div>
+                <span class="stat-trend negative">Needs correction</span>
+              </div>
+              <div class="stat-value">8</div>
+              <div class="stat-label">Rejected</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon info">
+                  <span class="material-symbols-rounded">analytics</span>
+                </div>
+                <span class="stat-trend neutral">Average</span>
+              </div>
+              <div class="stat-value">87%</div>
+              <div class="stat-label">Approval Rate</div>
+            </div>
+          </div>
+
+          <div class="search-filter">
+            <div class="search-box">
+              <span class="material-symbols-rounded">search</span>
+              <input
+                type="text"
+                placeholder="Search by teacher, subject, or class..."
+              />
+            </div>
+            <div class="filter-buttons">
+              <button class="btn btn-secondary active">All</button>
+              <button class="btn btn-secondary">This Week</button>
+              <button class="btn btn-secondary">Mathematics</button>
+              <button class="btn btn-secondary">English</button>
+            </div>
+          </div>
+
+          <div class="results-list">
+            <div class="result-card">
+              <div class="result-header">
+                <div class="result-info">
+                  <h3>Form 4A - Mathematics Mid-Term</h3>
+                  <p>Submitted by Ms. Grace Mwangi • Feb 8, 2026</p>
+                </div>
+                <span class="badge pending">Pending</span>
+              </div>
+              <div class="result-stats">
+                <div class="result-stat">
+                  <div class="stat-value">32</div>
+                  <div class="stat-label">Students</div>
+                </div>
+                <div class="result-stat">
+                  <div class="stat-value">85%</div>
+                  <div class="stat-label">Average</div>
+                </div>
+                <div class="result-stat">
+                  <div class="stat-value">94</div>
+                  <div class="stat-label">Highest</div>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="btn btn-primary btn-sm">Review</button>
+                <button class="btn btn-secondary btn-sm">View Details</button>
+              </div>
+            </div>
+
+            <div class="result-card">
+              <div class="result-header">
+                <div class="result-info">
+                  <h3>Form 3B - English Literature</h3>
+                  <p>Submitted by Mr. John Kamau • Feb 7, 2026</p>
+                </div>
+                <span class="badge pending">Pending</span>
+              </div>
+              <div class="result-stats">
+                <div class="result-stat">
+                  <div class="stat-value">28</div>
+                  <div class="stat-label">Students</div>
+                </div>
+                <div class="result-stat">
+                  <div class="stat-value">78%</div>
+                  <div class="stat-label">Average</div>
+                </div>
+                <div class="result-stat">
+                  <div class="stat-value">88</div>
+                  <div class="stat-label">Highest</div>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="btn btn-primary btn-sm">Review</button>
+                <button class="btn btn-secondary btn-sm">View Details</button>
+              </div>
+            </div>
+
+            <div class="result-card">
+              <div class="result-header">
+                <div class="result-info">
+                  <h3>Form 2A - Science Practical</h3>
+                  <p>Submitted by Dr. Sarah Wanjiku • Feb 6, 2026</p>
+                </div>
+                <span class="badge pending">Pending</span>
+              </div>
+              <div class="result-stats">
+                <div class="result-stat">
+                  <div class="stat-value">30</div>
+                  <div class="stat-label">Students</div>
+                </div>
+                <div class="result-stat">
+                  <div class="stat-value">82%</div>
+                  <div class="stat-label">Average</div>
+                </div>
+                <div class="result-stat">
+                  <div class="stat-value">92</div>
+                  <div class="stat-label">Highest</div>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="btn btn-primary btn-sm">Review</button>
+                <button class="btn btn-secondary btn-sm">View Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

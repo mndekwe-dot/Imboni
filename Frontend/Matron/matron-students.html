@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Students - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/matron.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+      .students-list-table { width:100%; border-collapse:collapse; }
+      .students-list-table th {
+        background: var(--muted); padding: 0.65rem 1rem;
+        text-align: left; font-size: 0.78rem; font-weight: 600;
+        color: var(--muted-foreground); border-bottom: 2px solid var(--border);
+        white-space: nowrap;
+      }
+      .students-list-table td {
+        padding: 0.65rem 1rem; border-bottom: 1px solid var(--border);
+        font-size: 0.85rem; vertical-align: middle;
+      }
+      .students-list-table tbody tr:hover td { background: var(--matron-light); }
+      .stu-cell { display:flex; align-items:center; gap:0.6rem; }
+      .stu-av {
+        width:32px; height:32px; border-radius:50%; flex-shrink:0;
+        background: var(--matron-light); color: var(--matron);
+        display:flex; align-items:center; justify-content:center;
+        font-size:0.72rem; font-weight:800;
+      }
+      .stu-name { font-weight:600; font-size:0.875rem; }
+      .stu-id   { font-size:0.72rem; color:var(--muted-foreground); }
+      .class-badge {
+        display:inline-block; font-size:0.72rem; font-weight:700;
+        padding:2px 8px; border-radius:6px;
+        background:var(--matron-light); color:var(--matron);
+      }
+      .status-pill {
+        display:inline-flex; align-items:center; gap:4px;
+        font-size:0.75rem; font-weight:600;
+        padding:2px 9px; border-radius:12px;
+      }
+      .status-pill.present  { background:var(--success-light);     color:var(--success); }
+      .status-pill.late     { background:var(--warning-light);      color:var(--warning); }
+      .status-pill.absent   { background:var(--destructive-light);  color:var(--destructive); }
+      .status-pill .material-symbols-rounded { font-size:0.85rem; }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="matron.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="matron-students.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">groups</span><span>My Students</span></a></li>
+            <li><a href="matron-schedule.html" class="sidebar-nav-item"><span class="material-symbols-rounded">schedule</span><span>Daily Schedule</span></a></li>
+            <li><a href="matron-incidents.html" class="sidebar-nav-item"><span class="material-symbols-rounded">report</span><span>Report Incident</span></a></li>
+            <li><a href="matron-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>My Students</h1>
+            <p id="pageSubtitle">Marigold House — 10 students</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">2</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Mrs. Agnes Waweru</span>
+                <span class="header-user-role">Matron</span>
+              </div>
+              <div class="header-user-av matron-av">AW</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Stats -->
+          <div class="matron-stat-grid" style="margin-bottom:1.25rem">
+            <div class="matron-stat-card">
+              <div class="matron-stat-icon"><span class="material-symbols-rounded">groups</span></div>
+              <div><div class="matron-stat-value" id="statTotal">10</div><div class="matron-stat-label">Total Students</div></div>
+            </div>
+            <div class="matron-stat-card green">
+              <div class="matron-stat-icon green"><span class="material-symbols-rounded">check_circle</span></div>
+              <div><div class="matron-stat-value">8</div><div class="matron-stat-label">Present Tonight</div></div>
+            </div>
+            <div class="matron-stat-card red">
+              <div class="matron-stat-icon red"><span class="material-symbols-rounded">cancel</span></div>
+              <div><div class="matron-stat-value">1</div><div class="matron-stat-label">Absent</div></div>
+            </div>
+            <div class="matron-stat-card">
+              <div class="matron-stat-icon"><span class="material-symbols-rounded">meeting_room</span></div>
+              <div><div class="matron-stat-value">5</div><div class="matron-stat-label">Rooms Occupied</div></div>
+            </div>
+          </div>
+
+          <!-- Picker: Class + Dormitory -->
+          <div class="mat-picker">
+            <div class="mat-picker-group">
+              <label class="mat-picker-label">Section</label>
+              <select class="mat-picker-select" id="dp-section" onchange="onSectionChange()">
+                <option value="">All Sections</option>
+                <option value="olevel">O-Level (S1–S3)</option>
+                <option value="alevel">A-Level (S4–S6)</option>
+              </select>
+            </div>
+            <div class="mat-picker-group">
+              <label class="mat-picker-label">Year</label>
+              <select class="mat-picker-select" id="dp-year" onchange="renderFilter()">
+                <option value="">All Years</option>
+                <option value="S1">S1</option>
+                <option value="S2">S2</option>
+                <option value="S3">S3</option>
+                <option value="S4">S4</option>
+                <option value="S5">S5</option>
+                <option value="S6">S6</option>
+              </select>
+            </div>
+            <div class="mat-picker-group">
+              <label class="mat-picker-label">Class</label>
+              <select class="mat-picker-select" id="dp-class" onchange="renderFilter()">
+                <option value="">All Classes</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+              </select>
+            </div>
+            <div class="mat-picker-group">
+              <label class="mat-picker-label">Dormitory</label>
+              <select class="mat-picker-select" id="dp-dorm" onchange="renderFilter()">
+                <option value="">All (My Houses)</option>
+                <option value="marigold">Marigold House</option>
+              </select>
+            </div>
+            <span class="mat-picker-current" id="classLabel">All Students</span>
+          </div>
+
+          <!-- Search + Export -->
+          <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+            <div class="search-bar-wrap" style="flex:1;min-width:220px">
+              <span class="material-symbols-rounded">search</span>
+              <input type="text" placeholder="Search by name, ID, or room..." oninput="filterStudents(this.value)" />
+            </div>
+            <button class="btn btn-outline btn-sm">
+              <span class="material-symbols-rounded">download</span> Export List
+            </button>
+            <button class="btn btn-outline btn-sm">
+              <span class="material-symbols-rounded">print</span> Print Roll
+            </button>
+          </div>
+
+          <!-- Students table -->
+          <div class="card">
+            <div class="card-content" style="padding:0">
+              <div class="table-responsive">
+                <table class="students-list-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Class</th>
+                      <th>Room</th>
+                      <th>Dining</th>
+                      <th>House</th>
+                      <th>Tonight</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="studentsBody">
+
+                    <tr data-year="S3" data-classletter="A" data-dorm="marigold" data-name="sarah doe">
+                      <td><div class="stu-cell"><div class="stu-av">SD</div><div><div class="stu-name">Sarah Doe</div><div class="stu-id">2024-001</div></div></div></td>
+                      <td><span class="class-badge">S3A</span></td>
+                      <td>Room 14B</td>
+                      <td>Table 7, Seat 3</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill present"><span class="material-symbols-rounded">check_circle</span>Present</span></td>
+                      <td>—</td>
+                    </tr>
+
+                    <tr data-year="S5" data-classletter="A" data-dorm="marigold" data-name="jane wambui">
+                      <td><div class="stu-cell"><div class="stu-av">JW</div><div><div class="stu-name">Jane Wambui</div><div class="stu-id">2022-015 · Prefect</div></div></div></td>
+                      <td><span class="class-badge">S5A</span></td>
+                      <td>Room 12A</td>
+                      <td>Table 1, Seat 1</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill present"><span class="material-symbols-rounded">check_circle</span>Present</span></td>
+                      <td>—</td>
+                    </tr>
+
+                    <tr data-year="S2" data-classletter="C" data-dorm="marigold" data-name="brian kiprotich">
+                      <td><div class="stu-cell"><div class="stu-av">BK</div><div><div class="stu-name">Brian Kiprotich</div><div class="stu-id">2025-014</div></div></div></td>
+                      <td><span class="class-badge">S2C</span></td>
+                      <td>Room 8C</td>
+                      <td>Table 9, Seat 4</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill late"><span class="material-symbols-rounded">schedule</span>Late</span></td>
+                      <td><button class="btn btn-sm btn-outline"><span class="material-symbols-rounded">report</span> Report</button></td>
+                    </tr>
+
+                    <tr data-year="S3" data-classletter="B" data-dorm="marigold" data-name="michael otieno">
+                      <td><div class="stu-cell"><div class="stu-av">MO</div><div><div class="stu-name">Michael Otieno</div><div class="stu-id">2024-078</div></div></div></td>
+                      <td><span class="class-badge">S3B</span></td>
+                      <td>Room 9A</td>
+                      <td>Table 5, Seat 2</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill absent"><span class="material-symbols-rounded">cancel</span>Absent</span></td>
+                      <td><button class="btn btn-sm btn-primary"><span class="material-symbols-rounded">report</span> Report</button></td>
+                    </tr>
+
+                    <tr data-year="S4" data-classletter="A" data-dorm="marigold" data-name="faith ndungu">
+                      <td><div class="stu-cell"><div class="stu-av">FN</div><div><div class="stu-name">Faith Ndungu</div><div class="stu-id">2023-042</div></div></div></td>
+                      <td><span class="class-badge">S4A</span></td>
+                      <td>Room 7B</td>
+                      <td>Table 3, Seat 5</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill present"><span class="material-symbols-rounded">check_circle</span>Present</span></td>
+                      <td>—</td>
+                    </tr>
+
+                    <tr data-year="S4" data-classletter="C" data-dorm="marigold" data-name="grace njeri">
+                      <td><div class="stu-cell"><div class="stu-av">GN</div><div><div class="stu-name">Grace Njeri</div><div class="stu-id">2023-061</div></div></div></td>
+                      <td><span class="class-badge">S4C</span></td>
+                      <td>Room 6C</td>
+                      <td>Table 4, Seat 1</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill present"><span class="material-symbols-rounded">check_circle</span>Present</span></td>
+                      <td>—</td>
+                    </tr>
+
+                    <tr data-year="S1" data-classletter="A" data-dorm="marigold" data-name="amina hassan">
+                      <td><div class="stu-cell"><div class="stu-av">AH</div><div><div class="stu-name">Amina Hassan</div><div class="stu-id">2026-003</div></div></div></td>
+                      <td><span class="class-badge">S1A</span></td>
+                      <td>Room 3A</td>
+                      <td>Table 11, Seat 2</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill present"><span class="material-symbols-rounded">check_circle</span>Present</span></td>
+                      <td>—</td>
+                    </tr>
+
+                    <tr data-year="S1" data-classletter="B" data-dorm="marigold" data-name="linda chebet">
+                      <td><div class="stu-cell"><div class="stu-av">LC</div><div><div class="stu-name">Linda Chebet</div><div class="stu-id">2026-017</div></div></div></td>
+                      <td><span class="class-badge">S1B</span></td>
+                      <td>Room 3B</td>
+                      <td>Table 11, Seat 4</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill present"><span class="material-symbols-rounded">check_circle</span>Present</span></td>
+                      <td>—</td>
+                    </tr>
+
+                    <tr data-year="S2" data-classletter="A" data-dorm="marigold" data-name="eunice wanjiku">
+                      <td><div class="stu-cell"><div class="stu-av">EW</div><div><div class="stu-name">Eunice Wanjiku</div><div class="stu-id">2025-031</div></div></div></td>
+                      <td><span class="class-badge">S2A</span></td>
+                      <td>Room 5A</td>
+                      <td>Table 8, Seat 1</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill present"><span class="material-symbols-rounded">check_circle</span>Present</span></td>
+                      <td>—</td>
+                    </tr>
+
+                    <tr data-year="S6" data-classletter="A" data-dorm="marigold" data-name="patricia muthoni">
+                      <td><div class="stu-cell"><div class="stu-av">PM</div><div><div class="stu-name">Patricia Muthoni</div><div class="stu-id">2021-008 · Head Girl</div></div></div></td>
+                      <td><span class="class-badge">S6A</span></td>
+                      <td>Room 16A</td>
+                      <td>Table 2, Seat 1</td>
+                      <td>Marigold</td>
+                      <td><span class="status-pill present"><span class="material-symbols-rounded">check_circle</span>Present</span></td>
+                      <td>—</td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <p id="noResultsMsg" style="display:none;text-align:center;padding:2rem;color:var(--muted-foreground)">
+            No students match this filter.
+          </p>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script>
+      const oLevel = ['S1','S2','S3'];
+      const aLevel = ['S4','S5','S6'];
+
+      function onSectionChange() {
+        const section = document.getElementById('dp-section').value;
+        const yearSel = document.getElementById('dp-year');
+        yearSel.innerHTML = '<option value="">All Years</option>';
+        const years = section === 'olevel' ? oLevel : section === 'alevel' ? aLevel : [...oLevel, ...aLevel];
+        years.forEach(y => { yearSel.innerHTML += `<option value="${y}">${y}</option>`; });
+        renderFilter();
+      }
+
+      function renderFilter() {
+        const section = document.getElementById('dp-section').value;
+        const year    = document.getElementById('dp-year').value;
+        const cls     = document.getElementById('dp-class').value;
+        const dorm    = document.getElementById('dp-dorm').value;
+
+        let visible = 0;
+        document.querySelectorAll('#studentsBody tr').forEach(row => {
+          const ry = row.dataset.year || '';
+          const rc = row.dataset.classletter || '';
+          const rd = row.dataset.dorm || '';
+          const inOLevel  = oLevel.includes(ry);
+          const matchSec  = !section || (section === 'olevel' ? inOLevel : !inOLevel);
+          const matchY    = !year    || ry === year;
+          const matchC    = !cls     || rc === cls;
+          const matchDorm = !dorm    || rd === dorm;
+          const show = matchSec && matchY && matchC && matchDorm;
+          row.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+
+        document.getElementById('noResultsMsg').style.display = visible === 0 ? '' : 'none';
+
+        let label = 'All Students';
+        if (year && cls) label = `${year}${cls}`;
+        else if (year)   label = `All ${year}`;
+        else if (cls)    label = `Class ${cls}`;
+        else if (section === 'olevel') label = 'O-Level';
+        else if (section === 'alevel') label = 'A-Level';
+        document.getElementById('classLabel').textContent = label;
+
+        document.getElementById('statTotal').textContent = visible;
+        document.getElementById('pageSubtitle').textContent =
+          `Marigold House — ${visible} student${visible !== 1 ? 's' : ''}`;
+      }
+
+      function filterStudents(q) {
+        const lower = q.toLowerCase();
+        let visible = 0;
+        document.querySelectorAll('#studentsBody tr').forEach(row => {
+          const show = row.dataset.name.includes(lower) ||
+                       row.textContent.toLowerCase().includes(lower);
+          row.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        document.getElementById('noResultsMsg').style.display = visible === 0 ? '' : 'none';
+        document.getElementById('statTotal').textContent = visible;
+      }
+    </script>
+  </body>
+</html>

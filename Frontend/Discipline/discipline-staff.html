@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrons &amp; Patrons - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/discipline.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="discipline.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="discipline-students.html" class="sidebar-nav-item"><span class="material-symbols-rounded">groups</span><span>Students</span></a></li>
+            <li><a href="discipline-staff.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">supervisor_account</span><span>Matrons &amp; Patrons</span></a></li>
+            <li><a href="discipline-reports.html" class="sidebar-nav-item"><span class="material-symbols-rounded">summarize</span><span>Reports</span></a></li>
+            <li><a href="discipline-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+            <li><a href="discipline-activities.html" class="sidebar-nav-item"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="discipline-timetable.html" class="sidebar-nav-item"><span class="material-symbols-rounded">calendar_view_week</span><span>Timetable</span></a></li>
+            <li><a href="discipline-student-leaders.html" class="sidebar-nav-item"><span class="material-symbols-rounded">military_tech</span><span>Student Leaders</span></a></li>
+            <li><a href="discipline-boarding.html" class="sidebar-nav-item"><span class="material-symbols-rounded">hotel</span><span>Boarding</span></a></li>
+            <li><a href="discipline-dining.html" class="sidebar-nav-item"><span class="material-symbols-rounded">restaurant</span><span>Dining</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Matrons &amp; Patrons</h1>
+            <p>Staff under your supervision</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">3</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Mr. David Kariuki</span>
+                <span class="header-user-role">Director of Discipline</span>
+              </div>
+              <div class="header-user-av discipline-av">DK</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Matrons section -->
+          <div class="disc-section-header">
+            <div class="disc-section-title"><span class="material-symbols-rounded">home</span> Boarding Matrons</div>
+            <span class="badge">3 Matrons</span>
+          </div>
+
+          <!-- Dormitory Assignment Panel -->
+          <div class="act-panel" id="dormAssignPanel" style="margin-bottom:1.25rem">
+            <div class="card" style="border-top:3px solid var(--discipline)">
+              <div class="card-header">
+                <h3 class="card-title"><span class="material-symbols-rounded" style="vertical-align:middle;margin-right:6px;color:var(--discipline)">home</span>Assign Dormitory — <span id="assignStaffName"></span></h3>
+              </div>
+              <div class="card-content">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                  <div class="form-group">
+                    <label class="disc-picker-label" style="display:block;margin-bottom:0.35rem">Staff Member</label>
+                    <input class="input" id="assignStaffInput" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label class="disc-picker-label" style="display:block;margin-bottom:0.35rem">Current Dormitory</label>
+                    <input class="input" id="assignCurrentDorm" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label class="disc-picker-label" style="display:block;margin-bottom:0.35rem">Assign to Dormitory</label>
+                    <select class="input" id="assignNewDorm">
+                      <option value="">— Select Dormitory —</option>
+                      <option value="Marigold House (Girls)">Marigold House (Girls)</option>
+                      <option value="Baobab House (Boys)">Baobab House (Boys)</option>
+                      <option value="Jacaranda House (Girls)">Jacaranda House (Girls)</option>
+                      <option value="Acacia House (Boys)">Acacia House (Boys)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="disc-picker-label" style="display:block;margin-bottom:0.35rem">Effective Date</label>
+                    <input type="date" class="input" value="2026-03-10" />
+                  </div>
+                  <div class="form-group" style="grid-column:1/-1">
+                    <label class="disc-picker-label" style="display:block;margin-bottom:0.35rem">Notes (optional)</label>
+                    <textarea class="input" rows="2" placeholder="Reason for reassignment..."></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button class="btn btn-outline" onclick="closeDormPanel()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveDormAssignment()">
+                  <span class="material-symbols-rounded">save</span> Save Assignment
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="staff-cards-grid" style="margin-bottom:2rem">
+
+            <div class="staff-card" id="staffCard-JK">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar matron">JK</div>
+                <div>
+                  <div class="staff-card-name">Ms. J. Kamau</div>
+                  <div class="staff-card-role" id="role-JK">Matron — Marigold House</div>
+                </div>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">group</span>42 students in care</span>
+                <span><span class="material-symbols-rounded">phone</span>Extension 301</span>
+                <span><span class="material-symbols-rounded">mail</span>j.kamau@imboni.edu</span>
+                <span><span class="material-symbols-rounded">schedule</span>On duty: 6:00 PM – 7:00 AM</span>
+              </div>
+              <div class="staff-card-actions">
+                <a href="discipline-messages.html" class="btn btn-sm btn-primary"><span class="material-symbols-rounded">chat</span> Message</a>
+                <a href="../Matron/matron.html" class="btn btn-sm btn-outline">View Portal</a>
+                <button class="btn btn-sm btn-outline" onclick="openDormPanel('Ms. J. Kamau','Marigold House','role-JK')">
+                  <span class="material-symbols-rounded">home</span> Assign Dorm
+                </button>
+              </div>
+            </div>
+
+            <div class="staff-card" id="staffCard-PW">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar matron">PW</div>
+                <div>
+                  <div class="staff-card-name">Mr. P. Waweru</div>
+                  <div class="staff-card-role" id="role-PW">Matron — Baobab House</div>
+                </div>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">group</span>38 students in care</span>
+                <span><span class="material-symbols-rounded">phone</span>Extension 302</span>
+                <span><span class="material-symbols-rounded">mail</span>p.waweru@imboni.edu</span>
+                <span><span class="material-symbols-rounded">schedule</span>On duty: 6:00 PM – 7:00 AM</span>
+              </div>
+              <div class="staff-card-actions">
+                <a href="discipline-messages.html" class="btn btn-sm btn-primary"><span class="material-symbols-rounded">chat</span> Message</a>
+                <button class="btn btn-sm btn-outline">View Report</button>
+                <button class="btn btn-sm btn-outline" onclick="openDormPanel('Mr. P. Waweru','Baobab House','role-PW')">
+                  <span class="material-symbols-rounded">home</span> Assign Dorm
+                </button>
+              </div>
+            </div>
+
+            <div class="staff-card" id="staffCard-AN">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar matron">AN</div>
+                <div>
+                  <div class="staff-card-name">Ms. A. Njeri</div>
+                  <div class="staff-card-role" id="role-AN">Matron — Jacaranda House</div>
+                </div>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">group</span>44 students in care</span>
+                <span><span class="material-symbols-rounded">phone</span>Extension 303</span>
+                <span><span class="material-symbols-rounded">mail</span>a.njeri@imboni.edu</span>
+                <span><span class="material-symbols-rounded">schedule</span>On duty: 6:00 PM – 7:00 AM</span>
+              </div>
+              <div class="staff-card-actions">
+                <a href="discipline-messages.html" class="btn btn-sm btn-primary"><span class="material-symbols-rounded">chat</span> Message</a>
+                <button class="btn btn-sm btn-outline">View Report</button>
+                <button class="btn btn-sm btn-outline" onclick="openDormPanel('Ms. A. Njeri','Jacaranda House','role-AN')">
+                  <span class="material-symbols-rounded">home</span> Assign Dorm
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Patrons section -->
+          <div class="disc-section-header">
+            <div class="disc-section-title"><span class="material-symbols-rounded">emoji_events</span> Activity Patrons</div>
+            <span class="badge">4 Patrons</span>
+          </div>
+          <div class="staff-cards-grid">
+
+            <div class="staff-card">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar patron">CN</div>
+                <div>
+                  <div class="staff-card-name">Mr. C. Njoroge</div>
+                  <div class="staff-card-role">Patron — Sports &amp; Games</div>
+                </div>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">sports_basketball</span>Basketball Team, Athletics Club</span>
+                <span><span class="material-symbols-rounded">group</span>56 students enrolled</span>
+                <span><span class="material-symbols-rounded">phone</span>Extension 214</span>
+              </div>
+              <div class="staff-card-actions">
+                <a href="discipline-messages.html" class="btn btn-sm btn-primary"><span class="material-symbols-rounded">chat</span> Message</a>
+                <button class="btn btn-sm btn-outline">View Report</button>
+              </div>
+            </div>
+
+            <div class="staff-card">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar patron">AO</div>
+                <div>
+                  <div class="staff-card-name">Ms. A. Omondi</div>
+                  <div class="staff-card-role">Patron — Arts &amp; Culture</div>
+                </div>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">theater_comedy</span>Drama Club, School Choir</span>
+                <span><span class="material-symbols-rounded">group</span>48 students enrolled</span>
+                <span><span class="material-symbols-rounded">phone</span>Extension 108</span>
+              </div>
+              <div class="staff-card-actions">
+                <a href="discipline-messages.html" class="btn btn-sm btn-primary"><span class="material-symbols-rounded">chat</span> Message</a>
+                <button class="btn btn-sm btn-outline">View Report</button>
+              </div>
+            </div>
+
+            <div class="staff-card">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar patron">SA</div>
+                <div>
+                  <div class="staff-card-name">Ms. S. Achieng</div>
+                  <div class="staff-card-role">Patron — Science &amp; Technology</div>
+                </div>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">science</span>Science Club, Robotics Team</span>
+                <span><span class="material-symbols-rounded">group</span>32 students enrolled</span>
+                <span><span class="material-symbols-rounded">phone</span>Extension 312</span>
+              </div>
+              <div class="staff-card-actions">
+                <a href="discipline-messages.html" class="btn btn-sm btn-primary"><span class="material-symbols-rounded">chat</span> Message</a>
+                <button class="btn btn-sm btn-outline">View Report</button>
+              </div>
+            </div>
+
+            <div class="staff-card">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar patron">TO</div>
+                <div>
+                  <div class="staff-card-name">Mr. T. Otieno</div>
+                  <div class="staff-card-role">Patron — Social &amp; Community</div>
+                </div>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">record_voice_over</span>Debate Club, Environment Club</span>
+                <span><span class="material-symbols-rounded">group</span>40 students enrolled</span>
+                <span><span class="material-symbols-rounded">phone</span>Extension 208</span>
+              </div>
+              <div class="staff-card-actions">
+                <a href="discipline-messages.html" class="btn btn-sm btn-primary"><span class="material-symbols-rounded">chat</span> Message</a>
+                <button class="btn btn-sm btn-outline">View Report</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script>
+      let activeRoleId = null;
+
+      function openDormPanel(staffName, currentDorm, roleId) {
+        activeRoleId = roleId;
+        document.getElementById('assignStaffName').textContent = staffName;
+        document.getElementById('assignStaffInput').value = staffName;
+        document.getElementById('assignCurrentDorm').value = currentDorm;
+        document.getElementById('assignNewDorm').value = '';
+        const panel = document.getElementById('dormAssignPanel');
+        panel.classList.add('open');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function closeDormPanel() {
+        document.getElementById('dormAssignPanel').classList.remove('open');
+        activeRoleId = null;
+      }
+
+      function saveDormAssignment() {
+        const newDorm = document.getElementById('assignNewDorm').value;
+        if (!newDorm) { alert('Please select a dormitory to assign.'); return; }
+        if (activeRoleId) {
+          document.getElementById(activeRoleId).textContent = 'Matron — ' + newDorm.replace(' (Girls)', '').replace(' (Boys)', '');
+        }
+        closeDormPanel();
+      }
+    </script>
+  </body>
+</html>

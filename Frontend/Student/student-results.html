@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Results - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/student.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="student.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="student-results.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">assessment</span><span>My Results</span></a></li>
+            <li><a href="student-attendance.html" class="sidebar-nav-item"><span class="material-symbols-rounded">fact_check</span><span>Attendance</span></a></li>
+            <li><a href="student-timetable.html" class="sidebar-nav-item"><span class="material-symbols-rounded">calendar_month</span><span>Timetable</span></a></li>
+            <li><a href="student-assignments.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assignment</span><span>Assignments</span></a></li>
+            <li><a href="student-activities.html" class="sidebar-nav-item"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="student-announcements.html" class="sidebar-nav-item"><span class="material-symbols-rounded">announcement</span><span>Announcements</span></a></li>
+            <li><a href="student-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>My Results</h1>
+            <p>Academic performance — Grade 10A</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="btn btn-outline btn-sm"><span class="material-symbols-rounded">download</span> Download Report</button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Alex Mutua</span>
+                <span class="header-user-role">Student · S3A</span>
+              </div>
+              <div class="header-user-av student-av">AM</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Term selector -->
+          <div class="term-tabs">
+            <button class="term-tab">Term 1</button>
+            <button class="term-tab active">Term 2</button>
+            <button class="term-tab">Term 3</button>
+          </div>
+
+          <!-- Summary stats -->
+          <div class="results-summary-grid">
+            <div class="result-summary-card">
+              <div class="result-summary-value">3.8</div>
+              <div class="result-summary-label">GPA this Term</div>
+            </div>
+            <div class="result-summary-card">
+              <div class="result-summary-value" style="color:var(--student)">87%</div>
+              <div class="result-summary-label">Average Score</div>
+            </div>
+            <div class="result-summary-card">
+              <div class="result-summary-value" style="color:var(--success)">4th</div>
+              <div class="result-summary-label">Class Position</div>
+            </div>
+            <div class="result-summary-card">
+              <div class="result-summary-value" style="color:var(--accent)">6</div>
+              <div class="result-summary-label">Subjects Taken</div>
+            </div>
+          </div>
+
+          <!-- Subject grade cards -->
+          <div class="subject-grades-grid">
+            <div class="subject-grade-card grade-a">
+              <div class="subject-grade-top">
+                <span class="subject-name-label">English Literature</span>
+                <span class="grade-badge">A+</span>
+              </div>
+              <div class="grade-bar-wrap"><div class="grade-bar" style="width:95%"></div></div>
+              <div class="grade-meta"><span>95% • 1st in class</span><span>Ms. Omondi</span></div>
+            </div>
+            <div class="subject-grade-card grade-a">
+              <div class="subject-grade-top">
+                <span class="subject-name-label">Mathematics</span>
+                <span class="grade-badge">A</span>
+              </div>
+              <div class="grade-bar-wrap"><div class="grade-bar" style="width:89%"></div></div>
+              <div class="grade-meta"><span>89% • 3rd in class</span><span>Ms. Mwangi</span></div>
+            </div>
+            <div class="subject-grade-card grade-b">
+              <div class="subject-grade-top">
+                <span class="subject-name-label">Physics</span>
+                <span class="grade-badge">B+</span>
+              </div>
+              <div class="grade-bar-wrap"><div class="grade-bar" style="width:84%"></div></div>
+              <div class="grade-meta"><span>84% • 5th in class</span><span>Mr. King</span></div>
+            </div>
+            <div class="subject-grade-card grade-b">
+              <div class="subject-grade-top">
+                <span class="subject-name-label">History</span>
+                <span class="grade-badge">B+</span>
+              </div>
+              <div class="grade-bar-wrap"><div class="grade-bar" style="width:82%"></div></div>
+              <div class="grade-meta"><span>82% • 4th in class</span><span>Mr. Otieno</span></div>
+            </div>
+            <div class="subject-grade-card grade-b">
+              <div class="subject-grade-top">
+                <span class="subject-name-label">Chemistry</span>
+                <span class="grade-badge">B</span>
+              </div>
+              <div class="grade-bar-wrap"><div class="grade-bar" style="width:76%"></div></div>
+              <div class="grade-meta"><span>76% • 8th in class</span><span>Ms. Achieng</span></div>
+            </div>
+            <div class="subject-grade-card grade-b">
+              <div class="subject-grade-top">
+                <span class="subject-name-label">Computer Science</span>
+                <span class="grade-badge">B</span>
+              </div>
+              <div class="grade-bar-wrap"><div class="grade-bar" style="width:78%"></div></div>
+              <div class="grade-meta"><span>78% • 6th in class</span><span>Mr. Njoroge</span></div>
+            </div>
+          </div>
+
+          <!-- Detailed results table -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Detailed Assessment Breakdown</h3>
+              <span class="badge" style="background:var(--student-light);color:var(--student)">Term 2</span>
+            </div>
+            <div class="card-content">
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Assessment</th>
+                      <th>Max Score</th>
+                      <th>Score</th>
+                      <th>%</th>
+                      <th>Grade</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><strong>Mathematics</strong></td><td>CAT 1</td><td>50</td><td>45</td><td>90%</td><td><span class="badge" style="background:var(--success-light);color:var(--success)">A</span></td><td>Jan 20</td></tr>
+                    <tr><td><strong>Mathematics</strong></td><td>CAT 2</td><td>50</td><td>43</td><td>86%</td><td><span class="badge" style="background:var(--success-light);color:var(--success)">A</span></td><td>Feb 14</td></tr>
+                    <tr><td><strong>Mathematics</strong></td><td>Quiz 4</td><td>20</td><td>17</td><td>85%</td><td><span class="badge" style="background:var(--success-light);color:var(--success)">A</span></td><td>Mar 7</td></tr>
+                    <tr><td><strong>Physics</strong></td><td>CAT 1</td><td>50</td><td>40</td><td>80%</td><td><span class="badge" style="background:var(--student-light);color:var(--student)">B+</span></td><td>Jan 25</td></tr>
+                    <tr><td><strong>Physics</strong></td><td>CAT 2</td><td>50</td><td>39</td><td>78%</td><td><span class="badge" style="background:var(--student-light);color:var(--student)">B+</span></td><td>Mar 5</td></tr>
+                    <tr><td><strong>English</strong></td><td>Essay 1</td><td>40</td><td>37</td><td>93%</td><td><span class="badge" style="background:var(--success-light);color:var(--success)">A+</span></td><td>Feb 5</td></tr>
+                    <tr><td><strong>English</strong></td><td>Essay 2</td><td>40</td><td>37</td><td>92%</td><td><span class="badge" style="background:var(--success-light);color:var(--success)">A+</span></td><td>Mar 3</td></tr>
+                    <tr><td><strong>Chemistry</strong></td><td>Lab Report</td><td>30</td><td>21</td><td>71%</td><td><span class="badge" style="background:var(--warning-light);color:var(--warning)">B</span></td><td>Feb 28</td></tr>
+                    <tr><td><strong>Chemistry</strong></td><td>CAT 1</td><td>50</td><td>40</td><td>80%</td><td><span class="badge" style="background:var(--student-light);color:var(--student)">B+</span></td><td>Feb 10</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

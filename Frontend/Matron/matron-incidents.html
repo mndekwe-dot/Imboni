@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Incident - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/matron.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="matron.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="matron-students.html" class="sidebar-nav-item"><span class="material-symbols-rounded">groups</span><span>My Students</span></a></li>
+            <li><a href="matron-schedule.html" class="sidebar-nav-item"><span class="material-symbols-rounded">schedule</span><span>Daily Schedule</span></a></li>
+            <li><a href="matron-incidents.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">report</span><span>Report Incident</span></a></li>
+            <li><a href="matron-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Report Incident</h1>
+            <p>Submit incident reports to the Director of Discipline</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Mrs. Agnes Waweru</span>
+                <span class="header-user-role">Matron</span>
+              </div>
+              <div class="header-user-av matron-av">AW</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Incident form -->
+          <div class="incident-form-card">
+            <div class="incident-form-title">
+              <span class="material-symbols-rounded">report</span> New Incident Report — Marigold House
+            </div>
+            <div class="incident-form-grid">
+              <div class="form-field">
+                <label>Student</label>
+                <select>
+                  <option value="">— Select student —</option>
+                  <option>Sarah Doe (10A)</option>
+                  <option>Brian Kiprotich (9C)</option>
+                  <option>Michael Otieno (10B)</option>
+                  <option>Jane Wambui (12A)</option>
+                  <option>Faith Ndungu (11A)</option>
+                  <option>Grace Njeri (11C)</option>
+                  <option>Paul Kamau (9A)</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Incident Type</label>
+                <select>
+                  <option>Dormitory Violation</option>
+                  <option>Missing / Absent from Roll Call</option>
+                  <option>Health Concern</option>
+                  <option>Misconduct</option>
+                  <option>Positive Conduct</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Severity</label>
+                <select>
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                  <option>Critical — Requires Immediate Action</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Date &amp; Time of Incident</label>
+                <input type="datetime-local" value="2026-03-09T22:00" />
+              </div>
+              <div class="form-field form-field-full">
+                <label>Description</label>
+                <textarea placeholder="Describe the incident in detail — what happened, where, who was involved, any witnesses..."></textarea>
+              </div>
+              <div class="form-field form-field-full">
+                <label>Action Taken (if any)</label>
+                <textarea placeholder="What immediate action did you take? (e.g. verbal warning, parent called, student confined to dorm)" style="min-height:60px"></textarea>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem">
+              <button class="btn btn-primary"><span class="material-symbols-rounded">send</span> Submit to DOS</button>
+              <button class="btn btn-outline">Clear Form</button>
+            </div>
+          </div>
+
+          <!-- Past reports -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><span class="material-symbols-rounded">history</span> My Past Reports</h3>
+              <button class="btn btn-outline btn-sm"><span class="material-symbols-rounded">download</span> Export</button>
+            </div>
+            <div class="card-content">
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Student</th>
+                      <th>Type</th>
+                      <th>Severity</th>
+                      <th>DOS Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Mar 9, 2026</td>
+                      <td><strong>Michael Otieno</strong></td>
+                      <td>Missing from Roll Call</td>
+                      <td><span class="badge" style="background:rgba(245,158,11,0.12);color:#f59e0b">Medium</span></td>
+                      <td><span class="matron-report-status pending">Pending</span></td>
+                    </tr>
+                    <tr>
+                      <td>Mar 1, 2026</td>
+                      <td><strong>Brian Kiprotich</strong></td>
+                      <td>Dormitory Violation</td>
+                      <td><span class="badge" style="background:rgba(245,158,11,0.12);color:#f59e0b">Medium</span></td>
+                      <td><span class="matron-report-status reviewed">Reviewed</span></td>
+                    </tr>
+                    <tr>
+                      <td>Feb 24, 2026</td>
+                      <td><strong>Jane Wambui</strong></td>
+                      <td>Positive Conduct</td>
+                      <td><span class="badge" style="background:var(--success-light);color:var(--success)">Positive</span></td>
+                      <td><span class="matron-report-status reviewed">Reviewed</span></td>
+                    </tr>
+                    <tr>
+                      <td>Feb 15, 2026</td>
+                      <td><strong>Paul Kamau</strong></td>
+                      <td>Health Concern</td>
+                      <td><span class="badge" style="background:var(--destructive-light);color:var(--destructive)">High</span></td>
+                      <td><span class="matron-report-status reviewed">Reviewed</span></td>
+                    </tr>
+                    <tr>
+                      <td>Jan 28, 2026</td>
+                      <td><strong>Brian Kiprotich</strong></td>
+                      <td>Noise after curfew</td>
+                      <td><span class="badge" style="background:var(--muted)">Low</span></td>
+                      <td><span class="matron-report-status reviewed">Reviewed</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

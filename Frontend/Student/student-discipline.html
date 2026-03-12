@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Director of Discipline - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/student.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="student.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="student-results.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assessment</span><span>My Results</span></a></li>
+            <li><a href="student-attendance.html" class="sidebar-nav-item"><span class="material-symbols-rounded">fact_check</span><span>Attendance</span></a></li>
+            <li><a href="student-timetable.html" class="sidebar-nav-item"><span class="material-symbols-rounded">calendar_month</span><span>Timetable</span></a></li>
+            <li><a href="student-assignments.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assignment</span><span>Assignments</span></a></li>
+            <li><a href="student-activities.html" class="sidebar-nav-item"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="student-discipline.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">gavel</span><span>Discipline</span></a></li>
+            <li><a href="student-matron.html" class="sidebar-nav-item"><span class="material-symbols-rounded">home</span><span>Matron</span></a></li>
+            <li><a href="student-announcements.html" class="sidebar-nav-item"><span class="material-symbols-rounded">announcement</span><span>Announcements</span></a></li>
+            <li><a href="student-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Director of Discipline</h1>
+            <p>School rules, your discipline record &amp; appeals</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Alex Mutua</span>
+                <span class="header-user-role">Student · S3A</span>
+              </div>
+              <div class="header-user-av student-av">AM</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- DOS Profile -->
+          <div class="staff-profile-card">
+            <div class="staff-profile-avatar dos">OO</div>
+            <div>
+              <div class="staff-profile-name">Mr. O. Omondi</div>
+              <div class="staff-profile-title">Director of Discipline &amp; Student Affairs</div>
+              <div class="staff-profile-meta">
+                <span class="staff-meta-item"><span class="material-symbols-rounded">location_on</span>Admin Block — Office A-5</span>
+                <span class="staff-meta-item"><span class="material-symbols-rounded">schedule</span>Mon–Fri: 7:30 AM – 5:00 PM</span>
+                <span class="staff-meta-item"><span class="material-symbols-rounded">phone</span>Ext. 204</span>
+                <span class="staff-meta-item"><span class="material-symbols-rounded">mail</span>o.omondi@imboni.edu</span>
+                <span class="staff-meta-item"><span class="material-symbols-rounded">badge</span>15 years at Imboni</span>
+              </div>
+              <div class="staff-profile-actions">
+                <a href="student-messages.html" class="btn btn-sm btn-primary"><span class="material-symbols-rounded">chat</span> Send Message</a>
+                <button class="btn btn-sm btn-outline"><span class="material-symbols-rounded">event</span> Request Meeting</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Discipline Standing -->
+          <div class="student-stats-grid" style="margin-bottom:1.5rem">
+            <div class="student-stat-card">
+              <div class="stat-icon teal"><span class="material-symbols-rounded">verified</span></div>
+              <div class="stat-body">
+                <div class="stat-value" style="color:var(--student)">87</div>
+                <div class="stat-label">Conduct Score / 100</div>
+              </div>
+            </div>
+            <div class="student-stat-card">
+              <div class="stat-icon green"><span class="material-symbols-rounded">thumb_up</span></div>
+              <div class="stat-body">
+                <div class="stat-value" style="color:var(--success)">+12</div>
+                <div class="stat-label">Positive Points</div>
+              </div>
+            </div>
+            <div class="student-stat-card">
+              <div class="stat-icon red"><span class="material-symbols-rounded">thumb_down</span></div>
+              <div class="stat-body">
+                <div class="stat-value" style="color:var(--destructive)">-5</div>
+                <div class="stat-label">Negative Points</div>
+              </div>
+            </div>
+            <div class="student-stat-card">
+              <div class="stat-icon blue"><span class="material-symbols-rounded">shield</span></div>
+              <div class="stat-body">
+                <div class="stat-value" style="color:var(--primary)">Good</div>
+                <div class="stat-label">Current Standing</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discipline Records -->
+          <div class="card" style="margin-bottom:1.5rem">
+            <div class="card-header">
+              <h3 class="card-title"><span class="material-symbols-rounded">history</span> My Discipline Records</h3>
+              <div class="filter-tabs-bar" id="discFilter" style="margin:0">
+                <button class="filter-tab active" data-filter="all">All</button>
+                <button class="filter-tab" data-filter="positive">Positive</button>
+                <button class="filter-tab" data-filter="negative">Negative</button>
+                <button class="filter-tab" data-filter="warning">Warning</button>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Description</th>
+                      <th>Issued By</th>
+                      <th>Points</th>
+                    </tr>
+                  </thead>
+                  <tbody id="discRecordsBody">
+                    <tr data-type="positive">
+                      <td>Mar 5, 2026</td>
+                      <td><span class="badge" style="background:var(--success-light);color:var(--success)">Positive</span></td>
+                      <td>Represented school at Inter-school Debate — 2nd place</td>
+                      <td>Mr. Omondi</td>
+                      <td><span class="disc-points-pos">+5</span></td>
+                    </tr>
+                    <tr data-type="positive">
+                      <td>Feb 20, 2026</td>
+                      <td><span class="badge" style="background:var(--success-light);color:var(--success)">Positive</span></td>
+                      <td>Academic Excellence Award — Term 1 Top 5</td>
+                      <td>Principal Njomo</td>
+                      <td><span class="disc-points-pos">+4</span></td>
+                    </tr>
+                    <tr data-type="positive">
+                      <td>Jan 30, 2026</td>
+                      <td><span class="badge" style="background:var(--success-light);color:var(--success)">Positive</span></td>
+                      <td>Community service — cleaned school library voluntarily</td>
+                      <td>Ms. Kamau</td>
+                      <td><span class="disc-points-pos">+3</span></td>
+                    </tr>
+                    <tr data-type="negative">
+                      <td>Feb 28, 2026</td>
+                      <td><span class="badge" style="background:var(--destructive-light);color:var(--destructive)">Negative</span></td>
+                      <td>Late to Chemistry class without valid reason</td>
+                      <td>Ms. Achieng</td>
+                      <td><span class="disc-points-neg">-2</span></td>
+                    </tr>
+                    <tr data-type="negative">
+                      <td>Jan 22, 2026</td>
+                      <td><span class="badge" style="background:var(--destructive-light);color:var(--destructive)">Negative</span></td>
+                      <td>Incorrect uniform — missing school tie</td>
+                      <td>Mr. Omondi</td>
+                      <td><span class="disc-points-neg">-3</span></td>
+                    </tr>
+                    <tr data-type="warning">
+                      <td>Jan 15, 2026</td>
+                      <td><span class="badge" style="background:rgba(245,158,11,0.12);color:#f59e0b">Warning</span></td>
+                      <td>Noise in dormitory after lights-out — verbal warning issued</td>
+                      <td>Ms. Kamau</td>
+                      <td><span style="color:#f59e0b;font-weight:700">W</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Code of Conduct -->
+          <div class="section-card-header" style="margin-bottom:0.75rem">
+            <h3><span class="material-symbols-rounded">menu_book</span> Code of Conduct</h3>
+          </div>
+          <div class="conduct-rules-grid">
+
+            <div class="conduct-category-card uniform">
+              <div class="conduct-category-header">
+                <div class="conduct-category-icon orange"><span class="material-symbols-rounded">checkroom</span></div>
+                <span class="conduct-category-title">Uniform &amp; Appearance</span>
+              </div>
+              <ul class="rule-list">
+                <li>Full school uniform must be worn every school day</li>
+                <li>School tie required from Monday to Friday</li>
+                <li>Hair must be natural — no dye, extensions, or elaborate styles</li>
+                <li>No jewellery except a plain wristwatch</li>
+                <li>Shoes must be plain black and well-polished</li>
+              </ul>
+            </div>
+
+            <div class="conduct-category-card attend">
+              <div class="conduct-category-header">
+                <div class="conduct-category-icon amber"><span class="material-symbols-rounded">schedule</span></div>
+                <span class="conduct-category-title">Attendance &amp; Punctuality</span>
+              </div>
+              <ul class="rule-list">
+                <li>Gates close at 7:25 AM — late arrival requires a late pass</li>
+                <li>All absences must be explained by a signed parent/guardian note</li>
+                <li>Minimum 85% attendance required per term</li>
+                <li>Leaving school grounds requires written permission from administration</li>
+              </ul>
+            </div>
+
+            <div class="conduct-category-card academic">
+              <div class="conduct-category-header">
+                <div class="conduct-category-icon green"><span class="material-symbols-rounded">school</span></div>
+                <span class="conduct-category-title">Academic Integrity</span>
+              </div>
+              <ul class="rule-list">
+                <li>Cheating or copying in any assessment is a serious offence</li>
+                <li>Plagiarism in assignments will result in a zero mark</li>
+                <li>Electronic devices are not allowed in examinations</li>
+                <li>All work submitted must be original and the student's own</li>
+              </ul>
+            </div>
+
+            <div class="conduct-category-card boarding">
+              <div class="conduct-category-header">
+                <div class="conduct-category-icon purple"><span class="material-symbols-rounded">home</span></div>
+                <span class="conduct-category-title">Dormitory &amp; Boarding</span>
+              </div>
+              <ul class="rule-list">
+                <li>Lights out at 10:15 PM — no exceptions</li>
+                <li>No visitors of the opposite gender in dormitories at any time</li>
+                <li>Students are responsible for cleanliness of their rooms</li>
+                <li>All personal valuables must be stored in locked trunks</li>
+              </ul>
+            </div>
+
+            <div class="conduct-category-card digital">
+              <div class="conduct-category-header">
+                <div class="conduct-category-icon teal"><span class="material-symbols-rounded">devices</span></div>
+                <span class="conduct-category-title">Digital &amp; Technology Use</span>
+              </div>
+              <ul class="rule-list">
+                <li>Personal phones are permitted after 4:30 PM only</li>
+                <li>Phones must be surrendered to matron by 9:30 PM on school nights</li>
+                <li>Social media posts that disparage the school or staff are prohibited</li>
+                <li>School computers are for academic use only</li>
+              </ul>
+            </div>
+
+            <div class="conduct-category-card">
+              <div class="conduct-category-header">
+                <div class="conduct-category-icon"><span class="material-symbols-rounded">groups</span></div>
+                <span class="conduct-category-title">General Conduct</span>
+              </div>
+              <ul class="rule-list">
+                <li>Bullying, harassment, or intimidation of any kind is strictly prohibited</li>
+                <li>Students must address all staff respectfully at all times</li>
+                <li>Damage to school property will result in repair costs and disciplinary action</li>
+                <li>Possession of contraband (alcohol, tobacco, drugs) leads to immediate suspension</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <!-- Appeals Process -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><span class="material-symbols-rounded">balance</span> Appeals Process</h3>
+            </div>
+            <div class="card-content">
+              <div class="appeal-steps">
+                <div class="appeal-step">
+                  <div class="appeal-step-num">1</div>
+                  <div class="appeal-step-text">
+                    <strong>Submit Written Appeal</strong>
+                    <span>Write a formal appeal letter to Mr. Omondi within 48 hours of the decision</span>
+                  </div>
+                </div>
+                <div class="appeal-step">
+                  <div class="appeal-step-num">2</div>
+                  <div class="appeal-step-text">
+                    <strong>DOS Review Meeting</strong>
+                    <span>Meet with Mr. Omondi to present your case and provide supporting evidence</span>
+                  </div>
+                </div>
+                <div class="appeal-step">
+                  <div class="appeal-step-num">3</div>
+                  <div class="appeal-step-text">
+                    <strong>Review Panel (if needed)</strong>
+                    <span>For serious cases, a panel of senior staff and parent representative will convene</span>
+                  </div>
+                </div>
+                <div class="appeal-step">
+                  <div class="appeal-step-num">4</div>
+                  <div class="appeal-step-text">
+                    <strong>Final Decision</strong>
+                    <span>A written decision is communicated to the student and parent/guardian within 5 school days</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/student-discipline.js"></script>
+  </body>
+</html>

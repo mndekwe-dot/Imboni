@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOS Dashboard - Imboni Education Connects</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0"
+    />
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dos.css" />
+  </head>
+  <body>
+    <!-- Allows users to skip the sidebar navigation and jump directly to the main content. -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <!-- For mobile responsiveness -->
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <!-- PART 1: LOGO SECTION - FIRST (AT TOP) -->
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon">
+              <img src="../images/imboni-logo.png" alt="Imboni Logo" />
+            </div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li>
+              <a href="dos.html" class="sidebar-nav-item active">
+                <span class="material-symbols-rounded">dashboard</span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-analytics.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">analytics</span>
+                <span>Analytics</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-results-approval.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">fact_check</span>
+                <span>Results Approval</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-teachers.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">school</span>
+                <span>Teachers</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-students.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">group</span>
+                <span>Students</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-attendance.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">check_circle</span>
+                <span>Attendance</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-exam-schedule.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_today</span>
+                <span>Exams Schedule</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-timetable.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_view_week</span>
+                <span>Timetable</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-announcement.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">announcement</span>
+                <span>Announcements</span>
+              </a>
+            </li>
+          </ul>
+          <!-- Secondary Navigation (Bottom) -->
+          <ul class="nav-list secondary-nav">
+            <li>
+              <a href="../Parent/account.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">account_circle</span>
+                <span>Account</span>
+              </a>
+            </li>
+            <li>
+              <a href="index.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">logout</span>
+                <span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+
+          <div class="dashboard-header-title">
+            <h1>DOS Dashboard</h1>
+            <p>Welcome back, Ms. Grace Mwangi</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <div class="search-box">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+              <input type="search" class="input" placeholder="Search..." />
+            </div>
+            <span class="date-display">Sunday, February 08, 2026</span>
+            <button class="notification-btn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+              </svg>
+              <span class="notification-badge">5</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Dr. Samuel Oduya</span>
+                <span class="header-user-role">Director of Studies</span>
+              </div>
+              <div class="header-user-av dos-av">SO</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+          <div class="quick-stats">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">
+                  <span class="material-symbols-rounded">people</span>
+                </div>
+                <span class="stat-trend positive">
+                  <span class="material-symbols-rounded">trending_up</span>
+                  +15
+                </span>
+              </div>
+              <div class="stat-value">1,245</div>
+              <div class="stat-label">Total Students</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon warning">
+                  <span class="material-symbols-rounded">school</span>
+                </div>
+                <span class="stat-trend neutral">45 FT</span>
+              </div>
+              <div class="stat-value">85</div>
+              <div class="stat-label">Teaching Staff</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon success">
+                  <span class="material-symbols-rounded">analytics</span>
+                </div>
+                <span class="stat-trend positive">
+                  <span class="material-symbols-rounded">trending_up</span>
+                  +3%
+                </span>
+              </div>
+              <div class="stat-value">78%</div>
+              <div class="stat-label">Avg Performance</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon danger">
+                  <span class="material-symbols-rounded">pending_actions</span>
+                </div>
+                <span class="stat-trend negative">Urgent</span>
+              </div>
+              <div class="stat-value">24</div>
+              <div class="stat-label">Pending Approvals</div>
+            </div>
+          </div>
+
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Quick Actions</h2>
+              </div>
+              <div class="card-content">
+                <div class="action-buttons">
+                  <button class="btn btn-primary">
+                    <span class="material-symbols-rounded">fact_check</span>
+                    Approve Results
+                  </button>
+                  <button class="btn btn-secondary">
+                    <span class="material-symbols-rounded">school</span>
+                    View Teachers
+                  </button>
+                  <button class="btn btn-secondary">
+                    <span class="material-symbols-rounded">people</span>
+                    Manage Students
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Recent Activity</h2>
+              </div>
+              <div class="card-content">
+                <div class="activity-list">
+                  <div class="activity-item">
+                    <span class="activity-icon success">
+                      <span class="material-symbols-rounded">check_circle</span>
+                    </span>
+                    <div class="activity-details">
+                      <p class="activity-title">Form 4A Results Approved</p>
+                      <p class="activity-time">2 hours ago</p>
+                    </div>
+                  </div>
+                  <div class="activity-item">
+                    <span class="activity-icon info">
+                      <span class="material-symbols-rounded">person_add</span>
+                    </span>
+                    <div class="activity-details">
+                      <p class="activity-title">New Teacher Added</p>
+                      <p class="activity-time">5 hours ago</p>
+                    </div>
+                  </div>
+                  <div class="activity-item">
+                    <span class="activity-icon warning">
+                      <span class="material-symbols-rounded">pending</span>
+                    </span>
+                    <div class="activity-details">
+                      <p class="activity-title">3 Results Pending Review</p>
+                      <p class="activity-time">1 day ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Performance Overview</h2>
+              </div>
+              <div class="card-content">
+                <div class="progress-group">
+                  <div class="progress-item">
+                    <div class="progress-label">
+                      <span>School Average</span>
+                      <span class="progress-value">78%</span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 78%"></div>
+                    </div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="progress-label">
+                      <span>Attendance Rate</span>
+                      <span class="progress-value">94%</span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 94%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Performance by Grade</h2>
+              <p class="card-subtitle">Average scores across all grades</p>
+            </div>
+            <div class="card-content">
+              <div class="chart-container">
+                <div class="chart-placeholder">
+                  <span class="material-symbols-rounded">analytics</span>
+                  <p>
+                    Grade 12: 82% | Grade 11: 78% | Grade 10: 75% | Grade 9: 72%
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

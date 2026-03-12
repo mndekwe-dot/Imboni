@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Schedule - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/matron.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="matron.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="matron-students.html" class="sidebar-nav-item"><span class="material-symbols-rounded">groups</span><span>My Students</span></a></li>
+            <li><a href="matron-schedule.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">schedule</span><span>Daily Schedule</span></a></li>
+            <li><a href="matron-incidents.html" class="sidebar-nav-item"><span class="material-symbols-rounded">report</span><span>Report Incident</span></a></li>
+            <li><a href="matron-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Daily Schedule</h1>
+            <p>Marigold House — Boarding timetable</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Mrs. Agnes Waweru</span>
+                <span class="header-user-role">Matron</span>
+              </div>
+              <div class="header-user-av matron-av">AW</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+
+            <!-- Morning routine -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><span class="material-symbols-rounded">wb_sunny</span> Morning Routine</h3>
+              </div>
+              <div class="card-content">
+                <div class="matron-schedule-list">
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">05:30</span>
+                    <div class="matron-schedule-icon amber"><span class="material-symbols-rounded">alarm</span></div>
+                    <span class="matron-schedule-label">Wake Up</span>
+                    <span class="matron-schedule-note">All students</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">05:45</span>
+                    <div class="matron-schedule-icon"><span class="material-symbols-rounded">shower</span></div>
+                    <span class="matron-schedule-label">Morning Prep &amp; Showers</span>
+                    <span class="matron-schedule-note">Rooms 1–10 first</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">06:45</span>
+                    <div class="matron-schedule-icon orange"><span class="material-symbols-rounded">restaurant</span></div>
+                    <span class="matron-schedule-label">Breakfast</span>
+                    <span class="matron-schedule-note">Dining Hall</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">07:15</span>
+                    <div class="matron-schedule-icon teal"><span class="material-symbols-rounded">groups</span></div>
+                    <span class="matron-schedule-label">Morning Assembly</span>
+                    <span class="matron-schedule-note">Main Hall</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">07:30</span>
+                    <div class="matron-schedule-icon green"><span class="material-symbols-rounded">school</span></div>
+                    <span class="matron-schedule-label">Lessons Begin</span>
+                    <span class="matron-schedule-note">All classrooms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Afternoon & Evening -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><span class="material-symbols-rounded">nights_stay</span> Afternoon &amp; Evening</h3>
+              </div>
+              <div class="card-content">
+                <div class="matron-schedule-list">
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">13:00</span>
+                    <div class="matron-schedule-icon orange"><span class="material-symbols-rounded">restaurant</span></div>
+                    <span class="matron-schedule-label">Lunch</span>
+                    <span class="matron-schedule-note">Dining Hall</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">16:30</span>
+                    <div class="matron-schedule-icon teal"><span class="material-symbols-rounded">sports_soccer</span></div>
+                    <span class="matron-schedule-label">Games &amp; Clubs</span>
+                    <span class="matron-schedule-note">Grounds / Halls</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">18:00</span>
+                    <div class="matron-schedule-icon orange"><span class="material-symbols-rounded">dinner_dining</span></div>
+                    <span class="matron-schedule-label">Supper</span>
+                    <span class="matron-schedule-note">Dining Hall</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">19:00</span>
+                    <div class="matron-schedule-icon green"><span class="material-symbols-rounded">menu_book</span></div>
+                    <span class="matron-schedule-label">Evening Prep (Study)</span>
+                    <span class="matron-schedule-note">Classrooms / Library</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">21:00</span>
+                    <div class="matron-schedule-icon"><span class="material-symbols-rounded">home</span></div>
+                    <span class="matron-schedule-label">End of Prep — Return to Dorm</span>
+                    <span class="matron-schedule-note">All students</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">21:30</span>
+                    <div class="matron-schedule-icon amber"><span class="material-symbols-rounded">bedtime</span></div>
+                    <span class="matron-schedule-label">Lights Out — Juniors (Gr 9)</span>
+                    <span class="matron-schedule-note">Grades 9 only</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">22:00</span>
+                    <div class="matron-schedule-icon red"><span class="material-symbols-rounded">do_not_disturb_on</span></div>
+                    <span class="matron-schedule-label">Lights Out — Seniors</span>
+                    <span class="matron-schedule-note">Grades 10–12</span>
+                  </div>
+                  <div class="matron-schedule-row">
+                    <span class="matron-schedule-time">22:15</span>
+                    <div class="matron-schedule-icon red"><span class="material-symbols-rounded">fact_check</span></div>
+                    <span class="matron-schedule-label">Curfew Roll Call Check</span>
+                    <span class="matron-schedule-note">Matron &amp; Prefects</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Dormitory rules reminder -->
+          <div class="card" style="margin-top:1.25rem">
+            <div class="card-header">
+              <h3 class="card-title"><span class="material-symbols-rounded">rule</span> Key Dormitory Rules</h3>
+            </div>
+            <div class="card-content">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.75rem">
+                <div class="boarding-detail-item">
+                  <span class="material-symbols-rounded">no_cell</span>
+                  <div><div class="boarding-detail-label">Phone Policy</div><div class="boarding-detail-value">Phones surrendered at 9:30 PM on school nights</div></div>
+                </div>
+                <div class="boarding-detail-item">
+                  <span class="material-symbols-rounded">volume_off</span>
+                  <div><div class="boarding-detail-label">Noise Policy</div><div class="boarding-detail-value">Silence observed from 9:00 PM onwards</div></div>
+                </div>
+                <div class="boarding-detail-item">
+                  <span class="material-symbols-rounded">cleaning_services</span>
+                  <div><div class="boarding-detail-label">Room Inspection</div><div class="boarding-detail-value">Daily room inspection at 7:00 AM before breakfast</div></div>
+                </div>
+                <div class="boarding-detail-item">
+                  <span class="material-symbols-rounded">no_accounts</span>
+                  <div><div class="boarding-detail-label">Visitors</div><div class="boarding-detail-value">No visitors of opposite gender in dormitories at any time</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

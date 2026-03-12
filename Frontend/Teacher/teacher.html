@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Dashboard - Imboni Education Connects</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0"
+    />
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/teacher.css" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <!-- PART 1: LOGO SECTION - FIRST (AT TOP) -->
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon">
+              <img src="../images/imboni-logo.png" alt="Imboni Logo" />
+            </div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+        </header>
+        <!-- PART 3: NAVIGATION LINKS - THIRD -->
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li>
+              <a href="teacher.html" class="sidebar-nav-item active">
+                <span class="material-symbols-rounded">dashboard</span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="teacher-classes.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">book</span>
+                <span>My Classes</span>
+              </a>
+            </li>
+            <li>
+              <a href="teacher-students.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">people</span>
+                <span>Students</span>
+              </a>
+            </li>
+            <li>
+              <a href="attendance.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">fact_check</span>
+                <span>Attendance</span>
+              </a>
+            </li>
+            <li>
+              <a href="results.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">school</span>
+                <span>Results</span>
+              </a>
+            </li>
+            <li>
+              <a href="announcements.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">announcement</span>
+                <span>Announcements</span>
+              </a>
+            </li>
+            <li>
+              <a href="teacher-messages.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">chat</span>
+                <span>Messages</span>
+              </a>
+            </li>
+          </ul>
+          <!-- Secondary Navigation (Bottom) -->
+          <ul class="nav-list secondary-nav">
+            <li>
+              <a href="../Parent/account.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">account_circle</span>
+                <span>Account</span>
+              </a>
+            </li>
+            <li>
+              <a href="index.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">logout</span>
+                <span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn" aria-label="Toggle navigation menu">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="4" y1="18" x2="20" y2="18"></line>
+            </svg>
+          </button>
+
+          <div class="dashboard-header-title">
+            <h1>Teacher Dashboard</h1>
+            <p>Welcome back, Ms. Grace Mwangi</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <select class="class-filter-select">
+              <option>All My Classes</option>
+              <option>Grade 10A</option>
+              <option>Grade 10B</option>
+            </select>
+            <div class="search-box">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+              <input type="search" class="input" placeholder="Search..." />
+            </div>
+            <span class="date-display">Sunday, February 08, 2026</span>
+            <button class="notification-btn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+              </svg>
+              <span class="notification-badge">5</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Grace Mwangi</span>
+                <span class="header-user-role">Teacher</span>
+              </div>
+              <div class="header-user-av teacher-av">GM</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+          <div class="quick-actions">
+            <a href="attendance.html" class="btn btn-primary">
+              <span class="material-symbols-rounded">how_to_reg</span>
+              Mark Attendance
+            </a>
+            <a href="results.html" class="btn btn-outline">
+              <span class="material-symbols-rounded">edit_note</span>
+              Enter Results
+            </a>
+            <button class="btn btn-outline">
+              <span class="material-symbols-rounded">report</span>
+              Report Incident
+            </button>
+          </div>
+
+          <div class="quick-stats-grid">
+            <div class="stat-card success">
+              <div class="stat-card-header">
+                <div class="stat-card-body">
+                  <div class="stat-card-value">94%</div>
+                  <div class="stat-card-label">Overall Attendance</div>
+                  <div class="stat-card-trend up">
+                    <span class="material-symbols-rounded icon-sm"
+                      >trending_up</span
+                    >
+                    <span>+2.5% from last week</span>
+                  </div>
+                </div>
+                <div class="stat-card-icon success">
+                  <span class="material-symbols-rounded">check_circle</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-card info">
+              <div class="stat-card-header">
+                <div class="stat-card-body">
+                  <div class="stat-card-value">81%</div>
+                  <div class="stat-card-label">Class Average</div>
+                  <div class="stat-card-trend up">
+                    <span class="material-symbols-rounded icon-sm"
+                      >trending_up</span
+                    >
+                    <span>+4% from last term</span>
+                  </div>
+                </div>
+                <div class="stat-card-icon info">
+                  <span class="material-symbols-rounded">school</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-card warning">
+              <div class="stat-card-header">
+                <div class="stat-card-body">
+                  <div class="stat-card-value">8</div>
+                  <div class="stat-card-label">Pending Grading</div>
+                  <div class="stat-card-trend">
+                    <span class="material-symbols-rounded icon-sm"
+                      >schedule</span
+                    >
+                    <span>3 due this week</span>
+                  </div>
+                </div>
+                <div class="stat-card-icon warning">
+                  <span class="material-symbols-rounded">assignment_late</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-body">
+                  <div class="stat-card-value">15</div>
+                  <div class="stat-card-label">Messages</div>
+                  <div class="stat-card-trend">
+                    <span class="material-symbols-rounded icon-sm">mail</span>
+                    <span>7 unread</span>
+                  </div>
+                </div>
+                <div class="stat-card-icon primary">
+                  <span class="material-symbols-rounded">chat</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stats-card">
+              <div class="stats-card-content">
+                <div class="stats-card-info">
+                  <span class="stats-card-title">Total Students</span>
+                  <span class="stats-card-value">152</span>
+                  <span class="stats-card-change neutral"
+                    >Across 5 classes</span
+                  >
+                </div>
+                <div class="stats-card-icon icon-primary">
+                  <span class="material-symbols-rounded">groups</span>
+                </div>
+              </div>
+            </div>
+            <div class="stats-card">
+              <div class="stats-card-content">
+                <div class="stats-card-info">
+                  <span class="stats-card-title">Classes Today</span>
+                  <span class="stats-card-value">5</span>
+                  <span class="stats-card-change neutral"
+                    >2 completed, 3 remaining</span
+                  >
+                </div>
+                <div class="stats-card-icon icon-accent">
+                  <span class="material-symbols-rounded">menu_book</span>
+                </div>
+              </div>
+            </div>
+            <div class="stats-card">
+              <div class="stats-card-content">
+                <div class="stats-card-info">
+                  <span class="stats-card-title">Pending Results</span>
+                  <span class="stats-card-value">12</span>
+                  <span class="stats-card-change negative">3 due today</span>
+                </div>
+                <div class="stats-card-icon icon-destructive">
+                  <span class="material-symbols-rounded">assignment_late</span>
+                </div>
+              </div>
+            </div>
+            <div class="stats-card">
+              <div class="stats-card-content">
+                <div class="stats-card-info">
+                  <span class="stats-card-title">Attendance Rate</span>
+                  <span class="stats-card-value">94%</span>
+                  <span class="stats-card-change positive">This week</span>
+                </div>
+                <div class="stats-card-icon icon-success">
+                  <span class="material-symbols-rounded">check_circle</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-grid-2-1">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Today's Schedule</h3>
+              </div>
+              <div class="card-content">
+                <div class="schedule-card completed">
+                  <div class="schedule-info">
+                    <div class="schedule-time">
+                      <div class="schedule-time-main">08:00 - 09:00</div>
+                      <div class="schedule-time-sub">Room 201</div>
+                    </div>
+                    <div class="schedule-divider"></div>
+                    <div>
+                      <div class="schedule-class-name">Grade 10A</div>
+                      <div class="schedule-class-subject">Mathematics</div>
+                    </div>
+                  </div>
+                  <span class="badge badge-completed">Completed</span>
+                </div>
+
+                <div class="schedule-card current">
+                  <div class="schedule-info">
+                    <div class="schedule-time">
+                      <div class="schedule-time-main">09:15 - 10:15</div>
+                      <div class="schedule-time-sub">Room 203</div>
+                    </div>
+                    <div class="schedule-divider"></div>
+                    <div>
+                      <div class="schedule-class-name">Grade 10B</div>
+                      <div class="schedule-class-subject">Mathematics</div>
+                    </div>
+                  </div>
+                  <a href="attendance.html" class="btn-mark-attendance"
+                    >Mark Attendance</a
+                  >
+                  <span class="badge badge-primary">In Progress</span>
+                </div>
+
+                <div class="schedule-card upcoming">
+                  <div class="schedule-info">
+                    <div class="schedule-time">
+                      <div class="schedule-time-main">11:00 - 12:00</div>
+                      <div class="schedule-time-sub">Room 205</div>
+                    </div>
+                    <div class="schedule-divider"></div>
+                    <div>
+                      <div class="schedule-class-name">Grade 11A</div>
+                      <div class="schedule-class-subject">Mathematics</div>
+                    </div>
+                  </div>
+                  <span class="badge badge-secondary">Upcoming</span>
+                </div>
+
+                <div class="schedule-card upcoming">
+                  <div class="schedule-info">
+                    <div class="schedule-time">
+                      <div class="schedule-time-main">02:00 - 03:00</div>
+                      <div class="schedule-time-sub">Room 102</div>
+                    </div>
+                    <div class="schedule-divider"></div>
+                    <div>
+                      <div class="schedule-class-name">Grade 9B</div>
+                      <div class="schedule-class-subject">Mathematics</div>
+                    </div>
+                  </div>
+                  <span class="badge badge-secondary">Upcoming</span>
+                </div>
+
+                <div class="schedule-card upcoming">
+                  <div class="schedule-info">
+                    <div class="schedule-time">
+                      <div class="schedule-time-main">03:15 - 04:15</div>
+                      <div class="schedule-time-sub">Room 301</div>
+                    </div>
+                    <div class="schedule-divider"></div>
+                    <div>
+                      <div class="schedule-class-name">Grade 12A</div>
+                      <div class="schedule-class-subject">Mathematics</div>
+                    </div>
+                  </div>
+                  <span class="badge badge-secondary">Upcoming</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Pending Tasks</h3>
+                <span class="badge badge-secondary">4</span>
+              </div>
+              <div class="card-content">
+                <div class="task-card">
+                  <div class="task-priority-dot high"></div>
+                  <div class="task-content">
+                    <div class="task-title">Submit Grade 10B Quiz Results</div>
+                    <div class="task-deadline">Due: Today</div>
+                  </div>
+                  <span class="badge badge-high">high</span>
+                </div>
+
+                <div class="task-card">
+                  <div class="task-priority-dot high"></div>
+                  <div class="task-content">
+                    <div class="task-title">Mark Grade 11A Attendance</div>
+                    <div class="task-deadline">Due: Today</div>
+                  </div>
+                  <span class="badge badge-high">high</span>
+                </div>
+
+                <div class="task-card">
+                  <div class="task-priority-dot medium"></div>
+                  <div class="task-content">
+                    <div class="task-title">Complete Progress Reports</div>
+                    <div class="task-deadline">Due: Jan 30</div>
+                  </div>
+                  <span class="badge badge-medium">medium</span>
+                </div>
+
+                <div class="task-card">
+                  <div class="task-priority-dot low"></div>
+                  <div class="task-content">
+                    <div class="task-title">Review Grade 12A Mock Exams</div>
+                    <div class="task-deadline">Due: Feb 2</div>
+                  </div>
+                  <span class="badge badge-low">low</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-grid-1-1">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Class Performance</h3>
+              </div>
+              <div class="card-content">
+                <div class="performance-item">
+                  <div class="performance-header">
+                    <span class="performance-class">Grade 10A</span>
+                    <div class="performance-stats">
+                      <span class="performance-value">78%</span>
+                      <span class="performance-trend up">
+                        <span class="material-symbols-rounded icon-md"
+                          >trending_up</span
+                        >5%
+                      </span>
+                    </div>
+                  </div>
+                  <div class="performance-bar">
+                    <div class="performance-bar-fill" data-width="78"></div>
+                  </div>
+                </div>
+
+                <div class="performance-item">
+                  <div class="performance-header">
+                    <span class="performance-class">Grade 10B</span>
+                    <div class="performance-stats">
+                      <span class="performance-value">72%</span>
+                      <span class="performance-trend down">
+                        <span class="material-symbols-rounded icon-md"
+                          >trending_down</span
+                        >3%
+                      </span>
+                    </div>
+                  </div>
+                  <div class="performance-bar">
+                    <div class="performance-bar-fill" data-width="72"></div>
+                  </div>
+                </div>
+
+                <div class="performance-item">
+                  <div class="performance-header">
+                    <span class="performance-class">Grade 11A</span>
+                    <div class="performance-stats">
+                      <span class="performance-value">85%</span>
+                      <span class="performance-trend up">
+                        <span class="material-symbols-rounded icon-md"
+                          >trending_up</span
+                        >8%
+                      </span>
+                    </div>
+                  </div>
+                  <div class="performance-bar">
+                    <div class="performance-bar-fill" data-width="85"></div>
+                  </div>
+                </div>
+
+                <div class="performance-item">
+                  <div class="performance-header">
+                    <span class="performance-class">Grade 9B</span>
+                    <div class="performance-stats">
+                      <span class="performance-value">68%</span>
+                      <span class="performance-trend up">
+                        <span class="material-symbols-rounded icon-md"
+                          >trending_up</span
+                        >2%
+                      </span>
+                    </div>
+                  </div>
+                  <div class="performance-bar">
+                    <div class="performance-bar-fill" data-width="68"></div>
+                  </div>
+                </div>
+
+                <div class="performance-item">
+                  <div class="performance-header">
+                    <span class="performance-class">Grade 12A</span>
+                    <div class="performance-stats">
+                      <span class="performance-value">82%</span>
+                      <span class="performance-trend down">
+                        <span class="material-symbols-rounded icon-md"
+                          >trending_down</span
+                        >1%
+                      </span>
+                    </div>
+                  </div>
+                  <div class="performance-bar">
+                    <div class="performance-bar-fill" data-width="82"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Recent Activities</h3>
+              </div>
+              <div class="card-content">
+                <div class="activity-item">
+                  <div class="activity-icon result">
+                    <span class="material-symbols-rounded icon-md"
+                      >assignment_turned_in</span
+                    >
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text">
+                      <strong>Submitted results</strong> - Grade 10A Mid-Term
+                    </div>
+                    <div class="activity-time">
+                      <span class="material-symbols-rounded icon-sm"
+                        >schedule</span
+                      >2 hours ago
+                    </div>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-icon attendance">
+                    <span class="material-symbols-rounded icon-md"
+                      >check_circle</span
+                    >
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text">
+                      <strong>Marked attendance</strong> - Grade 10B
+                    </div>
+                    <div class="activity-time">
+                      <span class="material-symbols-rounded icon-sm"
+                        >schedule</span
+                      >3 hours ago
+                    </div>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-icon incident">
+                    <span class="material-symbols-rounded icon-md"
+                      >report_problem</span
+                    >
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text">
+                      <strong>Reported incident</strong> - Student: James Omondi
+                    </div>
+                    <div class="activity-time">
+                      <span class="material-symbols-rounded icon-sm"
+                        >schedule</span
+                      >5 hours ago
+                    </div>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-icon announcement">
+                    <span class="material-symbols-rounded icon-md"
+                      >campaign</span
+                    >
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text">
+                      <strong>Created announcement</strong> - Homework
+                      Assignment
+                    </div>
+                    <div class="activity-time">
+                      <span class="material-symbols-rounded icon-sm"
+                        >schedule</span
+                      >1 day ago
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2 mt-1-5">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Upcoming Deadlines</h3>
+              </div>
+              <div class="card-content">
+                <div class="calendar-widget">
+                  <div class="calendar-header">
+                    <span class="calendar-month">February 2026</span>
+                    <div class="calendar-nav">
+                      <button class="calendar-nav-btn">
+                        <span class="material-symbols-rounded icon-sm"
+                          >chevron_left</span
+                        >
+                      </button>
+                      <button class="calendar-nav-btn">
+                        <span class="material-symbols-rounded icon-sm"
+                          >chevron_right</span
+                        >
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="calendar-days">
+                    <div class="calendar-day-header">S</div>
+                    <div class="calendar-day-header">M</div>
+                    <div class="calendar-day-header">T</div>
+                    <div class="calendar-day-header">W</div>
+                    <div class="calendar-day-header">T</div>
+                    <div class="calendar-day-header">F</div>
+                    <div class="calendar-day-header">S</div>
+
+                    <div class="calendar-day other-month">30</div>
+                    <div class="calendar-day other-month">31</div>
+                    <div class="calendar-day">1</div>
+                    <div class="calendar-day">2</div>
+                    <div class="calendar-day">3</div>
+                    <div class="calendar-day">4</div>
+                    <div class="calendar-day">5</div>
+                    <div class="calendar-day">6</div>
+                    <div class="calendar-day">7</div>
+                    <div class="calendar-day today has-event">8</div>
+                    <div class="calendar-day">9</div>
+                    <div class="calendar-day has-event">10</div>
+                    <div class="calendar-day">11</div>
+                    <div class="calendar-day">12</div>
+                    <div class="calendar-day">13</div>
+                    <div class="calendar-day">14</div>
+                    <div class="calendar-day has-event">15</div>
+                    <div class="calendar-day">16</div>
+                    <div class="calendar-day">17</div>
+                    <div class="calendar-day">18</div>
+                    <div class="calendar-day has-event">20</div>
+                    <div class="calendar-day">21</div>
+                    <div class="calendar-day">22</div>
+                    <div class="calendar-day">23</div>
+                    <div class="calendar-day">24</div>
+                    <div class="calendar-day">25</div>
+                    <div class="calendar-day">26</div>
+                    <div class="calendar-day">27</div>
+                    <div class="calendar-day">28</div>
+                    <div class="calendar-day">29</div>
+                  </div>
+                </div>
+
+                <div class="event-list">
+                  <div class="event-list-item priority-high">
+                    <div class="event-date">
+                      <div class="event-date-day">10</div>
+                      <div class="event-date-month">FEB</div>
+                    </div>
+                    <div class="event-details">
+                      <div class="event-title">
+                        Submit Grade 10B Quiz Results
+                      </div>
+                      <div class="event-meta">Mathematics • High Priority</div>
+                    </div>
+                  </div>
+
+                  <div class="event-list-item priority-medium">
+                    <div class="event-date">
+                      <div class="event-date-day">15</div>
+                      <div class="event-date-month">FEB</div>
+                    </div>
+                    <div class="event-details">
+                      <div class="event-title">Mid-Term Exams Begin</div>
+                      <div class="event-meta">
+                        All Classes • Medium Priority
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="event-list-item priority-low">
+                    <div class="event-date">
+                      <div class="event-date-day">20</div>
+                      <div class="event-date-month">FEB</div>
+                    </div>
+                    <div class="event-details">
+                      <div class="event-title">Parent-Teacher Meetings</div>
+                      <div class="event-meta">Form 3 & 4 • Low Priority</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="notes-widget">
+                <div class="notes-header">
+                  <span class="notes-icon material-symbols-rounded"
+                    >sticky_note_2</span
+                  >
+                  <h4 class="notes-title">Quick Reminders</h4>
+                </div>
+                
+                <div class="add-note-box">
+                  <input
+                    type="text"
+                    id="noteInput"
+                    placeholder="Write a reminder..."
+                  />
+                  <button
+                    onclick="addQuickNote()"
+                    style="border: none; background: none; cursor: pointer"
+                  >
+                    <span class="material-symbols-rounded">add_circle</span>
+                  </button>
+                </div>
+
+                <div class="note-item">
+                  <input type="checkbox" class="note-checkbox" />
+                  <div class="note-content">
+                    <div class="note-text">
+                      Review Form 4A calculus homework submissions
+                    </div>
+                    <div class="note-time">Added 2 hours ago</div>
+                  </div>
+                </div>
+
+                <div class="note-item">
+                  <input type="checkbox" class="note-checkbox" checked />
+                  <div class="note-content">
+                    <div class="note-text">
+                      Prepare materials for Monday's lesson on quadratic
+                      equations
+                    </div>
+                    <div class="note-time">Completed</div>
+                  </div>
+                </div>
+
+                <div class="note-item">
+                  <input type="checkbox" class="note-checkbox" />
+                  <div class="note-content">
+                    <div class="note-text">
+                      Call parent of James Omondi regarding behavior
+                    </div>
+                    <div class="note-time">Added yesterday</div>
+                  </div>
+                </div>
+
+                <div class="note-item">
+                  <input type="checkbox" class="note-checkbox" />
+                  <div class="note-content">
+                    <div class="note-text">
+                      Update grade book for Form 3B mid-term results
+                    </div>
+                    <div class="note-time">Added 3 days ago</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mt-1-5">
+                <div class="card-header">
+                  <h3 class="card-title">My Classes</h3>
+                </div>
+                <div class="card-content">
+                  <div class="content-grid-auto">
+                    <div class="class-overview-card">
+                      <div class="class-overview-header">
+                        <div class="class-overview-title">Grade 10A</div>
+                        <div class="class-overview-subject">Mathematics</div>
+                        <span class="badge class-overview-student-count"
+                          >35 students</span
+                        >
+                      </div>
+                      <div class="class-overview-stats">
+                        <span class="material-symbols-rounded icon-md"
+                          >schedule</span
+                        >
+                        <span class="class-overview-next-time"
+                          >Next: 09:00 AM</span
+                        >
+                      </div>
+                      <div class="class-overview-actions">
+                        <button class="btn btn-sm btn-outline">
+                          Attendance
+                        </button>
+                        <button class="btn btn-sm btn-outline">Results</button>
+                      </div>
+                    </div>
+
+                    <div class="class-overview-card">
+                      <div class="class-overview-header">
+                        <div class="class-overview-title">Grade 10B</div>
+                        <div class="class-overview-subject">Mathematics</div>
+                        <span class="badge class-overview-student-count"
+                          >32 students</span
+                        >
+                      </div>
+                      <div class="class-overview-stats">
+                        <span class="material-symbols-rounded icon-md"
+                          >schedule</span
+                        >
+                        <span class="class-overview-next-time"
+                          >Next: 11:00 AM</span
+                        >
+                      </div>
+                      <div class="class-overview-actions">
+                        <button class="btn btn-sm btn-outline">
+                          Attendance
+                        </button>
+                        <button class="btn btn-sm btn-outline">Results</button>
+                      </div>
+                    </div>
+
+                    <div class="class-overview-card">
+                      <div class="class-overview-header">
+                        <div class="class-overview-title">Grade 11A</div>
+                        <div class="class-overview-subject">Mathematics</div>
+                        <span class="badge class-overview-student-count"
+                          >30 students</span
+                        >
+                      </div>
+                      <div class="class-overview-stats">
+                        <span class="material-symbols-rounded icon-md"
+                          >schedule</span
+                        >
+                        <span class="class-overview-next-time"
+                          >Next: 02:00 PM</span
+                        >
+                      </div>
+                      <div class="class-overview-actions">
+                        <button class="btn btn-sm btn-outline">
+                          Attendance
+                        </button>
+                        <button class="btn btn-sm btn-outline">Results</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="../js/dashboard.js"></script>
+    <script>
+      // Set performance bar widths
+      document.querySelectorAll(".performance-bar-fill").forEach((bar) => {
+        const width = bar.getAttribute("data-width");
+        if (width) {
+          bar.style.width = width + "%";
+        }
+      });
+    </script>
+  </body>
+</html>

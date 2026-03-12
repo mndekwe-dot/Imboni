@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extracurricular Timetable - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/discipline.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="discipline.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="discipline-students.html" class="sidebar-nav-item"><span class="material-symbols-rounded">groups</span><span>Students</span></a></li>
+            <li><a href="discipline-staff.html" class="sidebar-nav-item"><span class="material-symbols-rounded">supervisor_account</span><span>Matrons &amp; Patrons</span></a></li>
+            <li><a href="discipline-reports.html" class="sidebar-nav-item"><span class="material-symbols-rounded">summarize</span><span>Reports</span></a></li>
+            <li><a href="discipline-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+            <li><a href="discipline-activities.html" class="sidebar-nav-item"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="discipline-timetable.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">calendar_view_week</span><span>Timetable</span></a></li>
+            <li><a href="discipline-student-leaders.html" class="sidebar-nav-item"><span class="material-symbols-rounded">military_tech</span><span>Student Leaders</span></a></li>
+            <li><a href="discipline-boarding.html" class="sidebar-nav-item"><span class="material-symbols-rounded">hotel</span><span>Boarding</span></a></li>
+            <li><a href="discipline-dining.html" class="sidebar-nav-item"><span class="material-symbols-rounded">restaurant</span><span>Dining</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Extracurricular Timetable</h1>
+            <p>Plan, create, and update the weekly non-academic activity schedule</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">3</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Mr. David Kariuki</span>
+                <span class="header-user-role">Director of Discipline</span>
+              </div>
+              <div class="header-user-av discipline-av">DK</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- ── STATS ── -->
+          <div class="disc-stat-grid">
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon info"><span class="material-symbols-rounded">calendar_view_week</span></div>
+              <div class="disc-stat-value">18</div>
+              <div class="disc-stat-label">Scheduled Slots</div>
+              <div class="disc-stat-trend positive">This week</div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon success"><span class="material-symbols-rounded">emoji_events</span></div>
+              <div class="disc-stat-value">18</div>
+              <div class="disc-stat-label">Active Clubs</div>
+              <div class="disc-stat-trend positive">All assigned</div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon warning"><span class="material-symbols-rounded">supervisor_account</span></div>
+              <div class="disc-stat-value">18</div>
+              <div class="disc-stat-label">Patron Teachers</div>
+              <div class="disc-stat-trend positive">Fully staffed</div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon positive"><span class="material-symbols-rounded">location_on</span></div>
+              <div class="disc-stat-value">12</div>
+              <div class="disc-stat-label">Venues Allocated</div>
+              <div class="disc-stat-trend positive">No conflicts</div>
+            </div>
+          </div>
+
+          <!-- ── TIMETABLE GRID ── -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Weekly Extracurricular Schedule</h2>
+              <div class="tt-legend">
+                <span class="tt-legend-item tt-sports">Sports</span>
+                <span class="tt-legend-item tt-arts">Arts</span>
+                <span class="tt-legend-item tt-academic">Academic</span>
+                <span class="tt-legend-item tt-social">Social</span>
+                <span class="tt-legend-item tt-boarding">Boarding</span>
+                <span class="tt-legend-item tt-dining">Dining</span>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="tt-wrap">
+                <table class="tt-table">
+                  <thead>
+                    <tr>
+                      <th class="tt-time-head">Time Slot</th>
+                      <th class="tt-day-head">Mon</th>
+                      <th class="tt-day-head">Tue</th>
+                      <th class="tt-day-head">Wed</th>
+                      <th class="tt-day-head">Thu</th>
+                      <th class="tt-day-head">Fri</th>
+                      <th class="tt-day-head">Sat</th>
+                      <th class="tt-day-head">Sun</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="tt-time-cell"><strong>Morning</strong><span>5:30 – 7:00</span></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Wake-up &amp; Prep</div><div class="tt-teacher">All Matrons</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Wake-up &amp; Prep</div><div class="tt-teacher">All Matrons</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Wake-up &amp; Prep</div><div class="tt-teacher">All Matrons</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Wake-up &amp; Prep</div><div class="tt-teacher">All Matrons</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Wake-up &amp; Prep</div><div class="tt-teacher">All Matrons</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Wake-up &amp; Prep</div><div class="tt-teacher">All Matrons</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-empty"><span>Rest Day</span></td>
+                    </tr>
+                    <tr>
+                      <td class="tt-time-cell"><strong>Assembly</strong><span>7:15 – 7:30</span></td>
+                      <td class="tt-cell tt-social"><div class="tt-subject">Morning Assembly</div><div class="tt-teacher">Mr. Omondi</div><div class="tt-room">Quadrangle</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-social"><div class="tt-subject">Morning Assembly</div><div class="tt-teacher">Mr. Omondi</div><div class="tt-room">Quadrangle</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-social"><div class="tt-subject">Morning Assembly</div><div class="tt-teacher">Mr. Omondi</div><div class="tt-room">Quadrangle</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-social"><div class="tt-subject">Morning Assembly</div><div class="tt-teacher">Mr. Omondi</div><div class="tt-room">Quadrangle</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-social"><div class="tt-subject">Morning Assembly</div><div class="tt-teacher">Mr. Omondi</div><div class="tt-room">Quadrangle</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-empty"><span>—</span></td>
+                      <td class="tt-cell tt-empty"><span>—</span></td>
+                    </tr>
+                    <tr>
+                      <td class="tt-time-cell"><strong>Lunch</strong><span>1:00 – 2:00</span></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Lunch Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Lunch Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Lunch Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Lunch Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Lunch Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Lunch Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Lunch Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                    </tr>
+                    <tr>
+                      <td class="tt-time-cell"><strong>After School</strong><span>2:00 – 4:00</span></td>
+                      <td class="tt-cell tt-sports"><div class="tt-subject">Football Training</div><div class="tt-teacher">Mr. Mwangi</div><div class="tt-room">Sports Field</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-academic"><div class="tt-subject">Debate Club</div><div class="tt-teacher">Mr. Kamau</div><div class="tt-room">Library</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-sports"><div class="tt-subject">Basketball</div><div class="tt-teacher">Mr. Njoroge</div><div class="tt-room">Court</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-academic"><div class="tt-subject">Science Club</div><div class="tt-teacher">Dr. Wanjiku</div><div class="tt-room">Lab 2</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-arts"><div class="tt-subject">Drama Club</div><div class="tt-teacher">Ms. Otieno</div><div class="tt-room">School Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-sports"><div class="tt-subject">Athletics</div><div class="tt-teacher">Mr. Mwangi</div><div class="tt-room">Track</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-social"><div class="tt-subject">Community Service</div><div class="tt-teacher">Ms. Achieng</div><div class="tt-room">Community Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                    </tr>
+                    <tr>
+                      <td class="tt-time-cell"><strong>Evening</strong><span>4:30 – 6:30</span></td>
+                      <td class="tt-cell tt-academic"><div class="tt-subject">Evening Prep</div><div class="tt-teacher">House Staff</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-sports"><div class="tt-subject">Football Training</div><div class="tt-teacher">Mr. Mwangi</div><div class="tt-room">Sports Field</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-academic"><div class="tt-subject">Evening Prep</div><div class="tt-teacher">House Staff</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-sports"><div class="tt-subject">Basketball</div><div class="tt-teacher">Mr. Njoroge</div><div class="tt-room">Court</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-academic"><div class="tt-subject">Evening Prep</div><div class="tt-teacher">House Staff</div><div class="tt-room">Dormitories</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-arts"><div class="tt-subject">Drama Rehearsal</div><div class="tt-teacher">Ms. Otieno</div><div class="tt-room">School Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-empty"><span>Free Time</span></td>
+                    </tr>
+                    <tr>
+                      <td class="tt-time-cell"><strong>Dinner</strong><span>7:00 – 8:00</span></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Dinner Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Dinner Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Dinner Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Dinner Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Dinner Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Dinner Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-dining"><div class="tt-subject">Dinner Sitting</div><div class="tt-teacher">Duty Staff</div><div class="tt-room">Dining Hall</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                    </tr>
+                    <tr>
+                      <td class="tt-time-cell"><strong>Lights Out</strong><span>9:00 – 10:00</span></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Curfew / Rounds</div><div class="tt-teacher">All House Staff</div><div class="tt-room">All Houses</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Curfew / Rounds</div><div class="tt-teacher">All House Staff</div><div class="tt-room">All Houses</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Curfew / Rounds</div><div class="tt-teacher">All House Staff</div><div class="tt-room">All Houses</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Curfew / Rounds</div><div class="tt-teacher">All House Staff</div><div class="tt-room">All Houses</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Curfew / Rounds</div><div class="tt-teacher">All House Staff</div><div class="tt-room">All Houses</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Curfew / Rounds</div><div class="tt-teacher">All House Staff</div><div class="tt-room">All Houses</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                      <td class="tt-cell tt-boarding"><div class="tt-subject">Curfew / Rounds</div><div class="tt-teacher">All House Staff</div><div class="tt-room">All Houses</div><div class="tt-actions"><button class="tt-btn">Edit</button><button class="tt-btn tt-btn-del">Del</button></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── ADD / EDIT SLOT FORM ── -->
+          <div class="card mt-1-5">
+            <div class="card-header">
+              <h2 class="card-title"><span class="material-symbols-rounded">edit_calendar</span> Add / Edit Activity Slot</h2>
+              <span class="did-direct-badge"><span class="material-symbols-rounded">verified</span> DiD authority — changes apply immediately</span>
+            </div>
+            <div class="card-content">
+              <div class="tt-form">
+                <div class="tt-form-row">
+                  <div class="form-group">
+                    <label class="form-label">Day</label>
+                    <select class="form-input">
+                      <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+                      <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Time Slot</label>
+                    <select class="form-input">
+                      <option>Morning (5:30 – 7:00)</option>
+                      <option>Assembly (7:15 – 7:30)</option>
+                      <option>Lunch (1:00 – 2:00)</option>
+                      <option>After School (2:00 – 4:00)</option>
+                      <option>Evening (4:30 – 6:30)</option>
+                      <option>Dinner (7:00 – 8:00)</option>
+                      <option>Lights Out (9:00 – 10:00)</option>
+                      <option>Custom time...</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Activity Type</label>
+                    <select class="form-input">
+                      <option>Sports</option><option>Arts</option><option>Academic Club</option>
+                      <option>Social / Community</option><option>Boarding / Dormitory</option><option>Dining</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="tt-form-row">
+                  <div class="form-group">
+                    <label class="form-label">Activity / Event Name</label>
+                    <input type="text" class="form-input" placeholder="e.g. Football Training, Drama Rehearsal..." />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Patron / Staff in Charge</label>
+                    <select class="form-input">
+                      <option>Mr. Mwangi</option><option>Mr. Njoroge</option><option>Ms. Otieno</option>
+                      <option>Mr. Kamau</option><option>Dr. Wanjiku</option><option>Ms. Achieng</option>
+                      <option>All House Staff</option><option>Duty Staff</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Venue / Location</label>
+                    <input type="text" class="form-input" placeholder="e.g. Sports Field, School Hall..." />
+                  </div>
+                </div>
+                <div class="tt-form-actions">
+                  <button class="btn btn-secondary">Clear</button>
+                  <button class="btn btn-secondary">Delete Slot</button>
+                  <button class="btn btn-primary">Save to Timetable</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

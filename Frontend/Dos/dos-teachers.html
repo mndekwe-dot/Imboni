@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teachers - Imboni Education Connects</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0"
+    />
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dos.css" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon">
+              <img src="../images/imboni-logo.png" alt="Imboni Logo" />
+            </div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li>
+              <a href="dos.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">dashboard</span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-analytics.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">analytics</span>
+                <span>Analytics</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-results-approval.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">fact_check</span>
+                <span>Results Approval</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-teachers.html" class="sidebar-nav-item active">
+                <span class="material-symbols-rounded">school</span>
+                <span>Teachers</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-students.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">group</span>
+                <span>Students</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-attendance.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">check_circle</span>
+                <span>Attendance</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-exam-schedule.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_today</span>
+                <span>Exams Schedule</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-timetable.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_view_week</span>
+                <span>Timetable</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-announcement.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">announcement</span>
+                <span>Announcements</span>
+              </a>
+            </li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li>
+              <a href="../Parent/account.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">account_circle</span>
+                <span>Account</span>
+              </a>
+            </li>
+            <li>
+              <a href="index.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">logout</span>
+                <span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn">
+            <span class="material-symbols-rounded">menu</span>
+          </button>
+          <div class="dashboard-header-title">
+            <h1>Teacher Management</h1>
+            <p>View, add, update teachers and manage class assignments</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">2</span>
+            </button>
+            <button class="btn btn-primary" onclick="openAddPanel()">
+              <span class="material-symbols-rounded">person_add</span>
+              Add Teacher
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Dr. Samuel Oduya</span>
+                <span class="header-user-role">Director of Studies</span>
+              </div>
+              <div class="header-user-av dos-av">SO</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Stats -->
+          <div class="quick-stats">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon info">
+                  <span class="material-symbols-rounded">school</span>
+                </div>
+                <span class="stat-trend positive">+3 this term</span>
+              </div>
+              <div class="stat-value">85</div>
+              <div class="stat-label">Total Teachers</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon success">
+                  <span class="material-symbols-rounded">badge</span>
+                </div>
+                <span class="stat-trend neutral">53% of staff</span>
+              </div>
+              <div class="stat-value">45</div>
+              <div class="stat-label">Full-Time</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon warning">
+                  <span class="material-symbols-rounded">schedule</span>
+                </div>
+                <span class="stat-trend neutral">47% of staff</span>
+              </div>
+              <div class="stat-value">40</div>
+              <div class="stat-label">Part-Time</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon info">
+                  <span class="material-symbols-rounded">groups</span>
+                </div>
+                <span class="stat-trend positive">Optimal</span>
+              </div>
+              <div class="stat-value">1:15</div>
+              <div class="stat-label">Student-Teacher Ratio</div>
+            </div>
+          </div>
+
+          <!-- Search + Filter Bar -->
+          <div class="tm-toolbar">
+            <div class="search-box">
+              <span class="material-symbols-rounded">search</span>
+              <input
+                id="teacher-search"
+                type="text"
+                placeholder="Search by name or subject..."
+                oninput="filterTeachers()"
+              />
+            </div>
+            <div class="tm-filter-dropdowns">
+              <div class="tm-filter-group">
+                <label class="tm-filter-label">Subject</label>
+                <select class="dos-picker-select" id="subject-filter" onchange="applyFilters()">
+                  <option value="">All Subjects</option>
+                  <option>Mathematics</option>
+                  <option>English</option>
+                  <option>Literature in English</option>
+                  <option>Kiswahili</option>
+                  <option>French</option>
+                  <option>Biology</option>
+                  <option>Chemistry</option>
+                  <option>Physics</option>
+                  <option>History</option>
+                  <option>Geography</option>
+                  <option>CRE</option>
+                  <option>Business Studies</option>
+                  <option>Computer Studies</option>
+                  <option>Agriculture</option>
+                  <option>Art &amp; Design</option>
+                  <option>Music</option>
+                  <option>Physical Education</option>
+                </select>
+              </div>
+              <div class="tm-filter-group">
+                <label class="tm-filter-label">Class</label>
+                <select class="dos-picker-select" id="class-filter" onchange="applyFilters()">
+                  <option value="">All Classes</option>
+                  <option>Form 1A</option><option>Form 1B</option><option>Form 1C</option>
+                  <option>Form 2A</option><option>Form 2B</option><option>Form 2C</option>
+                  <option>Form 3A</option><option>Form 3B</option><option>Form 3C</option>
+                  <option>Form 4A</option><option>Form 4B</option><option>Form 4C</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Teacher List Table -->
+          <div class="card mt-1-5">
+            <div class="card-header">
+              <h2 class="card-title">All Teachers <span class="tm-count" id="teacher-count">85</span></h2>
+            </div>
+            <div class="card-content">
+              <div class="tm-table-wrap">
+                <table class="tm-table">
+                  <thead>
+                    <tr>
+                      <th>Teacher</th>
+                      <th>Subject</th>
+                      <th>Type</th>
+                      <th>Classes Assigned</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="teacher-tbody">
+
+                    <tr data-filter="mathematics">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av math">AK</div>
+                          <div>
+                            <div class="tm-name">Alice Kamau</div>
+                            <div class="tm-id">TST-001</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Mathematics</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 1A</span>
+                        <span class="tm-chip">Form 1B</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Alice Kamau"
+                          data-id="TST-001"
+                          data-subject="Mathematics"
+                          data-type="fulltime"
+                          data-phone="+254 701 123 456"
+                          data-email="a.kamau@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Alice Kamau"
+                          data-id="TST-001">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="mathematics">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av math">BO</div>
+                          <div>
+                            <div class="tm-name">Bernard Omondi</div>
+                            <div class="tm-id">TST-002</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Mathematics</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 2A</span>
+                        <span class="tm-chip">Form 2B</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Bernard Omondi"
+                          data-id="TST-002"
+                          data-subject="Mathematics"
+                          data-type="fulltime"
+                          data-phone="+254 702 234 567"
+                          data-email="b.omondi@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Bernard Omondi"
+                          data-id="TST-002">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="english">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av english">CW</div>
+                          <div>
+                            <div class="tm-name">Carol Wanjiku</div>
+                            <div class="tm-id">TST-003</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>English</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 1A</span>
+                        <span class="tm-chip">Form 3A</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Carol Wanjiku"
+                          data-id="TST-003"
+                          data-subject="English"
+                          data-type="fulltime"
+                          data-phone="+254 703 345 678"
+                          data-email="c.wanjiku@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Carol Wanjiku"
+                          data-id="TST-003">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="english">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av english">DK</div>
+                          <div>
+                            <div class="tm-name">Daniel Kipchoge</div>
+                            <div class="tm-id">TST-004</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>English</td>
+                      <td><span class="tm-badge parttime">Part-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 2B</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Daniel Kipchoge"
+                          data-id="TST-004"
+                          data-subject="English"
+                          data-type="parttime"
+                          data-phone="+254 704 456 789"
+                          data-email="d.kipchoge@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Daniel Kipchoge"
+                          data-id="TST-004">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="sciences">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av sciences">EA</div>
+                          <div>
+                            <div class="tm-name">Eve Adhiambo</div>
+                            <div class="tm-id">TST-005</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Biology</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 3A</span>
+                        <span class="tm-chip">Form 3B</span>
+                        <span class="tm-chip">Form 4A</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Eve Adhiambo"
+                          data-id="TST-005"
+                          data-subject="Biology"
+                          data-type="fulltime"
+                          data-phone="+254 705 567 890"
+                          data-email="e.adhiambo@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Eve Adhiambo"
+                          data-id="TST-005">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="sciences">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av sciences">FM</div>
+                          <div>
+                            <div class="tm-name">Frank Mwangi</div>
+                            <div class="tm-id">TST-006</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Chemistry</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 3A</span>
+                        <span class="tm-chip">Form 4A</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Frank Mwangi"
+                          data-id="TST-006"
+                          data-subject="Chemistry"
+                          data-type="fulltime"
+                          data-phone="+254 706 678 901"
+                          data-email="f.mwangi@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Frank Mwangi"
+                          data-id="TST-006">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="sciences">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av sciences">GA</div>
+                          <div>
+                            <div class="tm-name">Grace Auma</div>
+                            <div class="tm-id">TST-007</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Physics</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 4B</span>
+                        <span class="tm-chip">Form 4C</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Grace Auma"
+                          data-id="TST-007"
+                          data-subject="Physics"
+                          data-type="fulltime"
+                          data-phone="+254 707 789 012"
+                          data-email="g.auma@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Grace Auma"
+                          data-id="TST-007">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="social">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av social">HN</div>
+                          <div>
+                            <div class="tm-name">Henry Njoroge</div>
+                            <div class="tm-id">TST-008</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>History</td>
+                      <td><span class="tm-badge parttime">Part-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 2A</span>
+                      </td>
+                      <td><span class="tm-status leave">On Leave</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Henry Njoroge"
+                          data-id="TST-008"
+                          data-subject="History"
+                          data-type="parttime"
+                          data-phone="+254 708 890 123"
+                          data-email="h.njoroge@imboni.ac.ke"
+                          data-status="leave">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Henry Njoroge"
+                          data-id="TST-008">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="social">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av social">IS</div>
+                          <div>
+                            <div class="tm-name">Irene Simiyu</div>
+                            <div class="tm-id">TST-009</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Geography</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 1A</span>
+                        <span class="tm-chip">Form 2A</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Irene Simiyu"
+                          data-id="TST-009"
+                          data-subject="Geography"
+                          data-type="fulltime"
+                          data-phone="+254 709 901 234"
+                          data-email="i.simiyu@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Irene Simiyu"
+                          data-id="TST-009">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="languages">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av languages">JM</div>
+                          <div>
+                            <div class="tm-name">James Mutua</div>
+                            <div class="tm-id">TST-010</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Kiswahili</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 1A</span>
+                        <span class="tm-chip">Form 1B</span>
+                        <span class="tm-chip">Form 2A</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="James Mutua"
+                          data-id="TST-010"
+                          data-subject="Kiswahili"
+                          data-type="fulltime"
+                          data-phone="+254 710 012 345"
+                          data-email="j.mutua@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="James Mutua"
+                          data-id="TST-010">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="other">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av other">KO</div>
+                          <div>
+                            <div class="tm-name">Kezia Otieno</div>
+                            <div class="tm-id">TST-011</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>CRE</td>
+                      <td><span class="tm-badge parttime">Part-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 1B</span>
+                        <span class="tm-chip">Form 2B</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Kezia Otieno"
+                          data-id="TST-011"
+                          data-subject="CRE"
+                          data-type="parttime"
+                          data-phone="+254 711 123 456"
+                          data-email="k.otieno@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Kezia Otieno"
+                          data-id="TST-011">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="other">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av other">LK</div>
+                          <div>
+                            <div class="tm-name">Lawrence Kamau</div>
+                            <div class="tm-id">TST-012</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Computer Studies</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 3B</span>
+                        <span class="tm-chip">Form 4B</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Lawrence Kamau"
+                          data-id="TST-012"
+                          data-subject="Computer Studies"
+                          data-type="fulltime"
+                          data-phone="+254 712 234 567"
+                          data-email="l.kamau@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Lawrence Kamau"
+                          data-id="TST-012">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="mathematics">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av math">MN</div>
+                          <div>
+                            <div class="tm-name">Mary Ndirangu</div>
+                            <div class="tm-id">TST-013</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Mathematics</td>
+                      <td><span class="tm-badge contract">Contract</span></td>
+                      <td>
+                        <span class="tm-chip">Form 3C</span>
+                        <span class="tm-chip">Form 4C</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Mary Ndirangu"
+                          data-id="TST-013"
+                          data-subject="Mathematics"
+                          data-type="contract"
+                          data-phone="+254 713 345 678"
+                          data-email="m.ndirangu@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Mary Ndirangu"
+                          data-id="TST-013">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="languages">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av languages">NA</div>
+                          <div>
+                            <div class="tm-name">Nancy Adhiambo</div>
+                            <div class="tm-id">TST-014</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>French</td>
+                      <td><span class="tm-badge parttime">Part-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 3A</span>
+                        <span class="tm-chip">Form 3B</span>
+                      </td>
+                      <td><span class="tm-status active">Active</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Nancy Adhiambo"
+                          data-id="TST-014"
+                          data-subject="French"
+                          data-type="parttime"
+                          data-phone="+254 714 456 789"
+                          data-email="n.adhiambo@imboni.ac.ke"
+                          data-status="active">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Nancy Adhiambo"
+                          data-id="TST-014">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                    <tr data-filter="english">
+                      <td>
+                        <div class="tm-teacher-cell">
+                          <div class="tm-av english">PK</div>
+                          <div>
+                            <div class="tm-name">Peter Kimani</div>
+                            <div class="tm-id">TST-015</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>Literature in English</td>
+                      <td><span class="tm-badge fulltime">Full-Time</span></td>
+                      <td>
+                        <span class="tm-chip">Form 4A</span>
+                        <span class="tm-chip">Form 4B</span>
+                      </td>
+                      <td><span class="tm-status inactive">Inactive</span></td>
+                      <td class="tm-actions">
+                        <button class="tm-btn" onclick="openEditPanel(this)"
+                          data-name="Peter Kimani"
+                          data-id="TST-015"
+                          data-subject="Literature in English"
+                          data-type="fulltime"
+                          data-phone="+254 715 567 890"
+                          data-email="p.kimani@imboni.ac.ke"
+                          data-status="inactive">
+                          <span class="material-symbols-rounded">edit</span> Edit
+                        </button>
+                        <button class="tm-btn assign" onclick="openAssignPanel(this)"
+                          data-name="Peter Kimani"
+                          data-id="TST-015">
+                          <span class="material-symbols-rounded">class</span> Assign
+                        </button>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+              <p class="tm-showing-note" id="showing-note">Showing 15 of 85 teachers. Use search or filters to find specific teachers.</p>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- Side Panel (Add / Edit / Assign) -->
+    <div class="tm-panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
+    <div class="tm-panel" id="teacher-panel">
+
+      <!-- ADD / EDIT TEACHER VIEW -->
+      <div id="panel-form-view">
+        <div class="tm-panel-header">
+          <div>
+            <h2 class="tm-panel-title" id="panel-form-title">Add New Teacher</h2>
+            <p class="tm-panel-sub" id="panel-form-sub">Fill in the teacher's key information</p>
+          </div>
+          <button class="tm-panel-close" onclick="closePanel()">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <div class="tm-panel-body">
+          <form class="tm-form" onsubmit="return false;">
+
+            <div class="tm-form-section">
+              <h3 class="tm-form-section-title">Personal Information</h3>
+              <div class="tm-form-group">
+                <label class="tm-label" for="tf-name">Full Name <span class="tm-required">*</span></label>
+                <input class="tm-input" type="text" id="tf-name" placeholder="e.g. Alice Kamau" required />
+              </div>
+              <div class="tm-form-row2">
+                <div class="tm-form-group">
+                  <label class="tm-label" for="tf-id">Staff ID</label>
+                  <input class="tm-input" type="text" id="tf-id" placeholder="e.g. TST-016" />
+                </div>
+                <div class="tm-form-group">
+                  <label class="tm-label" for="tf-phone">Phone Number</label>
+                  <input class="tm-input" type="tel" id="tf-phone" placeholder="+254 7XX XXX XXX" />
+                </div>
+              </div>
+              <div class="tm-form-group">
+                <label class="tm-label" for="tf-email">Email Address</label>
+                <input class="tm-input" type="email" id="tf-email" placeholder="name@imboni.ac.ke" />
+              </div>
+            </div>
+
+            <div class="tm-form-section">
+              <h3 class="tm-form-section-title">Teaching Details</h3>
+              <div class="tm-form-group">
+                <label class="tm-label" for="tf-subject">Primary Subject <span class="tm-required">*</span></label>
+                <select class="tm-input" id="tf-subject" required>
+                  <option value="">Select subject...</option>
+                  <optgroup label="Mathematics">
+                    <option>Mathematics</option>
+                  </optgroup>
+                  <optgroup label="Languages">
+                    <option>English</option>
+                    <option>Literature in English</option>
+                    <option>Kiswahili</option>
+                    <option>French</option>
+                    <option>German</option>
+                  </optgroup>
+                  <optgroup label="Sciences">
+                    <option>Biology</option>
+                    <option>Chemistry</option>
+                    <option>Physics</option>
+                    <option>Agriculture</option>
+                  </optgroup>
+                  <optgroup label="Social Studies">
+                    <option>History</option>
+                    <option>Geography</option>
+                    <option>Business Studies</option>
+                    <option>Economics</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option>CRE</option>
+                    <option>IRE</option>
+                    <option>Computer Studies</option>
+                    <option>Art &amp; Design</option>
+                    <option>Music</option>
+                    <option>Physical Education</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="tm-form-group">
+                <label class="tm-label" for="tf-subject2">Secondary Subject <span class="tm-optional">(optional)</span></label>
+                <input class="tm-input" type="text" id="tf-subject2" placeholder="e.g. Mathematics Alternative" />
+              </div>
+              <div class="tm-form-row2">
+                <div class="tm-form-group">
+                  <label class="tm-label" for="tf-type">Employment Type <span class="tm-required">*</span></label>
+                  <select class="tm-input" id="tf-type" required>
+                    <option value="">Select type...</option>
+                    <option value="fulltime">Full-Time</option>
+                    <option value="parttime">Part-Time</option>
+                    <option value="contract">Contract</option>
+                  </select>
+                </div>
+                <div class="tm-form-group">
+                  <label class="tm-label" for="tf-status">Status</label>
+                  <select class="tm-input" id="tf-status">
+                    <option value="active">Active</option>
+                    <option value="leave">On Leave</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+        <div class="tm-panel-footer">
+          <button class="btn btn-secondary" onclick="closePanel()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveTeacher()">
+            <span class="material-symbols-rounded">save</span>
+            <span id="panel-save-label">Add Teacher</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ASSIGN CLASSES VIEW -->
+      <div id="panel-assign-view" class="tm-hidden">
+        <div class="tm-panel-header">
+          <div>
+            <h2 class="tm-panel-title">Assign Classes</h2>
+            <p class="tm-panel-sub" id="assign-teacher-label">Assigning to: —</p>
+          </div>
+          <button class="tm-panel-close" onclick="closePanel()">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <div class="tm-panel-body">
+          <div class="tm-assign-note">
+            <span class="material-symbols-rounded">info</span>
+            Add each class or lesson this teacher will teach. You can assign multiple classes.
+          </div>
+          <div id="assign-rows-container">
+            <!-- Rows added by JS -->
+          </div>
+          <button class="tm-assign-add-btn" onclick="addAssignRow()">
+            <span class="material-symbols-rounded">add_circle</span>
+            Add Another Class
+          </button>
+        </div>
+        <div class="tm-panel-footer">
+          <button class="btn btn-secondary" onclick="closePanel()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveAssignments()">
+            <span class="material-symbols-rounded">save</span>
+            Save Assignments
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script>
+      /* ---- Panel management ---- */
+      let currentMode = 'add';
+
+      function openAddPanel() {
+        currentMode = 'add';
+        document.getElementById('panel-form-title').textContent = 'Add New Teacher';
+        document.getElementById('panel-form-sub').textContent = "Fill in the teacher's key information";
+        document.getElementById('panel-save-label').textContent = 'Add Teacher';
+        clearFormFields();
+        showView('form');
+        openPanel();
+      }
+
+      function openEditPanel(btn) {
+        currentMode = 'edit';
+        document.getElementById('panel-form-title').textContent = 'Update Teacher Info';
+        document.getElementById('panel-form-sub').textContent = 'Edit the fields you want to update';
+        document.getElementById('panel-save-label').textContent = 'Save Changes';
+        const d = btn.dataset;
+        document.getElementById('tf-name').value = d.name || '';
+        document.getElementById('tf-id').value = d.id || '';
+        document.getElementById('tf-phone').value = d.phone || '';
+        document.getElementById('tf-email').value = d.email || '';
+        document.getElementById('tf-subject').value = d.subject || '';
+        document.getElementById('tf-type').value = d.type || '';
+        document.getElementById('tf-status').value = d.status || 'active';
+        document.getElementById('tf-subject2').value = '';
+        showView('form');
+        openPanel();
+      }
+
+      function openAssignPanel(btn) {
+        currentMode = 'assign';
+        const name = btn.dataset.name;
+        document.getElementById('assign-teacher-label').textContent = 'Assigning to: ' + name;
+        const container = document.getElementById('assign-rows-container');
+        container.innerHTML = '';
+        addAssignRow();
+        showView('assign');
+        openPanel();
+      }
+
+      function showView(view) {
+        document.getElementById('panel-form-view').classList.toggle('tm-hidden', view !== 'form');
+        document.getElementById('panel-assign-view').classList.toggle('tm-hidden', view !== 'assign');
+      }
+
+      function openPanel() {
+        document.getElementById('teacher-panel').classList.add('open');
+        document.getElementById('panel-overlay').classList.add('open');
+        document.body.classList.add('tm-panel-open');
+      }
+
+      function closePanel() {
+        document.getElementById('teacher-panel').classList.remove('open');
+        document.getElementById('panel-overlay').classList.remove('open');
+        document.body.classList.remove('tm-panel-open');
+      }
+
+      function clearFormFields() {
+        ['tf-name','tf-id','tf-phone','tf-email','tf-subject2'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
+        document.getElementById('tf-subject').value = '';
+        document.getElementById('tf-type').value = '';
+        document.getElementById('tf-status').value = 'active';
+      }
+
+      function saveTeacher() {
+        const name = document.getElementById('tf-name').value.trim();
+        if (!name) { alert('Please enter the teacher\'s full name.'); return; }
+        const subject = document.getElementById('tf-subject').value;
+        if (!subject) { alert('Please select a primary subject.'); return; }
+        alert((currentMode === 'add' ? 'Teacher added' : 'Teacher updated') + ': ' + name);
+        closePanel();
+      }
+
+      /* ---- Assign rows ---- */
+      const CLASSES = ['Form 1A','Form 1B','Form 1C','Form 2A','Form 2B','Form 2C',
+                       'Form 3A','Form 3B','Form 3C','Form 4A','Form 4B','Form 4C'];
+      const SUBJECTS = ['Mathematics','English','Literature in English','Kiswahili','French',
+                        'Biology','Chemistry','Physics','Agriculture',
+                        'History','Geography','Business Studies','Economics',
+                        'CRE','IRE','Computer Studies','Art & Design','Music','Physical Education'];
+
+      function addAssignRow() {
+        const container = document.getElementById('assign-rows-container');
+        const row = document.createElement('div');
+        row.className = 'tm-assign-row';
+
+        const classOpts = CLASSES.map(c => `<option>${c}</option>`).join('');
+        const subjOpts = SUBJECTS.map(s => `<option>${s}</option>`).join('');
+
+        row.innerHTML = `
+          <div class="tm-assign-row-fields">
+            <div class="tm-form-group">
+              <label class="tm-label">Class</label>
+              <select class="tm-input"><option value="">Select class...</option>${classOpts}</select>
+            </div>
+            <div class="tm-form-group">
+              <label class="tm-label">Subject / Lesson</label>
+              <select class="tm-input"><option value="">Select subject...</option>${subjOpts}</select>
+            </div>
+          </div>
+          <button class="tm-assign-remove-btn" onclick="removeAssignRow(this)" title="Remove">
+            <span class="material-symbols-rounded">remove_circle</span>
+          </button>
+        `;
+        container.appendChild(row);
+      }
+
+      function removeAssignRow(btn) {
+        const rows = document.querySelectorAll('.tm-assign-row');
+        if (rows.length === 1) { alert('At least one assignment is required.'); return; }
+        btn.closest('.tm-assign-row').remove();
+      }
+
+      function saveAssignments() {
+        const rows = document.querySelectorAll('.tm-assign-row');
+        let valid = true;
+        rows.forEach(row => {
+          const selects = row.querySelectorAll('select');
+          if (!selects[0].value || !selects[1].value) valid = false;
+        });
+        if (!valid) { alert('Please fill in all class and subject fields.'); return; }
+        alert('Assignments saved successfully.');
+        closePanel();
+      }
+
+      /* ---- Filter & Search ---- */
+      function filterTeachers() { applyFilters(); }
+
+      function applyFilters() {
+        const q             = document.getElementById('teacher-search').value.toLowerCase();
+        const subjectFilter = document.getElementById('subject-filter').value.toLowerCase();
+        const classFilter   = document.getElementById('class-filter').value.toLowerCase();
+        const rows          = document.querySelectorAll('#teacher-tbody tr');
+        let visible = 0;
+
+        rows.forEach(row => {
+          const name       = row.querySelector('.tm-name')?.textContent.toLowerCase() || '';
+          const subj       = row.cells[1]?.textContent.toLowerCase() || '';
+          const classChips = [...row.querySelectorAll('.tm-chip')].map(c => c.textContent.toLowerCase());
+
+          const matchSearch  = !q             || name.includes(q) || subj.includes(q);
+          const matchSubject = !subjectFilter  || subj === subjectFilter;
+          const matchClass   = !classFilter    || classChips.some(c => c.trim() === classFilter.trim());
+
+          const show = matchSearch && matchSubject && matchClass;
+          row.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+
+        document.getElementById('teacher-count').textContent = visible;
+        const active = q || subjectFilter || classFilter;
+        document.getElementById('showing-note').textContent =
+          'Showing ' + visible + ' of 85 teachers.' +
+          (active ? ' Clear filters to see all.' : ' Use search or filters to find specific teachers.');
+      }
+    </script>
+  </body>
+</html>

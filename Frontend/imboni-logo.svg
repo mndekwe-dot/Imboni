@@ -1,0 +1,11 @@
+<svg width="46" height="46" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="23" cy="23" r="22" fill="#003d7a" stroke="#f97316" stroke-width="2"/>
+  
+  <!-- Letter I -->
+  <text x="23" y="32" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle">I</text>
+  
+  <!-- Small graduation cap accent -->
+  <path d="M23 8 L18 11 L23 14 L28 11 Z" fill="#f97316"/>
+  <path d="M18 11 L18 14 L23 17 L28 14 L28 11" fill="#f97316" opacity="0.6"/>
+</svg>

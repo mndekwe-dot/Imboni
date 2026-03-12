@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activities - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/discipline.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="discipline.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="discipline-students.html" class="sidebar-nav-item"><span class="material-symbols-rounded">groups</span><span>Students</span></a></li>
+            <li><a href="discipline-staff.html" class="sidebar-nav-item"><span class="material-symbols-rounded">supervisor_account</span><span>Matrons &amp; Patrons</span></a></li>
+            <li><a href="discipline-reports.html" class="sidebar-nav-item"><span class="material-symbols-rounded">summarize</span><span>Reports</span></a></li>
+            <li><a href="discipline-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+            <li><a href="discipline-activities.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="discipline-timetable.html" class="sidebar-nav-item"><span class="material-symbols-rounded">calendar_view_week</span><span>Timetable</span></a></li>
+            <li><a href="discipline-student-leaders.html" class="sidebar-nav-item"><span class="material-symbols-rounded">military_tech</span><span>Student Leaders</span></a></li>
+            <li><a href="discipline-boarding.html" class="sidebar-nav-item"><span class="material-symbols-rounded">hotel</span><span>Boarding</span></a></li>
+            <li><a href="discipline-dining.html" class="sidebar-nav-item"><span class="material-symbols-rounded">restaurant</span><span>Dining</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Extracurricular Activities</h1>
+            <p>Manage clubs, events, patron assignments and memberships</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Tuesday, March 10, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">2</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Mr. David Kariuki</span>
+                <span class="header-user-role">Director of Discipline</span>
+              </div>
+              <div class="header-user-av discipline-av">DK</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Stats -->
+          <div class="disc-stat-grid">
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon info"><span class="material-symbols-rounded">emoji_events</span></div>
+              <div>
+                <div class="disc-stat-value">18</div>
+                <div class="disc-stat-label">Active Clubs</div>
+                <div class="disc-stat-trend positive">+3 this term</div>
+              </div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon success"><span class="material-symbols-rounded">groups</span></div>
+              <div>
+                <div class="disc-stat-value">847</div>
+                <div class="disc-stat-label">Enrolled Students</div>
+                <div class="disc-stat-trend positive">+42 this term</div>
+              </div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon warning"><span class="material-symbols-rounded">report</span></div>
+              <div>
+                <div class="disc-stat-value">4</div>
+                <div class="disc-stat-label">Conduct Incidents</div>
+                <div class="disc-stat-trend negative">During activities</div>
+              </div>
+            </div>
+            <div class="disc-stat-card">
+              <div class="disc-stat-icon positive"><span class="material-symbols-rounded">supervisor_account</span></div>
+              <div>
+                <div class="disc-stat-value">18</div>
+                <div class="disc-stat-label">Patron Teachers</div>
+                <div class="disc-stat-trend positive">All assigned</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── CREATE / EDIT FORM PANEL ── -->
+          <div class="act-panel" id="actFormPanel">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title" id="actFormTitle"><span class="material-symbols-rounded">add_circle</span> Create New Club / Event</h3>
+                <button class="btn btn-outline btn-sm" onclick="closeActForm()">Cancel</button>
+              </div>
+              <div class="card-content">
+                <div class="incident-form">
+                  <div class="form-row-2">
+                    <div class="form-group">
+                      <label class="form-label">Club / Event Name</label>
+                      <input type="text" class="form-input" id="actName" placeholder="e.g. Science Club" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Category</label>
+                      <select class="form-input" id="actCategory">
+                        <option>Sports</option>
+                        <option>Arts</option>
+                        <option>Academic</option>
+                        <option>Social</option>
+                        <option>Science</option>
+                        <option>Event</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row-2">
+                    <div class="form-group">
+                      <label class="form-label">Patron Teacher</label>
+                      <input type="text" class="form-input" id="actPatron" placeholder="e.g. Mr. Mwangi" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Meeting Schedule</label>
+                      <input type="text" class="form-input" id="actSchedule" placeholder="e.g. Tue &amp; Thu, 4:30 PM" />
+                    </div>
+                  </div>
+                  <div class="form-row-2">
+                    <div class="form-group">
+                      <label class="form-label">Venue / Location</label>
+                      <input type="text" class="form-input" id="actVenue" placeholder="e.g. Sports Field" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Status</label>
+                      <select class="form-input" id="actStatus">
+                        <option value="draft">Draft</option>
+                        <option value="active">Active (visible to students)</option>
+                        <option value="published">Published (visible to all)</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input form-textarea" id="actDesc" rows="3" placeholder="Brief description of this club or event..."></textarea>
+                  </div>
+                  <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeActForm()">Cancel</button>
+                    <button class="btn btn-outline" onclick="saveAct('draft')"><span class="material-symbols-rounded">save</span> Save Draft</button>
+                    <button class="btn btn-primary" onclick="saveAct('published')"><span class="material-symbols-rounded">publish</span> Save &amp; Publish</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── MEMBERS PANEL ── -->
+          <div class="act-panel" id="actMembersPanel">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title" id="membersPanelTitle"><span class="material-symbols-rounded">group</span> Football Club — Members</h3>
+                <div style="display:flex;gap:0.5rem">
+                  <button class="btn btn-primary btn-sm" onclick="openAddMemberForm()"><span class="material-symbols-rounded">person_add</span> Add Member</button>
+                  <button class="btn btn-outline btn-sm" onclick="closeMembersPanel()">Close</button>
+                </div>
+              </div>
+              <div class="card-content">
+
+                <!-- Add member inline form -->
+                <div id="addMemberForm" style="display:none;background:var(--muted);border-radius:8px;padding:1rem;margin-bottom:1rem">
+                  <div class="form-row-2" style="margin-bottom:0.75rem">
+                    <div class="form-group">
+                      <label class="form-label">Student Name / Adm #</label>
+                      <input type="text" class="form-input" id="newMemberName" placeholder="e.g. Amina Mwangi or 2024-S1-001" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Class</label>
+                      <select class="form-input" id="newMemberClass">
+                        <option value="">Select class</option>
+                        <option>S1A</option><option>S1B</option><option>S1C</option>
+                        <option>S2A</option><option>S2B</option><option>S2C</option>
+                        <option>S3A</option><option>S3B</option><option>S3C</option>
+                        <option>S4A</option><option>S4B</option><option>S4C</option>
+                        <option>S5A</option><option>S5B</option><option>S5C</option>
+                        <option>S6A</option><option>S6B</option><option>S6C</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('addMemberForm').style.display='none'">Cancel</button>
+                    <button class="btn btn-primary btn-sm" onclick="addMember()">Add Member</button>
+                  </div>
+                </div>
+
+                <div class="member-list" id="memberList">
+                  <div class="member-row">
+                    <div class="student-av-sm patron">KO</div>
+                    <div class="member-info">
+                      <div class="member-name">Kevin Odhiambo</div>
+                      <div class="member-meta">S3B &bull; Adm# 2022-S3-041 &bull; Joined: Jan 2026</div>
+                    </div>
+                    <span class="pub-badge active">Captain</span>
+                    <div class="member-actions">
+                      <button class="btn btn-outline btn-sm" onclick="editMemberRole(this)">Edit Role</button>
+                      <button class="btn btn-outline btn-sm" onclick="removeMember(this)">Remove</button>
+                    </div>
+                  </div>
+                  <div class="member-row">
+                    <div class="student-av-sm patron">PM</div>
+                    <div class="member-info">
+                      <div class="member-name">Peter Mutua</div>
+                      <div class="member-meta">S2A &bull; Adm# 2023-S2-012 &bull; Joined: Sep 2025</div>
+                    </div>
+                    <span class="pub-badge draft">Member</span>
+                    <div class="member-actions">
+                      <button class="btn btn-outline btn-sm" onclick="editMemberRole(this)">Edit Role</button>
+                      <button class="btn btn-outline btn-sm" onclick="removeMember(this)">Remove</button>
+                    </div>
+                  </div>
+                  <div class="member-row">
+                    <div class="student-av-sm matron">JA</div>
+                    <div class="member-info">
+                      <div class="member-name">Janet Auma</div>
+                      <div class="member-meta">S2A &bull; Adm# 2023-S2-013 &bull; Joined: Jan 2026</div>
+                    </div>
+                    <span class="pub-badge draft">Member</span>
+                    <div class="member-actions">
+                      <button class="btn btn-outline btn-sm" onclick="editMemberRole(this)">Edit Role</button>
+                      <button class="btn btn-outline btn-sm" onclick="removeMember(this)">Remove</button>
+                    </div>
+                  </div>
+                </div>
+                <p style="font-size:0.75rem;color:var(--muted-foreground);margin-top:0.75rem">Showing 3 of 34 members. <a href="#" style="color:var(--discipline)">View all members</a></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter + Create bar -->
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem">
+            <div class="filter-tabs-bar" style="margin-bottom:0">
+              <button class="filter-tab active" data-cat="all" onclick="filterCards('all',this)">All Activities</button>
+              <button class="filter-tab" data-cat="sports" onclick="filterCards('sports',this)">Sports</button>
+              <button class="filter-tab" data-cat="arts" onclick="filterCards('arts',this)">Arts</button>
+              <button class="filter-tab" data-cat="academic" onclick="filterCards('academic',this)">Academic</button>
+              <button class="filter-tab" data-cat="social" onclick="filterCards('social',this)">Social</button>
+              <button class="filter-tab" data-cat="science" onclick="filterCards('science',this)">Science</button>
+            </div>
+            <button class="btn btn-primary" onclick="openActForm()">
+              <span class="material-symbols-rounded">add</span> New Club / Event
+            </button>
+          </div>
+
+          <!-- Activity cards -->
+          <div class="staff-cards-grid" id="activityGrid">
+
+            <div class="staff-card" data-cat="sports">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar patron">FC</div>
+                <div>
+                  <div class="staff-card-name">Football Club</div>
+                  <div class="staff-card-role">Sports &bull; Patron: Mr. Mwangi</div>
+                </div>
+                <span class="pub-badge active" style="margin-left:auto">Active</span>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">groups</span>34 members</span>
+                <span><span class="material-symbols-rounded">schedule</span>Tue &amp; Thu, 4:30 PM</span>
+                <span><span class="material-symbols-rounded">location_on</span>Main Sports Field</span>
+                <span><span class="material-symbols-rounded">report</span><span class="disc-points-pos">0 incidents this term</span></span>
+              </div>
+              <div class="staff-card-actions">
+                <button class="btn btn-secondary btn-sm" onclick="openMembersPanel('Football Club')">
+                  <span class="material-symbols-rounded">group</span> Members
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openActForm('Football Club','sports','Mr. Mwangi','Tue &amp; Thu, 4:30 PM','Main Sports Field','active')">
+                  <span class="material-symbols-rounded">edit</span> Edit
+                </button>
+              </div>
+              <div class="staff-card-edit-bar">
+                <button class="btn btn-outline btn-sm" onclick="logIncident('Football Club')"><span class="material-symbols-rounded">report</span> Log Incident</button>
+                <button class="btn btn-outline btn-sm" onclick="publishAct(this,'Football Club')"><span class="material-symbols-rounded">publish</span> Publish Update</button>
+              </div>
+            </div>
+
+            <div class="staff-card" data-cat="sports">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar patron">BK</div>
+                <div>
+                  <div class="staff-card-name">Basketball Team</div>
+                  <div class="staff-card-role">Sports &bull; Patron: Mr. Njoroge</div>
+                </div>
+                <span class="pub-badge active" style="margin-left:auto">Active</span>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">groups</span>28 members</span>
+                <span><span class="material-symbols-rounded">schedule</span>Mon &amp; Wed, 5:00 PM</span>
+                <span><span class="material-symbols-rounded">location_on</span>Basketball Court</span>
+                <span><span class="material-symbols-rounded">report</span><span class="disc-points-neg">1 incident this term</span></span>
+              </div>
+              <div class="staff-card-actions">
+                <button class="btn btn-secondary btn-sm" onclick="openMembersPanel('Basketball Team')">
+                  <span class="material-symbols-rounded">group</span> Members
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openActForm('Basketball Team','sports','Mr. Njoroge','Mon &amp; Wed, 5:00 PM','Basketball Court','active')">
+                  <span class="material-symbols-rounded">edit</span> Edit
+                </button>
+              </div>
+              <div class="staff-card-edit-bar">
+                <button class="btn btn-outline btn-sm" onclick="logIncident('Basketball Team')"><span class="material-symbols-rounded">report</span> Log Incident</button>
+                <button class="btn btn-outline btn-sm" onclick="publishAct(this,'Basketball Team')"><span class="material-symbols-rounded">publish</span> Publish Update</button>
+              </div>
+            </div>
+
+            <div class="staff-card" data-cat="arts">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar matron">DA</div>
+                <div>
+                  <div class="staff-card-name">Drama &amp; Arts Club</div>
+                  <div class="staff-card-role">Arts &bull; Patron: Ms. Otieno</div>
+                </div>
+                <span class="pub-badge active" style="margin-left:auto">Active</span>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">groups</span>27 members</span>
+                <span><span class="material-symbols-rounded">schedule</span>Fridays, 3:30 PM</span>
+                <span><span class="material-symbols-rounded">location_on</span>School Hall</span>
+                <span><span class="material-symbols-rounded">report</span><span class="disc-points-pos">0 incidents this term</span></span>
+              </div>
+              <div class="staff-card-actions">
+                <button class="btn btn-secondary btn-sm" onclick="openMembersPanel('Drama &amp; Arts Club')">
+                  <span class="material-symbols-rounded">group</span> Members
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openActForm('Drama &amp; Arts Club','arts','Ms. Otieno','Fridays, 3:30 PM','School Hall','active')">
+                  <span class="material-symbols-rounded">edit</span> Edit
+                </button>
+              </div>
+              <div class="staff-card-edit-bar">
+                <button class="btn btn-outline btn-sm" onclick="logIncident('Drama &amp; Arts Club')"><span class="material-symbols-rounded">report</span> Log Incident</button>
+                <button class="btn btn-outline btn-sm" onclick="publishAct(this,'Drama &amp; Arts Club')"><span class="material-symbols-rounded">publish</span> Publish Update</button>
+              </div>
+            </div>
+
+            <div class="staff-card" data-cat="academic">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar patron">DB</div>
+                <div>
+                  <div class="staff-card-name">Debate Club</div>
+                  <div class="staff-card-role">Academic &bull; Patron: Mr. Kamau</div>
+                </div>
+                <span class="pub-badge active" style="margin-left:auto">Active</span>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">groups</span>22 members</span>
+                <span><span class="material-symbols-rounded">schedule</span>Wednesdays, 4:00 PM</span>
+                <span><span class="material-symbols-rounded">location_on</span>Library Conference Room</span>
+                <span><span class="material-symbols-rounded">report</span><span class="disc-points-pos">0 incidents this term</span></span>
+              </div>
+              <div class="staff-card-actions">
+                <button class="btn btn-secondary btn-sm" onclick="openMembersPanel('Debate Club')">
+                  <span class="material-symbols-rounded">group</span> Members
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openActForm('Debate Club','academic','Mr. Kamau','Wednesdays, 4:00 PM','Library Conference Room','active')">
+                  <span class="material-symbols-rounded">edit</span> Edit
+                </button>
+              </div>
+              <div class="staff-card-edit-bar">
+                <button class="btn btn-outline btn-sm" onclick="logIncident('Debate Club')"><span class="material-symbols-rounded">report</span> Log Incident</button>
+                <button class="btn btn-outline btn-sm" onclick="publishAct(this,'Debate Club')"><span class="material-symbols-rounded">publish</span> Publish Update</button>
+              </div>
+            </div>
+
+            <div class="staff-card" data-cat="science">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar patron">SC</div>
+                <div>
+                  <div class="staff-card-name">Science Club</div>
+                  <div class="staff-card-role">Science &bull; Patron: Dr. Wanjiku</div>
+                </div>
+                <span class="pub-badge active" style="margin-left:auto">Active</span>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">groups</span>18 members</span>
+                <span><span class="material-symbols-rounded">schedule</span>Thursdays, 4:00 PM</span>
+                <span><span class="material-symbols-rounded">location_on</span>Science Laboratory</span>
+                <span><span class="material-symbols-rounded">report</span><span class="disc-points-pos">0 incidents this term</span></span>
+              </div>
+              <div class="staff-card-actions">
+                <button class="btn btn-secondary btn-sm" onclick="openMembersPanel('Science Club')">
+                  <span class="material-symbols-rounded">group</span> Members
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openActForm('Science Club','science','Dr. Wanjiku','Thursdays, 4:00 PM','Science Laboratory','active')">
+                  <span class="material-symbols-rounded">edit</span> Edit
+                </button>
+              </div>
+              <div class="staff-card-edit-bar">
+                <button class="btn btn-outline btn-sm" onclick="logIncident('Science Club')"><span class="material-symbols-rounded">report</span> Log Incident</button>
+                <button class="btn btn-outline btn-sm" onclick="publishAct(this,'Science Club')"><span class="material-symbols-rounded">publish</span> Publish Update</button>
+              </div>
+            </div>
+
+            <div class="staff-card" data-cat="social">
+              <div class="staff-card-top">
+                <div class="staff-card-avatar matron">CS</div>
+                <div>
+                  <div class="staff-card-name">Community Service Club</div>
+                  <div class="staff-card-role">Social &bull; Patron: Ms. Achieng</div>
+                </div>
+                <span class="pub-badge active" style="margin-left:auto">Active</span>
+              </div>
+              <div class="staff-card-meta">
+                <span><span class="material-symbols-rounded">groups</span>45 members</span>
+                <span><span class="material-symbols-rounded">schedule</span>Saturdays, 9:00 AM</span>
+                <span><span class="material-symbols-rounded">location_on</span>Community Hall / Grounds</span>
+                <span><span class="material-symbols-rounded">report</span><span class="disc-points-pos">0 incidents this term</span></span>
+              </div>
+              <div class="staff-card-actions">
+                <button class="btn btn-secondary btn-sm" onclick="openMembersPanel('Community Service Club')">
+                  <span class="material-symbols-rounded">group</span> Members
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openActForm('Community Service Club','social','Ms. Achieng','Saturdays, 9:00 AM','Community Hall / Grounds','active')">
+                  <span class="material-symbols-rounded">edit</span> Edit
+                </button>
+              </div>
+              <div class="staff-card-edit-bar">
+                <button class="btn btn-outline btn-sm" onclick="logIncident('Community Service Club')"><span class="material-symbols-rounded">report</span> Log Incident</button>
+                <button class="btn btn-outline btn-sm" onclick="publishAct(this,'Community Service Club')"><span class="material-symbols-rounded">publish</span> Publish Update</button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Recent incidents -->
+          <div class="card mt-1-5">
+            <div class="card-header">
+              <h2 class="card-title">Recent Conduct Incidents During Activities</h2>
+            </div>
+            <div class="card-content">
+              <div class="disc-activity-list">
+                <div class="disc-activity-item">
+                  <div class="disc-activity-icon warning"><span class="material-symbols-rounded">sports_basketball</span></div>
+                  <div class="disc-activity-details">
+                    <p class="disc-activity-title">Unsportsmanlike conduct — Basketball match vs Acacia</p>
+                    <p class="disc-activity-time">Mar 5, 2026 &bull; Student: Kevin Otieno (S3A) &bull; <span class="incident-type-tag negative">Negative</span></p>
+                  </div>
+                  <button class="btn btn-secondary btn-sm">View Report</button>
+                </div>
+                <div class="disc-activity-item">
+                  <div class="disc-activity-icon positive"><span class="material-symbols-rounded">emoji_events</span></div>
+                  <div class="disc-activity-details">
+                    <p class="disc-activity-title">Outstanding leadership at inter-school debate competition</p>
+                    <p class="disc-activity-time">Mar 2, 2026 &bull; Student: Lydia Waweru (S2A) &bull; <span class="incident-type-tag positive">Positive</span></p>
+                  </div>
+                  <button class="btn btn-secondary btn-sm">View Report</button>
+                </div>
+                <div class="disc-activity-item">
+                  <div class="disc-activity-icon warning"><span class="material-symbols-rounded">theater_comedy</span></div>
+                  <div class="disc-activity-details">
+                    <p class="disc-activity-title">Missed 3 consecutive Drama Club sessions without excuse</p>
+                    <p class="disc-activity-time">Feb 28, 2026 &bull; Student: James Mwita (S2B) &bull; <span class="incident-type-tag warning">Warning</span></p>
+                  </div>
+                  <button class="btn btn-secondary btn-sm">View Report</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script>
+      // ── Filter cards by category ──
+      function filterCards(cat, btn) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#activityGrid .staff-card').forEach(card => {
+          card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+        });
+      }
+
+      // ── Open form (create or edit) ──
+      function openActForm(name='', cat='', patron='', schedule='', venue='', status='draft') {
+        document.getElementById('actFormTitle').innerHTML =
+          name ? '<span class="material-symbols-rounded">edit</span> Edit: ' + name
+                : '<span class="material-symbols-rounded">add_circle</span> Create New Club / Event';
+        document.getElementById('actName').value     = name;
+        document.getElementById('actPatron').value   = patron;
+        document.getElementById('actSchedule').value = schedule;
+        document.getElementById('actVenue').value    = venue;
+        // match select options
+        [...document.getElementById('actCategory').options].forEach(o => { o.selected = o.text.toLowerCase() === cat; });
+        [...document.getElementById('actStatus').options].forEach(o => { o.selected = o.value === status; });
+
+        const panel = document.getElementById('actFormPanel');
+        panel.classList.add('open');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeMembersPanel();
+      }
+
+      function closeActForm() {
+        document.getElementById('actFormPanel').classList.remove('open');
+      }
+
+      function saveAct(status) {
+        const name = document.getElementById('actName').value.trim();
+        if (!name) { alert('Please enter a club / event name.'); return; }
+        document.getElementById('actStatus').value = status;
+        alert((status === 'published' ? '✓ Published: ' : '✓ Saved draft: ') + name);
+        closeActForm();
+      }
+
+      // ── Members panel ──
+      function openMembersPanel(clubName) {
+        document.getElementById('membersPanelTitle').innerHTML =
+          '<span class="material-symbols-rounded">group</span> ' + clubName + ' — Members';
+        const panel = document.getElementById('actMembersPanel');
+        panel.classList.add('open');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeActForm();
+      }
+
+      function closeMembersPanel() {
+        document.getElementById('actMembersPanel').classList.remove('open');
+      }
+
+      function openAddMemberForm() {
+        document.getElementById('addMemberForm').style.display = '';
+        document.getElementById('newMemberName').focus();
+      }
+
+      function addMember() {
+        const name = document.getElementById('newMemberName').value.trim();
+        const cls  = document.getElementById('newMemberClass').value;
+        if (!name) { alert('Please enter a student name or admission number.'); return; }
+        const initials = name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+        const row = document.createElement('div');
+        row.className = 'member-row';
+        row.innerHTML = `
+          <div class="student-av-sm patron">${initials}</div>
+          <div class="member-info">
+            <div class="member-name">${name}</div>
+            <div class="member-meta">${cls || 'Unknown class'} &bull; Joined: Mar 2026</div>
+          </div>
+          <span class="pub-badge draft">Member</span>
+          <div class="member-actions">
+            <button class="btn btn-outline btn-sm" onclick="editMemberRole(this)">Edit Role</button>
+            <button class="btn btn-outline btn-sm" onclick="removeMember(this)">Remove</button>
+          </div>`;
+        document.getElementById('memberList').appendChild(row);
+        document.getElementById('newMemberName').value = '';
+        document.getElementById('newMemberClass').value = '';
+        document.getElementById('addMemberForm').style.display = 'none';
+      }
+
+      function removeMember(btn) {
+        if (confirm('Remove this member from the club?')) btn.closest('.member-row').remove();
+      }
+
+      function editMemberRole(btn) {
+        const badge = btn.closest('.member-row').querySelector('.pub-badge');
+        const roles = ['Member','Captain','Vice-Captain','Secretary'];
+        const cur   = roles.indexOf(badge.textContent);
+        badge.textContent = roles[(cur + 1) % roles.length];
+        badge.className   = 'pub-badge ' + (badge.textContent === 'Member' ? 'draft' : 'active');
+      }
+
+      // ── Publish update ──
+      function publishAct(btn, name) {
+        btn.innerHTML = '<span class="material-symbols-rounded">check_circle</span> Published';
+        btn.disabled  = true;
+        btn.style.color = 'var(--success)';
+        setTimeout(() => {
+          btn.innerHTML = '<span class="material-symbols-rounded">publish</span> Publish Update';
+          btn.disabled  = false;
+          btn.style.color = '';
+        }, 3000);
+      }
+
+      // ── Log incident stub ──
+      function logIncident(name) {
+        alert('Log conduct incident for: ' + name + '\n(Opens incident report form)');
+      }
+    </script>
+  </body>
+</html>

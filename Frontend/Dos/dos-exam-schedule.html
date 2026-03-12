@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam Schedule - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dos.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+      /* ── PAGE TABS ── */
+      .es-tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; border-bottom:2px solid var(--border); }
+      .es-tab  { display:flex; align-items:center; gap:.4rem; padding:.6rem 1.1rem; font-size:.875rem; font-weight:500;
+                 color:var(--muted-foreground); background:none; border:none; border-bottom:2px solid transparent;
+                 margin-bottom:-2px; cursor:pointer; transition:color .2s,border-color .2s; }
+      .es-tab:hover  { color:var(--foreground); }
+      .es-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+      .es-panel { display:none; }
+      .es-panel.active { display:block; }
+
+      /* ── STATUS BADGES ── */
+      .badge-draft     { background:rgba(107,114,128,.12); color:#6b7280; }
+      .badge-published { background:rgba(16,185,129,.12);  color:#059669; }
+      .badge-upcoming  { background:rgba(59,130,246,.12);  color:#2563eb; }
+      .badge-ongoing   { background:rgba(245,158,11,.12);  color:#d97706; }
+      .badge-done      { background:rgba(16,185,129,.12);  color:#059669; }
+
+      /* ── FILTER TABS (conduct pattern) ── */
+      .es-filter-bar  { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.75rem; }
+      .es-filter-tab  { padding:.35rem .85rem; border:1px solid var(--border); border-radius:99px; font-size:.8rem;
+                         font-weight:500; color:var(--muted-foreground); background:var(--card); cursor:pointer;
+                         transition:all .18s; display:flex; align-items:center; gap:.3rem; }
+      .es-filter-tab:hover  { border-color:var(--primary); color:var(--primary); }
+      .es-filter-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+      .es-filter-tab .badge { background:rgba(255,255,255,.25); color:inherit; font-size:.7rem;
+                               padding:.05rem .35rem; border-radius:99px; margin-left:.1rem; }
+      .es-filter-tab:not(.active) .badge { background:var(--muted); color:var(--muted-foreground); }
+
+      /* ── SEARCH BAR ── */
+      .es-search-wrap { position:relative; flex:1; min-width:200px; }
+      .es-search-wrap input { width:100%; padding:.55rem .75rem .55rem 2.2rem; border:1px solid var(--border);
+                               border-radius:.5rem; font-size:.875rem; background:var(--card); color:var(--foreground); }
+      .es-search-wrap .si { position:absolute; left:.6rem; top:50%; transform:translateY(-50%);
+                             font-size:1.1rem; color:var(--muted-foreground); pointer-events:none; }
+      .es-filter-select { padding:.5rem .75rem; border:1px solid var(--border); border-radius:.5rem;
+                           font-size:.875rem; background:var(--card); color:var(--foreground); }
+
+      /* ── TABLE ── */
+      .es-table-wrap { overflow-x:auto; }
+      .es-table { width:100%; border-collapse:collapse; font-size:.875rem; }
+      .es-table th { background:var(--muted); font-weight:600; font-size:.75rem; text-transform:uppercase;
+                      letter-spacing:.04em; color:var(--muted-foreground); padding:.75rem 1rem; text-align:left; white-space:nowrap; }
+      .es-table td { padding:.85rem 1rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+      .es-table tr:last-child td { border-bottom:none; }
+      .es-table tr:hover td { background:var(--muted); }
+      .es-subject-name { font-weight:600; color:var(--foreground); }
+      .es-subject-code { font-size:.75rem; color:var(--muted-foreground); }
+      .es-time-chip { display:inline-flex; align-items:center; gap:.3rem; background:rgba(59,130,246,.08);
+                       color:#2563eb; padding:.2rem .55rem; border-radius:99px; font-size:.75rem; font-weight:500; }
+      .es-room-chip { display:inline-flex; align-items:center; gap:.2rem; background:rgba(107,114,128,.08);
+                       color:var(--muted-foreground); padding:.2rem .5rem; border-radius:99px; font-size:.75rem; }
+      .es-row-actions { display:flex; align-items:center; gap:.4rem; }
+      .es-icon-btn { width:2rem; height:2rem; border-radius:.4rem; border:1px solid var(--border); background:var(--card);
+                      display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted-foreground);
+                      transition:all .2s; }
+      .es-icon-btn:hover        { background:var(--primary); color:#fff; border-color:var(--primary); }
+      .es-icon-btn.danger:hover { background:#ef4444; color:#fff; border-color:#ef4444; }
+      .es-empty { text-align:center; padding:3rem; color:var(--muted-foreground); font-size:.875rem; }
+
+      /* ── CLASS PICKER (extended dos-picker) ── */
+      .es-class-picker { display:flex; align-items:flex-end; gap:.75rem; flex-wrap:wrap;
+                          background:var(--muted); border-radius:.75rem; padding:1rem 1.25rem; margin-bottom:1rem; }
+      .es-class-picker .dos-picker-group { display:flex; flex-direction:column; gap:.3rem; }
+      .es-class-picker .dos-picker-label { font-size:.72rem; font-weight:700; text-transform:uppercase;
+                                            letter-spacing:.06em; color:var(--muted-foreground); }
+      .es-class-picker .dos-picker-select { padding:.45rem .65rem; border:1px solid var(--border); border-radius:.45rem;
+                                             font-size:.875rem; background:var(--card); color:var(--foreground); }
+      .es-picker-arrow { color:var(--muted-foreground); margin-bottom:.25rem; font-size:1.2rem; }
+
+      /* class checkboxes */
+      .es-class-checks { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+      .es-class-check-label { display:flex; align-items:center; gap:.3rem; font-size:.875rem; font-weight:500;
+                               cursor:pointer; padding:.35rem .7rem; border:1px solid var(--border); border-radius:.4rem;
+                               background:var(--card); transition:all .15s; user-select:none; }
+      .es-class-check-label:has(input:checked) { background:var(--primary); color:#fff; border-color:var(--primary); }
+      .es-class-check-label input { display:none; }
+
+      /* selected classes chips */
+      .es-selected-classes { display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.6rem; min-height:1.5rem; }
+      .es-class-chip { display:inline-flex; align-items:center; gap:.3rem; background:rgba(30,64,175,.1);
+                        color:var(--primary); padding:.2rem .55rem; border-radius:99px; font-size:.78rem; font-weight:600; }
+
+      /* ── PLAN FORM ── */
+      .es-form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:1rem; }
+      .es-form-grid .form-group { display:flex; flex-direction:column; gap:.35rem; }
+      .es-form-divider { grid-column:1/-1; border:none; border-top:1px solid var(--border); margin:.1rem 0; }
+      .es-form-section-label { grid-column:1/-1; font-size:.78rem; font-weight:700; text-transform:uppercase;
+                                letter-spacing:.06em; color:var(--muted-foreground); margin-bottom:-.5rem; }
+      .es-form-actions { display:flex; gap:.75rem; flex-wrap:wrap; justify-content:flex-end; margin-top:1.25rem; }
+
+      /* ── ROOM PLANNER ── */
+      .room-planner-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1rem; }
+      .room-card { background:var(--card); border:1px solid var(--border); border-radius:.75rem; padding:1.1rem 1.25rem; }
+      .room-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:.75rem; }
+      .room-card-name  { font-weight:700; font-size:.95rem; }
+      .room-capacity   { font-size:.75rem; color:var(--muted-foreground); }
+      .room-status-row { display:flex; align-items:center; gap:.5rem; font-size:.8rem; color:var(--muted-foreground); margin-bottom:.5rem; }
+      .room-status-dot { width:.55rem; height:.55rem; border-radius:50%; flex-shrink:0; }
+      .dot-busy { background:#f59e0b; } .dot-free { background:#10b981; }
+      .room-assigned-list { list-style:none; padding:0; margin:0 0 .75rem; font-size:.8rem; }
+      .room-assigned-list li { padding:.25rem 0; border-bottom:1px dashed var(--border); display:flex; justify-content:space-between; }
+      .room-assigned-list li:last-child { border-bottom:none; }
+      .room-card-footer { display:flex; gap:.5rem; }
+
+      /* ── PUBLISH ── */
+      .publish-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+      @media(max-width:640px){ .publish-grid { grid-template-columns:1fr; } }
+      .publish-target { border:2px solid var(--border); border-radius:.75rem; padding:1.25rem; transition:border-color .2s; cursor:pointer; }
+      .publish-target.selected { border-color:var(--primary); background:rgba(30,64,175,.04); }
+      .publish-target-header { display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem; }
+      .publish-icon { width:2.5rem; height:2.5rem; border-radius:.6rem; display:flex; align-items:center; justify-content:center; }
+      .publish-icon.teacher { background:rgba(59,130,246,.12); color:#2563eb; }
+      .publish-icon.student { background:rgba(16,185,129,.12); color:#059669; }
+      .publish-target-name { font-weight:700; }
+      .publish-target-desc { font-size:.8rem; color:var(--muted-foreground); }
+      .publish-options { display:flex; flex-direction:column; gap:.5rem; font-size:.875rem; }
+      .publish-option { display:flex; align-items:center; gap:.5rem; cursor:pointer; }
+      .publish-option input[type=checkbox] { width:1rem; height:1rem; accent-color:var(--primary); }
+      .publish-summary { background:var(--muted); border-radius:.6rem; padding:1rem 1.25rem; margin-top:1.25rem; }
+      .publish-summary h4 { font-size:.85rem; font-weight:700; margin-bottom:.5rem; }
+      .publish-summary ul { list-style:none; padding:0; margin:0; font-size:.8rem; color:var(--muted-foreground); }
+      .publish-summary li { padding:.2rem 0; display:flex; align-items:center; gap:.4rem; }
+      .publish-summary li .material-symbols-rounded { font-size:.9rem; color:#10b981; }
+      .publish-actions { display:flex; gap:.75rem; flex-wrap:wrap; justify-content:flex-end; margin-top:1.25rem; }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="dos.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="dos-analytics.html" class="sidebar-nav-item"><span class="material-symbols-rounded">analytics</span><span>Analytics</span></a></li>
+            <li><a href="dos-results-approval.html" class="sidebar-nav-item"><span class="material-symbols-rounded">fact_check</span><span>Results Approval</span></a></li>
+            <li><a href="dos-teachers.html" class="sidebar-nav-item"><span class="material-symbols-rounded">school</span><span>Teachers</span></a></li>
+            <li><a href="dos-students.html" class="sidebar-nav-item"><span class="material-symbols-rounded">group</span><span>Students</span></a></li>
+            <li><a href="dos-attendance.html" class="sidebar-nav-item"><span class="material-symbols-rounded">check_circle</span><span>Attendance</span></a></li>
+            <li><a href="dos-exam-schedule.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">calendar_today</span><span>Exams Schedule</span></a></li>
+            <li><a href="dos-timetable.html" class="sidebar-nav-item"><span class="material-symbols-rounded">calendar_view_week</span><span>Timetable</span></a></li>
+            <li><a href="dos-announcement.html" class="sidebar-nav-item"><span class="material-symbols-rounded">announcement</span><span>Announcements</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Account</span></a></li>
+            <li><a href="index.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Exam Schedule</h1>
+            <p>Plan, manage, and publish exam timetables for all forms</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 10, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">3</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Dr. Samuel Oduya</span>
+                <span class="header-user-role">Director of Studies</span>
+              </div>
+              <div class="header-user-av dos-av">SO</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- ── STATS ── -->
+          <div class="stat-cards-grid">
+            <div class="stat-card">
+              <div class="stat-header"><div class="stat-icon info"><span class="material-symbols-rounded">event_note</span></div></div>
+              <div class="stat-value">32</div>
+              <div class="stat-label">Exams Scheduled</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header"><div class="stat-icon success"><span class="material-symbols-rounded">publish</span></div></div>
+              <div class="stat-value">28</div>
+              <div class="stat-label">Published</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header"><div class="stat-icon warning"><span class="material-symbols-rounded">edit_note</span></div></div>
+              <div class="stat-value">4</div>
+              <div class="stat-label">Draft / Pending</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header"><div class="stat-icon primary"><span class="material-symbols-rounded">meeting_room</span></div></div>
+              <div class="stat-value">14</div>
+              <div class="stat-label">Rooms Allocated</div>
+            </div>
+          </div>
+
+          <!-- ── PAGE TABS ── -->
+          <nav class="es-tabs" id="esTabs">
+            <button class="es-tab active" data-tab="current"><span class="material-symbols-rounded">calendar_month</span>Current Schedule</button>
+            <button class="es-tab" data-tab="plan"><span class="material-symbols-rounded">edit_calendar</span>Plan / Edit</button>
+            <button class="es-tab" data-tab="rooms"><span class="material-symbols-rounded">meeting_room</span>Room Planner</button>
+            <button class="es-tab" data-tab="publish"><span class="material-symbols-rounded">send</span>Publish</button>
+          </nav>
+
+          <!-- ═══════════════════════════════════════════════════════════
+               TAB 1 – CURRENT SCHEDULE
+          ════════════════════════════════════════════════════════════ -->
+          <div class="es-panel active" id="tab-current">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Term 1 · 2026 Exam Schedule</h2>
+                <div style="display:flex;gap:.5rem;align-items:center;">
+                  <span class="badge badge-published">Published</span>
+                  <button class="btn btn-secondary btn-sm">Print / Export</button>
+                </div>
+              </div>
+              <div class="card-content">
+
+                <!-- search row -->
+                <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-bottom:.75rem;">
+                  <div class="es-search-wrap">
+                    <span class="material-symbols-rounded si">search</span>
+                    <input type="text" id="esSearch" placeholder="Search subject, class, invigilator…"
+                           oninput="filterSchedule()" />
+                  </div>
+                  <select class="es-filter-select" id="esStatusFilter" onchange="filterSchedule()">
+                    <option value="all">All Status</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="done">Done</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </div>
+
+                <!-- year group filter chips (conduct pattern) -->
+                <div class="es-filter-bar" id="esYearFilter">
+                  <button class="es-filter-tab active" data-year="all"   onclick="setYearFilter('all',this)">All Years <span class="badge">8</span></button>
+                  <button class="es-filter-tab" data-year="S1" onclick="setYearFilter('S1',this)">S1 <span class="badge">0</span></button>
+                  <button class="es-filter-tab" data-year="S2" onclick="setYearFilter('S2',this)">S2 <span class="badge">0</span></button>
+                  <button class="es-filter-tab" data-year="S3" onclick="setYearFilter('S3',this)">S3 <span class="badge">2</span></button>
+                  <button class="es-filter-tab" data-year="S4" onclick="setYearFilter('S4',this)">S4 <span class="badge">6</span></button>
+                  <button class="es-filter-tab" data-year="S5" onclick="setYearFilter('S5',this)">S5 <span class="badge">0</span></button>
+                  <button class="es-filter-tab" data-year="S6" onclick="setYearFilter('S6',this)">S6 <span class="badge">0</span></button>
+                </div>
+
+                <!-- table -->
+                <div class="es-table-wrap">
+                  <table class="es-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Subject</th>
+                        <th>Class(es)</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Duration</th>
+                        <th>Room(s)</th>
+                        <th>Invigilator</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="scheduleBody">
+                      <!-- rows carry data-year and data-status for JS filtering -->
+                      <tr data-year="S4" data-status="upcoming" data-text="mathematics mat401 s4a s4b s4c mr kariuki">
+                        <td>1</td>
+                        <td><div class="es-subject-name">Mathematics</div><div class="es-subject-code">MAT 401</div></td>
+                        <td>S4A · S4B · S4C</td>
+                        <td style="white-space:nowrap">Mon, 16 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>8:00 – 11:00</span></td>
+                        <td>3 hrs</td>
+                        <td><span class="es-room-chip">Hall A</span> <span class="es-room-chip">Hall B</span></td>
+                        <td>Mr. Kariuki</td>
+                        <td><span class="badge badge-upcoming">Upcoming</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit" onclick="openEditForm('Mathematics','S4','A,B,C','2026-03-16','08:00','11:00','Hall A','Mr. Kariuki')"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="View"><span class="material-symbols-rounded">visibility</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                      <tr data-year="S4" data-status="upcoming" data-text="english language eng401 s4a s4b s4c ms otieno">
+                        <td>2</td>
+                        <td><div class="es-subject-name">English Language</div><div class="es-subject-code">ENG 401</div></td>
+                        <td>S4A · S4B · S4C</td>
+                        <td style="white-space:nowrap">Tue, 17 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>8:00 – 10:30</span></td>
+                        <td>2.5 hrs</td>
+                        <td><span class="es-room-chip">Hall A</span> <span class="es-room-chip">Hall B</span></td>
+                        <td>Ms. Otieno</td>
+                        <td><span class="badge badge-upcoming">Upcoming</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit" onclick="openEditForm('English Language','S4','A,B,C','2026-03-17','08:00','10:30','Hall A','Ms. Otieno')"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="View"><span class="material-symbols-rounded">visibility</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                      <tr data-year="S4" data-status="upcoming" data-text="physics phy401 s4a s4b mr mwangi">
+                        <td>3</td>
+                        <td><div class="es-subject-name">Physics</div><div class="es-subject-code">PHY 401</div></td>
+                        <td>S4A · S4B</td>
+                        <td style="white-space:nowrap">Wed, 18 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>8:00 – 11:00</span></td>
+                        <td>3 hrs</td>
+                        <td><span class="es-room-chip">Room 8</span> <span class="es-room-chip">Room 9</span></td>
+                        <td>Mr. Mwangi</td>
+                        <td><span class="badge badge-upcoming">Upcoming</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit" onclick="openEditForm('Physics','S4','A,B','2026-03-18','08:00','11:00','Room 8','Mr. Mwangi')"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="View"><span class="material-symbols-rounded">visibility</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                      <tr data-year="S4" data-status="upcoming" data-text="chemistry che401 s4a s4b s4c ms wanjiku">
+                        <td>4</td>
+                        <td><div class="es-subject-name">Chemistry</div><div class="es-subject-code">CHE 401</div></td>
+                        <td>S4A · S4B · S4C</td>
+                        <td style="white-space:nowrap">Thu, 19 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>8:00 – 11:00</span></td>
+                        <td>3 hrs</td>
+                        <td><span class="es-room-chip">Hall A</span> <span class="es-room-chip">Lab 2</span></td>
+                        <td>Ms. Wanjiku</td>
+                        <td><span class="badge badge-upcoming">Upcoming</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="View"><span class="material-symbols-rounded">visibility</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                      <tr data-year="S4" data-status="upcoming" data-text="biology bio401 s4a s4c ms achieng">
+                        <td>5</td>
+                        <td><div class="es-subject-name">Biology</div><div class="es-subject-code">BIO 401</div></td>
+                        <td>S4A · S4C</td>
+                        <td style="white-space:nowrap">Fri, 20 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>8:00 – 11:00</span></td>
+                        <td>3 hrs</td>
+                        <td><span class="es-room-chip">Hall B</span> <span class="es-room-chip">Lab 3</span></td>
+                        <td>Ms. Achieng</td>
+                        <td><span class="badge badge-upcoming">Upcoming</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="View"><span class="material-symbols-rounded">visibility</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                      <tr data-year="S4" data-status="draft" data-text="kiswahili kis401 s4a s4b s4c mr kamau">
+                        <td>6</td>
+                        <td><div class="es-subject-name">Kiswahili</div><div class="es-subject-code">KIS 401</div></td>
+                        <td>S4A · S4B · S4C</td>
+                        <td style="white-space:nowrap">Mon, 23 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>8:00 – 10:30</span></td>
+                        <td>2.5 hrs</td>
+                        <td><span class="es-room-chip">Hall A</span> <span class="es-room-chip">Hall B</span></td>
+                        <td>Mr. Kamau</td>
+                        <td><span class="badge badge-draft">Draft</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit" onclick="openEditForm('Kiswahili','S4','A,B,C','2026-03-23','08:00','10:30','Hall A','Mr. Kamau')"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="View"><span class="material-symbols-rounded">visibility</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                      <tr data-year="S3" data-status="upcoming" data-text="history government his301 s3a s3b s3c mr njoroge">
+                        <td>7</td>
+                        <td><div class="es-subject-name">History &amp; Government</div><div class="es-subject-code">HIS 301</div></td>
+                        <td>S3A · S3B · S3C</td>
+                        <td style="white-space:nowrap">Tue, 17 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>2:00 – 4:30</span></td>
+                        <td>2.5 hrs</td>
+                        <td><span class="es-room-chip">Room 10</span> <span class="es-room-chip">Room 11</span></td>
+                        <td>Mr. Njoroge</td>
+                        <td><span class="badge badge-upcoming">Upcoming</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit" onclick="openEditForm('History & Government','S3','A,B,C','2026-03-17','14:00','16:30','Room 10','Mr. Njoroge')"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="View"><span class="material-symbols-rounded">visibility</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                      <tr data-year="S3" data-status="draft" data-text="geography geo301 s3a s3b mr odhiambo">
+                        <td>8</td>
+                        <td><div class="es-subject-name">Geography</div><div class="es-subject-code">GEO 301</div></td>
+                        <td>S3A · S3B</td>
+                        <td style="white-space:nowrap">Wed, 18 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>2:00 – 4:30</span></td>
+                        <td>2.5 hrs</td>
+                        <td><span class="es-room-chip">Room 12</span></td>
+                        <td>Mr. Odhiambo</td>
+                        <td><span class="badge badge-draft">Draft</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="View"><span class="material-symbols-rounded">visibility</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p class="es-empty" id="esEmpty" style="display:none">No exams match the selected filter.</p>
+                </div>
+
+              </div>
+            </div>
+          </div><!-- /tab-current -->
+
+          <!-- ═══════════════════════════════════════════════════════════
+               TAB 2 – PLAN / EDIT
+          ════════════════════════════════════════════════════════════ -->
+          <div class="es-panel" id="tab-plan">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><span class="material-symbols-rounded">edit_calendar</span> Add / Edit Exam Slot</h2>
+                <span id="editingBadge" class="badge badge-draft" style="display:none">Editing existing slot</span>
+              </div>
+              <div class="card-content">
+                <form id="examForm" onsubmit="return false">
+
+                  <!-- ── CLASS PICKER (dos-picker pattern) ── -->
+                  <p style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+                             color:var(--muted-foreground);margin-bottom:.5rem;">Select Class(es) for this Exam</p>
+
+                  <div class="es-class-picker">
+                    <!-- Section -->
+                    <div class="dos-picker-group">
+                      <label class="dos-picker-label" for="ep-section">Section</label>
+                      <select class="dos-picker-select" id="ep-section" onchange="onEpSectionChange()">
+                        <option value="ordinary">Ordinary Level</option>
+                        <option value="advanced">Advanced Level</option>
+                      </select>
+                    </div>
+                    <span class="material-symbols-rounded es-picker-arrow">chevron_right</span>
+                    <!-- Year -->
+                    <div class="dos-picker-group">
+                      <label class="dos-picker-label" for="ep-year">Year</label>
+                      <select class="dos-picker-select" id="ep-year">
+                        <option value="S1">S1</option>
+                        <option value="S2">S2</option>
+                        <option value="S3">S3</option>
+                      </select>
+                    </div>
+                    <span class="material-symbols-rounded es-picker-arrow">chevron_right</span>
+                    <!-- Class checkboxes -->
+                    <div class="dos-picker-group">
+                      <label class="dos-picker-label">Classes</label>
+                      <div class="es-class-checks">
+                        <label class="es-class-check-label" title="Select all classes">
+                          <input type="checkbox" id="epAll" onchange="toggleAllClasses(this)" checked /> All
+                        </label>
+                        <label class="es-class-check-label">
+                          <input type="checkbox" class="ep-cls" value="A" checked onchange="syncAllCheckbox()"> A
+                        </label>
+                        <label class="es-class-check-label">
+                          <input type="checkbox" class="ep-cls" value="B" checked onchange="syncAllCheckbox()"> B
+                        </label>
+                        <label class="es-class-check-label">
+                          <input type="checkbox" class="ep-cls" value="C" checked onchange="syncAllCheckbox()"> C
+                        </label>
+                      </div>
+                    </div>
+                    <!-- Add button -->
+                    <button type="button" class="btn btn-primary btn-sm" onclick="addClassToExam()" style="margin-bottom:.1rem">
+                      <span class="material-symbols-rounded" style="font-size:1rem">add</span> Add
+                    </button>
+                  </div>
+
+                  <!-- selected classes chips -->
+                  <div id="selectedClassesWrap" style="margin-bottom:1rem;">
+                    <p style="font-size:.75rem;color:var(--muted-foreground);margin-bottom:.35rem;">Selected classes for this exam:</p>
+                    <div class="es-selected-classes" id="selectedClasses">
+                      <span class="es-class-chip" data-key="S4A">S4A <span onclick="removeClassChip('S4A')" style="cursor:pointer;margin-left:.2rem;opacity:.6">✕</span></span>
+                      <span class="es-class-chip" data-key="S4B">S4B <span onclick="removeClassChip('S4B')" style="cursor:pointer;margin-left:.2rem;opacity:.6">✕</span></span>
+                      <span class="es-class-chip" data-key="S4C">S4C <span onclick="removeClassChip('S4C')" style="cursor:pointer;margin-left:.2rem;opacity:.6">✕</span></span>
+                    </div>
+                  </div>
+
+                  <hr style="border:none;border-top:1px solid var(--border);margin:0 0 1rem;" />
+
+                  <!-- rest of the form -->
+                  <div class="es-form-grid">
+                    <p class="es-form-section-label">Exam Details</p>
+
+                    <div class="form-group">
+                      <label class="form-label">Subject</label>
+                      <select class="form-input" id="fSubject">
+                        <option value="">Select subject…</option>
+                        <option>Mathematics</option><option>English Language</option><option>Kiswahili</option>
+                        <option>Physics</option><option>Chemistry</option><option>Biology</option>
+                        <option>History &amp; Government</option><option>Geography</option>
+                        <option>CRE</option><option>Business Studies</option><option>Computer Studies</option>
+                        <option>French</option><option>Literature</option><option>Agriculture</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Subject Code</label>
+                      <input type="text" class="form-input" id="fCode" placeholder="e.g. MAT 401" />
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Invigilator</label>
+                      <select class="form-input" id="fInvigilator">
+                        <option value="">Assign invigilator…</option>
+                        <option>Mr. Kariuki</option><option>Ms. Otieno</option><option>Mr. Kamau</option>
+                        <option>Mr. Mwangi</option><option>Ms. Wanjiku</option><option>Ms. Achieng</option>
+                        <option>Mr. Njoroge</option><option>Mr. Odhiambo</option><option>Ms. Mutua</option>
+                      </select>
+                    </div>
+
+                    <hr class="es-form-divider" />
+                    <p class="es-form-section-label">Date &amp; Time</p>
+
+                    <div class="form-group">
+                      <label class="form-label">Exam Date</label>
+                      <input type="date" class="form-input" id="fDate" />
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Start Time</label>
+                      <input type="time" class="form-input" id="fStart" value="08:00" />
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">End Time</label>
+                      <input type="time" class="form-input" id="fEnd" value="11:00" />
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Duration (hrs)</label>
+                      <input type="number" class="form-input" id="fDuration" min="0.5" max="5" step="0.5" value="3" />
+                    </div>
+
+                    <hr class="es-form-divider" />
+                    <p class="es-form-section-label">Venue &amp; Status</p>
+
+                    <div class="form-group">
+                      <label class="form-label">Primary Room</label>
+                      <select class="form-input" id="fRoom">
+                        <option value="">Select room…</option>
+                        <option>Hall A (cap. 120)</option><option>Hall B (cap. 100)</option>
+                        <option>Room 8 (cap. 40)</option><option>Room 9 (cap. 40)</option>
+                        <option>Room 10 (cap. 40)</option><option>Room 11 (cap. 40)</option>
+                        <option>Room 12 (cap. 40)</option><option>Lab 2 (cap. 30)</option>
+                        <option>Lab 3 (cap. 30)</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Overflow Room</label>
+                      <select class="form-input" id="fRoom2">
+                        <option value="">None</option>
+                        <option>Hall A (cap. 120)</option><option>Hall B (cap. 100)</option>
+                        <option>Room 8 (cap. 40)</option><option>Room 9 (cap. 40)</option>
+                        <option>Room 10 (cap. 40)</option><option>Room 11 (cap. 40)</option>
+                        <option>Room 12 (cap. 40)</option><option>Lab 2 (cap. 30)</option>
+                        <option>Lab 3 (cap. 30)</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Save as</label>
+                      <select class="form-input" id="fStatus">
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Notes / Instructions</label>
+                      <input type="text" class="form-input" id="fNotes" placeholder="Special instructions…" />
+                    </div>
+                  </div>
+
+                  <div class="es-form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="resetExamForm()">Clear Form</button>
+                    <button type="button" class="btn btn-secondary" onclick="saveExam('draft')">Save as Draft</button>
+                    <button type="button" class="btn btn-primary" onclick="saveExam('published')">
+                      <span class="material-symbols-rounded" style="font-size:1.1rem">save</span> Save Slot
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- drafts list -->
+            <div class="card mt-1-5">
+              <div class="card-header">
+                <h2 class="card-title"><span class="material-symbols-rounded">draft</span> Drafts &amp; Pending Review</h2>
+                <span class="badge badge-draft">4 drafts</span>
+              </div>
+              <div class="card-content">
+                <div class="es-table-wrap">
+                  <table class="es-table">
+                    <thead>
+                      <tr><th>Subject</th><th>Classes</th><th>Date</th><th>Time</th><th>Room</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><div class="es-subject-name">Kiswahili</div></td>
+                        <td>S4A · S4B · S4C</td>
+                        <td>Mon, 23 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>8:00–10:30</span></td>
+                        <td><span class="es-room-chip">Hall A</span> <span class="es-room-chip">Hall B</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit" onclick="openEditForm('Kiswahili','S4','A,B,C','2026-03-23','08:00','10:30','Hall A','Mr. Kamau')"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="Publish" onclick="alert('Kiswahili published!')"><span class="material-symbols-rounded">publish</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                      <tr>
+                        <td><div class="es-subject-name">Geography</div></td>
+                        <td>S3A · S3B</td>
+                        <td>Wed, 18 Mar 2026</td>
+                        <td><span class="es-time-chip"><span class="material-symbols-rounded" style="font-size:.9rem">schedule</span>2:00–4:30</span></td>
+                        <td><span class="es-room-chip">Room 12</span></td>
+                        <td><div class="es-row-actions">
+                          <button class="es-icon-btn" title="Edit"><span class="material-symbols-rounded">edit</span></button>
+                          <button class="es-icon-btn" title="Publish" onclick="alert('Geography published!')"><span class="material-symbols-rounded">publish</span></button>
+                          <button class="es-icon-btn danger" title="Delete"><span class="material-symbols-rounded">delete</span></button>
+                        </div></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div><!-- /tab-plan -->
+
+          <!-- ═══════════════════════════════════════════════════════════
+               TAB 3 – ROOM PLANNER
+          ════════════════════════════════════════════════════════════ -->
+          <div class="es-panel" id="tab-rooms">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><span class="material-symbols-rounded">meeting_room</span> Exam Room Allocations</h2>
+                <div style="display:flex;gap:.5rem">
+                  <select class="es-filter-select">
+                    <option>All Dates</option>
+                    <option>Mon, 16 Mar</option><option>Tue, 17 Mar</option><option>Wed, 18 Mar</option>
+                    <option>Thu, 19 Mar</option><option>Fri, 20 Mar</option>
+                  </select>
+                  <button class="btn btn-primary btn-sm">+ Add Room</button>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="room-planner-grid">
+                  <div class="room-card">
+                    <div class="room-card-header"><span class="room-card-name">Hall A</span><span class="badge badge-upcoming">In use</span></div>
+                    <div class="room-status-row"><span class="room-status-dot dot-busy"></span>Capacity: 120 · 102 assigned</div>
+                    <ul class="room-assigned-list">
+                      <li><span>Mathematics – S4</span><span>Mon 16 Mar, 8:00</span></li>
+                      <li><span>English – S4</span><span>Tue 17 Mar, 8:00</span></li>
+                      <li><span>Chemistry – S4</span><span>Thu 19 Mar, 8:00</span></li>
+                      <li><span>Kiswahili – S4</span><span>Mon 23 Mar, 8:00</span></li>
+                    </ul>
+                    <div class="room-card-footer">
+                      <button class="btn btn-secondary btn-sm" style="flex:1">Edit Allocation</button>
+                      <button class="btn btn-outline btn-sm">Seating Plan</button>
+                    </div>
+                  </div>
+                  <div class="room-card">
+                    <div class="room-card-header"><span class="room-card-name">Hall B</span><span class="badge badge-upcoming">In use</span></div>
+                    <div class="room-status-row"><span class="room-status-dot dot-busy"></span>Capacity: 100 · 78 assigned</div>
+                    <ul class="room-assigned-list">
+                      <li><span>Mathematics – S4</span><span>Mon 16 Mar, 8:00</span></li>
+                      <li><span>English – S4</span><span>Tue 17 Mar, 8:00</span></li>
+                      <li><span>Biology – S4</span><span>Fri 20 Mar, 8:00</span></li>
+                      <li><span>Kiswahili – S4</span><span>Mon 23 Mar, 8:00</span></li>
+                    </ul>
+                    <div class="room-card-footer">
+                      <button class="btn btn-secondary btn-sm" style="flex:1">Edit Allocation</button>
+                      <button class="btn btn-outline btn-sm">Seating Plan</button>
+                    </div>
+                  </div>
+                  <div class="room-card">
+                    <div class="room-card-header"><span class="room-card-name">Room 8</span><span class="badge badge-upcoming">In use</span></div>
+                    <div class="room-status-row"><span class="room-status-dot dot-busy"></span>Capacity: 40 · 38 assigned</div>
+                    <ul class="room-assigned-list">
+                      <li><span>Physics – S4A</span><span>Wed 18 Mar, 8:00</span></li>
+                    </ul>
+                    <div class="room-card-footer">
+                      <button class="btn btn-secondary btn-sm" style="flex:1">Edit Allocation</button>
+                      <button class="btn btn-outline btn-sm">Seating Plan</button>
+                    </div>
+                  </div>
+                  <div class="room-card">
+                    <div class="room-card-header"><span class="room-card-name">Room 9</span><span class="badge badge-upcoming">In use</span></div>
+                    <div class="room-status-row"><span class="room-status-dot dot-busy"></span>Capacity: 40 · 36 assigned</div>
+                    <ul class="room-assigned-list">
+                      <li><span>Physics – S4B</span><span>Wed 18 Mar, 8:00</span></li>
+                    </ul>
+                    <div class="room-card-footer">
+                      <button class="btn btn-secondary btn-sm" style="flex:1">Edit Allocation</button>
+                      <button class="btn btn-outline btn-sm">Seating Plan</button>
+                    </div>
+                  </div>
+                  <div class="room-card">
+                    <div class="room-card-header"><span class="room-card-name">Room 10</span><span class="badge badge-upcoming">In use</span></div>
+                    <div class="room-status-row"><span class="room-status-dot dot-busy"></span>Capacity: 40 · 40 assigned</div>
+                    <ul class="room-assigned-list">
+                      <li><span>History – S3A</span><span>Tue 17 Mar, 2:00</span></li>
+                    </ul>
+                    <div class="room-card-footer">
+                      <button class="btn btn-secondary btn-sm" style="flex:1">Edit Allocation</button>
+                      <button class="btn btn-outline btn-sm">Seating Plan</button>
+                    </div>
+                  </div>
+                  <div class="room-card">
+                    <div class="room-card-header"><span class="room-card-name">Room 12</span><span class="badge badge-draft">Draft</span></div>
+                    <div class="room-status-row"><span class="room-status-dot dot-busy"></span>Capacity: 40 · 32 assigned</div>
+                    <ul class="room-assigned-list">
+                      <li><span>Geography – S3A/S3B</span><span>Wed 18 Mar, 2:00</span></li>
+                    </ul>
+                    <div class="room-card-footer">
+                      <button class="btn btn-secondary btn-sm" style="flex:1">Edit Allocation</button>
+                      <button class="btn btn-outline btn-sm">Seating Plan</button>
+                    </div>
+                  </div>
+                  <div class="room-card">
+                    <div class="room-card-header"><span class="room-card-name">Lab 2</span><span class="badge badge-upcoming">In use</span></div>
+                    <div class="room-status-row"><span class="room-status-dot dot-busy"></span>Capacity: 30 · 28 assigned</div>
+                    <ul class="room-assigned-list">
+                      <li><span>Chemistry – S4 overflow</span><span>Thu 19 Mar, 8:00</span></li>
+                    </ul>
+                    <div class="room-card-footer">
+                      <button class="btn btn-secondary btn-sm" style="flex:1">Edit Allocation</button>
+                      <button class="btn btn-outline btn-sm">Seating Plan</button>
+                    </div>
+                  </div>
+                  <div class="room-card">
+                    <div class="room-card-header"><span class="room-card-name">Lab 3</span><span class="badge badge-upcoming">In use</span></div>
+                    <div class="room-status-row"><span class="room-status-dot dot-busy"></span>Capacity: 30 · 26 assigned</div>
+                    <ul class="room-assigned-list">
+                      <li><span>Biology – S4 overflow</span><span>Fri 20 Mar, 8:00</span></li>
+                    </ul>
+                    <div class="room-card-footer">
+                      <button class="btn btn-secondary btn-sm" style="flex:1">Edit Allocation</button>
+                      <button class="btn btn-outline btn-sm">Seating Plan</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /tab-rooms -->
+
+          <!-- ═══════════════════════════════════════════════════════════
+               TAB 4 – PUBLISH
+          ════════════════════════════════════════════════════════════ -->
+          <div class="es-panel" id="tab-publish">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title"><span class="material-symbols-rounded">send</span> Publish Exam Schedule</h2>
+                <span class="badge badge-published">28 exams ready</span>
+              </div>
+              <div class="card-content">
+
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;align-items:flex-end;">
+                  <div class="form-group" style="gap:.35rem;display:flex;flex-direction:column;">
+                    <label class="form-label">Term</label>
+                    <select class="es-filter-select"><option>Term 1 · 2026</option><option>Term 2 · 2026</option><option>Term 3 · 2026</option></select>
+                  </div>
+                  <div class="form-group" style="gap:.35rem;display:flex;flex-direction:column;">
+                    <label class="form-label">Scope</label>
+                    <select class="es-filter-select" id="pubScope">
+                      <option>All published exams</option>
+                      <option>S4 only</option><option>S3 only</option><option>S2 only</option><option>S1 only</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="gap:.35rem;display:flex;flex-direction:column;">
+                    <label class="form-label">Format</label>
+                    <select class="es-filter-select"><option>Full schedule (all subjects)</option><option>By subject</option><option>By date</option></select>
+                  </div>
+                </div>
+
+                <div class="publish-grid">
+                  <div class="publish-target" id="targetTeacher" onclick="toggleTarget(this)">
+                    <div class="publish-target-header">
+                      <div class="publish-icon teacher"><span class="material-symbols-rounded">school</span></div>
+                      <div>
+                        <div class="publish-target-name">Teachers</div>
+                        <div class="publish-target-desc">Notify all assigned invigilators and subject teachers</div>
+                      </div>
+                    </div>
+                    <div class="publish-options">
+                      <label class="publish-option"><input type="checkbox" checked /> In-app notification</label>
+                      <label class="publish-option"><input type="checkbox" checked /> Show on teacher dashboard</label>
+                      <label class="publish-option"><input type="checkbox" /> Email notification</label>
+                      <label class="publish-option"><input type="checkbox" /> SMS alert</label>
+                    </div>
+                  </div>
+                  <div class="publish-target" id="targetStudent" onclick="toggleTarget(this)">
+                    <div class="publish-target-header">
+                      <div class="publish-icon student"><span class="material-symbols-rounded">group</span></div>
+                      <div>
+                        <div class="publish-target-name">Students</div>
+                        <div class="publish-target-desc">Make schedule visible on student portals</div>
+                      </div>
+                    </div>
+                    <div class="publish-options">
+                      <label class="publish-option"><input type="checkbox" checked /> Show on student portal</label>
+                      <label class="publish-option"><input type="checkbox" checked /> In-app notification</label>
+                      <label class="publish-option"><input type="checkbox" /> Email to parents/guardians</label>
+                      <label class="publish-option"><input type="checkbox" /> SMS to parents</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="publish-summary">
+                  <h4>Publish summary</h4>
+                  <ul>
+                    <li><span class="material-symbols-rounded">check_circle</span>28 published exam slots will be sent</li>
+                    <li><span class="material-symbols-rounded">check_circle</span>4 draft slots excluded</li>
+                    <li><span class="material-symbols-rounded">check_circle</span>Covers S1 – S4 (all classes)</li>
+                    <li><span class="material-symbols-rounded">check_circle</span>Date range: 16 Mar – 27 Mar 2026</li>
+                    <li><span class="material-symbols-rounded">check_circle</span>14 rooms allocated · no conflicts detected</li>
+                  </ul>
+                </div>
+
+                <div class="publish-actions">
+                  <button class="btn btn-secondary" onclick="alert('PDF preview would open here')">
+                    <span class="material-symbols-rounded" style="font-size:1.1rem">preview</span> Preview PDF
+                  </button>
+                  <button class="btn btn-secondary">Save Draft</button>
+                  <button class="btn btn-primary" onclick="confirmPublish()">
+                    <span class="material-symbols-rounded" style="font-size:1.1rem">send</span> Publish Now
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- publish history -->
+            <div class="card mt-1-5">
+              <div class="card-header"><h2 class="card-title"><span class="material-symbols-rounded">history</span> Publish History</h2></div>
+              <div class="card-content">
+                <div class="es-table-wrap">
+                  <table class="es-table">
+                    <thead><tr><th>Date Sent</th><th>Term</th><th>Sent To</th><th>Exams</th><th>Sent By</th><th>Status</th></tr></thead>
+                    <tbody>
+                      <tr>
+                        <td>Mon, 02 Mar 2026 · 9:14 AM</td><td>Term 1 · 2026</td><td>Teachers + Students</td>
+                        <td>22</td><td>Grace Mwangi</td><td><span class="badge badge-published">Delivered</span></td>
+                      </tr>
+                      <tr>
+                        <td>Fri, 21 Feb 2026 · 4:05 PM</td><td>Term 1 · 2026</td><td>Teachers only</td>
+                        <td>22</td><td>Grace Mwangi</td><td><span class="badge badge-published">Delivered</span></td>
+                      </tr>
+                      <tr>
+                        <td>Mon, 18 Nov 2025 · 10:30 AM</td><td>Term 3 · 2025</td><td>Teachers + Students</td>
+                        <td>30</td><td>Grace Mwangi</td><td><span class="badge badge-published">Delivered</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div><!-- /tab-publish -->
+
+        </div><!-- dashboard-content -->
+      </main>
+    </div><!-- dashboard-layout -->
+
+    <script src="../js/dashboard.js"></script>
+    <script>
+      /* ═══════════════════════════════════════════
+         PAGE TAB SWITCHING
+      ══════════════════════════════════════════ */
+      document.getElementById('esTabs').addEventListener('click', function(e) {
+        const btn = e.target.closest('.es-tab');
+        if (!btn) return;
+        document.querySelectorAll('.es-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.es-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+
+      /* ═══════════════════════════════════════════
+         CURRENT SCHEDULE — FILTER LOGIC
+         (conduct-pattern: data-year + data-status)
+      ══════════════════════════════════════════ */
+      let activeYear   = 'all';
+      let activeStatus = 'all';
+
+      function setYearFilter(year, btn) {
+        activeYear = year;
+        document.querySelectorAll('.es-filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        filterSchedule();
+      }
+
+      function filterSchedule() {
+        const q      = document.getElementById('esSearch').value.toLowerCase();
+        activeStatus = document.getElementById('esStatusFilter').value;
+        let visible  = 0;
+
+        document.querySelectorAll('#scheduleBody tr').forEach(row => {
+          const yearMatch   = (activeYear   === 'all' || row.dataset.year   === activeYear);
+          const statusMatch = (activeStatus === 'all' || row.dataset.status === activeStatus);
+          const textMatch   = !q || (row.dataset.text || row.textContent).toLowerCase().includes(q);
+          const show = yearMatch && statusMatch && textMatch;
+          row.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+
+        document.getElementById('esEmpty').style.display = visible === 0 ? '' : 'none';
+      }
+
+      /* ═══════════════════════════════════════════
+         CLASS PICKER — Section cascade
+         (dos-picker pattern)
+      ══════════════════════════════════════════ */
+      const ORDINARY_YEARS = ['S1','S2','S3'];
+      const ADVANCED_YEARS = ['S4','S5','S6'];
+
+      function onEpSectionChange() {
+        const section = document.getElementById('ep-section').value;
+        const years   = section === 'ordinary' ? ORDINARY_YEARS : ADVANCED_YEARS;
+        const yearSel = document.getElementById('ep-year');
+        yearSel.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+      }
+
+      function toggleAllClasses(allCb) {
+        document.querySelectorAll('.ep-cls').forEach(cb => { cb.checked = allCb.checked; });
+      }
+
+      function syncAllCheckbox() {
+        const all  = document.querySelectorAll('.ep-cls');
+        const checked = [...all].filter(cb => cb.checked);
+        document.getElementById('epAll').checked = (checked.length === all.length);
+      }
+
+      /* add selected year+classes as chips */
+      function addClassToExam() {
+        const year    = document.getElementById('ep-year').value;
+        const classes = [...document.querySelectorAll('.ep-cls')]
+                          .filter(cb => cb.checked).map(cb => cb.value);
+
+        if (classes.length === 0) {
+          alert('Select at least one class (A, B, or C).');
+          return;
+        }
+
+        const container = document.getElementById('selectedClasses');
+        classes.forEach(cls => {
+          const key = year + cls;
+          if (container.querySelector(`[data-key="${key}"]`)) return; // skip duplicate
+          const chip = document.createElement('span');
+          chip.className   = 'es-class-chip';
+          chip.dataset.key = key;
+          chip.innerHTML   = `${key} <span onclick="removeClassChip('${key}')" style="cursor:pointer;margin-left:.2rem;opacity:.6">✕</span>`;
+          container.appendChild(chip);
+        });
+      }
+
+      function removeClassChip(key) {
+        const chip = document.querySelector(`#selectedClasses [data-key="${key}"]`);
+        if (chip) chip.remove();
+      }
+
+      /* ═══════════════════════════════════════════
+         PLAN FORM — open with prefilled data
+      ══════════════════════════════════════════ */
+      function openEditForm(subject, year, classCsv, date, start, end, room, invigilator) {
+        // switch to plan tab
+        document.querySelectorAll('.es-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.es-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector('[data-tab="plan"]').classList.add('active');
+        document.getElementById('tab-plan').classList.add('active');
+
+        // fill subject
+        const subjectEl = document.getElementById('fSubject');
+        for (let i = 0; i < subjectEl.options.length; i++) {
+          if (subjectEl.options[i].text.includes(subject)) { subjectEl.selectedIndex = i; break; }
+        }
+        document.getElementById('fDate').value  = date;
+        document.getElementById('fStart').value = start;
+        document.getElementById('fEnd').value   = end;
+        document.getElementById('editingBadge').style.display = '';
+
+        // set section + year on picker
+        const isAdvanced = ADVANCED_YEARS.includes(year);
+        document.getElementById('ep-section').value = isAdvanced ? 'advanced' : 'ordinary';
+        onEpSectionChange();
+        document.getElementById('ep-year').value = year;
+
+        // set class checkboxes
+        const classes = classCsv.split(',');
+        document.querySelectorAll('.ep-cls').forEach(cb => { cb.checked = classes.includes(cb.value); });
+        syncAllCheckbox();
+
+        // rebuild chips
+        const container = document.getElementById('selectedClasses');
+        container.innerHTML = '';
+        classes.forEach(cls => {
+          const key  = year + cls.trim();
+          const chip = document.createElement('span');
+          chip.className   = 'es-class-chip';
+          chip.dataset.key = key;
+          chip.innerHTML   = `${key} <span onclick="removeClassChip('${key}')" style="cursor:pointer;margin-left:.2rem;opacity:.6">✕</span>`;
+          container.appendChild(chip);
+        });
+
+        // set room
+        const roomSel = document.getElementById('fRoom');
+        for (let i = 0; i < roomSel.options.length; i++) {
+          if (roomSel.options[i].text.startsWith(room)) { roomSel.selectedIndex = i; break; }
+        }
+
+        // set invigilator
+        const invSel = document.getElementById('fInvigilator');
+        for (let i = 0; i < invSel.options.length; i++) {
+          if (invSel.options[i].text === invigilator) { invSel.selectedIndex = i; break; }
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      /* ═══════════════════════════════════════════
+         SAVE / RESET EXAM FORM
+      ══════════════════════════════════════════ */
+      function saveExam(status) {
+        const subject = document.getElementById('fSubject').value;
+        if (!subject) { alert('Please select a subject.'); return; }
+        const chips = [...document.querySelectorAll('#selectedClasses .es-class-chip')]
+                        .map(c => c.dataset.key).join(', ');
+        if (!chips) { alert('Please select at least one class using the class picker.'); return; }
+        const msg = status === 'draft'
+          ? `"${subject}" saved as Draft for: ${chips}`
+          : `"${subject}" saved as Published for: ${chips}`;
+        alert(msg);
+        resetExamForm();
+      }
+
+      function resetExamForm() {
+        document.getElementById('examForm').reset();
+        document.getElementById('editingBadge').style.display = 'none';
+        document.getElementById('selectedClasses').innerHTML =
+          '<span class="es-class-chip" data-key="S4A">S4A <span onclick="removeClassChip(\'S4A\')" style="cursor:pointer;margin-left:.2rem;opacity:.6">✕</span></span>' +
+          '<span class="es-class-chip" data-key="S4B">S4B <span onclick="removeClassChip(\'S4B\')" style="cursor:pointer;margin-left:.2rem;opacity:.6">✕</span></span>' +
+          '<span class="es-class-chip" data-key="S4C">S4C <span onclick="removeClassChip(\'S4C\')" style="cursor:pointer;margin-left:.2rem;opacity:.6">✕</span></span>';
+        document.getElementById('ep-section').value = 'advanced';
+        onEpSectionChange();
+        document.getElementById('ep-year').value = 'S4';
+        document.querySelectorAll('.ep-cls').forEach(cb => cb.checked = true);
+        document.getElementById('epAll').checked = true;
+      }
+
+      /* ═══════════════════════════════════════════
+         PUBLISH
+      ══════════════════════════════════════════ */
+      function toggleTarget(el) {
+        el.classList.toggle('selected');
+      }
+
+      function confirmPublish() {
+        const hasTeacher = document.getElementById('targetTeacher').classList.contains('selected');
+        const hasStudent = document.getElementById('targetStudent').classList.contains('selected');
+        if (!hasTeacher && !hasStudent) {
+          alert('Click on a recipient card (Teachers or Students) to select it before publishing.');
+          return;
+        }
+        const targets = [];
+        if (hasTeacher) targets.push('Teachers');
+        if (hasStudent) targets.push('Students');
+        alert(`Exam schedule published to: ${targets.join(' and ')}.\nNotifications have been sent.`);
+      }
+
+      /* default section picker to S4 (Advanced) on load */
+      document.getElementById('ep-section').value = 'advanced';
+      onEpSectionChange();
+      document.getElementById('ep-year').value = 'S4';
+    </script>
+  </body>
+</html>

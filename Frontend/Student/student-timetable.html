@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timetable - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/student.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="student.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="student-results.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assessment</span><span>My Results</span></a></li>
+            <li><a href="student-attendance.html" class="sidebar-nav-item"><span class="material-symbols-rounded">fact_check</span><span>Attendance</span></a></li>
+            <li><a href="student-timetable.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">calendar_month</span><span>Timetable</span></a></li>
+            <li><a href="student-assignments.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assignment</span><span>Assignments</span></a></li>
+            <li><a href="student-activities.html" class="sidebar-nav-item"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="student-announcements.html" class="sidebar-nav-item"><span class="material-symbols-rounded">announcement</span><span>Announcements</span></a></li>
+            <li><a href="student-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Timetable</h1>
+            <p>Grade 10A — Week 8, Term 2</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Alex Mutua</span>
+                <span class="header-user-role">Student · S3A</span>
+              </div>
+              <div class="header-user-av student-av">AM</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- View toggle -->
+          <div class="day-filter-bar">
+            <button class="day-btn active" data-view="weekly">Weekly View</button>
+            <button class="day-btn" data-view="monday">Monday</button>
+            <button class="day-btn" data-view="tuesday">Tuesday</button>
+            <button class="day-btn" data-view="wednesday">Wednesday</button>
+            <button class="day-btn" data-view="thursday">Thursday</button>
+            <button class="day-btn" data-view="friday">Friday</button>
+          </div>
+
+          <!-- Weekly timetable -->
+          <div class="weekly-timetable-wrap" id="weeklyView">
+            <table class="weekly-timetable">
+              <thead>
+                <tr>
+                  <th class="time-col">Time</th>
+                  <th style="background:rgba(0,61,122,0.08)">Monday ★</th>
+                  <th>Tuesday</th>
+                  <th>Wednesday</th>
+                  <th>Thursday</th>
+                  <th>Friday</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="time-col">07:30</td>
+                  <td><div class="tt-cell has-lesson today-col"><div class="tt-cell-subject" style="color:#003d7a">Mathematics</div><div class="tt-cell-teacher">Ms. Mwangi • Rm 201</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#0d9488">Physics</div><div class="tt-cell-teacher">Mr. King • Rm 302</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#6366f1">English</div><div class="tt-cell-teacher">Ms. Omondi • Rm 105</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#003d7a">Mathematics</div><div class="tt-cell-teacher">Ms. Mwangi • Rm 201</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#ec4899">Chemistry</div><div class="tt-cell-teacher">Ms. Achieng • Lab 2</div></div></td>
+                </tr>
+                <tr>
+                  <td class="time-col">09:00</td>
+                  <td><div class="tt-cell has-lesson today-col"><div class="tt-cell-subject" style="color:#0d9488">Physics</div><div class="tt-cell-teacher">Mr. King • Rm 302</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#003d7a">Mathematics</div><div class="tt-cell-teacher">Ms. Mwangi • Rm 201</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#f97316">History</div><div class="tt-cell-teacher">Mr. Otieno • Rm 208</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#6366f1">Computer Sci.</div><div class="tt-cell-teacher">Mr. Njoroge • Lab C</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#003d7a">Mathematics</div><div class="tt-cell-teacher">Ms. Mwangi • Rm 201</div></div></td>
+                </tr>
+                <tr>
+                  <td class="time-col">10:30</td>
+                  <td><div class="tt-cell has-lesson today-col" style="background:rgba(13,148,136,0.1)"><div class="tt-cell-subject" style="color:#0d9488">Physics Lab ▶</div><div class="tt-cell-teacher">Mr. King • Lab 1</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#6366f1">English</div><div class="tt-cell-teacher">Ms. Omondi • Rm 105</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#003d7a">Mathematics</div><div class="tt-cell-teacher">Ms. Mwangi • Rm 201</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#0d9488">Physics</div><div class="tt-cell-teacher">Mr. King • Rm 302</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#6366f1">English</div><div class="tt-cell-teacher">Ms. Omondi • Rm 105</div></div></td>
+                </tr>
+                <tr>
+                  <td class="time-col">12:00</td>
+                  <td><div class="tt-cell break-row"><span>Lunch Break</span></div></td>
+                  <td><div class="tt-cell break-row"><span>Lunch Break</span></div></td>
+                  <td><div class="tt-cell break-row"><span>Lunch Break</span></div></td>
+                  <td><div class="tt-cell break-row"><span>Lunch Break</span></div></td>
+                  <td><div class="tt-cell break-row"><span>Lunch Break</span></div></td>
+                </tr>
+                <tr>
+                  <td class="time-col">13:00</td>
+                  <td><div class="tt-cell has-lesson today-col"><div class="tt-cell-subject" style="color:#6366f1">English Lit.</div><div class="tt-cell-teacher">Ms. Omondi • Rm 105</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#f97316">History</div><div class="tt-cell-teacher">Mr. Otieno • Rm 208</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#ec4899">Chemistry</div><div class="tt-cell-teacher">Ms. Achieng • Lab 2</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#6366f1">English</div><div class="tt-cell-teacher">Ms. Omondi • Rm 105</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#f97316">History</div><div class="tt-cell-teacher">Mr. Otieno • Rm 208</div></div></td>
+                </tr>
+                <tr>
+                  <td class="time-col">14:30</td>
+                  <td><div class="tt-cell has-lesson today-col"><div class="tt-cell-subject" style="color:#ec4899">Chemistry</div><div class="tt-cell-teacher">Ms. Achieng • Lab 2</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#6366f1">Computer Sci.</div><div class="tt-cell-teacher">Mr. Njoroge • Lab C</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#f97316">History</div><div class="tt-cell-teacher">Mr. Otieno • Rm 208</div></div></td>
+                  <td><div class="tt-cell has-lesson"><div class="tt-cell-subject" style="color:#ec4899">Chemistry Lab</div><div class="tt-cell-teacher">Ms. Achieng • Lab 2</div></div></td>
+                  <td><div class="tt-cell break-row"><span>Games / PE</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Subject legend -->
+          <div class="card" style="margin-top:1.25rem">
+            <div class="card-header"><h3 class="card-title">Subject Legend</h3></div>
+            <div class="card-content">
+              <div style="display:flex;flex-wrap:wrap;gap:0.75rem">
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:12px;height:12px;border-radius:3px;background:#003d7a;display:inline-block"></span>Mathematics — Ms. Mwangi (Rm 201)</span>
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:12px;height:12px;border-radius:3px;background:#0d9488;display:inline-block"></span>Physics — Mr. King (Rm 302 / Lab 1)</span>
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:12px;height:12px;border-radius:3px;background:#6366f1;display:inline-block"></span>English Literature — Ms. Omondi (Rm 105)</span>
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:12px;height:12px;border-radius:3px;background:#ec4899;display:inline-block"></span>Chemistry — Ms. Achieng (Lab 2)</span>
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:12px;height:12px;border-radius:3px;background:#f97316;display:inline-block"></span>History — Mr. Otieno (Rm 208)</span>
+                <span style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:12px;height:12px;border-radius:3px;background:#6366f1;display:inline-block"></span>Computer Science — Mr. Njoroge (Lab C)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+    <script src="../js/dashboard.js"></script>
+    <script>
+      document.querySelectorAll('.day-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+    </script>
+  </body>
+</html>

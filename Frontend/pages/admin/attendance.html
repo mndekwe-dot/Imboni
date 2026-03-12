@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../../styles/globals.css" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+    <link rel="stylesheet" href="../../css/responsive.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .attendance-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+      }
+      .student-attendance-card {
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        transition: all 0.2s;
+      }
+      .student-attendance-card:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .student-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+      }
+      .student-name {
+        font-weight: 500;
+        color: var(--foreground);
+      }
+      .student-id {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+      .attendance-buttons {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .attendance-btn {
+        flex: 1;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid var(--border);
+        background: white;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+      }
+      .attendance-btn:hover {
+        background: var(--muted);
+      }
+      .attendance-btn.active {
+        border-color: transparent;
+        color: white;
+      }
+      .attendance-btn.present.active {
+        background: var(--success);
+      }
+      .attendance-btn.absent.active {
+        background: var(--destructive);
+      }
+      .attendance-btn.late.active {
+        background: var(--warning);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+            </svg>
+          </div>
+          <div class="sidebar-logo-text">
+            <span class="sidebar-logo-title">Imboni</span>
+            <span class="sidebar-logo-subtitle">Education Connects</span>
+          </div>
+        </div>
+        <div class="sidebar-user">
+          <div class="sidebar-user-content">
+            <div class="sidebar-user-avatar">GM</div>
+            <div class="sidebar-user-info">
+              <span class="sidebar-user-name">Ms. Grace Mwangi</span>
+              <span class="sidebar-user-role">Teacher</span>
+            </div>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="teacher.html" class="sidebar-nav-item">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+              <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+              <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+              <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+            </svg>
+            Dashboard
+          </a>
+          <a href="#" class="sidebar-nav-item">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
+              ></path>
+            </svg>
+            My Classes
+          </a>
+          <a href="#" class="sidebar-nav-item">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            </svg>
+            Students
+          </a>
+          <a href="attendance.html" class="sidebar-nav-item active">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M16 11l2 2 4-4"></path>
+            </svg>
+            Attendance
+          </a>
+          <a href="results.html" class="sidebar-nav-item">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M9 5H2v7l6.29 6.29c.94.94 2.48.94 3.42 0l3.58-3.58c.94-.94.94-2.48 0-3.42L9 5Z"
+              ></path>
+            </svg>
+            Results
+          </a>
+          <a href="announcements.html" class="sidebar-nav-item">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="m3 11 18-5v12L3 14v-3z"></path>
+            </svg>
+            Announcements
+          </a>
+          <a href="#" class="sidebar-nav-item">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
+            </svg>
+            Messages
+          </a>
+          <a href="#" class="sidebar-nav-item">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            Settings
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <button
+            class="sidebar-logout"
+            onclick="window.location.href = 'index.html'"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" x2="9" y1="12" y2="12"></line>
+            </svg>
+            Sign Out
+          </button>
+        </div>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <!-- Mobile menu button -->
+          <button class="mobile-menu-btn" aria-label="Toggle navigation menu">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="4" y1="18" x2="20" y2="18"></line>
+            </svg>
+          </button>
+
+          <div class="dashboard-header-title">
+            <h1>Mark Attendance</h1>
+            <p>Grade 10A - Mathematics</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <select class="input" style="width: auto">
+              <option>Grade 10A</option>
+              <option>Grade 10B</option>
+              <option>Grade 11A</option>
+            </select>
+            <button class="btn btn-primary">Save Attendance</button>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Students (35)</h3>
+              <div style="display: flex; gap: 1rem; align-items: center">
+                <span
+                  style="font-size: 0.875rem; color: var(--muted-foreground)"
+                  >Date: <strong>Feb 3, 2026</strong></span
+                >
+                <div style="display: flex; gap: 1rem; font-size: 0.875rem">
+                  <span style="color: var(--success)"
+                    >✓ Present: <strong>0</strong></span
+                  >
+                  <span style="color: var(--destructive)"
+                    >✗ Absent: <strong>0</strong></span
+                  >
+                  <span style="color: var(--warning)"
+                    >⚠ Late: <strong>0</strong></span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="attendance-grid" id="attendanceGrid">
+                <!-- Students will be rendered here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const students = [
+        { id: 1, name: "James Omondi", studentId: "ST2024001" },
+        { id: 2, name: "Mary Wanjiku", studentId: "ST2024002" },
+        { id: 3, name: "Peter Kamau", studentId: "ST2024003" },
+        { id: 4, name: "Grace Achieng", studentId: "ST2024004" },
+        { id: 5, name: "David Kipchoge", studentId: "ST2024005" },
+        { id: 6, name: "Sarah Muthoni", studentId: "ST2024006" },
+        { id: 7, name: "John Kariuki", studentId: "ST2024007" },
+        { id: 8, name: "Lucy Njeri", studentId: "ST2024008" },
+        { id: 9, name: "Michael Otieno", studentId: "ST2024009" },
+        { id: 10, name: "Faith Wambui", studentId: "ST2024010" },
+        { id: 11, name: "Daniel Korir", studentId: "ST2024011" },
+        { id: 12, name: "Rachel Nyambura", studentId: "ST2024012" },
+      ];
+
+      function renderStudents() {
+        const grid = document.getElementById("attendanceGrid");
+        grid.innerHTML = students
+          .map(
+            (student) => `
+                <div class="student-attendance-card">
+                    <div class="student-info">
+                        <div class="student-avatar">${student.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}</div>
+                        <div>
+                            <div class="student-name">${student.name}</div>
+                            <div class="student-id">${student.studentId}</div>
+                        </div>
+                    </div>
+                    <div class="attendance-buttons">
+                        <button class="attendance-btn present" onclick="markAttendance(${student.id}, 'present', this)">Present</button>
+                        <button class="attendance-btn absent" onclick="markAttendance(${student.id}, 'absent', this)">Absent</button>
+                        <button class="attendance-btn late" onclick="markAttendance(${student.id}, 'late', this)">Late</button>
+                    </div>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      function markAttendance(studentId, status, button) {
+        const card = button.closest(".student-attendance-card");
+        const buttons = card.querySelectorAll(".attendance-btn");
+        buttons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+      }
+
+      renderStudents();
+    </script>
+    <script src="../../js/dashboard.js"></script>
+  </body>
+</html>

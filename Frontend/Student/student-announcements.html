@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Announcements - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/student.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+      /* ── Announcement page layout ── */
+      .ann-page-wrap {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.25rem;
+        align-items: start;
+      }
+
+      /* ── Filter row ── */
+      .ann-filter-row {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .ann-search-wrap {
+        flex: 1;
+        min-width: 220px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0 0.75rem;
+        gap: 0.5rem;
+      }
+      .ann-search-wrap .material-symbols-rounded { color: var(--muted-foreground); font-size: 1.1rem; flex-shrink:0; }
+      .ann-search-wrap input {
+        border: none; background: transparent; outline: none;
+        font-size: 0.875rem; color: var(--foreground); width: 100%; padding: 0.55rem 0;
+      }
+      .ann-chip-bar {
+        display: flex;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+      }
+      .ann-chip {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--muted-foreground);
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .ann-chip:hover { border-color: var(--student); color: var(--student); background: var(--student-light); }
+      .ann-chip.active { background: var(--student); color: white; border-color: var(--student); }
+      .ann-chip.urgent.active { background: var(--destructive); border-color: var(--destructive); }
+
+      /* ── Announcement list items ── */
+      .ann-list { display: flex; flex-direction: column; gap: 0.625rem; }
+
+      .ann-item {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem 1.1rem;
+        cursor: pointer;
+        transition: box-shadow 0.15s, border-color 0.15s;
+        position: relative;
+      }
+      .ann-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+      .ann-item.unread { border-left-color: var(--student); background: #fafcff; }
+      .ann-item.school   { border-left-color: var(--primary); }
+      .ann-item.class    { border-left-color: var(--student); }
+      .ann-item.activities { border-left-color: var(--accent); }
+      .ann-item.urgent   { border-left-color: var(--destructive); background: #fff8f8; }
+      .ann-item.boarding { border-left-color: #8b5cf6; }
+      .ann-item.read     { background: var(--muted); border-left-color: var(--border); opacity: 0.8; }
+
+      .ann-item-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.4rem;
+      }
+      .ann-item-icon {
+        width: 34px; height: 34px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        font-size: 1rem;
+      }
+      .ann-item-icon.school    { background: var(--primary-light); color: var(--primary); }
+      .ann-item-icon.class     { background: var(--student-light); color: var(--student); }
+      .ann-item-icon.activities{ background: var(--accent-light); color: var(--accent); }
+      .ann-item-icon.urgent    { background: var(--destructive-light); color: var(--destructive); }
+      .ann-item-icon.boarding  { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+
+      .ann-item-head { flex: 1; min-width: 0; }
+      .ann-item-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        color: var(--foreground);
+        line-height: 1.35;
+      }
+      .ann-item.read .ann-item-title { font-weight: 500; color: var(--muted-foreground); }
+      .ann-item-meta {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
+      .ann-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+      .ann-type-badge {
+        font-size: 0.68rem; font-weight: 700;
+        padding: 1px 7px; border-radius: 10px;
+        text-transform: uppercase; letter-spacing: 0.04em;
+      }
+      .ann-type-badge.school    { background: var(--primary-light); color: var(--primary); }
+      .ann-type-badge.class     { background: var(--student-light); color: var(--student); }
+      .ann-type-badge.activities{ background: var(--accent-light); color: var(--accent); }
+      .ann-type-badge.urgent    { background: var(--destructive-light); color: var(--destructive); }
+      .ann-type-badge.boarding  { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+      .ann-new-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: var(--student); flex-shrink: 0;
+      }
+      .ann-item.read .ann-new-dot { display: none; }
+
+      .ann-item-body {
+        font-size: 0.83rem;
+        color: var(--muted-foreground);
+        line-height: 1.5;
+        margin: 0.3rem 0 0.5rem 2.75rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .ann-item-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-left: 2.75rem;
+      }
+      .ann-item-author {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+        display: flex; align-items: center; gap: 0.3rem;
+      }
+      .ann-item-author .material-symbols-rounded { font-size: 0.9rem; }
+      .ann-read-btn {
+        font-size: 0.72rem; font-weight: 600;
+        color: var(--student);
+        background: none; border: none; cursor: pointer;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        transition: background 0.15s;
+      }
+      .ann-read-btn:hover { background: var(--student-light); }
+      .ann-item.read .ann-read-btn { color: var(--muted-foreground); }
+
+      /* ── Right sidebar ── */
+      .ann-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+      .ann-sidebar-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      .ann-sidebar-header {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 0.5rem;
+        font-weight: 700; font-size: 0.9rem;
+      }
+      .ann-sidebar-header .material-symbols-rounded { font-size: 1.1rem; color: var(--student); }
+
+      .ann-stats-row {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
+      .ann-stat-item {
+        padding: 0.875rem 1rem;
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        text-align: center;
+      }
+      .ann-stat-item:nth-child(even) { border-right: none; }
+      .ann-stat-item:nth-last-child(-n+2) { border-bottom: none; }
+      .ann-stat-num {
+        font-size: 1.6rem; font-weight: 800; line-height: 1;
+        margin-bottom: 3px;
+      }
+      .ann-stat-num.primary    { color: var(--primary); }
+      .ann-stat-num.student    { color: var(--student); }
+      .ann-stat-num.accent     { color: var(--accent); }
+      .ann-stat-num.destructive{ color: var(--destructive); }
+      .ann-stat-lbl { font-size: 0.72rem; color: var(--muted-foreground); font-weight: 600; }
+
+      .ann-pinned-item {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex; flex-direction: column; gap: 0.3rem;
+      }
+      .ann-pinned-item:last-child { border-bottom: none; }
+      .ann-pinned-title { font-size: 0.83rem; font-weight: 600; color: var(--foreground); line-height: 1.35; }
+      .ann-pinned-sub { font-size: 0.72rem; color: var(--muted-foreground); display: flex; align-items: center; gap: 0.3rem; }
+
+      .ann-deadline-item {
+        padding: 0.625rem 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 0.75rem;
+      }
+      .ann-deadline-item:last-child { border-bottom: none; }
+      .ann-deadline-date {
+        min-width: 38px; text-align: center;
+        background: var(--student-light); color: var(--student);
+        border-radius: 8px; padding: 0.25rem 0.3rem;
+      }
+      .ann-deadline-day { font-size: 1.1rem; font-weight: 800; line-height: 1; }
+      .ann-deadline-month { font-size: 0.62rem; font-weight: 600; text-transform: uppercase; }
+      .ann-deadline-text { flex: 1; min-width: 0; }
+      .ann-deadline-title { font-size: 0.8rem; font-weight: 600; line-height: 1.3; }
+      .ann-deadline-sub { font-size: 0.72rem; color: var(--muted-foreground); }
+
+      @media (max-width: 900px) {
+        .ann-page-wrap { grid-template-columns: 1fr; }
+        .ann-sidebar { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="student.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="student-results.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assessment</span><span>My Results</span></a></li>
+            <li><a href="student-attendance.html" class="sidebar-nav-item"><span class="material-symbols-rounded">fact_check</span><span>Attendance</span></a></li>
+            <li><a href="student-timetable.html" class="sidebar-nav-item"><span class="material-symbols-rounded">calendar_month</span><span>Timetable</span></a></li>
+            <li><a href="student-assignments.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assignment</span><span>Assignments</span></a></li>
+            <li><a href="student-activities.html" class="sidebar-nav-item"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="student-announcements.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">announcement</span><span>Announcements</span></a></li>
+            <li><a href="student-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Announcements</h1>
+            <p>School notices, class updates &amp; activity alerts</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="btn btn-outline btn-sm" id="markAllReadBtn">
+              <span class="material-symbols-rounded">done_all</span> Mark All Read
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Alex Mutua</span>
+                <span class="header-user-role">Student · S3A</span>
+              </div>
+              <div class="header-user-av student-av">AM</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Filter row -->
+          <div class="ann-filter-row">
+            <div class="ann-search-wrap">
+              <span class="material-symbols-rounded">search</span>
+              <input type="text" placeholder="Search announcements..." id="annSearch" oninput="filterAnnouncements(this.value)" />
+            </div>
+            <div class="ann-chip-bar" id="annFilter">
+              <button class="ann-chip active" data-filter="all">All <span id="totalCount">(9)</span></button>
+              <button class="ann-chip" data-filter="urgent">🔴 Urgent</button>
+              <button class="ann-chip" data-filter="school">School</button>
+              <button class="ann-chip" data-filter="class">Class</button>
+              <button class="ann-chip" data-filter="activities">Activities</button>
+              <button class="ann-chip" data-filter="boarding">Boarding</button>
+            </div>
+          </div>
+
+          <!-- Two-column layout -->
+          <div class="ann-page-wrap">
+
+            <!-- LEFT: Announcement list -->
+            <div>
+              <div class="ann-list" id="annList">
+
+                <!-- URGENT -->
+                <div class="ann-item urgent unread" data-type="urgent">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon urgent"><span class="material-symbols-rounded">priority_high</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">Exam Schedule Change — Physics Exam Moved to Mar 14</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge urgent">Urgent</span>
+                        <span class="ann-dot"></span>
+                        <span>Mar 8, 2026 · 3:45 PM</span>
+                        <span class="ann-new-dot"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">The Physics Examination originally scheduled for March 12 has been moved to March 14, 2026. All students must confirm receipt with Mr. King. Venue remains Room 302.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>Mr. King (Physics)</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+                <!-- SCHOOL -->
+                <div class="ann-item school unread" data-type="school">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon school"><span class="material-symbols-rounded">school</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">Term 2 Parent-Teacher Conference — March 20</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge school">School</span>
+                        <span class="ann-dot"></span>
+                        <span>Mar 7, 2026 · 10:00 AM</span>
+                        <span class="ann-new-dot"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">The Term 2 Parent-Teacher Conference will be held on Friday, March 20, 2026 from 8:00 AM to 4:00 PM. Parents are invited to meet with subject teachers to discuss student progress.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>Principal Njomo</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+                <!-- CLASS -->
+                <div class="ann-item class unread" data-type="class">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon class"><span class="material-symbols-rounded">class</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">S3A Extra Mathematics Revision — This Week</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge class">Class</span>
+                        <span class="ann-dot"></span>
+                        <span>Mar 6, 2026 · 2:00 PM</span>
+                        <span class="ann-new-dot"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">Ms. Mwangi will hold extra revision sessions for S3A this week — Tuesday and Thursday, 3:30–5:00 PM in Room 201. Attendance strongly encouraged for upcoming CATs.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>Ms. Mwangi (Mathematics)</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+                <!-- ACTIVITIES -->
+                <div class="ann-item activities unread" data-type="activities">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon activities"><span class="material-symbols-rounded">emoji_events</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">Inter-School Science Competition — Registration Open</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge activities">Activities</span>
+                        <span class="ann-dot"></span>
+                        <span>Mar 5, 2026 · 11:30 AM</span>
+                        <span class="ann-new-dot"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">Applications open for the Annual Inter-School Science Competition on April 5, 2026. Submit project proposals to Mr. King or Ms. Achieng by March 18. All science subjects eligible.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>Dr. Ochieng (DOS)</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+                <!-- CLASS (read) -->
+                <div class="ann-item class" data-type="class">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon class"><span class="material-symbols-rounded">assignment</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">English Essay Submission Reminder — Due Mar 15</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge class">Class</span>
+                        <span class="ann-dot"></span>
+                        <span>Mar 3, 2026 · 9:00 AM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">English Literature essay on Shakespeare's Hamlet is due March 15. Submit via student portal or hand to Ms. Omondi before 5:00 PM.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>Ms. Omondi (English)</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+                <!-- SCHOOL (read) -->
+                <div class="ann-item school" data-type="school">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon school"><span class="material-symbols-rounded">local_library</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">Library Extended Hours During Exam Period</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge school">School</span>
+                        <span class="ann-dot"></span>
+                        <span>Feb 28, 2026 · 8:00 AM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">Library open until 7:00 PM from March 10–21. Students must present school ID to access after 4:30 PM.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>School Administration</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+                <!-- ACTIVITIES (read) -->
+                <div class="ann-item activities" data-type="activities">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon activities"><span class="material-symbols-rounded">sports_basketball</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">Basketball Match vs. Hillside Academy — Mar 15</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge activities">Activities</span>
+                        <span class="ann-dot"></span>
+                        <span>Feb 25, 2026 · 4:00 PM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">Girls Basketball Team vs. Hillside Academy — Saturday, March 15 at 10:00 AM on Main Sports Ground. Team members report to Coach Njoroge by 8:30 AM.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>Coach Njoroge (Sports)</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+                <!-- BOARDING -->
+                <div class="ann-item boarding" data-type="boarding">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon boarding"><span class="material-symbols-rounded">hotel</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">Dormitory Curfew Reminder — Lights Out at 10:00 PM</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge boarding">Boarding</span>
+                        <span class="ann-dot"></span>
+                        <span>Feb 20, 2026 · 5:00 PM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">All boarders — curfew is strictly 10:00 PM, lights out 10:15 PM. Violations will result in discipline points deduction. House supervisors conduct nightly checks.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>Mr. Omondi (Director of Discipline)</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+                <!-- SCHOOL (read) -->
+                <div class="ann-item school" data-type="school">
+                  <div class="ann-item-top">
+                    <div class="ann-item-icon activities"><span class="material-symbols-rounded">music_note</span></div>
+                    <div class="ann-item-head">
+                      <div class="ann-item-title">Term 2 End-of-Term Concert — March 28</div>
+                      <div class="ann-item-meta">
+                        <span class="ann-type-badge school">School</span>
+                        <span class="ann-dot"></span>
+                        <span>Feb 18, 2026 · 11:00 AM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ann-item-body">School Choir and Drama Club present the Term 2 Concert on Friday, March 28 at 5:00 PM in the School Auditorium. All students and parents welcome. Admission free.</div>
+                  <div class="ann-item-footer">
+                    <span class="ann-item-author"><span class="material-symbols-rounded">person</span>Mr. Otieno (Music &amp; Arts)</span>
+                    <button class="ann-read-btn" onclick="markRead(this)">Mark Read</button>
+                  </div>
+                </div>
+
+              </div>
+
+              <p id="noAnnMsg" style="display:none;text-align:center;padding:2rem;color:var(--muted-foreground)">No announcements match this filter.</p>
+            </div>
+
+            <!-- RIGHT: Sidebar -->
+            <div class="ann-sidebar">
+
+              <!-- Stats -->
+              <div class="ann-sidebar-card">
+                <div class="ann-sidebar-header">
+                  <span class="material-symbols-rounded">bar_chart</span> Overview
+                </div>
+                <div class="ann-stats-row">
+                  <div class="ann-stat-item">
+                    <div class="ann-stat-num student" id="unreadCount">4</div>
+                    <div class="ann-stat-lbl">Unread</div>
+                  </div>
+                  <div class="ann-stat-item">
+                    <div class="ann-stat-num destructive">1</div>
+                    <div class="ann-stat-lbl">Urgent</div>
+                  </div>
+                  <div class="ann-stat-item">
+                    <div class="ann-stat-num primary">3</div>
+                    <div class="ann-stat-lbl">School</div>
+                  </div>
+                  <div class="ann-stat-item">
+                    <div class="ann-stat-num accent">2</div>
+                    <div class="ann-stat-lbl">Activities</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pinned / Urgent -->
+              <div class="ann-sidebar-card">
+                <div class="ann-sidebar-header" style="color:var(--destructive)">
+                  <span class="material-symbols-rounded" style="color:var(--destructive)">push_pin</span> Pinned — Urgent
+                </div>
+                <div class="ann-pinned-item">
+                  <div class="ann-pinned-title">Physics Exam moved to Mar 14</div>
+                  <div class="ann-pinned-sub">
+                    <span class="material-symbols-rounded" style="font-size:0.9rem">person</span>Mr. King
+                    <span>·</span> Mar 8
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upcoming deadlines -->
+              <div class="ann-sidebar-card">
+                <div class="ann-sidebar-header">
+                  <span class="material-symbols-rounded">event</span> Key Dates
+                </div>
+                <div class="ann-deadline-item">
+                  <div class="ann-deadline-date">
+                    <div class="ann-deadline-day">14</div>
+                    <div class="ann-deadline-month">Mar</div>
+                  </div>
+                  <div class="ann-deadline-text">
+                    <div class="ann-deadline-title">Physics Exam</div>
+                    <div class="ann-deadline-sub">Room 302 · Mr. King</div>
+                  </div>
+                </div>
+                <div class="ann-deadline-item">
+                  <div class="ann-deadline-date">
+                    <div class="ann-deadline-day">15</div>
+                    <div class="ann-deadline-month">Mar</div>
+                  </div>
+                  <div class="ann-deadline-text">
+                    <div class="ann-deadline-title">English Essay Due</div>
+                    <div class="ann-deadline-sub">Submit to Ms. Omondi</div>
+                  </div>
+                </div>
+                <div class="ann-deadline-item">
+                  <div class="ann-deadline-date">
+                    <div class="ann-deadline-day">18</div>
+                    <div class="ann-deadline-month">Mar</div>
+                  </div>
+                  <div class="ann-deadline-text">
+                    <div class="ann-deadline-title">Science Competition Proposal</div>
+                    <div class="ann-deadline-sub">Submit to Mr. King / Ms. Achieng</div>
+                  </div>
+                </div>
+                <div class="ann-deadline-item">
+                  <div class="ann-deadline-date">
+                    <div class="ann-deadline-day">20</div>
+                    <div class="ann-deadline-month">Mar</div>
+                  </div>
+                  <div class="ann-deadline-text">
+                    <div class="ann-deadline-title">Parent-Teacher Conference</div>
+                    <div class="ann-deadline-sub">8:00 AM – 4:00 PM</div>
+                  </div>
+                </div>
+                <div class="ann-deadline-item">
+                  <div class="ann-deadline-date">
+                    <div class="ann-deadline-day">28</div>
+                    <div class="ann-deadline-month">Mar</div>
+                  </div>
+                  <div class="ann-deadline-text">
+                    <div class="ann-deadline-title">End-of-Term Concert</div>
+                    <div class="ann-deadline-sub">5:00 PM · Auditorium</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script>
+      // Filter chips
+      document.querySelectorAll('.ann-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.ann-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          const filter = chip.dataset.filter;
+          let visible = 0;
+          document.querySelectorAll('#annList .ann-item').forEach(item => {
+            const show = filter === 'all' || item.dataset.type === filter;
+            item.style.display = show ? '' : 'none';
+            if (show) visible++;
+          });
+          document.getElementById('noAnnMsg').style.display = visible === 0 ? '' : 'none';
+        });
+      });
+
+      // Search
+      function filterAnnouncements(q) {
+        const lower = q.toLowerCase();
+        let visible = 0;
+        document.querySelectorAll('#annList .ann-item').forEach(item => {
+          const show = item.textContent.toLowerCase().includes(lower);
+          item.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        document.getElementById('noAnnMsg').style.display = visible === 0 ? '' : 'none';
+        // Reset chips
+        if (!q) {
+          document.querySelectorAll('.ann-chip').forEach(c => c.classList.remove('active'));
+          document.querySelector('.ann-chip[data-filter="all"]').classList.add('active');
+        }
+      }
+
+      // Mark single read
+      function markRead(btn) {
+        const item = btn.closest('.ann-item');
+        item.classList.remove('unread');
+        item.classList.add('read');
+        btn.textContent = '✓ Read';
+        updateUnreadCount();
+      }
+
+      // Mark all read
+      document.getElementById('markAllReadBtn').addEventListener('click', () => {
+        document.querySelectorAll('.ann-item.unread').forEach(item => {
+          item.classList.remove('unread');
+          item.classList.add('read');
+          const btn = item.querySelector('.ann-read-btn');
+          if (btn) btn.textContent = '✓ Read';
+        });
+        updateUnreadCount();
+      });
+
+      function updateUnreadCount() {
+        const count = document.querySelectorAll('.ann-item.unread').length;
+        document.getElementById('unreadCount').textContent = count;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/student.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon">
+              <img src="../images/imboni-logo.png" alt="Imboni Logo" />
+            </div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar">
+            <span class="material-symbols-rounded">chevron_left</span>
+          </button>
+          <button class="toggle menu-toggle" aria-label="Open menu">
+            <span class="material-symbols-rounded">menu</span>
+          </button>
+        </header>
+
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="student.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="student-results.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assessment</span><span>My Results</span></a></li>
+            <li><a href="student-attendance.html" class="sidebar-nav-item"><span class="material-symbols-rounded">fact_check</span><span>Attendance</span></a></li>
+            <li><a href="student-timetable.html" class="sidebar-nav-item"><span class="material-symbols-rounded">calendar_month</span><span>Timetable</span></a></li>
+            <li><a href="student-assignments.html" class="sidebar-nav-item"><span class="material-symbols-rounded">assignment</span><span>Assignments</span></a></li>
+            <li><a href="student-activities.html" class="sidebar-nav-item"><span class="material-symbols-rounded">emoji_events</span><span>Activities</span></a></li>
+            <li><a href="student-announcements.html" class="sidebar-nav-item"><span class="material-symbols-rounded">announcement</span><span>Announcements</span></a></li>
+            <li><a href="student-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../Parent/login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Dashboard</h1>
+            <p>Welcome back, Sarah</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">3</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Alex Mutua</span>
+                <span class="header-user-role">Student · S3A</span>
+              </div>
+              <div class="header-user-av student-av">AM</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Welcome Banner -->
+          <div class="student-welcome-banner">
+            <div class="welcome-text">
+              <h2>Good morning, Sarah!</h2>
+              <p>Grade 10A &nbsp;•&nbsp; Student ID: 2024-001 &nbsp;•&nbsp; Monday, March 9, 2026</p>
+            </div>
+            <div class="welcome-chips">
+              <div class="welcome-chip">
+                <span>Term 2</span>
+                <small>Current</small>
+              </div>
+              <div class="welcome-chip">
+                <span>Week 8</span>
+                <small>of 14</small>
+              </div>
+              <div class="welcome-chip">
+                <span>5 days</span>
+                <small>to next exam</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="student-stats-grid">
+            <div class="student-stat-card">
+              <div class="stat-icon blue"><span class="material-symbols-rounded">grade</span></div>
+              <div class="stat-body">
+                <div class="stat-value">3.8</div>
+                <div class="stat-label">Overall GPA</div>
+                <div class="stat-sub">▲ +0.2 this term</div>
+              </div>
+            </div>
+            <div class="student-stat-card">
+              <div class="stat-icon teal"><span class="material-symbols-rounded">fact_check</span></div>
+              <div class="stat-body">
+                <div class="stat-value">96%</div>
+                <div class="stat-label">Attendance</div>
+                <div class="stat-sub">48 / 50 days present</div>
+              </div>
+            </div>
+            <div class="student-stat-card">
+              <div class="stat-icon orange"><span class="material-symbols-rounded">assignment</span></div>
+              <div class="stat-body">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Pending Assignments</div>
+                <div class="stat-sub" style="color:var(--warning)">1 due tomorrow</div>
+              </div>
+            </div>
+            <div class="student-stat-card">
+              <div class="stat-icon yellow"><span class="material-symbols-rounded">event</span></div>
+              <div class="stat-body">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Days to Next Exam</div>
+                <div class="stat-sub" style="color:var(--muted-foreground)">Physics — Mar 14</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Two column layout -->
+          <div class="dashboard-two-col">
+
+            <!-- Today's Schedule -->
+            <div class="today-schedule-card">
+              <div class="section-card-header">
+                <h3><span class="material-symbols-rounded">schedule</span> Today's Schedule</h3>
+                <a href="student-timetable.html" class="btn btn-outline btn-sm">Full Timetable</a>
+              </div>
+              <div class="section-card-body">
+                <div class="schedule-slot">
+                  <span class="schedule-time">07:30</span>
+                  <span class="schedule-dot" style="background:#10b981"></span>
+                  <div class="schedule-info">
+                    <div class="schedule-subject">Mathematics</div>
+                    <div class="schedule-room">Room 201 • Ms. Mwangi</div>
+                  </div>
+                  <span class="schedule-badge badge-done">Done</span>
+                </div>
+                <div class="schedule-slot">
+                  <span class="schedule-time">09:00</span>
+                  <span class="schedule-dot" style="background:#10b981"></span>
+                  <div class="schedule-info">
+                    <div class="schedule-subject">Physics</div>
+                    <div class="schedule-room">Room 302 • Mr. King</div>
+                  </div>
+                  <span class="schedule-badge badge-done">Done</span>
+                </div>
+                <div class="schedule-slot">
+                  <span class="schedule-time">10:30</span>
+                  <span class="schedule-dot" style="background:#0d9488"></span>
+                  <div class="schedule-info">
+                    <div class="schedule-subject">Advanced Physics Lab</div>
+                    <div class="schedule-room">Lab 1 • Mr. King</div>
+                  </div>
+                  <span class="schedule-badge badge-now">Now</span>
+                </div>
+                <div class="schedule-slot">
+                  <span class="schedule-time">12:00</span>
+                  <span class="schedule-dot" style="background:#94a3b8"></span>
+                  <div class="schedule-info">
+                    <div class="schedule-subject">Lunch Break</div>
+                    <div class="schedule-room">Cafeteria</div>
+                  </div>
+                </div>
+                <div class="schedule-slot">
+                  <span class="schedule-time">13:00</span>
+                  <span class="schedule-dot" style="background:#f97316"></span>
+                  <div class="schedule-info">
+                    <div class="schedule-subject">English Literature</div>
+                    <div class="schedule-room">Room 105 • Ms. Omondi</div>
+                  </div>
+                  <span class="schedule-badge badge-next">Next</span>
+                </div>
+                <div class="schedule-slot">
+                  <span class="schedule-time">14:30</span>
+                  <span class="schedule-dot" style="background:#6366f1"></span>
+                  <div class="schedule-info">
+                    <div class="schedule-subject">Chemistry</div>
+                    <div class="schedule-room">Lab 2 • Ms. Achieng</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upcoming Assignments -->
+            <div class="upcoming-assignments-card">
+              <div class="section-card-header">
+                <h3><span class="material-symbols-rounded">assignment</span> Upcoming Assignments</h3>
+                <a href="student-assignments.html" class="btn btn-outline btn-sm">View All</a>
+              </div>
+              <div class="assign-item">
+                <span class="assign-subject-dot" style="background:#f97316"></span>
+                <div class="assign-info">
+                  <div class="assign-title">Physics Lab Report</div>
+                  <div class="assign-subject">Physics • Mr. King</div>
+                </div>
+                <span class="assign-due due-today">Today!</span>
+              </div>
+              <div class="assign-item">
+                <span class="assign-subject-dot" style="background:#0d9488"></span>
+                <div class="assign-info">
+                  <div class="assign-title">Mathematics Problem Set 4</div>
+                  <div class="assign-subject">Mathematics • Ms. Mwangi</div>
+                </div>
+                <span class="assign-due due-soon">Mar 11</span>
+              </div>
+              <div class="assign-item">
+                <span class="assign-subject-dot" style="background:#6366f1"></span>
+                <div class="assign-info">
+                  <div class="assign-title">English Essay Draft</div>
+                  <div class="assign-subject">English • Ms. Omondi</div>
+                </div>
+                <span class="assign-due due-later">Mar 15</span>
+              </div>
+              <div class="assign-item">
+                <span class="assign-subject-dot" style="background:#ec4899"></span>
+                <div class="assign-info">
+                  <div class="assign-title">Chemistry Worksheet</div>
+                  <div class="assign-subject">Chemistry • Ms. Achieng</div>
+                </div>
+                <span class="assign-due due-later">Mar 17</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Recent Grades -->
+          <div class="card mb-1-5">
+            <div class="card-header">
+              <h3 class="card-title">Recent Grades</h3>
+              <a href="student-results.html" class="btn btn-outline btn-sm">Full Report</a>
+            </div>
+            <div class="card-content">
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Assessment</th>
+                      <th>Score</th>
+                      <th>Grade</th>
+                      <th>Date</th>
+                      <th>Teacher</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Mathematics</strong></td>
+                      <td>Quiz 4</td>
+                      <td>85%</td>
+                      <td><span class="badge" style="background:var(--success-light);color:var(--success)">A</span></td>
+                      <td>Mar 7, 2026</td>
+                      <td>Ms. Mwangi</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Physics</strong></td>
+                      <td>CAT 2</td>
+                      <td>78%</td>
+                      <td><span class="badge" style="background:var(--student-light);color:var(--student)">B+</span></td>
+                      <td>Mar 5, 2026</td>
+                      <td>Mr. King</td>
+                    </tr>
+                    <tr>
+                      <td><strong>English</strong></td>
+                      <td>Essay 2</td>
+                      <td>92%</td>
+                      <td><span class="badge" style="background:var(--success-light);color:var(--success)">A+</span></td>
+                      <td>Mar 3, 2026</td>
+                      <td>Ms. Omondi</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Chemistry</strong></td>
+                      <td>Lab Report</td>
+                      <td>71%</td>
+                      <td><span class="badge" style="background:var(--warning-light);color:var(--warning)">B</span></td>
+                      <td>Feb 28, 2026</td>
+                      <td>Ms. Achieng</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

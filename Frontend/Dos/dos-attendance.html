@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance - Imboni Education Connects</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dos.css" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon">
+              <img src="../images/imboni-logo.png" alt="Imboni Logo" />
+            </div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li>
+              <a href="dos.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">dashboard</span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-analytics.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">analytics</span>
+                <span>Analytics</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-results-approval.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">check_circle</span>
+                <span>Results Approval</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-teachers.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">school</span>
+                <span>Teachers</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-students.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">group</span>
+                <span>Students</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-attendance.html" class="sidebar-nav-item active">
+                <span class="material-symbols-rounded">fact_check</span>
+                <span>Attendance</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-exam-schedule.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_today</span>
+                <span>Exams Schedule</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-timetable.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_view_week</span>
+                <span>Timetable</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-announcement.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">announcement</span>
+                <span>Announcements</span>
+              </a>
+            </li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li>
+              <a href="../Parent/account.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">account_circle</span>
+                <span>Account</span>
+              </a>
+            </li>
+            <li>
+              <a href="index.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">logout</span>
+                <span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn">
+            <span class="material-symbols-rounded">menu</span>
+          </button>
+          <div class="dashboard-header-title">
+            <h1>Attendance</h1>
+            <p>Track student and teacher attendance by class</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, March 09, 2026</span>
+            <button class="notification-btn">
+              <span class="material-symbols-rounded">notifications</span>
+              <span class="notification-badge">2</span>
+            </button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Dr. Samuel Oduya</span>
+                <span class="header-user-role">Director of Studies</span>
+              </div>
+              <div class="header-user-av dos-av">SO</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Stats -->
+          <div class="quick-stats">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon success">
+                  <span class="material-symbols-rounded">how_to_reg</span>
+                </div>
+                <span class="stat-trend positive">This week</span>
+              </div>
+              <div class="stat-value">94%</div>
+              <div class="stat-label">Student Attendance Rate</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon warning">
+                  <span class="material-symbols-rounded">person_off</span>
+                </div>
+                <span class="stat-trend negative">Needs follow-up</span>
+              </div>
+              <div class="stat-value">73</div>
+              <div class="stat-label">Absent Today</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon info">
+                  <span class="material-symbols-rounded">schedule</span>
+                </div>
+                <span class="stat-trend neutral">This week</span>
+              </div>
+              <div class="stat-value">18</div>
+              <div class="stat-label">Late Arrivals</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon success">
+                  <span class="material-symbols-rounded">supervisor_account</span>
+                </div>
+                <span class="stat-trend positive">Today</span>
+              </div>
+              <div class="stat-value">98%</div>
+              <div class="stat-label">Teacher Attendance Rate</div>
+            </div>
+          </div>
+
+          <!-- View Mode Toggle -->
+          <div class="att-mode-bar">
+            <button class="att-mode-btn active" onclick="setMode('student', this)">
+              <span class="material-symbols-rounded">groups</span> Student Attendance
+            </button>
+            <button class="att-mode-btn" onclick="setMode('teacher', this)">
+              <span class="material-symbols-rounded">person</span> Teacher Attendance
+            </button>
+          </div>
+
+          <!-- ── STUDENT ATTENDANCE VIEW ── -->
+          <div id="student-view">
+
+            <!-- 3-dropdown class picker (same logic as Students page) -->
+            <div class="dos-picker mt-1-5">
+              <div class="dos-picker-group">
+                <label class="dos-picker-label" for="att-section">Section</label>
+                <select class="dos-picker-select" id="att-section" onchange="onAttSectionChange()">
+                  <option value="ordinary">Ordinary Level</option>
+                  <option value="advanced">Advanced Level</option>
+                </select>
+              </div>
+              <span class="dos-picker-arrow material-symbols-rounded">chevron_right</span>
+              <div class="dos-picker-group">
+                <label class="dos-picker-label" for="att-year">Year</label>
+                <select class="dos-picker-select" id="att-year" onchange="renderAttendance()">
+                  <option value="S1">S1</option>
+                  <option value="S2">S2</option>
+                  <option value="S3">S3</option>
+                </select>
+              </div>
+              <span class="dos-picker-arrow material-symbols-rounded">chevron_right</span>
+              <div class="dos-picker-group">
+                <label class="dos-picker-label" for="att-class">Class</label>
+                <select class="dos-picker-select" id="att-class" onchange="renderAttendance()">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>
+              <div class="dos-picker-group">
+                <label class="dos-picker-label" for="att-week">Week of</label>
+                <input type="date" class="dos-picker-select" id="att-week" value="2026-03-09" onchange="renderAttendance()" />
+              </div>
+              <div class="dos-picker-badge">
+                <span class="material-symbols-rounded">fact_check</span>
+                <span id="att-badge-label">S1A · Ordinary</span>
+              </div>
+            </div>
+
+            <!-- Student Attendance Table -->
+            <div class="card mt-1-5">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title" id="att-card-title">S1A — Weekly Attendance</h2>
+                  <p class="dos-class-meta" id="att-class-meta">Week: 09 Mar – 13 Mar 2026 &bull; Class Teacher: Mrs. Alice Kamau</p>
+                </div>
+                <div class="att-legend">
+                  <span class="att-pip present">P</span> Present
+                  <span class="att-pip absent">A</span> Absent
+                  <span class="att-pip late">L</span> Late
+                  <span class="att-pip excused">E</span> Excused
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="tm-table-wrap">
+                  <table class="tm-table">
+                    <thead>
+                      <tr>
+                        <th>Student</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Present</th>
+                        <th>Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody id="att-student-tbody">
+                      <!-- Rendered by JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /student-view -->
+
+          <!-- ── TEACHER ATTENDANCE VIEW ── -->
+          <div id="teacher-view" class="tm-hidden">
+            <div class="card mt-1-5">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Teacher Attendance — Week of 09 Mar 2026</h2>
+                  <p class="dos-class-meta">All teaching staff &bull; 85 teachers</p>
+                </div>
+                <div class="att-legend">
+                  <span class="att-pip present">P</span> Present
+                  <span class="att-pip absent">A</span> Absent
+                  <span class="att-pip late">L</span> Late
+                  <span class="att-pip excused">E</span> Excused
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="tm-table-wrap">
+                  <table class="tm-table">
+                    <thead>
+                      <tr>
+                        <th>Teacher</th>
+                        <th>Subject</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody id="att-teacher-tbody">
+                      <!-- Rendered by JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div><!-- /teacher-view -->
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script>
+      /* ==========================================================
+         ATTENDANCE DATA — student weekly register per class
+         Status per day: P=Present, A=Absent, L=Late, E=Excused
+      ========================================================== */
+      const ATT_CLASSES = {
+        'S1A': { teacher:'Mrs. Alice Kamau', students:[
+          { name:'Aisha Kamau',      init:'AK', week:['P','P','P','P','P'] },
+          { name:'Brian Omondi',     init:'BO', week:['P','A','P','P','P'] },
+          { name:'Carol Wanjiku',    init:'CW', week:['P','P','P','P','P'] },
+          { name:'David Kipchoge',   init:'DK', week:['A','A','P','L','P'] },
+          { name:'Eve Adhiambo',     init:'EA', week:['P','P','P','P','P'] },
+          { name:'Frank Mutua',      init:'FM', week:['P','P','L','P','P'] },
+          { name:'Grace Simiyu',     init:'GS', week:['P','P','P','P','P'] },
+          { name:'Henry Njoroge',    init:'HN', week:['E','P','P','P','A'] },
+        ]},
+        'S1B': { teacher:'Mr. Bernard Omondi', students:[
+          { name:'Irene Auma',       init:'IA', week:['P','P','P','P','P'] },
+          { name:'James Kamau',      init:'JK', week:['P','P','P','P','P'] },
+          { name:'Kezia Otieno',     init:'KO', week:['P','L','P','P','P'] },
+          { name:'Lawrence Mwangi',  init:'LM', week:['P','P','P','P','P'] },
+          { name:'Mary Ndirangu',    init:'MN', week:['A','P','P','P','P'] },
+          { name:'Nathan Simiyu',    init:'NS', week:['P','P','P','P','P'] },
+          { name:'Olivia Njoroge',   init:'ON', week:['P','P','A','P','P'] },
+        ]},
+        'S1C': { teacher:'Ms. Carol Wanjiku', students:[
+          { name:'Patrick Kimani',   init:'PK', week:['P','P','P','P','P'] },
+          { name:'Queen Adhiambo',   init:'QA', week:['P','P','P','L','P'] },
+          { name:'Raymond Mutua',    init:'RM', week:['P','P','P','P','P'] },
+          { name:'Sharon Wangari',   init:'SW', week:['A','P','P','P','P'] },
+          { name:'Thomas Odhiambo',  init:'TO', week:['P','P','P','P','P'] },
+          { name:'Ursula Kamau',     init:'UK', week:['P','P','E','P','P'] },
+        ]},
+        'S2A': { teacher:'Mr. Daniel Kipchoge', students:[
+          { name:'Victor Omondi',    init:'VO', week:['P','P','P','P','P'] },
+          { name:'Winnie Simiyu',    init:'WS', week:['P','P','P','P','L'] },
+          { name:'Xavier Njoroge',   init:'XN', week:['P','P','P','P','P'] },
+          { name:'Yvonne Auma',      init:'YA', week:['A','P','P','P','P'] },
+          { name:'Zachary Kimani',   init:'ZK', week:['P','P','P','P','P'] },
+          { name:'Abigail Mwangi',   init:'AM', week:['P','L','P','P','P'] },
+          { name:'Benedict Otieno',  init:'BO', week:['P','P','P','A','P'] },
+          { name:'Clara Ndirangu',   init:'CN', week:['P','P','P','P','P'] },
+        ]},
+        'S2B': { teacher:'Mrs. Eve Adhiambo', students:[
+          { name:'Dennis Kipchoge',  init:'DK', week:['P','P','P','P','P'] },
+          { name:'Esther Wanjiku',   init:'EW', week:['P','P','P','P','P'] },
+          { name:'Francis Mutua',    init:'FM', week:['A','P','P','L','P'] },
+          { name:'Gloria Omondi',    init:'GO', week:['P','P','P','P','P'] },
+          { name:'Herman Kamau',     init:'HK', week:['P','P','P','P','P'] },
+          { name:'Irene Simiyu',     init:'IS', week:['P','A','P','P','P'] },
+        ]},
+        'S2C': { teacher:'Mr. Frank Mwangi', students:[
+          { name:'Janet Njoroge',    init:'JN', week:['P','P','P','P','P'] },
+          { name:'Kevin Auma',       init:'KA', week:['P','P','L','P','P'] },
+          { name:'Laura Kimani',     init:'LK', week:['P','P','P','P','P'] },
+          { name:'Moses Otieno',     init:'MO', week:['P','P','P','P','P'] },
+          { name:'Nancy Mwangi',     init:'NM', week:['A','P','P','P','P'] },
+          { name:'Oscar Ndirangu',   init:'ON', week:['P','P','P','P','P'] },
+        ]},
+        'S3A': { teacher:'Mrs. Grace Auma', students:[
+          { name:'Pamela Omondi',    init:'PO', week:['P','P','P','P','P'] },
+          { name:'Quincy Kamau',     init:'QK', week:['P','L','P','P','P'] },
+          { name:'Rachel Wanjiku',   init:'RW', week:['P','P','P','P','P'] },
+          { name:'Samuel Mutua',     init:'SM', week:['A','P','P','A','P'] },
+          { name:'Tabitha Simiyu',   init:'TS', week:['P','P','P','P','P'] },
+          { name:'Umar Njoroge',     init:'UN', week:['P','P','P','P','P'] },
+          { name:'Violet Auma',      init:'VA', week:['P','P','E','P','P'] },
+        ]},
+        'S3B': { teacher:'Mr. Henry Njoroge', students:[
+          { name:'Walter Kimani',    init:'WK', week:['P','P','P','P','P'] },
+          { name:'Xenia Otieno',     init:'XO', week:['P','P','P','P','P'] },
+          { name:'Yosef Mwangi',     init:'YM', week:['A','P','P','P','P'] },
+          { name:'Zoe Ndirangu',     init:'ZN', week:['P','P','P','P','P'] },
+          { name:'Aaron Omondi',     init:'AO', week:['P','L','P','P','P'] },
+          { name:'Betty Kamau',      init:'BK', week:['P','P','P','P','P'] },
+        ]},
+        'S3C': { teacher:'Ms. Irene Simiyu', students:[
+          { name:'Charles Wanjiku',  init:'CW', week:['P','P','P','P','P'] },
+          { name:'Diana Mutua',      init:'DM', week:['P','P','P','P','P'] },
+          { name:'Edwin Simiyu',     init:'ES', week:['P','A','P','P','P'] },
+          { name:'Faith Njoroge',    init:'FN', week:['P','P','P','P','P'] },
+          { name:'George Auma',      init:'GA', week:['L','P','P','P','P'] },
+          { name:'Hannah Kimani',    init:'HK', week:['P','P','P','P','P'] },
+        ]},
+        'S4A': { teacher:'Mr. James Mutua', students:[
+          { name:'Ian Otieno',       init:'IO', week:['P','P','P','P','P'] },
+          { name:'Jane Mwangi',      init:'JM', week:['P','P','P','P','P'] },
+          { name:'Kevin Ndirangu',   init:'KN', week:['A','P','P','P','P'] },
+          { name:'Linda Omondi',     init:'LO', week:['P','P','P','P','P'] },
+          { name:'Mark Kamau',       init:'MK', week:['P','P','P','P','P'] },
+          { name:'Nancy Wanjiku',    init:'NW', week:['P','L','P','P','P'] },
+          { name:'Oliver Mutua',     init:'OM', week:['P','P','P','P','P'] },
+          { name:'Priscilla Simiyu', init:'PS', week:['P','P','E','P','P'] },
+        ]},
+        'S4B': { teacher:'Mrs. Kezia Otieno', students:[
+          { name:'Quentin Njoroge',  init:'QN', week:['P','P','P','P','P'] },
+          { name:'Ruth Auma',        init:'RA', week:['P','P','P','P','P'] },
+          { name:'Steve Kimani',     init:'SK', week:['P','P','A','P','P'] },
+          { name:'Tina Otieno',      init:'TO', week:['P','P','P','P','P'] },
+          { name:'Ulrich Mwangi',    init:'UM', week:['L','P','P','P','P'] },
+          { name:'Vivian Ndirangu',  init:'VN', week:['P','P','P','P','P'] },
+        ]},
+        'S4C': { teacher:'Mr. Lawrence Kamau', students:[
+          { name:'Wesley Omondi',    init:'WO', week:['P','P','P','P','P'] },
+          { name:'Ximena Kamau',     init:'XK', week:['P','P','P','L','P'] },
+          { name:'Yusuf Wanjiku',    init:'YW', week:['P','P','P','P','P'] },
+          { name:'Zara Mutua',       init:'ZM', week:['A','P','P','P','P'] },
+          { name:'Adam Simiyu',      init:'AS', week:['P','P','P','P','P'] },
+          { name:'Bella Njoroge',    init:'BN', week:['P','P','P','P','A'] },
+        ]},
+        'S5A': { teacher:'Mr. Patrick Kimani', students:[
+          { name:'Christine Uwera',     init:'CU', week:['P','P','P','P','P'] },
+          { name:'Desire Nkurunziza',   init:'DN', week:['P','L','P','P','P'] },
+          { name:'Eric Habimana',       init:'EH', week:['P','P','P','P','P'] },
+          { name:'Francine Mukamana',   init:'FM', week:['A','P','P','P','P'] },
+          { name:'Gilbert Niyomugabo',  init:'GN', week:['P','P','P','P','P'] },
+          { name:'Honorine Uwimana',    init:'HU', week:['P','P','P','P','P'] },
+        ]},
+        'S5B': { teacher:'Mrs. Queen Adhiambo', students:[
+          { name:'Innocent Nzeyimana',     init:'IN', week:['P','P','P','P','P'] },
+          { name:'Josephine Mukeshimana',  init:'JM', week:['P','P','P','A','P'] },
+          { name:'Kevin Hakizimana',       init:'KH', week:['P','P','P','P','P'] },
+          { name:'Laetitia Iradukunda',    init:'LI', week:['L','P','P','P','P'] },
+          { name:'Manzi Nshimiyimana',     init:'MN', week:['P','P','P','P','P'] },
+        ]},
+        'S5C': { teacher:'Mr. Raymond Mutua', students:[
+          { name:'Nadine Kayitesi',    init:'NK', week:['P','P','P','P','P'] },
+          { name:'Omar Mugisha',       init:'OM', week:['P','P','A','P','P'] },
+          { name:'Pascaline Uwineza',  init:'PU', week:['P','P','P','P','P'] },
+          { name:'Regis Ntirandekura', init:'RN', week:['P','L','P','P','P'] },
+          { name:'Solange Mukashyaka', init:'SM', week:['P','P','P','P','P'] },
+        ]},
+        'S6A': { teacher:'Mrs. Sharon Wangari', students:[
+          { name:'Theogene Nkurunziza',   init:'TN', week:['P','P','P','P','P'] },
+          { name:'Umutoni Uwase',         init:'UU', week:['P','P','P','P','P'] },
+          { name:'Vestine Mukamana',      init:'VM', week:['P','P','P','P','P'] },
+          { name:'Wellars Habimana',      init:'WH', week:['A','P','P','P','P'] },
+          { name:'Xaverie Imanishimwe',   init:'XI', week:['P','P','L','P','P'] },
+          { name:'Yolande Nyirahabimana', init:'YN', week:['P','P','P','P','P'] },
+        ]},
+        'S6B': { teacher:'Mr. Thomas Odhiambo', students:[
+          { name:'Zacharie Niyonzima',     init:'ZN', week:['P','P','P','P','P'] },
+          { name:'Ange Mukeshimana',       init:'AM', week:['P','P','P','P','P'] },
+          { name:'Bertrand Hategekimana', init:'BH', week:['P','A','P','P','P'] },
+          { name:'Clarisse Uwimana',       init:'CU', week:['P','P','P','P','P'] },
+          { name:'Didier Nzabonimpa',      init:'DN', week:['L','P','P','P','P'] },
+        ]},
+        'S6C': { teacher:'Ms. Ursula Kamau', students:[
+          { name:'Elise Mukamanzi',         init:'EM', week:['P','P','P','P','P'] },
+          { name:'Faustin Nsanzimana',       init:'FN', week:['P','P','P','L','P'] },
+          { name:'Generose Nyiransengimana', init:'GN', week:['P','P','P','P','P'] },
+          { name:'Herve Nkurunziza',         init:'HN', week:['A','P','P','P','P'] },
+          { name:'Immaculee Mukagasana',     init:'IM', week:['P','P','P','P','P'] },
+        ]},
+      };
+
+      /* Teacher attendance data */
+      const ATT_TEACHERS = [
+        { name:'Mrs. Alice Kamau',      init:'AK', subject:'Mathematics',        week:['P','P','P','P','P'] },
+        { name:'Mr. Bernard Omondi',    init:'BO', subject:'Mathematics',        week:['P','P','P','P','P'] },
+        { name:'Ms. Carol Wanjiku',     init:'CW', subject:'English',            week:['P','L','P','P','P'] },
+        { name:'Mr. Daniel Kipchoge',   init:'DK', subject:'English',            week:['P','P','P','P','P'] },
+        { name:'Mrs. Eve Adhiambo',     init:'EA', subject:'Biology',            week:['P','P','P','P','P'] },
+        { name:'Mr. Frank Mwangi',      init:'FM', subject:'Chemistry',          week:['A','P','P','P','P'] },
+        { name:'Mrs. Grace Auma',       init:'GA', subject:'Physics',            week:['P','P','P','P','P'] },
+        { name:'Mr. Henry Njoroge',     init:'HN', subject:'History',            week:['P','P','P','P','P'] },
+        { name:'Ms. Irene Simiyu',      init:'IS', subject:'Geography',          week:['P','P','P','P','P'] },
+        { name:'Mr. James Mutua',       init:'JM', subject:'Kiswahili',          week:['P','P','L','P','P'] },
+        { name:'Mrs. Kezia Otieno',     init:'KO', subject:'CRE',               week:['P','P','P','P','P'] },
+        { name:'Mr. Lawrence Kamau',    init:'LK', subject:'Computer Studies',   week:['P','P','P','P','P'] },
+        { name:'Ms. Mary Ndirangu',     init:'MN', subject:'Mathematics',        week:['P','P','P','P','P'] },
+        { name:'Mr. Patrick Kimani',    init:'PK', subject:'French',             week:['P','P','P','L','P'] },
+        { name:'Mrs. Queen Adhiambo',   init:'QA', subject:'Literature',         week:['P','P','P','P','P'] },
+        { name:'Mr. Raymond Mutua',     init:'RM', subject:'Economics',          week:['P','P','P','P','P'] },
+        { name:'Mrs. Sharon Wangari',   init:'SW', subject:'Business Studies',   week:['P','P','P','P','P'] },
+        { name:'Mr. Thomas Odhiambo',   init:'TO', subject:'Agriculture',        week:['P','P','P','P','P'] },
+        { name:'Ms. Ursula Kamau',      init:'UK', subject:'Art & Design',       week:['P','A','P','P','P'] },
+        { name:'Mr. Victor Njoroge',    init:'VN', subject:'Physical Education', week:['P','P','P','P','P'] },
+      ];
+
+      /* ==========================================================
+         MODE TOGGLE
+      ========================================================== */
+      let currentMode = 'student';
+
+      function setMode(mode, btn) {
+        currentMode = mode;
+        document.querySelectorAll('.att-mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('student-view').classList.toggle('tm-hidden', mode !== 'student');
+        document.getElementById('teacher-view').classList.toggle('tm-hidden', mode !== 'teacher');
+        if (mode === 'teacher') renderTeacherAttendance();
+      }
+
+      /* ==========================================================
+         STUDENT PICKER LOGIC
+      ========================================================== */
+      const ORD_YEARS = ['S1','S2','S3'];
+      const ADV_YEARS = ['S4','S5','S6'];
+
+      function onAttSectionChange() {
+        const sec   = document.getElementById('att-section').value;
+        const years = sec === 'ordinary' ? ORD_YEARS : ADV_YEARS;
+        const sel   = document.getElementById('att-year');
+        sel.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        renderAttendance();
+      }
+
+      /* ==========================================================
+         RENDER STUDENT ATTENDANCE TABLE
+      ========================================================== */
+      const DAYS = ['Mon','Tue','Wed','Thu','Fri'];
+
+      function attPip(status) {
+        const map = { P:'present', A:'absent', L:'late', E:'excused' };
+        return `<span class="att-pip ${map[status] || 'present'}">${status}</span>`;
+      }
+
+      function attRate(week) {
+        const present = week.filter(d => d === 'P' || d === 'L').length;
+        return Math.round((present / week.length) * 100);
+      }
+
+      function renderAttendance() {
+        const year    = document.getElementById('att-year').value;
+        const cls_id  = document.getElementById('att-class').value;
+        const section = document.getElementById('att-section').value;
+        const key     = year + cls_id;
+        const sLabel  = section === 'ordinary' ? 'Ordinary Level' : 'Advanced Level';
+        const cls     = ATT_CLASSES[key];
+
+        document.getElementById('att-badge-label').textContent    = key + ' · ' + sLabel;
+        document.getElementById('att-card-title').textContent      = key + ' — Weekly Attendance';
+        document.getElementById('att-class-meta').textContent      =
+          'Week: 09 Mar – 13 Mar 2026 · Class Teacher: ' + cls.teacher;
+
+        const tbody = document.getElementById('att-student-tbody');
+        tbody.innerHTML = cls.students.map(s => {
+          const present = s.week.filter(d => d === 'P' || d === 'L').length;
+          const rate    = Math.round((present / 5) * 100);
+          const rateClass = rate === 100 ? 'dos-stand-excellent' : rate >= 80 ? 'dos-stand-good' : 'dos-stand-concern';
+          return `<tr>
+            <td>
+              <div class="tm-teacher-cell">
+                <div class="tm-av dos-stud-av">${s.init}</div>
+                <div class="tm-name">${s.name}</div>
+              </div>
+            </td>
+            ${s.week.map(d => `<td>${attPip(d)}</td>`).join('')}
+            <td><strong>${present}/5</strong></td>
+            <td><span class="dos-standing ${rateClass}">${rate}%</span></td>
+          </tr>`;
+        }).join('');
+      }
+
+      /* ==========================================================
+         RENDER TEACHER ATTENDANCE TABLE
+      ========================================================== */
+      function renderTeacherAttendance() {
+        const tbody = document.getElementById('att-teacher-tbody');
+        tbody.innerHTML = ATT_TEACHERS.map(t => {
+          const present = t.week.filter(d => d === 'P' || d === 'L').length;
+          const rate    = Math.round((present / 5) * 100);
+          const rateClass = rate === 100 ? 'dos-stand-excellent' : rate >= 80 ? 'dos-stand-good' : 'dos-stand-concern';
+          return `<tr>
+            <td>
+              <div class="tm-teacher-cell">
+                <div class="tm-av math">${t.init}</div>
+                <div class="tm-name">${t.name}</div>
+              </div>
+            </td>
+            <td class="tm-id">${t.subject}</td>
+            ${t.week.map(d => `<td>${attPip(d)}</td>`).join('')}
+            <td><span class="dos-standing ${rateClass}">${rate}%</span></td>
+          </tr>`;
+        }).join('');
+      }
+
+      /* Initial render */
+      renderAttendance();
+    </script>
+  </body>
+</html>

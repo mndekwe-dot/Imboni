@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Students - Imboni Education Connects</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0"
+    />
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dos.css" />
+  </head>
+  <body>
+    <!-- Allows users to skip the sidebar navigation and jump directly to the main content. -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <!-- For mobile responsiveness -->
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <!-- PART 1: LOGO SECTION - FIRST (AT TOP) -->
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon">
+              <img src="../images/imboni-logo.png" alt="Imboni Logo" />
+            </div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li>
+              <a href="dos.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">dashboard</span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-analytics.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">analytics</span>
+                <span>Analytics</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-results-approval.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">fact_check</span>
+                <span>Results Approval</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-teachers.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">school</span>
+                <span>Teachers</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-students.html" class="sidebar-nav-item active">
+                <span class="material-symbols-rounded">group</span>
+                <span>Students</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-attendance.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">check_circle</span>
+                <span>Attendance</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-exam-schedule.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_today</span>
+                <span>Exams Schedule</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-timetable.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">calendar_view_week</span>
+                <span>Timetable</span>
+              </a>
+            </li>
+            <li>
+              <a href="dos-announcement.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">announcement</span>
+                <span>Announcements</span>
+              </a>
+            </li>
+          </ul>
+          <!-- Secondary Navigation (Bottom) -->
+          <ul class="nav-list secondary-nav">
+            <li>
+              <a href="../Parent/account.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">account_circle</span>
+                <span>Account</span>
+              </a>
+            </li>
+            <li>
+              <a href="index.html" class="sidebar-nav-item">
+                <span class="material-symbols-rounded">logout</span>
+                <span>Logout</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn">
+            <span class="material-symbols-rounded">menu</span>
+          </button>
+          <div class="dashboard-header-title">
+            <h1>Student Management</h1>
+            <p>Monitor student enrollment and performance</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Monday, February 09, 2026</span>
+            <button class="btn btn-primary">Add Student</button>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Dr. Samuel Oduya</span>
+                <span class="header-user-role">Director of Studies</span>
+              </div>
+              <div class="header-user-av dos-av">SO</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+          <div class="quick-stats">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon info">
+                  <span class="material-symbols-rounded">people</span>
+                </div>
+                <span class="stat-trend positive">+15 this term</span>
+              </div>
+              <div class="stat-value">1,245</div>
+              <div class="stat-label">Total Students</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon success">
+                  <span class="material-symbols-rounded">check_circle</span>
+                </div>
+                <span class="stat-trend positive">96% enrollment</span>
+              </div>
+              <div class="stat-value">1,198</div>
+              <div class="stat-label">Active Students</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon warning">
+                  <span class="material-symbols-rounded">person_add</span>
+                </div>
+                <span class="stat-trend neutral">This term</span>
+              </div>
+              <div class="stat-value">47</div>
+              <div class="stat-label">New Admissions</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon success">
+                  <span class="material-symbols-rounded">trending_up</span>
+                </div>
+                <span class="stat-trend positive">+3% improvement</span>
+              </div>
+              <div class="stat-value">78%</div>
+              <div class="stat-label">Average Performance</div>
+            </div>
+          </div>
+
+          <!-- Class Picker — 3 cascading dropdowns -->
+          <div class="dos-picker">
+            <div class="dos-picker-group">
+              <label class="dos-picker-label" for="pick-section">Section</label>
+              <select class="dos-picker-select" id="pick-section" onchange="onSectionChange()">
+                <option value="ordinary">Ordinary Level</option>
+                <option value="advanced">Advanced Level</option>
+              </select>
+            </div>
+            <span class="dos-picker-arrow material-symbols-rounded">chevron_right</span>
+            <div class="dos-picker-group">
+              <label class="dos-picker-label" for="pick-year">Year</label>
+              <select class="dos-picker-select" id="pick-year" onchange="renderClass()">
+                <option value="S1">S1</option>
+                <option value="S2">S2</option>
+                <option value="S3">S3</option>
+              </select>
+            </div>
+            <span class="dos-picker-arrow material-symbols-rounded">chevron_right</span>
+            <div class="dos-picker-group">
+              <label class="dos-picker-label" for="pick-class">Class</label>
+              <select class="dos-picker-select" id="pick-class" onchange="renderClass()">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+              </select>
+            </div>
+            <div class="dos-picker-badge">
+              <span class="material-symbols-rounded">groups</span>
+              <span id="picker-badge-label">S1A · Ordinary</span>
+            </div>
+          </div>
+
+          <!-- Class Student Table -->
+          <div class="card mt-1-5">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title" id="class-card-title">Form 1A — Students</h2>
+                <p class="dos-class-meta" id="class-meta">Class Teacher: Mrs. Alice Kamau &bull; <span id="class-count">8</span> students</p>
+              </div>
+              <div class="search-box dos-class-search">
+                <span class="material-symbols-rounded">search</span>
+                <input type="text" id="student-search" placeholder="Search in this class..." oninput="filterStudents()" />
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="tm-table-wrap">
+                <table class="tm-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Adm No.</th>
+                      <th>House</th>
+                      <th>Term 1</th>
+                      <th>Term 2</th>
+                      <th>Current</th>
+                      <th>Standing</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="student-tbody">
+                    <!-- Rendered by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+    <script>
+      /* ============================================================
+         CLASS DATA — keyed by year+class (e.g. S1A, S4B)
+         t1/t2/curr = percentage averages; standing auto-computed
+      ============================================================ */
+      const CLASSES = {
+        'S1A': { teacher: 'Mrs. Alice Kamau', students: [
+          { adm:'ADM-2026-001', name:'Aisha Kamau',      init:'AK', house:'Marigold',  t1:74, t2:78, curr:81 },
+          { adm:'ADM-2026-002', name:'Brian Omondi',     init:'BO', house:'Baobab',    t1:65, t2:68, curr:70 },
+          { adm:'ADM-2026-003', name:'Carol Wanjiku',    init:'CW', house:'Jacaranda', t1:88, t2:91, curr:90 },
+          { adm:'ADM-2026-004', name:'David Kipchoge',   init:'DK', house:'Acacia',    t1:55, t2:52, curr:58 },
+          { adm:'ADM-2026-005', name:'Eve Adhiambo',     init:'EA', house:'Marigold',  t1:79, t2:82, curr:84 },
+          { adm:'ADM-2026-006', name:'Frank Mutua',      init:'FM', house:'Baobab',    t1:61, t2:65, curr:67 },
+          { adm:'ADM-2026-007', name:'Grace Simiyu',     init:'GS', house:'Jacaranda', t1:93, t2:95, curr:94 },
+          { adm:'ADM-2026-008', name:'Henry Njoroge',    init:'HN', house:'Acacia',    t1:48, t2:55, curr:59 },
+        ]},
+        'S1B': { teacher: 'Mr. Bernard Omondi', students: [
+          { adm:'ADM-2026-009', name:'Irene Auma',       init:'IA', house:'Marigold',  t1:72, t2:74, curr:76 },
+          { adm:'ADM-2026-010', name:'James Kamau',      init:'JK', house:'Baobab',    t1:83, t2:85, curr:87 },
+          { adm:'ADM-2026-011', name:'Kezia Otieno',     init:'KO', house:'Jacaranda', t1:60, t2:63, curr:65 },
+          { adm:'ADM-2026-012', name:'Lawrence Mwangi',  init:'LM', house:'Acacia',    t1:77, t2:80, curr:82 },
+          { adm:'ADM-2026-013', name:'Mary Ndirangu',    init:'MN', house:'Marigold',  t1:50, t2:53, curr:56 },
+          { adm:'ADM-2026-014', name:'Nathan Simiyu',    init:'NS', house:'Baobab',    t1:88, t2:90, curr:91 },
+          { adm:'ADM-2026-015', name:'Olivia Njoroge',   init:'ON', house:'Jacaranda', t1:69, t2:72, curr:74 },
+        ]},
+        'S1C': { teacher: 'Ms. Carol Wanjiku', students: [
+          { adm:'ADM-2026-016', name:'Patrick Kimani',   init:'PK', house:'Acacia',    t1:75, t2:77, curr:79 },
+          { adm:'ADM-2026-017', name:'Queen Adhiambo',   init:'QA', house:'Marigold',  t1:62, t2:66, curr:68 },
+          { adm:'ADM-2026-018', name:'Raymond Mutua',    init:'RM', house:'Baobab',    t1:85, t2:88, curr:89 },
+          { adm:'ADM-2026-019', name:'Sharon Wangari',   init:'SW', house:'Jacaranda', t1:54, t2:58, curr:61 },
+          { adm:'ADM-2026-020', name:'Thomas Odhiambo',  init:'TO', house:'Acacia',    t1:80, t2:83, curr:85 },
+          { adm:'ADM-2026-021', name:'Ursula Kamau',     init:'UK', house:'Marigold',  t1:71, t2:73, curr:75 },
+        ]},
+        'S2A': { teacher: 'Mr. Daniel Kipchoge', students: [
+          { adm:'ADM-2025-001', name:'Victor Omondi',    init:'VO', house:'Baobab',    t1:78, t2:80, curr:82 },
+          { adm:'ADM-2025-002', name:'Winnie Simiyu',    init:'WS', house:'Jacaranda', t1:66, t2:70, curr:72 },
+          { adm:'ADM-2025-003', name:'Xavier Njoroge',   init:'XN', house:'Acacia',    t1:91, t2:93, curr:94 },
+          { adm:'ADM-2025-004', name:'Yvonne Auma',      init:'YA', house:'Marigold',  t1:57, t2:60, curr:63 },
+          { adm:'ADM-2025-005', name:'Zachary Kimani',   init:'ZK', house:'Baobab',    t1:84, t2:86, curr:88 },
+          { adm:'ADM-2025-006', name:'Abigail Mwangi',   init:'AM', house:'Jacaranda', t1:73, t2:76, curr:78 },
+          { adm:'ADM-2025-007', name:'Benedict Otieno',  init:'BO', house:'Acacia',    t1:60, t2:64, curr:66 },
+          { adm:'ADM-2025-008', name:'Clara Ndirangu',   init:'CN', house:'Marigold',  t1:87, t2:89, curr:90 },
+        ]},
+        'S2B': { teacher: 'Mrs. Eve Adhiambo', students: [
+          { adm:'ADM-2025-009', name:'Dennis Kipchoge',  init:'DK', house:'Baobab',    t1:70, t2:73, curr:75 },
+          { adm:'ADM-2025-010', name:'Esther Wanjiku',   init:'EW', house:'Jacaranda', t1:82, t2:84, curr:86 },
+          { adm:'ADM-2025-011', name:'Francis Mutua',    init:'FM', house:'Acacia',    t1:49, t2:54, curr:57 },
+          { adm:'ADM-2025-012', name:'Gloria Omondi',    init:'GO', house:'Marigold',  t1:76, t2:78, curr:80 },
+          { adm:'ADM-2025-013', name:'Herman Kamau',     init:'HK', house:'Baobab',    t1:88, t2:91, curr:92 },
+          { adm:'ADM-2025-014', name:'Irene Simiyu',     init:'IS', house:'Jacaranda', t1:63, t2:67, curr:69 },
+        ]},
+        'S2C': { teacher: 'Mr. Frank Mwangi', students: [
+          { adm:'ADM-2025-015', name:'Janet Njoroge',    init:'JN', house:'Acacia',    t1:79, t2:81, curr:83 },
+          { adm:'ADM-2025-016', name:'Kevin Auma',       init:'KA', house:'Marigold',  t1:55, t2:59, curr:62 },
+          { adm:'ADM-2025-017', name:'Laura Kimani',     init:'LK', house:'Baobab',    t1:86, t2:88, curr:89 },
+          { adm:'ADM-2025-018', name:'Moses Otieno',     init:'MO', house:'Jacaranda', t1:71, t2:74, curr:76 },
+          { adm:'ADM-2025-019', name:'Nancy Mwangi',     init:'NM', house:'Acacia',    t1:64, t2:68, curr:70 },
+          { adm:'ADM-2025-020', name:'Oscar Ndirangu',   init:'ON', house:'Marigold',  t1:90, t2:92, curr:93 },
+        ]},
+        'S3A': { teacher: 'Mrs. Grace Auma', students: [
+          { adm:'ADM-2024-001', name:'Pamela Omondi',    init:'PO', house:'Baobab',    t1:80, t2:83, curr:85 },
+          { adm:'ADM-2024-002', name:'Quincy Kamau',     init:'QK', house:'Jacaranda', t1:67, t2:71, curr:73 },
+          { adm:'ADM-2024-003', name:'Rachel Wanjiku',   init:'RW', house:'Acacia',    t1:92, t2:94, curr:95 },
+          { adm:'ADM-2024-004', name:'Samuel Mutua',     init:'SM', house:'Marigold',  t1:58, t2:61, curr:64 },
+          { adm:'ADM-2024-005', name:'Tabitha Simiyu',   init:'TS', house:'Baobab',    t1:77, t2:79, curr:81 },
+          { adm:'ADM-2024-006', name:'Umar Njoroge',     init:'UN', house:'Jacaranda', t1:85, t2:87, curr:88 },
+          { adm:'ADM-2024-007', name:'Violet Auma',      init:'VA', house:'Acacia',    t1:61, t2:65, curr:67 },
+        ]},
+        'S3B': { teacher: 'Mr. Henry Njoroge', students: [
+          { adm:'ADM-2024-008', name:'Walter Kimani',    init:'WK', house:'Marigold',  t1:74, t2:77, curr:79 },
+          { adm:'ADM-2024-009', name:'Xenia Otieno',     init:'XO', house:'Baobab',    t1:83, t2:86, curr:87 },
+          { adm:'ADM-2024-010', name:'Yosef Mwangi',     init:'YM', house:'Jacaranda', t1:52, t2:56, curr:59 },
+          { adm:'ADM-2024-011', name:'Zoe Ndirangu',     init:'ZN', house:'Acacia',    t1:89, t2:91, curr:92 },
+          { adm:'ADM-2024-012', name:'Aaron Omondi',     init:'AO', house:'Marigold',  t1:66, t2:69, curr:71 },
+          { adm:'ADM-2024-013', name:'Betty Kamau',      init:'BK', house:'Baobab',    t1:78, t2:81, curr:83 },
+        ]},
+        'S3C': { teacher: 'Ms. Irene Simiyu', students: [
+          { adm:'ADM-2024-014', name:'Charles Wanjiku',  init:'CW', house:'Jacaranda', t1:70, t2:73, curr:76 },
+          { adm:'ADM-2024-015', name:'Diana Mutua',      init:'DM', house:'Acacia',    t1:86, t2:89, curr:90 },
+          { adm:'ADM-2024-016', name:'Edwin Simiyu',     init:'ES', house:'Marigold',  t1:60, t2:63, curr:65 },
+          { adm:'ADM-2024-017', name:'Faith Njoroge',    init:'FN', house:'Baobab',    t1:81, t2:84, curr:86 },
+          { adm:'ADM-2024-018', name:'George Auma',      init:'GA', house:'Jacaranda', t1:54, t2:57, curr:60 },
+          { adm:'ADM-2024-019', name:'Hannah Kimani',    init:'HK', house:'Acacia',    t1:93, t2:95, curr:96 },
+        ]},
+        'S4A': { teacher: 'Mr. James Mutua', students: [
+          { adm:'ADM-2023-001', name:'Ian Otieno',       init:'IO', house:'Marigold',  t1:79, t2:82, curr:84 },
+          { adm:'ADM-2023-002', name:'Jane Mwangi',      init:'JM', house:'Baobab',    t1:88, t2:91, curr:93 },
+          { adm:'ADM-2023-003', name:'Kevin Ndirangu',   init:'KN', house:'Jacaranda', t1:62, t2:65, curr:67 },
+          { adm:'ADM-2023-004', name:'Linda Omondi',     init:'LO', house:'Acacia',    t1:75, t2:78, curr:80 },
+          { adm:'ADM-2023-005', name:'Mark Kamau',       init:'MK', house:'Marigold',  t1:91, t2:93, curr:95 },
+          { adm:'ADM-2023-006', name:'Nancy Wanjiku',    init:'NW', house:'Baobab',    t1:55, t2:58, curr:61 },
+          { adm:'ADM-2023-007', name:'Oliver Mutua',     init:'OM', house:'Jacaranda', t1:83, t2:86, curr:88 },
+          { adm:'ADM-2023-008', name:'Priscilla Simiyu', init:'PS', house:'Acacia',    t1:70, t2:74, curr:76 },
+        ]},
+        'S4B': { teacher: 'Mrs. Kezia Otieno', students: [
+          { adm:'ADM-2023-009', name:'Quentin Njoroge',  init:'QN', house:'Marigold',  t1:77, t2:80, curr:82 },
+          { adm:'ADM-2023-010', name:'Ruth Auma',        init:'RA', house:'Baobab',    t1:85, t2:88, curr:89 },
+          { adm:'ADM-2023-011', name:'Steve Kimani',     init:'SK', house:'Jacaranda', t1:51, t2:55, curr:58 },
+          { adm:'ADM-2023-012', name:'Tina Otieno',      init:'TO', house:'Acacia',    t1:80, t2:83, curr:85 },
+          { adm:'ADM-2023-013', name:'Ulrich Mwangi',    init:'UM', house:'Marigold',  t1:67, t2:70, curr:72 },
+          { adm:'ADM-2023-014', name:'Vivian Ndirangu',  init:'VN', house:'Baobab',    t1:88, t2:90, curr:91 },
+        ]},
+        'S4C': { teacher: 'Mr. Lawrence Kamau', students: [
+          { adm:'ADM-2023-015', name:'Wesley Omondi',    init:'WO', house:'Jacaranda', t1:73, t2:76, curr:78 },
+          { adm:'ADM-2023-016', name:'Ximena Kamau',     init:'XK', house:'Acacia',    t1:60, t2:63, curr:66 },
+          { adm:'ADM-2023-017', name:'Yusuf Wanjiku',    init:'YW', house:'Marigold',  t1:87, t2:89, curr:91 },
+          { adm:'ADM-2023-018', name:'Zara Mutua',       init:'ZM', house:'Baobab',    t1:64, t2:68, curr:70 },
+          { adm:'ADM-2023-019', name:'Adam Simiyu',      init:'AS', house:'Jacaranda', t1:82, t2:85, curr:87 },
+          { adm:'ADM-2023-020', name:'Bella Njoroge',    init:'BN', house:'Acacia',    t1:45, t2:50, curr:53 },
+        ]},
+        'S5A': { teacher: 'Mr. Patrick Kimani', students: [
+          { adm:'ADM-2022-001', name:'Christine Uwera',  init:'CU', house:'Marigold',  t1:82, t2:85, curr:87 },
+          { adm:'ADM-2022-002', name:'Desire Nkurunziza',init:'DN', house:'Baobab',    t1:70, t2:74, curr:76 },
+          { adm:'ADM-2022-003', name:'Eric Habimana',    init:'EH', house:'Jacaranda', t1:91, t2:93, curr:94 },
+          { adm:'ADM-2022-004', name:'Francine Mukamana',init:'FM', house:'Acacia',    t1:58, t2:62, curr:65 },
+          { adm:'ADM-2022-005', name:'Gilbert Niyomugabo',init:'GN',house:'Marigold',  t1:77, t2:80, curr:82 },
+          { adm:'ADM-2022-006', name:'Honorine Uwimana', init:'HU', house:'Baobab',    t1:86, t2:88, curr:89 },
+        ]},
+        'S5B': { teacher: 'Mrs. Queen Adhiambo', students: [
+          { adm:'ADM-2022-007', name:'Innocent Nzeyimana',init:'IN',house:'Jacaranda', t1:63, t2:67, curr:69 },
+          { adm:'ADM-2022-008', name:'Josephine Mukeshimana',init:'JM',house:'Acacia', t1:79, t2:82, curr:84 },
+          { adm:'ADM-2022-009', name:'Kevin Hakizimana',  init:'KH', house:'Marigold', t1:88, t2:91, curr:92 },
+          { adm:'ADM-2022-010', name:'Laetitia Iradukunda',init:'LI',house:'Baobab',   t1:54, t2:58, curr:61 },
+          { adm:'ADM-2022-011', name:'Manzi Nshimiyimana',init:'MN', house:'Jacaranda',t1:75, t2:78, curr:80 },
+        ]},
+        'S5C': { teacher: 'Mr. Raymond Mutua', students: [
+          { adm:'ADM-2022-012', name:'Nadine Kayitesi',   init:'NK', house:'Acacia',   t1:81, t2:83, curr:85 },
+          { adm:'ADM-2022-013', name:'Omar Mugisha',       init:'OM', house:'Marigold', t1:67, t2:71, curr:73 },
+          { adm:'ADM-2022-014', name:'Pascaline Uwineza',  init:'PU', house:'Baobab',  t1:90, t2:92, curr:93 },
+          { adm:'ADM-2022-015', name:'Regis Ntirandekura', init:'RN', house:'Jacaranda',t1:56, t2:60, curr:63 },
+          { adm:'ADM-2022-016', name:'Solange Mukashyaka', init:'SM', house:'Acacia',  t1:84, t2:86, curr:88 },
+        ]},
+        'S6A': { teacher: 'Mrs. Sharon Wangari', students: [
+          { adm:'ADM-2021-001', name:'Theogene Nkurunziza',init:'TN',house:'Marigold', t1:83, t2:86, curr:88 },
+          { adm:'ADM-2021-002', name:'Umutoni Uwase',      init:'UU', house:'Baobab',  t1:71, t2:75, curr:77 },
+          { adm:'ADM-2021-003', name:'Vestine Mukamana',   init:'VM', house:'Jacaranda',t1:92, t2:94, curr:95 },
+          { adm:'ADM-2021-004', name:'Wellars Habimana',   init:'WH', house:'Acacia',  t1:60, t2:64, curr:67 },
+          { adm:'ADM-2021-005', name:'Xaverie Imanishimwe',init:'XI',house:'Marigold', t1:78, t2:81, curr:83 },
+          { adm:'ADM-2021-006', name:'Yolande Nyirahabimana',init:'YN',house:'Baobab', t1:87, t2:89, curr:91 },
+        ]},
+        'S6B': { teacher: 'Mr. Thomas Odhiambo', students: [
+          { adm:'ADM-2021-007', name:'Zacharie Niyonzima', init:'ZN', house:'Jacaranda',t1:74, t2:77, curr:79 },
+          { adm:'ADM-2021-008', name:'Ange Mukeshimana',   init:'AM', house:'Acacia',  t1:85, t2:88, curr:89 },
+          { adm:'ADM-2021-009', name:'Bertrand Hategekimana',init:'BH',house:'Marigold',t1:52, t2:56, curr:59 },
+          { adm:'ADM-2021-010', name:'Clarisse Uwimana',   init:'CU', house:'Baobab',  t1:80, t2:83, curr:85 },
+          { adm:'ADM-2021-011', name:'Didier Nzabonimpa',  init:'DN', house:'Jacaranda',t1:66, t2:70, curr:72 },
+        ]},
+        'S6C': { teacher: 'Ms. Ursula Kamau', students: [
+          { adm:'ADM-2021-012', name:'Elise Mukamanzi',    init:'EM', house:'Acacia',  t1:88, t2:90, curr:92 },
+          { adm:'ADM-2021-013', name:'Faustin Nsanzimana', init:'FN', house:'Marigold', t1:62, t2:66, curr:68 },
+          { adm:'ADM-2021-014', name:'Generose Nyiransengimana',init:'GN',house:'Baobab',t1:79, t2:82, curr:84 },
+          { adm:'ADM-2021-015', name:'Herve Nkurunziza',   init:'HN', house:'Jacaranda',t1:46, t2:51, curr:54 },
+          { adm:'ADM-2021-016', name:'Immaculee Mukagasana',init:'IM',house:'Acacia',  t1:91, t2:93, curr:95 },
+        ]},
+      };
+
+      /* ============================================================
+         PICKER — Section → Year → Class
+      ============================================================ */
+      const ORDINARY_YEARS = ['S1','S2','S3'];
+      const ADVANCED_YEARS = ['S4','S5','S6'];
+
+      function onSectionChange() {
+        const section = document.getElementById('pick-section').value;
+        const years   = section === 'ordinary' ? ORDINARY_YEARS : ADVANCED_YEARS;
+        const yearSel = document.getElementById('pick-year');
+        yearSel.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        renderClass();
+      }
+
+      function standing(avg) {
+        if (avg >= 80) return { label: 'Excellent', cls: 'dos-stand-excellent' };
+        if (avg >= 60) return { label: 'Good',      cls: 'dos-stand-good' };
+        return { label: 'Concern', cls: 'dos-stand-concern' };
+      }
+
+      function houseClass(house) {
+        return { Marigold:'marigold', Baobab:'baobab', Jacaranda:'jacaranda', Acacia:'acacia' }[house] || '';
+      }
+
+      function renderClass(query) {
+        const year    = document.getElementById('pick-year').value;
+        const cls_id  = document.getElementById('pick-class').value;
+        const section = document.getElementById('pick-section').value;
+        const key     = year + cls_id;
+        const sectionLabel = section === 'ordinary' ? 'Ordinary Level' : 'Advanced Level';
+        const cls = CLASSES[key];
+
+        document.getElementById('picker-badge-label').textContent = key + ' · ' + sectionLabel;
+        document.getElementById('class-card-title').textContent   = key + ' — Students';
+        document.getElementById('class-meta').innerHTML =
+          'Class Teacher: ' + cls.teacher + ' &bull; <span id="class-count">' + cls.students.length + '</span> students';
+
+        const q = (query !== undefined ? query : (document.getElementById('student-search').value || '')).toLowerCase();
+        const filtered = q ? cls.students.filter(s => s.name.toLowerCase().includes(q) || s.adm.toLowerCase().includes(q)) : cls.students;
+
+        const tbody = document.getElementById('student-tbody');
+        tbody.innerHTML = filtered.length ? filtered.map(s => {
+          const st = standing(s.curr);
+          return `<tr>
+            <td>
+              <div class="tm-teacher-cell">
+                <div class="tm-av dos-stud-av">${s.init}</div>
+                <div class="tm-name">${s.name}</div>
+              </div>
+            </td>
+            <td class="tm-id">${s.adm}</td>
+            <td><span class="disc-badge ${houseClass(s.house)}">${s.house}</span></td>
+            <td>${s.t1}%</td>
+            <td>${s.t2}%</td>
+            <td><strong>${s.curr}%</strong></td>
+            <td><span class="dos-standing ${st.cls}">${st.label}</span></td>
+            <td><button class="tm-btn">View Profile</button></td>
+          </tr>`;
+        }).join('') : '<tr><td colspan="8" class="text-center" style="padding:2rem;color:var(--muted-foreground)">No students match your search.</td></tr>';
+      }
+
+      function filterStudents() {
+        renderClass(document.getElementById('student-search').value);
+      }
+
+      /* Initial render */
+      renderClass();
+    </script>
+  </body>
+</html>

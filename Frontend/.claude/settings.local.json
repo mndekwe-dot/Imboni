@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/user/OneDrive/Documents/Academic/ Doc/Imboni_Dev/pages/**)",
+      "Read(//c/Users/user/OneDrive/Documents/Academic/ Doc/Imboni_Dev/Parent/**)",
+      "Read(//c/Users/user/OneDrive/Documents/Academic/ Doc/Imboni_Dev/Teacher/**)",
+      "Bash(python3:*)"
+    ]
+  }
+}
