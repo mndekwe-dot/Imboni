@@ -59,6 +59,9 @@ INSTALLED_APPS = [
     'messages.apps.MessagesConfig',
     'dos',
     'parents',
+    'student',
+    'discipline',
+    'matron',
 ]
 
 MIDDLEWARE = [

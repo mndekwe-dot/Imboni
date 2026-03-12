@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python manage.py shell -c \":*)"
+      "Bash(python manage.py shell -c \":*)",
+      "Bash(../benv/Scripts/python -c \":*)",
+      "Bash(../benv/Scripts/python manage.py migrate)",
+      "Bash(git -C c:/Users/user/Documents/Imboni log --oneline -3)",
+      "Bash(git -C c:/Users/user/Documents/Imboni diff --stat HEAD)"
     ]
   }
 }

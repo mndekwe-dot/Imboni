@@ -13,4 +13,7 @@ urlpatterns = [
     path('imboni/', include('behavior.urls')),
     path('imboni/', include('announcements.urls')),
     path('imboni/', include('dos.urls')),
+    path('imboni/', include('student.urls')),
+    path('imboni/', include('discipline.urls')),
+    path('imboni/', include('matron.urls')),
 ]
