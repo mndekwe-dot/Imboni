@@ -127,3 +127,32 @@ class DiningPlan(models.Model):
 
     def __str__(self):
         return f"{self.student} — {self.get_plan_type_display()}"
+
+
+class NightAttendance(models.Model):
+    """Evening roll call — records which boarding students are present each night."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(
+        BoardingStudent,
+        on_delete=models.CASCADE,
+        related_name='night_attendances',
+    )
+    date = models.DateField()
+    is_present = models.BooleanField(default=True)
+    notes = models.CharField(max_length=200, blank=True)
+    recorded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='night_checks_recorded',
+    )
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'night_attendance'
+        unique_together = ('student', 'date')
+
+    def __str__(self):
+        status = 'Present' if self.is_present else 'Absent'
+        return f"{self.student} — {self.date} — {status}"

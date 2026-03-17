@@ -336,3 +336,89 @@ class MatronScheduleView(APIView):
         ]
 
         return Response({'schedule': schedule, 'date': str(target_date), 'day': target_day})
+
+
+# ---------------------------------------------------------------------------
+# Night Attendance Check
+# ---------------------------------------------------------------------------
+
+class MatronNightCheckView(APIView):
+    """
+    GET  /imboni/matron/night-check/?date=YYYY-MM-DD
+    POST /imboni/matron/night-check/
+         body: {date, records: [{boarding_student_id, is_present, notes}]}
+    """
+
+    def get(self, request):
+        from discipline.models import BoardingStudent, NightAttendance
+        from django.utils import timezone
+
+        date_str = request.query_params.get('date')
+        if date_str:
+            from datetime import date as _date, datetime
+            try:
+                check_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                return Response({'detail': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
+        else:
+            check_date = timezone.localdate()
+
+        boarders = BoardingStudent.objects.filter(is_active=True).select_related('student__user')
+        records  = {
+            na.student_id: na
+            for na in NightAttendance.objects.filter(date=check_date)
+        }
+
+        data = []
+        for b in boarders:
+            na = records.get(b.id)
+            data.append({
+                'boarding_student_id': str(b.id),
+                'student_id':          str(b.student.id),
+                'full_name':           '%s %s' % (b.student.user.first_name, b.student.user.last_name),
+                'dormitory':           b.dormitory,
+                'room_number':         b.room_number,
+                'is_present':          na.is_present if na else None,
+                'notes':               na.notes if na else '',
+                'checked':             na is not None,
+            })
+
+        return Response({'date': str(check_date), 'boarders': data})
+
+    def post(self, request):
+        from discipline.models import BoardingStudent, NightAttendance
+        from django.utils import timezone
+
+        d = request.data
+        date_str = d.get('date')
+        if not date_str:
+            return Response({'detail': 'date is required.'}, status=400)
+
+        from datetime import datetime
+        try:
+            check_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return Response({'detail': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
+
+        records = d.get('records', [])
+        saved = 0
+        for rec in records:
+            bid = rec.get('boarding_student_id')
+            if not bid:
+                continue
+            try:
+                boarder = BoardingStudent.objects.get(pk=bid)
+            except BoardingStudent.DoesNotExist:
+                continue
+            NightAttendance.objects.update_or_create(
+                student=boarder,
+                date=check_date,
+                defaults={
+                    'is_present':   bool(rec.get('is_present', True)),
+                    'notes':        rec.get('notes', ''),
+                    'recorded_by':  request.user if request.user.is_authenticated else None,
+                },
+            )
+            saved += 1
+
+        return Response({'detail': 'Night check saved.', 'saved': saved})

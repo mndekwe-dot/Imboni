@@ -15,4 +15,7 @@ urlpatterns = [
 
     # Schedule
     path('matron/schedule/',                views.MatronScheduleView.as_view(),         name='matron-schedule'),
+
+    # Night Attendance Check
+    path('matron/night-check/',             views.MatronNightCheckView.as_view(),       name='matron-night-check'),
 ]

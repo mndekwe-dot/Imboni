@@ -206,3 +206,46 @@ class CSVImportSerializer(serializers.Serializer):
     file             = serializers.FileField()
     default_password = serializers.CharField(required=False, default='Imboni@2025', min_length=8)
     enrollment_date  = serializers.DateField(required=False, allow_null=True)
+
+
+# ---------------------------------------------------------------------------
+# Results Approval
+# ---------------------------------------------------------------------------
+
+class DOSResultSerializer(serializers.Serializer):
+    id              = serializers.UUIDField()
+    student         = serializers.CharField()
+    student_id_code = serializers.CharField()
+    grade           = serializers.CharField()
+    section         = serializers.CharField()
+    subject         = serializers.CharField()
+    term            = serializers.CharField()
+    quiz_average    = serializers.FloatField(allow_null=True)
+    group_work      = serializers.FloatField(allow_null=True)
+    exam_score      = serializers.FloatField()
+    final_score     = serializers.FloatField()
+    grade_letter    = serializers.CharField()
+    teacher_comment = serializers.CharField()
+    dos_comment     = serializers.CharField()
+    status          = serializers.CharField()
+    submitted_at    = serializers.CharField(allow_null=True)
+    teacher         = serializers.CharField()
+
+
+# ---------------------------------------------------------------------------
+# Exam Schedule
+# ---------------------------------------------------------------------------
+
+class ExamScheduleSerializer(serializers.Serializer):
+    id          = serializers.UUIDField()
+    title       = serializers.CharField()
+    subject     = serializers.CharField()
+    class_name  = serializers.CharField(allow_null=True)
+    term        = serializers.CharField()
+    exam_date   = serializers.DateField()
+    start_time  = serializers.TimeField()
+    end_time    = serializers.TimeField()
+    venue       = serializers.CharField()
+    exam_type   = serializers.CharField()
+    invigilator = serializers.CharField(allow_null=True)
+    notes       = serializers.CharField()

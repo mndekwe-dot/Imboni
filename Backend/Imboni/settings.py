@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'django_filters',
     # Local apps
     'authentication',
-    'debug_toolbar',
     'results',
     'attendance',
     'behavior',
@@ -73,8 +72,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+# Debug toolbar — only load in development
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
 ROOT_URLCONF = 'Imboni.urls'
 
@@ -107,6 +110,12 @@ DATABASES = {
         'PASSWORD': 'mercermerc123@M',
         'HOST': '127.0.0.1',
         'PORT': 3306,
+        # Keep connections open — avoids reconnect overhead on every request
+        'CONN_MAX_AGE': 60,
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
@@ -149,7 +158,7 @@ STATIC_URL = 'static/'
 
 # Media files configuration
 MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Custom user model
 AUTH_USER_MODEL = 'authentication.User'
@@ -173,6 +182,13 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    # Return JSON faster — disable the browsable HTML API in production
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ] if not DEBUG else [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
 }
 
 # Simple JWT configuration
@@ -182,6 +198,17 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# Cache — swap 'LocMemCache' for Redis in production:
+#   pip install django-redis
+#   'BACKEND': 'django_redis.cache.RedisCache'
+#   'LOCATION': 'redis://127.0.0.1:6379/1'
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'imboni-cache',
+    }
 }
 
 # CORS configuration

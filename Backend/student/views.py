@@ -126,8 +126,15 @@ class StudentDashboardView(APIView):
                 .select_related('subject')
                 .order_by('due_date')[:5]
             )
+            # Pre-fetch all submissions in one query instead of one per assignment
+            subs_map = {
+                s.assignment_id: s
+                for s in AssignmentSubmission.objects.filter(
+                    student=student, assignment__in=upcoming
+                )
+            }
             for a in upcoming:
-                sub = AssignmentSubmission.objects.filter(assignment=a, student=student).first()
+                sub = subs_map.get(a.id)
                 upcoming_list.append({
                     'id': str(a.id),
                     'title': a.title,
@@ -704,9 +711,17 @@ class StudentAssignmentsView(APIView):
         status_filter = request.query_params.get('status')
         today = date.today()
 
+        # Pre-fetch all submissions in one query instead of one per assignment
+        subs_map = {
+            s.assignment_id: s
+            for s in AssignmentSubmission.objects.filter(
+                student=student, assignment__in=assignments
+            )
+        }
+
         result = []
         for a in assignments:
-            sub = AssignmentSubmission.objects.filter(assignment=a, student=student).first()
+            sub = subs_map.get(a.id)
 
             if sub:
                 computed_status = sub.status
@@ -771,3 +786,50 @@ class StudentAssignmentSubmitView(APIView):
             'id': str(submission.id),
             'status': sub_status,
         }, status=201)
+
+
+# ---------------------------------------------------------------------------
+# Student Profile
+# ---------------------------------------------------------------------------
+
+class StudentProfileView(APIView):
+    """GET /imboni/student/profile/"""
+
+    def get(self, request):
+        from parents.models import Student
+        from results.models import AcademicTerm, Result
+        from attendance.models import Attendance
+        from django.db.models import Avg
+
+        if not request.user.is_authenticated:
+            return Response({'detail': 'Authentication required.'}, status=401)
+
+        try:
+            student = Student.objects.select_related('user').get(user=request.user)
+        except Student.DoesNotExist:
+            return Response({'detail': 'Student profile not found.'}, status=404)
+
+        term = AcademicTerm.objects.filter(is_current=True).first()
+
+        avg_perf = Result.objects.filter(
+            student=student, term=term, status='approved'
+        ).aggregate(a=Avg('final_score'))['a'] if term else None
+
+        att_qs    = Attendance.objects.filter(student=student, term=term) if term else Attendance.objects.none()
+        att_total = att_qs.count()
+        att_pres  = att_qs.filter(status='present').count()
+        att_rate  = round(att_pres / att_total * 100, 1) if att_total else None
+
+        return Response({
+            'student_id':     str(student.id),
+            'student_code':   student.student_id,
+            'first_name':     student.user.first_name,
+            'last_name':      student.user.last_name,
+            'email':          student.user.email,
+            'grade':          student.grade,
+            'section':        student.section,
+            'status':         student.status,
+            'enrollment_date': str(student.enrollment_date),
+            'avg_performance': round(avg_perf, 1) if avg_perf is not None else None,
+            'attendance_rate': att_rate,
+        })

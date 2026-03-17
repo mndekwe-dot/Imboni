@@ -31,6 +31,8 @@ from .serializers import (
     BulkAddStudentsSerializer,
     BulkCreateResultSerializer,
     CSVImportSerializer,
+    DOSResultSerializer,
+    ExamScheduleSerializer,
 )
 
 
@@ -1122,3 +1124,373 @@ class ImportStudentsCSVView(APIView):
             else http_status.HTTP_400_BAD_REQUEST
         )
         return Response(BulkCreateResultSerializer(result).data, status=status_code)
+
+
+# ---------------------------------------------------------------------------
+# Results Approval
+# ---------------------------------------------------------------------------
+
+class DOSResultsListView(APIView):
+    """GET /imboni/dos/results/ -- list results with optional filters."""
+
+    def get(self, request):
+        from results.models import Result
+        qs = Result.objects.select_related(
+            'student__user', 'subject', 'term', 'teacher'
+        ).order_by('-submitted_at')
+
+        status_filter  = request.query_params.get('status')
+        grade_filter   = request.query_params.get('grade')
+        subject_filter = request.query_params.get('subject_id')
+        term_filter    = request.query_params.get('term_id')
+
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        if grade_filter:
+            qs = qs.filter(student__grade=grade_filter)
+        if subject_filter:
+            qs = qs.filter(subject_id=subject_filter)
+        if term_filter:
+            qs = qs.filter(term_id=term_filter)
+
+        data = []
+        for r in qs:
+            s = r.student
+            data.append({
+                'id':               str(r.id),
+                'student':          '%s %s' % (s.user.first_name, s.user.last_name),
+                'student_id_code':  s.student_id,
+                'grade':            s.grade,
+                'section':          s.section,
+                'subject':          r.subject.name,
+                'term':             str(r.term),
+                'quiz_average':     r.quiz_average,
+                'group_work':       r.group_work,
+                'exam_score':       r.exam_score,
+                'final_score':      r.final_score,
+                'grade_letter':     r.grade_letter,
+                'teacher_comment':  r.teacher_comment,
+                'dos_comment':      r.dos_comment or '',
+                'status':           r.status,
+                'submitted_at':     r.submitted_at.isoformat() if r.submitted_at else None,
+                'teacher':          ('%s %s' % (r.teacher.first_name, r.teacher.last_name)) if r.teacher else '',
+            })
+        return Response(DOSResultSerializer(data, many=True).data)
+
+
+class DOSResultApproveView(APIView):
+    """PATCH /imboni/dos/results/<pk>/approve/"""
+
+    def patch(self, request, pk):
+        from results.models import Result
+        try:
+            result = Result.objects.get(pk=pk)
+        except Result.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+
+        if result.status != 'submitted':
+            return Response(
+                {'detail': 'Cannot approve a result with status %s.' % result.status},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        result.status      = 'approved'
+        result.dos_comment = request.data.get('dos_comment', result.dos_comment or '')
+        result.save(update_fields=['status', 'dos_comment'])
+        return Response({'detail': 'Result approved.'})
+
+
+class DOSResultRejectView(APIView):
+    """PATCH /imboni/dos/results/<pk>/reject/"""
+
+    def patch(self, request, pk):
+        from results.models import Result
+        try:
+            result = Result.objects.get(pk=pk)
+        except Result.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+
+        if result.status != 'submitted':
+            return Response(
+                {'detail': 'Cannot reject a result with status %s.' % result.status},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        result.status      = 'rejected'
+        result.dos_comment = request.data.get('dos_comment', result.dos_comment or '')
+        result.save(update_fields=['status', 'dos_comment'])
+        return Response({'detail': 'Result rejected.'})
+
+
+class DOSResultBulkApproveView(APIView):
+    """POST /imboni/dos/results/bulk-approve/  body: {ids: [uuid, ...]}"""
+
+    def post(self, request):
+        from results.models import Result
+        ids = request.data.get('ids', [])
+        if not ids:
+            return Response({'detail': 'No ids provided.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        updated = Result.objects.filter(id__in=ids, status='submitted').update(status='approved')
+        return Response({'approved': updated})
+
+
+# ---------------------------------------------------------------------------
+# Exam Schedule
+# ---------------------------------------------------------------------------
+
+class ExamScheduleListView(APIView):
+    """GET /imboni/dos/exam-schedule/  |  POST /imboni/dos/exam-schedule/"""
+
+    def get(self, request):
+        from .models import ExamSchedule
+        term_id = request.query_params.get('term_id')
+        qs = ExamSchedule.objects.select_related(
+            'subject', 'class_obj', 'term', 'invigilator'
+        ).order_by('exam_date', 'start_time')
+        if term_id:
+            qs = qs.filter(term_id=term_id)
+
+        data = []
+        for e in qs:
+            data.append({
+                'id':          str(e.id),
+                'title':       e.title,
+                'subject':     e.subject.name,
+                'class_name':  str(e.class_obj) if e.class_obj else None,
+                'term':        str(e.term),
+                'exam_date':   str(e.exam_date),
+                'start_time':  str(e.start_time),
+                'end_time':    str(e.end_time),
+                'venue':       e.venue,
+                'exam_type':   e.exam_type,
+                'invigilator': (
+                    '%s %s' % (e.invigilator.first_name, e.invigilator.last_name)
+                    if e.invigilator else None
+                ),
+                'notes':       e.notes,
+            })
+        return Response(ExamScheduleSerializer(data, many=True).data)
+
+    def post(self, request):
+        from .models import ExamSchedule
+        from results.models import Subject, AcademicTerm
+        from teacher.models import Class
+        d = request.data
+        try:
+            subject = Subject.objects.get(id=d['subject_id'])
+            term    = AcademicTerm.objects.get(id=d['term_id'])
+        except (Subject.DoesNotExist, AcademicTerm.DoesNotExist, KeyError) as exc:
+            return Response({'detail': str(exc)}, status=http_status.HTTP_400_BAD_REQUEST)
+
+        class_obj   = Class.objects.filter(id=d.get('class_id')).first() if d.get('class_id') else None
+        invigilator = User.objects.filter(id=d.get('invigilator_id')).first() if d.get('invigilator_id') else None
+
+        exam = ExamSchedule.objects.create(
+            title       = d.get('title', ''),
+            subject     = subject,
+            class_obj   = class_obj,
+            term        = term,
+            exam_date   = d['exam_date'],
+            start_time  = d['start_time'],
+            end_time    = d['end_time'],
+            venue       = d.get('venue', ''),
+            exam_type   = d.get('exam_type', 'midterm'),
+            invigilator = invigilator,
+            notes       = d.get('notes', ''),
+        )
+        return Response({'id': str(exam.id), 'detail': 'Exam schedule created.'}, status=http_status.HTTP_201_CREATED)
+
+
+class ExamScheduleDetailView(APIView):
+    """GET|PATCH|DELETE /imboni/dos/exam-schedule/<pk>/"""
+
+    def _get_obj(self, pk):
+        from .models import ExamSchedule
+        try:
+            return ExamSchedule.objects.select_related(
+                'subject', 'class_obj', 'term', 'invigilator'
+            ).get(pk=pk)
+        except ExamSchedule.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        exam = self._get_obj(pk)
+        if not exam:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        data = {
+            'id':          str(exam.id),
+            'title':       exam.title,
+            'subject':     exam.subject.name,
+            'class_name':  str(exam.class_obj) if exam.class_obj else None,
+            'term':        str(exam.term),
+            'exam_date':   str(exam.exam_date),
+            'start_time':  str(exam.start_time),
+            'end_time':    str(exam.end_time),
+            'venue':       exam.venue,
+            'exam_type':   exam.exam_type,
+            'invigilator': (
+                '%s %s' % (exam.invigilator.first_name, exam.invigilator.last_name)
+                if exam.invigilator else None
+            ),
+            'notes':       exam.notes,
+        }
+        return Response(ExamScheduleSerializer(data).data)
+
+    def patch(self, request, pk):
+        exam = self._get_obj(pk)
+        if not exam:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        d = request.data
+        for field in ('title', 'exam_date', 'start_time', 'end_time', 'venue', 'exam_type', 'notes'):
+            if field in d:
+                setattr(exam, field, d[field])
+        exam.save()
+        return Response({'detail': 'Updated.'})
+
+    def delete(self, request, pk):
+        exam = self._get_obj(pk)
+        if not exam:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        exam.delete()
+        return Response(status=http_status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------------------
+# Attendance Overview
+# ---------------------------------------------------------------------------
+
+class DOSAttendanceOverviewView(APIView):
+    """GET /imboni/dos/attendance/overview/"""
+
+    def get(self, request):
+        from attendance.models import Attendance
+        term = _current_term()
+        qs = Attendance.objects.filter(term=term) if term else Attendance.objects.none()
+
+        total   = qs.count()
+        present = qs.filter(status='present').count()
+        absent  = qs.filter(status='absent').count()
+        late    = qs.filter(status='late').count()
+        rate    = round(present / total * 100, 1) if total else 0.0
+
+        by_grade = []
+        for grade in ['1', '2', '3', '4', '5', '6']:
+            g_qs    = qs.filter(student__grade=grade)
+            g_total = g_qs.count()
+            g_pres  = g_qs.filter(status='present').count()
+            by_grade.append({
+                'grade':           'Grade %s' % grade,
+                'attendance_rate': round(g_pres / g_total * 100, 1) if g_total else 0.0,
+            })
+
+        return Response({
+            'term':            str(term) if term else None,
+            'total_records':   total,
+            'present':         present,
+            'absent':          absent,
+            'late':            late,
+            'attendance_rate': rate,
+            'by_grade':        by_grade,
+        })
+
+
+# ---------------------------------------------------------------------------
+# DOS Announcements
+# ---------------------------------------------------------------------------
+
+class DOSAnnouncementsView(APIView):
+    """GET /imboni/dos/announcements/  |  POST /imboni/dos/announcements/"""
+
+    def get(self, request):
+        from announcements.models import Announcement
+        qs = Announcement.objects.select_related('author').order_by('-created_at')[:50]
+        data = [
+            {
+                'id':          str(a.id),
+                'title':       a.title,
+                'content':     a.content,
+                'target_role': a.target_role,
+                'created_at':  a.created_at.isoformat(),
+                'author':      ('%s %s' % (a.author.first_name, a.author.last_name)) if a.author else '',
+            }
+            for a in qs
+        ]
+        return Response(data)
+
+    def post(self, request):
+        from announcements.models import Announcement
+        d = request.data
+        ann = Announcement.objects.create(
+            title       = d.get('title', ''),
+            content     = d.get('content', ''),
+            target_role = d.get('target_role', 'all'),
+            author      = request.user if request.user.is_authenticated else None,
+        )
+        return Response({'id': str(ann.id), 'detail': 'Announcement created.'}, status=http_status.HTTP_201_CREATED)
+
+
+# ---------------------------------------------------------------------------
+# Student Leaders
+# ---------------------------------------------------------------------------
+
+class DOSStudentLeadersView(APIView):
+    """GET /imboni/dos/student-leaders/"""
+
+    def get(self, request):
+        from discipline.models import StudentLeader
+        term = _current_term()
+        qs = StudentLeader.objects.filter(
+            term=term, is_active=True
+        ).select_related('student__user') if term else StudentLeader.objects.none()
+
+        data = [
+            {
+                'id':             str(sl.id),
+                'student_id':     str(sl.student.id),
+                'full_name':      '%s %s' % (sl.student.user.first_name, sl.student.user.last_name),
+                'grade':          sl.student.grade,
+                'section':        sl.student.section,
+                'role':           sl.role,
+                'appointed_date': str(sl.appointed_date),
+                'notes':          sl.notes,
+            }
+            for sl in qs
+        ]
+        return Response(data)
+
+
+# ---------------------------------------------------------------------------
+# DOS Analytics
+# ---------------------------------------------------------------------------
+
+class DOSAnalyticsView(APIView):
+    """GET /imboni/dos/analytics/"""
+
+    def get(self, request):
+        from results.models import Result, AcademicTerm, Subject
+        from django.db.models import Avg
+
+        term = _current_term()
+
+        terms = AcademicTerm.objects.order_by('-start_date')[:4]
+        perf_trend = []
+        for t in reversed(list(terms)):
+            avg = Result.objects.filter(term=t, status='approved').aggregate(
+                a=Avg('final_score')
+            )['a']
+            perf_trend.append({'term': str(t), 'avg_score': round(avg or 0, 1)})
+
+        # Single query grouped by subject — avoids 1 query per subject
+        subj_avgs = [
+            {'subject': row['subject__name'], 'avg_score': round(row['avg'] or 0, 1)}
+            for row in Result.objects.filter(term=term, status='approved')
+            .values('subject__name')
+            .annotate(avg=Avg('final_score'))
+            .order_by('subject__name')
+            if row['avg'] is not None
+        ]
+
+        return Response({
+            'performance_trend': perf_trend,
+            'subject_averages':  subj_avgs,
+        })

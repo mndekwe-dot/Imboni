@@ -40,4 +40,26 @@ urlpatterns = [
     path('dos/students/performance-distribution/', views.StudentPerformanceDistributionView.as_view(), name='dos-student-perf-dist'),
     # Enrollment Trends line chart (by year)
     path('dos/students/enrollment-trends/',        views.StudentEnrollmentTrendsView.as_view(),     name='dos-enrollment-trends'),
+
+    # ── Results Approval ────────────────────────────────────────────────────
+    path('dos/results/',                    views.DOSResultsListView.as_view(),       name='dos-results-list'),
+    path('dos/results/bulk-approve/',       views.DOSResultBulkApproveView.as_view(), name='dos-results-bulk-approve'),
+    path('dos/results/<uuid:pk>/approve/',  views.DOSResultApproveView.as_view(),     name='dos-result-approve'),
+    path('dos/results/<uuid:pk>/reject/',   views.DOSResultRejectView.as_view(),      name='dos-result-reject'),
+
+    # ── Exam Schedule ───────────────────────────────────────────────────────
+    path('dos/exam-schedule/',             views.ExamScheduleListView.as_view(),   name='dos-exam-schedule-list'),
+    path('dos/exam-schedule/<uuid:pk>/',   views.ExamScheduleDetailView.as_view(), name='dos-exam-schedule-detail'),
+
+    # ── Attendance Overview ─────────────────────────────────────────────────
+    path('dos/attendance/overview/',       views.DOSAttendanceOverviewView.as_view(), name='dos-attendance-overview'),
+
+    # ── Announcements ───────────────────────────────────────────────────────
+    path('dos/announcements/',             views.DOSAnnouncementsView.as_view(), name='dos-announcements'),
+
+    # ── Student Leaders ─────────────────────────────────────────────────────
+    path('dos/student-leaders/',           views.DOSStudentLeadersView.as_view(), name='dos-student-leaders'),
+
+    # ── Analytics ───────────────────────────────────────────────────────────
+    path('dos/analytics/',                 views.DOSAnalyticsView.as_view(), name='dos-analytics'),
 ]

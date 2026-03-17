@@ -85,23 +85,39 @@ class AuthViewSet(viewsets.ViewSet):
     
     @action(detail=False, methods=['post'])
     def login(self, request):
-        """Login user"""
-        username = request.data.get('username')
-        password = request.data.get('password')
-        
-        user = authenticate(username=username, password=password)
-        
+        """Login user — accepts username or email + password"""
+        identifier = request.data.get('username') or request.data.get('email')
+        password   = request.data.get('password')
+
+        if not identifier or not password:
+            return Response(
+                {'error': 'username/email and password are required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Try username first, then fall back to email lookup
+        user = authenticate(username=identifier, password=password)
+
+        if user is None:
+            # identifier might be an email — find the matching username and retry
+            try:
+                matched = User.objects.get(email__iexact=identifier)
+                user = authenticate(username=matched.username, password=password)
+            except User.DoesNotExist:
+                pass
+
         if user:
             refresh = RefreshToken.for_user(user)
             return Response({
-                'access': str(refresh.access_token),
+                'access':  str(refresh.access_token),
                 'refresh': str(refresh),
-                'user': UserSerializer(user).data
+                'user':    UserSerializer(user).data,
             })
-        
-        return Response({
-            'error': 'Invalid credentials'
-        }, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response(
+            {'error': 'Invalid credentials'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
     
     @action(detail=False, methods=['post'])
     def logout(self, request):

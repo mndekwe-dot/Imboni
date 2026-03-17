@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import User, UserPreferences
+from .validators import validate_avatar
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -99,6 +100,8 @@ class AccountProfileSerializer(serializers.ModelSerializer):
 
 class AvatarUploadSerializer(serializers.ModelSerializer):
     """Used by AccountAvatarView — accepts only the avatar file field."""
+    avatar = serializers.ImageField(validators=[validate_avatar])
+
     class Meta:
         model = User
         fields = ['avatar']

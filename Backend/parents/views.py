@@ -343,3 +343,63 @@ class LinkStudentView(generics.CreateAPIView):
             status=status.HTTP_201_CREATED,
         )
 
+
+
+# ---------------------------------------------------------------------------
+# Parent Dashboard Stats
+# ---------------------------------------------------------------------------
+
+from rest_framework.views import APIView as _APIView
+
+
+class ParentDashboardStatsView(_APIView):
+    """GET /imboni/parents/dashboard/stats/?student_id=<uuid>"""
+
+    def get(self, request):
+        student_id = request.query_params.get('student_id')
+        if not student_id:
+            return Response({'detail': 'student_id query param required.'}, status=400)
+
+        try:
+            student = Student.objects.get(pk=student_id)
+        except Student.DoesNotExist:
+            return Response({'detail': 'Student not found.'}, status=404)
+
+        from results.models import Result, AcademicTerm
+        from attendance.models import Attendance
+        from django.db.models import Avg
+
+        term = AcademicTerm.objects.filter(is_current=True).first()
+
+        # Average performance this term
+        avg_perf = Result.objects.filter(
+            student=student, term=term, status='approved'
+        ).aggregate(a=Avg('final_score'))['a'] if term else None
+
+        # Attendance rate this term
+        att_qs   = Attendance.objects.filter(student=student, term=term) if term else Attendance.objects.none()
+        att_total = att_qs.count()
+        att_pres  = att_qs.filter(status='present').count()
+        att_rate  = round(att_pres / att_total * 100, 1) if att_total else None
+
+        # Pending fee balance
+        from parents.models import Fee
+        fee_qs      = Fee.objects.filter(student=student, is_paid=False)
+        fee_balance = sum(f.amount for f in fee_qs)
+
+        # Unread announcements
+        from announcements.models import Announcement
+        unread = Announcement.objects.filter(status='published').exclude(
+            reads__user=request.user
+        ).count() if request.user.is_authenticated else 0
+
+        return Response({
+            'student_id':        str(student.id),
+            'full_name':         '%s %s' % (student.user.first_name, student.user.last_name),
+            'grade':             student.grade,
+            'section':           student.section,
+            'avg_performance':   round(avg_perf, 1) if avg_perf is not None else None,
+            'attendance_rate':   att_rate,
+            'fee_balance':       float(fee_balance),
+            'unread_announcements': unread,
+        })

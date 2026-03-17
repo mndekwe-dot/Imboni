@@ -723,3 +723,51 @@ class DisciplineActivityEventCreateView(APIView):
             description=request.data.get('description', ''),
         )
         return Response(ActivityEventSerializer(event).data, status=201)
+
+
+# ---------------------------------------------------------------------------
+# Discipline Timetable
+# ---------------------------------------------------------------------------
+
+class DisciplineTimetableView(APIView):
+    """GET /imboni/discipline/timetable/?grade=&date=YYYY-MM-DD"""
+
+    def get(self, request):
+        from teacher.models import TimetablePeriod, Class
+        from django.utils import timezone
+
+        date_str = request.query_params.get('date')
+        grade    = request.query_params.get('grade')
+
+        if date_str:
+            from datetime import datetime
+            try:
+                target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                return Response({'detail': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
+        else:
+            target_date = timezone.localdate()
+
+        day_name = target_date.strftime('%A').lower()
+
+        qs = TimetablePeriod.objects.select_related(
+            'subject', 'teacher', 'class_obj'
+        ).filter(day_of_week=day_name).order_by('class_obj__grade', 'class_obj__section', 'start_time')
+
+        if grade:
+            qs = qs.filter(class_obj__grade=grade)
+
+        data = [
+            {
+                'class':       p.class_obj.name,
+                'grade':       p.class_obj.grade,
+                'section':     p.class_obj.section,
+                'subject':     p.subject.name,
+                'teacher':     p.teacher.get_full_name() if p.teacher else '',
+                'start_time':  str(p.start_time),
+                'end_time':    str(p.end_time),
+                'room':        p.room_number,
+            }
+            for p in qs
+        ]
+        return Response({'date': str(target_date), 'day': day_name, 'periods': data})

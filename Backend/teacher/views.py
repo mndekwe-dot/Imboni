@@ -1411,3 +1411,40 @@ class TeacherPerformanceTrendsView(APIView):
             for row in monthly
         ]
         return Response(PerformanceTrendSerializer(data, many=True).data)
+
+
+# ---------------------------------------------------------------------------
+# Incident Reporting
+# ---------------------------------------------------------------------------
+
+class TeacherReportIncidentView(APIView):
+    """POST /imboni/teacher/incidents/  — teacher logs a behaviour incident."""
+
+    def post(self, request):
+        from behavior.models import BehaviorReport
+        from parents.models import Student
+        from django.utils import timezone
+
+        d = request.data
+        student_id = d.get('student_id')
+        if not student_id:
+            return Response({'detail': 'student_id is required.'}, status=400)
+
+        try:
+            student = Student.objects.get(pk=student_id)
+        except Student.DoesNotExist:
+            return Response({'detail': 'Student not found.'}, status=404)
+
+        report = BehaviorReport.objects.create(
+            student       = student,
+            report_type   = d.get('report_type', 'incident'),
+            severity      = d.get('severity', 'minor'),
+            title         = d.get('title', 'Incident Report'),
+            description   = d.get('description', ''),
+            date          = d.get('date') or timezone.localdate(),
+            location      = d.get('location', ''),
+            reported_by   = request.user if request.user.is_authenticated else None,
+            action_taken  = d.get('action_taken', ''),
+            follow_up_required = bool(d.get('follow_up_required', False)),
+        )
+        return Response({'id': str(report.id), 'detail': 'Incident reported.'}, status=201)

@@ -9,6 +9,8 @@ class User(AbstractUser):
         ('parent', 'Parent'),
         ('teacher', 'Teacher'),
         ('dos', 'Director of Studies'),
+        ('matron', 'Matron'),
+        ('discipline', 'Director of Discipline'),
         ('admin', 'Administrator'),
     )
     

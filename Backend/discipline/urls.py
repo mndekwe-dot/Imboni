@@ -32,4 +32,7 @@ urlpatterns = [
     path('discipline/activities/',                          views.DisciplineActivityListView.as_view(),      name='discipline-activities'),
     path('discipline/activities/<uuid:pk>/',                views.DisciplineActivityDetailView.as_view(),    name='discipline-activity-detail'),
     path('discipline/activities/<uuid:pk>/events/',         views.DisciplineActivityEventCreateView.as_view(), name='discipline-activity-events'),
+
+    # Timetable
+    path('discipline/timetable/',                           views.DisciplineTimetableView.as_view(),         name='discipline-timetable'),
 ]

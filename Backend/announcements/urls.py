@@ -10,4 +10,10 @@ urlpatterns = [
     path('announcements/teacher/templates/',      views.AnnouncementTemplatesView.as_view(),         name='teacher-announcement-templates'),
     # Target audience options (teacher's classes + All + Parents Only)
     path('announcements/teacher/audience-options/', views.AnnouncementAudienceOptionsView.as_view(), name='teacher-announcement-audience'),
+
+    # Mark-read
+    path('announcements/mark-read/<uuid:pk>/',  views.AnnouncementMarkReadView.as_view(),    name='announcement-mark-read'),
+    path('announcements/mark-all-read/',         views.AnnouncementMarkAllReadView.as_view(), name='announcement-mark-all-read'),
+    # Stats
+    path('announcements/stats/',                 views.AnnouncementStatsView.as_view(),       name='announcement-stats'),
 ]

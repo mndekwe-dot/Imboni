@@ -46,4 +46,7 @@ urlpatterns = router.urls + [
     path('teacher/results/grade-distribution/', views.TeacherGradeDistributionView.as_view(), name='teacher-results-grade-dist'),
     # Performance Trends line graph (?class_id=&subject_id=)
     path('teacher/results/performance-trends/', views.TeacherPerformanceTrendsView.as_view(), name='teacher-results-perf-trends'),
+
+    # Incident Reporting
+    path('teacher/incidents/', views.TeacherReportIncidentView.as_view(), name='teacher-report-incident'),
 ]

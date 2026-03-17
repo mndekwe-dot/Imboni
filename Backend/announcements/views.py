@@ -234,3 +234,66 @@ class AnnouncementAudienceOptionsView(APIView):
         options.append({'label': 'Parents Only', 'target_audience': 'parents', 'target_grade': ''})
 
         return Response(options)
+
+
+# ---------------------------------------------------------------------------
+# Mark-Read + Stats
+# ---------------------------------------------------------------------------
+
+class AnnouncementMarkReadView(APIView):
+    """POST /imboni/announcements/mark-read/<pk>/"""
+
+    def post(self, request, pk):
+        from .models import Announcement, AnnouncementRead
+        try:
+            ann = Announcement.objects.get(pk=pk)
+        except Announcement.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=404)
+
+        if not request.user.is_authenticated:
+            return Response({'detail': 'Authentication required.'}, status=401)
+
+        AnnouncementRead.objects.get_or_create(announcement=ann, user=request.user)
+        return Response({'detail': 'Marked as read.'})
+
+
+class AnnouncementMarkAllReadView(APIView):
+    """POST /imboni/announcements/mark-all-read/"""
+
+    def post(self, request):
+        from .models import Announcement, AnnouncementRead
+        if not request.user.is_authenticated:
+            return Response({'detail': 'Authentication required.'}, status=401)
+
+        unread = Announcement.objects.exclude(
+            reads__user=request.user
+        )
+        count = 0
+        for ann in unread:
+            AnnouncementRead.objects.get_or_create(announcement=ann, user=request.user)
+            count += 1
+        return Response({'marked': count})
+
+
+class AnnouncementStatsView(APIView):
+    """GET /imboni/announcements/stats/"""
+
+    def get(self, request):
+        from .models import Announcement
+        from django.utils import timezone
+
+        today = timezone.localdate()
+        total     = Announcement.objects.filter(status='published').count()
+        today_ct  = Announcement.objects.filter(status='published', created_at__date=today).count()
+
+        unread = 0
+        if request.user.is_authenticated:
+            unread = Announcement.objects.filter(status='published').exclude(
+                reads__user=request.user
+            ).count()
+
+        return Response({
+            'total_published': total,
+            'published_today': today_ct,
+            'unread':          unread,
+        })

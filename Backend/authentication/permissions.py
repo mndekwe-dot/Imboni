@@ -83,3 +83,27 @@ class IsTeacherOrDOS(BasePermission):
             request.user.is_authenticated and
             request.user.role in ('teacher', 'dos', 'admin')
         )
+
+
+class IsMatron(BasePermission):
+    """Allow access only to users with role='matron'."""
+    message = 'Access restricted to matrons.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role == 'matron'
+        )
+
+
+class IsDiscipline(BasePermission):
+    """Allow access only to users with role='discipline'."""
+    message = 'Access restricted to the Director of Discipline.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role == 'discipline'
+        )
