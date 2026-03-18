@@ -15,4 +15,7 @@ urlpatterns = router.urls + user_nested_router.urls + [
     path('account/profile/', views.AccountProfileView.as_view(), name='account-profile'),
     # Account Settings — Change Photo button (PATCH with image file)
     path('account/avatar/', views.AccountAvatarView.as_view(), name='account-avatar'),
+    # Password Reset
+    path('auth/password-reset/', views.PasswordResetRequestView.as_view(), name='password-reset'),
+    path('auth/password-reset/confirm/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 ]

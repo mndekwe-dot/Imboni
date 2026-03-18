@@ -9,10 +9,10 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
 import os
 from pathlib import Path
 from datetime import timedelta
+from decouple import config
 
 import Imboni
 
@@ -24,12 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-(0poduddq(b$#ut=h)brljaxe1xm-4er)==lv_23ek!f9+y0ia')
+SECRET_KEY =config('THE_SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
+DEBUG = config('MY_DEBUG', cast=bool, default=False)
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
+
 
 
 # Application definition
@@ -84,7 +86,7 @@ ROOT_URLCONF = 'Imboni.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -105,9 +107,9 @@ WSGI_APPLICATION = 'Imboni.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'imboni',
-        'USER': 'root',
-        'PASSWORD': 'mercermerc123@M',
+        'NAME': config('DATABASE_NAME'),
+        'USER': config('DATABASE_USER'),
+        'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': '127.0.0.1',
         'PORT': 3306,
         # Keep connections open — avoids reconnect overhead on every request
@@ -223,6 +225,27 @@ INTERNAL_IPS = [
     '127.0.0.1',
     'localhost',
 ]
+# Email configuration
+# Development: prints emails to terminal (no mail server needed)
+# Testing:     switch to Mailtrap (sandbox.smtp.mailtrap.io, port 2525)
+# Production:  switch to Gmail (smtp.gmail.com, port 587, USE_TLS=True) or SendGrid
+if DEBUG:
+    EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST          = config('MAILTRAP_HOST')
+    EMAIL_PORT          = config('MAILTRAP_PORT', cast=int)
+    EMAIL_USE_TLS       = True
+    EMAIL_HOST_USER     = config('MAILTRAP_USERNAME')
+    EMAIL_HOST_PASSWORD = config('MAILTRAP_PASSWORD')
+else:
+    # Production — configure Gmail or SendGrid later
+    EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST          = 'smtp.gmail.com'
+    EMAIL_PORT          = 587
+    EMAIL_USE_TLS       = True
+    EMAIL_HOST_USER     = config('MY_EMAIL_HOST_USER', default='')
+    EMAIL_HOST_PASSWORD = config('MY_EMAIL_HOST_PASSWORD', default='')
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Imboni School <ndekwe22@gmail.com>')
 
 # Security settings for production
 if not DEBUG:
@@ -231,3 +254,5 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
+
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
