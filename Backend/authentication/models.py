@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+from datetime import timedelta
 import uuid
 
 class User(AbstractUser):    
@@ -34,6 +36,7 @@ class User(AbstractUser):
     email_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    pending_email=models.EmailField(blank=True)
     
     class Meta:
         db_table = 'users'
@@ -71,3 +74,59 @@ class UserPreferences(models.Model):
     
     def __str__(self):
         return f"Preferences for {self.user.username}"
+class Invitation(models.Model):
+    ROLE_CHOICE =(
+        ('student','Student'),
+        ('parent','Parent'),
+        ('teacher','Teacher'),
+        ('dos','Director of Studies'),
+        ('matron','Matron'),
+        ('discipline','Director of Discipline'),
+        ('admin','Administator'),
+    )
+    DELIVERY_STATUS_CHOICE=(
+        ('pending','Pending'),
+        ('sent','Sent'),
+        ('failed','Failed'),
+    )
+    id=models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    email=models.EmailField(blank=True)
+    phone_number = models.CharField(max_length=20,blank=True)
+    first_name=models.CharField(max_length=100)
+    last_name=models.CharField(max_length=100)
+    role=models.CharField(max_length=20,choices=ROLE_CHOICE)
+    invited_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='invitations_sent'
+    )
+    token = models.CharField(max_length=200,unique=True)
+    uid=models.CharField(max_length=200)
+    is_used=models.BooleanField(default=False)
+    expires_at=models.DateTimeField()
+    channels_sent = models.JSONField(default=list)
+    delivery_status=models.CharField(
+        max_length=20,
+        choices=DELIVERY_STATUS_CHOICE,
+        default='pending'
+    )
+    student = models.ForeignKey(
+        'parents.Student',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='parent_invitations'
+    )
+    created_at=models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = 'invitations'
+        ordering =['-created_at']
+    def __str__(self):
+        return f"Invitation({self.role}) → {self.email or self.phone_number}"
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+    @property
+    def is_valid(self):
+        return not self.is_used and not self.is_expired

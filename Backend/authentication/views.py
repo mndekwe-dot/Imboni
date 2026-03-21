@@ -8,15 +8,22 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
-from django.core.mail import EmailMultiAlternatives
+from django.utils import timezone
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
-from .models import User, UserPreferences
+from datetime import timedelta
+from .service import dispatch_invitation
+from .permissions import CanInvite
+from .models import User, UserPreferences,Invitation
 from .serializers import (
     UserSerializer, UserRegistrationSerializer,
     UserPreferencesSerializer, PasswordChangeSerializer,
     AccountProfileSerializer, AvatarUploadSerializer,
+    InvitationSerializer,CompleteRegistrationSerializer,
+    EmailChangeRequestSerializer,
 )
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -283,3 +290,392 @@ class PasswordResetConfirmView(APIView):
         user.save()
 
         return Response({'detail': 'Password reset successful. You can now log in.'})
+
+class SendInvitationView(APIView):
+    """
+    POST /imboni/auth/invite/
+    Body: { first_name, last_name, role, email(optional), phone_number(optional) }
+    Who: Admin, DOS, Discipline Master
+    """
+    permission_classes = [CanInvite]
+    def post(self,request):
+        permission = CanInvite()
+        # Check if this user can invite the requested role
+        target_role = request.data.get('role')
+        if not permission.can_invite_role(request.user.role,target_role):
+            return Response(
+                {'error':f'You cannot invite users with role:{target_role}'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer =InvitationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Generate token and uid for the invitation link
+        expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+        invitation  = serializer.save(
+            invited_by=request.user,
+            expires_at=expires_at,
+            token='pending',
+            uid='pending',
+        )
+        token = default_token_generator.make_token(request.user)
+        uid   = urlsafe_base64_encode(force_bytes(invitation.pk))
+        invitation.token = token
+        invitation.uid   = uid
+        invitation.save()
+
+        registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+
+        #send to all available channels 
+        channels = dispatch_invitation(invitation,registration_link)
+        invitation.channels_sent = channels
+        invitation.delivery_status = 'sent' if channels else 'failed'
+        invitation.save()
+
+        return Response({
+            'detail':'Invitation sent successfully. ',
+            'channels_sent': channels,
+            'invitation': InvitationSerializer(invitation).data,
+        },status=status.HTTP_201_CREATED)
+    
+class BulkInviteView(APIView):
+    """
+    POST /imboni/auth/invite/bulk/
+    Body: { "invitations": [ {first_name, last_name, role, email, phone_number}, ... ] }
+    Who: Admin, DOS, Discipline Master
+    """
+    permission_classes = [CanInvite]
+    
+    def post(self,request):
+        permission = CanInvite()
+        invitations = request.data.get('invitations',[])
+
+        if not invitations:
+            return Response(
+                {'error':'No invitations provided.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        results ={'sent':[],'failed':[]}
+
+        for item in invitations:
+            target_role = item.get('role')
+
+            if not permission.can_invite_role(request.user.role,target_role):
+                results['failed'].append({
+                    'email': item.get('email',''),
+                    'reason':f'Cannot invite role:{target_role}'
+                })
+                continue
+            serializer = InvitationSerializer(data=item)
+
+            if not serializer.is_valid():
+                results['failed'].append({
+                  'email':item.get('email',''),
+                  'reason': serializer.errors 
+                })
+                continue
+
+            invitation = serializer.save(invited_by=request.user)
+            uid = urlsafe_base64_encode(force_bytes(invitation.pk))
+            token=default_token_generator.make_token(request.user)
+            invitation.token= token
+            invitation.uid=uid
+            invitation.expires_at=timezone.now()+timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+            invitation.save()
+
+            registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+            channels = dispatch_invitation(invitation,registration_link)
+            invitation.channels_sent =channels
+            invitation.delivery_status = 'sent' if channels else 'failed'
+            invitation.save()
+
+            results['sent'].append({
+                'email': invitation.email,
+                'phone': invitation.phone_number,
+                'channels': channels,
+            })
+        return Response( results,status=status.HTTP_201_CREATED)
+    
+class InvitationListView(generics.ListAPIView):
+    """
+    GET /imboni/auth/invite/list/
+    Returns all invitations sent by current user's organization.
+    """
+    serializer_class = InvitationSerializer
+    permission_classes = [CanInvite]
+
+    def get_queryset(self):
+        if self.request.user.role == "admin":
+            return Invitation.objects.all()
+        return Invitation.objects.filter(invited_by=self.request.user)
+
+class ResendInvitationView(APIView):
+    """
+    POST /imboni/auth/invite/resend/<pk>/
+    Generates a new token and resends to same channels.
+    """
+    permission_classes= [CanInvite]
+    
+    def post(self, request, pk):
+        try:
+            invitation = Invitation.objects.get(pk=pk)
+        except Invitation.DoesNotExist:
+            return Response({'error': 'Invitation not found.'}, status=404)
+
+        if invitation.is_used:
+            return Response(
+                {'error': 'This invitation has already been used.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Generate fresh token and extend expiry
+        uid                   = urlsafe_base64_encode(force_bytes(invitation.pk))
+        token                 = default_token_generator.make_token(request.user)
+        invitation.token      = token
+        invitation.uid        = uid
+        invitation.expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+        invitation.delivery_status = 'pending'
+        invitation.save()
+
+        registration_link        = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+        channels                 = dispatch_invitation(invitation, registration_link)
+        invitation.channels_sent = channels
+        invitation.delivery_status = 'sent' if channels else 'failed'
+        invitation.save()
+
+        return Response({
+            'detail':        'Invitation resent successfully.',
+            'channels_sent': channels,
+        })
+
+class CancelInvitationView(APIView):
+    """
+    DELETE /imboni/auth/invite/<pk>/cancel/
+    """
+    permission_classes = [CanInvite]
+
+    def delete(self , request ,pk):
+        try:
+            invitation = Invitation.objects.get(pk=pk)
+        except Invitation.DoesNotExist:
+            return Response({'error':'Invitation not found.'}, status=404)
+
+        if invitation.is_used:
+            return Response(
+                {'error':'Cannot cancel an already used invitation.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        invitation.delete()
+        return Response({
+            'detail' : 'Invitation cancelled.'
+        },
+        status=status.HTTP_204_NO_CONTENT
+        ) 
+    
+class VerifyInvitationView(APIView):
+    """
+    GET /imboni/auth/register/verify/<uid>/<token>/
+    React calls this when user clicks the invitation link.
+    Returns invitation details if valid.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self,request ,uid , token):
+        try:
+            pk = urlsafe_base64_decode(uid).decode()
+            invitation = Invitation.objects.get(pk=pk)
+        except (Invitation.DoesNotExist,ValueError,TypeError):
+            return Response({
+                'error':'Invalid invitation link.'
+            },
+            status=status.HTTP_400_BAD_REQUEST
+            )
+        if invitation.is_used:
+            return Response({
+                'error': 'This invitation has already been used.'
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        if invitation.is_expired:
+            return Response({
+                'error':'this invitation link has expired. contact your administatir .'
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        if invitation.token != token:
+            return Response({
+                'error':'Invalid invitation link'
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        return Response({
+            'valid':      True,
+            'first_name': invitation.first_name,
+            'last_name':  invitation.last_name,
+            'role':       invitation.role,
+            'email':      invitation.email,
+            'phone':      invitation.phone_number,
+        })
+
+class CompleteRegistrationView(APIView):
+    """
+    POST /imboni/auth/register/complete/
+    Body: { uid, token, username, password, confirm_password, phone_number, date_of_birth }
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self,request):
+        serializer = CompleteRegistrationSerializer(data =request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        #verify the invitation again
+        try:
+            pk =urlsafe_base64_decode(data['uid']).decode()
+            invitation = Invitation.objects.get(pk=pk)
+        except (Invitation.DoesNotExist,ValueError,TypeError):
+            return Response(
+                {'error':'Invalid invitation link.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if not invitation.is_valid:
+            return Response(
+                {'error': 'Invitation link has expired or already been used.'}, 
+                  status=400
+                )
+        if invitation.token != data['token']:
+            return Response({'error': 'Invalid invitation link.'}, status=400)
+
+        # Check username is not taken
+        if User.objects.filter(username=data['username']).exists():
+            return Response({
+                'error':'This username is already taken'
+            },
+            status=status.HTTP_400_BAD_REQUEST)
+        #create the user account 
+        user = User.objects.create_user(
+            username = data['username'],
+            email =invitation.email,
+            password =data['password'],
+            first_name=invitation.first_name,
+            last_name = invitation.last_name,
+            role = invitation.role,
+            phone_number = data.get('phone_number', invitation.phone_number),
+            date_of_birth =data.get('date_of_birth')
+        )
+        #create user preferences
+        UserPreferences.objects.get_or_create(user=user)
+
+        #mark invitaion as used 
+        invitation.is_used = True
+        invitation.save()
+
+        #send welcome email/sms/Whastapp
+        _send_welcome_message(user)
+
+        return Response({
+            'detail':'Registration successful.you ca now log in.',
+            'user':UserSerializer(user).data,
+        },status=status.HTTP_201_CREATED)
+    
+def _send_welcome_message(user):
+        """Send welcome message via same channels as invitation."""
+        login_link = f"{settings.FRONTEND_URL}/login/"
+
+        if user.email:
+            try:
+                html_message = render_to_string(
+                    'emails/welcome_email.html',
+                    {
+                        'first_name': user.first_name,
+                        'role':       user.get_role_display() if hasattr(user, 'get_role_display') else user.role,
+                        'username':   user.username,
+                        'login_link': login_link, 
+                    })
+                send_mail(
+                    subject = 'Welcome to Imboni School System',
+                    message = F'Welcome {user.first_name}! Login here: {login_link}',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    html_message=html_message,
+                    fail_silently =True,
+                )
+            except Exception:
+                pass
+
+class EmailChangeRequestView(APIView):
+    """
+    POST /imboni/auth/email-change/request/
+    Body: { "new_email": "newemail@school.com" }
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = EmailChangeRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_email =serializer.validated_data['new_email']
+
+        user=request.user
+        user.pending_email =new_email
+        user.save()
+
+        #generate verification token
+        token =default_token_generator.make_token(user)
+        uid= urlsafe_base64_encode(force_bytes(user.pk))
+
+        confirm_link=f"{settings.FRONTEND_URL}/email-change/confirm/{uid}/{token}/"
+
+        send_mail(
+            subject='Confirm your new email - Imboni School',
+            message = f'click to confirm your new email:{confirm_link}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[new_email],
+            fail_silently =False,
+        )
+        
+        return Response({'detail':'A confirmation link has been sent to your new email.'})
+
+class EmailChangeConfirmView(APIView):
+    """
+    GET /imboni/auth/email-change/confirm/<uid>/<token>/
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self,request,uid,token):
+        try:
+            pk= urlsafe_base64_decode(uid).decode()
+            user=User.objects.get(pk=pk)
+        except (User.DoesNotExist,ValueError,TypeError):
+            return Response(
+                {
+                    'error':'link has expired or already been used'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not user.pending_email:
+            return Response(
+                {
+                    'error' :'No pending email change found'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        old_email = user.email
+        user.email = user.pending_email
+        user.pending_email = ''
+        user.save()
+
+        #notify old email about the change
+        send_mail (
+            subject='Your email has been changed - IMboni school',
+            message =f'Your email was changed from {old_email} to {user.email}.If you did not do this,contact the administrator immediately.',
+            from_email= settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[old_email],
+            fail_silently=True,
+        )
+        return Response (
+            {
+                'detail':'Email updated successfully.'
+            }
+        )

@@ -107,3 +107,25 @@ class IsDiscipline(BasePermission):
             request.user.is_authenticated and
             request.user.role == 'discipline'
         )
+class CanInvite(BasePermission):
+    """
+    Controls which roles can invite which other roles.
+    Admin    → can invite anyone
+    DOS      → can invite teachers and students
+    Discipline → can invite students, matrons, patrons
+    """
+    message = "You do not have permission to send invitations."
+
+    INVITE_PERMISSIONS=  {
+        'admin':['student','parent','teacher',
+        'dos','matron','discipline','admin'],
+        'dos':['teacher','student'],
+        'discipline':['student','matron'],
+    }
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.role in self.INVITE_PERMISSIONS
+    def can_invite_role(self,inviter_role,target_role):
+        allowed = self.INVITE_PERMISSIONS.get(inviter_role,[])
+        return target_role in allowed

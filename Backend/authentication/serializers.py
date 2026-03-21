@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from .models import User, UserPreferences
+from .models import User, UserPreferences,Invitation
 from .validators import validate_avatar
 
 
@@ -105,3 +105,53 @@ class AvatarUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['avatar']
+class InvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invitation
+        fields =[
+            'id','email','phone_number','first_name',
+            'last_name',
+            'role', 'is_used','is_expired','channels_sent',
+            'delivery_status','created_at','expires_at',
+        ]
+        read_only_fields = [
+            'id','is_used','is_expired','channels_sent',
+            'delivery_status','created_at','expires_at',
+        ]
+
+    def validate(self,data):
+        #atleast one of email or phone must be provided
+        if not data.get('email') and not data.get('phone_number'):
+            raise serializers.ValidationError(
+               'At least one of email or phone number ' \
+               'must be provided.'
+            )
+        return data
+class CompleteRegistrationSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    username=serializers.CharField(max_length=150)
+    password=serializers.CharField(min_length=8,write_only=True)
+    confirm_password=serializers.CharField(min_length=8,write_only=True)
+    phone_number=serializers.CharField(max_length=20,required=False,
+    allow_blank=True)
+    date_of_birth = serializers.DateField(required=False,allow_null=True)
+
+    def validate(self,data):
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError(
+                'Passwords do not match.'
+            )
+        return data
+    
+class EmailChangeRequestSerializer(serializers.Serializer):
+    new_email = serializers.EmailField()
+
+    def validate_new_email(self, value):
+        from .models import User
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                'This email is already in use.'
+            )
+        return value 
+    

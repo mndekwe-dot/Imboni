@@ -86,7 +86,7 @@ ROOT_URLCONF = 'Imboni.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -256,3 +256,9 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
+#africatalking config
+INVITATION_EXPIRY_DAYS=config('INVITATION_EXPIRY_DAYS', cast=int, default=3) # in days
+AFRICASTALKING_USERNAME=config('AFRICASTALKING_USERNAME',default='sandbox')
+AFRICASTALKING_API_KEY=config('AFRICASTALKING_API_KEY',default='')
+AFRICASTALKING_SENDER_ID=config('AFRICASTALKING_SENDER_ID',default='Imboni')
+
