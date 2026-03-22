@@ -32,9 +32,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # Permissions disabled for development - enable later
-    # permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
@@ -132,7 +130,7 @@ class AuthViewSet(viewsets.ViewSet):
             status=status.HTTP_401_UNAUTHORIZED,
         )
     
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def logout(self, request):
         """Logout user"""
         try:
@@ -151,9 +149,7 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
     User preferences viewset
     """
     serializer_class = UserPreferencesSerializer
-    # Permissions disabled for development
-    # permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
 
     def get_queryset(self):
@@ -176,14 +172,13 @@ class AccountProfileView(generics.RetrieveUpdateAPIView):
     PATCH /imboni/account/profile/  — update first_name, last_name, email, phone_number
     """
     serializer_class = AccountProfileSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'patch']
 
     def get_object(self):
         # For development fall back to first user when unauthenticated
         if self.request.user.is_authenticated:
             return self.request.user
-        return User.objects.filter(role='parent').first()
 
 
 class AccountAvatarView(APIView):
@@ -194,10 +189,10 @@ class AccountAvatarView(APIView):
     Body: multipart/form-data with field 'avatar' (image file)
     """
     parser_classes = [MultiPartParser, FormParser]
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request):
-        user = request.user if request.user.is_authenticated else User.objects.filter(role='parent').first()
+        user = request.user
         serializer = AvatarUploadSerializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()

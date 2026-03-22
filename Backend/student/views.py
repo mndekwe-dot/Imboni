@@ -4,6 +4,7 @@ from django.db.models import Avg
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from authentication.permissions import IsStudent
 
 from .models import Activity, ActivityEnrollment, ActivityEvent, Assignment, AssignmentSubmission
 from .serializers import (
@@ -33,7 +34,7 @@ class StudentDashboardView(APIView):
 
     GET /imboni/student/dashboard/
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -182,7 +183,7 @@ class StudentTimetableView(APIView):
 
     GET /imboni/student/timetable/
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -237,7 +238,7 @@ class StudentTodayScheduleView(APIView):
 
     GET /imboni/student/timetable/today/
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -308,7 +309,7 @@ class StudentResultsView(APIView):
 
     GET /imboni/student/results/
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -362,7 +363,7 @@ class StudentAttendanceStatsView(APIView):
 
     GET /imboni/student/attendance/stats/
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -414,7 +415,7 @@ class StudentAttendanceCalendarView(APIView):
 
     GET /imboni/student/attendance/calendar/?month=3&year=2026
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -451,7 +452,7 @@ class StudentAnnouncementsSimpleView(APIView):
 
     GET /imboni/student/announcements/
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
 
@@ -504,7 +505,7 @@ class StudentDisciplineView(APIView):
     GET /imboni/student/discipline/
     Optional: ?type=positive|warning|incident|achievement
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -571,7 +572,7 @@ class StudentActivitiesView(APIView):
 
     GET /imboni/student/activities/
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -596,7 +597,7 @@ class StudentActivityApplyView(APIView):
 
     POST /imboni/student/activities/<pk>/apply/
     """
-
+    permission_classes = [IsStudent]
     def post(self, request, pk):
         student = _get_student(request)
         if not student:
@@ -625,7 +626,7 @@ class StudentActivityWithdrawView(APIView):
 
     POST /imboni/student/activities/<pk>/withdraw/
     """
-
+    permission_classes = [IsStudent]
     def post(self, request, pk):
         student = _get_student(request)
         if not student:
@@ -650,6 +651,7 @@ class StudentActivityEventsView(generics.ListAPIView):
     GET /imboni/student/activities/events/
     """
     serializer_class = ActivityEventSerializer
+    permission_classes = [IsStudent]
 
     def get_queryset(self):
         student = _get_student(self.request)
@@ -679,7 +681,7 @@ class StudentAssignmentsView(APIView):
     GET /imboni/student/assignments/
     Optional: ?status=pending|submitted|graded|late|overdue
     """
-
+    permission_classes = [IsStudent]
     def get(self, request):
         student = _get_student(request)
         if not student:
@@ -756,7 +758,7 @@ class StudentAssignmentSubmitView(APIView):
     POST /imboni/student/assignments/<pk>/submit/
     Body: { file (optional), notes (optional) }
     """
-
+    permission_classes = [IsStudent]
     def post(self, request, pk):
         student = _get_student(request)
         if not student:
@@ -794,6 +796,7 @@ class StudentAssignmentSubmitView(APIView):
 
 class StudentProfileView(APIView):
     """GET /imboni/student/profile/"""
+    permission_classes = [IsStudent]
 
     def get(self, request):
         from parents.models import Student

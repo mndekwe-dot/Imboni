@@ -11,6 +11,7 @@ from .serializers import (
 )
 from behavior.models import BehaviorReport, ConductGrade
 from behavior.serializers import BehaviorReportSerializer
+from authentication.permissions import IsDiscipline,IsMatron
 
 
 # ─────────────────────────────────────────────
@@ -23,7 +24,7 @@ class DisciplineDashboardView(APIView):
 
     GET /imboni/discipline/dashboard/
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         from results.models import AcademicTerm
         from parents.models import Student
@@ -100,7 +101,7 @@ class DisciplineReportListView(APIView):
     GET /imboni/discipline/reports/
     Optional: ?type=incident|warning|positive|achievement  ?student=<name>  ?pending=true
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         qs = (
             BehaviorReport.objects
@@ -157,7 +158,7 @@ class DisciplineReportDetailView(APIView):
     PATCH /imboni/discipline/reports/<pk>/
     Body: { action_taken, follow_up_completed, parents_notified }
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request, pk):
         try:
             r = BehaviorReport.objects.select_related('student__user', 'reported_by').get(pk=pk)
@@ -211,7 +212,7 @@ class DisciplineStudentListView(APIView):
     GET /imboni/discipline/students/
     Optional: ?grade=1-6  ?section=A|B|C  ?search=<name>
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         from parents.models import Student
         from results.models import AcademicTerm
@@ -271,7 +272,7 @@ class DisciplineStudentDetailView(APIView):
 
     GET /imboni/discipline/students/<pk>/
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request, pk):
         from parents.models import Student
         from results.models import AcademicTerm
@@ -348,7 +349,7 @@ class DisciplineStaffListView(APIView):
     POST /imboni/discipline/staff/
     Body: { user_id, staff_type, assigned_dormitory, assigned_grade }
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         staff = DisciplineStaff.objects.select_related('user').filter(is_active=True)
         staff_type = request.query_params.get('type')
@@ -378,7 +379,7 @@ class DisciplineStaffDetailView(APIView):
 
     /imboni/discipline/staff/<pk>/
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request, pk):
         try:
             staff = DisciplineStaff.objects.select_related('user').get(pk=pk)
@@ -420,7 +421,7 @@ class StudentLeaderListView(APIView):
     POST /imboni/discipline/student-leaders/
     Body: { student_id, role, term_id, appointed_date }
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         from results.models import AcademicTerm
 
@@ -458,7 +459,7 @@ class StudentLeaderDetailView(APIView):
 
     /imboni/discipline/student-leaders/<pk>/
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request, pk):
         try:
             leader = StudentLeader.objects.select_related('student__user', 'term').get(pk=pk)
@@ -498,7 +499,7 @@ class BoardingStudentListView(APIView):
     GET /imboni/discipline/boarding/
     Optional: ?dormitory=<name>  ?type=full_boarder|weekly_boarder|day_scholar
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         qs = BoardingStudent.objects.select_related('student__user').filter(is_active=True)
 
@@ -541,7 +542,7 @@ class BoardingStudentDetailView(APIView):
 
     /imboni/discipline/boarding/<pk>/
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request, pk):
         try:
             record = BoardingStudent.objects.select_related('student__user').get(pk=pk)
@@ -574,7 +575,7 @@ class DiningPlanListView(APIView):
     POST /imboni/discipline/dining/
     Body: { student_id, term_id, plan_type }
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         from results.models import AcademicTerm
 
@@ -623,7 +624,7 @@ class DisciplineActivityListView(APIView):
     GET  /imboni/discipline/activities/
     POST /imboni/discipline/activities/
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         from student.models import Activity
         qs = Activity.objects.all().order_by('name')
@@ -662,7 +663,7 @@ class DisciplineActivityDetailView(APIView):
 
     /imboni/discipline/activities/<pk>/
     """
-
+    permission_classes = [IsDiscipline]
     def get(self, request, pk):
         from student.models import Activity
         from student.serializers import ActivitySerializer
@@ -704,7 +705,7 @@ class DisciplineActivityEventCreateView(APIView):
     POST /imboni/discipline/activities/<pk>/events/
     Body: { title, date, start_time, end_time, venue, description }
     """
-
+    permission_classes = [IsDiscipline]
     def post(self, request, pk):
         from student.models import Activity, ActivityEvent
         from student.serializers import ActivityEventSerializer
@@ -731,7 +732,7 @@ class DisciplineActivityEventCreateView(APIView):
 
 class DisciplineTimetableView(APIView):
     """GET /imboni/discipline/timetable/?grade=&date=YYYY-MM-DD"""
-
+    permission_classes = [IsDiscipline]
     def get(self, request):
         from teacher.models import TimetablePeriod, Class
         from django.utils import timezone

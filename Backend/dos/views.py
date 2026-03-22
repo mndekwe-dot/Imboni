@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from authentication.models import User  # used for teaching_staff count
-from authentication.permissions import IsDOS
+from authentication.permissions import IsDOS,IsDOSOrAdmin,IsTeacherOrDOS
 from results.models import AcademicTerm, Result
 from parents.models import Student
 

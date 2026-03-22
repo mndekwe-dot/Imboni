@@ -7,7 +7,7 @@ from rest_framework import generics
 from behavior.models import BehaviorReport
 from discipline.models import BoardingStudent, DisciplineStaff
 from .serializers import MatronBehaviorReportSerializer, MatronStudentSerializer
-
+from authentication.permissions import IsMatron
 
 def _get_matron_staff(request):
     """Return the DisciplineStaff profile for the logged-in matron, or None."""
@@ -27,7 +27,7 @@ class MatronDashboardView(APIView):
 
     GET /imboni/matron/dashboard/
     """
-
+    permission_classes = [IsMatron]
     def get(self, request):
         staff = _get_matron_staff(request)
 
@@ -121,7 +121,7 @@ class MatronStudentListView(APIView):
     GET /imboni/matron/students/
     Optional: ?search=<name>
     """
-
+    permission_classes = [IsMatron]
     def get(self, request):
         staff = _get_matron_staff(request)
 
@@ -144,7 +144,7 @@ class MatronStudentDetailView(APIView):
 
     GET /imboni/matron/students/<pk>/
     """
-
+    permission_classes = [IsMatron]
     def get(self, request, pk):
         try:
             record = BoardingStudent.objects.select_related('student__user').get(pk=pk)
@@ -207,7 +207,7 @@ class MatronIncidentListView(APIView):
     Body: { student_id, title, report_type, severity, description, date, location,
             action_taken, follow_up_required, follow_up_date, parents_notified }
     """
-
+    permission_classes = [IsMatron]
     def get(self, request):
         qs = (
             BehaviorReport.objects
@@ -254,7 +254,7 @@ class MatronIncidentDetailView(APIView):
     GET   /imboni/matron/incidents/<pk>/
     PATCH /imboni/matron/incidents/<pk>/
     """
-
+    permission_classes = [IsMatron]
     def get(self, request, pk):
         try:
             r = BehaviorReport.objects.select_related('student__user', 'reported_by').get(pk=pk)
@@ -289,7 +289,7 @@ class MatronScheduleView(APIView):
     GET /imboni/matron/schedule/
     Optional: ?date=2026-03-12  (defaults to today)
     """
-
+    permission_classes = [IsMatron]
     def get(self, request):
         from results.models import AcademicTerm
         from teacher.models import Timetable
@@ -348,7 +348,7 @@ class MatronNightCheckView(APIView):
     POST /imboni/matron/night-check/
          body: {date, records: [{boarding_student_id, is_present, notes}]}
     """
-
+    permission_classes = [IsMatron]
     def get(self, request):
         from discipline.models import BoardingStudent, NightAttendance
         from django.utils import timezone
