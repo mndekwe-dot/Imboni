@@ -17,9 +17,7 @@ def _get_matron_staff(request):
         return None
 
 
-# ─────────────────────────────────────────────
 # Dashboard
-# ─────────────────────────────────────────────
 
 class MatronDashboardView(APIView):
     """
@@ -110,9 +108,7 @@ class MatronDashboardView(APIView):
         })
 
 
-# ─────────────────────────────────────────────
 # My Students
-# ─────────────────────────────────────────────
 
 class MatronStudentListView(APIView):
     """
@@ -194,9 +190,7 @@ class MatronStudentDetailView(APIView):
         })
 
 
-# ─────────────────────────────────────────────
 # Incidents
-# ─────────────────────────────────────────────
 
 class MatronIncidentListView(APIView):
     """
@@ -278,9 +272,7 @@ class MatronIncidentDetailView(APIView):
         return Response(MatronBehaviorReportSerializer(r).data)
 
 
-# ─────────────────────────────────────────────
 # Schedule
-# ─────────────────────────────────────────────
 
 class MatronScheduleView(APIView):
     """

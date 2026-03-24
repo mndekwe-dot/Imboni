@@ -498,7 +498,6 @@ class RepeatedOffendersView(APIView):
         return Response(data)
 
 # ENROLLMENT
-# ─────────────────────────────────────────────
 
 class EnrollmentOverviewView(APIView):
     """
@@ -545,9 +544,7 @@ class EnrollmentByGradeView(APIView):
         return Response(list(grades))
 
 
-# ─────────────────────────────────────────────
 # FEES
-# ─────────────────────────────────────────────
 
 class FeesOverviewView(APIView):
     """
@@ -632,9 +629,7 @@ class OutstandingFeesView(APIView):
 
         return Response(data)
 
-# ─────────────────────────────────────────────
 # TEACHERS
-# ─────────────────────────────────────────────
 
 class TeacherOverviewView(APIView):
     """

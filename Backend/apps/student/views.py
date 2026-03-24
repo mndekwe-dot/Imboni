@@ -24,9 +24,7 @@ def _get_student(request):
         return None
 
 
-# ─────────────────────────────────────────────
 # Dashboard
-# ─────────────────────────────────────────────
 
 class StudentDashboardView(APIView):
     """
@@ -173,9 +171,7 @@ class StudentDashboardView(APIView):
         })
 
 
-# ─────────────────────────────────────────────
 # Timetable
-# ─────────────────────────────────────────────
 
 class StudentTimetableView(APIView):
     """
@@ -299,9 +295,7 @@ class StudentTodayScheduleView(APIView):
         return Response({'schedule': schedule, 'day': today_day})
 
 
-# ─────────────────────────────────────────────
 # Results
-# ─────────────────────────────────────────────
 
 class StudentResultsView(APIView):
     """
@@ -353,9 +347,7 @@ class StudentResultsView(APIView):
         return Response(response_data)
 
 
-# ─────────────────────────────────────────────
 # Attendance
-# ─────────────────────────────────────────────
 
 class StudentAttendanceStatsView(APIView):
     """
@@ -441,9 +433,7 @@ class StudentAttendanceCalendarView(APIView):
         return Response({'month': month, 'year': year, 'records': calendar})
 
 
-# ─────────────────────────────────────────────
 # Announcements
-# ─────────────────────────────────────────────
 
 
 class StudentAnnouncementsSimpleView(APIView):
@@ -494,9 +484,7 @@ class StudentAnnouncementsSimpleView(APIView):
         return Response(data)
 
 
-# ─────────────────────────────────────────────
 # Discipline / Conduct
-# ─────────────────────────────────────────────
 
 class StudentDisciplineView(APIView):
     """
@@ -562,9 +550,7 @@ class StudentDisciplineView(APIView):
         })
 
 
-# ─────────────────────────────────────────────
 # Activities
-# ─────────────────────────────────────────────
 
 class StudentActivitiesView(APIView):
     """
@@ -670,9 +656,7 @@ class StudentActivityEventsView(generics.ListAPIView):
         )
 
 
-# ─────────────────────────────────────────────
 # Assignments
-# ─────────────────────────────────────────────
 
 class StudentAssignmentsView(APIView):
     """

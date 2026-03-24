@@ -14,9 +14,7 @@ from apps.behavior.serializers import BehaviorReportSerializer
 from apps.authentication.permissions import IsDiscipline,IsMatron
 
 
-# ─────────────────────────────────────────────
 # Dashboard
-# ─────────────────────────────────────────────
 
 class DisciplineDashboardView(APIView):
     """
@@ -90,9 +88,7 @@ class DisciplineDashboardView(APIView):
         })
 
 
-# ─────────────────────────────────────────────
 # Behavior Reports
-# ─────────────────────────────────────────────
 
 class DisciplineReportListView(APIView):
     """
@@ -201,9 +197,7 @@ class DisciplineReportDetailView(APIView):
         return Response({'message': 'Report updated.'})
 
 
-# ─────────────────────────────────────────────
 # Student Conduct
-# ─────────────────────────────────────────────
 
 class DisciplineStudentListView(APIView):
     """
@@ -337,9 +331,7 @@ class DisciplineStudentDetailView(APIView):
         })
 
 
-# ─────────────────────────────────────────────
 # Discipline Staff (Matrons & Patrons)
-# ─────────────────────────────────────────────
 
 class DisciplineStaffListView(APIView):
     """
@@ -409,9 +401,7 @@ class DisciplineStaffDetailView(APIView):
         return Response({'message': 'Staff deactivated.'})
 
 
-# ─────────────────────────────────────────────
 # Student Leaders
-# ─────────────────────────────────────────────
 
 class StudentLeaderListView(APIView):
     """
@@ -488,9 +478,7 @@ class StudentLeaderDetailView(APIView):
         return Response({'message': 'Role removed.'})
 
 
-# ─────────────────────────────────────────────
 # Boarding
-# ─────────────────────────────────────────────
 
 class BoardingStudentListView(APIView):
     """
@@ -563,9 +551,7 @@ class BoardingStudentDetailView(APIView):
         return Response(BoardingStudentSerializer(record).data)
 
 
-# ─────────────────────────────────────────────
 # Dining Plans
-# ─────────────────────────────────────────────
 
 class DiningPlanListView(APIView):
     """
@@ -613,9 +599,7 @@ class DiningPlanListView(APIView):
         return Response(DiningPlanSerializer(plan).data, status=201 if created else 200)
 
 
-# ─────────────────────────────────────────────
 # Activities (managed by Discipline)
-# ─────────────────────────────────────────────
 
 class DisciplineActivityListView(APIView):
     """
