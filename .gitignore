@@ -39,3 +39,4 @@ PERMISSIONS_GUIDE.md
 
 # Claude Code internal config
 .claude/
+.vscode/
