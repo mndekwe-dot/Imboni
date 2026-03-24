@@ -1,5 +1,5 @@
 from django.utils import timezone
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -41,7 +41,7 @@ class TeacherAnnouncementListCreateView(APIView):
         published_at (optional; future datetime = Schedule),
         expires_at (optional)
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         teacher = _get_teacher(request)
@@ -88,7 +88,7 @@ class TeacherAnnouncementDetailView(APIView):
     PATCH  /imboni/announcements/teacher/<uuid:pk>/  — update / publish draft
     DELETE /imboni/announcements/teacher/<uuid:pk>/  — delete
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def _get_object(self, pk, teacher):
         try:

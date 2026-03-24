@@ -265,11 +265,47 @@
 
           <!-- ── TEACHER ATTENDANCE VIEW ── -->
           <div id="teacher-view" class="tm-hidden">
+
+            <!-- Teacher filters -->
+            <div class="dos-picker mt-1-5">
+              <div class="dos-picker-group">
+                <label class="dos-picker-label" for="tchr-week">Week of</label>
+                <input type="date" class="dos-picker-select" id="tchr-week" value="2026-03-09" onchange="renderTeacherAttendance()" />
+              </div>
+              <div class="dos-picker-group">
+                <label class="dos-picker-label" for="tchr-subject">Subject</label>
+                <select class="dos-picker-select" id="tchr-subject" onchange="renderTeacherAttendance()">
+                  <option value="all">All Subjects</option>
+                  <option>Mathematics</option><option>English</option><option>Biology</option>
+                  <option>Chemistry</option><option>Physics</option><option>History</option>
+                  <option>Geography</option><option>Kiswahili</option><option>CRE</option>
+                  <option>Computer Studies</option><option>French</option><option>Literature</option>
+                  <option>Economics</option><option>Business Studies</option><option>Agriculture</option>
+                  <option>Art &amp; Design</option><option>Physical Education</option>
+                </select>
+              </div>
+              <div class="dos-picker-badge">
+                <span class="material-symbols-rounded">person</span>
+                <span id="tchr-badge-label">All Staff</span>
+              </div>
+            </div>
+
+            <!-- Year-group filter chips -->
+            <div class="es-filter-bar att-year-filter mt-1">
+              <button class="es-filter-tab active" data-tyear="all"  onclick="setTeacherYearFilter('all',this)">All Years</button>
+              <button class="es-filter-tab" data-tyear="S1"  onclick="setTeacherYearFilter('S1',this)">S1</button>
+              <button class="es-filter-tab" data-tyear="S2"  onclick="setTeacherYearFilter('S2',this)">S2</button>
+              <button class="es-filter-tab" data-tyear="S3"  onclick="setTeacherYearFilter('S3',this)">S3</button>
+              <button class="es-filter-tab" data-tyear="S4"  onclick="setTeacherYearFilter('S4',this)">S4</button>
+              <button class="es-filter-tab" data-tyear="S5"  onclick="setTeacherYearFilter('S5',this)">S5</button>
+              <button class="es-filter-tab" data-tyear="S6"  onclick="setTeacherYearFilter('S6',this)">S6</button>
+            </div>
+
             <div class="card mt-1-5">
               <div class="card-header">
                 <div>
-                  <h2 class="card-title">Teacher Attendance — Week of 09 Mar 2026</h2>
-                  <p class="dos-class-meta">All teaching staff &bull; 85 teachers</p>
+                  <h2 class="card-title" id="tchr-card-title">Teacher Attendance — Week of 09 Mar 2026</h2>
+                  <p class="dos-class-meta" id="tchr-card-meta">All teaching staff</p>
                 </div>
                 <div class="att-legend">
                   <span class="att-pip present">P</span> Present
@@ -285,6 +321,7 @@
                       <tr>
                         <th>Teacher</th>
                         <th>Subject</th>
+                        <th>Years Taught</th>
                         <th>Mon</th>
                         <th>Tue</th>
                         <th>Wed</th>
@@ -463,28 +500,28 @@
         ]},
       };
 
-      /* Teacher attendance data */
+      /* Teacher attendance data — years[] = year groups this teacher covers */
       const ATT_TEACHERS = [
-        { name:'Mrs. Alice Kamau',      init:'AK', subject:'Mathematics',        week:['P','P','P','P','P'] },
-        { name:'Mr. Bernard Omondi',    init:'BO', subject:'Mathematics',        week:['P','P','P','P','P'] },
-        { name:'Ms. Carol Wanjiku',     init:'CW', subject:'English',            week:['P','L','P','P','P'] },
-        { name:'Mr. Daniel Kipchoge',   init:'DK', subject:'English',            week:['P','P','P','P','P'] },
-        { name:'Mrs. Eve Adhiambo',     init:'EA', subject:'Biology',            week:['P','P','P','P','P'] },
-        { name:'Mr. Frank Mwangi',      init:'FM', subject:'Chemistry',          week:['A','P','P','P','P'] },
-        { name:'Mrs. Grace Auma',       init:'GA', subject:'Physics',            week:['P','P','P','P','P'] },
-        { name:'Mr. Henry Njoroge',     init:'HN', subject:'History',            week:['P','P','P','P','P'] },
-        { name:'Ms. Irene Simiyu',      init:'IS', subject:'Geography',          week:['P','P','P','P','P'] },
-        { name:'Mr. James Mutua',       init:'JM', subject:'Kiswahili',          week:['P','P','L','P','P'] },
-        { name:'Mrs. Kezia Otieno',     init:'KO', subject:'CRE',               week:['P','P','P','P','P'] },
-        { name:'Mr. Lawrence Kamau',    init:'LK', subject:'Computer Studies',   week:['P','P','P','P','P'] },
-        { name:'Ms. Mary Ndirangu',     init:'MN', subject:'Mathematics',        week:['P','P','P','P','P'] },
-        { name:'Mr. Patrick Kimani',    init:'PK', subject:'French',             week:['P','P','P','L','P'] },
-        { name:'Mrs. Queen Adhiambo',   init:'QA', subject:'Literature',         week:['P','P','P','P','P'] },
-        { name:'Mr. Raymond Mutua',     init:'RM', subject:'Economics',          week:['P','P','P','P','P'] },
-        { name:'Mrs. Sharon Wangari',   init:'SW', subject:'Business Studies',   week:['P','P','P','P','P'] },
-        { name:'Mr. Thomas Odhiambo',   init:'TO', subject:'Agriculture',        week:['P','P','P','P','P'] },
-        { name:'Ms. Ursula Kamau',      init:'UK', subject:'Art & Design',       week:['P','A','P','P','P'] },
-        { name:'Mr. Victor Njoroge',    init:'VN', subject:'Physical Education', week:['P','P','P','P','P'] },
+        { name:'Mrs. Alice Kamau',      init:'AK', subject:'Mathematics',        years:['S1','S2','S3'],          week:['P','P','P','P','P'] },
+        { name:'Mr. Bernard Omondi',    init:'BO', subject:'Mathematics',        years:['S4','S5'],               week:['P','P','P','P','P'] },
+        { name:'Ms. Carol Wanjiku',     init:'CW', subject:'English',            years:['S1','S2'],               week:['P','L','P','P','P'] },
+        { name:'Mr. Daniel Kipchoge',   init:'DK', subject:'English',            years:['S3','S4'],               week:['P','P','P','P','P'] },
+        { name:'Mrs. Eve Adhiambo',     init:'EA', subject:'Biology',            years:['S4','S5','S6'],          week:['P','P','P','P','P'] },
+        { name:'Mr. Frank Mwangi',      init:'FM', subject:'Chemistry',          years:['S4','S5'],               week:['A','P','P','P','P'] },
+        { name:'Mrs. Grace Auma',       init:'GA', subject:'Physics',            years:['S4','S5','S6'],          week:['P','P','P','P','P'] },
+        { name:'Mr. Henry Njoroge',     init:'HN', subject:'History',            years:['S1','S2','S3'],          week:['P','P','P','P','P'] },
+        { name:'Ms. Irene Simiyu',      init:'IS', subject:'Geography',          years:['S1','S2','S3'],          week:['P','P','P','P','P'] },
+        { name:'Mr. James Mutua',       init:'JM', subject:'Kiswahili',          years:['S1','S2','S3','S4'],     week:['P','P','L','P','P'] },
+        { name:'Mrs. Kezia Otieno',     init:'KO', subject:'CRE',               years:['S1','S2','S3'],          week:['P','P','P','P','P'] },
+        { name:'Mr. Lawrence Kamau',    init:'LK', subject:'Computer Studies',   years:['S1','S2','S3','S4'],     week:['P','P','P','P','P'] },
+        { name:'Ms. Mary Ndirangu',     init:'MN', subject:'Mathematics',        years:['S5','S6'],               week:['P','P','P','P','P'] },
+        { name:'Mr. Patrick Kimani',    init:'PK', subject:'French',             years:['S1','S2','S3'],          week:['P','P','P','L','P'] },
+        { name:'Mrs. Queen Adhiambo',   init:'QA', subject:'Literature',         years:['S4','S5','S6'],          week:['P','P','P','P','P'] },
+        { name:'Mr. Raymond Mutua',     init:'RM', subject:'Economics',          years:['S5','S6'],               week:['P','P','P','P','P'] },
+        { name:'Mrs. Sharon Wangari',   init:'SW', subject:'Business Studies',   years:['S5','S6'],               week:['P','P','P','P','P'] },
+        { name:'Mr. Thomas Odhiambo',   init:'TO', subject:'Agriculture',        years:['S3','S4'],               week:['P','P','P','P','P'] },
+        { name:'Ms. Ursula Kamau',      init:'UK', subject:'Art & Design',       years:['S1','S2','S3'],          week:['P','A','P','P','P'] },
+        { name:'Mr. Victor Njoroge',    init:'VN', subject:'Physical Education', years:['S1','S2','S3','S4','S5','S6'], week:['P','P','P','P','P'] },
       ];
 
       /* ==========================================================
@@ -499,6 +536,18 @@
         document.getElementById('student-view').classList.toggle('tm-hidden', mode !== 'student');
         document.getElementById('teacher-view').classList.toggle('tm-hidden', mode !== 'teacher');
         if (mode === 'teacher') renderTeacherAttendance();
+      }
+
+      /* ==========================================================
+         TEACHER FILTER STATE
+      ========================================================== */
+      let activeTYear = 'all';
+
+      function setTeacherYearFilter(year, btn) {
+        activeTYear = year;
+        document.querySelectorAll('.att-year-filter .es-filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        renderTeacherAttendance();
       }
 
       /* ==========================================================
@@ -563,13 +612,40 @@
       }
 
       /* ==========================================================
-         RENDER TEACHER ATTENDANCE TABLE
+         RENDER TEACHER ATTENDANCE TABLE  (with subject + year filter)
       ========================================================== */
       function renderTeacherAttendance() {
+        const subjectFilter = document.getElementById('tchr-subject')?.value || 'all';
+        const weekVal       = document.getElementById('tchr-week')?.value || '2026-03-09';
+
+        const filtered = ATT_TEACHERS.filter(t => {
+          const subjectMatch = subjectFilter === 'all' || t.subject === subjectFilter;
+          const yearMatch    = activeTYear   === 'all' || t.years.includes(activeTYear);
+          return subjectMatch && yearMatch;
+        });
+
+        /* update card meta */
+        const weekDate = new Date(weekVal + 'T00:00:00');
+        const opts     = { day:'2-digit', month:'short', year:'numeric' };
+        document.getElementById('tchr-card-title').textContent =
+          `Teacher Attendance — Week of ${weekDate.toLocaleDateString('en-GB', opts)}`;
+        document.getElementById('tchr-card-meta').textContent =
+          `${filtered.length} teacher${filtered.length !== 1 ? 's' : ''} shown` +
+          (subjectFilter !== 'all' ? ` · ${subjectFilter}` : '') +
+          (activeTYear   !== 'all' ? ` · ${activeTYear}`    : '');
+        document.getElementById('tchr-badge-label').textContent =
+          filtered.length + ' teacher' + (filtered.length !== 1 ? 's' : '');
+
         const tbody = document.getElementById('att-teacher-tbody');
-        tbody.innerHTML = ATT_TEACHERS.map(t => {
-          const present = t.week.filter(d => d === 'P' || d === 'L').length;
-          const rate    = Math.round((present / 5) * 100);
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted-foreground)">
+            No teachers match the selected filter.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(t => {
+          const present   = t.week.filter(d => d === 'P' || d === 'L').length;
+          const rate      = Math.round((present / 5) * 100);
           const rateClass = rate === 100 ? 'dos-stand-excellent' : rate >= 80 ? 'dos-stand-good' : 'dos-stand-concern';
           return `<tr>
             <td>
@@ -579,6 +655,7 @@
               </div>
             </td>
             <td class="tm-id">${t.subject}</td>
+            <td class="tm-id">${t.years.join(', ')}</td>
             ${t.week.map(d => `<td>${attPip(d)}</td>`).join('')}
             <td><span class="dos-standing ${rateClass}">${rate}%</span></td>
           </tr>`;

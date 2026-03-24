@@ -197,3 +197,21 @@
 }
 
 .w-full { width: 100%; }
+
+/* Mobile-only "Add Child" bar — hidden on desktop */
+.add-child-mobile-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .add-child-mobile-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+
+  /* Hide the button that lives inside the header on mobile */
+  .add-child-header-btn {
+    display: none;
+  }
+}

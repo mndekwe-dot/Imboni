@@ -1,6 +1,8 @@
 from django.db import models
 from parents.models import Student
 from authentication.models import User
+from rest_framework.permissions import IsAuthenticated
+from authentication.permissions import IsAdminRole
 import uuid
 
 class Subject(models.Model):
@@ -76,11 +78,13 @@ class Result(models.Model):
     teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='submitted_results')
     
     # Scores
-    quiz_average = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    group_work = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    exam_score = models.DecimalField(max_digits=5, decimal_places=2)
-    final_score = models.DecimalField(max_digits=5, decimal_places=2)
-    grade = models.CharField(max_length=2, choices=GRADE_CHOICES)
+    class_test_marks   = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    class_test_maximum = models.DecimalField(max_digits=5, decimal_places=2, default=30)
+    exam_score         = models.DecimalField(max_digits=5, decimal_places=2)
+    exam_maximum       = models.DecimalField(max_digits=5, decimal_places=2, default=70)
+    final_score        = models.DecimalField(max_digits=5, decimal_places=2)
+    total_maximum      = models.DecimalField(max_digits=5, decimal_places=2, default=100)
+    grade              = models.CharField(max_length=2, choices=GRADE_CHOICES)
     
     # Comments
     teacher_comment = models.TextField(blank=True)

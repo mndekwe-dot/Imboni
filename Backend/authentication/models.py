@@ -118,6 +118,14 @@ class Invitation(models.Model):
         blank=True,
         related_name='parent_invitations'
     )
+    class_obj = models.ForeignKey(
+        'teacher.Class',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='invitations',
+        help_text='Class to assign the student to upon registration (students only).',
+    )
     created_at=models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table = 'invitations'

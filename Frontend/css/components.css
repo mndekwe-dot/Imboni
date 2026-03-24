@@ -578,6 +578,118 @@ tr:hover td {
 }
 
 /* ===============================================
+   AVATAR COLOR VARIANTS
+   =============================================== */
+
+.avatar-primary  { background: var(--primary); color: var(--primary-foreground); }
+.avatar-success  { background: var(--success); color: var(--success-foreground); }
+.avatar-accent   { background: var(--accent);  color: var(--accent-foreground);  }
+.avatar-info     { background: var(--info);    color: var(--info-foreground);    }
+.avatar-warning  { background: var(--warning); color: var(--warning-foreground); }
+.avatar-muted    { background: #9ca3af;        color: #ffffff;                   }
+.avatar-purple   { background: #8b5cf6;        color: #ffffff;                   }
+
+/* ===============================================
+   STATS CARD ICON COLOR VARIANTS
+   =============================================== */
+
+.icon-bg-primary  { background-color: var(--primary-light);     color: var(--primary);     }
+.icon-bg-success  { background-color: var(--success-light);     color: var(--success);     }
+.icon-bg-accent   { background-color: var(--accent-light);      color: var(--accent);      }
+.icon-bg-info     { background-color: var(--info-light);        color: var(--info);        }
+.icon-bg-warning  { background-color: var(--warning-light);     color: var(--warning);     }
+.icon-bg-destructive { background-color: var(--destructive-light); color: var(--destructive); }
+.icon-bg-purple   { background-color: rgba(139,92,246,0.1);     color: #8b5cf6;            }
+
+/* ===============================================
+   BADGE SOFT VARIANTS (light background)
+   =============================================== */
+
+.badge-soft-primary     { background-color: var(--primary-light);     color: var(--primary);     }
+.badge-soft-success     { background-color: var(--success-light);     color: var(--success);     }
+.badge-soft-accent      { background-color: var(--accent-light);      color: var(--accent);      }
+.badge-soft-info        { background-color: var(--info-light);        color: var(--info);        }
+.badge-soft-warning     { background-color: var(--warning-light);     color: var(--warning);     }
+.badge-soft-destructive { background-color: var(--destructive-light); color: var(--destructive); }
+.badge-soft-purple      { background-color: rgba(139,92,246,0.1);     color: #8b5cf6;            }
+
+/* ===============================================
+   SCHEDULE DOT COLORS
+   =============================================== */
+
+.schedule-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.schedule-dot-green   { background: var(--success); }
+.schedule-dot-teal    { background: #0d9488; }
+.schedule-dot-muted   { background: var(--muted-foreground); }
+.schedule-dot-orange  { background: var(--accent); }
+.schedule-dot-indigo  { background: #6366f1; }
+.schedule-dot-primary { background: var(--primary); }
+
+/* ===============================================
+   DISCIPLINE / ACTIVITY ICON VARIANTS
+   =============================================== */
+
+.disc-activity-icon-purple { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+.disc-activity-icon-green  { background: var(--success-light); color: var(--success); }
+.disc-activity-icon-orange { background: var(--accent-light);  color: var(--accent);  }
+.disc-activity-icon-blue   { background: var(--info-light);    color: var(--info);    }
+
+/* ===============================================
+   BUTTON ICON CLEAN (no background, no border)
+   =============================================== */
+
+.btn-icon-clean {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  color: var(--muted-foreground);
+  transition: color var(--transition-base), background var(--transition-base);
+}
+
+.btn-icon-clean:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+/* ===============================================
+   PLACEHOLDER CONTENT
+   =============================================== */
+
+.placeholder-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--muted-foreground);
+}
+
+/* ===============================================
+   URGENT / PINNED SIDEBAR HEADER
+   =============================================== */
+
+.ann-sidebar-header-urgent {
+  color: var(--destructive);
+}
+
+.ann-sidebar-header-urgent .material-symbols-rounded {
+  color: var(--destructive);
+}
+
+/* ===============================================
    UTILITY CLASSES
    =============================================== */
 
@@ -710,5 +822,40 @@ tr:hover td {
 
   .card-content {
     padding: 1rem;
+  }
+}
+
+/* Ultra-small phones */
+@media (max-width: 374px) {
+  .card-header {
+    padding: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .card-content {
+    padding: 0.75rem;
+  }
+
+  /* Tables — tighter on ultra-small */
+  th, td {
+    padding: 0.5rem 0.35rem;
+    font-size: 0.78rem;
+  }
+
+  .btn {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Scroll-shadow hint on horizontally scrollable tables */
+.table-responsive {
+  position: relative;
+}
+@media (max-width: 767px) {
+  .table-responsive {
+    border-radius: var(--radius-sm, 6px);
+    box-shadow: inset -6px 0 8px -6px rgba(0,0,0,0.08);
   }
 }

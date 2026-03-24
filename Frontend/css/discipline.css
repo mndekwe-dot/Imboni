@@ -1177,6 +1177,16 @@
   .form-row-2 { grid-template-columns: 1fr; }
   .student-row { flex-wrap: wrap; }
   .class-summary-right { display: none; }
+
+  /* Timetable — compact on tablets / large phones */
+  .tt-table     { min-width: 520px; font-size: 0.72rem; }
+  .tt-time-head { width: 70px; padding: 0.4rem 0.5rem; font-size: 0.68rem; }
+  .tt-day-head  { min-width: 70px; padding: 0.4rem 0.25rem; font-size: 0.68rem; }
+  .tt-time-cell { padding: 0.4rem 0.5rem; }
+  .tt-cell      { padding: 0.35rem 0.4rem; }
+  .tt-subject   { font-size: 0.7rem; }
+  .tt-teacher, .tt-room { font-size: 0.62rem; }
+  .tt-form-row  { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 480px) {
   .disc-stat-grid { grid-template-columns: 1fr; }
@@ -1185,4 +1195,15 @@
   .sched-badge { display: none; }
   .class-nav-bar { gap: 0.5rem; padding: 0.6rem; }
   .did-direct-badge { display: none; }
+
+  /* Timetable — ultra-compact on phones */
+  .tt-table     { min-width: 400px; }
+  .tt-time-head { width: 55px; font-size: 0.65rem; }
+  .tt-day-head  { min-width: 55px; font-size: 0.6rem; }
+  .tt-form-row  { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 374px) {
+  .disc-stat-grid { grid-template-columns: 1fr; }
+  .disc-picker-group { min-width: unset; flex: 1; }
 }

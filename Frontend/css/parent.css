@@ -468,6 +468,14 @@
   }
 }
 
+/* Ultra-small phones */
+@media (max-width: 374px) {
+  .parent-stats-grid,
+  .result-stats { grid-template-columns: 1fr; }
+  .children-tabs { gap: 0.25rem; }
+  .child-tab { padding: 0.35rem 0.6rem; font-size: 0.75rem; }
+}
+
 /* Touch devices - enhance tap targets */
 @media (hover: none) and (pointer: coarse) {
   .behavior-card {

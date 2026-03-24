@@ -343,6 +343,11 @@
   }
 }
 
+@media (max-width: 374px) {
+  .quick-stats-grid { grid-template-columns: 1fr; }
+  .search-filter-bar { gap: 0.5rem; }
+}
+
 /* ===============================================
    TEACHER DASHBOARD COMPONENTS - teacher.html
    =============================================== */
@@ -1391,22 +1396,22 @@
 
 @media (max-width: 767px) {
   .quick-stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .stat-card-header {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .calendar-days {
     gap: 0.125rem;
   }
-  
+
   .calendar-day {
     font-size: 0.75rem;
   }
-  
+
   .tab-nav {
     overflow-x: auto;
   }

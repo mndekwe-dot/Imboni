@@ -1384,10 +1384,28 @@
   .back-btn { display: flex; }
   .msg-page-wrap.show-list .conv-panel { display: flex; }
   .msg-page-wrap.show-list .msg-right-col { display: none; }
+
+  /* Weekly timetable — compact on tablets / large phones */
+  .weekly-timetable         { min-width: 480px; }
+  .weekly-timetable th      { padding: 0.4rem 0.5rem; font-size: 0.7rem; }
+  .weekly-timetable .time-col { width: 55px; padding: 0.4rem 0.5rem; font-size: 0.65rem; }
+  .tt-cell-subject          { font-size: 0.7rem; }
+  .tt-cell-teacher          { font-size: 0.62rem; }
 }
 
 @media (max-width: 480px) {
   .student-stats-grid { grid-template-columns: 1fr; }
   .attendance-hero { flex-direction: column; gap: 1rem; }
   .welcome-chips { display: none; }
+
+  /* Weekly timetable — ultra-compact on phones */
+  .weekly-timetable         { min-width: 360px; }
+  .weekly-timetable th      { font-size: 0.62rem; padding: 0.35rem 0.3rem; }
+  .weekly-timetable .time-col { width: 45px; font-size: 0.6rem; }
+}
+
+@media (max-width: 374px) {
+  .student-stats-grid { grid-template-columns: 1fr; }
+  .assignment-card { flex-direction: column; }
+  .assignment-actions { justify-content: flex-start; }
 }

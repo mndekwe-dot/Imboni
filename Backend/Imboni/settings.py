@@ -262,3 +262,7 @@ AFRICASTALKING_USERNAME=config('AFRICASTALKING_USERNAME',default='sandbox')
 AFRICASTALKING_API_KEY=config('AFRICASTALKING_API_KEY',default='')
 AFRICASTALKING_SENDER_ID=config('AFRICASTALKING_SENDER_ID',default='Imboni')
 
+# School Identity
+SCHOOL_NAME  = config('SCHOOL_NAME',  default='Imboni School')
+SCHOOL_EMAIL = config('SCHOOL_EMAIL', default='')
+SCHOOL_PHONE = config('SCHOOL_PHONE', default='')

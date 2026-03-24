@@ -31,3 +31,11 @@ db.sqlite3
 # OS
 .DS_Store
 Thumbs.db
+
+# Internal guides & notes (not for public repo)
+Guides/
+ANALYTICS_GUIDE.md
+PERMISSIONS_GUIDE.md
+
+# Claude Code internal config
+.claude/

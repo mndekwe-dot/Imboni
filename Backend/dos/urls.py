@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import report_views
 
 urlpatterns = [
     # ── Bulk enrollment (term-start) ─────────────────────────────────────────
@@ -62,4 +63,9 @@ urlpatterns = [
 
     # ── Analytics ───────────────────────────────────────────────────────────
     path('dos/analytics/',                 views.DOSAnalyticsView.as_view(), name='dos-analytics'),
+
+     # ── Report Generation ────────────────────────────────────────────────────
+    path('dos/reports/student/<uuid:pk>/',         report_views.StudentReportCardView.as_view(),  name='dos-student-report'),
+    path('dos/reports/class/<uuid:class_id>/',     report_views.ClassReportCardsView.as_view(),   name='dos-class-reports'),
+    path('dos/reports/export/results/',            report_views.ExportResultsCSVView.as_view(),   name='dos-export-results-csv'),
 ]

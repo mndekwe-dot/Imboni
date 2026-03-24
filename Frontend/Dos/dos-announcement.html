@@ -12,90 +12,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <style>
-      /* ── TWO-COLUMN LAYOUT ── */
-      .ann-grid {
-        display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 1.5rem;
-        align-items: start;
-      }
-      @media (max-width: 900px) { .ann-grid { grid-template-columns: 1fr; } }
-
-      /* ── CATEGORY CHIPS ── */
-      .ann-category-row { display: flex; gap: .5rem; flex-wrap: wrap; }
-      .ann-cat-label {
-        display: flex; align-items: center; gap: .3rem;
-        padding: .35rem .8rem; border: 2px solid var(--border); border-radius: 99px;
-        font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .15s;
-        user-select: none;
-      }
-      .ann-cat-label:has(input:checked) { border-color: var(--primary); background: var(--primary); color: #fff; }
-      .ann-cat-label.urgent:has(input:checked)   { border-color: #ef4444; background: #ef4444; }
-      .ann-cat-label.event:has(input:checked)    { border-color: #f59e0b; background: #f59e0b; }
-      .ann-cat-label.academic:has(input:checked) { border-color: #2563eb; background: #2563eb; }
-      .ann-cat-label.general:has(input:checked)  { border-color: #10b981; background: #10b981; }
-      .ann-cat-label input { display: none; }
-
-      /* ── AUDIENCE CHECKBOXES ── */
-      .ann-audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
-      .ann-audience-item {
-        display: flex; align-items: center; gap: .5rem;
-        padding: .5rem .75rem; border: 1px solid var(--border); border-radius: .45rem;
-        font-size: .875rem; cursor: pointer; transition: all .15s;
-      }
-      .ann-audience-item:has(input:checked) {
-        border-color: var(--primary); background: rgba(30,64,175,.06); color: var(--primary); font-weight: 500;
-      }
-      .ann-audience-item input { display: none; }
-      .ann-audience-item .material-symbols-rounded { font-size: 1.1rem; color: var(--muted-foreground); }
-      .ann-audience-item:has(input:checked) .material-symbols-rounded { color: var(--primary); }
-
-      /* ── HISTORY FILTER PILLS ── */
-      .ann-filter-row { display: flex; gap: .5rem; margin-bottom: 1rem; }
-      .ann-filter-pill {
-        padding: .3rem .85rem; border: 1px solid var(--border); border-radius: 99px;
-        font-size: .8rem; font-weight: 500; color: var(--muted-foreground);
-        background: var(--card); cursor: pointer; transition: all .15s;
-      }
-      .ann-filter-pill:hover  { border-color: var(--primary); color: var(--primary); }
-      .ann-filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-
-      /* ── ANNOUNCEMENT CARD ── */
-      .ann-item {
-        border: 1px solid var(--border); border-radius: .65rem; padding: 1rem 1.1rem;
-        background: var(--card); margin-bottom: .75rem; transition: box-shadow .2s;
-      }
-      .ann-item:last-child { margin-bottom: 0; }
-      .ann-item:hover { box-shadow: var(--shadow-sm); }
-      .ann-item-header { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: .5rem; }
-      .ann-avatar {
-        width: 2.2rem; height: 2.2rem; border-radius: .45rem; background: var(--primary);
-        color: #fff; font-size: .75rem; font-weight: 700; display: flex; align-items: center;
-        justify-content: center; flex-shrink: 0;
-      }
-      .ann-item-meta { flex: 1; min-width: 0; }
-      .ann-item-title { font-weight: 700; font-size: .9rem; color: var(--foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .ann-item-sub   { font-size: .75rem; color: var(--muted-foreground); }
-      .ann-badge { padding: .2rem .55rem; border-radius: 99px; font-size: .7rem; font-weight: 700; flex-shrink: 0; }
-      .ann-badge.urgent   { background: rgba(239,68,68,.12);  color: #ef4444; }
-      .ann-badge.event    { background: rgba(245,158,11,.12); color: #d97706; }
-      .ann-badge.academic { background: rgba(37,99,235,.12);  color: #2563eb; }
-      .ann-badge.general  { background: rgba(16,185,129,.12); color: #059669; }
-      .ann-excerpt  { font-size: .83rem; color: var(--muted-foreground); line-height: 1.5; margin-bottom: .65rem; }
-      .ann-item-footer { display: flex; align-items: center; gap: .75rem; font-size: .78rem; color: var(--muted-foreground); }
-      .ann-views { display: flex; align-items: center; gap: .25rem; }
-      .ann-views .material-symbols-rounded { font-size: .9rem; }
-      .ann-item-actions { display: flex; gap: .3rem; margin-left: auto; }
-      .ann-icon-btn {
-        width: 1.8rem; height: 1.8rem; border-radius: .35rem; border: 1px solid var(--border);
-        background: var(--card); display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: var(--muted-foreground); font-size: .8rem; transition: all .18s;
-      }
-      .ann-icon-btn:hover          { background: var(--primary); color: #fff; border-color: var(--primary); }
-      .ann-icon-btn.danger:hover   { background: #ef4444; color: #fff; border-color: #ef4444; }
-      .ann-icon-btn .material-symbols-rounded { font-size: 1rem; }
-    </style>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
@@ -189,42 +105,42 @@
             <div class="card">
               <div class="card-header">
                 <h2 class="card-title"><span class="material-symbols-rounded">edit_note</span> Create New Announcement</h2>
-                <span id="editingBadge" class="badge" style="display:none;background:rgba(245,158,11,.12);color:#d97706;">Editing draft</span>
+                <span id="editingBadge" class="badge ann-editing-badge">Editing draft</span>
               </div>
               <div class="card-content">
                 <form id="annForm" onsubmit="return false">
 
                   <!-- Category -->
-                  <div class="form-group" style="margin-bottom:1rem;">
+                  <div class="form-group ann-form-group">
                     <label class="form-label">Category</label>
                     <div class="ann-category-row">
                       <label class="ann-cat-label urgent">
                         <input type="radio" name="ann-cat" value="urgent" />
-                        <span class="material-symbols-rounded" style="font-size:1rem">priority_high</span> Urgent
+                        <span class="material-symbols-rounded">priority_high</span> Urgent
                       </label>
                       <label class="ann-cat-label academic">
                         <input type="radio" name="ann-cat" value="academic" checked />
-                        <span class="material-symbols-rounded" style="font-size:1rem">school</span> Academic
+                        <span class="material-symbols-rounded">school</span> Academic
                       </label>
                       <label class="ann-cat-label event">
                         <input type="radio" name="ann-cat" value="event" />
-                        <span class="material-symbols-rounded" style="font-size:1rem">event</span> Event
+                        <span class="material-symbols-rounded">event</span> Event
                       </label>
                       <label class="ann-cat-label general">
                         <input type="radio" name="ann-cat" value="general" />
-                        <span class="material-symbols-rounded" style="font-size:1rem">info</span> General
+                        <span class="material-symbols-rounded">info</span> General
                       </label>
                     </div>
                   </div>
 
                   <!-- Title -->
-                  <div class="form-group" style="margin-bottom:1rem;">
+                  <div class="form-group ann-form-group">
                     <label class="form-label" for="annTitle">Announcement Title</label>
                     <input type="text" class="form-input" id="annTitle" placeholder="e.g. Mid-Term Exam Schedule Revision" />
                   </div>
 
                   <!-- Audience -->
-                  <div class="form-group" style="margin-bottom:1rem;">
+                  <div class="form-group ann-form-group">
                     <label class="form-label">Send To</label>
                     <div class="ann-audience-grid">
                       <label class="ann-audience-item">
@@ -247,8 +163,8 @@
                   </div>
 
                   <!-- Year group scope (optional) -->
-                  <div class="form-group" style="margin-bottom:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
-                    <div style="flex:1;min-width:160px;">
+                  <div class="ann-form-row">
+                    <div class="ann-form-col">
                       <label class="form-label">Year Group (optional)</label>
                       <select class="form-input" id="annYear">
                         <option value="">All Year Groups</option>
@@ -260,26 +176,26 @@
                         <option>S6 (Form 6)</option>
                       </select>
                     </div>
-                    <div style="flex:1;min-width:160px;">
+                    <div class="ann-form-col">
                       <label class="form-label">Schedule Send (optional)</label>
                       <input type="datetime-local" class="form-input" id="annSchedule" />
                     </div>
                   </div>
 
                   <!-- Content -->
-                  <div class="form-group" style="margin-bottom:1.25rem;">
+                  <div class="form-group ann-content-group">
                     <label class="form-label" for="annContent">Announcement Content</label>
                     <textarea class="form-input" id="annContent" rows="6"
                       placeholder="Type the full announcement details here..."></textarea>
                   </div>
 
-                  <div style="display:flex;gap:.75rem;justify-content:flex-end;flex-wrap:wrap;">
+                  <div class="ann-form-actions">
                     <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
                     <button type="button" class="btn btn-secondary" onclick="saveAnn('draft')">
-                      <span class="material-symbols-rounded" style="font-size:1rem">draft</span> Save Draft
+                      <span class="material-symbols-rounded">draft</span> Save Draft
                     </button>
                     <button type="button" class="btn btn-primary" onclick="saveAnn('publish')">
-                      <span class="material-symbols-rounded" style="font-size:1rem">send</span> Publish Now
+                      <span class="material-symbols-rounded">send</span> Publish Now
                     </button>
                   </div>
 
@@ -365,7 +281,7 @@
 
                   <div class="ann-item" data-status="draft">
                     <div class="ann-item-header">
-                      <div class="ann-avatar" style="background:#f59e0b;">GM</div>
+                      <div class="ann-avatar avatar-warning">GM</div>
                       <div class="ann-item-meta">
                         <div class="ann-item-title">End of Term Assembly</div>
                         <div class="ann-item-sub">Draft &nbsp;·&nbsp; Last edited 5 days ago</div>
@@ -385,7 +301,7 @@
 
                   <div class="ann-item" data-status="archived">
                     <div class="ann-item-header">
-                      <div class="ann-avatar" style="background:#9ca3af;">GM</div>
+                      <div class="ann-avatar avatar-muted">GM</div>
                       <div class="ann-item-meta">
                         <div class="ann-item-title">Term 3 2025 Results Available</div>
                         <div class="ann-item-sub">Sent to: All &nbsp;·&nbsp; 2 months ago</div>
@@ -426,7 +342,7 @@
       function loadDraft() {
         document.getElementById('annTitle').value   = 'End of Term Assembly';
         document.getElementById('annContent').value = 'Reminder that the end-of-term assembly will be held on the last Friday of term. All students and staff are expected to attend in full uniform.';
-        document.getElementById('editingBadge').style.display = '';
+        document.getElementById('editingBadge').classList.add('visible');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
@@ -447,7 +363,7 @@
 
       function resetForm() {
         document.getElementById('annForm').reset();
-        document.getElementById('editingBadge').style.display = 'none';
+        document.getElementById('editingBadge').classList.remove('visible');
       }
     </script>
   </body>

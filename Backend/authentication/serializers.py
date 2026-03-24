@@ -106,12 +106,16 @@ class AvatarUploadSerializer(serializers.ModelSerializer):
         model = User
         fields = ['avatar']
 class InvitationSerializer(serializers.ModelSerializer):
+    class_obj_id   = serializers.UUIDField(write_only=True, required=False, allow_null=True)
+    class_obj_name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Invitation
         fields =[
             'id','email','phone_number','first_name',
-            'last_name',
-            'role', 'is_used','is_expired','channels_sent',
+            'last_name','role',
+            'class_obj_id','class_obj_name',
+            'is_used','is_expired','channels_sent',
             'delivery_status','created_at','expires_at',
         ]
         read_only_fields = [
@@ -119,13 +123,32 @@ class InvitationSerializer(serializers.ModelSerializer):
             'delivery_status','created_at','expires_at',
         ]
 
-    def validate(self,data):
-        #atleast one of email or phone must be provided
+    def get_class_obj_name(self, obj):
+        return obj.class_obj.name if obj.class_obj else None
+
+    def validate(self, data):
+        # At least one of email or phone must be provided
         if not data.get('email') and not data.get('phone_number'):
             raise serializers.ValidationError(
-               'At least one of email or phone number ' \
-               'must be provided.'
+               'At least one of email or phone number must be provided.'
             )
+        # class_obj_id is only valid for students
+        if data.get('class_obj_id') and data.get('role') != 'student':
+            raise serializers.ValidationError(
+                'class_obj_id can only be set for students.'
+            )
+        # Resolve class_obj_id to actual Class instance
+        if data.get('class_obj_id'):
+            from teacher.models import Class
+            try:
+                data['class_obj'] = Class.objects.get(pk=data.pop('class_obj_id'))
+            except Class.DoesNotExist:
+                raise serializers.ValidationError(
+                    {'class_obj_id': 'Class not found.'}
+                )
+        else:
+            data.pop('class_obj_id', None)
+            data['class_obj'] = None
         return data
 class CompleteRegistrationSerializer(serializers.Serializer):
     uid = serializers.CharField()
@@ -153,5 +176,29 @@ class EmailChangeRequestSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 'This email is already in use.'
             )
-        return value 
+        return value
+
+
+class CSVInviteSerializer(serializers.Serializer):
+    """
+    Payload for POST /imboni/auth/invite/csv/
+    Upload a CSV file to send invitations in bulk.
+
+    Required field : file — CSV file
+    Optional field : default_role — applied when CSV row has no role column
+
+    Expected CSV columns (header row required):
+        first_name, last_name, role, email (optional), phone_number (optional)
+
+    Example CSV:
+        first_name,last_name,role,email,phone_number
+        Alice,Uwase,teacher,alice@school.rw,+250788000001
+        Bob,Nkurunziza,student,bob@school.rw,
+    """
+    file         = serializers.FileField()
+    default_role = serializers.ChoiceField(
+        choices=['student', 'parent', 'teacher', 'dos', 'matron', 'discipline', 'admin'],
+        required=False,
+        default='student',
+    )
     

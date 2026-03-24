@@ -4,6 +4,7 @@ from . import views
 from .views import (
     SendInvitationView,
     BulkInviteView,
+    CSVInviteView,
     InvitationListView,
     ResendInvitationView,
     CancelInvitationView,
@@ -33,6 +34,7 @@ urlpatterns = router.urls + user_nested_router.urls + [
     # Invitation management
     path('auth/invite/', SendInvitationView.as_view(),    name='send-invitation'),
     path('auth/invite/bulk/',BulkInviteView.as_view(),        name='bulk-invite'),
+    path('auth/invite/csv/', CSVInviteView.as_view(),         name='csv-invite'),
     path('auth/invite/list/',InvitationListView.as_view(),    name='invitation-list'),
     path('auth/invite/resend/<uuid:pk>/',ResendInvitationView.as_view(),  name='resend-invitation'),
     path('auth/invite/<uuid:pk>/cancel/',CancelInvitationView.as_view(),  name='cancel-invitation'),

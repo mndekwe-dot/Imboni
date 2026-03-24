@@ -146,7 +146,13 @@
       table td {
         padding:   clamp(0.4rem, 1.5vw, 0.75rem) clamp(0.5rem, 2vw, 1rem);
         font-size: clamp(0.7rem, 1.5vw, var(--font-sm));
-        white-space: nowrap;
+      }
+
+      @media (min-width: 1024px) {
+        table th,
+        table td {
+          white-space: nowrap;
+        }
       }
 
       /* ── Fluid assessment items ── */

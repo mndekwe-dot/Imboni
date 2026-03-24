@@ -18,6 +18,7 @@ urlpatterns = [
     path('imboni/', include('student.urls')),
     path('imboni/', include('discipline.urls')),
     path('imboni/', include('matron.urls')),
+    path('imboni/', include('analytics.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

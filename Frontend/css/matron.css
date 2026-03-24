@@ -586,3 +586,9 @@
   .matron-stat-grid { grid-template-columns: 1fr; }
   .matron-welcome-banner { flex-direction: column; align-items: flex-start; }
 }
+
+@media (max-width: 374px) {
+  .matron-stat-grid { grid-template-columns: 1fr; }
+  .incident-form-grid { grid-template-columns: 1fr; }
+  .matron-students-grid { grid-template-columns: 1fr; }
+}

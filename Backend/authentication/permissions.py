@@ -107,6 +107,17 @@ class IsDiscipline(BasePermission):
             request.user.is_authenticated and
             request.user.role == 'discipline'
         )
+class IsDOSOrAdminOrDiscipline(BasePermission):
+    """Allow access to DOS, Admin, or Discipline master."""
+    message = 'Access restricted to DOS, Admin, or Discipline staff.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role in('discipline','dos','admin')
+        )
+
 class CanInvite(BasePermission):
     """
     Controls which roles can invite which other roles.

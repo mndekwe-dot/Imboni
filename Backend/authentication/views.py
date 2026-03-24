@@ -21,7 +21,7 @@ from .serializers import (
     UserPreferencesSerializer, PasswordChangeSerializer,
     AccountProfileSerializer, AvatarUploadSerializer,
     InvitationSerializer,CompleteRegistrationSerializer,
-    EmailChangeRequestSerializer,
+    EmailChangeRequestSerializer, CSVInviteSerializer,
 )
 
 
@@ -157,11 +157,8 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
         return UserPreferences.objects.all()
 
     def get_object(self):
-        # Always return the current user's preferences, create if not exists
-        if self.request.user.is_authenticated:
-            preferences, _ = UserPreferences.objects.get_or_create(user=self.request.user)
-            return preferences
-        return UserPreferences.objects.first()  # Fallback for development
+        preferences, _ = UserPreferences.objects.get_or_create(user=self.request.user)
+        return preferences
 
 
 class AccountProfileView(generics.RetrieveUpdateAPIView):
@@ -176,9 +173,7 @@ class AccountProfileView(generics.RetrieveUpdateAPIView):
     http_method_names = ['get', 'patch']
 
     def get_object(self):
-        # For development fall back to first user when unauthenticated
-        if self.request.user.is_authenticated:
-            return self.request.user
+        return self.request.user
 
 
 class AccountAvatarView(APIView):
@@ -467,6 +462,165 @@ class CancelInvitationView(APIView):
         status=status.HTTP_204_NO_CONTENT
         ) 
     
+class CSVInviteView(APIView):
+    """
+    POST /imboni/auth/invite/csv/
+    Upload a CSV file to send invitations to multiple people at once.
+
+    Form fields:
+        file         — CSV file (required)
+        default_role — fallback role if CSV row has no role column (default: student)
+
+    CSV columns: first_name, last_name, role, email (optional), phone_number (optional)
+    At least one of email or phone_number must be present per row.
+
+    Who: Admin, DOS, Discipline
+    """
+    permission_classes = [CanInvite]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        import csv
+        import io
+
+        serializer = CSVInviteSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        csv_file     = serializer.validated_data['file']
+        default_role = serializer.validated_data['default_role']
+        permission   = CanInvite()
+
+        try:
+            content = csv_file.read().decode('utf-8-sig')
+        except UnicodeDecodeError:
+            return Response(
+                {'error': 'File must be UTF-8 encoded. Save your spreadsheet as CSV UTF-8.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        reader = csv.DictReader(io.StringIO(content))
+
+        # Normalize headers to lowercase and strip spaces
+        reader.fieldnames = [h.strip().lower() for h in (reader.fieldnames or [])]
+
+        results = {'sent': [], 'failed': []}
+
+        for idx, row in enumerate(reader, start=2):  # start=2 because row 1 is header
+            # Strip whitespace from all values
+            row = {k: (v.strip() if v else '') for k, v in row.items()}
+
+            first_name   = row.get('first_name', '')
+            last_name    = row.get('last_name', '')
+            role         = row.get('role', '').lower() or default_role
+            email        = row.get('email', '')
+            phone_number = row.get('phone_number', '')
+            class_id     = row.get('class_id', '').strip() or row.get('class_obj_id', '').strip()
+
+            # Validate required fields
+            if not first_name or not last_name:
+                results['failed'].append({
+                    'row': idx,
+                    'email': email,
+                    'reason': 'first_name and last_name are required.',
+                })
+                continue
+
+            if not email and not phone_number:
+                results['failed'].append({
+                    'row': idx,
+                    'email': email,
+                    'reason': 'At least one of email or phone_number is required.',
+                })
+                continue
+
+            # Check permission for this role
+            if not permission.can_invite_role(request.user.role, role):
+                results['failed'].append({
+                    'row': idx,
+                    'email': email,
+                    'reason': f'You cannot invite users with role: {role}',
+                })
+                continue
+
+            # Skip if already invited and not yet used
+            if email and Invitation.objects.filter(email=email, is_used=False).exists():
+                results['failed'].append({
+                    'row': idx,
+                    'email': email,
+                    'reason': 'An active invitation already exists for this email.',
+                })
+                continue
+
+            # Resolve class if provided (students only)
+            class_obj = None
+            if class_id and role == 'student':
+                from teacher.models import Class
+                class_obj = Class.objects.filter(pk=class_id).first()
+                if not class_obj:
+                    results['failed'].append({
+                        'row':    idx,
+                        'email':  email,
+                        'reason': f'Class with id {class_id} not found.',
+                    })
+                    continue
+
+            # Create invitation
+            try:
+                expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+                invitation = Invitation.objects.create(
+                    first_name   = first_name,
+                    last_name    = last_name,
+                    role         = role,
+                    email        = email or '',
+                    phone_number = phone_number or '',
+                    invited_by   = request.user,
+                    expires_at   = expires_at,
+                    token        = 'pending',
+                    uid          = 'pending',
+                    class_obj    = class_obj,
+                )
+
+                token = default_token_generator.make_token(request.user)
+                uid   = urlsafe_base64_encode(force_bytes(invitation.pk))
+                invitation.token = token
+                invitation.uid   = uid
+                invitation.save()
+
+                registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+                channels = dispatch_invitation(invitation, registration_link)
+                invitation.channels_sent    = channels
+                invitation.delivery_status  = 'sent' if channels else 'failed'
+                invitation.save()
+
+                results['sent'].append({
+                    'row':      idx,
+                    'name':     f"{first_name} {last_name}",
+                    'role':     role,
+                    'email':    email,
+                    'phone':    phone_number,
+                    'channels': channels,
+                })
+
+            except Exception as exc:
+                results['failed'].append({
+                    'row':    idx,
+                    'email':  email,
+                    'reason': str(exc),
+                })
+
+        status_code = (
+            status.HTTP_201_CREATED if results['sent']
+            else status.HTTP_400_BAD_REQUEST
+        )
+        return Response({
+            'total_sent':   len(results['sent']),
+            'total_failed': len(results['failed']),
+            'sent':         results['sent'],
+            'failed':       results['failed'],
+        }, status=status_code)
+
+
 class VerifyInvitationView(APIView):
     """
     GET /imboni/auth/register/verify/<uid>/<token>/
@@ -558,14 +712,31 @@ class CompleteRegistrationView(APIView):
             phone_number = data.get('phone_number', invitation.phone_number),
             date_of_birth =data.get('date_of_birth')
         )
-        #create user preferences
+        # Create user preferences
         UserPreferences.objects.get_or_create(user=user)
 
-        #mark invitaion as used 
+        # Auto-assign student to class if invitation had a class
+        if invitation.role == 'student' and invitation.class_obj:
+            try:
+                from teacher.models import ClassAssignment
+                from results.models import AcademicTerm
+                from parents.models import Student as StudentProfile
+                current_term = AcademicTerm.objects.filter(is_current=True).first()
+                student_profile = StudentProfile.objects.filter(user=user).first()
+                if current_term and student_profile:
+                    ClassAssignment.objects.get_or_create(
+                        class_obj=invitation.class_obj,
+                        student=student_profile,
+                        term=current_term,
+                    )
+            except Exception:
+                pass  # Class assignment failure should not block registration
+
+        # Mark invitation as used
         invitation.is_used = True
         invitation.save()
 
-        #send welcome email/sms/Whastapp
+        # Send welcome email/sms/WhatsApp
         _send_welcome_message(user)
 
         return Response({
