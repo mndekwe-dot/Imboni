@@ -11,16 +11,16 @@
 > Screenshots below show the current HTML/CSS prototype. The React frontend is in progress.
 
 **Director of Studies — Dashboard**
-![DOS Dashboard](<Screenshot 2026-03-24 144243.png>)
+![DOS Dashboard](Screenshots/<Screenshot 2026-03-24 144243.png>)
 
 **Student Portal — Timetable & Results**
-![Student Portal](<Screenshot 2026-03-24 144355.png>)
+![Student Portal](Screenshots/<Screenshot 2026-03-24 144355.png>)
 
 **Parent Portal — My Children**
-![Parent Portal](<Screenshot 2026-03-24 144408.png>)
+![Parent Portal](Screenshots/<Screenshot 2026-03-24 144408.png>)
 
 **Mobile View — Responsive Design**
-![Mobile View](<Screenshot 2026-03-24 144429.png>)
+![Mobile View](Screenshots/<Screenshot 2026-03-24 144429.png>)
 
 ---
 
