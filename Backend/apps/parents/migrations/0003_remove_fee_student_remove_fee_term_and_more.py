@@ -10,28 +10,35 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='fee',
-            name='student',
-        ),
-        migrations.RemoveField(
-            model_name='fee',
-            name='term',
-        ),
-        migrations.RemoveIndex(
-            model_name='student',
-            name='students_student_1ff8ed_idx',
-        ),
-        migrations.RemoveIndex(
-            model_name='student',
-            name='students_grade_9a2fa6_idx',
-        ),
-        migrations.RemoveIndex(
-            model_name='student',
-            name='students_status_3ac771_idx',
-        ),
-        migrations.RemoveField(
-            model_name='studentdocument',
-            name='student',
+        # These fields/indexes still exist physically in MySQL and are now owned
+        # by the student app. Only update Django's state — no DB changes.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='fee',
+                    name='student',
+                ),
+                migrations.RemoveField(
+                    model_name='fee',
+                    name='term',
+                ),
+                migrations.RemoveIndex(
+                    model_name='student',
+                    name='students_student_1ff8ed_idx',
+                ),
+                migrations.RemoveIndex(
+                    model_name='student',
+                    name='students_grade_9a2fa6_idx',
+                ),
+                migrations.RemoveIndex(
+                    model_name='student',
+                    name='students_status_3ac771_idx',
+                ),
+                migrations.RemoveField(
+                    model_name='studentdocument',
+                    name='student',
+                ),
+            ],
+            database_operations=[],
         ),
     ]

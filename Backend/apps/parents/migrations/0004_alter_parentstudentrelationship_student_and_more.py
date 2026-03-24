@@ -18,26 +18,34 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Update the actual FK on parent_student_relationships to reference student.Student.
         migrations.AlterField(
             model_name='parentstudentrelationship',
             name='student',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='parents', to='student.student'),
         ),
-        migrations.RemoveField(
-            model_name='studentdocument',
-            name='uploaded_by',
-        ),
-        migrations.DeleteModel(
-            name='Fee',
-        ),
-        migrations.RemoveField(
-            model_name='student',
-            name='user',
-        ),
-        migrations.DeleteModel(
-            name='StudentDocument',
-        ),
-        migrations.DeleteModel(
-            name='Student',
+        # Remove Student, Fee, StudentDocument from parents' state only.
+        # The physical tables belong to the student app and must not be dropped.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='studentdocument',
+                    name='uploaded_by',
+                ),
+                migrations.DeleteModel(
+                    name='Fee',
+                ),
+                migrations.RemoveField(
+                    model_name='student',
+                    name='user',
+                ),
+                migrations.DeleteModel(
+                    name='StudentDocument',
+                ),
+                migrations.DeleteModel(
+                    name='Student',
+                ),
+            ],
+            database_operations=[],
         ),
     ]

@@ -45,10 +45,10 @@ class PerformanceOverviewView(APIView):
                 'fail_rate':0,
                 'total_results':0,
             })           
-        avg=results.aggregate(a=AVG('final_score'))['a'] or 0
+        avg=results.aggregate(a=Avg('final_score'))['a'] or 0
         passing=results.filter(final_score__gte=50).count()
 
-        return self.response({
+        return Response({
             'term': term.name,
             'school_average':round(float(avg),1),
             'pass_rate':round((passing/total) * 100,1),
@@ -125,7 +125,7 @@ class PerformanceBysubjectView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        subject = subject.objects.filter(is_active=True)
+        subjects = Subject.objects.filter(is_active=True)
         data=[]
 
         for subject in subjects:
@@ -133,7 +133,7 @@ class PerformanceBysubjectView(APIView):
             total = results.count()
             if total ==0:
                 continue
-            avg= results.aggregate(a=AVG('final_score'))['a'] or 0
+            avg= results.aggregate(a=Avg('final_score'))['a'] or 0
             passing = results.filter(final_score__gte=50).count()
             data.append({
                 'subject':subject.name,
@@ -173,9 +173,9 @@ class TopStudentsView(APIView):
         students =(
             Result.objects
             .filter(term=term , status='approved')
-            .values('student__id','student__student__id',
-                    'student_user__firstname',
-                    'student_user_last_name',
+            .values('student__id', 'student__student_id',
+                    'student__user__first_name',
+                    'student__user__last_name',
                     'student__grade')
             .annotate(total=Sum('final_score'),avg=Avg('final_score'))
             .order_by('-total')[:limit]
@@ -557,7 +557,7 @@ class FeesOverviewView(APIView):
     permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
-        from apps.parents.models import Fee
+        from apps.student.models import Fee
         from apps.results.models import AcademicTerm
 
         term_id = request.query_params.get('term_id')
@@ -595,7 +595,7 @@ class OutstandingFeesView(APIView):
     permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
-        from apps.parents.models import Fee
+        from apps.student.models import Fee
         from apps.results.models import AcademicTerm
 
         term_id = request.query_params.get('term_id')

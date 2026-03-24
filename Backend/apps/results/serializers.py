@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Assessment, Result
+from .models import Assessment, Result, Subject, AcademicTerm
+from apps.student.models import Student
 
 
 class AssessmentSerializer(serializers.ModelSerializer):
@@ -40,7 +41,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
 class ResultSerializer(serializers.ModelSerializer):
     """
     Powers the Summative Performance table:
-    Subject | Avg Quiz | Group Work | Exam | Final | Grade
+    Subject | Class Test | Exam | Final | Grade
     """
     subject_name = serializers.ReadOnlyField(source='subject.name')
 
@@ -48,8 +49,10 @@ class ResultSerializer(serializers.ModelSerializer):
         model = Result
         fields = [
             'id', 'subject_name',
-            'quiz_average', 'group_work', 'exam_score', 'final_score', 'grade',
-            'status',
+            'class_test_marks', 'class_test_maximum',
+            'exam_score', 'exam_maximum',
+            'final_score', 'total_maximum', 'grade',
+            'teacher_comment', 'status',
         ]
         read_only_fields = ['id']
 
@@ -103,3 +106,15 @@ class AssessmentCreateSerializer(serializers.ModelSerializer):
 
     def get_score_display(self, obj):
         return f"{int(obj.score_obtained)}/{int(obj.max_score)}"
+
+
+class ResultCreateUpdateSerializer(serializers.Serializer):
+    """
+    Used by teachers to create or update a result entry.
+    """
+    student         = serializers.PrimaryKeyRelatedField(queryset=Student.objects.all())
+    subject         = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all())
+    term            = serializers.PrimaryKeyRelatedField(queryset=AcademicTerm.objects.all())
+    class_test_marks = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
+    exam_score      = serializers.DecimalField(max_digits=5, decimal_places=2)
+    teacher_comment = serializers.CharField(required=False, allow_blank=True, default='')

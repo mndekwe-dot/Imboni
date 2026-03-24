@@ -1164,11 +1164,10 @@ class DOSResultsListView(APIView):
                 'section':          s.section,
                 'subject':          r.subject.name,
                 'term':             str(r.term),
-                'quiz_average':     r.quiz_average,
-                'group_work':       r.group_work,
-                'exam_score':       r.exam_score,
-                'final_score':      r.final_score,
-                'grade_letter':     r.grade_letter,
+                'class_test_marks': float(r.class_test_marks) if r.class_test_marks is not None else None,
+                'exam_score':       float(r.exam_score),
+                'final_score':      float(r.final_score),
+                'grade_letter':     r.grade,
                 'teacher_comment':  r.teacher_comment,
                 'dos_comment':      r.dos_comment or '',
                 'status':           r.status,
@@ -1194,9 +1193,12 @@ class DOSResultApproveView(APIView):
                 status=http_status.HTTP_400_BAD_REQUEST,
             )
 
+        from django.utils import timezone
         result.status      = 'approved'
+        result.approved_by = request.user
+        result.approved_at = timezone.now()
         result.dos_comment = request.data.get('dos_comment', result.dos_comment or '')
-        result.save(update_fields=['status', 'dos_comment'])
+        result.save(update_fields=['status', 'approved_by', 'approved_at', 'dos_comment'])
         return Response({'detail': 'Result approved.'})
 
 
@@ -1216,9 +1218,10 @@ class DOSResultRejectView(APIView):
                 status=http_status.HTTP_400_BAD_REQUEST,
             )
 
-        result.status      = 'rejected'
-        result.dos_comment = request.data.get('dos_comment', result.dos_comment or '')
-        result.save(update_fields=['status', 'dos_comment'])
+        result.status           = 'rejected'
+        result.rejection_reason = request.data.get('rejection_reason', '')
+        result.dos_comment      = request.data.get('dos_comment', result.dos_comment or '')
+        result.save(update_fields=['status', 'rejection_reason', 'dos_comment'])
         return Response({'detail': 'Result rejected.'})
 
 

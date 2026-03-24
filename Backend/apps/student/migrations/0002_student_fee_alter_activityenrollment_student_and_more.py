@@ -15,49 +15,86 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Student',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('student_id', models.CharField(max_length=20, unique=True)),
-                ('grade', models.CharField(choices=[('1', 'Secondary 1'), ('2', 'Secondary 2'), ('3', 'Secondary 3'), ('4', 'Secondary 4'), ('5', 'Secondary 5'), ('6', 'Secondary 6')], max_length=2)),
-                ('section', models.CharField(choices=[('A', 'Section A'), ('B', 'Section B'), ('C', 'Section C')], max_length=1)),
-                ('enrollment_date', models.DateField()),
-                ('status', models.CharField(choices=[('active', 'Active'), ('inactive', 'Inactive'), ('graduated', 'Graduated'), ('transferred', 'Transferred')], default='active', max_length=20)),
-                ('blood_group', models.CharField(blank=True, max_length=5)),
-                ('allergies', models.TextField(blank=True)),
-                ('medical_conditions', models.TextField(blank=True)),
-                ('current_gpa', models.DecimalField(blank=True, decimal_places=2, max_digits=4, null=True)),
-                ('attendance_percentage', models.DecimalField(decimal_places=2, default=100.0, max_digits=5)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='student_profile', to=settings.AUTH_USER_MODEL)),
+        # Tables already exist in MySQL (created by parents.0001).
+        # Register them in student's state without re-creating them in the DB.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name='Student',
+                    fields=[
+                        ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                        ('student_id', models.CharField(max_length=20, unique=True)),
+                        ('grade', models.CharField(choices=[('1', 'Secondary 1'), ('2', 'Secondary 2'), ('3', 'Secondary 3'), ('4', 'Secondary 4'), ('5', 'Secondary 5'), ('6', 'Secondary 6')], max_length=2)),
+                        ('section', models.CharField(choices=[('A', 'Section A'), ('B', 'Section B'), ('C', 'Section C')], max_length=1)),
+                        ('enrollment_date', models.DateField()),
+                        ('status', models.CharField(choices=[('active', 'Active'), ('inactive', 'Inactive'), ('graduated', 'Graduated'), ('transferred', 'Transferred')], default='active', max_length=20)),
+                        ('blood_group', models.CharField(blank=True, max_length=5)),
+                        ('allergies', models.TextField(blank=True)),
+                        ('medical_conditions', models.TextField(blank=True)),
+                        ('current_gpa', models.DecimalField(blank=True, decimal_places=2, max_digits=4, null=True)),
+                        ('attendance_percentage', models.DecimalField(decimal_places=2, default=100.0, max_digits=5)),
+                        ('created_at', models.DateTimeField(auto_now_add=True)),
+                        ('updated_at', models.DateTimeField(auto_now=True)),
+                        ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='student_profile', to=settings.AUTH_USER_MODEL)),
+                    ],
+                    options={
+                        'db_table': 'students',
+                        'ordering': ['grade', 'section', 'user__last_name'],
+                    },
+                ),
+                migrations.CreateModel(
+                    name='Fee',
+                    fields=[
+                        ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                        ('category', models.CharField(choices=[('tuition', 'Tuition Fees'), ('transport', 'Transport'), ('lunch', 'Lunch Program'), ('uniform', 'Uniform'), ('activity', 'Activity Fee'), ('other', 'Other')], max_length=20)),
+                        ('amount', models.DecimalField(decimal_places=2, max_digits=10)),
+                        ('due_date', models.DateField()),
+                        ('status', models.CharField(choices=[('cleared', 'Cleared'), ('due', 'Due'), ('overdue', 'Overdue'), ('partial', 'Partial')], default='due', max_length=10)),
+                        ('paid_date', models.DateField(blank=True, null=True)),
+                        ('notes', models.TextField(blank=True)),
+                        ('created_at', models.DateTimeField(auto_now_add=True)),
+                        ('updated_at', models.DateTimeField(auto_now=True)),
+                        ('term', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='results.academicterm')),
+                        ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fees', to='student.student')),
+                    ],
+                    options={
+                        'db_table': 'fees',
+                        'ordering': ['due_date'],
+                    },
+                ),
+                migrations.CreateModel(
+                    name='StudentDocument',
+                    fields=[
+                        ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                        ('title', models.CharField(max_length=200)),
+                        ('document_type', models.CharField(choices=[('newsletter', 'Newsletter'), ('consent', 'Consent Form'), ('report', 'Report'), ('certificate', 'Certificate'), ('other', 'Other')], max_length=20)),
+                        ('file', models.FileField(upload_to='student_documents/')),
+                        ('created_at', models.DateTimeField(auto_now_add=True)),
+                        ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='documents', to='student.student')),
+                        ('uploaded_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='uploaded_documents', to=settings.AUTH_USER_MODEL)),
+                    ],
+                    options={
+                        'db_table': 'student_documents',
+                        'ordering': ['-created_at'],
+                    },
+                ),
+                migrations.AddIndex(
+                    model_name='student',
+                    index=models.Index(fields=['student_id'], name='students_student_1ff8ed_idx'),
+                ),
+                migrations.AddIndex(
+                    model_name='student',
+                    index=models.Index(fields=['grade', 'section'], name='students_grade_9a2fa6_idx'),
+                ),
+                migrations.AddIndex(
+                    model_name='student',
+                    index=models.Index(fields=['status'], name='students_status_3ac771_idx'),
+                ),
             ],
-            options={
-                'db_table': 'students',
-                'ordering': ['grade', 'section', 'user__last_name'],
-            },
+            database_operations=[],
         ),
-        migrations.CreateModel(
-            name='Fee',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('category', models.CharField(choices=[('tuition', 'Tuition Fees'), ('transport', 'Transport'), ('lunch', 'Lunch Program'), ('uniform', 'Uniform'), ('activity', 'Activity Fee'), ('other', 'Other')], max_length=20)),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('due_date', models.DateField()),
-                ('status', models.CharField(choices=[('cleared', 'Cleared'), ('due', 'Due'), ('overdue', 'Overdue'), ('partial', 'Partial')], default='due', max_length=10)),
-                ('paid_date', models.DateField(blank=True, null=True)),
-                ('notes', models.TextField(blank=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('term', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='results.academicterm')),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fees', to='student.student')),
-            ],
-            options={
-                'db_table': 'fees',
-                'ordering': ['due_date'],
-            },
-        ),
+        # Update the actual FK constraints in MySQL to reference student.Student.
+        # Both old and new point to the same physical table (students), so this is safe.
         migrations.AlterField(
             model_name='activityenrollment',
             name='student',
@@ -67,33 +104,5 @@ class Migration(migrations.Migration):
             model_name='assignmentsubmission',
             name='student',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assignment_submissions', to='student.student'),
-        ),
-        migrations.CreateModel(
-            name='StudentDocument',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('title', models.CharField(max_length=200)),
-                ('document_type', models.CharField(choices=[('newsletter', 'Newsletter'), ('consent', 'Consent Form'), ('report', 'Report'), ('certificate', 'Certificate'), ('other', 'Other')], max_length=20)),
-                ('file', models.FileField(upload_to='student_documents/')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='documents', to='student.student')),
-                ('uploaded_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='uploaded_documents', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'db_table': 'student_documents',
-                'ordering': ['-created_at'],
-            },
-        ),
-        migrations.AddIndex(
-            model_name='student',
-            index=models.Index(fields=['student_id'], name='students_student_1ff8ed_idx'),
-        ),
-        migrations.AddIndex(
-            model_name='student',
-            index=models.Index(fields=['grade', 'section'], name='students_grade_9a2fa6_idx'),
-        ),
-        migrations.AddIndex(
-            model_name='student',
-            index=models.Index(fields=['status'], name='students_status_3ac771_idx'),
         ),
     ]

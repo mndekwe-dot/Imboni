@@ -113,10 +113,9 @@ class Result(models.Model):
         return f"{self.student.full_name} - {self.subject.name} - {self.grade}"
     
     def calculate_final_score(self):
-        """Calculate final score from components"""
-        scores = [s for s in [self.quiz_average, self.group_work, self.exam_score] if s is not None]
-        if scores:
-            self.final_score = sum(scores) / len(scores)
+        ct = float(self.class_test_marks or 0)
+        ex = float(self.exam_score or 0)
+        self.final_score = ct + ex
     
     def calculate_grade(self):
         """Calculate letter grade from final score"""
