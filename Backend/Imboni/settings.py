@@ -50,19 +50,19 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     # Local apps
-    'authentication',
-    'results',
-    'attendance',
-    'behavior',
-    'announcements',
-    'analytics',
-    'teacher',
-    'messages.apps.MessagesConfig',
-    'dos',
-    'parents',
-    'student',
-    'discipline',
-    'matron',
+    'apps.authentication',
+    'apps.results',
+    'apps.attendance',
+    'apps.behavior',
+    'apps.announcements',
+    'apps.analytics',
+    'apps.teacher',
+    'apps.messages.apps.MessagesConfig',
+    'apps.dos',
+    'apps.parents',
+    'apps.student',
+    'apps.discipline',
+    'apps.matron',
 ]
 
 MIDDLEWARE = [
@@ -163,7 +163,7 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Custom user model
-AUTH_USER_MODEL = 'authentication.User'
+AUTH_USER_MODEL = 'authentication.User'  # label stays 'authentication' — no change needed
 
 # REST Framework configuration
 REST_FRAMEWORK = {
@@ -172,10 +172,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    # Permissions disabled for development - enable later
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],

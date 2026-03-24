@@ -1,0 +1,6 @@
+from django.apps import AppConfig
+
+
+class MessagesConfig(AppConfig):
+    name = 'apps.messages'
+    label = 'school_messages'  # Avoids conflict with django.contrib.messages
