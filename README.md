@@ -238,7 +238,7 @@ The prototype was built with HTML/CSS/JS to move fast and validate the UI withou
 
 ## Author
 
-Built by **[Your Name]**
+Built by **NDEKWE Dieu Merci**
 Rwanda | 2025–2026
 
 ---
