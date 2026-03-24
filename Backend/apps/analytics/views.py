@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Avg , Count , sum , Q
+from django.db.models import Avg, Count, Sum, Q
 from apps.authentication.permissions import IsDOSOrAdmin
 
 #Academic Performance
@@ -69,7 +69,7 @@ class PerformanceByGradeView(APIView):
     
     def get(self,request):
         from apps.results.models import Result,AcademicTerm
-        from apps.parents.models import Student
+        from apps.student.models import Student
 
         term_id= request.query_params.get('term_id')
         if term_id:
@@ -144,7 +144,7 @@ class PerformanceBysubjectView(APIView):
         data.sort(key=lambda x:x['average_score'])
         return Response(data)
 
-class TopStudentsview(APIView):
+class TopStudentsView(APIView):
     """
     Top 10 students by total score for the current term.
 
@@ -296,7 +296,7 @@ class AttendanceByGradeView(APIView):
 
     def get(self, request):
         from apps.attendance.models import AttendanceSummary
-        from apps.parents.models import Student
+        from apps.student.models import Student
         from datetime import date
 
         today = date.today()
@@ -510,7 +510,7 @@ class EnrollmentOverviewView(APIView):
     permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
-        from apps.parents.models import Student
+        from apps.student.models import Student
 
         students = Student.objects.all()
         return Response({
@@ -531,7 +531,7 @@ class EnrollmentByGradeView(APIView):
     permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
-        from apps.parents.models import Student
+        from apps.student.models import Student
 
         grades = (
             Student.objects
@@ -643,7 +643,7 @@ class TeacherOverviewView(APIView):
 
     def get(self, request):
         from apps.authentication.models import User
-        from apps.parents.models import Student
+        from apps.student.models import Student
 
         teachers = User.objects.filter(role='teacher', is_active=True)
         students = Student.objects.filter(status='active').count()

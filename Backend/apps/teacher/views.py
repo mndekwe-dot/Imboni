@@ -1422,7 +1422,7 @@ class TeacherReportIncidentView(APIView):
 
     def post(self, request):
         from apps.behavior.models import BehaviorReport
-        from apps.parents.models import Student
+        from apps.student.models import Student
         from django.utils import timezone
 
         d = request.data

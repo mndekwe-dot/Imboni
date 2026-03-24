@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
-from .models import Student, ParentStudentRelationship, Fee, StudentDocument
+from apps.student.models import Student, Fee, StudentDocument
+from .models import ParentStudentRelationship
 
 
 class ParentStudentRelationshipSerializer(serializers.ModelSerializer):

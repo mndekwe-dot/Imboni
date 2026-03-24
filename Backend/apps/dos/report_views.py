@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status as http_status
 
 from apps.authentication.permissions import IsDOSOrAdminOrDiscipline,IsDOSOrAdmin
-from apps.parents.models import Student
+from apps.student.models import Student
 from apps.results.models import Result, AcademicTerm
 from apps.behavior.models import ConductGrade
 

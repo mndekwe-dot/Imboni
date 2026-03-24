@@ -7,7 +7,8 @@ from django.utils import timezone
 from apps.authentication.models import User, UserPreferences
 from apps.authentication.permissions import IsParent
 from apps.authentication.serializers import UserSerializer
-from .models import Student, ParentStudentRelationship, Fee, StudentDocument
+from apps.student.models import Student, Fee, StudentDocument
+from .models import ParentStudentRelationship
 from .serializers import (
     StudentSerializer, ParentStudentRelationshipSerializer,
     AddParentToStudentSerializer, MyChildrenSerializer,

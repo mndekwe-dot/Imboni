@@ -44,7 +44,7 @@ class StudentLeader(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(
-        'parents.Student',
+        'student.Student',
         on_delete=models.CASCADE,
         related_name='leadership_roles',
     )
@@ -75,7 +75,7 @@ class BoardingStudent(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.OneToOneField(
-        'parents.Student',
+        'student.Student',
         on_delete=models.CASCADE,
         related_name='boarding_info',
     )
@@ -108,7 +108,7 @@ class DiningPlan(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(
-        'parents.Student',
+        'student.Student',
         on_delete=models.CASCADE,
         related_name='dining_plans',
     )

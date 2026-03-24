@@ -112,7 +112,7 @@ class Invitation(models.Model):
         default='pending'
     )
     student = models.ForeignKey(
-        'parents.Student',
+        'student.Student',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

@@ -217,7 +217,7 @@ class MatronIncidentListView(APIView):
         return Response(MatronBehaviorReportSerializer(qs, many=True).data)
 
     def post(self, request):
-        from apps.parents.models import Student
+        from apps.student.models import Student
 
         try:
             student = Student.objects.get(pk=request.data.get('student_id'))

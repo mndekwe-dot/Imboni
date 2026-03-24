@@ -25,7 +25,7 @@ class DisciplineDashboardView(APIView):
     permission_classes = [IsDiscipline]
     def get(self, request):
         from apps.results.models import AcademicTerm
-        from apps.parents.models import Student
+        from apps.student.models import Student
         from datetime import date
         from django.utils import timezone
 
@@ -208,7 +208,7 @@ class DisciplineStudentListView(APIView):
     """
     permission_classes = [IsDiscipline]
     def get(self, request):
-        from apps.parents.models import Student
+        from apps.student.models import Student
         from apps.results.models import AcademicTerm
 
         current_term = AcademicTerm.objects.filter(is_current=True).first()
@@ -268,7 +268,7 @@ class DisciplineStudentDetailView(APIView):
     """
     permission_classes = [IsDiscipline]
     def get(self, request, pk):
-        from apps.parents.models import Student
+        from apps.student.models import Student
         from apps.results.models import AcademicTerm
 
         try:
@@ -424,7 +424,7 @@ class StudentLeaderListView(APIView):
         return Response(StudentLeaderSerializer(qs, many=True).data)
 
     def post(self, request):
-        from apps.parents.models import Student
+        from apps.student.models import Student
         from apps.results.models import AcademicTerm
 
         try:
@@ -502,7 +502,7 @@ class BoardingStudentListView(APIView):
         return Response(BoardingStudentSerializer(qs, many=True).data)
 
     def post(self, request):
-        from apps.parents.models import Student
+        from apps.student.models import Student
 
         try:
             student = Student.objects.get(pk=request.data.get('student_id'))
@@ -578,7 +578,7 @@ class DiningPlanListView(APIView):
         return Response(DiningPlanSerializer(qs, many=True).data)
 
     def post(self, request):
-        from apps.parents.models import Student
+        from apps.student.models import Student
         from apps.results.models import AcademicTerm
 
         try:

@@ -1,6 +1,6 @@
 # classes/models.py
 from django.db import models
-from apps.parents.models import Student
+from apps.student.models import Student
 from apps.authentication.models import User
 from apps.results.models import Subject, AcademicTerm
 import uuid

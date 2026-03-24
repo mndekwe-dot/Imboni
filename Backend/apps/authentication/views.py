@@ -720,7 +720,7 @@ class CompleteRegistrationView(APIView):
             try:
                 from apps.teacher.models import ClassAssignment
                 from apps.results.models import AcademicTerm
-                from apps.parents.models import Student as StudentProfile
+                from apps.student.models import Student as StudentProfile
                 current_term = AcademicTerm.objects.filter(is_current=True).first()
                 student_profile = StudentProfile.objects.filter(user=user).first()
                 if current_term and student_profile:

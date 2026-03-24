@@ -783,7 +783,7 @@ class StudentProfileView(APIView):
     permission_classes = [IsStudent]
 
     def get(self, request):
-        from apps.parents.models import Student
+        from apps.student.models import Student
         from apps.results.models import AcademicTerm, Result
         from apps.attendance.models import Attendance
         from django.db.models import Avg

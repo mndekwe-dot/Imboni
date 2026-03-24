@@ -28,7 +28,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Deferred imports to avoid app-loading issues
         from apps.authentication.models import User
-        from apps.parents.models import Student, Fee, StudentDocument, ParentStudentRelationship
+        from apps.student.models import Student, Fee, StudentDocument, ParentStudentRelationship
         from apps.results.models import Subject, AcademicTerm, Assessment, Result
         from apps.teacher.models import Class, ClassAssignment, SubjectTeacherAssignment, Timetable
         from apps.messages.models import Conversation, Message, MessageReadReceipt

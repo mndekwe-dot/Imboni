@@ -5,7 +5,7 @@ urlpatterns = [
     # Academic Performance
     path('analytics/performance/overview/',        views.PerformanceOverviewView.as_view(),       name='analytics-performance-overview'),
     path('analytics/performance/by-grade/',        views.PerformanceByGradeView.as_view(),        name='analytics-performance-by-grade'),
-    path('analytics/performance/by-subject/',      views.PerformanceBySubjectView.as_view(),      name='analytics-performance-by-subject'),
+    path('analytics/performance/by-subject/',      views.PerformanceBysubjectView.as_view(),      name='analytics-performance-by-subject'),
     path('analytics/performance/top-students/',    views.TopStudentsView.as_view(),               name='analytics-top-students'),
     path('analytics/performance/at-risk/',         views.AtRiskStudentsView.as_view(),            name='analytics-at-risk'),
 
