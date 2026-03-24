@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health &amp; Wellness - Imboni Education Connects</title>
+    <link rel="stylesheet" href="../css/globals.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/matron.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+      /* ── Health page extras ── */
+      .health-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+      @media (max-width: 900px) { .health-stats { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 500px) { .health-stats { grid-template-columns: 1fr; } }
+
+      .health-stat-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .health-stat-icon {
+        width: 44px; height: 44px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+      .health-stat-icon.sick     { background: rgba(239,68,68,0.1);  color: var(--destructive); }
+      .health-stat-icon.recovery { background: rgba(245,158,11,0.1); color: #f59e0b; }
+      .health-stat-icon.visits   { background: rgba(59,130,246,0.1);  color: #3b82f6; }
+      .health-stat-icon.cleared  { background: var(--success-light);  color: var(--success); }
+      .health-stat-value { font-size: 1.75rem; font-weight: 700; color: #0f172a; line-height: 1; }
+      .health-stat-label { font-size: 0.8125rem; color: var(--muted-text); margin-top: 0.2rem; }
+
+      /* Sick bay beds */
+      .sickbay-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+      .bed-card {
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem 1.125rem;
+        background: #fff;
+        position: relative;
+      }
+      .bed-card.occupied  { border-color: rgba(239,68,68,0.4);  background: rgba(239,68,68,0.03); }
+      .bed-card.recovery  { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.03); }
+      .bed-card.empty     { border-color: rgba(34,197,94,0.3);  background: rgba(34,197,94,0.03); }
+      .bed-number { font-size: 0.75rem; font-weight: 600; color: var(--muted-text); letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+      .bed-student { font-weight: 600; color: #0f172a; font-size: 0.9375rem; }
+      .bed-condition { font-size: 0.8125rem; color: #475569; margin-top: 0.2rem; }
+      .bed-since { font-size: 0.75rem; color: var(--muted-text); margin-top: 0.4rem; }
+      .bed-badge {
+        position: absolute; top: 0.75rem; right: 0.875rem;
+        font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+      }
+      .bed-badge.occupied { background: rgba(239,68,68,0.1); color: var(--destructive); }
+      .bed-badge.recovery { background: rgba(245,158,11,0.1); color: #f59e0b; }
+      .bed-badge.empty    { background: rgba(34,197,94,0.1);  color: var(--success); }
+      .bed-empty-label { color: var(--muted-text); font-size: 0.875rem; margin-top: 0.5rem; }
+
+      /* Log form */
+      .health-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+      @media (max-width: 640px) { .health-form-grid { grid-template-columns: 1fr; } }
+      .health-form-grid .full { grid-column: 1 / -1; }
+      .health-form-grid label { display: block; font-size: 0.8125rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+      .health-form-grid input,
+      .health-form-grid select,
+      .health-form-grid textarea {
+        width: 100%;
+        padding: 0.6rem 0.8rem;
+        border: 1.5px solid var(--border);
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-family: inherit;
+        color: #0f172a;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .health-form-grid input:focus,
+      .health-form-grid select:focus,
+      .health-form-grid textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,61,122,0.1); }
+      .health-form-grid textarea { min-height: 80px; resize: vertical; }
+
+      /* History table tag */
+      .condition-tag {
+        display: inline-block;
+        font-size: 0.75rem; font-weight: 500;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+      }
+      .condition-tag.injury   { background: rgba(239,68,68,0.1);  color: var(--destructive); }
+      .condition-tag.illness  { background: rgba(245,158,11,0.1); color: #f59e0b; }
+      .condition-tag.checkup  { background: rgba(59,130,246,0.1); color: #3b82f6; }
+      .condition-tag.followup { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <header class="sidebar-logo">
+          <div class="logo-wrapper">
+            <div class="sidebar-logo-icon"><img src="../images/imboni-logo.png" alt="Imboni Logo" /></div>
+            <div class="sidebar-logo-text">
+              <span class="sidebar-brand-name">Imboni</span>
+              <span class="sidebar-brand-tagline">Education Connects</span>
+            </div>
+          </div>
+          <button class="toggle sidebar-toggle" aria-label="Toggle sidebar"><span class="material-symbols-rounded">chevron_left</span></button>
+          <button class="toggle menu-toggle" aria-label="Open menu"><span class="material-symbols-rounded">menu</span></button>
+        </header>
+        <nav class="sidebar-nav">
+          <ul class="nav-list primary-nav">
+            <li><a href="matron.html" class="sidebar-nav-item"><span class="material-symbols-rounded">dashboard</span><span>Dashboard</span></a></li>
+            <li><a href="matron-students.html" class="sidebar-nav-item"><span class="material-symbols-rounded">groups</span><span>My Students</span></a></li>
+            <li><a href="matron-schedule.html" class="sidebar-nav-item"><span class="material-symbols-rounded">schedule</span><span>Daily Schedule</span></a></li>
+            <li><a href="matron-incidents.html" class="sidebar-nav-item"><span class="material-symbols-rounded">report</span><span>Report Incident</span></a></li>
+            <li><a href="matron-health.html" class="sidebar-nav-item active"><span class="material-symbols-rounded">health_and_safety</span><span>Health &amp; Wellness</span></a></li>
+            <li><a href="matron-parent-comms.html" class="sidebar-nav-item"><span class="material-symbols-rounded">family_restroom</span><span>Parent Comms</span></a></li>
+            <li><a href="matron-messages.html" class="sidebar-nav-item"><span class="material-symbols-rounded">chat</span><span>Messages</span></a></li>
+          </ul>
+          <ul class="nav-list secondary-nav">
+            <li><a href="../Parent/account.html" class="sidebar-nav-item"><span class="material-symbols-rounded">account_circle</span><span>Profile</span></a></li>
+            <li><a href="../login.html" class="sidebar-nav-item"><span class="material-symbols-rounded">logout</span><span>Logout</span></a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main" id="main-content">
+        <header class="dashboard-header">
+          <button class="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+          <div class="dashboard-header-title">
+            <h1>Health &amp; Wellness</h1>
+            <p>Sick bay management and student health records — Marigold House</p>
+          </div>
+          <div class="dashboard-header-actions">
+            <span class="date-display">Tuesday, March 24, 2026</span>
+            <div class="header-user">
+              <div class="header-user-info">
+                <span class="header-user-name">Mrs. Agnes Waweru</span>
+                <span class="header-user-role">Matron</span>
+              </div>
+              <div class="header-user-av matron-av">AW</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="dashboard-content">
+
+          <!-- Stat cards -->
+          <div class="health-stats">
+            <div class="health-stat-card">
+              <div class="health-stat-icon sick"><span class="material-symbols-rounded">sick</span></div>
+              <div>
+                <div class="health-stat-value">3</div>
+                <div class="health-stat-label">In Sick Bay Now</div>
+              </div>
+            </div>
+            <div class="health-stat-card">
+              <div class="health-stat-icon recovery"><span class="material-symbols-rounded">healing</span></div>
+              <div>
+                <div class="health-stat-value">2</div>
+                <div class="health-stat-label">Under Observation</div>
+              </div>
+            </div>
+            <div class="health-stat-card">
+              <div class="health-stat-icon visits"><span class="material-symbols-rounded">calendar_today</span></div>
+              <div>
+                <div class="health-stat-value">18</div>
+                <div class="health-stat-label">Visits This Month</div>
+              </div>
+            </div>
+            <div class="health-stat-card">
+              <div class="health-stat-icon cleared"><span class="material-symbols-rounded">check_circle</span></div>
+              <div>
+                <div class="health-stat-value">15</div>
+                <div class="health-stat-label">Cleared This Month</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sick bay beds -->
+          <div class="card mb-1-5">
+            <div class="card-header">
+              <h3 class="card-title"><span class="material-symbols-rounded">bed</span> Sick Bay — Current Residents</h3>
+              <div style="display:flex;gap:0.5rem">
+                <span style="font-size:0.8125rem;color:var(--muted-text);align-self:center">6 beds total · 3 occupied · 3 free</span>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="sickbay-grid">
+
+                <!-- Occupied bed -->
+                <div class="bed-card occupied">
+                  <span class="bed-badge occupied">Occupied</span>
+                  <div class="bed-number">BED 1</div>
+                  <div class="bed-student">Faith Ndungu</div>
+                  <div class="bed-condition">Fever &amp; headache (38.5 °C)</div>
+                  <div class="bed-since">Admitted Mar 23 · Day 2</div>
+                  <div style="margin-top:0.75rem;display:flex;gap:0.5rem">
+                    <button class="btn btn-outline btn-sm">Update</button>
+                    <button class="btn btn-sm" style="background:var(--success-light);color:var(--success);border:none">Discharge</button>
+                  </div>
+                </div>
+
+                <!-- Recovery bed -->
+                <div class="bed-card recovery">
+                  <span class="bed-badge recovery">Observation</span>
+                  <div class="bed-number">BED 2</div>
+                  <div class="bed-student">Brian Kiprotich</div>
+                  <div class="bed-condition">Sprained ankle — post-sports</div>
+                  <div class="bed-since">Admitted Mar 24 · Day 1</div>
+                  <div style="margin-top:0.75rem;display:flex;gap:0.5rem">
+                    <button class="btn btn-outline btn-sm">Update</button>
+                    <button class="btn btn-sm" style="background:var(--success-light);color:var(--success);border:none">Discharge</button>
+                  </div>
+                </div>
+
+                <!-- Occupied bed -->
+                <div class="bed-card occupied">
+                  <span class="bed-badge occupied">Occupied</span>
+                  <div class="bed-number">BED 3</div>
+                  <div class="bed-student">Grace Njeri</div>
+                  <div class="bed-condition">Stomach ache, nausea</div>
+                  <div class="bed-since">Admitted Mar 24 · Day 1</div>
+                  <div style="margin-top:0.75rem;display:flex;gap:0.5rem">
+                    <button class="btn btn-outline btn-sm">Update</button>
+                    <button class="btn btn-sm" style="background:var(--success-light);color:var(--success);border:none">Discharge</button>
+                  </div>
+                </div>
+
+                <!-- Recovery -->
+                <div class="bed-card recovery">
+                  <span class="bed-badge recovery">Observation</span>
+                  <div class="bed-number">BED 4</div>
+                  <div class="bed-student">Michael Otieno</div>
+                  <div class="bed-condition">Mild allergic reaction</div>
+                  <div class="bed-since">Admitted Mar 22 · Day 3</div>
+                  <div style="margin-top:0.75rem;display:flex;gap:0.5rem">
+                    <button class="btn btn-outline btn-sm">Update</button>
+                    <button class="btn btn-sm" style="background:var(--success-light);color:var(--success);border:none">Discharge</button>
+                  </div>
+                </div>
+
+                <!-- Empty beds -->
+                <div class="bed-card empty">
+                  <span class="bed-badge empty">Available</span>
+                  <div class="bed-number">BED 5</div>
+                  <div class="bed-empty-label">— Empty —</div>
+                </div>
+
+                <div class="bed-card empty">
+                  <span class="bed-badge empty">Available</span>
+                  <div class="bed-number">BED 6</div>
+                  <div class="bed-empty-label">— Empty —</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Log a health visit -->
+          <div class="card mb-1-5">
+            <div class="card-header">
+              <h3 class="card-title"><span class="material-symbols-rounded">add_circle</span> Log Health Visit</h3>
+            </div>
+            <div class="card-content">
+              <div class="health-form-grid">
+                <div>
+                  <label>Student</label>
+                  <select>
+                    <option value="">— Select student —</option>
+                    <option>Sarah Doe (Form 4A)</option>
+                    <option>Brian Kiprotich (Form 3C)</option>
+                    <option>Michael Otieno (Form 4B)</option>
+                    <option>Jane Wambui (Form 6A)</option>
+                    <option>Faith Ndungu (Form 5A)</option>
+                    <option>Grace Njeri (Form 5C)</option>
+                    <option>Paul Kamau (Form 3A)</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Visit Type</label>
+                  <select>
+                    <option>Sick Bay Admission</option>
+                    <option>Routine Check-up</option>
+                    <option>Medication Dispensed</option>
+                    <option>Follow-up Visit</option>
+                    <option>Injury</option>
+                    <option>Discharge</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Date &amp; Time</label>
+                  <input type="datetime-local" value="2026-03-24T09:00" />
+                </div>
+                <div>
+                  <label>Temperature (°C) — optional</label>
+                  <input type="number" step="0.1" min="35" max="42" placeholder="e.g. 37.4" />
+                </div>
+                <div class="full">
+                  <label>Complaint / Condition</label>
+                  <input type="text" placeholder="Brief description of presenting complaint…" />
+                </div>
+                <div class="full">
+                  <label>Action Taken / Treatment</label>
+                  <textarea placeholder="Medication given, rest ordered, parent notified, referred to hospital…"></textarea>
+                </div>
+                <div>
+                  <label>Admit to Sick Bay?</label>
+                  <select>
+                    <option>No — outpatient visit</option>
+                    <option>Yes — assign to bed</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Notify Parent?</label>
+                  <select>
+                    <option>No</option>
+                    <option>Yes — send SMS</option>
+                    <option>Yes — call parent</option>
+                    <option>Yes — both</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+                <button class="btn btn-primary"><span class="material-symbols-rounded">save</span> Save Record</button>
+                <button class="btn btn-outline">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Health history table -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><span class="material-symbols-rounded">history</span> Health Visit History</h3>
+              <div style="display:flex;gap:0.5rem">
+                <select class="btn btn-outline btn-sm" style="padding:0.3rem 0.6rem;font-size:0.8125rem">
+                  <option>All Students</option>
+                  <option>Faith Ndungu</option>
+                  <option>Brian Kiprotich</option>
+                  <option>Grace Njeri</option>
+                  <option>Michael Otieno</option>
+                </select>
+                <button class="btn btn-outline btn-sm"><span class="material-symbols-rounded">download</span> Export</button>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Student</th>
+                      <th>Type</th>
+                      <th>Complaint</th>
+                      <th>Temp</th>
+                      <th>Action</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Mar 24, 2026</td>
+                      <td><strong>Grace Njeri</strong></td>
+                      <td><span class="condition-tag illness">Illness</span></td>
+                      <td>Stomach ache, nausea</td>
+                      <td>37.8 °C</td>
+                      <td>Rest + oral rehydration</td>
+                      <td><span class="matron-report-status pending">In Sick Bay</span></td>
+                    </tr>
+                    <tr>
+                      <td>Mar 24, 2026</td>
+                      <td><strong>Brian Kiprotich</strong></td>
+                      <td><span class="condition-tag injury">Injury</span></td>
+                      <td>Sprained ankle</td>
+                      <td>—</td>
+                      <td>Ice pack, compression bandage</td>
+                      <td><span class="matron-report-status pending">Observation</span></td>
+                    </tr>
+                    <tr>
+                      <td>Mar 23, 2026</td>
+                      <td><strong>Faith Ndungu</strong></td>
+                      <td><span class="condition-tag illness">Illness</span></td>
+                      <td>Fever &amp; headache</td>
+                      <td>38.5 °C</td>
+                      <td>Paracetamol, admitted bed 1</td>
+                      <td><span class="matron-report-status pending">In Sick Bay</span></td>
+                    </tr>
+                    <tr>
+                      <td>Mar 22, 2026</td>
+                      <td><strong>Michael Otieno</strong></td>
+                      <td><span class="condition-tag illness">Illness</span></td>
+                      <td>Skin rash, itching</td>
+                      <td>36.9 °C</td>
+                      <td>Antihistamine, referred to nurse</td>
+                      <td><span class="matron-report-status pending">Observation</span></td>
+                    </tr>
+                    <tr>
+                      <td>Mar 20, 2026</td>
+                      <td><strong>Sarah Doe</strong></td>
+                      <td><span class="condition-tag checkup">Check-up</span></td>
+                      <td>Routine wellness check</td>
+                      <td>36.6 °C</td>
+                      <td>No treatment required</td>
+                      <td><span class="matron-report-status reviewed">Cleared</span></td>
+                    </tr>
+                    <tr>
+                      <td>Mar 18, 2026</td>
+                      <td><strong>Jane Wambui</strong></td>
+                      <td><span class="condition-tag followup">Follow-up</span></td>
+                      <td>Post-flu recovery check</td>
+                      <td>36.8 °C</td>
+                      <td>Cleared to return to class</td>
+                      <td><span class="matron-report-status reviewed">Cleared</span></td>
+                    </tr>
+                    <tr>
+                      <td>Mar 15, 2026</td>
+                      <td><strong>Paul Kamau</strong></td>
+                      <td><span class="condition-tag injury">Injury</span></td>
+                      <td>Cut on hand (sports)</td>
+                      <td>—</td>
+                      <td>Wound cleaned, bandaged</td>
+                      <td><span class="matron-report-status reviewed">Cleared</span></td>
+                    </tr>
+                    <tr>
+                      <td>Mar 10, 2026</td>
+                      <td><strong>Faith Ndungu</strong></td>
+                      <td><span class="condition-tag illness">Illness</span></td>
+                      <td>Flu, sore throat</td>
+                      <td>39.0 °C</td>
+                      <td>Admitted 3 days, antibiotics</td>
+                      <td><span class="matron-report-status reviewed">Cleared</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>
