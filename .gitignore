@@ -32,11 +32,11 @@ db.sqlite3
 .DS_Store
 Thumbs.db
 
-# Internal guides & notes (not for public repo)
+# Internal guides & notes
 Guides/
 ANALYTICS_GUIDE.md
 PERMISSIONS_GUIDE.md
 
-# Claude Code internal config
+# Editor & local config
 .claude/
 .vscode/
