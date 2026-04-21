@@ -1271,4 +1271,3 @@
   .ann-page-wrap { grid-template-columns: 1fr; }
   .ann-sidebar { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 }
-}
