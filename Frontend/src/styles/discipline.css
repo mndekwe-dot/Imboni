@@ -1,0 +1,1070 @@
+/* ===============================================
+   DISCIPLINE.CSS - Director of Discipline Portal
+   Identity colour: Indigo #4f46e5
+   =============================================== */
+
+:root {
+  --discipline:        #4f46e5;
+  --discipline-hover:  #4338ca;
+  --discipline-light:  rgba(79,70,229,0.1);
+  --portal-accent:     #4f46e5;
+  --portal-accent-light: rgba(79,70,229,0.1);
+}
+
+/* ── Avatar ── */
+.sidebar-user-avatar.discipline-av {
+  background: var(--discipline);
+  color: white;
+  font-size: 1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* ── Welcome banner ── */
+.disc-welcome-banner {
+  background: linear-gradient(135deg, var(--discipline) 0%, var(--discipline-hover) 100%);
+  color: white;
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.disc-welcome-title  { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+.disc-welcome-sub    { font-size: 0.85rem; opacity: 0.85; }
+.disc-welcome-badge  {
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Stat grid ── */
+.disc-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.disc-stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 4px solid var(--discipline);
+}
+.disc-stat-card.green  { border-left-color: var(--success); }
+.disc-stat-card.red    { border-left-color: var(--destructive); }
+.disc-stat-card.amber  { border-left-color: #f59e0b; }
+.disc-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--discipline-light);
+  color: var(--discipline);
+}
+.disc-stat-icon .material-symbols-rounded { font-size: 22px; }
+.disc-stat-icon.green  { background: var(--success-light);      color: var(--success); }
+.disc-stat-icon.red    { background: var(--destructive-light);  color: var(--destructive); }
+.disc-stat-icon.amber  { background: rgba(245,158,11,0.12);     color: #f59e0b; }
+.disc-stat-value { font-size: 1.8rem; font-weight: 800; line-height: 1; margin-bottom: 2px; }
+.disc-stat-label { font-size: 0.78rem; color: var(--muted-foreground); font-weight: 500; }
+
+/* ── Tab bar — override active color for discipline portal ── */
+.filter-tab.active { background: var(--discipline); border-color: var(--discipline); }
+
+/* ── Two-column layout ── */
+.disc-two-col {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Conduct badges ── */
+.conduct-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.conduct-badge.excellent { background: var(--success-light);      color: var(--success); }
+.conduct-badge.good      { background: var(--discipline-light);   color: var(--discipline); }
+.conduct-badge.fair      { background: rgba(245,158,11,0.12);     color: #f59e0b; }
+.conduct-badge.poor      { background: var(--destructive-light);  color: var(--destructive); }
+
+/* ── Incident / discipline points ── */
+.disc-points-pos { color: var(--success);      font-weight: 700; font-size: 0.88rem; }
+.disc-points-neg { color: var(--destructive);  font-weight: 700; font-size: 0.88rem; }
+
+.incident-type-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.incident-type-tag.positive { background: var(--success-light);     color: var(--success); }
+.incident-type-tag.negative { background: var(--destructive-light); color: var(--destructive); }
+.incident-type-tag.warning  { background: rgba(245,158,11,0.12);    color: #f59e0b; }
+
+/* ── Staff card (matrons & patrons) ── */
+.staff-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1rem;
+}
+.staff-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.staff-card-top { display: flex; align-items: center; gap: 0.85rem; }
+.staff-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+.staff-card-avatar.matron  { background: #8b5cf6; }
+.staff-card-avatar.patron  { background: var(--student, #0d9488); }
+.staff-card-name  { font-weight: 700; font-size: 0.95rem; margin-bottom: 1px; }
+.staff-card-role  { font-size: 0.78rem; color: var(--muted-foreground); }
+.staff-card-meta  { font-size: 0.8rem; color: var(--muted-foreground); display: flex; flex-direction: column; gap: 3px; }
+.staff-card-meta span { display: flex; align-items: center; gap: 5px; }
+.staff-card-meta .material-symbols-rounded { font-size: 0.9rem; }
+.staff-card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; }
+
+/* ── Progress bars ── */
+.disc-progress-group { display: flex; flex-direction: column; gap: 1rem; }
+.disc-progress-item  { display: flex; flex-direction: column; gap: 0.4rem; }
+.disc-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.disc-progress-bar   { height: 8px; background: var(--muted); border-radius: 999px; overflow: hidden; }
+.disc-progress-fill  { height: 100%; border-radius: 999px; background: var(--discipline); }
+.disc-progress-fill.green { background: var(--success); }
+.disc-progress-fill.amber { background: #f59e0b; }
+.disc-progress-fill.red   { background: var(--destructive); }
+
+/* ── Activity feed (recent actions) ── */
+.disc-activity-list { display: flex; flex-direction: column; gap: 0; }
+.disc-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.disc-activity-item:last-child { border-bottom: none; }
+.disc-activity-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--discipline-light);
+  color: var(--discipline);
+}
+.disc-activity-icon .material-symbols-rounded { font-size: 1rem; }
+.disc-activity-icon.green { background: var(--success-light);     color: var(--success); }
+.disc-activity-icon.red   { background: var(--destructive-light); color: var(--destructive); }
+.disc-activity-icon.amber { background: rgba(245,158,11,0.12);    color: #f59e0b; }
+.disc-activity-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 1px; }
+.disc-activity-meta  { font-size: 0.75rem; color: var(--muted-foreground); }
+
+/* ── Messages page ── */
+.msg-page-wrap {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 160px);
+  min-height: 500px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--card);
+}
+.conv-panel {
+  width: 300px;
+  min-width: 300px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.conv-panel-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+}
+.conv-search {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.conv-search-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--muted);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+}
+.conv-search-inner .material-symbols-rounded { font-size: 1rem; color: var(--muted-foreground); }
+.conv-search-inner input { flex: 1; border: none; background: transparent; outline: none; font-size: 0.83rem; }
+.conv-filters {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.conv-filter-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+}
+.conv-filter-btn.active { background: var(--discipline); color: white; border-color: var(--discipline); }
+.conv-list { flex: 1; overflow-y: auto; }
+.conv-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.conv-item:hover  { background: var(--muted); }
+.conv-item.active { background: var(--discipline-light); }
+.conv-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+  position: relative;
+}
+.conv-avatar.student { background: var(--student, #0d9488); }
+.conv-avatar.matron  { background: #8b5cf6; }
+.conv-avatar.patron  { background: var(--success, #16a34a); }
+.conv-avatar.parent  { background: var(--accent, #f97316); }
+.conv-avatar.dos     { background: var(--primary, #003d7a); }
+.conv-body { flex: 1; min-width: 0; }
+.conv-top  { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 2px; }
+.conv-name { font-size: 0.85rem; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.conv-time { font-size: 0.7rem; color: var(--muted-foreground); flex-shrink: 0; }
+.conv-bottom { display: flex; align-items: center; gap: 0.4rem; }
+.conv-preview { font-size: 0.78rem; color: var(--muted-foreground); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--discipline); flex-shrink: 0; }
+.conv-item.unread .conv-name { color: var(--foreground); }
+.conv-type-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+.conv-type-tag.student { background: rgba(13,148,136,0.1);  color: #0d9488; }
+.conv-type-tag.matron  { background: rgba(139,92,246,0.1);  color: #8b5cf6; }
+.conv-type-tag.patron  { background: var(--success-light);  color: var(--success); }
+.conv-type-tag.parent  { background: var(--accent-light);   color: var(--accent); }
+.conv-type-tag.dos     { background: var(--primary-light);  color: var(--primary); }
+
+.msg-right-col  { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.thread-panel   { display: flex; flex-direction: column; height: 100%; }
+.thread-head {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.thread-head-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--discipline);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  position: relative;
+  flex-shrink: 0;
+}
+.thread-head-name   { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+.thread-head-status { font-size: 0.75rem; color: var(--muted-foreground); display: flex; align-items: center; gap: 4px; }
+.dot-online { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
+.thread-actions { margin-left: auto; display: flex; gap: 0.25rem; }
+.thread-action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+}
+.thread-action-btn .material-symbols-rounded { font-size: 1.1rem; }
+.back-btn {
+  display: none;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  border-radius: 6px;
+}
+.thread-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.date-sep {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--muted-foreground);
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+.date-sep span {
+  background: var(--muted);
+  padding: 3px 12px;
+  border-radius: 10px;
+}
+/* msg-* styles are defined once in pages.css using var(--portal-accent) */
+.thread-composer {
+  padding: 0.85rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.composer-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.55rem 1rem;
+  font-size: 0.875rem;
+  outline: none;
+  background: var(--muted);
+}
+.composer-input:focus { border-color: var(--discipline); background: var(--card); }
+.composer-icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  border-radius: 8px;
+}
+.send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--discipline);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.send-btn .material-symbols-rounded { font-size: 1.1rem; }
+
+/* ── Section header ── */
+.disc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+.disc-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.disc-section-title .material-symbols-rounded { font-size: 1.1rem; color: var(--discipline); }
+
+/* ── Stat icon colour aliases ── */
+.disc-stat-icon.info     { background: rgba(30,64,175,0.1);   color: var(--primary); }
+.disc-stat-icon.success  { background: var(--success-light);  color: var(--success); }
+.disc-stat-icon.warning  { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.disc-stat-icon.positive { background: var(--success-light);  color: var(--success); }
+
+/* ── Stat trend label ── */
+.disc-stat-trend { font-size: 0.72rem; font-weight: 600; margin-top: 4px; }
+.disc-stat-trend.positive { color: var(--success); }
+.disc-stat-trend.negative { color: var(--destructive); }
+
+/* ── Activity icon colour modifiers (all variants in one place) ── */
+.disc-activity-icon.purple   { background: rgba(139,92,246,0.1);  color: #8b5cf6; }
+.disc-activity-icon.green    { background: var(--success-light);  color: var(--success); }
+.disc-activity-icon.orange   { background: var(--accent-light);   color: var(--accent); }
+.disc-activity-icon.blue     { background: var(--info-light);     color: var(--info); }
+.disc-activity-icon.warning  { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.disc-activity-icon.positive { background: var(--success-light);  color: var(--success); }
+
+/* ── Activity time / sub-text ── */
+.disc-activity-time { font-size: 0.75rem; color: var(--muted-foreground); margin: 0; }
+.disc-activity-details { flex: 1; min-width: 0; }
+
+/* ── House badges ── */
+.disc-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.disc-badge.kigoma  { background: rgba(234,179,8,0.15);   color: #854d0e; }
+.disc-badge.qatar    { background: rgba(34,197,94,0.12);   color: #166534; }
+.disc-badge.europe { background: rgba(139,92,246,0.12);  color: #5b21b6; }
+.disc-badge.samiyonga    { background: rgba(249,115,22,0.12);  color: #9a3412; }
+
+/* ── Discipline table ── */
+.disc-table-wrap { overflow-x: auto; }
+.disc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.disc-table th {
+  text-align: left;
+  padding: 0.6rem 0.85rem;
+  background: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.disc-table td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.disc-table tbody tr:last-child td { border-bottom: none; }
+.disc-table tbody tr:hover { background: var(--muted); }
+
+/* ── Utility ── */
+.mt-1-5  { margin-top: 1.5rem; }
+.mb-1-5  { margin-bottom: 1.5rem; }
+
+/* ══════════════════════════════════════
+   BOARDING — House blocks & class accordion
+══════════════════════════════════════ */
+
+.house-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  background: var(--card);
+}
+
+.house-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-left: 5px solid transparent;
+  gap: 1rem;
+}
+.house-block-header.kigoma  { background: rgba(234,179,8,0.08);   border-left-color: #ca8a04; }
+.house-block-header.qatar    { background: rgba(34,197,94,0.08);   border-left-color: #16a34a; }
+.house-block-header.europe { background: rgba(139,92,246,0.08);  border-left-color: #7c3aed; }
+.house-block-header.samiyonga    { background: rgba(249,115,22,0.08);  border-left-color: #ea580c; }
+
+.house-block-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.house-block-info .material-symbols-rounded { font-size: 1.4rem; color: var(--muted-foreground); }
+.house-block-info h2 { font-size: 1rem; font-weight: 700; margin: 0 0 2px; }
+.house-block-info p  { font-size: 0.78rem; color: var(--muted-foreground); margin: 0; }
+
+.house-block-body { padding: 0.5rem 1.25rem 1rem; }
+
+/* ── Class-list hint ── */
+.class-list-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0.75rem;
+}
+.class-list-hint .material-symbols-rounded { font-size: 0.95rem; }
+
+/* ── Class accordion (details/summary) ── */
+.class-accordion {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+.class-accordion[open] { border-color: var(--discipline); }
+
+.class-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  background: var(--muted);
+  user-select: none;
+  gap: 1rem;
+}
+.class-summary::-webkit-details-marker { display: none; }
+.class-summary:hover { background: var(--border); }
+.class-accordion[open] .class-summary { background: var(--discipline-light); }
+
+.class-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.class-label { font-weight: 700; font-size: 0.9rem; }
+
+.expand-icon {
+  font-size: 1rem;
+  color: var(--muted-foreground);
+  transition: transform 0.2s;
+}
+.class-accordion[open] .expand-icon { transform: rotate(90deg); }
+
+.class-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.class-count     { font-size: 0.8rem; font-weight: 600; color: var(--foreground); }
+.class-room-range { font-size: 0.75rem; color: var(--muted-foreground); }
+
+/* ── Student roster (expanded) ── */
+.student-roster {
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+
+.student-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.student-row:last-of-type { border-bottom: none; }
+.student-row:hover { background: var(--muted); }
+
+.student-av-sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+.student-av-sm.matron { background: #8b5cf6; }
+.student-av-sm.patron { background: var(--success, #16a34a); }
+
+.student-row-info { flex: 1; min-width: 0; }
+.student-row-name { display: block; font-weight: 600; font-size: 0.85rem; }
+.student-row-meta { display: block; font-size: 0.72rem; color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.report-btn { flex-shrink: 0; }
+
+.more-students-note {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  padding: 0.5rem 1rem;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ── Status pills ── */
+.status-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.status-pill.clean   { background: var(--success-light);     color: var(--success); }
+.status-pill.pending { background: rgba(245,158,11,0.12);    color: #b45309; }
+.status-pill.approved { background: var(--success-light);    color: var(--success); }
+.status-pill.rejected { background: var(--destructive-light); color: var(--destructive); }
+
+/* ── Inline student in table ── */
+.student-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* ── Action cell in approval table ── */
+.action-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+/* ── Approval queue header elements ── */
+.approval-count-badge {
+  background: rgba(245,158,11,0.15);
+  color: #b45309;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+.approval-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 1rem;
+}
+.approval-note .material-symbols-rounded { font-size: 1rem; color: #b45309; flex-shrink: 0; }
+.approval-note-inline {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+/* ── House summary cards (collapsed view) ── */
+.house-summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.house-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-left: 5px solid transparent;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--card);
+}
+.house-summary-card.europe { border-left-color: #7c3aed; }
+.house-summary-card.samiyonga    { border-left-color: #ea580c; }
+.house-summary-icon .material-symbols-rounded { font-size: 1.5rem; color: var(--muted-foreground); }
+.house-summary-info { flex: 1; min-width: 0; }
+.house-summary-info h3 { font-size: 0.9rem; font-weight: 700; margin: 0 0 2px; }
+.house-summary-info p  { font-size: 0.75rem; color: var(--muted-foreground); margin: 0; }
+
+/* ── Incident report form ── */
+.incident-form { display: flex; flex-direction: column; gap: 1rem; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+.form-label { font-size: 0.8rem; font-weight: 600; color: var(--foreground); }
+.form-input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  background: var(--background);
+  color: var(--foreground);
+  outline: none;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-input:focus { border-color: var(--discipline); }
+.form-textarea { resize: vertical; min-height: 90px; }
+.form-workflow-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+  background: var(--discipline-light);
+  border: 1px solid rgba(79,70,229,0.2);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+.form-workflow-note .material-symbols-rounded { font-size: 1rem; color: var(--discipline); flex-shrink: 0; margin-top: 1px; }
+.form-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+/* ══════════════════════════════════════
+   DAILY SCHEDULE — Dashboard planner
+══════════════════════════════════════ */
+
+.daily-schedule { display: flex; flex-direction: column; }
+
+.disc-schedule-item {
+  display: grid;
+  grid-template-columns: 70px 20px 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.disc-schedule-item:last-child { border-bottom: none; }
+.disc-schedule-item.done { opacity: 0.55; }
+
+.schedule-time {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-align: right;
+  white-space: nowrap;
+}
+.disc-schedule-item.active .schedule-time { color: var(--discipline); }
+
+.disc-schedule-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border);
+  border: 2px solid var(--muted-foreground);
+  justify-self: center;
+}
+.disc-schedule-dot.done   { background: var(--success);    border-color: var(--success); }
+.disc-schedule-dot.active { background: var(--discipline); border-color: var(--discipline); box-shadow: 0 0 0 4px var(--discipline-light); }
+
+.schedule-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.schedule-title { font-size: 0.88rem; font-weight: 600; }
+.schedule-meta  { font-size: 0.73rem; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.sched-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sched-badge.done     { background: var(--success-light);    color: var(--success); }
+.sched-badge.active   { background: var(--discipline-light); color: var(--discipline); }
+.sched-badge.upcoming { background: var(--muted);            color: var(--muted-foreground); }
+
+/* ══════════════════════════════════════
+   CLASS NAVIGATOR — Students page
+══════════════════════════════════════ */
+
+.class-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.class-nav-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--foreground);
+}
+.class-nav-btn:hover:not(:disabled) { background: var(--discipline-light); border-color: var(--discipline); color: var(--discipline); }
+.class-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.class-nav-btn .material-symbols-rounded { font-size: 1.2rem; }
+
+.class-nav-center { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.class-nav-label  { font-size: 1.1rem; font-weight: 800; color: var(--discipline); }
+.class-nav-select {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 6px;
+  background: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── DiD authority badge (table header) ── */
+.did-direct-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--success);
+  background: var(--success-light);
+  padding: 3px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.did-direct-badge .material-symbols-rounded { font-size: 0.9rem; }
+
+/* ── DiD authority note variant ── */
+.form-workflow-note.did-authority {
+  background: rgba(16,185,129,0.07);
+  border-color: rgba(16,185,129,0.25);
+}
+.form-workflow-note.did-authority .material-symbols-rounded { color: var(--success); }
+
+/* ── Misc text util ── */
+/* .text-muted is defined in components.css — do not redefine here */
+
+/* ══════════════════════════════════════
+   CLASS PICKER  (Section → Year → Class cascade)
+══════════════════════════════════════ */
+.disc-picker {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.disc-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 130px;
+}
+.disc-picker-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.disc-picker-select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.875rem;
+  background: var(--background);
+  color: var(--foreground);
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+.disc-picker-select:focus { border-color: var(--discipline); }
+.disc-picker-current {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--discipline);
+  margin-left: auto;
+  align-self: center;
+}
+
+/* ══════════════════════════════════════
+   REPORT PAGE TABS
+══════════════════════════════════════ */
+.rpt-tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 1.25rem;
+}
+.rpt-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  border-radius: 6px 6px 0 0;
+  transition: color 0.15s;
+}
+.rpt-tab:hover { color: var(--foreground); background: var(--muted); }
+.rpt-tab.active { color: var(--discipline); border-bottom-color: var(--discipline); }
+.rpt-tab .material-symbols-rounded { font-size: 1.1rem; }
+
+/* ══════════════════════════════════════
+   ACTIVITY / LEADER FORM + MEMBER PANELS
+══════════════════════════════════════ */
+.act-panel { display: none; margin-bottom: 1.5rem; }
+.act-panel.open { display: block; }
+
+.member-list { display: flex; flex-direction: column; }
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.member-row:last-child { border-bottom: none; }
+.member-info { flex: 1; min-width: 0; }
+.member-name { font-size: 0.875rem; font-weight: 600; }
+.member-meta { font-size: 0.72rem; color: var(--muted-foreground); }
+.member-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+
+.staff-card-edit-bar {
+  display: flex;
+  gap: 0.35rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.pub-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.pub-badge.active    { background: var(--success-light);     color: var(--success); }
+.pub-badge.draft     { background: var(--muted);             color: var(--muted-foreground); }
+.pub-badge.suspended { background: var(--destructive-light); color: var(--destructive); }
+
+/* Class chip in student table */
+.class-chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--discipline-light);
+  color: var(--discipline);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .disc-two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .disc-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .staff-cards-grid { grid-template-columns: 1fr; }
+  .msg-page-wrap { flex-direction: column; height: auto; }
+  .conv-panel { width: 100%; min-width: unset; max-height: 300px; border-right: none; border-bottom: 1px solid var(--border); }
+  .back-btn { display: flex; }
+  .house-summary-row { grid-template-columns: 1fr; }
+  .form-row-2 { grid-template-columns: 1fr; }
+  .student-row { flex-wrap: wrap; }
+  .class-summary-right { display: none; }
+
+  /* Timetable — compact on tablets / large phones */
+  .tt-table     { min-width: 520px; font-size: 0.72rem; }
+  .tt-time-head { width: 70px; padding: 0.4rem 0.5rem; font-size: 0.68rem; }
+  .tt-day-head  { min-width: 70px; padding: 0.4rem 0.25rem; font-size: 0.68rem; }
+  .tt-time-cell { padding: 0.4rem 0.5rem; }
+  .tt-cell      { padding: 0.35rem 0.4rem; }
+  .tt-subject   { font-size: 0.7rem; }
+  .tt-teacher, .tt-room { font-size: 0.62rem; }
+  .tt-form-row  { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .disc-stat-grid { grid-template-columns: 1fr; }
+  .disc-welcome-banner { flex-direction: column; align-items: flex-start; }
+  .disc-schedule-item { grid-template-columns: 55px 16px 1fr; }
+  .sched-badge { display: none; }
+  .class-nav-bar { gap: 0.5rem; padding: 0.6rem; }
+  .did-direct-badge { display: none; }
+
+  /* Timetable — ultra-compact on phones */
+  .tt-table     { min-width: 400px; }
+  .tt-time-head { width: 55px; font-size: 0.65rem; }
+  .tt-day-head  { min-width: 55px; font-size: 0.6rem; }
+  .tt-form-row  { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 374px) {
+  .disc-stat-grid { grid-template-columns: 1fr; }
+  .disc-picker-group { min-width: unset; flex: 1; }
+}
