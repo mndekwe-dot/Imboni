@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
@@ -125,7 +125,7 @@ export function MatronSchedule() {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn"><span className="material-symbols-rounded">menu</span></button>
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
                         <div className="dashboard-header-title">
                             <h1>Boarding Schedule</h1>
                             <p>Timetable sent by the Discipline Master &mdash; Karisimbi House</p>

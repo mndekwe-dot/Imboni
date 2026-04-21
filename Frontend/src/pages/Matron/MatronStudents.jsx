@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useState } from 'react'
@@ -97,7 +97,7 @@ export function MatronStudents() {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn"><span className="material-symbols-rounded">menu</span></button>
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
                         <div className="dashboard-header-title">
                             <h1>My Students</h1>
                             <p>Karisimbi House &mdash; 10 students</p>

@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
@@ -93,7 +93,7 @@ export const MatronHealth = () => {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn"><span className="material-symbols-rounded">menu</span></button>
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
                         <div className="dashboard-header-title">
                             <h1>Health &amp; Wellness</h1>
                             <p>Sick bay management and student health records &mdash; Karisimbi House</p>
@@ -143,7 +143,7 @@ export const MatronHealth = () => {
                                     <div>
                                         <label>Student</label>
                                         <select>
-                                            <option value="">— Select student —</option>
+                                            <option value="">â€” Select student â€”</option>
                                             <option>Uwase Amina (S4A)</option>
                                             <option>Niyomugabo Iris (S2A)</option>
                                             <option>Kayitesi Ursula (S3B)</option>

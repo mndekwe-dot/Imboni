@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -15,8 +15,8 @@ const teacherStats = [
 const teachers = [
     { initials: 'CU', avClass: 'english',  name: 'Claudine Umutoni',      id: 'TST-001', subject: 'English',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S1A', 'S3A'],          statusClass: 'active', status: 'Active' },
     { initials: 'PR', avClass: 'math',     name: 'Pacifique Rurangwa',     id: 'TST-002', subject: 'Mathematics', type: 'Full-Time', typeClass: 'fulltime', classes: ['S2A', 'S2B'],          statusClass: 'active', status: 'Active' },
-    { initials: 'IN', avClass: 'sciences', name: 'Immaculée Nsabimana',    id: 'TST-003', subject: 'Biology',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S3B', 'S4A'],  statusClass: 'active', status: 'Active' },
-    { initials: 'TB', avClass: 'sciences', name: 'Théophile Bizimana',     id: 'TST-004', subject: 'Chemistry',   type: 'Part-Time', typeClass: 'parttime', classes: ['S2B'],                  statusClass: 'active', status: 'Active' },
+    { initials: 'IN', avClass: 'sciences', name: 'ImmaculÃ©e Nsabimana',    id: 'TST-003', subject: 'Biology',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S3B', 'S4A'],  statusClass: 'active', status: 'Active' },
+    { initials: 'TB', avClass: 'sciences', name: 'ThÃ©ophile Bizimana',     id: 'TST-004', subject: 'Chemistry',   type: 'Part-Time', typeClass: 'parttime', classes: ['S2B'],                  statusClass: 'active', status: 'Active' },
     { initials: 'SU', avClass: 'sciences', name: 'Sandrine Uwera',         id: 'TST-005', subject: 'Physics',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S3B', 'S4A'],  statusClass: 'active', status: 'Active' },
     { initials: 'JN', avClass: 'english',  name: 'Janvier Ntakirutimana',  id: 'TST-006', subject: 'History',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S4A'],          statusClass: 'active', status: 'Active' },
 ]
@@ -67,7 +67,7 @@ export function DosTeachers() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn">
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
                             <span className="material-symbols-rounded">menu</span>
                         </button>
                         <div className="dashboard-header-title">

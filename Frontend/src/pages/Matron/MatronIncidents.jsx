@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -48,7 +48,7 @@ export function MatronIncidents() {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn"><span className="material-symbols-rounded">menu</span></button>
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
                         <div className="dashboard-header-title">
                             <h1>Report Incident</h1>
                             <p>Submit incident reports directly to the Director of Discipline</p>
@@ -75,7 +75,7 @@ export function MatronIncidents() {
                                 <div className="form-field">
                                     <label>Student</label>
                                     <select>
-                                        <option value="">— Select student —</option>
+                                        <option value="">â€” Select student â€”</option>
                                         <option>Uwase Amina (S4A)</option>
                                         <option>Niyomugabo Iris (S2A)</option>
                                         <option>Kayitesi Ursula (S3B)</option>
@@ -111,7 +111,7 @@ export function MatronIncidents() {
                                 </div>
                                 <div className="form-field form-field-full">
                                     <label>Description</label>
-                                    <textarea placeholder="Describe the incident in detail — what happened, where, who was involved, any witnesses..."></textarea>
+                                    <textarea placeholder="Describe the incident in detail â€” what happened, where, who was involved, any witnesses..."></textarea>
                                 </div>
                                 <div className="form-field form-field-full">
                                     <label>Action Taken (if any)</label>

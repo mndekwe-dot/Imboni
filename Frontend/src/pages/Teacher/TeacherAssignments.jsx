@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -13,11 +13,11 @@ const assignmentStats = [
 ]
 
 const assignments = [
-    { status: 'active', icon: 'calculate',   iconBg: 'var(--primary-light)',     iconColor: 'var(--primary)',           title: 'Problem Set 4 — Quadratic Equations',          subject: 'Mathematics · S3A', due: 'Due Mar 15, 2026',     pubClass: 'active', submitted: 18,   total: 34,   submittedBg: 'var(--warning-light)',     submittedColor: 'var(--warning)'     },
-    { status: 'active', icon: 'calculate',   iconBg: 'var(--primary-light)',     iconColor: 'var(--primary)',           title: 'CAT 2 Take-home — Trigonometry',                subject: 'Mathematics · S3B', due: 'Due Mar 11, 2026',     pubClass: 'active', submitted: 6,    total: 32,   submittedBg: 'var(--destructive-light)', submittedColor: 'var(--destructive)'  },
-    { status: 'active', icon: 'science',     iconBg: 'var(--primary-light)',     iconColor: 'var(--primary)',           title: 'Lab Report — Projectile Motion Experiment',    subject: 'Physics · S4A',     due: 'Due Mar 18, 2026',     pubClass: 'active', submitted: 30,   total: 30,   submittedBg: 'var(--success-light)',     submittedColor: 'var(--success)'     },
-    { status: 'past',   icon: 'history_edu', iconBg: 'var(--muted)',             iconColor: 'var(--muted-foreground)',  title: 'Problem Set 3 — Linear Equations',             subject: 'Mathematics · S3A', due: 'Was due Feb 28, 2026', pubClass: 'draft',  submitted: 34,   total: 34,   submittedBg: 'var(--success-light)',     submittedColor: 'var(--success)'     },
-    { status: 'draft',  icon: 'draft',       iconBg: 'var(--warning-light)',     iconColor: 'var(--warning)',           title: 'Electricity and Magnetism — Extended Problems', subject: 'Physics · S4A',     due: 'Due Apr 2, 2026',      pubClass: 'draft',  submitted: null, total: null, submittedBg: 'var(--muted)',             submittedColor: 'var(--muted-foreground)' },
+    { status: 'active', icon: 'calculate',   iconBg: 'var(--primary-light)',     iconColor: 'var(--primary)',           title: 'Problem Set 4 â€” Quadratic Equations',          subject: 'Mathematics Â· S3A', due: 'Due Mar 15, 2026',     pubClass: 'active', submitted: 18,   total: 34,   submittedBg: 'var(--warning-light)',     submittedColor: 'var(--warning)'     },
+    { status: 'active', icon: 'calculate',   iconBg: 'var(--primary-light)',     iconColor: 'var(--primary)',           title: 'CAT 2 Take-home â€” Trigonometry',                subject: 'Mathematics Â· S3B', due: 'Due Mar 11, 2026',     pubClass: 'active', submitted: 6,    total: 32,   submittedBg: 'var(--destructive-light)', submittedColor: 'var(--destructive)'  },
+    { status: 'active', icon: 'science',     iconBg: 'var(--primary-light)',     iconColor: 'var(--primary)',           title: 'Lab Report â€” Projectile Motion Experiment',    subject: 'Physics Â· S4A',     due: 'Due Mar 18, 2026',     pubClass: 'active', submitted: 30,   total: 30,   submittedBg: 'var(--success-light)',     submittedColor: 'var(--success)'     },
+    { status: 'past',   icon: 'history_edu', iconBg: 'var(--muted)',             iconColor: 'var(--muted-foreground)',  title: 'Problem Set 3 â€” Linear Equations',             subject: 'Mathematics Â· S3A', due: 'Was due Feb 28, 2026', pubClass: 'draft',  submitted: 34,   total: 34,   submittedBg: 'var(--success-light)',     submittedColor: 'var(--success)'     },
+    { status: 'draft',  icon: 'draft',       iconBg: 'var(--warning-light)',     iconColor: 'var(--warning)',           title: 'Electricity and Magnetism â€” Extended Problems', subject: 'Physics Â· S4A',     due: 'Due Apr 2, 2026',      pubClass: 'draft',  submitted: null, total: null, submittedBg: 'var(--muted)',             submittedColor: 'var(--muted-foreground)' },
 ]
 
 function AssignmentStat({ iconClass, icon, value, label }) {
@@ -69,7 +69,7 @@ export function TeacherAssignments() {
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn" aria-label="Toggle navigation menu">
+                        <button className="mobile-menu-btn" aria-label="Toggle navigation menu" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
                             <span className="material-symbols-rounded">menu</span>
                         </button>
                         <div className="dashboard-header-title">
@@ -143,12 +143,12 @@ export function TeacherAssignments() {
                                     <div className="tt-form-row">
                                         <div className="form-group">
                                             <label className="form-label">Title</label>
-                                            <input type="text" className="form-input" placeholder="e.g. Problem Set 4 — Quadratic Equations" />
+                                            <input type="text" className="form-input" placeholder="e.g. Problem Set 4 â€” Quadratic Equations" />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">Class</label>
                                             <select className="form-input">
-                                                <option value="">— Select class —</option>
+                                                <option value="">â€” Select class â€”</option>
                                                 <option>S3A</option>
                                                 <option>S3B</option>
                                                 <option>S4A</option>
@@ -158,7 +158,7 @@ export function TeacherAssignments() {
                                         <div className="form-group">
                                             <label className="form-label">Subject</label>
                                             <select className="form-input">
-                                                <option value="">— Select subject —</option>
+                                                <option value="">â€” Select subject â€”</option>
                                                 <option>Mathematics</option>
                                                 <option>Physics</option>
                                                 <option>Chemistry</option>
@@ -186,7 +186,7 @@ export function TeacherAssignments() {
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label">Instructions</label>
-                                        <textarea className="form-input" style={{ minHeight: '80px', resize: 'vertical' }} placeholder="Describe the assignment and list submission requirements…"></textarea>
+                                        <textarea className="form-input" style={{ minHeight: '80px', resize: 'vertical' }} placeholder="Describe the assignment and list submission requirementsâ€¦"></textarea>
                                     </div>
                                     <div className="tt-form-actions">
                                         <button className="btn btn-secondary">Clear</button>

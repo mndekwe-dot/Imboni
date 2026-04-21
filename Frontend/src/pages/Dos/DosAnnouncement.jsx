@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -6,7 +6,7 @@ import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 
 
 const recentBroadcasts = [
-    { avatar: 'JN', avatarClass: '',              title: 'S4 National Exam Prep – Schedule Update', sentTo: 'All Teachers', time: '2h ago',               badgeClass: 'urgent',   badge: 'Urgent',   views: '124', isDraft: false, excerpt: 'Please note that the S4 national exam preparation session originally scheduled for Monday has been moved to Wednesday. All invigilators should update their rosters accordingly.' },
+    { avatar: 'JN', avatarClass: '',              title: 'S4 National Exam Prep â€“ Schedule Update', sentTo: 'All Teachers', time: '2h ago',               badgeClass: 'urgent',   badge: 'Urgent',   views: '124', isDraft: false, excerpt: 'Please note that the S4 national exam preparation session originally scheduled for Monday has been moved to Wednesday. All invigilators should update their rosters accordingly.' },
     { avatar: 'JN', avatarClass: '',              title: 'Sports Day Logistics',       sentTo: 'Parents',      time: '1 day ago',            badgeClass: 'event',    badge: 'Event',    views: '450', isDraft: false, excerpt: 'Parents are invited to attend the annual sports gala starting at 9:00 AM this Friday at the main sports ground. Refreshments will be provided.'        },
     { avatar: 'JN', avatarClass: '',              title: 'S4 & S6 Exam Timetable Published', sentTo: 'All Students', time: '3 days ago',           badgeClass: 'academic', badge: 'Academic', views: '892', isDraft: false, excerpt: 'The official Term 2 exam timetable for S4 and S6 is now available on the student portal. Please review and report any conflicts to the DOS office.'             },
     { avatar: 'JN', avatarClass: 'avatar-warning',title: 'End of Term Assembly',       sentTo: null,           time: 'Last edited 5 days ago', badgeClass: 'general', badge: 'General', views: null,  isDraft: true,  excerpt: 'Reminder that the end-of-term assembly will be held on the last Friday of term. All students and staff are expected to attend...'                    },
@@ -50,7 +50,7 @@ export function DosAnnouncement() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn">
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
                             <span className="material-symbols-rounded">menu</span>
                         </button>
                         <div className="dashboard-header-title">

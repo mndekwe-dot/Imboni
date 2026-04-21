@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -65,7 +65,7 @@ export function DosAttendance() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn">
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
                             <span className="material-symbols-rounded">menu</span>
                         </button>
                         <div className="dashboard-header-title">
@@ -146,8 +146,8 @@ export function DosAttendance() {
                         <div className="card mt-1-5">
                             <div className="card-header">
                                 <div>
-                                    <h2 className="card-title">S1A — Weekly Attendance</h2>
-                                    <p className="dos-class-meta">Week: 09 Mar – 13 Mar 2026 &bull; Class Teacher: Ms. Claudine Umutoni</p>
+                                    <h2 className="card-title">S1A â€” Weekly Attendance</h2>
+                                    <p className="dos-class-meta">Week: 09 Mar â€“ 13 Mar 2026 &bull; Class Teacher: Ms. Claudine Umutoni</p>
                                 </div>
                                 <div className="att-legend">
                                     <span className="att-pip present">P</span> Present

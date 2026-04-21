@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -78,7 +78,7 @@ export function TeacherAttendance() {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn">
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
                             <span className="material-symbols-rounded">menu</span>
                         </button>
                         <div className="dashboard-header-title">
@@ -103,14 +103,14 @@ export function TeacherAttendance() {
 
                     <div className="dashboard-content">
 
-                        {/* Section → Year → Class Cascade Picker */}
+                        {/* Section â†’ Year â†’ Class Cascade Picker */}
                         <div className="tp-picker">
                             <div className="tp-picker-group">
                                 <label className="tp-picker-label">Section</label>
                                 <select className="tp-picker-select" id="dp-section">
                                     <option value="">All Sections</option>
-                                    <option value="olevel">O-Level (S1–S3)</option>
-                                    <option value="alevel">A-Level (S4–S6)</option>
+                                    <option value="olevel">O-Level (S1â€“S3)</option>
+                                    <option value="alevel">A-Level (S4â€“S6)</option>
                                 </select>
                             </div>
                             <div className="tp-picker-group">
@@ -212,7 +212,7 @@ export function TeacherAttendance() {
                             <div className="card-content">
                                 <div className="chart-container">
                                     <div className="chart-placeholder">
-                                        📊 Attendance pattern line chart
+                                        ðŸ“Š Attendance pattern line chart
                                         <br /><small>Mon: 96% | Tue: 94% | Wed: 91% | Thu: 89% | Fri: 87%</small>
                                     </div>
                                 </div>
