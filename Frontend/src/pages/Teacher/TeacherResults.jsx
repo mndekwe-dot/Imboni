@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -46,7 +46,7 @@ export function TeacherResults() {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn">
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
                             <span className="material-symbols-rounded">menu</span>
                         </button>
                         <div className="dashboard-header-title">
@@ -71,14 +71,14 @@ export function TeacherResults() {
 
                     <div className="dashboard-content">
 
-                        {/* Section → Year → Class Cascade Picker */}
+                        {/* Section â†’ Year â†’ Class Cascade Picker */}
                         <div className="tp-picker">
                             <div className="tp-picker-group">
                                 <label className="tp-picker-label">Section</label>
                                 <select className="tp-picker-select" id="dp-section">
                                     <option value="">All Sections</option>
-                                    <option value="olevel">O-Level (S1–S3)</option>
-                                    <option value="alevel">A-Level (S4–S6)</option>
+                                    <option value="olevel">O-Level (S1â€“S3)</option>
+                                    <option value="alevel">A-Level (S4â€“S6)</option>
                                 </select>
                             </div>
                             <div className="tp-picker-group">
@@ -168,7 +168,7 @@ export function TeacherResults() {
                                 <div className="grid-2">
                                     <div className="chart-container">
                                         <div className="chart-placeholder">
-                                            📊 Grade distribution histogram
+                                            ðŸ“Š Grade distribution histogram
                                             <br /><small>A (80-100): 12 | B (70-79): 15 | C (60-69): 4 | D (50-59): 1</small>
                                         </div>
                                     </div>
@@ -232,7 +232,7 @@ export function TeacherResults() {
                             <div className="card-content">
                                 <div className="chart-container">
                                     <div className="chart-placeholder">
-                                        📈 Performance trend line graph
+                                        ðŸ“ˆ Performance trend line graph
                                         <br /><small>Jan: 78% | Feb: 81% | Mar: 85% | Apr: 82%</small>
                                     </div>
                                 </div>

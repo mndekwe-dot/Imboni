@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -55,7 +55,7 @@ export function DosStudents() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn">
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
                             <span className="material-symbols-rounded">menu</span>
                         </button>
                         <div className="dashboard-header-title">
@@ -119,7 +119,7 @@ export function DosStudents() {
                         <div className="card mt-1-5">
                             <div className="card-header">
                                 <div>
-                                    <h2 className="card-title">Form 1A — Students</h2>
+                                    <h2 className="card-title">Form 1A â€” Students</h2>
                                     <p className="dos-class-meta">Class Teacher: Ms. Claudine Umutoni &bull; 8 students</p>
                                 </div>
                                 <div className="page-search-box dos-class-search">

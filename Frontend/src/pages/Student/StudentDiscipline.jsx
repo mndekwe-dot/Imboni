@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -13,12 +13,12 @@ const conductStats = [
 ]
 
 const disciplineRecords = [
-  { date: 'Mar 5, 2026',  type: 'Positive', typeBg: 'var(--success-light)',     typeColor: 'var(--success)',     description: 'Represented school at Inter-school Debate — 2nd place',     issuedBy: 'Mr. Mutabazi',    points: '+5', pointsClass: 'disc-points-pos' },
-  { date: 'Feb 20, 2026', type: 'Positive', typeBg: 'var(--success-light)',     typeColor: 'var(--success)',     description: 'Academic Excellence Award — Term 1 Top 5',                   issuedBy: 'Dr. Ndagijimana', points: '+4', pointsClass: 'disc-points-pos' },
-  { date: 'Jan 30, 2026', type: 'Positive', typeBg: 'var(--success-light)',     typeColor: 'var(--success)',     description: 'Community service — cleaned school library voluntarily',       issuedBy: 'Mr. Mutabazi',    points: '+3', pointsClass: 'disc-points-pos' },
+  { date: 'Mar 5, 2026',  type: 'Positive', typeBg: 'var(--success-light)',     typeColor: 'var(--success)',     description: 'Represented school at Inter-school Debate â€” 2nd place',     issuedBy: 'Mr. Mutabazi',    points: '+5', pointsClass: 'disc-points-pos' },
+  { date: 'Feb 20, 2026', type: 'Positive', typeBg: 'var(--success-light)',     typeColor: 'var(--success)',     description: 'Academic Excellence Award â€” Term 1 Top 5',                   issuedBy: 'Dr. Ndagijimana', points: '+4', pointsClass: 'disc-points-pos' },
+  { date: 'Jan 30, 2026', type: 'Positive', typeBg: 'var(--success-light)',     typeColor: 'var(--success)',     description: 'Community service â€” cleaned school library voluntarily',       issuedBy: 'Mr. Mutabazi',    points: '+3', pointsClass: 'disc-points-pos' },
   { date: 'Feb 28, 2026', type: 'Negative', typeBg: 'var(--destructive-light)', typeColor: 'var(--destructive)', description: 'Late to Chemistry class without valid reason',                issuedBy: 'Mr. Bizimana',    points: '-2', pointsClass: 'disc-points-neg' },
-  { date: 'Jan 22, 2026', type: 'Negative', typeBg: 'var(--destructive-light)', typeColor: 'var(--destructive)', description: 'Incorrect uniform — missing school tie',                     issuedBy: 'Mr. Mutabazi',    points: '-3', pointsClass: 'disc-points-neg' },
-  { date: 'Jan 15, 2026', type: 'Warning',  typeBg: 'rgba(245,158,11,0.12)',    typeColor: '#f59e0b',            description: 'Noise in dormitory after lights-out — verbal warning issued', issuedBy: 'Mrs. Hakizimana', points: 'W',  pointsClass: ''                },
+  { date: 'Jan 22, 2026', type: 'Negative', typeBg: 'var(--destructive-light)', typeColor: 'var(--destructive)', description: 'Incorrect uniform â€” missing school tie',                     issuedBy: 'Mr. Mutabazi',    points: '-3', pointsClass: 'disc-points-neg' },
+  { date: 'Jan 15, 2026', type: 'Warning',  typeBg: 'rgba(245,158,11,0.12)',    typeColor: '#f59e0b',            description: 'Noise in dormitory after lights-out â€” verbal warning issued', issuedBy: 'Mrs. Hakizimana', points: 'W',  pointsClass: ''                },
 ]
 
 const appealSteps = [
@@ -32,12 +32,12 @@ const conductCategories = [
   { cardClass: 'uniform',  iconClass: 'orange', icon: 'checkroom',       title: 'Uniform & Appearance',      rules: [
     'Full school uniform must be worn every school day',
     'School tie required from Monday to Friday',
-    'Hair must be natural — no dye, extensions, or elaborate styles',
+    'Hair must be natural â€” no dye, extensions, or elaborate styles',
     'No jewellery except a plain wristwatch',
     'Shoes must be plain black and well-polished',
   ]},
   { cardClass: 'attend',   iconClass: 'amber',  icon: 'schedule',        title: 'Attendance & Punctuality',  rules: [
-    'Gates close at 7:25 AM — late arrival requires a late pass',
+    'Gates close at 7:25 AM â€” late arrival requires a late pass',
     'All absences must be explained by a signed parent/guardian note',
     'Minimum 85% attendance required per term',
     'Leaving school grounds requires written permission from administration',
@@ -49,7 +49,7 @@ const conductCategories = [
     'All work submitted must be original and the student\'s own',
   ]},
   { cardClass: 'boarding', iconClass: 'purple', icon: 'home',            title: 'Dormitory & Boarding',      rules: [
-    'Lights out at 10:15 PM — no exceptions',
+    'Lights out at 10:15 PM â€” no exceptions',
     'No visitors of the opposite gender in dormitories at any time',
     'Students are responsible for cleanliness of their rooms',
     'All personal valuables must be stored in locked trunks',
@@ -132,7 +132,7 @@ export function StudentDiscipline() {
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn"><span className="material-symbols-rounded">menu</span></button>
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
                         <div className="dashboard-header-title">
                             <h1>Discipline</h1>
                             <p>School rules, your discipline record &amp; appeals</p>
@@ -142,7 +142,7 @@ export function StudentDiscipline() {
                             <div className="header-user">
                                 <div className="header-user-info">
                                     <span className="header-user-name">Uwase Amina</span>
-                                    <span className="header-user-role">Student · S4A</span>
+                                    <span className="header-user-role">Student Â· S4A</span>
                                 </div>
                                 <div className="header-user-av student-av">UA</div>
                             </div>
@@ -158,8 +158,8 @@ export function StudentDiscipline() {
                                 <div className="staff-profile-name">Mr. E. Mutabazi</div>
                                 <div className="staff-profile-title">Director of Discipline &amp; Student Affairs</div>
                                 <div className="staff-profile-meta">
-                                    <span className="staff-meta-item"><span className="material-symbols-rounded">location_on</span>Admin Block — Office A-5</span>
-                                    <span className="staff-meta-item"><span className="material-symbols-rounded">schedule</span>Mon–Fri: 7:30 AM – 5:00 PM</span>
+                                    <span className="staff-meta-item"><span className="material-symbols-rounded">location_on</span>Admin Block â€” Office A-5</span>
+                                    <span className="staff-meta-item"><span className="material-symbols-rounded">schedule</span>Monâ€“Fri: 7:30 AM â€“ 5:00 PM</span>
                                     <span className="staff-meta-item"><span className="material-symbols-rounded">phone</span>Ext. 204</span>
                                     <span className="staff-meta-item"><span className="material-symbols-rounded">mail</span>e.mutabazi@imboni.ac.rw</span>
                                     <span className="staff-meta-item"><span className="material-symbols-rounded">badge</span>8 years at Imboni Academy</span>

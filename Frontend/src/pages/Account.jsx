@@ -1,10 +1,10 @@
-import { useSearchParams } from 'react-router'
+﻿import { useSearchParams } from 'react-router'
 import { Sidebar } from '../../src/components/layout/Sidebar'
 import '../styles/layout.css'
 import '../styles/components.css'
 import '../styles/parent.css'
 
-/* ── Nav items for every portal ── */
+/* â”€â”€ Nav items for every portal â”€â”€ */
 const NAV = {
     student: {
         navItems: [
@@ -131,7 +131,7 @@ export function Account() {
                 <Sidebar navItems={navItems} secondaryItems={secondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn"><span className="material-symbols-rounded">menu</span></button>
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
                         <div className="dashboard-header-title">
                             <h1>Account Settings</h1>
                             <p>Update your personal information and preferences</p>
@@ -276,7 +276,7 @@ export function Account() {
                                                     <div className="avatar-sm">UA</div>
                                                     <div>
                                                         <p className="name">Uwase Amina</p>
-                                                        <p className="id-tag">S4A · ID: 2024-001</p>
+                                                        <p className="id-tag">S4A Â· ID: 2024-001</p>
                                                     </div>
                                                 </div>
                                                 <span className="badge status-paid">Verified</span>
@@ -286,7 +286,7 @@ export function Account() {
                                                     <div className="avatar-sm" style={{ background: 'var(--accent)' }}>IJ</div>
                                                     <div>
                                                         <p className="name">Ishimwe Jean</p>
-                                                        <p className="id-tag">S1B · ID: 2024-042</p>
+                                                        <p className="id-tag">S1B Â· ID: 2024-042</p>
                                                     </div>
                                                 </div>
                                                 <span className="badge status-paid">Verified</span>

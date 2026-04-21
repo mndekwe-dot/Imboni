@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
@@ -13,11 +13,11 @@ const commsStats = [
 ]
 
 const commLog = [
-    { typeClass: 'call',  typeIcon: 'call', student: 'Ingabire Belise',   parent: 'Mrs. Françoise Ingabire (mother)',   subject: 'Health update \u2014 fever admission',         notes: 'Informed mother that Belise was admitted to sick bay with high fever (38.5 \u00b0C). Mother acknowledged and asked for daily updates. Agreed to review on Mar 26.', meta: 'Mar 23, 2026 \u00b7 15:42 \u00b7 Phone Call \u00b7 Follow-up due Mar 26', statusClass: 'completed', status: 'Completed'     },
+    { typeClass: 'call',  typeIcon: 'call', student: 'Ingabire Belise',   parent: 'Mrs. FranÃ§oise Ingabire (mother)',   subject: 'Health update \u2014 fever admission',         notes: 'Informed mother that Belise was admitted to sick bay with high fever (38.5 \u00b0C). Mother acknowledged and asked for daily updates. Agreed to review on Mar 26.', meta: 'Mar 23, 2026 \u00b7 15:42 \u00b7 Phone Call \u00b7 Follow-up due Mar 26', statusClass: 'completed', status: 'Completed'     },
     { typeClass: 'sms',   typeIcon: 'sms',  student: 'Kayitesi Ursula',   parent: 'Mr. Aloys Kayitesi (father)',          subject: 'Allergic reaction notification',               notes: 'SMS sent: "Dear Parent, Ursula is currently under observation in the sick bay due to a mild allergic reaction. She has been given antihistamines and is stable. We will keep you updated."', meta: 'Mar 22, 2026 \u00b7 11:05 \u00b7 SMS / WhatsApp', statusClass: 'sent',      status: 'Sent'          },
-    { typeClass: 'call',  typeIcon: 'call', student: 'Niyomugabo Iris',   parent: 'Mr. Théophile Niyomugabo (father)',    subject: 'Dormitory conduct concern',                    notes: "Called to discuss Iris's repeated noise violations after lights-out. Father was cooperative and agreed to speak with Iris. No formal disciplinary action taken yet.", meta: 'Mar 18, 2026 \u00b7 17:15 \u00b7 Phone Call', statusClass: 'completed', status: 'Completed'     },
+    { typeClass: 'call',  typeIcon: 'call', student: 'Niyomugabo Iris',   parent: 'Mr. ThÃ©ophile Niyomugabo (father)',    subject: 'Dormitory conduct concern',                    notes: "Called to discuss Iris's repeated noise violations after lights-out. Father was cooperative and agreed to speak with Iris. No formal disciplinary action taken yet.", meta: 'Mar 18, 2026 \u00b7 17:15 \u00b7 Phone Call', statusClass: 'completed', status: 'Completed'     },
     { typeClass: 'call',  typeIcon: 'call', student: 'Mukamana Brigitte', parent: 'Mrs. Odette Mukamana (mother)',        subject: 'Welfare check \u2014 student seems withdrawn', notes: 'Called to express concern that Brigitte has seemed unusually quiet for the past week. Mother mentioned adjustments at home. Agreed to monitor and connect Brigitte with school counsellor.', meta: 'Mar 15, 2026 \u00b7 10:30 \u00b7 Phone Call \u00b7 Follow-up: counsellor referral', statusClass: 'pending',   status: 'Pending Reply' },
-    { typeClass: 'email', typeIcon: 'mail', student: 'Mukamazimpaka Joy', parent: 'Dr. Léonard Mukamazimpaka (father)',   subject: 'End-of-term welfare summary',                  notes: "Email sent with a brief summary of Joy's term \u2014 attendance, health visits (1 flu episode), and positive conduct. Father replied with thanks.", meta: 'Mar 10, 2026 \u00b7 08:00 \u00b7 Email', statusClass: 'completed', status: 'Completed'     },
+    { typeClass: 'email', typeIcon: 'mail', student: 'Mukamazimpaka Joy', parent: 'Dr. LÃ©onard Mukamazimpaka (father)',   subject: 'End-of-term welfare summary',                  notes: "Email sent with a brief summary of Joy's term \u2014 attendance, health visits (1 flu episode), and positive conduct. Father replied with thanks.", meta: 'Mar 10, 2026 \u00b7 08:00 \u00b7 Email', statusClass: 'completed', status: 'Completed'     },
     { typeClass: 'call',  typeIcon: 'call', student: 'Rugamba Nadine',    parent: 'Mrs. Vestine Rugamba (mother)',        subject: 'Sports injury notification',                   notes: 'Called to inform that Nadine sustained a minor cut on her hand during football practice. Wound has been cleaned and bandaged. No stitches required. Nadine cleared to continue normal activities.', meta: 'Mar 08, 2026 \u00b7 16:55 \u00b7 Phone Call', statusClass: 'completed', status: 'Completed'     },
     { typeClass: 'call',  typeIcon: 'call', student: 'Uwase Amina',       parent: 'Mrs. Chantal Uwase (mother)',          subject: 'Missing weekend permission slip',              notes: "Called to confirm weekend leave permission for Amina. Mother confirmed and said she'd email the signed form. Form received on Mar 02.", meta: 'Mar 01, 2026 \u00b7 09:15 \u00b7 Phone Call', statusClass: 'completed', status: 'Completed'     },
 ]
@@ -65,7 +65,7 @@ export function MatronParentComms() {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn"><span className="material-symbols-rounded">menu</span></button>
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
                         <div className="dashboard-header-title">
                             <h1>Parent Communications</h1>
                             <p>Log and track all parent contact &mdash; Karisimbi House</p>
@@ -99,7 +99,7 @@ export function MatronParentComms() {
                                     <div>
                                         <label>Student</label>
                                         <select>
-                                            <option value="">— Select student —</option>
+                                            <option value="">â€” Select student â€”</option>
                                             <option>Uwase Amina (S4A)</option>
                                             <option>Niyomugabo Iris (S2A)</option>
                                             <option>Kayitesi Ursula (S3B)</option>

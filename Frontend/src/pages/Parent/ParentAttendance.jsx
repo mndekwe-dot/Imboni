@@ -1,4 +1,4 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
@@ -112,7 +112,7 @@ export function ParentAttendance() {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn">
+                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
                             <span className="material-symbols-rounded">menu</span>
                         </button>
                         <div className="dashboard-header-title">
@@ -137,7 +137,7 @@ export function ParentAttendance() {
                             <AttendancePanel
                                 stats={sarahAttendanceStats}
                                 calendarDays={sarahCalendarDays}
-                                title="Term 2, 2026 — Uwase Amina's Attendance"
+                                title="Term 2, 2026 â€” Uwase Amina's Attendance"
                             />
                         </div>
 
