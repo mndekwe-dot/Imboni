@@ -39,3 +39,10 @@ PERMISSIONS_GUIDE.md
 
 # Editor & local config
 .vscode/
+
+# React / Vite (Frontend/)
+node_modules/
+dist/
+dist-ssr/
+*.local
+.eslintcache

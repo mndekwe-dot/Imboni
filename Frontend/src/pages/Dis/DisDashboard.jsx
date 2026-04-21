@@ -1,0 +1,199 @@
+import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
+import { StatCard } from '../../components/layout/StatCard'
+import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import '../../styles/layout.css'
+import '../../styles/components.css'
+import '../../styles/discipline.css'
+
+const disStats = [
+    { colorClass: '',        icon: 'groups',   value: '420', label: 'Total Students'        },
+    { colorClass: 'warning', icon: 'warning',  value: '7',   label: 'Incidents This Week'   },
+    { colorClass: 'red',     icon: 'gavel',    value: '3',   label: 'Pending Appeals'       },
+    { colorClass: 'success', icon: 'verified', value: '312', label: 'Good Conduct Standing' },
+]
+
+const todaySchedule = [
+    { time: '5:30 AM', status: 'done',   dotClass: 'done',   title: 'Morning Wake-Up & Prep',   meta: 'All houses \u2022 Matrons & Patrons on duty',                        badge: 'Done',     badgeClass: 'done'     },
+    { time: '6:30 AM', status: 'done',   dotClass: 'done',   title: 'Breakfast Sitting',         meta: 'Dining hall \u2022 All students by house section',                   badge: 'Done',     badgeClass: 'done'     },
+    { time: '7:15 AM', status: 'done',   dotClass: 'done',   title: 'Morning Assembly',          meta: 'Main quadrangle \u2022 Prefects lead \u2022 Mr. Mutabazi presides',   badge: 'Done',     badgeClass: 'done'     },
+    { time: '1:00 PM', status: 'active', dotClass: 'active', title: 'Lunch Sitting',             meta: 'Dining hall \u2022 All students by house section',                   badge: 'Now',      badgeClass: 'active'   },
+    { time: '2:00 PM', status: '',       dotClass: '',       title: 'Sports & Games Period',     meta: 'Sports fields \u2022 Football, Basketball, Athletics \u2022 Mr. Rurangwa', badge: 'Upcoming', badgeClass: 'upcoming' },
+    { time: '4:30 PM', status: '',       dotClass: '',       title: 'Club Meetings',             meta: 'Drama \u2014 School Hall \u2022 Debate \u2014 Library \u2022 Science \u2014 Lab', badge: 'Upcoming', badgeClass: 'upcoming' },
+    { time: '6:30 PM', status: '',       dotClass: '',       title: 'Evening Prep & Study',      meta: 'All students to dorms \u2022 Supervised by house staff',              badge: 'Upcoming', badgeClass: 'upcoming' },
+    { time: '7:00 PM', status: '',       dotClass: '',       title: 'Dinner Sitting',            meta: 'Dining hall \u2022 All students by house section',                   badge: 'Upcoming', badgeClass: 'upcoming' },
+    { time: '9:00 PM', status: '',       dotClass: '',       title: 'Lights Out / Curfew',       meta: 'All houses \u2022 Matrons & Patrons do final rounds',                 badge: 'Upcoming', badgeClass: 'upcoming' },
+]
+
+const recentIncidents = [
+    { name: 'Bizimana James',    classChip: 'S5A', typeClass: 'negative', type: 'Misconduct', desc: 'Disruptive in class',             points: '-3', pointsClass: 'disc-points-neg', reportedBy: 'Ms. Umutoni'   },
+    { name: 'Uwase Amina',       classChip: 'S4A', typeClass: 'warning',  type: 'Warning',    desc: 'Late to school x2',              points: '-2', pointsClass: 'disc-points-neg', reportedBy: 'Mr. Mutabazi'  },
+    { name: 'Nsabimana Patrick', classChip: 'S2B', typeClass: 'negative', type: 'Dormitory',  desc: 'Noise after curfew',             points: '-2', pointsClass: 'disc-points-neg', reportedBy: 'Mrs. Hakizimana' },
+    { name: 'Hakizimana Grace',  classChip: 'S3A', typeClass: 'positive', type: 'Positive',   desc: 'Debate competition \u2014 2nd place', points: '+5', pointsClass: 'disc-points-pos', reportedBy: 'Mr. Mutabazi'  },
+    { name: 'Mutabazi Kevin',    classChip: 'S4A', typeClass: 'warning',  type: 'Uniform',    desc: 'Incorrect uniform',              points: '-2', pointsClass: 'disc-points-neg', reportedBy: 'Gate prefect' },
+]
+
+const supervisedStaff = [
+    { iconClass: 'purple', icon: 'home',              name: 'Mrs. Mukamana Esperance', meta: 'Matron \u2014 Bisoke House (42 students)'    },
+    { iconClass: 'purple', icon: 'home',              name: 'Mr. Nsabimana Jean',      meta: 'Patron \u2014 Karisimbi House (38 students)' },
+    { iconClass: 'green',  icon: 'sports_basketball', name: 'Mr. Rurangwa Pacifique',  meta: 'Patron \u2014 Sports & Games'                },
+    { iconClass: 'purple', icon: 'theater_comedy',    name: 'Ms. Ingabire Celestine',  meta: 'Patron \u2014 Arts & Culture'                },
+]
+
+const conductDistribution = [
+    { label: 'Excellent (90\u2013100)', pct: '28%', fillClass: 'green', width: '28%' },
+    { label: 'Good (75\u201389)',       pct: '52%', fillClass: '',      width: '52%' },
+    { label: 'Fair (60\u201374)',       pct: '15%', fillClass: 'amber', width: '15%' },
+    { label: 'Poor (<60)',              pct: '5%',  fillClass: 'red',   width: '5%'  },
+]
+
+
+function ScheduleItem({ time, status, dotClass, title, meta, badge, badgeClass }) {
+    return (
+        <div className={`disc-schedule-item${status ? ' ' + status : ''}`}>
+            <div className="schedule-time">{time}</div>
+            <div className={`disc-schedule-dot${dotClass ? ' ' + dotClass : ''}`}></div>
+            <div className="schedule-body">
+                <span className="schedule-title">{title}</span>
+                <span className="schedule-meta">{meta}</span>
+            </div>
+            <span className={`sched-badge${badgeClass ? ' ' + badgeClass : ''}`}>{badge}</span>
+        </div>
+    )
+}
+
+function IncidentRow({ name, classChip, typeClass, type, desc, points, pointsClass, reportedBy }) {
+    return (
+        <tr>
+            <td><strong>{name}</strong></td>
+            <td>{classChip}</td>
+            <td><span className={`incident-type-tag ${typeClass}`}>{type}</span> {desc}</td>
+            <td><span className={pointsClass}>{points}</span></td>
+            <td>{reportedBy}</td>
+        </tr>
+    )
+}
+
+function StaffItem({ iconClass, icon, name, meta }) {
+    return (
+        <div className="disc-activity-item">
+            <div className={`disc-activity-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
+            <div>
+                <div className="disc-activity-title">{name}</div>
+                <div className="disc-activity-meta">{meta}</div>
+            </div>
+        </div>
+    )
+}
+
+function ConductBar({ label, pct, fillClass, width }) {
+    return (
+        <div className="disc-progress-item">
+            <div className="disc-progress-label"><span>{label}</span><span>{pct}</span></div>
+            <div className="disc-progress-bar"><div className={`disc-progress-fill${fillClass ? ' ' + fillClass : ''}`} style={{ width }}></div></div>
+        </div>
+    )
+}
+
+export function DisDashboard() {
+    return (
+        <>
+            <a href="#main-content" className="skip-link">Skip to content</a>
+            <div className="sidebar-overlay"></div>
+            <div className="dashboard-layout">
+                <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
+
+                <main className="dashboard-main" id="main-content">
+                    <DashboardHeader title="Dashboard" subtitle="Director of Discipline — Overview" {...disUser} />
+
+                    <div className="dashboard-content">
+
+                        <WelcomeBanner
+                            name="Mr. Mutabazi"
+                            role="Director of Discipline &amp; Student Affairs &bull; Imboni Academy"
+                        />
+
+                        <div className="portal-stat-grid">
+                            {disStats.map((s, i) => <StatCard key={i} {...s} />)}
+                        </div>
+
+                        {/* Today's Non-Academic Schedule */}
+                        <div className="card mb-1-5">
+                            <div className="card-header">
+                                <h3 className="card-title"><span className="material-symbols-rounded">today</span> Today's Non-Academic Schedule</h3>
+                                <button className="btn btn-primary btn-sm">+ Add Activity</button>
+                            </div>
+                            <div className="card-content">
+                                <div className="daily-schedule">
+                                    {todaySchedule.map((item, i) => <ScheduleItem key={i} {...item} />)}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Two-column content */}
+                        <div className="disc-two-col">
+
+                            {/* Recent incidents */}
+                            <div className="card">
+                                <div className="card-header">
+                                    <h3 className="card-title"><span className="material-symbols-rounded">history</span> Recent Incidents</h3>
+                                    <a href="/discipline/reports" className="btn btn-outline btn-sm">View All</a>
+                                </div>
+                                <div className="card-content">
+                                    <div className="table-responsive">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Student</th>
+                                                    <th>Class</th>
+                                                    <th>Incident</th>
+                                                    <th>Points</th>
+                                                    <th>Reported By</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {recentIncidents.map((inc, i) => <IncidentRow key={i} {...inc} />)}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right column */}
+                            <div>
+
+                                {/* Staff under supervision */}
+                                <div className="card" style={{ marginBottom: '1.25rem' }}>
+                                    <div className="card-header">
+                                        <h3 className="card-title"><span className="material-symbols-rounded">supervisor_account</span> Staff Under Supervision</h3>
+                                        <a href="/discipline/staff" className="btn btn-outline btn-sm">Manage</a>
+                                    </div>
+                                    <div className="card-content">
+                                        <div className="disc-activity-list">
+                                            {supervisedStaff.map((s, i) => <StaffItem key={i} {...s} />)}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Conduct distribution */}
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h3 className="card-title"><span className="material-symbols-rounded">bar_chart</span> Conduct Distribution</h3>
+                                    </div>
+                                    <div className="card-content">
+                                        <div className="disc-progress-group">
+                                            {conductDistribution.map((bar, i) => <ConductBar key={i} {...bar} />)}
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </main>
+            </div>
+        </>
+    )
+}

@@ -1,0 +1,257 @@
+/* ─── Week Picker ─────────────────────────────────────── */
+.week-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.week-picker-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    cursor: pointer;
+    color: var(--foreground);
+    transition: background 0.15s;
+}
+.week-picker-btn:hover { background: var(--muted); }
+.week-picker-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--foreground);
+    min-width: 160px;
+    text-align: center;
+}
+.week-picker-today {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    cursor: pointer;
+    color: var(--muted-foreground);
+}
+.week-picker-today:hover { background: var(--muted); }
+
+/* ─── Day Tabs (mobile only) ───────────────────────────── */
+.day-tabs {
+    display: none;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+.day-tab {
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: var(--card);
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.day-tab.active {
+    background: var(--portal-accent, var(--primary));
+    color: #fff;
+    border-color: var(--portal-accent, var(--primary));
+}
+
+/* ─── Timetable Wrapper ────────────────────────────────── */
+.tt-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.tt-table {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    min-width: 700px;
+}
+/* Force correct table layout — prevents any outer flex/grid from breaking rows */
+.tt-table thead,
+.tt-table tbody { display: table-row-group; }
+.tt-table tr     { display: table-row; }
+.tt-table td,
+.tt-table th     { display: table-cell; }
+
+/* ─── Time column ──────────────────────────────────────── */
+.tt-time-cell {
+    padding: 0.6rem 0.75rem;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    vertical-align: top;
+    min-width: 100px;
+    white-space: nowrap;
+}
+.tt-time-cell strong { display: block; font-size: 0.82rem; color: var(--foreground); }
+.tt-time-cell span   { font-size: 0.72rem; color: var(--muted-foreground); }
+
+/* ─── Header row ───────────────────────────────────────── */
+.tt-time-head {
+    background: var(--muted);
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+}
+.tt-day-head {
+    background: var(--muted);
+    padding: 0.6rem 0.75rem;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    min-width: 110px;
+}
+.tt-day-head.tt-today {
+    background: var(--portal-accent, var(--primary));
+    color: #fff;
+}
+
+/* ─── Cells ────────────────────────────────────────────── */
+.tt-cell {
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border);
+    vertical-align: top;
+    position: relative;
+}
+.tt-subject { font-weight: 600; font-size: 0.8rem; margin-bottom: 0.15rem; }
+.tt-teacher { font-size: 0.72rem; color: var(--muted-foreground); }
+.tt-room    { font-size: 0.7rem;  color: var(--muted-foreground); margin-top: 0.1rem; }
+
+/* ─── Cell type colours ────────────────────────────────── */
+.tt-sports   { background: #eff6ff; border-left: 3px solid #3b82f6; }
+.tt-academic { background: #f0fdf4; border-left: 3px solid #22c55e; }
+.tt-arts     { background: #fdf4ff; border-left: 3px solid #a855f7; }
+.tt-social   { background: #fff7ed; border-left: 3px solid #f97316; }
+.tt-boarding { background: #f8fafc; border-left: 3px solid #94a3b8; }
+.tt-dining   { background: #fefce8; border-left: 3px solid #eab308; }
+.tt-empty    { background: var(--muted); color: var(--muted-foreground); text-align: center; font-size: 0.78rem; }
+.tt-break    { background: var(--muted); color: var(--muted-foreground); text-align: center; font-style: italic; font-size: 0.78rem; }
+
+/* ─── Edit button on cell hover (editable mode only) ───── */
+.tt-cell-edit-btn {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    background: var(--portal-accent, var(--primary));
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-items: center;
+    gap: 2px;
+}
+.tt-cell:hover .tt-cell-edit-btn { display: inline-flex; }
+
+/* ─── Legend ───────────────────────────────────────────── */
+.tt-legend { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.tt-legend-item { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+
+/* ─── Edit form ────────────────────────────────────────── */
+.tt-form { display: flex; flex-direction: column; gap: 1rem; }
+.tt-form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.tt-form-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; }
+
+/* ─── Modal (native <dialog>) ──────────────────────────── */
+.tt-modal {
+    border: none;
+    border-radius: var(--radius, 10px);
+    padding: 0;
+    width: min(520px, 95vw);
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    /* Force true center — overrides browser default top-bias */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+.tt-modal.tt-modal-wide { width: min(680px, 95vw); }
+.tt-modal::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+}
+.tt-modal-inner {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    background: var(--card);
+}
+.tt-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.tt-modal-header .material-symbols-rounded { font-size: 1.2rem; color: var(--portal-accent, var(--primary)); }
+.tt-modal-title {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0;
+}
+.tt-modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted-foreground);
+    transition: background 0.15s, color 0.15s;
+}
+.tt-modal-close:hover { background: var(--muted); color: var(--foreground); }
+.tt-modal-close .material-symbols-rounded { font-size: 1.1rem; }
+.tt-modal-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+}
+
+/* ─── Mobile ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .day-tabs { display: flex; }
+
+    /* Hide all day columns by default on mobile */
+    .tt-table .tt-col-1,
+    .tt-table .tt-col-2,
+    .tt-table .tt-col-3,
+    .tt-table .tt-col-4,
+    .tt-table .tt-col-5,
+    .tt-table .tt-col-6,
+    .tt-table .tt-col-7 { display: none; }
+
+    /* Show only the selected day column */
+    .tt-table[data-day="0"] .tt-col-1 { display: table-cell; }
+    .tt-table[data-day="1"] .tt-col-2 { display: table-cell; }
+    .tt-table[data-day="2"] .tt-col-3 { display: table-cell; }
+    .tt-table[data-day="3"] .tt-col-4 { display: table-cell; }
+    .tt-table[data-day="4"] .tt-col-5 { display: table-cell; }
+    .tt-table[data-day="5"] .tt-col-6 { display: table-cell; }
+    .tt-table[data-day="6"] .tt-col-7 { display: table-cell; }
+
+    .tt-table { min-width: unset; font-size: 0.85rem; }
+}

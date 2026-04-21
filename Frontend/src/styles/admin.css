@@ -1,0 +1,318 @@
+/* ===============================================
+   ADMIN.CSS - School Administration Portal Styles
+   Identity colour: Indigo #4f46e5
+   Portal: Principal / School Administrator
+   =============================================== */
+
+:root {
+  --admin:       #4f46e5;
+  --admin-light: rgba(79, 70, 229, 0.1);
+  --admin-hover: #4338ca;
+}
+
+/* ── Portal accent (used by StatCard, WelcomeBanner, etc.) ── */
+.admin-portal {
+  --portal-accent:       var(--admin);
+  --portal-accent-light: var(--admin-light);
+}
+
+/* ── Header avatar ── */
+.admin-av {
+  background: var(--admin);
+  color: white;
+}
+
+/* ── Sidebar active state ── */
+.sidebar-link.active {
+  background: var(--admin-light);
+  color: var(--admin);
+}
+.sidebar-link.active .sidebar-icon {
+  color: var(--admin);
+}
+
+/* ===============================================
+   PORTAL STAT GRID  (shared layout from components.css)
+   =============================================== */
+
+.portal-stat-card {
+  border-left-color: var(--admin);
+}
+.portal-stat-icon {
+  background: var(--admin-light);
+  color: var(--admin);
+}
+
+/* ===============================================
+   ADMIN TABLE  (staff / students / finance)
+   =============================================== */
+
+.adm-table-wrap {
+  overflow-x: auto;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.adm-table th {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.adm-table tr:last-child td { border-bottom: none; }
+.adm-table tr:hover td { background: var(--muted); }
+
+/* Cell: avatar + name + sub */
+.adm-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.adm-av {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--admin-light);
+  color: var(--admin);
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.adm-av.dos       { background: rgba(0,61,122,0.12);   color: #003d7a; }
+.adm-av.teacher   { background: var(--teacher-light, rgba(20,184,166,0.12));  color: var(--teacher, #0d9488); }
+.adm-av.matron    { background: rgba(236,72,153,0.12); color: #db2777; }
+.adm-av.dis       { background: rgba(239,68,68,0.12);  color: #dc2626; }
+.adm-av.support   { background: rgba(107,114,128,0.12); color: #4b5563; }
+
+.adm-name { font-weight: 600; font-size: 0.875rem; }
+.adm-sub  { font-size: 0.72rem; color: var(--muted-foreground); }
+
+/* Badges */
+.adm-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.adm-badge.active    { background: var(--success-light, rgba(22,163,74,0.1));  color: var(--success, #16a34a); }
+.adm-badge.inactive  { background: var(--muted);                                color: var(--muted-foreground); }
+.adm-badge.pending   { background: rgba(234,179,8,0.1);                         color: #ca8a04; }
+.adm-badge.fulltime  { background: var(--admin-light);                           color: var(--admin); }
+.adm-badge.parttime  { background: rgba(249,115,22,0.1);                         color: #ea580c; }
+.adm-badge.paid      { background: var(--success-light, rgba(22,163,74,0.1));  color: var(--success, #16a34a); }
+.adm-badge.partial   { background: rgba(234,179,8,0.1);                         color: #ca8a04; }
+.adm-badge.overdue   { background: var(--destructive-light);                    color: var(--destructive); }
+.adm-badge.admin     { background: var(--admin-light);                           color: var(--admin); }
+
+/* Role chips in staff table */
+.adm-role-chip {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  margin-right: 0.25rem;
+  margin-bottom: 0.2rem;
+}
+
+/* Action buttons */
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-right: 0.25rem;
+}
+
+.adm-btn:hover { background: var(--muted); }
+.adm-btn.danger { border-color: var(--destructive); color: var(--destructive); }
+.adm-btn.danger:hover { background: var(--destructive-light); }
+.adm-btn .material-symbols-rounded { font-size: 0.9rem; }
+
+/* ===============================================
+   FINANCE PAGE
+   =============================================== */
+
+.adm-finance-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.adm-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.adm-progress-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  width: 100px;
+  flex-shrink: 0;
+  color: var(--foreground);
+}
+
+.adm-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--muted);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.adm-progress-fill {
+  height: 100%;
+  background: var(--admin);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.adm-progress-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--admin);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ===============================================
+   REPORTS PAGE
+   =============================================== */
+
+.adm-report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.adm-report-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.adm-report-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+
+.adm-report-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--admin-light);
+  color: var(--admin);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adm-report-icon.success { background: var(--success-light, rgba(22,163,74,0.1)); color: var(--success, #16a34a); }
+.adm-report-icon.warning { background: rgba(234,179,8,0.1);  color: #ca8a04; }
+.adm-report-icon.danger  { background: var(--destructive-light); color: var(--destructive); }
+
+.adm-report-title { font-size: 0.9rem; font-weight: 700; color: var(--foreground); }
+.adm-report-desc  { font-size: 0.78rem; color: var(--muted-foreground); line-height: 1.5; }
+.adm-report-meta  { font-size: 0.72rem; color: var(--muted-foreground); display: flex; align-items: center; gap: 0.3rem; margin-top: auto; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+
+/* ===============================================
+   SETTINGS PAGE
+   =============================================== */
+
+.adm-settings-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.adm-settings-nav {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.adm-settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.15s;
+}
+
+.adm-settings-nav-item:last-child { border-bottom: none; }
+.adm-settings-nav-item:hover { background: var(--muted); color: var(--foreground); }
+.adm-settings-nav-item.active { background: var(--admin-light); color: var(--admin); font-weight: 600; }
+.adm-settings-nav-item .material-symbols-rounded { font-size: 1.1rem; }
+
+/* ===============================================
+   MESSAGING (conv avatar colours)
+   =============================================== */
+
+.conv-avatar.admin-av { background: var(--admin); color: white; }
+.conv-type-tag.admin  { background: var(--admin-light); color: var(--admin); }
+
+/* ===============================================
+   RESPONSIVE
+   =============================================== */
+
+@media (max-width: 900px) {
+  .adm-finance-grid  { grid-template-columns: 1fr; }
+  .adm-settings-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .adm-table th:nth-child(n+4),
+  .adm-table td:nth-child(n+4) { display: none; }
+}
