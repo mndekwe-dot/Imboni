@@ -1,71 +1,102 @@
+import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router'
 import logo from '../../assets/images/imboni-logo.png'
 
-// navItems and secondaryItems are passed as props so this sidebar
-// can be reused for Student, Teacher, Parent, etc. with different links.
 export function Sidebar({ navItems, secondaryItems }) {
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Listen for the mobile-menu-btn in DashboardHeader to open us
+  useEffect(() => {
+    const open = () => setMobileOpen(true)
+    document.addEventListener('imboni:open-sidebar', open)
+    return () => document.removeEventListener('imboni:open-sidebar', open)
+  }, [])
+
+  const sidebarClass = [
+    'sidebar',
+    collapsed ? 'collapsed' : '',
+    mobileOpen ? 'active' : '',
+  ].filter(Boolean).join(' ')
+
   return (
-    <aside className="sidebar">
-      <header className="sidebar-logo">
-        <div className="logo-wrapper">
-          <div className="sidebar-logo-icon">
-            <img src={logo} alt="Imboni Logo" />
+    <>
+      {mobileOpen && (
+        <div
+          className="sidebar-overlay active"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      <aside className={sidebarClass}>
+        <header className="sidebar-logo">
+          <div className="logo-wrapper">
+            <div className="sidebar-logo-icon">
+              <img src={logo} alt="Imboni Logo" />
+            </div>
+            <div className="sidebar-logo-text">
+              <span className="sidebar-brand-name">Imboni</span>
+              <span className="sidebar-brand-tagline">Education Connects</span>
+            </div>
           </div>
-          <div className="sidebar-logo-text">
-            <span className="sidebar-brand-name">Imboni</span>
-            <span className="sidebar-brand-tagline">Education Connects</span>
-          </div>
-        </div>
 
-        {/* These buttons are handled by dashboard.js logic —
-            you can wire them up later with React state */}
-        <button className="toggle sidebar-toggle" aria-label="Toggle sidebar">
-          <span className="material-symbols-rounded">chevron_left</span>
-        </button>
-        <button className="toggle menu-toggle" aria-label="Open menu">
-          <span className="material-symbols-rounded">menu</span>
-        </button>
-      </header>
+          {/* Desktop: collapse/expand */}
+          <button
+            className="toggle sidebar-toggle"
+            aria-label="Toggle sidebar"
+            onClick={() => setCollapsed(c => !c)}
+          >
+            <span className="material-symbols-rounded">chevron_left</span>
+          </button>
 
-      <nav className="sidebar-nav">
-        {/* Primary nav links */}
-        <ul className="nav-list primary-nav">
-          {navItems.map((item) => (
-            <li key={item.to}>
-              {/* NavLink automatically adds the "active" class when the
-                  current URL matches — replaces manually adding class="active" */}
-              <NavLink
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  'sidebar-nav-item' + (isActive ? ' active' : '')
-                }
-              >
-                <span className="material-symbols-rounded">{item.icon}</span>
-                <span>{item.label}</span>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+          {/* Mobile: close sidebar */}
+          <button
+            className="toggle menu-toggle"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+          >
+            <span className="material-symbols-rounded">close</span>
+          </button>
+        </header>
 
-        {/* Secondary nav (Profile, Logout) */}
-        <ul className="nav-list secondary-nav">
-          {secondaryItems.map((item) => (
-            <li key={item.to}>
-              <NavLink
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  'sidebar-nav-item' + (isActive ? ' active' : '')
-                }
-              >
-                <span className="material-symbols-rounded">{item.icon}</span>
-                <span>{item.label}</span>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
+        <nav className="sidebar-nav">
+          <ul className="nav-list primary-nav">
+            {navItems.map((item) => (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    'sidebar-nav-item' + (isActive ? ' active' : '')
+                  }
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <span className="material-symbols-rounded">{item.icon}</span>
+                  <span>{item.label}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+
+          <ul className="nav-list secondary-nav">
+            {secondaryItems.map((item) => (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    'sidebar-nav-item' + (isActive ? ' active' : '')
+                  }
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <span className="material-symbols-rounded">{item.icon}</span>
+                  <span>{item.label}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+    </>
   )
 }

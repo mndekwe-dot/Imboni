@@ -10,7 +10,11 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
 
   return (
     <header className="dashboard-header">
-      <button className="mobile-menu-btn">
+      <button
+        className="mobile-menu-btn"
+        aria-label="Open menu"
+        onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}
+      >
         <span className="material-symbols-rounded">menu</span>
       </button>
 
