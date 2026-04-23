@@ -1,24 +1,27 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { ClassPicker } from '../../components/ui/ClassPicker'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { useState } from 'react'
 
 
 const classes = [
-    { className: 'S3A', subject: 'Mathematics', students: 32, avgScore: '85%', schedule: 'Mon, Wed, Fri - 8:00 AM',  room: 'Room 101', year: 'S3', letter: 'A' },
-    { className: 'S3B', subject: 'Mathematics', students: 28, avgScore: '78%', schedule: 'Tue, Thu - 10:00 AM',      room: 'Room 102', year: 'S3', letter: 'B' },
+    { className: 'S3A', subject: 'Mathematics', students: 32, avgScore: '85%', schedule: 'Mon, Wed, Fri - 8:00 AM', room: 'Room 101', year: 'S3', letter: 'A' },
+    { className: 'S3B', subject: 'Mathematics', students: 28, avgScore: '78%', schedule: 'Tue, Thu - 10:00 AM', room: 'Room 102', year: 'S3', letter: 'B' },
     { className: 'S4A', subject: 'Mathematics', students: 35, avgScore: '82%', schedule: 'Mon, Wed, Fri - 11:00 AM', room: 'Room 103', year: 'S4', letter: 'A' },
-    { className: 'S2A', subject: 'Mathematics', students: 30, avgScore: '76%', schedule: 'Tue, Thu - 2:00 PM',       room: 'Room 105', year: 'S2', letter: 'A' },
-    { className: 'S1B', subject: 'Mathematics', students: 29, avgScore: '70%', schedule: 'Mon, Wed, Fri - 1:00 PM',  room: 'Room 107', year: 'S1', letter: 'B' },
+    { className: 'S2A', subject: 'Mathematics', students: 30, avgScore: '76%', schedule: 'Tue, Thu - 2:00 PM', room: 'Room 105', year: 'S2', letter: 'A' },
+    { className: 'S1B', subject: 'Mathematics', students: 29, avgScore: '70%', schedule: 'Mon, Wed, Fri - 1:00 PM', room: 'Room 107', year: 'S1', letter: 'B' },
 ]
 
 const homeworkSubmissions = [
-    { label: 'S3A - Chapter 5 Assignment',  submitted: 28, total: 32, pct: 88 },
-    { label: 'S3B - Trigonometry Quiz',     submitted: 22, total: 28, pct: 79 },
-    { label: 'S4A - Calculus Problems',     submitted: 30, total: 35, pct: 86 },
-    { label: 'S2A - Linear Equations',      submitted: 25, total: 30, pct: 83 },
-    { label: 'S1B - Basic Operations',      submitted: 27, total: 29, pct: 93 },
+    { label: 'S3A - Chapter 5 Assignment', submitted: 28, total: 32, pct: 88 },
+    { label: 'S3B - Trigonometry Quiz', submitted: 22, total: 28, pct: 79 },
+    { label: 'S4A - Calculus Problems', submitted: 30, total: 35, pct: 86 },
+    { label: 'S2A - Linear Equations', submitted: 25, total: 30, pct: 83 },
+    { label: 'S1B - Basic Operations', submitted: 27, total: 29, pct: 93 },
 ]
 
 const barData = [
@@ -28,6 +31,20 @@ const barData = [
     { label: 'S2A', height: '76%', value: '76%' },
     { label: 'S1B', height: '70%', value: '70%' },
 ]
+const SECTIONS = [
+    {
+        name: 'O-Level',
+        years: ['S1', 'S2', 'S3'],
+        classes: ['A', 'B', 'C'],
+    },
+    {
+        name: 'A-Level',
+        years: ['S4', 'S5', 'S6'],
+        classes: ['MPG', 'PCB', 'MEG', 'MPC'],
+    },
+]
+
+
 
 function ClassCard({ className, subject, students, avgScore, schedule, room, year, letter }) {
     return (
@@ -84,6 +101,23 @@ function BarGroup({ label, height, value }) {
 }
 
 export function TeacherClasses() {
+    const [section, setSection] = useState('')
+    const [year, setYear] = useState('')
+    const [classVal, setClassVal] = useState('')
+    const [openClass, setOpenClass] = useState(null)
+    const [viewStudent, setViewStudent] = useState(null)
+    const [resultStudent, setResultStudent] = useState(null)
+    const visible = classes.filter(cls => {
+        if (section) {
+            const sec = SECTIONS.find(s => s.name === section)
+            if (sec && !sec.years.includes(cls.year)) return false
+        }
+        if (year && cls.year !== year) return false
+        if (classVal && cls.letter !== classVal) return false
+        return true
+    })
+
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -93,74 +127,34 @@ export function TeacherClasses() {
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>My Classes</h1>
-                            <p>Manage your teaching classes</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, February 03, 2026</span>
-                            <button className="notification-btn">
-                                <span className="material-symbols-rounded">notifications</span>
-                                <span className="notification-badge">5</span>
-                            </button>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">Pacifique Rurangwa</span>
-                                    <span className="header-user-role">Teacher</span>
-                                </div>
-                                <div className="header-user-av teacher-av">PR</div>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader title="Dashboard" subtitle="Teacher" {...teacherUser} />
 
                     <div className="dashboard-content">
 
                         {/* Section â†’ Year â†’ Class Cascade Picker */}
                         <div className="tp-picker">
-                            <div className="tp-picker-group">
-                                <label className="tp-picker-label">Section</label>
-                                <select className="tp-picker-select" id="dp-section">
-                                    <option value="">All Sections</option>
-                                    <option value="olevel">O-Level (S1â€“S3)</option>
-                                    <option value="alevel">A-Level (S4â€“S6)</option>
-                                </select>
-                            </div>
-                            <div className="tp-picker-group">
-                                <label className="tp-picker-label">Year</label>
-                                <select className="tp-picker-select" id="dp-year">
-                                    <option value="">All Years</option>
-                                    <option value="S1">S1</option>
-                                    <option value="S2">S2</option>
-                                    <option value="S3">S3</option>
-                                    <option value="S4">S4</option>
-                                    <option value="S5">S5</option>
-                                    <option value="S6">S6</option>
-                                </select>
-                            </div>
-                            <div className="tp-picker-group">
-                                <label className="tp-picker-label">Class</label>
-                                <select className="tp-picker-select" id="dp-class">
-                                    <option value="">All Classes</option>
-                                    <option value="A">A</option>
-                                    <option value="B">B</option>
-                                    <option value="C">C</option>
-                                </select>
-                            </div>
+                            <ClassPicker
+                                sections={SECTIONS}
+                                section={section} onSectionChange={setSection}
+                                year={year} onYearChange={setYear}
+                                classVal={classVal} onClassChange={setClassVal}
+                            />
                             <span className="tp-picker-current" id="classLabel">All Classes</span>
-                            <button className="btn btn-outline" style={{ marginLeft: 'auto', alignSelf: 'center' }}>
-                                <span className="material-symbols-rounded icon-sm">download</span>
-                                Export Data
-                            </button>
                         </div>
 
                         <div className="classes-grid" id="classesGrid">
-                            {classes.map((cls, index) => (
-                                <ClassCard key={index} {...cls} />
-                            ))}
+                            {visible.length > 0 ? (
+                                <div className="classes-grid">
+                                    {visible.map((cls, index) => (
+                                        <ClassCard key={index} {...cls} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted-foreground)' }}>
+                                    No classes found.
+                                </div>
+                            )}
+
                         </div>
 
                         <div className="card mt-1-5">

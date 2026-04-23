@@ -779,39 +779,41 @@
 .daily-schedule { display: flex; flex-direction: column; }
 
 .disc-schedule-item {
-  display: grid;
-  grid-template-columns: 70px 20px 1fr auto;
-  align-items: center;
+  display: flex;
+  align-items: flex-start;
   gap: 0.75rem;
-  padding: 0.65rem 0;
+  padding: 0.7rem 0;
   border-bottom: 1px solid var(--border);
 }
 .disc-schedule-item:last-child { border-bottom: none; }
 .disc-schedule-item.done { opacity: 0.55; }
 
-.schedule-time {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--muted-foreground);
-  text-align: right;
-  white-space: nowrap;
-}
-.disc-schedule-item.active .schedule-time { color: var(--discipline); }
-
 .disc-schedule-dot {
+  flex-shrink: 0;
+  margin-top: 4px;
   width: 12px;
   height: 12px;
   border-radius: 50%;
   background: var(--border);
   border: 2px solid var(--muted-foreground);
-  justify-self: center;
 }
 .disc-schedule-dot.done   { background: var(--success);    border-color: var(--success); }
 .disc-schedule-dot.active { background: var(--discipline); border-color: var(--discipline); box-shadow: 0 0 0 4px var(--discipline-light); }
 
-.schedule-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.schedule-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+
+.schedule-title-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
 .schedule-title { font-size: 0.88rem; font-weight: 600; }
-.schedule-meta  { font-size: 0.73rem; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.schedule-time-inline {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--discipline);
+  margin-right: 0.35rem;
+}
+.disc-schedule-item.done .schedule-time-inline { color: var(--muted-foreground); }
+
+.schedule-meta { font-size: 0.73rem; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .sched-badge {
   font-size: 0.7rem;
@@ -1052,8 +1054,7 @@
 @media (max-width: 480px) {
   .disc-stat-grid { grid-template-columns: 1fr; }
   .disc-welcome-banner { flex-direction: column; align-items: flex-start; }
-  .disc-schedule-item { grid-template-columns: 55px 16px 1fr; }
-  .sched-badge { display: none; }
+  .sched-badge { font-size: 0.65rem; padding: 1px 6px; }
   .class-nav-bar { gap: 0.5rem; padding: 0.6rem; }
   .did-direct-badge { display: none; }
 
