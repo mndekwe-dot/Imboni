@@ -1,11 +1,51 @@
-import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { DAYS, EXTRA_SLOTS, extraSchedules } from '../../data/extraTimetable'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+
+// Build today's schedule from extraTimetable data
+function getTodaySchedule() {
+    const dayName = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]
+    const schedule = extraSchedules['default']
+    const now = new Date()
+    const nowMinutes = now.getHours() * 60 + now.getMinutes()
+
+    return EXTRA_SLOTS.map(slot => {
+        const cell = schedule[slot.id]?.[dayName]
+        if (!cell || cell.type === 'empty') return null
+
+        // Parse start time from slot.time e.g. "5:30 â€“ 7:00"
+        const startStr = slot.time.split('â€“')[0].trim()
+        const [h, m] = startStr.split(':').map(Number)
+        const slotMinutes = h * 60 + m
+        const endStr = slot.time.split('â€“')[1]?.trim()
+        const [eh, em] = (endStr || '').split(':').map(n => parseInt(n) || 0)
+        const endMinutes = eh * 60 + em
+
+        const isActive = nowMinutes >= slotMinutes && nowMinutes < endMinutes
+        const isDone   = nowMinutes >= endMinutes
+
+        // Format time display e.g. "5:30 AM"
+        const ampm = h >= 12 ? 'PM' : 'AM'
+        const displayH = h > 12 ? h - 12 : h === 0 ? 12 : h
+        const displayTime = `${displayH}:${String(m).padStart(2, '0')} ${ampm}`
+
+        return {
+            time:      displayTime,
+            dotClass:  isActive ? 'active' : isDone ? 'done' : '',
+            status:    isActive ? 'active' : isDone ? 'done' : '',
+            title:     cell.subject,
+            meta:      [cell.room, cell.teacher].filter(Boolean).join(' • '),
+            badge:     isActive ? 'Now' : isDone ? 'Done' : 'Upcoming',
+            badgeClass: isActive ? 'active' : isDone ? 'done' : 'upcoming',
+        }
+    }).filter(Boolean)
+}
 
 const disStats = [
     { colorClass: '',        icon: 'groups',   value: '420', label: 'Total Students'        },
@@ -14,17 +54,8 @@ const disStats = [
     { colorClass: 'success', icon: 'verified', value: '312', label: 'Good Conduct Standing' },
 ]
 
-const todaySchedule = [
-    { time: '5:30 AM', status: 'done',   dotClass: 'done',   title: 'Morning Wake-Up & Prep',   meta: 'All houses \u2022 Matrons & Patrons on duty',                        badge: 'Done',     badgeClass: 'done'     },
-    { time: '6:30 AM', status: 'done',   dotClass: 'done',   title: 'Breakfast Sitting',         meta: 'Dining hall \u2022 All students by house section',                   badge: 'Done',     badgeClass: 'done'     },
-    { time: '7:15 AM', status: 'done',   dotClass: 'done',   title: 'Morning Assembly',          meta: 'Main quadrangle \u2022 Prefects lead \u2022 Mr. Mutabazi presides',   badge: 'Done',     badgeClass: 'done'     },
-    { time: '1:00 PM', status: 'active', dotClass: 'active', title: 'Lunch Sitting',             meta: 'Dining hall \u2022 All students by house section',                   badge: 'Now',      badgeClass: 'active'   },
-    { time: '2:00 PM', status: '',       dotClass: '',       title: 'Sports & Games Period',     meta: 'Sports fields \u2022 Football, Basketball, Athletics \u2022 Mr. Rurangwa', badge: 'Upcoming', badgeClass: 'upcoming' },
-    { time: '4:30 PM', status: '',       dotClass: '',       title: 'Club Meetings',             meta: 'Drama \u2014 School Hall \u2022 Debate \u2014 Library \u2022 Science \u2014 Lab', badge: 'Upcoming', badgeClass: 'upcoming' },
-    { time: '6:30 PM', status: '',       dotClass: '',       title: 'Evening Prep & Study',      meta: 'All students to dorms \u2022 Supervised by house staff',              badge: 'Upcoming', badgeClass: 'upcoming' },
-    { time: '7:00 PM', status: '',       dotClass: '',       title: 'Dinner Sitting',            meta: 'Dining hall \u2022 All students by house section',                   badge: 'Upcoming', badgeClass: 'upcoming' },
-    { time: '9:00 PM', status: '',       dotClass: '',       title: 'Lights Out / Curfew',       meta: 'All houses \u2022 Matrons & Patrons do final rounds',                 badge: 'Upcoming', badgeClass: 'upcoming' },
-]
+const todaySchedule = getTodaySchedule()
+
 
 const recentIncidents = [
     { name: 'Bizimana James',    classChip: 'S5A', typeClass: 'negative', type: 'Misconduct', desc: 'Disruptive in class',             points: '-3', pointsClass: 'disc-points-neg', reportedBy: 'Ms. Umutoni'   },
@@ -52,13 +83,14 @@ const conductDistribution = [
 function ScheduleItem({ time, status, dotClass, title, meta, badge, badgeClass }) {
     return (
         <div className={`disc-schedule-item${status ? ' ' + status : ''}`}>
-            <div className="schedule-time">{time}</div>
             <div className={`disc-schedule-dot${dotClass ? ' ' + dotClass : ''}`}></div>
             <div className="schedule-body">
-                <span className="schedule-title">{title}</span>
-                <span className="schedule-meta">{meta}</span>
+                <div className="schedule-title-row">
+                    <span className="schedule-title">{title}</span>
+                    <span className={`sched-badge${badgeClass ? ' ' + badgeClass : ''}`}>{badge}</span>
+                </div>
+                <span className="schedule-meta"><span className="schedule-time-inline">{time}</span>{meta}</span>
             </div>
-            <span className={`sched-badge${badgeClass ? ' ' + badgeClass : ''}`}>{badge}</span>
         </div>
     )
 }
@@ -105,7 +137,7 @@ export function DisDashboard() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dashboard" subtitle="Director of Discipline — Overview" {...disUser} />
+                    <DashboardHeader title="Dashboard" subtitle="Director of Discipline â€” Overview" {...disUser} />
 
                     <div className="dashboard-content">
 
@@ -122,7 +154,7 @@ export function DisDashboard() {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title"><span className="material-symbols-rounded">today</span> Today's Non-Academic Schedule</h3>
-                                <button className="btn btn-primary btn-sm">+ Add Activity</button>
+                                <button className="btn btn-primary btn-sm"><a href='/discipline/timetable'>+ Add Activity</a></button>
                             </div>
                             <div className="card-content">
                                 <div className="daily-schedule">
