@@ -1195,6 +1195,18 @@
 .ann-chip.urgent.active { background: var(--destructive); border-color: var(--destructive); }
 
 .ann-list { display: flex; flex-direction: column; gap: .625rem; }
+
+/* Inside a single container — items become divider-separated rows */
+.ann-list-contained { gap: 0; }
+.ann-list-contained .ann-item {
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.ann-list-contained .ann-item:last-child { border-bottom: none; }
+.ann-list-contained .ann-item.read-item { background: var(--muted); }
+
 .ann-item { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; cursor: pointer; transition: box-shadow .15s, border-color .15s; position: relative; }
 .ann-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,.07); }
 .ann-item.unread { border-left-color: var(--primary); background: #fafcff; }

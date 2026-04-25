@@ -3,6 +3,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { StatCard } from '../../components/layout/StatCard'
 import { AdminStudentModal } from '../../components/modals/AdminStudentModal'
+import { EmptyState } from '../../components/ui/EmptyState'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
@@ -115,44 +116,68 @@ export function AdminStudents() {
                             {stats.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">All Students ({filtered.length})</h2>
-                                <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}>
-                                    <span className="material-symbols-rounded">person_add</span>
-                                    Admit Student
-                                </button>
+                        {/* Toolbar container */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                            flexWrap: 'wrap', margin: '1rem 0',
+                            background: 'var(--card)', border: '1px solid var(--border)',
+                            borderRadius: 16, padding: '0.75rem 1rem',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.4rem 0.75rem', flex: 1, minWidth: 200 }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--muted-foreground)' }}>search</span>
+                                <input
+                                    type="text"
+                                    placeholder="Search students..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.875rem', width: '100%' }}
+                                />
+                                {search && (
+                                    <button onClick={() => setSearch('')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, color: 'var(--muted-foreground)', display: 'flex' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
+                                    </button>
+                                )}
                             </div>
-                            <div className="card-content">
+                            <select className="input input-auto" style={{ fontSize: '0.82rem' }} value={classFilter} onChange={e => setClassFilter(e.target.value)}>
+                                <option>All Classes</option>
+                                {classValues.map(c => <option key={c}>{c}</option>)}
+                            </select>
+                            <select className="input input-auto" style={{ fontSize: '0.82rem' }} value={feeFilter} onChange={e => setFeeFilter(e.target.value)}>
+                                <option>All Fee Status</option>
+                                <option>Paid</option>
+                                <option>Partial</option>
+                                <option>Overdue</option>
+                            </select>
+                            <div style={{ flex: 1 }} />
+                            <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}>
+                                <span className="material-symbols-rounded">person_add</span>
+                                Admit Student
+                            </button>
+                        </div>
 
-                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.4rem 0.75rem', flex: 1, minWidth: '200px' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--muted-foreground)' }}>search</span>
-                                        <input
-                                            type="text"
-                                            placeholder="Search students..."
-                                            value={search}
-                                            onChange={e => setSearch(e.target.value)}
-                                            style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.875rem', width: '100%' }}
-                                        />
-                                        {search && (
-                                            <button onClick={() => setSearch('')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, color: 'var(--muted-foreground)', display: 'flex' }}>
-                                                <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
-                                            </button>
-                                        )}
-                                    </div>
-                                    <select className="form-input" style={{ width: 'auto' }} value={classFilter} onChange={e => setClassFilter(e.target.value)}>
-                                        <option>All Classes</option>
-                                        {classValues.map(c => <option key={c}>{c}</option>)}
-                                    </select>
-                                    <select className="form-input" style={{ width: 'auto' }} value={feeFilter} onChange={e => setFeeFilter(e.target.value)}>
-                                        <option>All Fee Status</option>
-                                        <option>Paid</option>
-                                        <option>Partial</option>
-                                        <option>Overdue</option>
-                                    </select>
+                        {filtered.length === 0 ? (
+                            <EmptyState
+                                icon="groups"
+                                title="No students found"
+                                description={search ? `No students match "${search}".` : 'No students match the selected filters.'}
+                                action={{ label: 'Clear Filters', icon: 'close', onClick: () => { setSearch(''); setClassFilter('All Classes'); setFeeFilter('All Fee Status') } }}
+                            />
+                        ) : (
+                            <div style={{
+                                background: 'var(--card)', border: '1px solid var(--border)',
+                                borderRadius: 16, overflow: 'hidden',
+                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                            }}>
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
+                                }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>All Students</div>
+                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                        {filtered.length} student{filtered.length !== 1 ? 's' : ''}
+                                    </span>
                                 </div>
-
                                 <div className="adm-table-wrap">
                                     <table className="adm-table">
                                         <thead>
@@ -166,27 +191,18 @@ export function AdminStudents() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filtered.length > 0
-                                                ? filtered.map((s, i) => (
-                                                    <StudentRow
-                                                        key={i} {...s}
-                                                        onView={() => setViewing(s)}
-                                                        onEdit={() => setEditing(s)}
-                                                    />
-                                                ))
-                                                : (
-                                                    <tr>
-                                                        <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted-foreground)' }}>
-                                                            No students match your filters.
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            }
+                                            {filtered.map((s, i) => (
+                                                <StudentRow
+                                                    key={i} {...s}
+                                                    onView={() => setViewing(s)}
+                                                    onEdit={() => setEditing(s)}
+                                                />
+                                            ))}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                     </div>
                 </main>

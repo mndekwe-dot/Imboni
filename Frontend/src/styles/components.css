@@ -685,6 +685,81 @@ tr:hover td {
 }
 
 /* ===============================================
+   MODAL (native <dialog>) — shared across all portals
+   =============================================== */
+
+.tt-modal {
+    border: none;
+    border-radius: var(--radius, 10px);
+    padding: 0;
+    width: min(520px, 95vw);
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+.tt-modal.tt-modal-wide  { width: min(680px, 95vw); }
+.tt-modal.tt-modal-lg    { width: min(860px, 95vw); }
+.tt-modal::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+}
+.tt-modal-inner {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    background: var(--card);
+}
+.tt-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.tt-modal-header .material-symbols-rounded { font-size: 1.2rem; color: var(--portal-accent, var(--primary)); }
+.tt-modal-title {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0;
+}
+.tt-modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted-foreground);
+    transition: background 0.15s, color 0.15s;
+}
+.tt-modal-close:hover { background: var(--muted); color: var(--foreground); }
+.tt-modal-close .material-symbols-rounded { font-size: 1.1rem; }
+.tt-modal-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+}
+.tt-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+/* ===============================================
    UTILITY CLASSES
    =============================================== */
 
@@ -1051,3 +1126,4 @@ tr:hover td {
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--border);
 }
+

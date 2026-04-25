@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import '../../styles/layout.css'
@@ -160,7 +161,11 @@ function AssessmentRow({ subject, assessment, max, score, pct, grade, badgeStyle
 //     { subject: 'Maths', grade: 'A' }  becomes  subject="Maths" grade="A"
 // ─────────────────────────────────────────────────────────────────────────────
 
+const TERMS = ['Term 1', 'Term 2', 'Term 3']
+
 export function StudentResults() {
+    const [activeTerm, setActiveTerm] = useState('Term 2')
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -176,11 +181,23 @@ export function StudentResults() {
                     />
                     <div className="dashboard-content">
 
-                        {/* Term selector */}
-                        <div className="term-tabs">
-                            <button className="term-tab">Term 1</button>
-                            <button className="term-tab active">Term 2</button>
-                            <button className="term-tab">Term 3</button>
+                        {/* Toolbar container */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            background: 'var(--card)', border: '1px solid var(--border)',
+                            borderRadius: 16, padding: '0.625rem 1rem',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                            width: 'fit-content',
+                        }}>
+                            {TERMS.map(term => (
+                                <button
+                                    key={term}
+                                    className={`term-tab${activeTerm === term ? ' active' : ''}`}
+                                    onClick={() => setActiveTerm(term)}
+                                >
+                                    {term}
+                                </button>
+                            ))}
                         </div>
 
                         {/* Summary stats — 4 cards from array */}

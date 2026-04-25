@@ -2,6 +2,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { StudentConductModal } from '../../components/modals/StudentConductModal'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
@@ -207,15 +208,29 @@ export function DisStudents() {
                                     </div>
                                 </div>
 
-                                <div className="card">
-                                    <div className="card-header">
-                                        <h2 className="card-title">All Classes — Student Conduct Records</h2>
-                                        <span className="did-direct-badge">
-                                            <span className="material-symbols-rounded">verified</span>
-                                            Incidents you record are immediately approved
-                                        </span>
-                                    </div>
-                                    <div className="card-content">
+                                {visibleStudents.length === 0 ? (
+                                    <EmptyState
+                                        icon="people"
+                                        title="No students found"
+                                        description="No students match the selected conduct filter and class."
+                                        action={{ label: 'Clear Filters', icon: 'close', onClick: () => { setConductFilter('all'); setSection(''); setYear(''); setClassVal('') } }}
+                                    />
+                                ) : (
+                                    <div style={{
+                                        background: 'var(--card)', border: '1px solid var(--border)',
+                                        borderRadius: 16, overflow: 'hidden',
+                                        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                                    }}>
+                                        <div style={{
+                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                            padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
+                                        }}>
+                                            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Student Conduct Records</div>
+                                            <span className="did-direct-badge">
+                                                <span className="material-symbols-rounded">verified</span>
+                                                Incidents you record are immediately approved
+                                            </span>
+                                        </div>
                                         <div className="disc-table-wrap">
                                             <table className="disc-table">
                                                 <thead>
@@ -241,7 +256,7 @@ export function DisStudents() {
                                             </table>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </>
                         )}
 
@@ -254,18 +269,30 @@ export function DisStudents() {
                                     onChange={setReportFilter}
                                 />
 
-                                <div className="card">
-                                    <div className="card-header">
-                                        <h2 className="card-title">
-                                            <span className="material-symbols-rounded">report</span> Incident Approval Queue
-                                        </h2>
-                                        {reportFilter === 'pending' && (
-                                            <span className="approval-count-badge">
-                                                {visibleRecords.length} pending
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="card-content">
+                                {visibleRecords.length === 0 ? (
+                                    <EmptyState
+                                        icon="report"
+                                        title="No incident records"
+                                        description={reportFilter === 'all' ? 'No incidents have been reported.' : `No ${reportFilter} incidents found.`}
+                                        action={reportFilter !== 'all' ? { label: 'Show All', icon: 'refresh', onClick: () => setReportFilter('all') } : undefined}
+                                    />
+                                ) : (
+                                    <div style={{
+                                        background: 'var(--card)', border: '1px solid var(--border)',
+                                        borderRadius: 16, overflow: 'hidden',
+                                        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                                    }}>
+                                        <div style={{
+                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                            padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
+                                        }}>
+                                            <div style={{ fontWeight: 700, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <span className="material-symbols-rounded">report</span> Incident Approval Queue
+                                            </div>
+                                            {reportFilter === 'pending' && (
+                                                <span className="approval-count-badge">{visibleRecords.length} pending</span>
+                                            )}
+                                        </div>
                                         <div className="disc-table-wrap">
                                             <table className="disc-table">
                                                 <thead>
@@ -294,7 +321,7 @@ export function DisStudents() {
                                             </table>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </>
                         )}
 

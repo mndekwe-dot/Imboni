@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { EmptyState } from '../../components/ui/EmptyState'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -7,24 +9,27 @@ import { studentNavItems, studentSecondaryItems, studentUser } from './studentNa
 
 
 const boardingInfos = [
-  { label: 'Dormitory', value: 'Karisimbi House', sub: 'Room 14B • Girls Wing' },
-  { label: 'Dining Table', value: 'Table 7', sub: 'Main Dining Hall • Seat 3' },
-  { label: 'Dormitory Supervisor', value: 'Mrs. Hakizimana', sub: 'Ext. 204 • House Office' },
-  { label: 'Director of Discipline', value: 'Mr. Mutabazi', sub: 'Discipline Office • Block C' },
+  { label: 'Dormitory', value: 'Karisimbi House', sub: 'Room 14B · Girls Wing' },
+  { label: 'Dining Table', value: 'Table 7', sub: 'Main Dining Hall · Seat 3' },
+  { label: 'Dormitory Supervisor', value: 'Mrs. Hakizimana', sub: 'Ext. 204 · House Office' },
+  { label: 'Director of Discipline', value: 'Mr. Mutabazi', sub: 'Discipline Office · Block C' },
   { label: 'Emergency Contact', value: 'Mrs. Chantal Uwase', sub: '+250 788 000 001 (Parent)' },
 ]
 
 const disciplineRecords = [
-  { date: 'Mar 7, 2026', type: 'Positive', typeClass: 'disc-type-positive', description: 'Top scorer in Mathematics CAT 2', recordedBy: 'Mr. Rurangwa', points: '+5', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
-  { date: 'Mar 4, 2026', type: 'Positive', typeClass: 'disc-type-positive', description: 'Volunteered for library organization', recordedBy: 'Mr. Mutabazi', points: '+3', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
-  { date: 'Mar 4, 2026', type: 'Negative', typeClass: 'disc-type-negative', description: 'Late to first period class', recordedBy: 'Ms. Uwera', points: '−2', pointsClass: 'disc-points-neg', statusLabel: 'Noted', statusClass: 'badge-soft-danger' },
-  { date: 'Feb 28, 2026', type: 'Positive', typeClass: 'disc-type-positive', description: 'Outstanding English essay — class commendation', recordedBy: 'Ms. Umutoni', points: '+5', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
-  { date: 'Feb 20, 2026', type: 'Warning', typeClass: 'disc-type-warning', description: 'Dormitory lights on after curfew (10:30 PM)', recordedBy: 'Mrs. Hakizimana', points: '−3', pointsClass: 'disc-points-neg', statusLabel: 'Warning', statusClass: 'badge-soft-warning' },
-  { date: 'Feb 14, 2026', type: 'Positive', typeClass: 'disc-type-positive', description: 'Represented school at Science Fair — 2nd place', recordedBy: 'Mr. Mutabazi', points: '+8', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
-  { date: 'Jan 30, 2026', type: 'Positive', typeClass: 'disc-type-positive', description: 'Helped new students during orientation week', recordedBy: 'Mr. Mutabazi', points: '+3', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
+  { date: 'Mar 7, 2026',  type: 'Positive', typeClass: 'disc-type-positive', description: 'Top scorer in Mathematics CAT 2',                      recordedBy: 'Mr. Rurangwa',   points: '+5', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
+  { date: 'Mar 4, 2026',  type: 'Positive', typeClass: 'disc-type-positive', description: 'Volunteered for library organization',                  recordedBy: 'Mr. Mutabazi',   points: '+3', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
+  { date: 'Mar 4, 2026',  type: 'Negative', typeClass: 'disc-type-negative', description: 'Late to first period class',                            recordedBy: 'Ms. Uwera',      points: '-2', pointsClass: 'disc-points-neg', statusLabel: 'Noted',   statusClass: 'badge-soft-danger'  },
+  { date: 'Feb 28, 2026', type: 'Positive', typeClass: 'disc-type-positive', description: 'Outstanding English essay — class commendation',        recordedBy: 'Ms. Umutoni',    points: '+5', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
+  { date: 'Feb 20, 2026', type: 'Warning',  typeClass: 'disc-type-warning',  description: 'Dormitory lights on after curfew (10:30 PM)',           recordedBy: 'Mrs. Hakizimana',points: '-3', pointsClass: 'disc-points-neg', statusLabel: 'Warning', statusClass: 'badge-soft-warning' },
+  { date: 'Feb 14, 2026', type: 'Positive', typeClass: 'disc-type-positive', description: 'Represented school at Science Fair — 2nd place',        recordedBy: 'Mr. Mutabazi',   points: '+8', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
+  { date: 'Jan 30, 2026', type: 'Positive', typeClass: 'disc-type-positive', description: 'Helped new students during orientation week',            recordedBy: 'Mr. Mutabazi',   points: '+3', pointsClass: 'disc-points-pos', statusLabel: 'Awarded', statusClass: 'badge-soft-success' },
 ]
 
-function BoardingInfo({ label, value, sub, }) {
+const TYPE_TABS = ['All', 'Positive', 'Negative', 'Warning']
+const MAIN_TABS = ['Discipline Records', 'Extracurricular Activities', 'Upcoming Events']
+
+function BoardingInfo({ label, value, sub }) {
   return (
     <div className="boarding-info-item">
       <span className="bi-label">{label}</span>
@@ -33,19 +38,30 @@ function BoardingInfo({ label, value, sub, }) {
     </div>
   )
 }
-function DisciplineRecord({ date, type, typeClass, description, recordedBy, points, pointClass, statusLabel, statusClass, }) {
+
+function DisciplineRecord({ date, type, typeClass, description, recordedBy, points, pointsClass, statusLabel, statusClass }) {
   return (
     <tr>
       <td>{date}</td>
       <td><span className={typeClass}>{type}</span></td>
       <td>{description}</td>
       <td>{recordedBy}</td>
-      <td><span className={pointClass}>{points}</span></td>
+      <td><span className={pointsClass}>{points}</span></td>
       <td><span className={`badge ${statusClass}`}>{statusLabel}</span></td>
     </tr>
   )
 }
+
 export function StudentActivities() {
+  const [mainTab, setMainTab]   = useState('Discipline Records')
+  const [typeFilter, setTypeFilter] = useState('All')
+
+  const filtered = typeFilter === 'All'
+    ? disciplineRecords
+    : disciplineRecords.filter(r => r.type === typeFilter)
+
+  const countFor = t => t === 'All' ? disciplineRecords.length : disciplineRecords.filter(r => r.type === t).length
+
   return (
     <>
       <a href="#main-content" className="skip-link">Skip to content</a>
@@ -63,9 +79,7 @@ export function StudentActivities() {
 
             {/* Boarding info */}
             <div className="boarding-hero">
-              {boardingInfos.map((row, index) => (
-                <BoardingInfo key={index}{...row} />
-              ))}
+              {boardingInfos.map((row, i) => <BoardingInfo key={i} {...row} />)}
             </div>
 
             {/* Behavior score */}
@@ -82,48 +96,104 @@ export function StudentActivities() {
                 <span className="score-status good">Good Standing</span>
                 <div className="score-breakdown">
                   <span className="score-breakdown-item" style={{ color: 'var(--success)' }}><span className="material-symbols-rounded">add_circle</span>+24 positive points</span>
-                  <span className="score-breakdown-item" style={{ color: 'var(--destructive)' }}><span className="material-symbols-rounded">remove_circle</span>−5 deducted points</span>
+                  <span className="score-breakdown-item" style={{ color: 'var(--destructive)' }}><span className="material-symbols-rounded">remove_circle</span>-5 deducted points</span>
                   <span className="score-breakdown-item" style={{ color: 'var(--muted-foreground)' }}><span className="material-symbols-rounded">history</span>Last updated Mar 7</span>
                 </div>
               </div>
             </div>
 
-            {/* Ta  bs */}
-            <div className="term-tabs" style={{ marginBottom: '1.25rem' }}>
-              <button className="term-tab active">Discipline Records</button>
-              <button className="term-tab">Extracurricular Activities</button>
-              <button className="term-tab">Upcoming Events</button>
+            {/* Toolbar container */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              flexWrap: 'wrap', margin: '1rem 0',
+              background: 'var(--card)', border: '1px solid var(--border)',
+              borderRadius: 16, padding: '0.75rem 1rem',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            }}>
+              {MAIN_TABS.map(tab => (
+                <button
+                  key={tab}
+                  className={`btn ${mainTab === tab ? 'btn-primary' : 'btn-outline'}`}
+                  style={{ fontSize: '0.82rem', padding: '0.35rem 0.85rem' }}
+                  onClick={() => setMainTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+              {mainTab === 'Discipline Records' && (
+                <>
+                  <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 0.25rem' }} />
+                  {TYPE_TABS.map(t => (
+                    <button
+                      key={t}
+                      className={`btn ${typeFilter === t ? 'btn-primary' : 'btn-outline'}`}
+                      style={{ fontSize: '0.78rem', padding: '0.3rem 0.75rem' }}
+                      onClick={() => setTypeFilter(t)}
+                    >
+                      {t}
+                      <span style={{ marginLeft: '0.3rem', opacity: 0.7, fontSize: '0.75rem' }}>{countFor(t)}</span>
+                    </button>
+                  ))}
+                </>
+              )}
             </div>
 
-            {/* Discipline Records */}
-            <div>
-              <div className="filter-tabs-bar">
-                <button className="filter-tab active">All</button>
-                <button className="filter-tab">Positive</button>
-                <button className="filter-tab">Negative</button>
-                <button className="filter-tab">Warning</button>
-              </div>
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Behavior & Discipline Records</h3>
-                  <span className="badge" style={{ background: 'var(--student-light)', color: 'var(--student)' }}>Term 2</span>
-                </div>
-                <div className="card-content">
+            {/* Content or EmptyState */}
+            {mainTab === 'Discipline Records' && (
+              filtered.length === 0 ? (
+                <EmptyState
+                  icon="verified_user"
+                  title={`No ${typeFilter.toLowerCase()} records`}
+                  description="No discipline records match this filter."
+                  action={{ label: 'Show All', icon: 'refresh', onClick: () => setTypeFilter('All') }}
+                />
+              ) : (
+                <div style={{
+                  background: 'var(--card)', border: '1px solid var(--border)',
+                  borderRadius: 16, overflow: 'hidden',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
+                  }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Behavior & Discipline Records</div>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                      {filtered.length} record{filtered.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
                   <div className="table-responsive">
                     <table>
                       <thead>
-                        <tr><th>Date</th><th>Type</th><th>Description</th><th>Recorded By</th><th>Points</th><th>Status</th></tr>
+                        <tr>
+                          <th>Date</th><th>Type</th><th>Description</th>
+                          <th>Recorded By</th><th>Points</th><th>Status</th>
+                        </tr>
                       </thead>
                       <tbody>
-                        {disciplineRecords.map((row,index)=>(
-                          <DisciplineRecord key={index}{...row}/>
-                        ))}
+                        {filtered.map((row, i) => <DisciplineRecord key={i} {...row} />)}
                       </tbody>
                     </table>
                   </div>
                 </div>
-              </div>
-            </div>
+              )
+            )}
+
+            {mainTab === 'Extracurricular Activities' && (
+              <EmptyState
+                icon="sports_soccer"
+                title="No extracurricular records"
+                description="Your extracurricular activity participation will appear here."
+              />
+            )}
+
+            {mainTab === 'Upcoming Events' && (
+              <EmptyState
+                icon="event"
+                title="No upcoming events"
+                description="School events and activity dates will appear here."
+              />
+            )}
 
           </div>
         </main>

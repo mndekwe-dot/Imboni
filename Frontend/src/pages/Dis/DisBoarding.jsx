@@ -5,7 +5,7 @@ import { TabGroup } from '../../components/ui/TabGroup'
 import { DormitoryModal } from '../../components/modals/DormitoryModal'
 import { DisDiningPanel } from './DisDining'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
@@ -285,6 +285,13 @@ function RoomBlock({ roomNum, students, bedsPerRoom, mode, availableRooms, onApp
 
 // ── Main component ──
 export function DisBoarding() {
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 600)
+    useEffect(() => {
+        const fn = () => setIsMobile(window.innerWidth < 600)
+        window.addEventListener('resize', fn)
+        return () => window.removeEventListener('resize', fn)
+    }, [])
+
     const [boardingTab, setBoardingTab]   = useState('dormitories') // 'dormitories' | 'dining'
     const [mode, setMode]               = useState('view')  // 'view' | 'edit' | 'assign'
     const [houseFilter, setHouseFilter] = useState('all')
@@ -470,26 +477,30 @@ export function DisBoarding() {
                             </div>
                         </div>
 
-                        {/* Mode toggle + Add Dormitory */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-                            <div style={{ flex: 1 }}>
-                                <TabGroup
-                                    tabs={[
-                                        { key: 'view',   label: 'View',             icon: 'visibility' },
-                                        { key: 'edit',   label: 'Edit Assignments', icon: 'edit'       },
-                                        { key: 'assign', label: 'Auto-Assign',      icon: 'shuffle'    },
-                                    ]}
-                                    value={mode}
-                                    onChange={key => { setMode(key); setPreview(null); setConfirmDelete(null) }}
-                                />
-                            </div>
+                        {/* Toolbar container */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                            flexWrap: 'wrap',
+                            background: 'var(--card)', border: '1px solid var(--border)',
+                            borderRadius: 16, padding: '0.75rem 1rem',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        }}>
+                            <TabGroup
+                                tabs={[
+                                    { key: 'view',   label: 'View',        icon: 'visibility' },
+                                    { key: 'edit',   label: 'Edit',        icon: 'edit'       },
+                                    { key: 'assign', label: 'Auto-Assign', icon: 'shuffle'    },
+                                ]}
+                                value={mode}
+                                onChange={key => { setMode(key); setPreview(null); setConfirmDelete(null) }}
+                            />
+                            <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
+                            <FilterBar options={houseFilterOptions} active={houseFilter} onChange={setHouseFilter} />
+                            <div style={{ flex: 1 }} />
                             <button className="btn btn-primary btn-sm" onClick={() => setDormModal('add')}>
                                 <span className="material-symbols-rounded">add_home</span> Add Dormitory
                             </button>
                         </div>
-
-                        {/* House filter */}
-                        <FilterBar options={houseFilterOptions} active={houseFilter} onChange={setHouseFilter} />
 
                         {/* ── AUTO-ASSIGN PANEL ── */}
                         {mode === 'assign' && (
@@ -682,53 +693,72 @@ export function DisBoarding() {
                                                 <div style={{ background: col.solid, height: '5px' }} />
 
                                                 {/* Header */}
-                                                <div style={{ background: col.light, padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border)' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
-                                                        <div style={{ width: 46, height: 46, borderRadius: '10px', background: col.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                            <span className="material-symbols-rounded" style={{ fontSize: '1.5rem', color: '#fff' }}>hotel</span>
-                                                        </div>
-                                                        <div>
-                                                            <div style={{ fontWeight: 800, fontSize: '1.05rem', color: col.text }}>{house.name}</div>
-                                                            <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '2px' }}>
-                                                                <span className="material-symbols-rounded" style={{ fontSize: '0.85rem', verticalAlign: 'middle' }}>manage_accounts</span>
-                                                                {' '}{house.staff}
-                                                            </div>
-                                                        </div>
+                                                <div style={{ background: col.light, padding: isMobile ? '0.625rem 0.75rem' : '1rem', display: 'flex', alignItems: 'center', gap: '0.625rem', borderBottom: '1px solid var(--border)' }}>
+                                                    <div style={{ width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, borderRadius: '8px', background: col.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                        <span className="material-symbols-rounded" style={{ fontSize: isMobile ? '1rem' : '1.3rem', color: '#fff' }}>hotel</span>
                                                     </div>
-                                                    <span className={`disc-badge ${house.key}`} style={{ flexShrink: 0 }}>{house.gender}</span>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <div style={{ fontWeight: 800, fontSize: isMobile ? '0.8rem' : '0.95rem', color: col.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {house.name}
+                                                        </div>
+                                                        {!isMobile && (
+                                                            <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                                                <span className="material-symbols-rounded" style={{ fontSize: '0.8rem' }}>manage_accounts</span>
+                                                                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{house.staff}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className={`disc-badge ${house.key}`} style={{ flexShrink: 0, fontSize: '0.65rem' }}>{house.gender}</span>
                                                 </div>
 
                                                 {/* Body */}
-                                                <div style={{ padding: '1.25rem 1.5rem' }}>
+                                                <div style={{ padding: isMobile ? '0.625rem 0.75rem' : '1rem' }}>
 
-                                                    {/* Stat row */}
-                                                    <div style={{ display: 'flex', gap: '0', marginBottom: '1.1rem' }}>
-                                                        {[
-                                                            { value: assigned,             label: 'Assigned' },
-                                                            { value: capacity - assigned,  label: 'Available' },
-                                                            { value: roomsFilled,          label: 'Rooms used' },
-                                                            { value: leaders,              label: 'Leaders' },
-                                                        ].map((stat, i, arr) => (
-                                                            <div key={stat.label} style={{ flex: 1, textAlign: 'center', borderRight: i < arr.length - 1 ? '1px solid var(--border)' : 'none', padding: '0 0.5rem' }}>
-                                                                <div style={{ fontSize: '1.75rem', fontWeight: 800, lineHeight: 1, color: i === 0 ? col.text : 'inherit' }}>{stat.value}</div>
-                                                                <div style={{ fontSize: '0.68rem', color: 'var(--muted-foreground)', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{stat.label}</div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
+                                                    {isMobile ? (
+                                                        /* Mobile: just 2 stats side by side */
+                                                        <div style={{ display: 'flex', borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)', marginBottom: '0.625rem' }}>
+                                                            {[
+                                                                { value: assigned,            label: 'Assigned',  color: col.text },
+                                                                { value: capacity - assigned, label: 'Available', color: undefined },
+                                                            ].map((stat, i) => (
+                                                                <div key={stat.label} style={{ flex: 1, textAlign: 'center', padding: '0.5rem 0.25rem', background: 'var(--card)', borderRight: i === 0 ? '1px solid var(--border)' : 'none' }}>
+                                                                    <div style={{ fontSize: '1.2rem', fontWeight: 800, lineHeight: 1, color: stat.color ?? 'var(--foreground)' }}>{stat.value}</div>
+                                                                    <div style={{ fontSize: '0.58rem', color: 'var(--muted-foreground)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{stat.label}</div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        /* Desktop: 2×2 stat grid */
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', marginBottom: '1rem', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
+                                                            {[
+                                                                { value: assigned,            label: 'Assigned',  color: col.text },
+                                                                { value: capacity - assigned, label: 'Available', color: undefined },
+                                                                { value: roomsFilled,         label: 'Rooms',     color: undefined },
+                                                                { value: leaders,             label: 'Leaders',   color: undefined },
+                                                            ].map((stat, i) => (
+                                                                <div key={stat.label} style={{ textAlign: 'center', padding: '0.6rem 0.25rem', borderRight: i % 2 === 0 ? '1px solid var(--border)' : 'none', borderBottom: i < 2 ? '1px solid var(--border)' : 'none', background: 'var(--card)' }}>
+                                                                    <div style={{ fontSize: '1.4rem', fontWeight: 800, lineHeight: 1, color: stat.color ?? 'var(--foreground)' }}>{stat.value}</div>
+                                                                    <div style={{ fontSize: '0.62rem', color: 'var(--muted-foreground)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{stat.label}</div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
 
                                                     {/* Progress bar */}
-                                                    <div style={{ background: 'var(--muted)', borderRadius: '99px', height: '8px', overflow: 'hidden', marginBottom: '0.3rem' }}>
+                                                    <div style={{ background: 'var(--muted)', borderRadius: '99px', height: isMobile ? 5 : 8, overflow: 'hidden', marginBottom: isMobile ? '0.25rem' : '0.3rem' }}>
                                                         <div style={{ width: `${pct}%`, height: '100%', background: col.solid, borderRadius: '99px', transition: 'width 0.4s' }} />
                                                     </div>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
-                                                        <span>{pct}% occupied</span>
-                                                        <span>{house.totalRooms} rooms &times; {house.bedsPerRoom} beds</span>
+                                                    <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', textAlign: isMobile ? 'center' : 'left' }}>
+                                                        {pct}% occupied
+                                                        {!isMobile && <span style={{ float: 'right' }}>{house.totalRooms} rooms &times; {house.bedsPerRoom} beds</span>}
                                                     </div>
 
-                                                    {/* Footer */}
-                                                    <div style={{ marginTop: '0.9rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', textAlign: 'right', fontSize: '0.75rem', fontWeight: 600, color: isActive ? col.solid : 'var(--muted-foreground)' }}>
-                                                        {isActive ? '▼ Viewing rooms below' : 'Click to view rooms'}
-                                                    </div>
+                                                    {/* Footer — desktop only */}
+                                                    {!isMobile && (
+                                                        <div style={{ marginTop: '0.9rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', textAlign: 'right', fontSize: '0.75rem', fontWeight: 600, color: isActive ? col.solid : 'var(--muted-foreground)' }}>
+                                                            {isActive ? '▼ Viewing rooms below' : 'Click to view rooms'}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )

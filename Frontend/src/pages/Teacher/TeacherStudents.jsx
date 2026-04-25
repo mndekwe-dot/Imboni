@@ -1,143 +1,197 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { useState } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { ClassPicker } from '../../components/ui/ClassPicker'
+import { Modal } from '../../components/ui/Modal'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import '../../styles/pages.css'
 import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
 
-
-const students = [
-    { initials: 'UA', name: 'Uwase Amina',          id: 'STU-001', className: 'S4A', attendance: '95%', performance: '88%', year: 'S4', letter: 'A' },
-    { initials: 'KM', name: 'Mutabazi Kevin',        id: 'STU-002', className: 'S4A', attendance: '92%', performance: '85%', year: 'S4', letter: 'A' },
-    { initials: 'IM', name: 'Ingabire Marie',        id: 'STU-003', className: 'S3B', attendance: '92%', performance: '90%', year: 'S3', letter: 'B' },
-    { initials: 'PN', name: 'Nkurunziza Peter',      id: 'STU-004', className: 'S4B', attendance: '90%', performance: '86%', year: 'S4', letter: 'B' },
-    { initials: 'UD', name: 'Umutoni Diane',         id: 'STU-005', className: 'S2A', attendance: '87%', performance: '79%', year: 'S2', letter: 'A' },
-    { initials: 'JB', name: 'Bizimana James',        id: 'STU-006', className: 'S5A', attendance: '94%', performance: '91%', year: 'S5', letter: 'A' },
-    { initials: 'HG', name: 'Hakizimana Grace',      id: 'STU-007', className: 'S3A', attendance: '85%', performance: '80%', year: 'S3', letter: 'A' },
-    { initials: 'EN', name: 'Ndagijimana Eric',      id: 'STU-008', className: 'S6A', attendance: '89%', performance: '75%', year: 'S6', letter: 'A' },
-    { initials: 'MS', name: 'Mukamazimpaka Sandra',  id: 'STU-009', className: 'S1B', attendance: '88%', performance: '77%', year: 'S1', letter: 'B' },
-    { initials: 'NP', name: 'Nsabimana Patrick',     id: 'STU-010', className: 'S2B', attendance: '91%', performance: '82%', year: 'S2', letter: 'B' },
+const SECTIONS = [
+    { name: 'O-Level', years: ['S1', 'S2', 'S3'], classes: ['A', 'B', 'C'] },
+    { name: 'A-Level', years: ['S4', 'S5', 'S6'], classes: ['MPG', 'PCB', 'MEG', 'MPC'] },
 ]
 
-function StudentRow({ initials, name, id, className, attendance, performance, year, letter }) {
+const students = [
+    { initials: 'UA', name: 'Uwase Amina',         code: 'STU-001', className: 'S4A', attendance: 95, performance: 88, year: 'S4', letter: 'A', gender: 'F', isMonitor: true  },
+    { initials: 'KM', name: 'Mutabazi Kevin',       code: 'STU-002', className: 'S4A', attendance: 92, performance: 85, year: 'S4', letter: 'A', gender: 'M', isMonitor: false },
+    { initials: 'IM', name: 'Ingabire Marie',       code: 'STU-003', className: 'S3B', attendance: 92, performance: 90, year: 'S3', letter: 'B', gender: 'F', isMonitor: false },
+    { initials: 'PN', name: 'Nkurunziza Peter',     code: 'STU-004', className: 'S4B', attendance: 90, performance: 86, year: 'S4', letter: 'B', gender: 'M', isMonitor: false },
+    { initials: 'UD', name: 'Umutoni Diane',        code: 'STU-005', className: 'S2A', attendance: 87, performance: 79, year: 'S2', letter: 'A', gender: 'F', isMonitor: false },
+    { initials: 'JB', name: 'Bizimana James',       code: 'STU-006', className: 'S5A', attendance: 94, performance: 91, year: 'S5', letter: 'A', gender: 'M', isMonitor: true  },
+    { initials: 'HG', name: 'Hakizimana Grace',     code: 'STU-007', className: 'S3A', attendance: 85, performance: 80, year: 'S3', letter: 'A', gender: 'F', isMonitor: false },
+    { initials: 'EN', name: 'Ndagijimana Eric',     code: 'STU-008', className: 'S6A', attendance: 89, performance: 75, year: 'S6', letter: 'A', gender: 'M', isMonitor: false },
+    { initials: 'MS', name: 'Mukamazimpaka Sandra', code: 'STU-009', className: 'S1B', attendance: 88, performance: 77, year: 'S1', letter: 'B', gender: 'F', isMonitor: false },
+    { initials: 'NP', name: 'Nsabimana Patrick',    code: 'STU-010', className: 'S2B', attendance: 91, performance: 82, year: 'S2', letter: 'B', gender: 'M', isMonitor: false },
+]
+
+function performanceBadge(pct) {
+    if (pct >= 85) return { label: 'Excellent', cls: 'badge-soft-success' }
+    if (pct >= 70) return { label: 'Good',      cls: 'badge-soft-info'    }
+    return               { label: 'Fair',       cls: 'badge-soft-warning' }
+}
+
+function attendanceBadge(pct) {
+    if (pct >= 90) return { label: `${pct}%`, cls: 'badge-soft-success' }
+    if (pct >= 80) return { label: `${pct}%`, cls: 'badge-soft-warning' }
+    return               { label: `${pct}%`, cls: 'badge-soft-error'   }
+}
+
+function StudentRow({ student, onView }) {
+    const perf = performanceBadge(student.performance)
+    const att  = attendanceBadge(student.attendance)
     return (
-        <tr data-year={year} data-classletter={letter}>
+        <tr>
             <td>
                 <div className="student-info-cell">
-                    <div className="student-avatar">{initials}</div>
+                    <div className="student-avatar">{student.initials}</div>
                     <div>
-                        <div className="student-name">{name}</div>
-                        <div className="student-id-text">{id}</div>
+                        <div className="student-name">
+                            {student.name}
+                            {student.isMonitor && (
+                                <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', color: 'var(--warning)', marginLeft: 4, verticalAlign: 'middle' }}>stars</span>
+                            )}
+                        </div>
+                        <div className="student-id-text">{student.code}</div>
                     </div>
                 </div>
             </td>
-            <td>{id}</td>
-            <td>{className}</td>
-            <td>{attendance}</td>
-            <td>{performance}</td>
-            <td><button className="btn btn-sm btn-outline">View</button></td>
+            <td>{student.className}</td>
+            <td><span className={`badge ${att.cls}`}>{att.label}</span></td>
+            <td>
+                <span className={`badge ${perf.cls}`}>{perf.label} ({student.performance}%)</span>
+            </td>
+            <td>
+                <button className="btn btn-sm btn-outline" onClick={() => onView(student)}>
+                    <span className="material-symbols-rounded icon-sm">visibility</span>
+                    View
+                </button>
+            </td>
         </tr>
     )
 }
 
 export function TeacherStudent() {
+    const [section,  setSection]  = useState('')
+    const [year,     setYear]     = useState('')
+    const [classVal, setClassVal] = useState('')
+    const [search,   setSearch]   = useState('')
+    const [perfFilter, setPerfFilter]   = useState('all')
+    const [selected, setSelected] = useState(null)
+
+    const visible = students.filter(s => {
+        if (section) {
+            const sec = SECTIONS.find(x => x.name === section)
+            if (sec && !sec.years.includes(s.year)) return false
+        }
+        if (year     && s.year   !== year)     return false
+        if (classVal && s.letter !== classVal) return false
+        if (search) {
+            const q = search.toLowerCase()
+            if (!s.name.toLowerCase().includes(q) && !s.code.toLowerCase().includes(q)) return false
+        }
+        if (perfFilter === 'high' && s.performance < 85) return false
+        if (perfFilter === 'mid'  && (s.performance < 70 || s.performance >= 85)) return false
+        if (perfFilter === 'low'  && s.performance >= 70) return false
+        return true
+    })
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
-            <div className="sidebar-overlay"></div>
+
+            {selected && (
+                <Modal title="Student Profile" icon="person" onClose={() => setSelected(null)}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
+                        <div className="student-avatar" style={{ width: 52, height: 52, fontSize: '1.1rem', flexShrink: 0 }}>
+                            {selected.initials}
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{selected.name}</div>
+                            <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>{selected.code}</div>
+                            {selected.isMonitor && (
+                                <div style={{ fontSize: '0.78rem', color: 'var(--warning)', fontWeight: 600, marginTop: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
+                                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>stars</span>
+                                    Class Monitor — Appointed by DOS
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Class</div>
+                            <div style={{ fontWeight: 600 }}>{selected.className}</div>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Gender</div>
+                            <div style={{ fontWeight: 600 }}>{selected.gender === 'F' ? 'Female' : 'Male'}</div>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Attendance</div>
+                            <span className={`badge ${attendanceBadge(selected.attendance).cls}`}>{selected.attendance}%</span>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Performance</div>
+                            <span className={`badge ${performanceBadge(selected.performance).cls}`}>{selected.performance}%</span>
+                        </div>
+                    </div>
+                </Modal>
+            )}
 
             <div className="dashboard-layout">
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Students</h1>
-                            <p>Manage student information and performance</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, February 03, 2026</span>
-                            <button className="notification-btn">
-                                <span className="material-symbols-rounded">notifications</span>
-                                <span className="notification-badge">5</span>
-                            </button>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">Pacifique Rurangwa</span>
-                                    <span className="header-user-role">Teacher</span>
-                                </div>
-                                <div className="header-user-av teacher-av">PR</div>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Students"
+                        subtitle="View and manage students across your classes"
+                        {...teacherUser}
+                    />
 
                     <div className="dashboard-content">
 
-                        {/* Section â†’ Year â†’ Class Cascade Picker */}
-                        <div className="tp-picker">
-                            <div className="tp-picker-group">
-                                <label className="tp-picker-label">Section</label>
-                                <select className="tp-picker-select" id="dp-section">
-                                    <option value="">All Sections</option>
-                                    <option value="olevel">O-Level (S1â€“S3)</option>
-                                    <option value="alevel">A-Level (S4â€“S6)</option>
-                                </select>
-                            </div>
-                            <div className="tp-picker-group">
-                                <label className="tp-picker-label">Year</label>
-                                <select className="tp-picker-select" id="dp-year">
-                                    <option value="">All Years</option>
-                                    <option value="S1">S1</option>
-                                    <option value="S2">S2</option>
-                                    <option value="S3">S3</option>
-                                    <option value="S4">S4</option>
-                                    <option value="S5">S5</option>
-                                    <option value="S6">S6</option>
-                                </select>
-                            </div>
-                            <div className="tp-picker-group">
-                                <label className="tp-picker-label">Class</label>
-                                <select className="tp-picker-select" id="dp-class">
-                                    <option value="">All Classes</option>
-                                    <option value="A">A</option>
-                                    <option value="B">B</option>
-                                    <option value="C">C</option>
-                                </select>
-                            </div>
-                            <span className="tp-picker-current" id="classLabel">All Classes</span>
-                        </div>
+                        <ClassPicker
+                            sections={SECTIONS}
+                            section={section}   onSectionChange={setSection}
+                            year={year}         onYearChange={setYear}
+                            classVal={classVal} onClassChange={setClassVal}
+                        />
 
-                        <div className="search-filter-bar">
+                        {/* Search + performance filter */}
+                        <div className="search-filter-bar" style={{ marginBottom: '1.25rem' }}>
                             <div className="search-input-wrapper">
                                 <span className="material-symbols-rounded search-input-icon">search</span>
-                                <input type="text" className="input search-input" placeholder="Search by name or ID..." />
+                                <input
+                                    type="text"
+                                    className="input search-input"
+                                    placeholder="Search by name or student code..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                />
                             </div>
                             <div className="filter-group">
-                                <select className="input input-auto">
-                                    <option>All Performance</option>
-                                    <option>Above 85%</option>
-                                    <option>70-85%</option>
-                                    <option>Below 70%</option>
+                                <select
+                                    className="input input-auto"
+                                    value={perfFilter}
+                                    onChange={e => setPerfFilter(e.target.value)}
+                                >
+                                    <option value="all">All Performance</option>
+                                    <option value="high">Excellent (85%+)</option>
+                                    <option value="mid">Good (70–84%)</option>
+                                    <option value="low">Fair (below 70%)</option>
                                 </select>
-                                <select className="input input-auto">
-                                    <option>All Attendance</option>
-                                    <option>Above 90%</option>
-                                    <option>Below 90%</option>
-                                </select>
-                                <button className="btn btn-outline">
-                                    <span className="material-symbols-rounded icon-sm">download</span>
-                                    Export
-                                </button>
                             </div>
                         </div>
 
                         <div className="card">
                             <div className="card-header">
                                 <h3 className="card-title">Student List</h3>
-                                <p className="card-description" id="studentListDesc">All students in your classes</p>
+                                <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                    {visible.length} student{visible.length !== 1 ? 's' : ''}
+                                </span>
                             </div>
                             <div className="card-content">
                                 <div className="table-responsive">
@@ -145,54 +199,30 @@ export function TeacherStudent() {
                                         <thead>
                                             <tr>
                                                 <th>Student</th>
-                                                <th>Student ID</th>
                                                 <th>Class</th>
                                                 <th>Attendance</th>
                                                 <th>Performance</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="studentsBody">
-                                            {students.map((row, index) => (
-                                                <StudentRow key={index} {...row} />
-                                            ))}
+                                        <tbody>
+                                            {visible.length > 0 ? (
+                                                visible.map((s, i) => (
+                                                    <StudentRow key={i} student={s} onView={setSelected} />
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={5} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--muted-foreground)' }}>
+                                                        No students match your filters.
+                                                    </td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="grid-2 mt-1-5">
-                            <div className="card">
-                                <div className="card-header">
-                                    <h3 className="card-title">Performance Distribution</h3>
-                                    <p className="card-description">Student score ranges</p>
-                                </div>
-                                <div className="card-content">
-                                    <div className="chart-container">
-                                        <div className="chart-placeholder">
-                                            ðŸ“ˆ Performance distribution histogram
-                                            <br /><small>85-100%: 18 students | 70-84%: 35 students | 50-69%: 8 students</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="card">
-                                <div className="card-header">
-                                    <h3 className="card-title">Attendance Trends</h3>
-                                    <p className="card-description">Weekly attendance patterns</p>
-                                </div>
-                                <div className="card-content">
-                                    <div className="chart-container">
-                                        <div className="chart-placeholder">
-                                            ðŸ“… Attendance trend line graph
-                                            <br /><small>Week 1: 94% | Week 2: 91% | Week 3: 96% | Week 4: 93%</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </main>
             </div>
