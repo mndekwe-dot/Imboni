@@ -41,8 +41,8 @@ export function ParentTimetable() {
                                 <h2 className="card-title">{child.name} — Class {child.classId}</h2>
                                 {/* Child selector — only shown when parent has more than one child */}
                                 {CHILDREN.length > 1 && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <label className="form-label" style={{ margin: 0 }}>Child:</label>
+                                    <div className="flex-row-gap-sm">
+                                        <label className="form-label mb-0">Child:</label>
                                         <select
                                             className="form-input"
                                             style={{ width: 'auto' }}

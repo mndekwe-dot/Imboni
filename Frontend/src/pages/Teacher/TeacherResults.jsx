@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import '../../styles/tables.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
@@ -136,96 +138,50 @@ export function TeacherResults() {
 
                         {/* Content area */}
                         {!classKey ? (
-                            <EmptyState
-                                icon="school"
-                                title="No class selected"
-                                description="Use the picker above to select a section, year, and class to view results."
-                            />
-                        ) : rows.length === 0 ? (
-                            <EmptyState
-                                icon="assignment_late"
-                                title="No results found"
-                                description={`No ${assessment} results have been recorded for ${classKey} yet.`}
-                                action={{ label: 'Enter Results', icon: 'add', onClick: () => {} }}
-                            />
+                            <EmptyState icon="school" title="No class selected" description="Use the picker above to select a section, year, and class to view results." />
                         ) : (
                             <>
                                 {/* Quick stats */}
-                                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                                    {[
-                                        { label: 'Class Average', value: `${avg}%`,           color: 'var(--primary)' },
-                                        { label: 'Top Score',     value: highest ? `${highest.score}/${highest.max}` : '—', color: 'var(--success, #16a34a)' },
-                                        { label: 'Pass Rate',     value: `${passRate}%`,        color: 'var(--warning, #d97706)' },
-                                        { label: 'Students',      value: rows.length,           color: 'var(--muted-foreground)' },
-                                    ].map(s => (
-                                        <div key={s.label} style={{
-                                            flex: 1, minWidth: 90,
-                                            background: 'var(--card)', border: '1px solid var(--border)',
-                                            borderRadius: 12, padding: '0.75rem 1rem',
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                                        }}>
-                                            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: s.color }}>{s.value}</div>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{s.label}</div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Results list container */}
-                                <div style={{
-                                    background: 'var(--card)',
-                                    border: '1px solid var(--border)',
-                                    borderRadius: 16,
-                                    overflow: 'hidden',
-                                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                                }}>
-                                    <div style={{
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                    }}>
-                                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-                                            {classKey} — {assessment}
-                                        </div>
-                                        <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                                            {rows.length} student{rows.length !== 1 ? 's' : ''}
-                                        </span>
+                                {rows.length > 0 && (
+                                    <div style={{ display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
+                                        {[
+                                            { label:'Class Average', value:`${avg}%`,      color:'var(--primary)'   },
+                                            { label:'Top Score',     value: highest ? `${highest.score}/${highest.max}` : '—', color:'var(--success)' },
+                                            { label:'Pass Rate',     value:`${passRate}%`,  color:'var(--warning)'   },
+                                            { label:'Students',      value: rows.length,    color:'var(--muted-foreground)' },
+                                        ].map(s => (
+                                            <div key={s.label} style={{ flex:1, minWidth:90, background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:'var(--space-3) var(--space-4)', boxShadow:'var(--card-shadow)' }}>
+                                                <div style={{ fontSize:'1.5rem', fontWeight:700, color:s.color }}>{s.value}</div>
+                                                <div style={{ fontSize:'var(--font-xs)', color:'var(--muted-foreground)' }}>{s.label}</div>
+                                            </div>
+                                        ))}
                                     </div>
-
-                                    <div className="table-responsive">
-                                        <table className="results-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Student</th>
-                                                    <th>Score</th>
-                                                    <th>Grade</th>
-                                                    <th>Date</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {rows.map(r => {
-                                                    const g = getGrade(r.score, r.max)
-                                                    return (
-                                                        <tr key={r.id}>
-                                                            <td>
-                                                                <div className="student-info-cell">
-                                                                    <div className="student-avatar">{r.initials}</div>
-                                                                    <div>
-                                                                        <div className="student-name">{r.name}</div>
-                                                                        <div className="student-id-text">{r.id}</div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>{r.score}/{r.max}</td>
-                                                            <td><span className={`grade-badge ${g.cls}`}>{g.label}</span></td>
-                                                            <td>{r.date}</td>
-                                                            <td><button className="btn btn-sm btn-outline">Edit</button></td>
-                                                        </tr>
-                                                    )
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                                )}
+                                <DataTable
+                                    title={`${classKey} — ${assessment}`}
+                                    data={rows}
+                                    columns={['Student','Score','Grade','Date','Actions']}
+                                    renderRow={r => {
+                                        const g = getGrade(r.score, r.max)
+                                        return (
+                                            <tr key={r.id}>
+                                                <td>
+                                                    <div className="dt-cell-user">
+                                                        <div className="dt-avatar" style={{ background:'var(--primary)' }}>{r.initials}</div>
+                                                        <div><div className="dt-name">{r.name}</div><div className="dt-sub">{r.id}</div></div>
+                                                    </div>
+                                                </td>
+                                                <td>{r.score}/{r.max}</td>
+                                                <td><span className={`grade-badge ${g.cls}`}>{g.label}</span></td>
+                                                <td>{r.date}</td>
+                                                <td><button className="btn btn-sm btn-outline">Edit</button></td>
+                                            </tr>
+                                        )
+                                    }}
+                                    emptyIcon="assignment_late"
+                                    emptyTitle="No results found"
+                                    emptyDesc={`No ${assessment} results recorded for ${classKey} yet.`}
+                                />
                             </>
                         )}
                     </DashboardContent>

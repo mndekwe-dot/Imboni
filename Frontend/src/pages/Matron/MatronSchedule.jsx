@@ -149,15 +149,15 @@ export function MatronSchedule() {
 
                     <DashboardContent>
 
-                        <div className="disc-welcome-banner" style={{ marginBottom: '1.25rem' }}>
+                        <div className="disc-welcome-banner mb-5">
                             <span className="material-symbols-rounded" style={{ fontSize: '1.5rem' }}>verified</span>
                             <div>
-                                <div style={{ fontWeight: 700, fontSize: '0.9375rem' }}>Schedule issued by Mr. E. Mutabazi &mdash; Director of Discipline</div>
-                                <div style={{ fontSize: '0.8125rem', opacity: 0.85 }}>Last updated: Monday, March 09, 2026 &middot; Term 1, Week 9 &middot; Read-only &mdash; contact Discipline Master to request changes</div>
+                                <div className="banner-title">Schedule issued by Mr. E. Mutabazi &mdash; Director of Discipline</div>
+                                <div className="banner-sub">Last updated: Monday, March 09, 2026 &middot; Term 1, Week 9 &middot; Read-only &mdash; contact Discipline Master to request changes</div>
                             </div>
                         </div>
 
-                        <div className="disc-picker" style={{ marginBottom: '1.25rem' }}>
+                        <div className="disc-picker mb-5">
                             <div className="disc-picker-group">
                                 <label className="disc-picker-label">Week</label>
                                 <select className="disc-picker-select" defaultValue="week9">
@@ -182,12 +182,12 @@ export function MatronSchedule() {
                                 </select>
                             </div>
                             <span className="disc-picker-current">Week 9 &mdash; All Days</span>
-                            <button className="btn btn-outline btn-sm" style={{ marginLeft: 'auto' }}>
+                            <button className="btn btn-outline btn-sm ml-auto">
                                 <span className="material-symbols-rounded">print</span> Print
                             </button>
                         </div>
 
-                        <div className="disc-stat-grid" style={{ marginBottom: '1.25rem' }}>
+                        <div className="disc-stat-grid mb-5">
                             {scheduleStats.map((stat, index) => (
                                 <ScheduleStat key={index} {...stat} />
                             ))}

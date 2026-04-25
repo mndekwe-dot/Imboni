@@ -128,7 +128,7 @@ export function DosScheduling() {
                     <DashboardContent>
 
                         {/* Tab switcher */}
-                        <div className="filter-tabs-bar" style={{ marginBottom: '1.25rem' }}>
+                        <div className="filter-tabs-bar mb-5">
                             <button
                                 className={`filter-tab${activeTab === 'timetable' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('timetable')}
@@ -146,16 +146,16 @@ export function DosScheduling() {
                         {/* ── TIMETABLE TAB ── */}
                         {activeTab === 'timetable' && (
                             <>
-                                <div className="portal-stat-grid" style={{ marginBottom: '1.25rem' }}>
+                                <div className="portal-stat-grid mb-5">
                                     {timetableStats.map((stat, i) => <StatCard key={i} {...stat} />)}
                                 </div>
 
                                 <div className="card">
                                     <div className="card-header">
                                         <h2 className="card-title">Class {classId} — Weekly Timetable</h2>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <label className="form-label" style={{ margin: 0 }}>Class:</label>
+                                        <div className="flex-row-gap">
+                                            <div className="flex-row-gap-sm">
+                                                <label className="form-label mb-0">Class:</label>
                                                 <select
                                                     className="form-input"
                                                     style={{ width: 'auto' }}
@@ -209,7 +209,7 @@ export function DosScheduling() {
                         {/* ── EXAM SCHEDULE TAB ── */}
                         {activeTab === 'exams' && (
                             <>
-                                <nav className="es-tabs" style={{ marginBottom: '1rem' }}>
+                                <nav className="es-tabs mb-4">
                                     <button className="es-tab active">
                                         <span className="material-symbols-rounded">calendar_month</span> Current Schedule
                                     </button>

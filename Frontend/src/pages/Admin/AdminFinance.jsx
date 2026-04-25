@@ -128,21 +128,12 @@ export function AdminFinance() {
                                 </div>
                                 <div className="card-content">
                                     {/* Status filter chips */}
-                                    <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '0.875rem', flexWrap: 'wrap' }}>
+                                    <div className="filter-chips">
                                         {['All', 'Paid', 'Partial', 'Overdue'].map(f => (
                                             <button
                                                 key={f}
+                                                className={`filter-chip${statusFilter === f ? ' active' : ''}`}
                                                 onClick={() => setStatusFilter(f)}
-                                                style={{
-                                                    padding: '0.25rem 0.75rem',
-                                                    borderRadius: '999px',
-                                                    border: '1px solid var(--border)',
-                                                    fontSize: '0.78rem',
-                                                    cursor: 'pointer',
-                                                    background: statusFilter === f ? 'var(--admin)' : 'transparent',
-                                                    color:      statusFilter === f ? '#fff'          : 'var(--foreground)',
-                                                    fontWeight: statusFilter === f ? 600             : 400,
-                                                }}
                                             >{f}</button>
                                         ))}
                                     </div>
@@ -162,7 +153,7 @@ export function AdminFinance() {
                                                     ? filtered.map((tx, i) => <TxRow key={i} {...tx} />)
                                                     : (
                                                         <tr>
-                                                            <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted-foreground)' }}>
+                                                            <td colSpan={5} className="td-empty">
                                                                 No transactions for this filter.
                                                             </td>
                                                         </tr>
@@ -191,23 +182,22 @@ export function AdminFinance() {
                                         </div>
                                     ))}
 
-                                    <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-                                        <p style={{ fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem' }}>Quick Actions</p>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <div className="quick-actions-section">
+                                        <p className="quick-actions-label">Quick Actions</p>
+                                        <div className="quick-actions-btns">
                                             <button
                                                 id="reminder-btn"
-                                                className="btn btn-outline btn-sm"
-                                                style={{ justifyContent: 'flex-start' }}
+                                                className="btn btn-outline btn-sm btn-left"
                                                 onClick={handleSendReminder}
                                             >
                                                 <span className="material-symbols-rounded">mail</span>
                                                 Send Fee Reminder — All Overdue
                                             </button>
-                                            <button className="btn btn-outline btn-sm" style={{ justifyContent: 'flex-start' }} onClick={handleExport}>
+                                            <button className="btn btn-outline btn-sm btn-left" onClick={handleExport}>
                                                 <span className="material-symbols-rounded">summarize</span>
                                                 Generate Term 1 Finance Report
                                             </button>
-                                            <button className="btn btn-primary btn-sm" style={{ justifyContent: 'flex-start' }} onClick={() => setShowPayment(true)}>
+                                            <button className="btn btn-primary btn-sm btn-left" onClick={() => setShowPayment(true)}>
                                                 <span className="material-symbols-rounded">add_card</span>
                                                 Record New Payment
                                             </button>

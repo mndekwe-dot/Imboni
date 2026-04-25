@@ -55,7 +55,7 @@ function ActivityCard({ avClass, avText, cat, name, patron, schedule, venue, inc
                     <div className="staff-card-name">{name}</div>
                     <div className="staff-card-role">{role}</div>
                 </div>
-                <span className="pub-badge active" style={{ marginLeft: 'auto' }}>{badge}</span>
+                <span className="pub-badge active ml-auto">{badge}</span>
             </div>
             <div className="staff-card-meta">
                 <span><span className="material-symbols-rounded">groups</span>{members} members</span>
@@ -106,7 +106,7 @@ function PrefectCard({ avClass, initials, name, role, form, badge, badgeClass, h
                     <div className="staff-card-name">{name}</div>
                     <div className="staff-card-role">{role} • {form}</div>
                 </div>
-                <span className={`pub-badge ${badgeClass}`} style={{ marginLeft: 'auto' }}>{badge}</span>
+                <span className={`pub-badge ${badgeClass} ml-auto`}>{badge}</span>
             </div>
             <div className="staff-card-meta">
                 <span><span className="material-symbols-rounded">military_tech</span>{role}</span>
@@ -129,24 +129,24 @@ function CaptainRow({ captain, onEdit, onRemove, confirmId, onConfirmRemove, onC
     return (
         <tr>
             <td><span className={`disc-badge ${captain.dormKey}`}>{DORM_LABEL[captain.dormKey]}</span></td>
-            <td><strong>{captain.name}</strong> <span className="class-chip" style={{ marginLeft: '4px' }}>{captain.form}</span></td>
-            <td><span className="text-muted" style={{ fontSize: '0.8rem' }}>{captain.adm}</span></td>
+            <td><strong>{captain.name}</strong> <span className="class-chip">{captain.form}</span></td>
+            <td><span className="text-muted text-sm-muted">{captain.adm}</span></td>
             <td>{captain.since}</td>
             <td><span className={captain.conductClass}>{captain.conduct}</span></td>
             <td className="action-cell">
                 {isConfirming ? (
                     <>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Remove captain?</span>
+                        <span className="remove-confirm-text">Remove captain?</span>
                         <button className="btn btn-primary btn-sm" onClick={() => onConfirmRemove(captain.id)}>Yes</button>
                         <button className="btn btn-outline btn-sm" onClick={onCancelRemove}>No</button>
                     </>
                 ) : (
                     <>
                         <button className="btn btn-outline btn-sm" onClick={() => onEdit(captain)}>
-                            <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>edit</span> Edit
+                            <span className="material-symbols-rounded icon-sm">edit</span> Edit
                         </button>
                         <button className="btn btn-outline btn-sm" onClick={() => onRemove(captain.id)}>
-                            <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>delete</span> Remove
+                            <span className="material-symbols-rounded icon-sm">delete</span> Remove
                         </button>
                     </>
                 )}
@@ -207,7 +207,7 @@ export function DisStudentLife() {
                     <DashboardContent>
 
                         {/* Tab switcher */}
-                        <div className="filter-tabs-bar" style={{ marginBottom: '1.25rem' }}>
+                        <div className="filter-tabs-bar mb-5">
                             <button
                                 className={`filter-tab${activeTab === 'activities' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('activities')}
@@ -238,7 +238,7 @@ export function DisStudentLife() {
                                     ))}
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                                <div className="section-toolbar-row">
                                     <FilterBar options={activityFilterOptions} active={actFilter} onChange={setActFilter} />
                                     <button className="btn btn-primary" onClick={() => setShowNewActivity(true)}>
                                         <span className="material-symbols-rounded">add</span> New Club / Event
@@ -291,7 +291,7 @@ export function DisStudentLife() {
                                     ))}
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                                <div className="section-toolbar-row">
                                     <FilterBar
                                         options={[
                                             { key: 'all',      label: 'All Leaders',        count: prefects.length + captains.length },
@@ -325,16 +325,16 @@ export function DisStudentLife() {
                                     </div>
                                     <div className="card-content">
 
-                                        <div style={{ marginBottom: '1.25rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
-                                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: '#ec4899' }}>female</span> Girls Dormitories
+                                        <div className="mb-5">
+                                            <div className="dorm-section-header female">
+                                                <span className="material-symbols-rounded">female</span> Girls Dormitories
                                             </div>
                                             <div className="disc-table-wrap">
                                                 <table className="disc-table">
                                                     <thead><tr><th>Dormitory</th><th>Captain</th><th>ADM</th><th>Since</th><th>Conduct</th><th>Actions</th></tr></thead>
                                                     <tbody>
                                                         {girlsCaptains.length === 0
-                                                            ? <tr><td colSpan={6} style={{ color: 'var(--muted-foreground)', fontStyle: 'italic', fontSize: '0.85rem' }}>No captains assigned</td></tr>
+                                                            ? <tr><td colSpan={6} className="td-italic-muted">No captains assigned</td></tr>
                                                             : girlsCaptains.map(c => (
                                                                 <CaptainRow key={c.id} captain={c} confirmId={confirmRemoveId}
                                                                     onEdit={setCaptainModal} onRemove={setConfirmRemoveId}
@@ -348,15 +348,15 @@ export function DisStudentLife() {
                                         </div>
 
                                         <div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
-                                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: '#3b82f6' }}>male</span> Boys Dormitories
+                                            <div className="dorm-section-header male">
+                                                <span className="material-symbols-rounded">male</span> Boys Dormitories
                                             </div>
                                             <div className="disc-table-wrap">
                                                 <table className="disc-table">
                                                     <thead><tr><th>Dormitory</th><th>Captain</th><th>ADM</th><th>Since</th><th>Conduct</th><th>Actions</th></tr></thead>
                                                     <tbody>
                                                         {boysCaptains.length === 0
-                                                            ? <tr><td colSpan={6} style={{ color: 'var(--muted-foreground)', fontStyle: 'italic', fontSize: '0.85rem' }}>No captains assigned</td></tr>
+                                                            ? <tr><td colSpan={6} className="td-italic-muted">No captains assigned</td></tr>
                                                             : boysCaptains.map(c => (
                                                                 <CaptainRow key={c.id} captain={c} confirmId={confirmRemoveId}
                                                                     onEdit={setCaptainModal} onRemove={setConfirmRemoveId}
@@ -375,9 +375,9 @@ export function DisStudentLife() {
 
                                 {leaderFilter === 'clubs' && (
                                     <div className="card mt-1-5">
-                                        <div className="card-content" style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted-foreground)' }}>
-                                            <span className="material-symbols-rounded" style={{ fontSize: '2rem' }}>emoji_events</span>
-                                            <p style={{ marginTop: '0.5rem' }}>Club leader data coming soon.</p>
+                                        <div className="dis-coming-soon">
+                                            <span className="material-symbols-rounded dis-coming-soon-icon">emoji_events</span>
+                                            <p>Club leader data coming soon.</p>
                                         </div>
                                     </div>
                                 )}

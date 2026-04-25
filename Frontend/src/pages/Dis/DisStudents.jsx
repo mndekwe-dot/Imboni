@@ -2,7 +2,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { StudentConductModal } from '../../components/modals/StudentConductModal'
-import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
@@ -154,7 +154,7 @@ export function DisStudents() {
                     <DashboardContent>
 
                         {/* Tab switcher */}
-                        <div className="filter-tabs-bar" style={{ marginBottom: '1.25rem' }}>
+                        <div className="filter-tabs-bar mb-5">
                             <button
                                 className={`filter-tab${activeTab === 'students' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('students')}
@@ -167,7 +167,7 @@ export function DisStudents() {
                             >
                                 <span className="material-symbols-rounded">report</span> Incident Reports
                                 {records.filter(r => r.status === 'pending').length > 0 && (
-                                    <span className="approval-count-badge" style={{ marginLeft: '0.4rem' }}>
+                                    <span className="approval-count-badge">
                                         {records.filter(r => r.status === 'pending').length}
                                     </span>
                                 )}
@@ -203,61 +203,22 @@ export function DisStudents() {
 
                                 <div className="card mb-1-5">
                                     <div className="card-content">
-                                        <div className="filter-tabs-bar" style={{ marginTop: 0 }}>
+                                        <div className="filter-tabs-bar mt-0">
                                             <FilterBar options={conductFilterOptions} active={conductFilter} onChange={setConductFilter} />
                                         </div>
                                     </div>
                                 </div>
 
-                                {visibleStudents.length === 0 ? (
-                                    <EmptyState
-                                        icon="people"
-                                        title="No students found"
-                                        description="No students match the selected conduct filter and class."
-                                        action={{ label: 'Clear Filters', icon: 'close', onClick: () => { setConductFilter('all'); setSection(''); setYear(''); setClassVal('') } }}
-                                    />
-                                ) : (
-                                    <div style={{
-                                        background: 'var(--card)', border: '1px solid var(--border)',
-                                        borderRadius: 16, overflow: 'hidden',
-                                        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                                    }}>
-                                        <div style={{
-                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                            padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                        }}>
-                                            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Student Conduct Records</div>
-                                            <span className="did-direct-badge">
-                                                <span className="material-symbols-rounded">verified</span>
-                                                Incidents you record are immediately approved
-                                            </span>
-                                        </div>
-                                        <div className="disc-table-wrap">
-                                            <table className="disc-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Student</th>
-                                                        <th>Class</th>
-                                                        <th>Adm #</th>
-                                                        <th>Dormitory</th>
-                                                        <th>Score</th>
-                                                        <th>Pos</th>
-                                                        <th>Neg</th>
-                                                        <th>Standing</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {visibleStudents.map((student, index) => (
-                                                        <StudentRow key={index} {...student}
-                                                            onView={() => setModal({ student })}
-                                                        />
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                )}
+                                <DataTable
+                                    title="Student Conduct Records"
+                                    data={visibleStudents}
+                                    columns={['Student','Class','Adm #','Dormitory','Score','Pos','Neg','Standing','Actions']}
+                                    renderRow={(student, index) => <StudentRow key={index} {...student} onView={() => setModal({ student })} />}
+                                    emptyIcon="people"
+                                    emptyTitle="No students found"
+                                    emptyDesc="No students match the selected conduct filter and class."
+                                    onClearFilters={() => { setConductFilter('all'); setSection(''); setYear(''); setClassVal('') }}
+                                />
                             </>
                         )}
 
@@ -270,59 +231,21 @@ export function DisStudents() {
                                     onChange={setReportFilter}
                                 />
 
-                                {visibleRecords.length === 0 ? (
-                                    <EmptyState
-                                        icon="report"
-                                        title="No incident records"
-                                        description={reportFilter === 'all' ? 'No incidents have been reported.' : `No ${reportFilter} incidents found.`}
-                                        action={reportFilter !== 'all' ? { label: 'Show All', icon: 'refresh', onClick: () => setReportFilter('all') } : undefined}
-                                    />
-                                ) : (
-                                    <div style={{
-                                        background: 'var(--card)', border: '1px solid var(--border)',
-                                        borderRadius: 16, overflow: 'hidden',
-                                        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                                    }}>
-                                        <div style={{
-                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                            padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                        }}>
-                                            <div style={{ fontWeight: 700, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <span className="material-symbols-rounded">report</span> Incident Approval Queue
-                                            </div>
-                                            {reportFilter === 'pending' && (
-                                                <span className="approval-count-badge">{visibleRecords.length} pending</span>
-                                            )}
-                                        </div>
-                                        <div className="disc-table-wrap">
-                                            <table className="disc-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Student</th>
-                                                        <th>Class</th>
-                                                        <th>Dormitory</th>
-                                                        <th>Type</th>
-                                                        <th>Description</th>
-                                                        <th>Reported By</th>
-                                                        <th>Points</th>
-                                                        <th>Status</th>
-                                                        {reportFilter === 'pending' && <th>Actions</th>}
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {visibleRecords.map((row, i) => (
-                                                        <RecordRow
-                                                            key={i}
-                                                            {...row}
-                                                            onApprove={reportFilter === 'pending' ? () => approveRecord(records.indexOf(row)) : undefined}
-                                                            onReject={reportFilter === 'pending'  ? () => rejectRecord(records.indexOf(row))  : undefined}
-                                                        />
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                )}
+                                <DataTable
+                                    title="Incident Approval Queue"
+                                    data={visibleRecords}
+                                    columns={['Student','Class','Dormitory','Type','Description','Reported By','Points','Status',...(reportFilter==='pending'?['Actions']:[])]}
+                                    renderRow={(row, i) => (
+                                        <RecordRow key={i} {...row}
+                                            onApprove={reportFilter==='pending' ? () => approveRecord(records.indexOf(row)) : undefined}
+                                            onReject={reportFilter==='pending'  ? () => rejectRecord(records.indexOf(row))  : undefined}
+                                        />
+                                    )}
+                                    emptyIcon="report"
+                                    emptyTitle="No incident records"
+                                    emptyDesc={reportFilter==='all' ? 'No incidents have been reported.' : `No ${reportFilter} incidents found.`}
+                                    onClearFilters={reportFilter!=='all' ? () => setReportFilter('all') : undefined}
+                                />
                             </>
                         )}
 

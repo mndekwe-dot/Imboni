@@ -100,7 +100,7 @@ export function MatronDashboard() {
                             </div>
 
                             <div>
-                                <div className="card" style={{ marginBottom: '1.25rem' }}>
+                                <div className="card mb-5">
                                     <div className="card-header">
                                         <h3 className="card-title"><span className="material-symbols-rounded">assignment_late</span> Reports to Discipline</h3>
                                         <button className="btn btn-outline btn-sm">Report</button>
@@ -119,7 +119,7 @@ export function MatronDashboard() {
                                         <h3 className="card-title"><span className="material-symbols-rounded">bolt</span> Quick Actions</h3>
                                     </div>
                                     <div className="card-content">
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        <div className="btn-stack">
                                             <button className="btn btn-primary"><span className="material-symbols-rounded">fact_check</span> Take Roll Call</button>
                                             <button className="btn btn-outline"><span className="material-symbols-rounded">report</span> Report Incident to Discipline</button>
                                             <button className="btn btn-outline"><span className="material-symbols-rounded">chat</span> Message Discipline Master</button>

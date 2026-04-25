@@ -97,7 +97,7 @@ function AttendancePanel({ stats, calendarDays, title }) {
                         <div className="legend-item"><div className="legend-color present"></div><span>Present</span></div>
                         <div className="legend-item"><div className="legend-color absent"></div><span>Absent</span></div>
                         <div className="legend-item"><div className="legend-color late"></div><span>Late</span></div>
-                        <div className="legend-item"><div className="legend-color" style={{ backgroundColor: 'var(--muted)' }}></div><span>Weekend/Holiday</span></div>
+                        <div className="legend-item"><div className="legend-color holiday"></div><span>Weekend/Holiday</span></div>
                     </div>
                 </div>
             </div>

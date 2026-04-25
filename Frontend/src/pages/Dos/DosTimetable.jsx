@@ -95,7 +95,7 @@ export function DosTimetable() {
                     />
                     <DashboardContent>
 
-                        <div className="portal-stat-grid" style={{ marginBottom: '1.25rem' }}>
+                        <div className="portal-stat-grid mb-5">
                             {timetableStats.map((stat, i) => (
                                 <StatCard key={i} {...stat} />
                             ))}
@@ -104,9 +104,9 @@ export function DosTimetable() {
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">Class {classId} — Weekly Timetable</h2>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <label className="form-label" style={{ margin: 0 }}>Class:</label>
+                                <div className="flex-row-gap">
+                                    <div className="flex-row-gap">
+                                        <label className="form-label mb-0">Class:</label>
                                         <select
                                             className="form-input"
                                             style={{ width: 'auto' }}

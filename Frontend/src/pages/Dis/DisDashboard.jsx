@@ -197,7 +197,7 @@ export function DisDashboard() {
                             <div>
 
                                 {/* Staff under supervision */}
-                                <div className="card" style={{ marginBottom: '1.25rem' }}>
+                                <div className="card mb-5">
                                     <div className="card-header">
                                         <h3 className="card-title"><span className="material-symbols-rounded">supervisor_account</span> Staff Under Supervision</h3>
                                         <a href="/discipline/staff" className="btn btn-outline btn-sm">Manage</a>

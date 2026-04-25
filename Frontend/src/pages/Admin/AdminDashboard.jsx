@@ -136,38 +136,32 @@ export function AdminDashboard() {
                                 <div className="card-header">
                                     <h2 className="card-title">Urgent Tasks</h2>
                                     {pendingCount > 0 && (
-                                        <span className="badge badge-sm" style={{ background: 'var(--destructive-light)', color: 'var(--destructive)' }}>
+                                        <span className="badge badge-sm badge-pending-count">
                                             {pendingCount} pending
                                         </span>
                                     )}
                                 </div>
                                 <div className="card-content">
                                     {tasks.length === 0 && (
-                                        <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', fontSize: '0.875rem', padding: '1rem 0' }}>
-                                            All tasks complete!
-                                        </p>
+                                        <p className="tasks-empty">All tasks complete!</p>
                                     )}
-                                    {tasks.map((task, i) => {
+                                    {tasks.map(task => {
                                         const done = doneTasks.has(task.id)
                                         return (
-                                            <div key={task.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem', padding: '0.625rem 0', borderBottom: i < tasks.length - 1 ? '1px solid var(--border)' : 'none', opacity: done ? 0.5 : 1 }}>
+                                            <div key={task.id} className={`task-item${done ? ' done' : ''}`}>
                                                 <button
+                                                    className={`task-toggle-btn${done ? ' done' : ''}`}
                                                     onClick={() => toggleTask(task.id)}
                                                     title={done ? 'Mark incomplete' : 'Mark complete'}
-                                                    style={{ border: `2px solid ${done ? 'var(--success)' : 'var(--border)'}`, borderRadius: '50%', width: '20px', height: '20px', minWidth: '20px', background: done ? 'var(--success)' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '1px', padding: 0 }}
                                                 >
-                                                    {done && <span className="material-symbols-rounded" style={{ fontSize: '0.8rem', color: '#fff' }}>check</span>}
+                                                    {done && <span className="material-symbols-rounded">check</span>}
                                                 </button>
-                                                <div style={{ flex: 1 }}>
-                                                    <p style={{ fontSize: '0.875rem', margin: 0, textDecoration: done ? 'line-through' : 'none' }}>{task.text}</p>
-                                                    <p style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', margin: '2px 0 0' }}>{task.due}</p>
+                                                <div className="task-body">
+                                                    <p className={`task-text${done ? ' done' : ''}`}>{task.text}</p>
+                                                    <p className="task-due">{task.due}</p>
                                                 </div>
-                                                <button
-                                                    onClick={() => dismissTask(task.id)}
-                                                    title="Dismiss task"
-                                                    style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', padding: '2px', display: 'flex' }}
-                                                >
-                                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
+                                                <button className="task-dismiss" onClick={() => dismissTask(task.id)} title="Dismiss task">
+                                                    <span className="material-symbols-rounded">close</span>
                                                 </button>
                                             </div>
                                         )

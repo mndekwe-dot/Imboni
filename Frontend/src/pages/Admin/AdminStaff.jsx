@@ -3,10 +3,11 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { StatCard } from '../../components/layout/StatCard'
 import { AdminStaffModal } from '../../components/modals/AdminStaffModal'
-import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
+import '../../styles/tables.css'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
@@ -103,14 +104,14 @@ export function AdminStaff() {
             )}
             {deleteId && (
                 <div className="modal-overlay" onClick={() => setDeleteId(null)}>
-                    <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()} style={{ padding: '1.5rem' }}>
-                        <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.05rem' }}>Remove Staff Member?</h2>
-                        <p style={{ margin: '0 0 1.25rem', color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
+                    <div className="modal-box modal-box-sm modal-confirm" onClick={e => e.stopPropagation()}>
+                        <h2 className="modal-confirm-title">Remove Staff Member?</h2>
+                        <p className="modal-confirm-desc">
                             This will remove <strong>{staffList.find(s => s.id === deleteId)?.name}</strong> from the list.
                         </p>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.625rem' }}>
+                        <div className="modal-confirm-actions">
                             <button className="btn btn-secondary" onClick={() => setDeleteId(null)}>Cancel</button>
-                            <button className="btn btn-primary" style={{ background: 'var(--destructive)' }} onClick={handleDelete}>
+                            <button className="btn btn-primary btn-destructive" onClick={handleDelete}>
                                 <span className="material-symbols-rounded">delete</span>Remove
                             </button>
                         </div>
@@ -138,94 +139,39 @@ export function AdminStaff() {
                             {stats.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
-                        {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap', margin: '1rem 0',
-                            background: 'var(--card)', border: '1px solid var(--border)',
-                            borderRadius: 16, padding: '0.75rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.4rem 0.75rem', flex: 1, minWidth: 200 }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--muted-foreground)' }}>search</span>
-                                <input
-                                    type="text"
-                                    placeholder="Search staff..."
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.875rem', width: '100%' }}
-                                />
-                                {search && (
-                                    <button onClick={() => setSearch('')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, color: 'var(--muted-foreground)', display: 'flex' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
-                                    </button>
-                                )}
+                        {/* Toolbar */}
+                        <div className="toolbar-card">
+                            <div className="toolbar-search">
+                                <span className="material-symbols-rounded">search</span>
+                                <input placeholder="Search staff..." value={search} onChange={e => setSearch(e.target.value)} />
+                                {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
                             </div>
-                            <select className="input input-auto" style={{ fontSize: '0.82rem' }} value={deptFilter} onChange={e => setDeptFilter(e.target.value)}>
+                            <select className="input input-auto select-xs" value={deptFilter} onChange={e => setDeptFilter(e.target.value)}>
                                 <option>All Departments</option>
-                                <option>Academic</option>
-                                <option>Welfare</option>
-                                <option>Admin</option>
+                                <option>Academic</option><option>Welfare</option><option>Admin</option>
                             </select>
-                            <select className="input input-auto" style={{ fontSize: '0.82rem' }} value={ctFilter} onChange={e => setCtFilter(e.target.value)}>
+                            <select className="input input-auto select-xs" value={ctFilter} onChange={e => setCtFilter(e.target.value)}>
                                 <option>All Contracts</option>
-                                <option>Full-Time</option>
-                                <option>Part-Time</option>
+                                <option>Full-Time</option><option>Part-Time</option>
                             </select>
-                            <div style={{ flex: 1 }} />
+                            <div className="toolbar-spacer" />
                             <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}>
-                                <span className="material-symbols-rounded">person_add</span>
-                                Add Staff Member
+                                <span className="material-symbols-rounded icon-sm">person_add</span> Add Staff Member
                             </button>
                         </div>
 
-                        {filtered.length === 0 ? (
-                            <EmptyState
-                                icon="badge"
-                                title="No staff found"
-                                description={search ? `No staff match "${search}".` : 'No staff match the selected filters.'}
-                                action={{ label: 'Clear Filters', icon: 'close', onClick: () => { setSearch(''); setDeptFilter('All Departments'); setCtFilter('All Contracts') } }}
-                            />
-                        ) : (
-                            <div style={{
-                                background: 'var(--card)', border: '1px solid var(--border)',
-                                borderRadius: 16, overflow: 'hidden',
-                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                            }}>
-                                <div style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                }}>
-                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>All Staff</div>
-                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                                        {filtered.length} member{filtered.length !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
-                                <div className="adm-table-wrap">
-                                    <table className="adm-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Role</th>
-                                                <th>Department</th>
-                                                <th>Contract</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filtered.map((s, i) => (
-                                                <StaffRow
-                                                    key={i} {...s}
-                                                    onEdit={() => setEditing(s)}
-                                                    onDelete={() => confirmDelete(s.id)}
-                                                />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                        <DataTable
+                            title="All Staff"
+                            data={filtered}
+                            columns={['Name','Role','Department','Contract','Status','Actions']}
+                            renderRow={s => (
+                                <StaffRow key={s.id} {...s} onEdit={() => setEditing(s)} onDelete={() => confirmDelete(s.id)} />
+                            )}
+                            emptyIcon="badge"
+                            emptyTitle="No staff found"
+                            emptyDesc={search ? `No results for "${search}"` : 'No staff match the selected filters.'}
+                            onClearFilters={() => { setSearch(''); setDeptFilter('All Departments'); setCtFilter('All Contracts') }}
+                        />
 
                     </DashboardContent>
                 </main>

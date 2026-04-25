@@ -96,11 +96,9 @@ function generateTableAssignments(students, rules) {
 function SectionConfigEditor({ sitting, onSave }) {
     const [local, setLocal] = useState({ ...sitting })
     return (
-        <div style={{ background: 'var(--muted)', padding: '1rem 1.5rem', borderTop: '1px solid var(--border)' }}>
-            <div style={{ fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Configure Section
-            </div>
-            <div className="form-row-2" style={{ marginBottom: '0.75rem' }}>
+        <div className="boarding-filter-bar" style={{ borderTop: '1px solid var(--border)', borderBottom: 'none' }}>
+            <div className="boarding-filter-label">Configure Section</div>
+            <div className="form-row-2 mb-3">
                 <div className="form-group">
                     <label className="form-label">Sitting Name</label>
                     <input type="text" className="form-input" value={local.name}
@@ -132,7 +130,7 @@ function SectionConfigEditor({ sitting, onSave }) {
                         onChange={e => setLocal(l => ({ ...l, seatsPerTable: Number(e.target.value) }))} />
                 </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="boarding-filter-actions">
                 <button className="btn btn-primary btn-sm" onClick={() => onSave(local)}>
                     <span className="material-symbols-rounded">save</span> Save
                 </button>
@@ -153,9 +151,7 @@ function DiningStudentRow({ student, mode, availableTables, onAppointChief, onMo
                 <span className="student-row-name">
                     {student.name}
                     {student.isChief && (
-                        <span className="badge" style={{ background: 'rgba(249,115,22,0.12)', color: '#f97316', fontSize: '0.65rem', marginLeft: '0.4rem', padding: '1px 6px' }}>
-                            Table Chief
-                        </span>
+                        <span className="badge-orange-sm">Table Chief</span>
                     )}
                 </span>
                 <span className="student-row-meta">
@@ -166,10 +162,10 @@ function DiningStudentRow({ student, mode, availableTables, onAppointChief, onMo
                 </span>
             </div>
             {mode === 'edit' && (
-                <div style={{ display: 'flex', gap: '0.375rem', flexShrink: 0, flexWrap: 'wrap' }}>
+                <div className="boarding-assign-actions">
                     {!student.isChief && (
                         <button className="btn btn-outline btn-sm" onClick={() => onAppointChief(student.id)}>
-                            <span className="material-symbols-rounded" style={{ fontSize: '0.875rem' }}>star</span> Chief
+                            <span className="material-symbols-rounded icon-sm">star</span> Chief
                         </button>
                     )}
                     <select
@@ -197,9 +193,7 @@ function TableBlock({ tableNum, students, seatsPerTable, mode, availableTables, 
                     <span className="material-symbols-rounded expand-icon">chevron_right</span>
                     <span className="class-label">Table {tableNum}</span>
                     {chief && (
-                        <span style={{ fontSize: '0.7rem', color: '#f97316', marginLeft: '0.5rem' }}>
-                            Chief: {chief.name}
-                        </span>
+                        <span className="text-orange-sm">Chief: {chief.name}</span>
                     )}
                 </div>
                 <div className="class-summary-right">
@@ -218,7 +212,7 @@ function TableBlock({ tableNum, students, seatsPerTable, mode, availableTables, 
                     />
                 ))}
                 {students.length < seatsPerTable && (
-                    <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', padding: '0.4rem 0', fontStyle: 'italic' }}>
+                    <div className="boarding-note-italic">
                         {seatsPerTable - students.length} seat{seatsPerTable - students.length > 1 ? 's' : ''} available
                     </div>
                 )}
@@ -359,7 +353,7 @@ export function DisDiningPanel() {
                         </div>
 
                         {/* Mode toggle */}
-                        <div style={{ marginBottom: '1.25rem' }}>
+                        <div className="mb-5">
                             <TabGroup
                                 tabs={[
                                     { key: 'view',   label: 'View',          icon: 'visibility' },
@@ -373,7 +367,7 @@ export function DisDiningPanel() {
 
                         {/* Auto-assign panel */}
                         {mode === 'assign' && (
-                            <div className="card" style={{ marginBottom: '1.5rem' }}>
+                            <div className="card mb-1-5">
                                 <div className="card-header">
                                     <h3 className="card-title">
                                         <span className="material-symbols-rounded">shuffle</span> Auto-Assign Rules
@@ -391,11 +385,11 @@ export function DisDiningPanel() {
                                                 value={rules.tablesToGenerate}
                                                 onChange={e => setRules(r => ({ ...r, tablesToGenerate: Math.min(90, Math.max(1, Number(e.target.value))) }))}
                                             />
-                                            <span style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '4px', display: 'block' }}>Max: 90 tables</span>
+                                            <span className="text-xs-muted" style={{ marginTop: '4px', display: 'block' }}>Max: 90 tables</span>
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">Options</label>
-                                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer', marginTop: '0.25rem' }}>
+                                            <label className="check-label" style={{ marginTop: '0.25rem' }}>
                                                 <input type="checkbox" checked={rules.autoChief}
                                                     onChange={e => setRules(r => ({ ...r, autoChief: e.target.checked }))} />
                                                 Auto-appoint most senior student as Umutware w'Imeza
@@ -404,44 +398,44 @@ export function DisDiningPanel() {
                                     </div>
 
                                     {/* Generate buttons — can be clicked multiple times to reshuffle */}
-                                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                                    <div className="flex-wrap-gap-3" style={{ marginBottom: '0.5rem' }}>
                                         {sittings.map(s => (
                                             <button key={s.key} className="btn btn-primary btn-sm" onClick={() => handleGenerate(s.key)}>
                                                 <span className="material-symbols-rounded">shuffle</span> Generate for {s.name}
                                             </button>
                                         ))}
                                     </div>
-                                    <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                    <p className="text-xs-muted">
                                         You can generate multiple times — each run reshuffles the assignments.
                                     </p>
 
                                     {/* Preview */}
                                     {preview && (
-                                        <div style={{ marginTop: '1.5rem' }}>
-                                            <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.75rem' }}>
+                                        <div className="preview-section">
+                                            <div className="preview-section-title">
                                                 Preview — {sittings.find(s => s.key === preview.sitting)?.name}&nbsp;
-                                                <span style={{ fontWeight: 400, color: '#64748b' }}>({preview.tables.length} tables)</span>
+                                                <span className="preview-section-count">({preview.tables.length} tables)</span>
                                             </div>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '0.75rem', maxHeight: '360px', overflowY: 'auto' }}>
+                                            <div className="preview-grid">
                                                 {preview.tables.map(table => (
-                                                    <div key={table.number} style={{ background: 'var(--muted)', borderRadius: '8px', padding: '0.75rem' }}>
-                                                        <div style={{ fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.35rem' }}>
+                                                    <div key={table.number} className="preview-room-card">
+                                                        <div className="preview-room-title">
                                                             Table {table.number}
                                                             {table.students.find(s => s.isChief) && (
-                                                                <span style={{ color: '#f97316', fontSize: '0.68rem', marginLeft: '0.4rem' }}>
+                                                                <span className="text-orange-sm">
                                                                     ★ {table.students.find(s => s.isChief)?.name}
                                                                 </span>
                                                             )}
                                                         </div>
                                                         {table.students.map(s => (
-                                                            <div key={s.id} style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', padding: '2px 0' }}>
+                                                            <div key={s.id} className="preview-room-student">
                                                                 Seat {s.seat} — {s.name} ({s.form}){s.isChief ? ' ★' : ''}
                                                             </div>
                                                         ))}
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+                                            <div className="preview-actions">
                                                 <button className="btn btn-primary" onClick={applyPreview}>
                                                     <span className="material-symbols-rounded">check</span> Confirm & Apply
                                                 </button>
@@ -455,7 +449,7 @@ export function DisDiningPanel() {
 
                         {/* Unassigned students */}
                         {unassigned.length > 0 && (
-                            <div className="card" style={{ marginBottom: '1.5rem' }}>
+                            <div className="card mb-1-5">
                                 <div className="card-header">
                                     <h3 className="card-title">
                                         <span className="material-symbols-rounded">person_off</span> Unassigned Students
@@ -471,7 +465,7 @@ export function DisDiningPanel() {
                                                 <span className="student-row-meta">{s.adm} &bull; {s.form} &bull; {s.level}</span>
                                             </div>
                                             {mode === 'edit' && (
-                                                <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center', flexShrink: 0 }}>
+                                                <div className="boarding-assign-actions">
                                                     <select
                                                         className="form-input"
                                                         style={{ fontSize: '0.75rem', width: 'auto', height: 'auto', padding: '0.25rem 0.5rem' }}
@@ -498,7 +492,7 @@ export function DisDiningPanel() {
                                                             assignStudent(s.id, sittingKey, Number(tableNum))
                                                             setPendingAssign(prev => { const n = { ...prev }; delete n[s.id]; return n })
                                                         }}>
-                                                        <span className="material-symbols-rounded" style={{ fontSize: '0.875rem' }}>check</span> Assign
+                                                        <span className="material-symbols-rounded icon-sm">check</span> Assign
                                                     </button>
                                                 </div>
                                             )}
@@ -549,27 +543,27 @@ export function DisDiningPanel() {
                                             </div>
 
                                             {/* Header actions */}
-                                            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexShrink: 0 }}>
+                                            <div className="boarding-assign-actions">
                                                 <span className={`disc-badge ${sitting.key}`}>{sitting.gender}</span>
                                                 {mode === 'edit' && !isConfirmingDelete && (
                                                     <>
                                                         <button
                                                             className="btn btn-outline btn-sm"
                                                             onClick={() => setEditingKey(isEditingThis ? null : sitting.key)}>
-                                                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>settings</span>
+                                                            <span className="material-symbols-rounded icon-sm">settings</span>
                                                             {isEditingThis ? 'Cancel' : 'Configure'}
                                                         </button>
                                                         <button
                                                             className="btn btn-sm"
                                                             style={{ background: 'var(--destructive-light)', color: 'var(--destructive)', border: '1px solid var(--destructive)' }}
                                                             onClick={() => setConfirmDelete(sitting.key)}>
-                                                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                                                            <span className="material-symbols-rounded icon-sm">delete</span>
                                                         </button>
                                                     </>
                                                 )}
                                                 {isConfirmingDelete && (
-                                                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                                                        <span style={{ fontSize: '0.75rem', color: 'var(--destructive)', fontWeight: 600 }}>Delete section?</span>
+                                                    <div className="boarding-assign-actions">
+                                                        <span className="remove-confirm-text" style={{ color: 'var(--destructive)' }}>Delete section?</span>
                                                         <button
                                                             className="btn btn-sm"
                                                             style={{ background: 'var(--destructive)', color: '#fff', border: 'none' }}

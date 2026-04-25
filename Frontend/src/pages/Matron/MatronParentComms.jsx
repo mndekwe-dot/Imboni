@@ -165,7 +165,7 @@ export function MatronParentComms() {
                                         </select>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                                <div className="btn-row mt-1-5">
                                     <button className="btn btn-primary"><span className="material-symbols-rounded">save</span> Save Log</button>
                                     <button className="btn btn-outline">Clear</button>
                                 </div>

@@ -1610,3 +1610,7 @@
     .conduct-hero-stats { gap: 1rem; }
     .conduct-stat .value { font-size: 1.1rem; }
 }
+
+.legend-color.holiday { background-color: var(--muted); }
+.badge-accent { background: var(--accent-light); color: var(--accent); font-weight: 700; }
+.icon-14 { font-size: 14px !important; }

@@ -35,23 +35,16 @@ function ReportCard({ icon, iconClass, title, desc, lastGenerated, genState, onG
             <div className="adm-report-title">{title}</div>
             <div className="adm-report-desc">{desc}</div>
             <div className="adm-report-meta">
-                <span className="material-symbols-rounded" style={{ fontSize: '0.85rem' }}>history</span>
+                <span className="material-symbols-rounded icon-sm">history</span>
                 Last: {genState === 'done' ? 'Just now' : lastGenerated}
                 <button
-                    className={`btn btn-sm btn-${genState === 'done' ? 'outline' : 'primary'}`}
-                    style={{ marginLeft: 'auto', padding: '0.2rem 0.75rem', minWidth: '90px' }}
+                    className={`btn btn-sm btn-${genState === 'done' ? 'outline' : 'primary'} adm-report-btn`}
                     onClick={onGenerate}
                     disabled={genState === 'loading'}
                 >
-                    {genState === 'loading' && (
-                        <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', animation: 'spin 1s linear infinite' }}>refresh</span>
-                    )}
-                    {genState === 'done' && (
-                        <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', color: 'var(--success)' }}>check</span>
-                    )}
-                    {genState === 'idle' && (
-                        <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>download</span>
-                    )}
+                    {genState === 'loading' && <span className="material-symbols-rounded icon-spin">refresh</span>}
+                    {genState === 'done'    && <span className="material-symbols-rounded icon-success">check</span>}
+                    {genState === 'idle'    && <span className="material-symbols-rounded icon-sm-btn">download</span>}
                     {genState === 'loading' ? 'Generating…' : genState === 'done' ? 'Done' : 'Generate'}
                 </button>
             </div>
@@ -87,7 +80,7 @@ export function AdminReports() {
 
     return (
         <>
-            <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
+
             <a href="#main-content" className="skip-link">Skip to content</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
@@ -106,7 +99,7 @@ export function AdminReports() {
 
                         {/* Report Cards */}
                         <div>
-                            <h3 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.875rem' }}>Available Reports</h3>
+                            <h3 className="section-heading">Available Reports</h3>
                             <div className="adm-report-grid">
                                 {reportCards.map((r, i) => (
                                     <ReportCard
@@ -129,11 +122,11 @@ export function AdminReports() {
                             </div>
                             <div className="card-content">
                                 {exports.map((file, i) => (
-                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.625rem 0', borderBottom: i < exports.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                                        <span className="material-symbols-rounded" style={{ color: 'var(--admin)', fontSize: '1.4rem' }}>{file.icon}</span>
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{file.name}</div>
-                                            <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>{file.size} · {file.date}</div>
+                                    <div key={i} className="file-list-item">
+                                        <span className="material-symbols-rounded file-list-icon">{file.icon}</span>
+                                        <div className="file-list-body">
+                                            <div className="file-list-name">{file.name}</div>
+                                            <div className="file-list-meta">{file.size} · {file.date}</div>
                                         </div>
                                         <button className="adm-btn" onClick={() => handleDownload(file.name)} title="Download">
                                             <span className="material-symbols-rounded">download</span>

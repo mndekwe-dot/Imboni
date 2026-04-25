@@ -3,10 +3,12 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { Modal } from '../../components/ui/Modal'
+import { DataTable } from '../../components/ui/DataTable'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import '../../styles/pages.css'
+import '../../styles/tables.css'
 import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
@@ -187,42 +189,15 @@ export function TeacherStudent() {
                             </div>
                         </div>
 
-                        <div className="card">
-                            <div className="card-header">
-                                <h3 className="card-title">Student List</h3>
-                                <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                                    {visible.length} student{visible.length !== 1 ? 's' : ''}
-                                </span>
-                            </div>
-                            <div className="card-content">
-                                <div className="table-responsive">
-                                    <table className="students-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Student</th>
-                                                <th>Class</th>
-                                                <th>Attendance</th>
-                                                <th>Performance</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {visible.length > 0 ? (
-                                                visible.map((s, i) => (
-                                                    <StudentRow key={i} student={s} onView={setSelected} />
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={5} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--muted-foreground)' }}>
-                                                        No students match your filters.
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        <DataTable
+                            title="Student List"
+                            data={visible}
+                            columns={['Student','Class','Attendance','Performance','Actions']}
+                            renderRow={(s, i) => <StudentRow key={i} student={s} onView={setSelected} />}
+                            emptyIcon="people"
+                            emptyTitle="No students found"
+                            emptyDesc="No students match your filters."
+                        />
 
                     </DashboardContent>
                 </main>

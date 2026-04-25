@@ -8,6 +8,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import '../../styles/tables.css'
 
 
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
@@ -67,7 +68,7 @@ function ActivityCard({ avClass, avText, cat, name, patron, schedule, venue, inc
                     <div className="staff-card-name">{name}</div>
                     <div className="staff-card-role">{role}</div>
                 </div>
-                <span className="pub-badge active" style={{ marginLeft: 'auto' }}>{badge}</span>
+                <span className="pub-badge active ml-auto">{badge}</span>
             </div>
             <div className="staff-card-meta">
                 <span><span className="material-symbols-rounded">groups</span>{members} members</span>
@@ -147,19 +148,13 @@ export function DisActivities() {
                         </div>
 
                         {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap',
-                            background: 'var(--card)', border: '1px solid var(--border)',
-                            borderRadius: 16, padding: '0.75rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
+                        <div className="toolbar-card">
                             <FilterBar
                                 options={filterOptions}
                                 active={filter}
                                 onChange={setFilter}
                             />
-                            <div style={{ flex: 1 }} />
+                            <div className="toolbar-spacer" />
                             <button className="btn btn-primary" onClick={() => setIsOpen(true)}>
                                 <span className="material-symbols-rounded">add</span> New Club / Event
                             </button>
@@ -174,23 +169,16 @@ export function DisActivities() {
                                 action={{ label: 'Show All', icon: 'refresh', onClick: () => setFilter('all') }}
                             />
                         ) : (
-                            <div style={{
-                                background: 'var(--card)', border: '1px solid var(--border)',
-                                borderRadius: 16, overflow: 'hidden',
-                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                            }}>
-                                <div style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                }}>
-                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+                            <div className="act-list-card">
+                                <div className="act-list-header">
+                                    <div className="act-list-title">
                                         {filter === 'all' ? 'All Clubs & Events' : `${filter.charAt(0).toUpperCase() + filter.slice(1)} Activities`}
                                     </div>
-                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                    <span className="act-list-count">
                                         {visible.length} club{visible.length !== 1 ? 's' : ''}
                                     </span>
                                 </div>
-                                <div style={{ padding: '1rem' }}>
+                                <div className="act-list-body">
                                     <div className="staff-cards-grid">
                                         {visible.map((activity, index) => (
                                             <ActivityCard key={index} {...activity} onEdit={() => setEditingActivity(activity)} />

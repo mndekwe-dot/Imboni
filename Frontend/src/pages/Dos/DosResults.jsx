@@ -123,13 +123,13 @@ const STATUS_STYLE = {
 function ResultCard({ result, onReview, onView, onApprove, onReject }) {
     const s = STATUS_STYLE[result.status]
     return (
-        <div className="card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="card dos-result-card">
 
             {/* Header row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 3 }}>{result.title}</div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+            <div className="dos-result-header">
+                <div className="dos-result-info">
+                    <div className="dos-result-title">{result.title}</div>
+                    <div className="dos-result-meta">
                         Submitted by {result.submittedBy} &bull; {result.date}
                     </div>
                 </div>
@@ -139,21 +139,21 @@ function ResultCard({ result, onReview, onView, onApprove, onReject }) {
             </div>
 
             {/* Stats row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+            <div className="dos-mini-stats">
                 {[
                     { label: 'Students', value: result.students },
                     { label: 'Average',  value: result.avg      },
                     { label: 'Highest',  value: result.highest  },
                 ].map(s => (
-                    <div key={s.label} style={{ background: 'var(--muted)', borderRadius: 10, padding: '0.75rem', textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)' }}>{s.value}</div>
-                        <div style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--muted-foreground)', marginTop: 2 }}>{s.label}</div>
+                    <div key={s.label} className="dos-mini-stat">
+                        <div className="dos-mini-stat-value">{s.value}</div>
+                        <div className="dos-mini-stat-label">{s.label}</div>
                     </div>
                 ))}
             </div>
 
             {/* Actions */}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="dos-result-actions">
                 {result.status === 'pending' && (
                     <>
                         <button className="btn btn-primary btn-sm" onClick={() => onReview(result)}>
@@ -169,7 +169,7 @@ function ResultCard({ result, onReview, onView, onApprove, onReject }) {
                 )}
                 {result.status === 'rejected' && (
                     <>
-                        <button className="btn btn-outline btn-sm" style={{ color: 'var(--destructive)', borderColor: 'var(--destructive)' }} onClick={() => onView(result)}>
+                        <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onView(result)}>
                             <span className="material-symbols-rounded icon-sm">info</span> View Feedback
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onReview(result)}>Re-review</button>
@@ -199,10 +199,9 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
     return (
         <Modal title="Review Submission" icon="rate_review" onClose={onClose} size="wide"
             footer={
-                <div style={{ display: 'flex', gap: '0.5rem', width: '100%', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                <div className="modal-confirm-actions flex-wrap-gap-3" style={{ width: '100%' }}>
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
-                    <button className="btn btn-outline"
-                        style={{ color: 'var(--destructive)', borderColor: 'var(--destructive)' }}
+                    <button className="btn btn-outline btn-destructive-outline"
                         onClick={() => { onReject(result.id); onClose() }}>
                         <span className="material-symbols-rounded icon-sm">cancel</span> Reject
                     </button>
@@ -213,26 +212,26 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
             }
         >
             {/* Header info strip */}
-            <div style={{ background: 'var(--muted)', borderRadius: 10, padding: '0.875rem 1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="dos-review-block">
+                <div className="dos-review-block-header">
                     <div>
-                        <div style={{ fontWeight: 700, fontSize: '1rem' }}>{result.title}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: 2 }}>
+                        <div className="dos-review-block-title">{result.title}</div>
+                        <div className="dos-review-block-meta">
                             {result.examType} &bull; {result.subject} &bull; Max: {result.maxScore} marks
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                        <div className="dos-review-block-meta">
                             Submitted by {result.submittedBy} &bull; {result.date}
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className="dos-review-stats">
                         {[
                             { label:'Students', value: result.students },
                             { label:'Average',  value: result.avg      },
                             { label:'Highest',  value: result.highest  },
                         ].map(s => (
-                            <div key={s.label} style={{ background: 'var(--card)', borderRadius: 8, padding: '0.5rem 0.75rem', textAlign: 'center', minWidth: 60 }}>
-                                <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--primary)' }}>{s.value}</div>
-                                <div style={{ fontSize: '0.65rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', fontWeight: 600 }}>{s.label}</div>
+                            <div key={s.label} className="dos-review-stat">
+                                <div className="dos-review-stat-value">{s.value}</div>
+                                <div className="dos-review-stat-label">{s.label}</div>
                             </div>
                         ))}
                     </div>
@@ -240,7 +239,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '0.35rem', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+            <div className="dos-modal-tabs">
                 {TABS.map(t => (
                     <button key={t.key}
                         className={`btn btn-sm ${tab === t.key ? 'btn-primary' : 'btn-outline'}`}
@@ -254,17 +253,17 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
 
             {/* ── Overview tab ── */}
             {tab === 'overview' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(120px,100%),1fr))', gap: '0.75rem' }}>
+                <div className="settings-form">
+                    <div className="dos-overview-stats">
                         {[
                             { label:'Total Students', value: result.students, color:'var(--primary)'     },
                             { label:'Class Average',  value: result.avg,      color:'var(--success)'     },
                             { label:'Highest Score',  value: result.highest,  color:'var(--success)'     },
                             { label:'Lowest Score',   value: result.lowest,   color:'var(--destructive)' },
                         ].map(s => (
-                            <div key={s.label} style={{ background:'var(--muted)', borderRadius:10, padding:'0.875rem', textAlign:'center' }}>
-                                <div style={{ fontSize:'1.4rem', fontWeight:800, color:s.color }}>{s.value}</div>
-                                <div style={{ fontSize:'0.72rem', fontWeight:600, textTransform:'uppercase', color:'var(--muted-foreground)', marginTop:2 }}>{s.label}</div>
+                            <div key={s.label} className="dos-overview-stat">
+                                <div className="dos-overview-stat-value" style={{ color: s.color }}>{s.value}</div>
+                                <div className="dos-overview-stat-label">{s.label}</div>
                             </div>
                         ))}
                     </div>
@@ -282,37 +281,30 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
             {/* ── Question Paper tab ── */}
             {tab === 'questions' && (
                 !result.questionPaper ? (
-                    <div style={{ textAlign:'center', padding:'3rem 1rem', color:'var(--muted-foreground)' }}>
-                        <span className="material-symbols-rounded" style={{ fontSize:'2.5rem', display:'block', marginBottom:'0.5rem', opacity:0.4 }}>description</span>
+                    <div className="qp-empty">
+                        <span className="material-symbols-rounded qp-empty-icon">description</span>
                         No question paper was attached for this submission.
                     </div>
                 ) : (
-                    <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
-                        {/* File card */}
-                        <div style={{ display:'flex', alignItems:'center', gap:'1rem', padding:'1.25rem', background:'var(--muted)', borderRadius:12, border:'1px solid var(--border)' }}>
-                            <div style={{ width:52, height:52, borderRadius:10, background:'rgba(239,68,68,0.12)', color:'#ef4444', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                                <span className="material-symbols-rounded" style={{ fontSize:'1.8rem' }}>picture_as_pdf</span>
+                    <div className="settings-form">
+                        <div className="qp-file-card">
+                            <div className="qp-file-icon">
+                                <span className="material-symbols-rounded">picture_as_pdf</span>
                             </div>
-                            <div style={{ flex:1, minWidth:0 }}>
-                                <div style={{ fontWeight:700, fontSize:'0.95rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{result.questionPaper.name}</div>
-                                <div style={{ fontSize:'0.78rem', color:'var(--muted-foreground)', marginTop:3 }}>
+                            <div className="qp-file-body">
+                                <div className="qp-file-name">{result.questionPaper.name}</div>
+                                <div className="qp-file-meta">
                                     {result.questionPaper.pages} pages &bull; {result.questionPaper.size} &bull; Uploaded {result.questionPaper.uploadedAt}
                                 </div>
                             </div>
-                            <button className="btn btn-outline btn-sm" style={{ flexShrink:0 }}>
+                            <button className="btn btn-outline btn-sm">
                                 <span className="material-symbols-rounded icon-sm">download</span> Download
                             </button>
                         </div>
-
-                        {/* PDF preview placeholder */}
-                        <div style={{
-                            height: 360, borderRadius:12, border:'2px dashed var(--border)',
-                            background:'var(--muted)', display:'flex', flexDirection:'column',
-                            alignItems:'center', justifyContent:'center', gap:'0.75rem', color:'var(--muted-foreground)',
-                        }}>
-                            <span className="material-symbols-rounded" style={{ fontSize:'3rem', opacity:0.35 }}>picture_as_pdf</span>
-                            <div style={{ fontWeight:600, fontSize:'0.9rem' }}>{result.questionPaper.name}</div>
-                            <div style={{ fontSize:'0.8rem', opacity:0.7 }}>{result.questionPaper.pages} pages · {result.questionPaper.size}</div>
+                        <div className="qp-preview">
+                            <span className="material-symbols-rounded qp-preview-icon">picture_as_pdf</span>
+                            <div className="qp-preview-title">{result.questionPaper.name}</div>
+                            <div className="qp-preview-meta">{result.questionPaper.pages} pages · {result.questionPaper.size}</div>
                             <button className="btn btn-primary btn-sm" style={{ marginTop:'0.25rem' }}>
                                 <span className="material-symbols-rounded icon-sm">open_in_new</span> Open Document
                             </button>
@@ -324,35 +316,35 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
             {/* ── Student Marks tab ── */}
             {tab === 'marks' && (
                 result.studentMarks.length === 0 ? (
-                    <div style={{ textAlign:'center', padding:'2.5rem 1rem', color:'var(--muted-foreground)' }}>
-                        <span className="material-symbols-rounded" style={{ fontSize:'2.5rem', display:'block', marginBottom:'0.5rem' }}>people</span>
+                    <div className="qp-empty">
+                        <span className="material-symbols-rounded qp-empty-icon" style={{ opacity: 0.5 }}>people</span>
                         No student marks available for this submission.
                     </div>
                 ) : (
-                    <div style={{ overflowX:'auto' }}>
-                        <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'0.875rem' }}>
+                    <div className="marks-wrap">
+                        <table className="marks-table">
                             <thead>
-                                <tr style={{ background:'var(--muted)', borderRadius:8 }}>
+                                <tr>
                                     {['#','Student ID','Name','Score','Grade'].map(h => (
-                                        <th key={h} style={{ padding:'0.625rem 0.875rem', textAlign:'left', fontWeight:700, fontSize:'0.72rem', textTransform:'uppercase', color:'var(--muted-foreground)', borderBottom:'1px solid var(--border)' }}>{h}</th>
+                                        <th key={h}>{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {result.studentMarks.map((s, i) => (
-                                    <tr key={s.id} style={{ borderBottom:'1px solid var(--border)' }}>
-                                        <td style={{ padding:'0.625rem 0.875rem', color:'var(--muted-foreground)', fontSize:'0.8rem' }}>{i + 1}</td>
-                                        <td style={{ padding:'0.625rem 0.875rem', fontSize:'0.8rem', color:'var(--muted-foreground)' }}>{s.id}</td>
-                                        <td style={{ padding:'0.625rem 0.875rem', fontWeight:600 }}>{s.name}</td>
-                                        <td style={{ padding:'0.625rem 0.875rem', fontWeight:700, color:'var(--primary)' }}>{s.score}/{result.maxScore}</td>
-                                        <td style={{ padding:'0.625rem 0.875rem' }}>
+                                    <tr key={s.id}>
+                                        <td className="marks-td-num">{i + 1}</td>
+                                        <td className="marks-td-id">{s.id}</td>
+                                        <td className="marks-td-name">{s.name}</td>
+                                        <td className="marks-td-score">{s.score}/{result.maxScore}</td>
+                                        <td>
                                             <span style={{ fontWeight:700, fontSize:'0.82rem', padding:'2px 10px', borderRadius:20, background:`${gradeColor(s.grade)}18`, color:gradeColor(s.grade) }}>{s.grade}</span>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                        <div style={{ padding:'0.75rem', fontSize:'0.78rem', color:'var(--muted-foreground)', textAlign:'right' }}>
+                        <div className="marks-footer">
                             {result.studentMarks.length} of {result.students} students shown
                         </div>
                     </div>
@@ -371,17 +363,15 @@ function ViewModal({ result, onClose }) {
         <Modal title="Result Details" icon="assessment" onClose={onClose}
             footer={<button className="btn btn-outline" onClick={onClose}>Close</button>}
         >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', gap: '0.75rem' }}>
+            <div className="dos-review-block-header mb-5">
                 <div>
-                    <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 3 }}>{result.title}</div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                        {result.submittedBy} &bull; {result.date}
-                    </div>
+                    <div className="dos-review-block-title">{result.title}</div>
+                    <div className="dos-review-block-meta">{result.submittedBy} &bull; {result.date}</div>
                 </div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: s.bg, color: s.color, flexShrink: 0 }}>{s.label}</span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', marginBottom: '1.25rem' }}>
+            <div className="view-stat-grid">
                 {[
                     { label: 'Total Students', value: result.students, color: 'var(--primary)'     },
                     { label: 'Class Average',  value: result.avg,      color: 'var(--success)'     },
@@ -390,14 +380,14 @@ function ViewModal({ result, onClose }) {
                     { label: 'Passed',         value: passCount,       color: 'var(--success)'     },
                     { label: 'Failed',         value: failCount,       color: 'var(--destructive)' },
                 ].map(item => (
-                    <div key={item.label} style={{ background: 'var(--muted)', borderRadius: 10, padding: '0.875rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>{item.label}</span>
-                        <span style={{ fontWeight: 700, fontSize: '1.1rem', color: item.color }}>{item.value}</span>
+                    <div key={item.label} className="view-stat-cell">
+                        <span className="view-stat-label">{item.label}</span>
+                        <span className="view-stat-value" style={{ color: item.color }}>{item.value}</span>
                     </div>
                 ))}
             </div>
 
-            <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', textAlign: 'center' }}>
+            <div className="text-xs-muted" style={{ textAlign: 'center' }}>
                 Pass rate: {Math.round((passCount / result.students) * 100)}% &bull; {result.title}
             </div>
         </Modal>
@@ -444,7 +434,7 @@ export function DosResults() {
                     <DashboardContent>
 
                         {/* Main tab switcher */}
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div className="flex-wrap-gap-3">
                             {[
                                 { key: 'approval',   icon: 'pending',   label: 'Approval Queue', badge: results.filter(r => r.status === 'pending').length },
                                 { key: 'analytics',  icon: 'bar_chart', label: 'Analytics'       },
@@ -467,44 +457,35 @@ export function DosResults() {
                         {/* ── APPROVAL TAB ── */}
                         {activeTab === 'approval' && (
                             <>
-                                {/* Stat cards */}
-                                <div className="portal-stat-grid" style={{ margin: 0 }}>
+                                <div className="portal-stat-grid">
                                     {resultStats.map((s, i) => <StatCard key={i} {...s} />)}
                                 </div>
 
                                 {/* Toolbar */}
-                                <div style={{
-                                    background: 'var(--card)', border: '1px solid var(--border)',
-                                    borderRadius: 14, padding: '0.875rem 1rem',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                                    display: 'flex', flexDirection: 'column', gap: '0.75rem',
-                                }}>
-                                    {/* Search */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.45rem 0.75rem' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)' }}>search</span>
+                                <div className="toolbar-card" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+                                    <div className="toolbar-search">
+                                        <span className="material-symbols-rounded">search</span>
                                         <input
-                                            style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, fontSize: '0.875rem', color: 'var(--foreground)' }}
                                             placeholder="Search by teacher, subject, or class..."
                                             value={search} onChange={e => setSearch(e.target.value)}
                                         />
                                         {search && (
-                                            <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', padding: 0, display: 'flex' }}>
-                                                <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
+                                            <button className="toolbar-search-clear" onClick={() => setSearch('')}>
+                                                <span className="material-symbols-rounded">close</span>
                                             </button>
                                         )}
                                     </div>
-                                    {/* Filter tabs */}
                                     <FilterBar options={statusTabsWithCount} active={statusFilter} onChange={setStatusFilter} />
                                 </div>
 
                                 {/* Result cards */}
                                 {visible.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--muted-foreground)', fontSize: '0.9rem' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>search_off</span>
+                                    <div className="qp-empty">
+                                        <span className="material-symbols-rounded qp-empty-icon" style={{ opacity: 0.5 }}>search_off</span>
                                         No results match your filters.
                                     </div>
                                 ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    <div className="settings-form">
                                         {visible.map(r => (
                                             <ResultCard key={r.id} result={r}
                                                 onReview={setReviewing}
@@ -524,14 +505,13 @@ export function DosResults() {
                             const tooltipStyle = { background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: '0.82rem' }
                             return (
                                 <>
-                                    {/* Stat cards */}
-                                    <div className="portal-stat-grid" style={{ margin: 0 }}>
+                                    <div className="portal-stat-grid">
                                         {analyticsStats.map((s, i) => <StatCard key={i} {...s} />)}
                                     </div>
 
                                     {/* Term selector */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted-foreground)' }}>Viewing:</span>
+                                    <div className="flex-row-gap-sm" style={{ flexWrap: 'wrap' }}>
+                                        <span className="settings-info-text fw-600">Viewing:</span>
                                         {['Term 1', 'Term 2', 'Term 3'].map(t => (
                                             <button key={t}
                                                 className={`btn btn-sm ${activeTerm === t ? 'btn-primary' : 'btn-outline'}`}
@@ -541,13 +521,13 @@ export function DosResults() {
                                     </div>
 
                                     {/* Row 1: Grade dist donut + Attendance area */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px,100%), 1fr))', gap: '1rem' }}>
+                                    <div className="analytics-chart-grid">
 
                                         {/* Grade Distribution Donut */}
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">Grade Distribution</h3>
-                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{activeTerm}</span>
+                                                <span className="settings-info-text">{activeTerm}</span>
                                             </div>
                                             <div className="card-content">
                                                 <ResponsiveContainer width="100%" height={240}>
@@ -568,7 +548,7 @@ export function DosResults() {
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">Attendance Trend</h3>
-                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{activeTerm}</span>
+                                                <span className="settings-info-text">{activeTerm}</span>
                                             </div>
                                             <div className="card-content">
                                                 <ResponsiveContainer width="100%" height={240}>
@@ -594,7 +574,7 @@ export function DosResults() {
                                     <div className="card">
                                         <div className="card-header">
                                             <h3 className="card-title">Pass / Fail Rate by Class</h3>
-                                            <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{activeTerm} · % of students</span>
+                                            <span className="settings-info-text">{activeTerm} · % of students</span>
                                         </div>
                                         <div className="card-content">
                                             <ResponsiveContainer width="100%" height={220}>
@@ -612,13 +592,13 @@ export function DosResults() {
                                     </div>
 
                                     {/* Row 3: Subject submission status + Grade/Subject perf side by side */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px,100%), 1fr))', gap: '1rem' }}>
+                                    <div className="analytics-chart-grid">
 
                                         {/* Teacher Submission Status */}
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">Result Submissions</h3>
-                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>By subject</span>
+                                                <span className="settings-info-text">By subject</span>
                                             </div>
                                             <div className="card-content">
                                                 <ResponsiveContainer width="100%" height={240}>
@@ -639,7 +619,7 @@ export function DosResults() {
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">Performance by Grade</h3>
-                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{activeTerm}</span>
+                                                <span className="settings-info-text">{activeTerm}</span>
                                             </div>
                                             <div className="card-content">
                                                 <ResponsiveContainer width="100%" height={240}>
@@ -661,7 +641,7 @@ export function DosResults() {
                                     <div className="card">
                                         <div className="card-header">
                                             <h3 className="card-title">Subject Performance</h3>
-                                            <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{activeTerm}</span>
+                                            <span className="settings-info-text">{activeTerm}</span>
                                         </div>
                                         <div className="card-content">
                                             <ResponsiveContainer width="100%" height={240}>

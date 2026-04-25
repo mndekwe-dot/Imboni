@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
-import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -129,76 +129,31 @@ export function MatronStudents() {
                             classVal={classVal} onClassChange={setClassVal}
                         />
 
-                        <div className="matron-stat-grid" style={{ marginBottom: '1.25rem' }}>
+                        <div className="matron-stat-grid mb-5">
                             {studentStats.map((stat, index) => (
                                 <StudentStat key={index} {...stat} />
                             ))}
                         </div>
 
-                        {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap', margin: '1rem 0',
-                            background: 'var(--card)', border: '1px solid var(--border)',
-                            borderRadius: 16, padding: '0.75rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
-                            <div className="search-bar-wrap" style={{ flex: 1, minWidth: 220 }}>
+                        <div className="toolbar-card">
+                            <div className="toolbar-search">
                                 <span className="material-symbols-rounded">search</span>
                                 <input type="text" placeholder="Search by name, class or student ID..." />
                             </div>
-                            <div style={{ flex: 1 }} />
-                            <button className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
-                                <span className="material-symbols-rounded icon-sm">download</span> Export List
-                            </button>
-                            <button className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
-                                <span className="material-symbols-rounded icon-sm">print</span> Print Roll
-                            </button>
+                            <div className="toolbar-spacer" />
+                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded icon-sm">download</span> Export</button>
+                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded icon-sm">print</span> Print Roll</button>
                         </div>
 
-                        {visibleStudents.length === 0 ? (
-                            <EmptyState
-                                icon="people"
-                                title="No students found"
-                                description="No students match the selected class filter."
-                            />
-                        ) : (
-                            <div style={{
-                                background: 'var(--card)', border: '1px solid var(--border)',
-                                borderRadius: 16, overflow: 'hidden',
-                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                            }}>
-                                <div style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                }}>
-                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Karisimbi House Students</div>
-                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                                        {visibleStudents.length} student{visibleStudents.length !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
-                                <div className="table-responsive">
-                                    <table className="students-list-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Student</th>
-                                                <th>Class</th>
-                                                <th>Room</th>
-                                                <th>Dining</th>
-                                                <th>Dormitory</th>
-                                                <th>Tonight</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {visibleStudents.map((student, index) => (
-                                                <StudentRow key={index} {...student} />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                        <DataTable
+                            title="Karisimbi House Students"
+                            data={visibleStudents}
+                            columns={['Student','Class','Room','Dining','Dormitory','Tonight','Action']}
+                            renderRow={(student, index) => <StudentRow key={index} {...student} />}
+                            emptyIcon="people"
+                            emptyTitle="No students found"
+                            emptyDesc="No students match the selected class filter."
+                        />
 
                     </DashboardContent>
                 </main>

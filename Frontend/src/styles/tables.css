@@ -1,0 +1,285 @@
+/* ===============================================
+   TABLES.CSS — Shared table, toolbar and DataTable
+   styles. Use CSS variables throughout so colour,
+   spacing and shadow are controlled from index.css.
+   =============================================== */
+
+/* ── Toolbar card ───────────────────────────────── */
+.toolbar-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--toolbar-padding);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--toolbar-radius);
+  box-shadow: var(--toolbar-shadow);
+}
+
+.toolbar-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem var(--space-3);
+  flex: 1;
+  min-width: 180px;
+  transition: border-color var(--transition-fast);
+}
+.toolbar-search:focus-within {
+  border-color: var(--primary);
+  background: var(--card);
+}
+.toolbar-search .material-symbols-rounded {
+  font-size: 1rem;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+.toolbar-search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: var(--font-sm);
+  color: var(--foreground);
+  width: 100%;
+}
+.toolbar-search-clear {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+.toolbar-search-clear .material-symbols-rounded { font-size: 1rem; }
+.toolbar-spacer { flex: 1; }
+
+/* ── DataTable container ─────────────────────────── */
+.dt-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.dt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.dt-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--foreground);
+}
+.dt-count {
+  font-size: var(--font-xs);
+  color: var(--muted-foreground);
+}
+.dt-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Body — always holds PAGE_SIZE rows via minHeight set inline */
+.dt-body {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Empty state inside dt-body */
+.dt-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  color: var(--muted-foreground);
+  text-align: center;
+}
+.dt-empty .material-symbols-rounded {
+  font-size: 2.5rem;
+  opacity: 0.35;
+}
+.dt-empty-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--foreground);
+}
+.dt-empty-desc {
+  font-size: var(--font-sm);
+}
+
+/* Shared table inside dt-body */
+.dt-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+.dt-table th {
+  text-align: left;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  background: var(--muted);
+}
+.dt-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  font-size: var(--font-sm);
+  color: var(--foreground);
+}
+.dt-table tbody tr:last-child td { border-bottom: none; }
+.dt-table tbody tr:hover { background: var(--muted); transition: background var(--transition-fast); }
+
+/* ── Pagination footer ───────────────────────────── */
+.dt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border);
+}
+.dt-page-info {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+}
+.dt-pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.dt-page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--foreground);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+.dt-page-btn:hover:not(:disabled) {
+  background: var(--muted);
+  border-color: var(--border-hover);
+}
+.dt-page-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 700;
+}
+.dt-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.dt-page-btn .material-symbols-rounded { font-size: 1rem; }
+
+/* ── Cell helpers ────────────────────────────────── */
+.dt-cell-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.dt-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: white;
+  flex-shrink: 0;
+}
+.dt-name {
+  font-weight: 600;
+  font-size: var(--font-sm);
+  color: var(--foreground);
+}
+.dt-sub {
+  font-size: var(--font-xs);
+  color: var(--muted-foreground);
+  margin-top: 1px;
+}
+.dt-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.dt-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dt-badge {
+  display: inline-block;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.dt-badge-success { background: var(--success-light);     color: var(--success);     }
+.dt-badge-warning { background: var(--warning-light);     color: var(--warning);     }
+.dt-badge-danger  { background: var(--destructive-light); color: var(--destructive); }
+.dt-badge-info    { background: var(--info-light);        color: var(--info);        }
+.dt-badge-muted   { background: var(--muted);             color: var(--muted-foreground); }
+.dt-chip {
+  display: inline-block;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-light);
+  color: var(--primary);
+  margin-right: var(--space-1);
+}
+.dt-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* ── Grade badge colours ─────────────────────────── */
+.grade-A { background: var(--success-light);     color: var(--success);     }
+.grade-B { background: var(--info-light);        color: var(--info);        }
+.grade-C { background: var(--warning-light);     color: var(--warning);     }
+.grade-D { background: rgba(245,158,11,0.15);    color: #b45309;            }
+.grade-F { background: var(--destructive-light); color: var(--destructive); }
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 640px) {
+  .dt-header   { padding: var(--space-3) var(--space-4); }
+  .dt-footer   { padding: var(--space-2) var(--space-4); }
+  .dt-table th,
+  .dt-table td { padding: var(--space-2) var(--space-3); }
+  .toolbar-card { padding: var(--space-2) var(--space-3); }
+}

@@ -116,10 +116,10 @@ export function MatronIncidents() {
                                 </div>
                                 <div className="form-field form-field-full">
                                     <label>Action Taken (if any)</label>
-                                    <textarea placeholder="What immediate action did you take? (e.g. verbal warning, parent called, student confined to dorm)" style={{ minHeight: '60px' }}></textarea>
+                                    <textarea placeholder="What immediate action did you take? (e.g. verbal warning, parent called, student confined to dorm)" style={{ minHeight: '60px' }} />
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '0.75rem' }}>
+                            <div className="btn-row">
                                 <button className="btn btn-primary"><span className="material-symbols-rounded">send</span> Submit to Discipline</button>
                                 <button className="btn btn-outline">Clear Form</button>
                             </div>
