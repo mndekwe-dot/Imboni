@@ -10,6 +10,7 @@ import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const timetableStats = [
     { colorClass: 'info',    icon: 'calendar_view_week', value: '18', label: 'Scheduled Slots',  trend: 'This week'    },
@@ -76,7 +77,7 @@ export function DisTimetable() {
                         subtitle="Plan, create, and update the weekly non-academic activity schedule"
                         {...disUser}
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="portal-stat-grid" style={{ marginBottom: '1.25rem' }}>
                             {timetableStats.map((stat, i) => (
@@ -133,7 +134,7 @@ export function DisTimetable() {
                             />
                         )}
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

@@ -8,6 +8,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const stats = [
@@ -75,7 +76,7 @@ export function AdminDashboard() {
                         avatarClass={adminUser.avatarClass}
                         notifications={adminUser.notifications}
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <WelcomeBanner
                             name="Dr. Nkurunziza"
@@ -203,7 +204,7 @@ export function AdminDashboard() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

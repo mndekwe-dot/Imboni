@@ -7,6 +7,7 @@ import { DAYS, EXTRA_SLOTS, extraSchedules } from '../../data/extraTimetable'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // Build today's schedule from extraTimetable data
 function getTodaySchedule() {
@@ -139,7 +140,7 @@ export function DisDashboard() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader title="Dashboard" subtitle="Director of Discipline â€” Overview" {...disUser} />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <WelcomeBanner
                             name="Mr. Mutabazi"
@@ -223,7 +224,7 @@ export function DisDashboard() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

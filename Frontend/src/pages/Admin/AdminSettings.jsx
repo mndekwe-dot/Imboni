@@ -5,6 +5,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const settingsNav = [
@@ -112,7 +113,7 @@ function CalendarSection() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {terms.map((t, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '100px 1fr 1fr', gap: '0.75rem', alignItems: 'center' }}>
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: 'clamp(80px, 15%, 100px) 1fr 1fr', gap: '0.75rem', alignItems: 'center' }}>
                     <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{t.term}</span>
                     <div className="form-group" style={{ margin: 0 }}>
                         <label className="form-label">Opens</label>
@@ -207,7 +208,7 @@ export function AdminSettings() {
                         avatarClass={adminUser.avatarClass}
                         notifications={adminUser.notifications}
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="adm-settings-grid">
 
                             {/* Left nav */}
@@ -247,7 +248,7 @@ export function AdminSettings() {
                             </div>
 
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

@@ -5,6 +5,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 1 PATTERN — DATA AS ARRAYS AT THE TOP
@@ -179,7 +180,7 @@ export function StudentResults() {
                         userName="Uwase Amina" userRole="Student · S4A"
                         userInitials="UA" avatarClass="student-av" notifications={studentUser.notifications}
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Toolbar container */}
                         <div style={{
@@ -252,7 +253,7 @@ export function StudentResults() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

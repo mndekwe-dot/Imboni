@@ -5,6 +5,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const dashboardStats = [
@@ -114,7 +115,7 @@ export function StudentDashboard() {
             notifications={studentUser.notifications}
           />
 
-          <div className="dashboard-content">
+          <DashboardContent>
 
             {/* Welcome Banner */}
             <div className="student-welcome-banner">
@@ -189,7 +190,7 @@ export function StudentDashboard() {
               </div>
             </div>
 
-          </div>
+          </DashboardContent>
         </main>
       </div>
     </>

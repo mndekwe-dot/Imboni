@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const sarahAttendanceStats = [
@@ -130,7 +131,7 @@ export function ParentAttendance() {
                         </button>
                     </div>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Amina's Panel */}
                         <div className="child-panel active" id="panel-amina">
@@ -141,7 +142,7 @@ export function ParentAttendance() {
                             />
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

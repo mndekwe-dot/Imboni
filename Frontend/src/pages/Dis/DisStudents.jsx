@@ -10,6 +10,7 @@ import { useState } from 'react'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 // ── Students tab data ──
@@ -150,7 +151,7 @@ export function DisStudents() {
                         {...disUser}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Tab switcher */}
                         <div className="filter-tabs-bar" style={{ marginBottom: '1.25rem' }}>
@@ -325,7 +326,7 @@ export function DisStudents() {
                             </>
                         )}
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

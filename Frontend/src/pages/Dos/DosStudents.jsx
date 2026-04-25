@@ -6,6 +6,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const SECTIONS = [
@@ -103,7 +104,7 @@ export function DosStudents() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="quick-stats">
                             {studentStats.map(stat => <StudentStatCard key={stat.label} {...stat} />)}
@@ -199,7 +200,7 @@ export function DosStudents() {
                                 </div>
                             </div>
                         )}
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

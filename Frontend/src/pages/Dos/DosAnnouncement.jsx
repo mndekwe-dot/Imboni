@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const recentBroadcasts = [
@@ -69,7 +70,7 @@ export function DosAnnouncement() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="ann-grid">
 
                             {/* LEFT: Compose Form */}
@@ -188,7 +189,7 @@ export function DosAnnouncement() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

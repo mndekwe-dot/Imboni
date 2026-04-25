@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const commsStats = [
@@ -82,7 +83,7 @@ export function MatronParentComms() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="comms-stats">
                             {commsStats.map((stat, index) => (
@@ -218,7 +219,7 @@ export function MatronParentComms() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

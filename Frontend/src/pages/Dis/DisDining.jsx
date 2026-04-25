@@ -7,6 +7,7 @@ import { useState } from 'react'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const houseColors = {
     karisimbi: { solid: '#ca8a04', light: 'rgba(234,179,8,0.10)',  text: '#854d0e' },
@@ -334,7 +335,7 @@ export function DisDiningPanel() {
     const totalChiefs    = students.filter(s => s.isChief).length
 
     return (
-        <div className="dashboard-content">
+        <DashboardContent>
 
                         {/* Stats */}
                         <div className="disc-stat-grid">
@@ -508,7 +509,7 @@ export function DisDiningPanel() {
                         )}
 
                         {/* House dining cards + table lists */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem', marginBottom: '1.75rem' }}>
+                        <div className="resp-grid-2" style={{ gap: '1.25rem', marginBottom: '1.75rem' }}>
                             {sittings.map(sitting => {
                                 const col = houseColors[sitting.key] ?? { solid: '#64748b', light: 'rgba(100,116,139,0.1)', text: '#334155' }
                                 const isEditingThis  = editingKey === sitting.key
@@ -691,7 +692,7 @@ export function DisDiningPanel() {
                             </div>
                         </div>
 
-                    </div>
+        </DashboardContent>
     )
 }
 

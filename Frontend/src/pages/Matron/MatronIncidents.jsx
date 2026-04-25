@@ -5,6 +5,7 @@ import '../../styles/components.css'
 import '../../styles/matron.css'
 import { useState } from 'react'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const pastReports = [
@@ -65,7 +66,7 @@ export function MatronIncidents() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="incident-form-card">
                             <div className="incident-form-title">
@@ -157,7 +158,7 @@ export function MatronIncidents() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

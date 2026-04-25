@@ -6,6 +6,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const settingsStats = [
@@ -144,7 +145,7 @@ export function DosSettings() {
                         notifications={dosUser.notifications}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="disc-stat-grid" style={{ marginBottom: '1.5rem' }}>
                             {settingsStats.map((s, i) => (
                                 <div key={i} className="disc-stat-card">
@@ -210,7 +211,7 @@ export function DosSettings() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

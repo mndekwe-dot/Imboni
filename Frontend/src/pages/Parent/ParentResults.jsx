@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const recentResults = [
@@ -128,7 +129,7 @@ export function ParentResults() {
                         </button>
                     </div>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Recent Results */}
                         <div className="card">
@@ -218,7 +219,7 @@ export function ParentResults() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

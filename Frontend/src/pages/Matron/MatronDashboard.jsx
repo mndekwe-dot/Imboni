@@ -6,6 +6,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const matronStats = [
@@ -69,7 +70,7 @@ export function MatronDashboard() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader title="Dashboard" subtitle="Karisimbi House — Overview" {...matronUser} />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <WelcomeBanner
                             name="Mrs. Hakizimana"
@@ -129,7 +130,7 @@ export function MatronDashboard() {
                             </div>
 
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

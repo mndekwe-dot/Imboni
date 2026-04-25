@@ -7,12 +7,13 @@ export function AnnouncementItem({
     author,
     audience,
     isUnread = false,
+    onClick,
 }) {
     const badgeLabel = type.charAt(0).toUpperCase() + type.slice(1)
     const itemClass = `ann-item ${type}${isUnread ? ' unread' : ' read-item'}`
 
     return (
-        <div className={itemClass}>
+        <div className={itemClass} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
             <div className="ann-item-top">
                 <div className={`ann-item-icon ${type}`}>
                     <span className="material-symbols-rounded">{icon}</span>
@@ -36,7 +37,12 @@ export function AnnouncementItem({
                       </span>
                     : <span />
                 }
-                <button className="ann-read-btn">{isUnread ? 'Mark Read' : '✓ Read'}</button>
+                <button
+                    className="ann-read-btn"
+                    onClick={e => e.stopPropagation()}
+                >
+                    {isUnread ? 'Mark Read' : '✓ Read'}
+                </button>
             </div>
         </div>
     )

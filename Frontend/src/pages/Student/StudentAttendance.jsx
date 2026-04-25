@@ -4,6 +4,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 //Student Attendance Page
@@ -56,7 +57,7 @@ export function StudentAttendance() {
             userName="Uwase Amina" userRole="Student · S4A"
             userInitials="UA" avatarClass="student-av" notifications={studentUser.notifications}
           />
-          <div className="dashboard-content">
+          <DashboardContent>
 
             {/* Hero */}
             <div className="attendance-hero">
@@ -113,7 +114,7 @@ export function StudentAttendance() {
               </div>
             </div>
 
-          </div>
+          </DashboardContent>
         </main>
       </div>
     </>

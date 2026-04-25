@@ -5,6 +5,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const reportCards = [
@@ -101,7 +102,7 @@ export function AdminReports() {
                         avatarClass={adminUser.avatarClass}
                         notifications={adminUser.notifications}
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Report Cards */}
                         <div>
@@ -142,7 +143,7 @@ export function AdminReports() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

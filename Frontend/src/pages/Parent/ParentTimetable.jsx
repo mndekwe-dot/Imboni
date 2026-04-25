@@ -6,6 +6,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 // Parent's children and their classes — replace with profile/API data later
@@ -34,7 +35,7 @@ export function ParentTimetable() {
                         initials="CU"
                         avatarClass="parent-av"
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">{child.name} — Class {child.classId}</h2>
@@ -60,7 +61,7 @@ export function ParentTimetable() {
                                 <Timetable type="academic" classId={child.classId} />
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

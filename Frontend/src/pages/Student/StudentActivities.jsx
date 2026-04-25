@@ -6,6 +6,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const boardingInfos = [
@@ -75,7 +76,7 @@ export function StudentActivities() {
             userName="Uwase Amina" userRole="Student · S4A"
             userInitials="UA" avatarClass="student-av" notifications={studentUser.notifications}
           />
-          <div className="dashboard-content">
+          <DashboardContent>
 
             {/* Boarding info */}
             <div className="boarding-hero">
@@ -195,7 +196,7 @@ export function StudentActivities() {
               />
             )}
 
-          </div>
+          </DashboardContent>
         </main>
       </div>
     </>

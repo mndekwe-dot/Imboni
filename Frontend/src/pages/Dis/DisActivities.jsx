@@ -11,6 +11,7 @@ import '../../styles/discipline.css'
 
 
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const activityStats = [
     { iconClass: 'info', icon: 'emoji_events', value: '18', label: 'Active Clubs', trend: '+3 this term', trendClass: 'positive' },
@@ -136,7 +137,7 @@ export function DisActivities() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader title="Extracurricular Activities" subtitle="Manage clubs, events, patron assignments and memberships" {...disUser} />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Stats */}
                         <div className="disc-stat-grid">
@@ -213,7 +214,7 @@ export function DisActivities() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

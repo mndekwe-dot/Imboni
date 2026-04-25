@@ -10,6 +10,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 // ── Timetable tab data ──
@@ -124,7 +125,7 @@ export function DosScheduling() {
                         {...dosUser}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Tab switcher */}
                         <div className="filter-tabs-bar" style={{ marginBottom: '1.25rem' }}>
@@ -275,7 +276,7 @@ export function DosScheduling() {
                             </>
                         )}
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

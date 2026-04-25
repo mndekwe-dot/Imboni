@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { FilterBar } from '../../components/ui/FilterBar'
@@ -8,6 +8,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // ── Teacher's own classes only ────────────────────────────────────────────────
 const TEACHER_CLASSES = ['S1B', 'S2A', 'S3A', 'S3B', 'S4A']
@@ -53,6 +54,69 @@ function submissionPill(a) {
 }
 
 // ── Assignment Card ───────────────────────────────────────────────────────────
+// ── Styled form select (replaces native <select>) ────────────────────────────
+function FormSelect({ label, value, onChange, options, placeholder }) {
+    const [open, setOpen] = useState(false)
+    const ref = useRef(null)
+    useEffect(() => {
+        function h(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+        document.addEventListener('mousedown', h)
+        return () => document.removeEventListener('mousedown', h)
+    }, [])
+    const selected = options.find(o => o.value === value)
+    return (
+        <div ref={ref} style={{ position: 'relative' }}>
+            <button
+                type="button"
+                onClick={() => setOpen(o => !o)}
+                style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.5rem 0.75rem', borderRadius: 8, cursor: 'pointer', textAlign: 'left',
+                    border: '1px solid var(--border)', background: 'var(--card)',
+                    fontSize: '0.875rem', color: selected ? 'var(--foreground)' : 'var(--muted-foreground)',
+                    transition: 'border-color 0.15s',
+                }}
+                onFocus={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
+            >
+                <span>{selected ? selected.label : placeholder}</span>
+                <span className="material-symbols-rounded" style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)', flexShrink: 0 }}>
+                    {open ? 'expand_less' : 'expand_more'}
+                </span>
+            </button>
+            {open && (
+                <div style={{
+                    position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
+                    background: 'var(--card)', border: '1px solid var(--border)',
+                    borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    zIndex: 300, overflow: 'hidden',
+                }}>
+                    {options.map(opt => (
+                        <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => { onChange(opt.value); setOpen(false) }}
+                            style={{
+                                display: 'block', width: '100%', textAlign: 'left',
+                                padding: '0.55rem 0.875rem', border: 'none', cursor: 'pointer',
+                                fontSize: '0.875rem',
+                                fontWeight: value === opt.value ? 600 : 400,
+                                background: value === opt.value ? 'var(--primary)' : 'transparent',
+                                color: value === opt.value ? 'white' : 'var(--foreground)',
+                                transition: 'background 0.1s',
+                            }}
+                            onMouseEnter={e => { if (value !== opt.value) e.currentTarget.style.background = 'var(--muted)' }}
+                            onMouseLeave={e => { if (value !== opt.value) e.currentTarget.style.background = 'transparent' }}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
 function AssignmentCard({ a, onEdit, onDelete, onPublish }) {
     const pill   = submissionPill(a)
     const isPast = a.status === 'past'
@@ -64,9 +128,10 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish }) {
     }[a.status]
 
     return (
-        <div className="card" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+        <div className="card" style={{ padding: '1rem', display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
+            {/* Icon */}
             <div style={{
-                width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+                width: 40, height: 40, borderRadius: 10, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: a.mode === 'online' ? 'rgba(16,185,129,0.1)' : 'var(--primary-light, #e8f2ff)',
                 color: a.mode === 'online' ? 'var(--success)' : 'var(--primary)',
@@ -76,36 +141,41 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish }) {
                 </span>
             </div>
 
+            {/* Content — full remaining width */}
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 4 }}>{a.title}</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{a.subject} · {a.classId}</span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Due {a.due}</span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Max: {a.maxScore}</span>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: 20, ...statusStyle }}>
+                {/* Title row + submission pill */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: 6 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.3 }}>{a.title}</div>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 8px', borderRadius: 20, background: pill.bg, color: pill.color, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                        {pill.label}
+                    </span>
+                </div>
+
+                {/* Metadata chips */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', alignItems: 'center', marginBottom: 8 }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{a.subject} · {a.classId}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Due {a.due}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Max: {a.maxScore}</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 7px', borderRadius: 20, ...statusStyle }}>
                         {a.status.charAt(0).toUpperCase() + a.status.slice(1)}
                     </span>
                     <span style={{
-                        fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                        fontSize: '0.7rem', fontWeight: 700, padding: '2px 7px', borderRadius: 20,
                         background: a.mode === 'online' ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
                         color:      a.mode === 'online' ? 'var(--success)'        : '#6366f1',
                     }}>
                         {a.mode === 'online' ? 'Online' : 'Paper'}
                     </span>
                     {a.file && (
-                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: 'rgba(59,130,246,0.1)', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: 'rgba(59,130,246,0.1)', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: 3 }}>
                             <span className="material-symbols-rounded" style={{ fontSize: '0.8rem' }}>attach_file</span>
                             {a.file}
                         </span>
                     )}
                 </div>
-            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem', flexShrink: 0 }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: pill.bg, color: pill.color }}>
-                    {pill.label}
-                </span>
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                {/* Actions row — right aligned */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.4rem' }}>
                     {a.status === 'draft' && (
                         <button className="btn btn-sm btn-primary" onClick={() => onPublish(a.id)}>
                             <span className="material-symbols-rounded icon-sm">publish</span> Publish
@@ -319,7 +389,7 @@ function AssignmentModal({ initial, onClose, onSave }) {
             }
         >
             {/* Mode toggle */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <div className="resp-grid-2" style={{ gap: '0.75rem', marginBottom: '1.5rem' }}>
                 {[
                     { key: 'paper',  icon: 'assignment',   label: 'Paper Assignment', sub: 'Manual grading' },
                     { key: 'online', icon: 'quiz',         label: 'Online Quiz',      sub: 'Auto-marked'    },
@@ -349,7 +419,7 @@ function AssignmentModal({ initial, onClose, onSave }) {
             </div>
 
             {/* Base fields */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div className="resp-grid-2" style={{ gap: '0.75rem', marginBottom: '1rem' }}>
                 <div className="form-group" style={{ gridColumn: '1/-1' }}>
                     <label className="form-label">Title *</label>
                     <input className="form-control" name="title" value={form.title} onChange={handle}
@@ -357,21 +427,32 @@ function AssignmentModal({ initial, onClose, onSave }) {
                 </div>
                 <div className="form-group">
                     <label className="form-label">Class *</label>
-                    <select className="form-control" name="classId" value={form.classId} onChange={handle}>
-                        <option value="">— Select class —</option>
-                        {TEACHER_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <FormSelect
+                        value={form.classId}
+                        onChange={v => setForm(p => ({ ...p, classId: v }))}
+                        placeholder="— Select class —"
+                        options={TEACHER_CLASSES.map(c => ({ value: c, label: c }))}
+                    />
                 </div>
                 <div className="form-group">
                     <label className="form-label">Subject *</label>
-                    <select className="form-control" name="subject" value={form.subject} onChange={handle}>
-                        <option value="">— Select subject —</option>
-                        {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
+                    <FormSelect
+                        value={form.subject}
+                        onChange={v => setForm(p => ({ ...p, subject: v }))}
+                        placeholder="— Select subject —"
+                        options={SUBJECTS.map(s => ({ value: s, label: s }))}
+                    />
                 </div>
                 <div className="form-group">
                     <label className="form-label">Due Date *</label>
-                    <input className="form-control" type="date" name="due" value={form.due} onChange={handle} />
+                    <div style={{ position: 'relative' }}>
+                        <span className="material-symbols-rounded" style={{
+                            position: 'absolute', left: '0.6rem', top: '50%', transform: 'translateY(-50%)',
+                            fontSize: '1rem', color: 'var(--muted-foreground)', pointerEvents: 'none',
+                        }}>calendar_today</span>
+                        <input className="form-control" type="date" name="due" value={form.due} onChange={handle}
+                            style={{ paddingLeft: '2rem' }} />
+                    </div>
                 </div>
                 <div className="form-group">
                     <label className="form-label">
@@ -388,10 +469,15 @@ function AssignmentModal({ initial, onClose, onSave }) {
                 </div>
                 <div className="form-group">
                     <label className="form-label">Status</label>
-                    <select className="form-control" name="status" value={form.status} onChange={handle}>
-                        <option value="draft">Save as draft</option>
-                        <option value="active">Publish now</option>
-                    </select>
+                    <FormSelect
+                        value={form.status}
+                        onChange={v => setForm(p => ({ ...p, status: v }))}
+                        placeholder=""
+                        options={[
+                            { value: 'draft',  label: 'Save as draft' },
+                            { value: 'active', label: 'Publish now'   },
+                        ]}
+                    />
                 </div>
             </div>
 
@@ -428,6 +514,59 @@ function AssignmentModal({ initial, onClose, onSave }) {
                 </>
             )}
         </Modal>
+    )
+}
+
+// ── Custom class filter dropdown ──────────────────────────────────────────────
+function ClassDropdown({ value, onChange, options }) {
+    const [open, setOpen] = useState(false)
+    const ref = useRef(null)
+    useEffect(() => {
+        function handler(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [])
+    const label = value === 'all' ? 'All Classes' : value
+    return (
+        <div ref={ref} style={{ position: 'relative' }}>
+            <button
+                className="btn btn-outline"
+                style={{ fontSize: '0.82rem', gap: '0.4rem', minWidth: 120 }}
+                onClick={() => setOpen(o => !o)}
+            >
+                <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>class</span>
+                {label}
+                <span className="material-symbols-rounded" style={{ fontSize: '1rem', marginLeft: 'auto' }}>
+                    {open ? 'expand_less' : 'expand_more'}
+                </span>
+            </button>
+            {open && (
+                <div style={{
+                    position: 'absolute', top: 'calc(100% + 6px)', right: 0,
+                    background: 'var(--card)', border: '1px solid var(--border)',
+                    borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    zIndex: 200, minWidth: 140, overflow: 'hidden',
+                }}>
+                    {[{ key: 'all', label: 'All Classes' }, ...options.map(o => ({ key: o, label: o }))].map(item => (
+                        <button
+                            key={item.key}
+                            onClick={() => { onChange(item.key); setOpen(false) }}
+                            style={{
+                                display: 'block', width: '100%', textAlign: 'left',
+                                padding: '0.55rem 1rem', border: 'none', cursor: 'pointer',
+                                fontSize: '0.85rem', fontWeight: value === item.key ? 600 : 400,
+                                background: value === item.key ? 'var(--primary)' : 'transparent',
+                                color: value === item.key ? 'white' : 'var(--foreground)',
+                            }}
+                            onMouseEnter={e => { if (value !== item.key) e.target.style.background = 'var(--muted)' }}
+                            onMouseLeave={e => { if (value !== item.key) e.target.style.background = 'transparent' }}
+                        >
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
     )
 }
 
@@ -483,7 +622,7 @@ export function TeacherAssignments() {
                         {...teacherUser}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Stats */}
                         <div className="portal-stat-grid" style={{ marginBottom: '1.5rem' }}>
@@ -507,29 +646,29 @@ export function TeacherAssignments() {
 
                         {/* Toolbar */}
                         <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap', marginBottom: '1.25rem',
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem',
                             background: 'var(--card)',
                             border: '1px solid var(--border)',
                             borderRadius: 16,
                             padding: '0.75rem 1rem',
                             boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                         }}>
+                            {/* Left: status filter pills */}
                             <FilterBar options={statusTabs} active={statusFilter} onChange={setStatusFilter} />
-                            <div style={{ flex: 1 }} />
-                            <select
-                                className="form-control"
-                                style={{ width: 'auto', padding: '0.45rem 0.75rem', fontSize: '0.85rem' }}
-                                value={classFilter}
-                                onChange={e => setClassFilter(e.target.value)}
-                            >
-                                <option value="all">All Classes</option>
-                                {TEACHER_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                            <button className="btn btn-primary" onClick={() => { setEditing(null); setIsOpen(true) }}>
-                                <span className="material-symbols-rounded icon-sm">add</span>
-                                New Assignment
-                            </button>
+
+                            {/* Right: class filter + new button always together */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                                <ClassDropdown
+                                    value={classFilter}
+                                    onChange={setClassFilter}
+                                    options={TEACHER_CLASSES}
+                                />
+                                <button className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} onClick={() => { setEditing(null); setIsOpen(true) }}>
+                                    <span className="material-symbols-rounded icon-sm">add</span>
+                                    New Assignment
+                                </button>
+                            </div>
                         </div>
 
                         {/* Assignment list */}
@@ -592,7 +731,7 @@ export function TeacherAssignments() {
                             />
                         )}
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

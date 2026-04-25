@@ -8,6 +8,7 @@ import '../../styles/components.css'
 import '../../styles/matron.css'
 import '../../styles/pages.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const students = [
@@ -119,7 +120,7 @@ export function MatronStudents() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <ClassPicker
                             sections={config.sections}
@@ -199,7 +200,7 @@ export function MatronStudents() {
                             </div>
                         )}
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

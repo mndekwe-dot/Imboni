@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const scheduleStats = [
@@ -146,7 +147,7 @@ export function MatronSchedule() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="disc-welcome-banner" style={{ marginBottom: '1.25rem' }}>
                             <span className="material-symbols-rounded" style={{ fontSize: '1.5rem' }}>verified</span>
@@ -268,7 +269,7 @@ export function MatronSchedule() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

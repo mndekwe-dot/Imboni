@@ -7,6 +7,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const stats = [
@@ -108,7 +109,7 @@ export function AdminFinance() {
                         avatarClass={adminUser.avatarClass}
                         notifications={adminUser.notifications}
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="portal-stat-grid">
                             {stats.map((s, i) => <StatCard key={i} {...s} />)}
@@ -216,7 +217,7 @@ export function AdminFinance() {
                             </div>
 
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

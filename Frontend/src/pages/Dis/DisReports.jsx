@@ -8,6 +8,7 @@ import '../../styles/discipline.css'
 
 
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 const allRecords = [
     { date: 'Mar 7, 2026',  initials: 'IB', name: 'Ingabire Belise',    classChip: 'S4A', house: 'Karisimbi', houseClass: 'karisimbi',    typeClass: 'negative', type: 'Dormitory',  desc: 'Lights-out violation — phone use after 10 PM',               reportedBy: 'Mrs. Hakizimana',       points: '-2', pointsClass: 'disc-points-neg', status: 'pending'   },
     { date: 'Mar 7, 2026',  initials: 'ND', name: 'Ndagijimana Eric',   classChip: 'S6A', house: 'Muhabura',  houseClass: 'muhabura',     typeClass: 'negative', type: 'Dormitory',  desc: 'Fighting in dormitory — altercation with roommate',           reportedBy: 'Mr. Rugamba Patrick',   points: '-4', pointsClass: 'disc-points-neg', status: 'pending'   },
@@ -78,7 +79,7 @@ export function DisReports() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader title="Discipline Reports" subtitle="Incident approval queue and full records \u2014 Term 2, 2026" {...disUser} />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         
                         {/* Filter chips */}
                         <FilterBar
@@ -119,7 +120,7 @@ export function DisReports() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

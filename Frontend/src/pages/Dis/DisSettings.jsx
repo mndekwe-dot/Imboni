@@ -6,6 +6,7 @@ import { useState } from 'react'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const settingsStats = [
     { iconClass: 'info',    icon: 'layers',         label: 'Sections'       },
@@ -136,7 +137,7 @@ export function DisSettings() {
                         subtitle="Configure school structure — sections, year groups and stream classes"
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="disc-stat-grid" style={{ marginBottom: '1.5rem' }}>
                             {settingsStats.map((s, i) => (
                                 <div key={i} className="disc-stat-card">
@@ -214,7 +215,7 @@ export function DisSettings() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

@@ -7,6 +7,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // ── Static data ───────────────────────────────────────────────────────────────
 const SECTIONS = [
@@ -90,11 +91,22 @@ const ASSIGNMENTS = [
     { id: 12, classId: 'S1B', title: 'Basic Ops Test',    type: 'Class Test', mode: 'paper',  status: 'draft',     maxScore: 20 },
 ]
 
+const CARD_BACKGROUNDS = [
+    '#eef6ff',  // soft blue
+    '#edfaf4',  // soft green
+    '#f3f0ff',  // soft purple
+    '#fff7ed',  // soft orange
+    '#e8f8fb',  // soft teal
+    '#fff0f3',  // soft rose
+]
+
 // ── Class Card ────────────────────────────────────────────────────────────────
-function ClassCard({ cls, onOpenStudents, onEnterResults }) {
+function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
+    const bg      = CARD_BACKGROUNDS[colorIndex % CARD_BACKGROUNDS.length]
     const monitor = cls.students.find(s => s.isMonitor)
+
     return (
-        <div className="class-detail-card">
+        <div className="class-detail-card" style={{ background: bg }}>
             <div className="class-header">
                 <div className="class-title-section">
                     <h3>{cls.id}</h3>
@@ -103,8 +115,8 @@ function ClassCard({ cls, onOpenStudents, onEnterResults }) {
             </div>
 
             {monitor && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--warning)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>stars</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--warning)', fontWeight: 600, marginBottom: '0.5rem' }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>stars</span>
                     Monitor: {monitor.name}
                 </div>
             )}
@@ -122,11 +134,11 @@ function ClassCard({ cls, onOpenStudents, onEnterResults }) {
 
             <div className="class-schedule">
                 <div className="class-schedule-item">
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>schedule</span>
+                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>schedule</span>
                     <span>{cls.schedule}</span>
                 </div>
                 <div className="class-schedule-item">
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>room</span>
+                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>room</span>
                     <span>{cls.room}</span>
                 </div>
             </div>
@@ -412,18 +424,25 @@ function StudentsPanel({ cls, onClose, onViewStudent, onEnterResult }) {
             )}
 
             {/* Search */}
-            <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                <span className="material-symbols-rounded" style={{
-                    position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
-                    color: 'var(--muted-foreground)', fontSize: '1.1rem', pointerEvents: 'none',
-                }}>search</span>
+            <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                background: 'var(--muted)', borderRadius: 10,
+                padding: '0.5rem 0.75rem', marginBottom: '1rem',
+                border: '1px solid var(--border)',
+            }}>
+                <span className="material-symbols-rounded" style={{ color: 'var(--muted-foreground)', fontSize: '1.1rem', flexShrink: 0 }}>search</span>
                 <input
-                    className="form-control"
-                    style={{ paddingLeft: '2.2rem' }}
-                    placeholder="Search student name or code..."
+                    type="text"
+                    placeholder="Search by name or student code..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
+                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.875rem', width: '100%', color: 'var(--foreground)' }}
                 />
+                {search && (
+                    <button onClick={() => setSearch('')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--muted-foreground)', flexShrink: 0 }}>
+                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
+                    </button>
+                )}
             </div>
 
             {/* Student list */}
@@ -472,6 +491,16 @@ function StudentsPanel({ cls, onClose, onViewStudent, onEnterResult }) {
     )
 }
 
+// ── Shared score helpers ───────────────────────────────────────────────────────
+function getGrade(score, max) {
+    const pct = (Number(score) / max) * 100
+    if (pct >= 80) return { label: 'A', color: 'var(--success)' }
+    if (pct >= 70) return { label: 'B', color: '#3b82f6' }
+    if (pct >= 60) return { label: 'C', color: '#f59e0b' }
+    if (pct >= 50) return { label: 'D', color: '#f97316' }
+    return { label: 'F', color: 'var(--destructive)' }
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherClasses() {
     const [section,  setSection]  = useState('')
@@ -481,6 +510,27 @@ export function TeacherClasses() {
     const [openClass,    setOpenClass]    = useState(null)
     const [viewStudent,  setViewStudent]  = useState(null)
     const [resultsClass, setResultsClass] = useState(null)
+
+    // Shared scores: { [assignmentId]: { [studentId]: scoreString } }
+    const [allScores, setAllScores] = useState({
+        1:  { 11: '24', 12: '18', 13: '27', 14: '15', 15: '22' },
+        2:  { 11: '58', 12: '45', 13: '65', 14: '42', 15: '55' },
+        3:  { 11: '17', 12: '14', 13: '19', 14: '11', 15: '16' },
+        5:  { 16: '25', 17: '20', 18: '28', 19: '18', 20: '24' },
+        6:  { 16: '55', 17: '48', 18: '62', 19: '44', 20: '58' },
+        7:  { 16: '18', 17: '15', 18: '20', 19: '12', 20: '17' },
+        8:  { 21: '26', 22: '22', 23: '29', 24: '19', 25: '24' },
+        9:  { 21: '62', 22: '55', 23: '68', 24: '50', 25: '60' },
+        10: { 21: '22', 22: '19', 23: '24', 24: '17', 25: '21' },
+        11: { 6: '25',  7: '20',  8: '27',  9: '18',  10: '23' },
+    })
+
+    function updateScore(assignmentId, studentId, value) {
+        setAllScores(prev => ({
+            ...prev,
+            [assignmentId]: { ...prev[assignmentId], [studentId]: value },
+        }))
+    }
 
     const visible = CLASSES.filter(cls => {
         if (section) {
@@ -507,39 +557,140 @@ export function TeacherClasses() {
                     cls={openClass}
                     onClose={() => setOpenClass(null)}
                     onViewStudent={s => setViewStudent(s)}
+                    onEnterResult={() => { setResultsClass(openClass); setOpenClass(null) }}
                 />
             )}
 
-            {/* View student modal */}
-            {viewStudent && (
-                <Modal title="Student Profile" icon="person" onClose={() => setViewStudent(null)}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
-                        <div className="student-avatar" style={{ width: 52, height: 52, fontSize: '1.1rem', flexShrink: 0 }}>
-                            {viewStudent.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </div>
-                        <div>
-                            <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{viewStudent.name}</div>
-                            <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>{viewStudent.code}</div>
-                            {viewStudent.isMonitor && (
-                                <div style={{ fontSize: '0.78rem', color: 'var(--warning)', fontWeight: 600, marginTop: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>stars</span>
-                                    Class Monitor — Appointed by DOS
+            {/* View student modal — profile + results */}
+            {viewStudent && (() => {
+                const cls = openClass
+                const classAssignments = ASSIGNMENTS.filter(
+                    a => a.classId === cls?.id && a.status === 'published'
+                )
+                return (
+                    <Modal
+                        title="Student Profile"
+                        icon="person"
+                        size="wide"
+                        onClose={() => setViewStudent(null)}
+                        footer={
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+                                <button className="btn btn-outline" onClick={() => setViewStudent(null)}>Close</button>
+                                <button className="btn btn-primary" onClick={() => setViewStudent(null)}>
+                                    <span className="material-symbols-rounded icon-sm">save</span>Save Changes
+                                </button>
+                            </div>
+                        }
+                    >
+                        {/* Student header */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', padding: '1rem', background: 'var(--muted)', borderRadius: 10 }}>
+                            <div className="student-avatar" style={{ width: 52, height: 52, fontSize: '1.1rem', flexShrink: 0 }}>
+                                {viewStudent.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{viewStudent.name}</div>
+                                <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                    {viewStudent.code} • {viewStudent.gender === 'M' ? 'Male' : 'Female'} • {cls?.id}
                                 </div>
-                            )}
+                                {viewStudent.isMonitor && (
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--warning)', fontWeight: 600, marginTop: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>stars</span>
+                                        Class Monitor
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                        <div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Class</div>
-                            <div style={{ fontWeight: 600 }}>{openClass?.id}</div>
+
+                        {/* Results section */}
+                        <div style={{ fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted-foreground)', marginBottom: '0.75rem' }}>
+                            Results — {cls?.id}
                         </div>
-                        <div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Gender</div>
-                            <div style={{ fontWeight: 600 }}>{viewStudent.gender === 'M' ? 'Male' : 'Female'}</div>
-                        </div>
-                    </div>
-                </Modal>
-            )}
+
+                        {classAssignments.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>
+                                No published assignments for this class yet.
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                {/* Table header */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 110px 60px', gap: '0.5rem', padding: '0 0.75rem', fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>
+                                    <span>Assignment</span>
+                                    <span style={{ textAlign: 'center' }}>Type</span>
+                                    <span style={{ textAlign: 'center' }}>Score</span>
+                                    <span style={{ textAlign: 'center' }}>Grade</span>
+                                </div>
+
+                                {classAssignments.map(a => {
+                                    const isPaper = a.mode === 'paper'
+                                    const score   = allScores[a.id]?.[viewStudent.id] ?? ''
+                                    const grade   = score !== '' ? getGrade(score, a.maxScore) : null
+                                    return (
+                                        <div key={a.id} style={{
+                                            display: 'grid', gridTemplateColumns: '1fr 90px 110px 60px',
+                                            gap: '0.5rem', alignItems: 'center',
+                                            padding: '0.65rem 0.75rem',
+                                            border: '1px solid var(--border)', borderRadius: 8,
+                                            background: 'var(--card)',
+                                        }}>
+                                            {/* Title + mode badge */}
+                                            <div>
+                                                <div style={{ fontWeight: 600, fontSize: '0.87rem' }}>{a.title}</div>
+                                                <span style={{
+                                                    fontSize: '0.67rem', fontWeight: 600, padding: '1px 6px', borderRadius: 20,
+                                                    background: isPaper ? 'rgba(99,102,241,0.1)' : 'rgba(16,185,129,0.1)',
+                                                    color: isPaper ? '#6366f1' : 'var(--success)',
+                                                }}>
+                                                    {isPaper ? 'Paper' : 'Online · Auto'}
+                                                </span>
+                                            </div>
+
+                                            {/* Type */}
+                                            <div style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{a.type}</div>
+
+                                            {/* Score input */}
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    max={a.maxScore}
+                                                    value={score}
+                                                    readOnly={!isPaper}
+                                                    onChange={e => updateScore(a.id, viewStudent.id, e.target.value)}
+                                                    style={{
+                                                        width: 52, padding: '0.3rem 0.35rem',
+                                                        border: `1px solid ${isPaper ? 'var(--border)' : 'transparent'}`,
+                                                        borderRadius: 6, fontSize: '0.88rem', textAlign: 'center',
+                                                        background: isPaper ? 'var(--background)' : 'var(--muted)',
+                                                        color: 'var(--foreground)',
+                                                        cursor: isPaper ? 'text' : 'default',
+                                                    }}
+                                                />
+                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>/{a.maxScore}</span>
+                                            </div>
+
+                                            {/* Grade badge */}
+                                            <div style={{ textAlign: 'center' }}>
+                                                {grade ? (
+                                                    <span style={{
+                                                        fontWeight: 700, fontSize: '0.85rem',
+                                                        color: grade.color,
+                                                        background: `${grade.color}18`,
+                                                        padding: '2px 10px', borderRadius: 20,
+                                                    }}>
+                                                        {grade.label}
+                                                    </span>
+                                                ) : (
+                                                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>—</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </Modal>
+                )
+            })()}
 
             <div className="dashboard-layout">
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
@@ -551,7 +702,7 @@ export function TeacherClasses() {
                         {...teacherUser}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <ClassPicker
                             sections={SECTIONS}
                             section={section}   onSectionChange={setSection}
@@ -559,18 +710,39 @@ export function TeacherClasses() {
                             classVal={classVal} onClassChange={setClassVal}
                         />
 
-                        {visible.length > 0 ? (
-                            <div className="classes-grid">
-                                {visible.map(cls => (
-                                    <ClassCard key={cls.id} cls={cls} onOpenStudents={setOpenClass} onEnterResults={setResultsClass} />
-                                ))}
+                        <div style={{
+                            background: 'var(--card)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 16,
+                            overflow: 'hidden',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        }}>
+                            {/* Container header */}
+                            <div style={{
+                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)',
+                            }}>
+                                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>My Classes</div>
+                                <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                    {visible.length} class{visible.length !== 1 ? 'es' : ''}
+                                </span>
                             </div>
-                        ) : (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted-foreground)' }}>
-                                No classes found.
+
+                            <div style={{ padding: '1rem' }}>
+                                {visible.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
+                                        No classes match the selected filter.
+                                    </div>
+                                ) : (
+                                    <div className="classes-grid">
+                                        {visible.map((cls, i) => (
+                                            <ClassCard key={cls.id} cls={cls} colorIndex={i} onOpenStudents={setOpenClass} onEnterResults={setResultsClass} />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

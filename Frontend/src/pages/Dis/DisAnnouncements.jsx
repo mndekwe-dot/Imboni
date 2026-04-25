@@ -6,6 +6,7 @@ import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const initialBroadcasts = [
     { id: 'd1', avatar: 'EM', title: 'Zero-Tolerance Reminder — Bullying & Harassment',   sentTo: 'All Students', time: 'Apr 10, 2026', badgeClass: 'urgent',   badge: 'Urgent',   views: '312', isDraft: false, excerpt: 'A reminder that any form of bullying, harassment or intimidation will result in immediate disciplinary action including suspension.' },
@@ -145,7 +146,7 @@ export function DisAnnouncements() {
                         {...disUser}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="ann-grid">
 
                             {/* LEFT — Compose */}
@@ -276,7 +277,7 @@ export function DisAnnouncements() {
                             </div>
 
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>
