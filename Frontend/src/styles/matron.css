@@ -1114,3 +1114,7 @@
   min-height: 80px;
   resize: vertical;
 }
+
+/* ── Schedule banner text ── */
+.banner-title { font-weight: 700; font-size: 0.9375rem; }
+.banner-sub   { font-size: 0.8125rem; opacity: 0.85; }

@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import '../../styles/tables.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // ── Initial dormitory configuration ──
@@ -160,11 +161,9 @@ function generateRoomAssignments(students, rules) {
 function HouseConfigEditor({ config, onSave }) {
     const [local, setLocal] = useState({ ...config })
     return (
-        <div style={{ background: 'var(--muted)', padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Configure Dormitory
-            </div>
-            <div className="form-row-2" style={{ marginBottom: '0.75rem' }}>
+        <div className="boarding-filter-bar">
+            <div className="boarding-filter-label">Configure Dormitory</div>
+            <div className="form-row-2 mb-3">
                 <div className="form-group">
                     <label className="form-label">Dormitory Name</label>
                     <input type="text" className="form-input" value={local.name}
@@ -186,7 +185,7 @@ function HouseConfigEditor({ config, onSave }) {
                         onChange={e => setLocal(l => ({ ...l, bedsPerRoom: Number(e.target.value) }))} />
                 </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="boarding-filter-actions">
                 <button className="btn btn-primary btn-sm" onClick={() => onSave(local)}>
                     <span className="material-symbols-rounded">save</span> Save
                 </button>
@@ -207,9 +206,7 @@ function StudentRow({ student, mode, availableRooms, onAppointLeader, onMoveStud
                 <span className="student-row-name">
                     {student.name}
                     {student.isLeader && (
-                        <span className="badge" style={{ background: 'rgba(249,115,22,0.12)', color: '#f97316', fontSize: '0.65rem', marginLeft: '0.4rem', padding: '1px 6px' }}>
-                            Room Leader
-                        </span>
+                        <span className="badge-orange-sm">Room Leader</span>
                     )}
                 </span>
                 <span className="student-row-meta">
@@ -220,10 +217,10 @@ function StudentRow({ student, mode, availableRooms, onAppointLeader, onMoveStud
                 </span>
             </div>
             {mode === 'edit' && (
-                <div style={{ display: 'flex', gap: '0.375rem', flexShrink: 0, flexWrap: 'wrap' }}>
+                <div className="boarding-assign-actions">
                     {!student.isLeader && (
                         <button className="btn btn-outline btn-sm" onClick={() => onAppointLeader(student.id)}>
-                            <span className="material-symbols-rounded" style={{ fontSize: '0.875rem' }}>star</span> Leader
+                            <span className="material-symbols-rounded icon-sm">star</span> Leader
                         </button>
                     )}
                     <select
@@ -253,9 +250,7 @@ function RoomBlock({ roomNum, students, bedsPerRoom, mode, availableRooms, onApp
                     <span className="material-symbols-rounded expand-icon">chevron_right</span>
                     <span className="class-label">Room {roomNum}</span>
                     {leader && (
-                        <span style={{ fontSize: '0.7rem', color: '#f97316', marginLeft: '0.5rem' }}>
-                            Leader: {leader.name}
-                        </span>
+                        <span className="text-orange-sm">Leader: {leader.name}</span>
                     )}
                 </div>
                 <div className="class-summary-right">
@@ -275,7 +270,7 @@ function RoomBlock({ roomNum, students, bedsPerRoom, mode, availableRooms, onApp
                     />
                 ))}
                 {students.length < bedsPerRoom && (
-                    <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', padding: '0.4rem 0', fontStyle: 'italic' }}>
+                    <div className="boarding-note-italic">
                         {bedsPerRoom - students.length} bed{bedsPerRoom - students.length > 1 ? 's' : ''} available
                     </div>
                 )}
@@ -479,13 +474,7 @@ export function DisBoarding() {
                         </div>
 
                         {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap',
-                            background: 'var(--card)', border: '1px solid var(--border)',
-                            borderRadius: 16, padding: '0.75rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
+                        <div className="toolbar-card">
                             <TabGroup
                                 tabs={[
                                     { key: 'view',   label: 'View',        icon: 'visibility' },
@@ -497,7 +486,7 @@ export function DisBoarding() {
                             />
                             <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
                             <FilterBar options={houseFilterOptions} active={houseFilter} onChange={setHouseFilter} />
-                            <div style={{ flex: 1 }} />
+                            <div className="toolbar-spacer" />
                             <button className="btn btn-primary btn-sm" onClick={() => setDormModal('add')}>
                                 <span className="material-symbols-rounded">add_home</span> Add Dormitory
                             </button>
@@ -541,13 +530,13 @@ export function DisBoarding() {
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">Options</label>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.25rem' }}>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer' }}>
+                                            <div className="form-check-group">
+                                                <label className="check-label">
                                                     <input type="checkbox" checked={rules.mixForms}
                                                         onChange={e => setRules(r => ({ ...r, mixForms: e.target.checked }))} />
                                                     Mix different forms per room
                                                 </label>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer' }}>
+                                                <label className="check-label">
                                                     <input type="checkbox" checked={rules.autoLeader}
                                                         onChange={e => setRules(r => ({ ...r, autoLeader: e.target.checked }))} />
                                                     Auto-appoint most senior student as room leader
@@ -557,7 +546,7 @@ export function DisBoarding() {
                                     </div>
 
                                     {/* Generate buttons per visible house */}
-                                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                                    <div className="flex-wrap-gap-3">
                                         {visibleHouses.map(h => (
                                             <button key={h.key} className="btn btn-primary btn-sm" onClick={() => handleGenerate(h.key)}>
                                                 <span className="material-symbols-rounded">shuffle</span> Generate for {h.name}
@@ -567,31 +556,31 @@ export function DisBoarding() {
 
                                     {/* Preview */}
                                     {preview && (
-                                        <div style={{ marginTop: '1.5rem' }}>
-                                            <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.75rem' }}>
+                                        <div className="preview-section">
+                                            <div className="preview-section-title">
                                                 Preview — {houseConfig.find(h => h.key === preview.house)?.name} &nbsp;
-                                                <span style={{ fontWeight: 400, color: '#64748b' }}>({preview.rooms.length} rooms)</span>
+                                                <span className="preview-section-count">({preview.rooms.length} rooms)</span>
                                             </div>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.75rem', maxHeight: '380px', overflowY: 'auto' }}>
+                                            <div className="preview-grid">
                                                 {preview.rooms.map(room => (
-                                                    <div key={room.number} style={{ background: 'var(--muted)', borderRadius: '8px', padding: '0.75rem' }}>
-                                                        <div style={{ fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.35rem' }}>
+                                                    <div key={room.number} className="preview-room-card">
+                                                        <div className="preview-room-title">
                                                             Room {room.number}
                                                             {room.students.find(s => s.isLeader) && (
-                                                                <span style={{ color: '#f97316', fontSize: '0.68rem', marginLeft: '0.4rem' }}>
+                                                                <span className="text-orange-sm">
                                                                     ★ {room.students.find(s => s.isLeader)?.name}
                                                                 </span>
                                                             )}
                                                         </div>
                                                         {room.students.map(s => (
-                                                            <div key={s.id} style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', padding: '2px 0' }}>
+                                                            <div key={s.id} className="preview-room-student">
                                                                 Bed {s.bed} — {s.name} ({s.form}, {s.level}){s.isLeader ? ' ★' : ''}
                                                             </div>
                                                         ))}
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+                                            <div className="preview-actions">
                                                 <button className="btn btn-primary" onClick={applyPreview}>
                                                     <span className="material-symbols-rounded">check</span> Confirm & Apply
                                                 </button>
@@ -621,7 +610,7 @@ export function DisBoarding() {
                                                 <span className="student-row-meta">{s.adm} &bull; {s.form} &bull; {s.level}</span>
                                             </div>
                                             {mode === 'edit' && (
-                                                <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center', flexShrink: 0 }}>
+                                                <div className="boarding-assign-actions">
                                                     <select
                                                         className="form-input"
                                                         style={{ fontSize: '0.75rem', width: 'auto', height: 'auto', padding: '0.25rem 0.5rem' }}
@@ -648,7 +637,7 @@ export function DisBoarding() {
                                                             assignStudent(s.id, houseKey, Number(roomNum))
                                                             setPendingAssign(prev => { const n = { ...prev }; delete n[s.id]; return n })
                                                         }}>
-                                                        <span className="material-symbols-rounded" style={{ fontSize: '0.875rem' }}>check</span> Assign
+                                                        <span className="material-symbols-rounded icon-sm">check</span> Assign
                                                     </button>
                                                 </div>
                                             )}
@@ -790,25 +779,25 @@ export function DisBoarding() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                        <div className="flex-row-gap">
                                             <span className={`disc-badge ${house.key}`}>{house.gender}</span>
                                             <button
                                                 className="btn btn-outline btn-sm"
                                                 onClick={() => setDormModal(config)}>
-                                                <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>settings</span>
+                                                <span className="material-symbols-rounded icon-sm">settings</span>
                                                 Configure
                                             </button>
                                             {mode === 'edit' && confirmDelete !== house.key && (
                                                 <button
                                                     className="btn btn-outline btn-sm"
                                                     onClick={() => setConfirmDelete(house.key)}>
-                                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                                                    <span className="material-symbols-rounded icon-sm">delete</span>
                                                     Delete
                                                 </button>
                                             )}
                                             {confirmDelete === house.key && (
                                                 <>
-                                                    <span style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>Delete dormitory?</span>
+                                                    <span className="remove-confirm-text">Delete dormitory?</span>
                                                     <button className="btn btn-primary btn-sm" onClick={() => deleteHouse(house.key)}>Yes, Delete</button>
                                                     <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(null)}>Cancel</button>
                                                 </>
@@ -818,7 +807,7 @@ export function DisBoarding() {
 
                                     <div className="house-block-body">
                                         {rooms.length === 0 ? (
-                                            <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', padding: '1rem' }}>
+                                            <p className="text-xs-muted" style={{ padding: '1rem' }}>
                                                 No students assigned yet. Use Auto-Assign or switch to Edit mode to assign students.
                                             </p>
                                         ) : config.chambers ? (
@@ -826,9 +815,9 @@ export function DisBoarding() {
                                                 const chamberRooms = rooms.filter(r => r.number >= ch.roomStart && r.number <= ch.roomEnd)
                                                 if (chamberRooms.length === 0) return null
                                                 return (
-                                                    <div key={ch.name} style={{ marginBottom: '1rem' }}>
-                                                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0.4rem 0.5rem', marginBottom: '0.25rem', borderBottom: '1px solid var(--border)' }}>
-                                                            <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', verticalAlign: 'middle', marginRight: '0.3rem' }}>meeting_room</span>
+                                                    <div key={ch.name} className="mb-5">
+                                                        <div className="chamber-header">
+                                                            <span className="material-symbols-rounded icon-sm">meeting_room</span>
                                                             {ch.name} &bull; {chamberRooms.length} room{chamberRooms.length !== 1 ? 's' : ''} &bull; {chamberRooms.reduce((n, r) => n + r.students.length, 0)} boarders
                                                         </div>
                                                         {chamberRooms.map(room => (

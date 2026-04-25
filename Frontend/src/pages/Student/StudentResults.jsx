@@ -183,13 +183,7 @@ export function StudentResults() {
                     <DashboardContent>
 
                         {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            background: 'var(--card)', border: '1px solid var(--border)',
-                            borderRadius: 16, padding: '0.625rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                            width: 'fit-content',
-                        }}>
+                        <div className="toolbar-card" style={{ width: 'fit-content' }}>
                             {TERMS.map(term => (
                                 <button
                                     key={term}
@@ -232,7 +226,7 @@ export function StudentResults() {
                         <div className="card">
                             <div className="card-header">
                                 <h3 className="card-title">Detailed Assessment Breakdown</h3>
-                                <span className="badge" style={{ background: 'var(--student-light)', color: 'var(--student)' }}>Term 2</span>
+                                <span className="badge badge-student">Term 2</span>
                             </div>
                             <div className="card-content">
                                 <div className="table-responsive">

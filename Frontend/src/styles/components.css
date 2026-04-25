@@ -1177,3 +1177,119 @@ tr:hover td {
   border-top: 1px solid var(--border);
 }
 
+
+/* ===============================================
+   SHARED PORTAL UTILITIES
+   Used across multiple portals — defined here so
+   all portals can access them via components.css
+   =============================================== */
+
+/* Tag list (settings pages: sections, years, classes) */
+.tag-list  { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.tag-chip  {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  padding: 3px 8px 3px 10px;
+  border-radius: 6px;
+  background: var(--muted);
+  color: var(--foreground);
+  font-weight: 600;
+}
+.tag-chip-portal { background: var(--primary-light, rgba(0,61,122,0.08)); color: var(--primary); }
+.tag-chip-remove { border: none; background: none; cursor: pointer; color: var(--muted-foreground); display: flex; padding: 0; }
+.tag-chip-remove .material-symbols-rounded { font-size: 0.9rem; }
+.tag-chip-empty  { font-size: 0.82rem; color: var(--muted-foreground); font-style: italic; }
+
+/* Config section blocks */
+.settings-block            { margin-bottom: 1.5rem; }
+.settings-block-label      { margin-bottom: 0.5rem; }
+.settings-block-title      { font-weight: 600; font-size: 0.9rem; margin: 0; }
+.settings-block-desc       { font-size: 0.8rem; color: var(--muted-foreground); margin: 0.1rem 0 0; }
+.settings-block-input-row  { display: flex; gap: 0.5rem; }
+.settings-info-text        { font-size: 0.8rem; color: var(--muted-foreground); }
+.settings-border-section   { margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem; }
+.settings-border-title     { font-weight: 600; font-size: 0.9rem; margin-bottom: 1rem; }
+.settings-save-row         { padding-top: 0.75rem; }
+
+/* Cloud auto-save indicator */
+.cloud-save-row  { padding-top: 0.75rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.375rem; }
+.cloud-save-icon { font-size: 1rem !important; color: var(--success, #16a34a); }
+
+/* Section toolbar row (filter bar + action button) */
+.section-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Confirm / destructive inline text */
+.remove-confirm-text { font-size: 0.78rem; color: var(--muted-foreground); }
+
+/* Italic empty table cell */
+.td-italic-muted { color: var(--muted-foreground); font-style: italic; font-size: 0.85rem; }
+
+/* Coming soon placeholder */
+.coming-soon       { text-align: center; padding: 2rem; color: var(--muted-foreground); }
+.coming-soon-icon  { font-size: 2.5rem; display: block; margin: 0 auto 0.5rem; }
+.coming-soon-title { font-weight: 600; margin: 0; }
+.coming-soon-desc  { font-size: 0.875rem; margin: 0.25rem 0 0; }
+
+/* Spacing utilities */
+.mb-0   { margin-bottom: 0 !important; }
+.mb-3   { margin-bottom: 0.75rem; }
+.mb-4   { margin-bottom: 1rem; }
+.mb-5   { margin-bottom: 1.25rem; }
+.mt-0   { margin-top: 0 !important; }
+.mt-1-5 { margin-top: 1.5rem; }
+.ml-auto { margin-left: auto; }
+
+/* Confirm modal */
+.modal-confirm         { padding: 1.5rem; }
+.modal-confirm-title   { margin: 0 0 0.5rem; font-size: 1.05rem; }
+.modal-confirm-desc    { margin: 0 0 1.25rem; color: var(--muted-foreground); font-size: 0.875rem; }
+.modal-confirm-actions { display: flex; justify-content: flex-end; gap: 0.625rem; }
+.btn-destructive       { background: var(--destructive) !important; border-color: var(--destructive) !important; }
+.btn-saved             { color: var(--success) !important; border-color: var(--success) !important; }
+.btn-left              { justify-content: flex-start; }
+.select-xs             { font-size: var(--font-xs) !important; }
+.fw-600                { font-weight: 600; }
+.input-140             { width: 140px; }
+.flex-1                { flex: 1; min-width: 0; }
+.section-heading       { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.875rem; }
+
+/* Section config block (settings pages) */
+.sec-config-block {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--muted);
+  border-radius: 8px;
+}
+.sec-config-block-title { font-weight: 700; font-size: 0.95rem; margin: 0 0 1rem; }
+
+/* Flex row helpers */
+.flex-row-gap   { display: flex; align-items: center; gap: 0.75rem; }
+.flex-row-gap-sm { display: flex; align-items: center; gap: 0.5rem; }
+.flex-wrap-gap-3 { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+/* Vertical button stack */
+.btn-stack { display: flex; flex-direction: column; gap: 0.5rem; }
+.btn-row   { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.btn-row-sm { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* Destructive outline button */
+.btn-destructive-outline { color: var(--destructive) !important; border-color: var(--destructive) !important; }
+
+/* Tab count badge (inside tab/filter buttons) */
+.tab-count { margin-left: 0.35rem; opacity: 0.75; font-size: 0.78rem; }
+.tab-count-sm { margin-left: 0.3rem; opacity: 0.7; font-size: 0.75rem; }
+
+/* Vertical divider */
+.vdivider { width: 1px; height: 20px; background: var(--border); margin: 0 0.25rem; flex-shrink: 0; }
+
+/* Warning text */
+.text-warning-bold { color: #f59e0b; font-weight: 700; }

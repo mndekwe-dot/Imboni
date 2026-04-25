@@ -79,7 +79,7 @@ export function DisTimetable() {
                     />
                     <DashboardContent>
 
-                        <div className="portal-stat-grid" style={{ marginBottom: '1.25rem' }}>
+                        <div className="portal-stat-grid mb-5">
                             {timetableStats.map((stat, i) => (
                                 <StatCard key={i} {...stat} />
                             ))}
@@ -88,7 +88,7 @@ export function DisTimetable() {
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">Weekly Extracurricular Schedule</h2>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div className="flex-row-gap">
                                     <button
                                         className="btn btn-outline btn-sm"
                                         onClick={() => setShowSlotManager(true)}

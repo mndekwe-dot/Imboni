@@ -32,9 +32,8 @@ const initialTerms = [
 function SaveButton({ label = 'Save Changes', onSave, saved }) {
     return (
         <button
-            className={`btn ${saved ? 'btn-outline' : 'btn-primary'}`}
+            className={`btn ${saved ? 'btn-outline btn-saved' : 'btn-primary'}`}
             onClick={onSave}
-            style={saved ? { color: 'var(--success)', borderColor: 'var(--success)' } : {}}
         >
             <span className="material-symbols-rounded">{saved ? 'check' : 'save'}</span>
             {saved ? 'Saved!' : label}
@@ -64,7 +63,7 @@ function SchoolInfoSection() {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="settings-form">
             <div className="form-group">
                 <label className="form-label">School Name</label>
                 <input className="form-input" name="name" value={form.name} onChange={handleChange} />
@@ -89,7 +88,7 @@ function SchoolInfoSection() {
                 <label className="form-label">Phone Number</label>
                 <input className="form-input" type="tel" name="phone" value={form.phone} onChange={handleChange} />
             </div>
-            <div style={{ paddingTop: '0.5rem' }}>
+            <div className="settings-save-row">
                 <SaveButton label="Save Changes" onSave={handleSave} saved={saved} />
             </div>
         </div>
@@ -111,21 +110,21 @@ function CalendarSection() {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="settings-form">
             {terms.map((t, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: 'clamp(80px, 15%, 100px) 1fr 1fr', gap: '0.75rem', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{t.term}</span>
-                    <div className="form-group" style={{ margin: 0 }}>
+                <div key={i} className="calendar-term-row">
+                    <span className="calendar-term-label">{t.term}</span>
+                    <div className="form-group form-group-0">
                         <label className="form-label">Opens</label>
                         <input className="form-input" type="date" value={t.open} onChange={e => handleChange(i, 'open', e.target.value)} />
                     </div>
-                    <div className="form-group" style={{ margin: 0 }}>
+                    <div className="form-group form-group-0">
                         <label className="form-label">Closes</label>
                         <input className="form-input" type="date" value={t.close} onChange={e => handleChange(i, 'close', e.target.value)} />
                     </div>
                 </div>
             ))}
-            <div style={{ paddingTop: '0.5rem' }}>
+            <div className="settings-save-row">
                 <SaveButton label="Save Calendar" onSave={handleSave} saved={saved} />
             </div>
         </div>
@@ -160,19 +159,17 @@ function FeeStructureSection() {
                     <tbody>
                         {fees.map((row, i) => (
                             <tr key={i}>
-                                <td style={{ fontWeight: 600 }}>{row.class}</td>
+                                <td className="fw-600">{row.class}</td>
                                 <td>
                                     <input
-                                        className="form-input"
-                                        style={{ width: '140px' }}
+                                        className="form-input input-140"
                                         value={row.boarder}
                                         onChange={e => handleChange(i, 'boarder', e.target.value)}
                                     />
                                 </td>
                                 <td>
                                     <input
-                                        className="form-input"
-                                        style={{ width: '140px' }}
+                                        className="form-input input-140"
                                         value={row.dayScholar}
                                         onChange={e => handleChange(i, 'dayScholar', e.target.value)}
                                     />
@@ -182,7 +179,7 @@ function FeeStructureSection() {
                     </tbody>
                 </table>
             </div>
-            <div style={{ paddingTop: '1rem' }}>
+            <div className="settings-save-row">
                 <SaveButton label="Update Fee Structure" onSave={handleSave} saved={saved} />
             </div>
         </div>
@@ -237,10 +234,10 @@ export function AdminSettings() {
                                     {activeSection === 'Fee Structure'     && <FeeStructureSection />}
 
                                     {!['School Info', 'Academic Calendar', 'Fee Structure'].includes(activeSection) && (
-                                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted-foreground)' }}>
-                                            <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>construction</span>
-                                            <p style={{ fontWeight: 600 }}>{activeSection}</p>
-                                            <p style={{ fontSize: '0.875rem' }}>Configuration options coming soon.</p>
+                                        <div className="coming-soon">
+                                            <span className="material-symbols-rounded coming-soon-icon">construction</span>
+                                            <p className="coming-soon-title">{activeSection}</p>
+                                            <p className="coming-soon-desc">Configuration options coming soon.</p>
                                         </div>
                                     )}
 

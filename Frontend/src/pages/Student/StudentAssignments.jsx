@@ -58,7 +58,7 @@ function AssignmentCard({ cardClass, icon, title, subject, dueText, dueColor, ta
       </div>
       <div className="assignment-actions">
         {actionLabel && cardClass === 'overdue' && (
-          <button className="btn btn-sm btn-outline" style={{ color: 'var(--destructive)', borderColor: 'var(--destructive)' }}>{actionLabel}</button>
+          <button className="btn btn-sm btn-outline btn-destructive-outline">{actionLabel}</button>
         )}
         {actionLabel && cardClass === 'pending' && (
           <button className="btn btn-sm btn-primary">{actionLabel}</button>
@@ -100,13 +100,7 @@ export function StudentAssignments() {
             </div>
 
             {/* Toolbar container */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
-              flexWrap: 'wrap', margin: '1rem 0',
-              background: 'var(--card)', border: '1px solid var(--border)',
-              borderRadius: 16, padding: '0.75rem 1rem',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-            }}>
+            <div className="toolbar-card">
               {STATUS_TABS.map(tab => (
                 <button
                   key={tab}
@@ -115,9 +109,7 @@ export function StudentAssignments() {
                   onClick={() => setStatusFilter(tab)}
                 >
                   {tab}
-                  <span style={{ marginLeft: '0.35rem', opacity: 0.75, fontSize: '0.78rem' }}>
-                    {countFor(tab)}
-                  </span>
+                  <span className="tab-count">{countFor(tab)}</span>
                 </button>
               ))}
             </div>
@@ -131,28 +123,18 @@ export function StudentAssignments() {
                 action={{ label: 'Show All', icon: 'refresh', onClick: () => setStatusFilter('All') }}
               />
             ) : (
-              <div style={{
-                background: 'var(--card)', border: '1px solid var(--border)',
-                borderRadius: 16, overflow: 'hidden',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-              }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+              <div className="act-list-card">
+                <div className="act-list-header">
+                  <div className="act-list-title">
                     {statusFilter === 'All' ? 'All Assignments' : `${statusFilter} Assignments`}
                   </div>
-                  <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                  <span className="act-list-count">
                     {filtered.length} item{filtered.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div style={{ padding: '0.25rem 0' }}>
+                <div>
                   {filtered.map((item, i) => (
-                    <div
-                      key={i}
-                      style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none' }}
-                    >
+                    <div key={i} className={i < filtered.length - 1 ? 'border-bottom-sep' : ''}>
                       <AssignmentCard {...item} />
                     </div>
                   ))}

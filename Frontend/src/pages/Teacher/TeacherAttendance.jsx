@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import '../../styles/pages.css'
+import '../../styles/tables.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
@@ -157,118 +159,60 @@ export function TeacherAttendance() {
 
                         {/* Content area */}
                         {!classKey ? (
-                            <EmptyState
-                                icon="fact_check"
-                                title="No class selected"
-                                description="Use the picker above to select a section, year, and class to mark attendance."
-                            />
-                        ) : students.length === 0 ? (
-                            <EmptyState
-                                icon="people"
-                                title="No students found"
-                                description={`No student records are available for ${classKey}.`}
-                            />
+                            <EmptyState icon="fact_check" title="No class selected" description="Use the picker above to select a section, year, and class to mark attendance." />
                         ) : (
                             <>
                                 {/* Quick stats */}
-                                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                                <div style={{ display:'flex', gap:'var(--space-3)', flexWrap:'wrap' }}>
                                     {[
-                                        { label: 'Present', value: presentCount, color: STATUS_COLORS.Present },
-                                        { label: 'Absent',  value: absentCount,  color: STATUS_COLORS.Absent  },
-                                        { label: 'Late',    value: lateCount,    color: STATUS_COLORS.Late    },
-                                        { label: 'Total',   value: students.length, color: 'var(--primary)'  },
+                                        { label:'Present', value: presentCount, color: STATUS_COLORS.Present },
+                                        { label:'Absent',  value: absentCount,  color: STATUS_COLORS.Absent  },
+                                        { label:'Late',    value: lateCount,    color: STATUS_COLORS.Late    },
+                                        { label:'Total',   value: students.length, color:'var(--primary)'   },
                                     ].map(s => (
-                                        <div key={s.label} style={{
-                                            flex: 1, minWidth: 90,
-                                            background: 'var(--card)', border: '1px solid var(--border)',
-                                            borderRadius: 12, padding: '0.75rem 1rem',
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                                        }}>
-                                            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: s.color }}>{s.value}</div>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{s.label}</div>
+                                        <div key={s.label} style={{ flex:1, minWidth:80, background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:'var(--space-3) var(--space-4)', boxShadow:'var(--card-shadow)' }}>
+                                            <div style={{ fontSize:'1.5rem', fontWeight:700, color:s.color }}>{s.value}</div>
+                                            <div style={{ fontSize:'var(--font-xs)', color:'var(--muted-foreground)' }}>{s.label}</div>
                                         </div>
                                     ))}
                                 </div>
 
-                                {/* Attendance list container */}
-                                <div style={{
-                                    background: 'var(--card)',
-                                    border: '1px solid var(--border)',
-                                    borderRadius: 16,
-                                    overflow: 'hidden',
-                                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                                }}>
-                                    <div style={{
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                    }}>
-                                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-                                            {classKey} — {students.length} Students
-                                        </div>
-                                        <select className="input input-auto" style={{ fontSize: '0.82rem' }}>
+                                <DataTable
+                                    title={`${classKey} — Attendance`}
+                                    data={students}
+                                    columns={['Student','Status','Notes']}
+                                    renderRow={s => (
+                                        <tr key={s.id}>
+                                            <td>
+                                                <div className="dt-cell-user">
+                                                    <div className="dt-avatar" style={{ background:'var(--primary)' }}>{s.initials}</div>
+                                                    <div><div className="dt-name">{s.name}</div><div className="dt-sub">{s.id}</div></div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <select className="input input-auto" value={getStatus(s.id, s.status)} onChange={e => setStudentStatus(s.id, e.target.value)} style={{ color: STATUS_COLORS[getStatus(s.id, s.status)] }}>
+                                                    <option>Present</option><option>Absent</option><option>Late</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" className="input" placeholder="Optional notes..." value={getNote(s.id, s.note)} onChange={e => setStudentNote(s.id, e.target.value)} />
+                                            </td>
+                                        </tr>
+                                    )}
+                                    emptyIcon="people"
+                                    emptyTitle="No students found"
+                                    emptyDesc={`No student records are available for ${classKey}.`}
+                                    headerRight={
+                                        <select className="input input-auto" style={{ fontSize:'var(--font-xs)' }}>
                                             <option>Today — {todayLabel}</option>
                                             <option>Yesterday</option>
                                         </select>
-                                    </div>
+                                    }
+                                />
 
-                                    <div className="table-responsive">
-                                        <table className="students-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Student</th>
-                                                    <th>Status</th>
-                                                    <th>Notes</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {students.map(s => (
-                                                    <tr key={s.id}>
-                                                        <td>
-                                                            <div className="student-info-cell">
-                                                                <div className="student-avatar">{s.initials}</div>
-                                                                <div>
-                                                                    <div className="student-name">{s.name}</div>
-                                                                    <div className="student-id-text">{s.id}</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <select
-                                                                className="input input-auto"
-                                                                value={getStatus(s.id, s.status)}
-                                                                onChange={e => setStudentStatus(s.id, e.target.value)}
-                                                                style={{ color: STATUS_COLORS[getStatus(s.id, s.status)] }}
-                                                            >
-                                                                <option>Present</option>
-                                                                <option>Absent</option>
-                                                                <option>Late</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                type="text"
-                                                                className="input"
-                                                                placeholder="Optional notes..."
-                                                                value={getNote(s.id, s.note)}
-                                                                onChange={e => setStudentNote(s.id, e.target.value)}
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <div style={{
-                                        display: 'flex', justifyContent: 'flex-end', gap: '0.75rem',
-                                        padding: '1rem 1.25rem', borderTop: '1px solid var(--border)',
-                                    }}>
-                                        <button className="btn btn-outline" onClick={() => setAttendance({})}>Reset</button>
-                                        <button className="btn btn-primary">
-                                            <span className="material-symbols-rounded icon-sm">save</span>
-                                            Save Attendance
-                                        </button>
-                                    </div>
+                                <div style={{ display:'flex', justifyContent:'flex-end', gap:'var(--space-3)' }}>
+                                    <button className="btn btn-outline" onClick={() => setAttendance({})}>Reset</button>
+                                    <button className="btn btn-primary"><span className="material-symbols-rounded icon-sm">save</span> Save Attendance</button>
                                 </div>
                             </>
                         )}

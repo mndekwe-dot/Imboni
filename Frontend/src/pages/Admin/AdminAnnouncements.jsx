@@ -14,7 +14,7 @@ const announcements = [
 ]
 
 const topPanel = (
-    <div className="portal-stat-grid" style={{ marginBottom: '1.25rem' }}>
+    <div className="portal-stat-grid">
         <StatCard colorClass=""        icon="campaign"          value="18"  label="Published"       trend="This term"      />
         <StatCard colorClass="warning" icon="draft"             value="3"   label="Drafts"          trend="Awaiting review" />
         <StatCard colorClass="danger"  icon="priority_high"     value="1"   label="Urgent"          trend="Active"         />

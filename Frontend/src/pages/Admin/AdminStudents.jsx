@@ -3,10 +3,11 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { StatCard } from '../../components/layout/StatCard'
 import { AdminStudentModal } from '../../components/modals/AdminStudentModal'
-import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
+import '../../styles/tables.css'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
@@ -117,93 +118,39 @@ export function AdminStudents() {
                             {stats.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
-                        {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap', margin: '1rem 0',
-                            background: 'var(--card)', border: '1px solid var(--border)',
-                            borderRadius: 16, padding: '0.75rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.4rem 0.75rem', flex: 1, minWidth: 200 }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--muted-foreground)' }}>search</span>
-                                <input
-                                    type="text"
-                                    placeholder="Search students..."
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.875rem', width: '100%' }}
-                                />
-                                {search && (
-                                    <button onClick={() => setSearch('')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, color: 'var(--muted-foreground)', display: 'flex' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
-                                    </button>
-                                )}
+                        {/* Toolbar */}
+                        <div className="toolbar-card">
+                            <div className="toolbar-search">
+                                <span className="material-symbols-rounded">search</span>
+                                <input placeholder="Search students..." value={search} onChange={e => setSearch(e.target.value)} />
+                                {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
                             </div>
-                            <select className="input input-auto" style={{ fontSize: '0.82rem' }} value={classFilter} onChange={e => setClassFilter(e.target.value)}>
+                            <select className="input input-auto select-xs" value={classFilter} onChange={e => setClassFilter(e.target.value)}>
                                 <option>All Classes</option>
                                 {classValues.map(c => <option key={c}>{c}</option>)}
                             </select>
-                            <select className="input input-auto" style={{ fontSize: '0.82rem' }} value={feeFilter} onChange={e => setFeeFilter(e.target.value)}>
+                            <select className="input input-auto select-xs" value={feeFilter} onChange={e => setFeeFilter(e.target.value)}>
                                 <option>All Fee Status</option>
-                                <option>Paid</option>
-                                <option>Partial</option>
-                                <option>Overdue</option>
+                                <option>Paid</option><option>Partial</option><option>Overdue</option>
                             </select>
-                            <div style={{ flex: 1 }} />
+                            <div className="toolbar-spacer" />
                             <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)}>
-                                <span className="material-symbols-rounded">person_add</span>
-                                Admit Student
+                                <span className="material-symbols-rounded icon-sm">person_add</span> Admit Student
                             </button>
                         </div>
 
-                        {filtered.length === 0 ? (
-                            <EmptyState
-                                icon="groups"
-                                title="No students found"
-                                description={search ? `No students match "${search}".` : 'No students match the selected filters.'}
-                                action={{ label: 'Clear Filters', icon: 'close', onClick: () => { setSearch(''); setClassFilter('All Classes'); setFeeFilter('All Fee Status') } }}
-                            />
-                        ) : (
-                            <div style={{
-                                background: 'var(--card)', border: '1px solid var(--border)',
-                                borderRadius: 16, overflow: 'hidden',
-                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                            }}>
-                                <div style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                }}>
-                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>All Students</div>
-                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                                        {filtered.length} student{filtered.length !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
-                                <div className="adm-table-wrap">
-                                    <table className="adm-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Student</th>
-                                                <th>Class</th>
-                                                <th>House</th>
-                                                <th>Fee Status</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filtered.map((s, i) => (
-                                                <StudentRow
-                                                    key={i} {...s}
-                                                    onView={() => setViewing(s)}
-                                                    onEdit={() => setEditing(s)}
-                                                />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                        <DataTable
+                            title="All Students"
+                            data={filtered}
+                            columns={['Student','Class','House','Fee Status','Status','Actions']}
+                            renderRow={s => (
+                                <StudentRow key={s.adm} {...s} onView={() => setViewing(s)} onEdit={() => setEditing(s)} />
+                            )}
+                            emptyIcon="groups"
+                            emptyTitle="No students found"
+                            emptyDesc={search ? `No results for "${search}"` : 'No students match the selected filters.'}
+                            onClearFilters={() => { setSearch(''); setClassFilter('All Classes'); setFeeFilter('All Fee Status') }}
+                        />
 
                     </DashboardContent>
                 </main>

@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
-import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
+import '../../styles/tables.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
@@ -120,86 +121,28 @@ export function DosStudents() {
                             onClassChange={setClassVal}
                         />
 
-                        {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap', margin: '1rem 0',
-                            background: 'var(--card)', border: '1px solid var(--border)',
-                            borderRadius: 16, padding: '0.75rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.4rem 0.75rem', flex: 1, minWidth: 200 }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--muted-foreground)' }}>search</span>
-                                <input
-                                    type="text"
-                                    placeholder="Search by name or admission number..."
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.875rem', width: '100%' }}
-                                />
-                                {search && (
-                                    <button onClick={() => setSearch('')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--muted-foreground)' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
-                                    </button>
-                                )}
+                        {/* Toolbar */}
+                        <div className="toolbar-card">
+                            <div className="toolbar-search">
+                                <span className="material-symbols-rounded">search</span>
+                                <input placeholder="Search by name or admission number..." value={search} onChange={e => setSearch(e.target.value)} />
+                                {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
                             </div>
-                            <div style={{ flex: 1 }} />
-                            <button className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
-                                <span className="material-symbols-rounded icon-sm">download</span>
-                                Export
-                            </button>
-                            <button className="btn btn-primary" style={{ fontSize: '0.82rem' }}>
-                                <span className="material-symbols-rounded icon-sm">person_add</span>
-                                Add Student
-                            </button>
+                            <div className="toolbar-spacer" />
+                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded icon-sm">download</span> Export</button>
+                            <button className="btn btn-primary btn-sm"><span className="material-symbols-rounded icon-sm">person_add</span> Add Student</button>
                         </div>
 
-                        {/* Content container or EmptyState */}
-                        {filtered.length === 0 ? (
-                            <EmptyState
-                                icon="people"
-                                title="No students found"
-                                description={search ? `No students match "${search}".` : `No students found for ${classLabel}.`}
-                                action={search ? { label: 'Clear Search', icon: 'close', onClick: () => setSearch('') } : undefined}
-                            />
-                        ) : (
-                            <div style={{
-                                background: 'var(--card)', border: '1px solid var(--border)',
-                                borderRadius: 16, overflow: 'hidden',
-                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                            }}>
-                                <div style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                                }}>
-                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-                                        {classLabel} — Students
-                                    </div>
-                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
-                                        {filtered.length} student{filtered.length !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
-                                <div className="tm-table-wrap">
-                                    <table className="tm-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Student</th>
-                                                <th>Adm No.</th>
-                                                <th>Dormitory</th>
-                                                <th>Term 1</th>
-                                                <th>Term 2</th>
-                                                <th>Current</th>
-                                                <th>Standing</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filtered.map(s => <StudentRow key={s.adm} {...s} />)}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                        <DataTable
+                            title={`${classLabel} — Students`}
+                            data={filtered}
+                            columns={['Student','Adm No.','Dormitory','Term 1','Term 2','Current','Standing','Actions']}
+                            renderRow={s => <StudentRow key={s.adm} {...s} />}
+                            emptyIcon="people"
+                            emptyTitle="No students found"
+                            emptyDesc={search ? `No results for "${search}"` : `No students found for ${classLabel}.`}
+                            onClearFilters={search ? () => setSearch('') : undefined}
+                        />
                     </DashboardContent>
                 </main>
             </div>

@@ -59,7 +59,7 @@ function BedCard({ bed, badgeClass, badge, student, condition, since, isEmpty })
                     <div className="bed-student">{student}</div>
                     <div className="bed-condition">{condition}</div>
                     <div className="bed-since">{since}</div>
-                    <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                    <div className="btn-row-sm" style={{ marginTop: '0.75rem' }}>
                         <button className="btn btn-outline btn-sm">Update</button>
                         <button className="btn btn-sm" style={{ background: 'var(--success-light)', color: 'var(--success)', border: 'none' }}>Discharge</button>
                     </div>
@@ -122,9 +122,7 @@ export const MatronHealth = () => {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title"><span className="material-symbols-rounded">bed</span> Sick Bay &mdash; Current Residents</h3>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <span style={{ fontSize: '0.8125rem', color: 'var(--muted-text)', alignSelf: 'center' }}>6 beds total &middot; 3 occupied &middot; 3 free</span>
-                                </div>
+                                <span className="settings-info-text" style={{ alignSelf: 'center' }}>6 beds total &middot; 3 occupied &middot; 3 free</span>
                             </div>
                             <div className="card-content">
                                 <div className="sickbay-grid">
@@ -198,7 +196,7 @@ export const MatronHealth = () => {
                                         </select>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                                <div className="btn-row mt-1-5">
                                     <button className="btn btn-primary"><span className="material-symbols-rounded">save</span> Save Record</button>
                                     <button className="btn btn-outline">Clear</button>
                                 </div>
@@ -208,8 +206,8 @@ export const MatronHealth = () => {
                         <div className="card">
                             <div className="card-header">
                                 <h3 className="card-title"><span className="material-symbols-rounded">history</span> Health Visit History</h3>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <select className="btn btn-outline btn-sm" style={{ padding: '0.3rem 0.6rem', fontSize: '0.8125rem' }}>
+                                <div className="btn-row-sm">
+                                    <select className="btn btn-outline btn-sm select-xs">
                                         <option>All Students</option>
                                         <option>Ingabire Belise</option>
                                         <option>Niyomugabo Iris</option>

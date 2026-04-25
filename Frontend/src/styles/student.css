@@ -1260,3 +1260,8 @@
 }
 
 /* ann-* announcement styles moved to pages.css (shared with Teacher + Parent) */
+
+.badge-student { background: var(--student-light, rgba(13,148,136,0.1)); color: var(--student, #0d9488); }
+
+.border-bottom-sep + .border-bottom-sep,
+.border-bottom-sep { border-bottom: 1px solid var(--border); }

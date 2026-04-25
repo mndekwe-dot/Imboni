@@ -2330,3 +2330,265 @@ body.tm-panel-open { overflow: hidden; }
 .publish-actions .material-symbols-rounded { font-size:1.1rem; }
 .es-pub-filter-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.25rem; align-items:flex-end; }
 .es-pub-filter-group { display:flex; flex-direction:column; gap:.35rem; }
+/* ── Recharts custom tooltip ── */
+.chart-tooltip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.82rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.chart-tooltip-label  { font-weight: 700; margin-bottom: 6px; }
+.chart-tooltip-item   { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 2px; }
+.chart-tooltip-dot-ln { width: 10px; height: 3px;  border-radius: 2px; display: inline-block; }
+.chart-tooltip-dot-sq { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.chart-tooltip-key    { color: var(--muted-foreground); }
+.chart-tooltip-val    { font-weight: 600; }
+.chart-tooltip-compare-up   { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); font-size: 0.75rem; color: #10b981; }
+.chart-tooltip-compare-down { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); font-size: 0.75rem; color: #ef4444; }
+
+/* ── Dashboard overview panel ── */
+.overview-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 1.5rem;
+}
+.overview-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--muted);
+}
+.overview-panel-title { font-weight: 700; font-size: 0.95rem; }
+.overview-panel-body  { padding: 1rem; gap: 1rem; }
+
+/* ── Chart legend row ── */
+.chart-legend-row  { display: flex; gap: 1rem; justify-content: center; margin-top: 0.25rem; }
+.chart-legend-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; color: var(--muted-foreground); }
+.chart-legend-dot  { width: 16px; height: 2px; border-radius: 1px; display: inline-block; }
+
+/* ── Result cards ── */
+.dos-result-card { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+.dos-result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+.dos-result-info { flex: 1; min-width: 0; }
+.dos-result-title { font-weight: 700; font-size: 1rem; margin-bottom: 3px; }
+.dos-result-meta  { font-size: 0.82rem; color: var(--muted-foreground); }
+.dos-result-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* ── Mini stat cells (result overview) ── */
+.dos-mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.dos-mini-stat {
+  background: var(--muted);
+  border-radius: 10px;
+  padding: 0.75rem;
+  text-align: center;
+}
+.dos-mini-stat-value { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+.dos-mini-stat-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); margin-top: 2px; }
+
+/* ── Review block (modal overview) ── */
+.dos-review-block { background: var(--muted); border-radius: 10px; padding: 0.875rem 1rem; margin-bottom: 1rem; }
+.dos-review-block-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap; }
+.dos-review-block-title { font-weight: 700; font-size: 1rem; }
+.dos-review-block-meta  { font-size: 0.8rem; color: var(--muted-foreground); margin-top: 2px; }
+
+.dos-review-stats { display: flex; gap: 0.5rem; }
+.dos-review-stat  { background: var(--card); border-radius: 8px; padding: 0.5rem 0.75rem; text-align: center; min-width: 60px; }
+.dos-review-stat-value { font-weight: 800; font-size: 1.1rem; color: var(--primary); }
+.dos-review-stat-label { font-size: 0.65rem; color: var(--muted-foreground); text-transform: uppercase; font-weight: 600; }
+
+/* ── Modal tab bar ── */
+.dos-modal-tabs { display: flex; gap: 0.35rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; }
+
+/* ── Overview stats (analytics section) ── */
+.dos-overview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(120px,100%), 1fr));
+  gap: 0.75rem;
+}
+.dos-overview-stat { background: var(--muted); border-radius: 10px; padding: 0.875rem; text-align: center; }
+.dos-overview-stat-value { font-size: 1.4rem; font-weight: 800; }
+.dos-overview-stat-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: var(--muted-foreground); margin-top: 2px; }
+
+/* ── Custom inline dropdown ── */
+.inline-select-wrap { position: relative; }
+.inline-select-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+}
+.inline-select-btn.has-value { color: var(--foreground); }
+.inline-select-btn .material-symbols-rounded { font-size: 1rem; color: var(--muted-foreground); }
+.inline-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 300;
+  min-width: 160px;
+  overflow: hidden;
+}
+.inline-select-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.875rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 400;
+  background: transparent;
+  color: var(--foreground);
+}
+.inline-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
+
+/* ── Form select (modal) ── */
+.form-select-wrap { position: relative; }
+.form-select-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--muted-foreground);
+}
+.form-select-btn.has-value { color: var(--foreground); }
+.form-select-btn .material-symbols-rounded { font-size: 1.1rem; color: var(--muted-foreground); }
+.form-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 300;
+  overflow: hidden;
+}
+.form-select-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.875rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 400;
+  background: transparent;
+  color: var(--foreground);
+}
+.form-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
+
+/* ── Assign class grid ── */
+.assign-class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.5rem;
+}
+.assign-class-btn {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.assign-class-btn.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+}
+
+/* ── Teacher card in modal ── */
+.teacher-modal-header { margin-bottom: 1rem; }
+.teacher-modal-name   { font-weight: 700; font-size: 0.95rem; }
+.teacher-modal-meta   { font-size: 0.82rem; color: var(--muted-foreground); }
+.teacher-assign-note  { font-size: 0.78rem; color: var(--muted-foreground); margin-bottom: 0.75rem; }
+.teacher-assign-hint  { margin-top: 1rem; font-size: 0.8rem; color: var(--muted-foreground); }
+
+/* ── Teacher table status ── */
+.dt-status-active   { color: var(--success); }
+.dt-status-inactive { color: var(--muted-foreground); }
+.dt-status-dot-active   { background: var(--success) !important; }
+.dt-status-dot-inactive { background: var(--border) !important; }
+
+.btn-destructive-outline { color: var(--destructive) !important; border-color: var(--destructive) !important; }
+
+/* ── Question paper tab ── */
+.qp-empty       { text-align: center; padding: 3rem 1rem; color: var(--muted-foreground); }
+.qp-empty-icon  { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.4; }
+.qp-file-card   { display: flex; align-items: center; gap: 1rem; padding: 1.25rem; background: var(--muted); border-radius: 12px; border: 1px solid var(--border); }
+.qp-file-icon   { width: 52px; height: 52px; border-radius: 10px; background: rgba(239,68,68,0.12); color: #ef4444; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.qp-file-icon .material-symbols-rounded { font-size: 1.8rem; }
+.qp-file-body   { flex: 1; min-width: 0; }
+.qp-file-name   { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qp-file-meta   { font-size: 0.78rem; color: var(--muted-foreground); margin-top: 3px; }
+.qp-preview     {
+  height: 360px; border-radius: 12px; border: 2px dashed var(--border);
+  background: var(--muted); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 0.75rem;
+  color: var(--muted-foreground);
+}
+.qp-preview-icon  { font-size: 3rem !important; opacity: 0.35; }
+.qp-preview-title { font-weight: 600; font-size: 0.9rem; }
+.qp-preview-meta  { font-size: 0.8rem; opacity: 0.7; }
+
+/* ── Student marks table ── */
+.marks-wrap { overflow-x: auto; }
+.marks-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.marks-table th {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+  background: var(--muted);
+}
+.marks-table td { padding: 0.625rem 0.875rem; border-bottom: 1px solid var(--border); }
+.marks-table tbody tr:last-child td { border-bottom: none; }
+.marks-td-num   { color: var(--muted-foreground); font-size: 0.8rem; }
+.marks-td-id    { color: var(--muted-foreground); font-size: 0.8rem; }
+.marks-td-name  { font-weight: 600; }
+.marks-td-score { font-weight: 700; color: var(--primary); }
+.marks-footer   { padding: 0.75rem; font-size: 0.78rem; color: var(--muted-foreground); text-align: right; }
+
+/* ── View modal stat grid ── */
+.view-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+.view-stat-cell { background: var(--muted); border-radius: 10px; padding: 0.875rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+.view-stat-label { font-size: 0.82rem; color: var(--muted-foreground); }
+.view-stat-value { font-weight: 700; font-size: 1.1rem; }
+
+/* ── Analytics chart section ── */
+.analytics-section       { display: flex; flex-direction: column; gap: 1rem; }
+.analytics-chart-grid    { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }
+.analytics-chart-card    { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+.analytics-chart-title   { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; }

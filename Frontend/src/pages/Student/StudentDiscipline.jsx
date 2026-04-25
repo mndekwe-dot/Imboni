@@ -91,7 +91,7 @@ function DisciplineRow({ date, type, typeBg, typeColor, description, issuedBy, p
       <td>
         {pointsClass
           ? <span className={pointsClass}>{points}</span>
-          : <span style={{ color: '#f59e0b', fontWeight: 700 }}>{points}</span>
+          : <span className="text-warning-bold">{points}</span>
         }
       </td>
     </tr>
@@ -173,17 +173,17 @@ export function StudentDiscipline() {
                         </div>
 
                         {/* My conduct standing */}
-                        <div className="student-stats-grid" style={{ marginBottom: '1.5rem' }}>
+                        <div className="student-stats-grid mb-1-5">
                             {conductStats.map((stat, i) => (
                                 <ConductStat key={i} {...stat} />
                             ))}
                         </div>
 
                         {/* Discipline records */}
-                        <div className="card" style={{ marginBottom: '1.5rem' }}>
+                        <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title"><span className="material-symbols-rounded">history</span> My Discipline Records</h3>
-                                <div className="filter-tabs-bar" style={{ margin: 0 }}>
+                                <div className="filter-tabs-bar mb-0 mt-0">
                                     <button className="filter-tab active">All</button>
                                     <button className="filter-tab">Positive</button>
                                     <button className="filter-tab">Negative</button>
@@ -213,8 +213,8 @@ export function StudentDiscipline() {
                         </div>
 
                         {/* Code of conduct */}
-                        <div style={{ marginBottom: '0.75rem' }}>
-                            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1rem' }}>
+                        <div className="mb-3">
+                            <h3 className="flex-row-gap-sm" style={{ fontWeight: 700, fontSize: '1rem' }}>
                                 <span className="material-symbols-rounded">menu_book</span> Code of Conduct
                             </h3>
                         </div>
@@ -225,7 +225,7 @@ export function StudentDiscipline() {
                         </div>
 
                         {/* Appeals process */}
-                        <div className="card" style={{ marginTop: '1.5rem' }}>
+                        <div className="card mt-1-5">
                             <div className="card-header">
                                 <h3 className="card-title"><span className="material-symbols-rounded">balance</span> Appeals Process</h3>
                             </div>

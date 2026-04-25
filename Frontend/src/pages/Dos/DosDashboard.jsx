@@ -35,17 +35,13 @@ const weeklyTrend = [
 function TrendTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null
     return (
-        <div style={{
-            background: 'var(--card)', border: '1px solid var(--border)',
-            borderRadius: 8, padding: '0.5rem 0.875rem',
-            fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        }}>
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>{label}</div>
+        <div className="chart-tooltip">
+            <div className="chart-tooltip-label">{label}</div>
             {payload.map(p => (
-                <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: 2 }}>
-                    <span style={{ width: 10, height: 3, borderRadius: 2, background: p.color, display: 'inline-block' }} />
-                    <span style={{ color: 'var(--muted-foreground)' }}>{p.name}:</span>
-                    <span style={{ fontWeight: 600 }}>{p.value}%</span>
+                <div key={p.name} className="chart-tooltip-item">
+                    <span className="chart-tooltip-dot-ln" style={{ background: p.color }} />
+                    <span className="chart-tooltip-key">{p.name}:</span>
+                    <span className="chart-tooltip-val">{p.value}%</span>
                 </div>
             ))}
         </div>
@@ -63,23 +59,20 @@ const gradePerformance = [
 
 function GradeTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null
+    const up = payload.length === 2 && payload[1].value >= payload[0].value
     return (
-        <div style={{
-            background: 'var(--card)', border: '1px solid var(--border)',
-            borderRadius: 8, padding: '0.5rem 0.875rem',
-            fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        }}>
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>{label}</div>
+        <div className="chart-tooltip">
+            <div className="chart-tooltip-label">{label}</div>
             {payload.map(p => (
-                <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: 2 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: 2, background: p.fill, display: 'inline-block' }} />
-                    <span style={{ color: 'var(--muted-foreground)' }}>{p.name}:</span>
-                    <span style={{ fontWeight: 600 }}>{p.value}%</span>
+                <div key={p.name} className="chart-tooltip-item">
+                    <span className="chart-tooltip-dot-sq" style={{ background: p.fill }} />
+                    <span className="chart-tooltip-key">{p.name}:</span>
+                    <span className="chart-tooltip-val">{p.value}%</span>
                 </div>
             ))}
             {payload.length === 2 && (
-                <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid var(--border)', fontSize: '0.75rem', color: payload[1].value >= payload[0].value ? '#10b981' : '#ef4444' }}>
-                    {payload[1].value >= payload[0].value ? '▲' : '▼'} {Math.abs(payload[1].value - payload[0].value)}% vs Term 1
+                <div className={up ? 'chart-tooltip-compare-up' : 'chart-tooltip-compare-down'}>
+                    {up ? '▲' : '▼'} {Math.abs(payload[1].value - payload[0].value)}% vs Term 1
                 </div>
             )}
         </div>
@@ -165,21 +158,12 @@ export function DosDashboard() {
                         </div>
 
                         {/* One container for all three cards */}
-                        <div style={{
-                            background: 'var(--card)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 16,
-                            overflow: 'hidden',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
-                            <div style={{
-                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)',
-                            }}>
-                                <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Overview</span>
+                        <div className="overview-panel">
+                            <div className="overview-panel-header">
+                                <span className="overview-panel-title">Overview</span>
                             </div>
 
-                            <div className="cards-grid" style={{ padding: '1rem', gap: '1rem' }}>
+                            <div className="cards-grid overview-panel-body">
                             <div className="card">
                                 <div className="card-header">
                                     <h2 className="card-title">Quick Actions</h2>
@@ -273,10 +257,10 @@ export function DosDashboard() {
                                             />
                                         </AreaChart>
                                     </ResponsiveContainer>
-                                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '0.25rem' }}>
+                                    <div className="chart-legend-row">
                                         {[['#10b981', 'Attendance'], ['#003d7a', 'Performance']].map(([color, label]) => (
-                                            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
-                                                <span style={{ width: 16, height: 2, background: color, display: 'inline-block', borderRadius: 1 }} />
+                                            <div key={label} className="chart-legend-item">
+                                                <span className="chart-legend-dot" style={{ background: color }} />
                                                 {label}
                                             </div>
                                         ))}

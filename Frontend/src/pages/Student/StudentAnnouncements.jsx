@@ -20,7 +20,7 @@ const sidebar = (
             <div className="ann-pinned-item">
                 <div className="ann-pinned-title">Physics Exam moved to Mar 14</div>
                 <div className="ann-pinned-sub">
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>person</span>
+                    <span className="material-symbols-rounded icon-sm-btn">person</span>
                     Ms. Uwera <span>·</span> Mar 8
                 </div>
             </div>

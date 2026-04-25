@@ -14,7 +14,7 @@ const announcements = [
 ]
 
 const topPanel = (
-    <div className="portal-stat-grid" style={{ marginBottom: '1.25rem' }}>
+    <div className="portal-stat-grid mb-5">
         <StatCard colorClass="info"    icon="inbox"             value="6" label="Total Messages"  trend="Inbox"   />
         <StatCard colorClass="warning" icon="mark_email_unread" value="2" label="Unread"           trend="New"     />
         <StatCard colorClass="danger"  icon="priority_high"     value="1" label="Urgent"           trend="Action needed" />

@@ -168,11 +168,11 @@ export function ParentBehaviour() {
                                             All <span className="count-badge">3</span>
                                         </button>
                                         <button className="behavior-filter-btn">
-                                            <span className="material-symbols-rounded" style={{ fontSize: '14px' }}>thumb_up</span>
+                                            <span className="material-symbols-rounded icon-14">thumb_up</span>
                                             Positive <span className="count-badge">2</span>
                                         </button>
                                         <button className="behavior-filter-btn">
-                                            <span className="material-symbols-rounded" style={{ fontSize: '14px' }}>warning</span>
+                                            <span className="material-symbols-rounded icon-14">warning</span>
                                             Warnings <span className="count-badge">1</span>
                                         </button>
                                     </div>
@@ -187,7 +187,7 @@ export function ParentBehaviour() {
                             <div className="card">
                                 <div className="card-header">
                                     <h3 className="card-title">Achievements</h3>
-                                    <span className="badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)', fontWeight: 700 }}>5 earned</span>
+                                    <span className="badge badge-accent">5 earned</span>
                                 </div>
                                 <div className="card-content">
                                     <div className="achievements-grid">

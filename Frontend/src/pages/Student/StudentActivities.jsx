@@ -96,9 +96,9 @@ export function StudentActivities() {
                 <div className="score-title">Discipline & Behavior Score — Term 2</div>
                 <span className="score-status good">Good Standing</span>
                 <div className="score-breakdown">
-                  <span className="score-breakdown-item" style={{ color: 'var(--success)' }}><span className="material-symbols-rounded">add_circle</span>+24 positive points</span>
-                  <span className="score-breakdown-item" style={{ color: 'var(--destructive)' }}><span className="material-symbols-rounded">remove_circle</span>-5 deducted points</span>
-                  <span className="score-breakdown-item" style={{ color: 'var(--muted-foreground)' }}><span className="material-symbols-rounded">history</span>Last updated Mar 7</span>
+                  <span className="score-breakdown-item score-pos"><span className="material-symbols-rounded">add_circle</span>+24 positive points</span>
+                  <span className="score-breakdown-item score-neg"><span className="material-symbols-rounded">remove_circle</span>-5 deducted points</span>
+                  <span className="score-breakdown-item score-hist"><span className="material-symbols-rounded">history</span>Last updated Mar 7</span>
                 </div>
               </div>
             </div>

@@ -16,28 +16,17 @@ const settingsStats = [
 
 function TagList({ items, onRemove }) {
     return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+        <div className="tag-list">
             {items.map(item => (
-                <span key={item} style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-                    padding: '0.25rem 0.625rem', borderRadius: '999px',
-                    background: 'var(--muted)', fontSize: '0.82rem', fontWeight: 500,
-                    color: 'var(--foreground)',
-                }}>
+                <span key={item} className="tag-chip">
                     {item}
-                    <button onClick={() => onRemove(item)} style={{
-                        display: 'inline-flex', alignItems: 'center', background: 'none',
-                        border: 'none', cursor: 'pointer', padding: 0,
-                        color: 'var(--muted-foreground)',
-                    }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>close</span>
+                    <button className="tag-chip-remove" onClick={() => onRemove(item)}>
+                        <span className="material-symbols-rounded">close</span>
                     </button>
                 </span>
             ))}
             {items.length === 0 && (
-                <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>
-                    None added yet
-                </span>
+                <span className="tag-chip-empty">None added yet</span>
             )}
         </div>
     )
@@ -54,22 +43,21 @@ function ConfigSection({ title, description, items, onAdd, onRemove, placeholder
     }
 
     return (
-        <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ marginBottom: '0.5rem' }}>
-                <p style={{ fontWeight: 600, fontSize: '0.9rem', margin: 0 }}>{title}</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', margin: '0.1rem 0 0' }}>{description}</p>
+        <div className="settings-block">
+            <div className="settings-block-label">
+                <p className="settings-block-title">{title}</p>
+                <p className="settings-block-desc">{description}</p>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="settings-block-input-row">
                 <input
-                    className="disc-picker-select"
-                    style={{ flex: 1 }}
+                    className="disc-picker-select flex-1"
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
                     placeholder={placeholder}
                 />
                 <button className="btn btn-primary btn-sm" onClick={handleAdd}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>add</span>
+                    <span className="material-symbols-rounded icon-sm">add</span>
                     Add
                 </button>
             </div>
@@ -138,7 +126,7 @@ export function DisSettings() {
                     />
 
                     <DashboardContent>
-                        <div className="disc-stat-grid" style={{ marginBottom: '1.5rem' }}>
+                        <div className="disc-stat-grid mb-1-5">
                             {settingsStats.map((s, i) => (
                                 <div key={i} className="disc-stat-card">
                                     <div className={`disc-stat-icon ${s.iconClass}`}>
@@ -152,12 +140,10 @@ export function DisSettings() {
                             ))}
                         </div>
 
-                        <div className="card" style={{ marginBottom: '1.5rem' }}>
+                        <div className="card mb-1-5">
                             <div className="card-header">
                                 <h2 className="card-title">Year Groups</h2>
-                                <span style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
-                                    Year or grade levels in your school
-                                </span>
+                                <span className="settings-info-text">Year or grade levels in your school</span>
                             </div>
                             <div className="card-content">
                                 <ConfigSection
@@ -174,9 +160,7 @@ export function DisSettings() {
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">Sections &amp; Classes</h2>
-                                <span style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
-                                    Each section has its own class streams
-                                </span>
+                                <span className="settings-info-text">Each section has its own class streams</span>
                             </div>
                             <div className="card-content">
                                 <ConfigSection
@@ -189,10 +173,8 @@ export function DisSettings() {
                                 />
 
                                 {config.sections.length > 0 && (
-                                    <div style={{ marginTop: '1.25rem', borderTop: '1px solid var(--border)', paddingTop: '1.25rem' }}>
-                                        <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '1rem' }}>
-                                            Classes per Section
-                                        </p>
+                                    <div className="settings-border-section">
+                                        <p className="settings-border-title">Classes per Section</p>
                                         {config.sections.map(sec => (
                                             <ConfigSection
                                                 key={sec.name}
@@ -207,11 +189,9 @@ export function DisSettings() {
                                     </div>
                                 )}
 
-                                <div style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--success, #16a34a)' }}>cloud_done</span>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
-                                        Changes are saved automatically
-                                    </span>
+                                <div className="cloud-save-row">
+                                    <span className="material-symbols-rounded cloud-save-icon">cloud_done</span>
+                                    <span className="settings-info-text">Changes are saved automatically</span>
                                 </div>
                             </div>
                         </div>

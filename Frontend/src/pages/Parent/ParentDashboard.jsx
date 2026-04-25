@@ -125,7 +125,7 @@ export function ParentDashboard() {
                                     <button key={child.name} className={`tabs-trigger${i === 0 ? ' active' : ''}`} onClick={() => {}}>
                                         <div className="tabs-trigger-avatar">{child.initial}</div>
                                         <span>{child.name}</span>
-                                        <span className="badge badge-secondary" style={{ fontSize: '0.75rem' }}>{child.grade}</span>
+                                        <span className="badge badge-secondary select-xs">{child.grade}</span>
                                     </button>
                                 ))}
                             </div>

@@ -5,7 +5,8 @@
       "Read(//c/Users/user/Documents/Imboni/Frontend/src/pages/**)",
       "Bash(npm install *)",
       "Bash(python3 -)",
-      "Bash(python3)"
+      "Bash(python3)",
+      "Bash(sort -t: -k2 -rn)"
     ]
   }
 }

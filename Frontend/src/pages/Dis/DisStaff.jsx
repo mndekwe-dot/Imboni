@@ -47,7 +47,7 @@ function MatronCard({ initials, name, role, students, ext, email, duty, onEdit, 
                 </button>
                 {confirmId === id ? (
                     <>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Remove?</span>
+                        <span className="remove-confirm-text">Remove?</span>
                         <button className="btn btn-sm btn-primary" onClick={() => onDelete(id)}>Yes</button>
                         <button className="btn btn-sm btn-outline" onClick={() => onDelete(null)}>No</button>
                     </>
@@ -84,7 +84,7 @@ function PatronCard({ initials, name, role, activityIcon, activities, students, 
                 </button>
                 {confirmId === id ? (
                     <>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Remove?</span>
+                        <span className="remove-confirm-text">Remove?</span>
                         <button className="btn btn-sm btn-primary" onClick={() => onDelete(id)}>Yes</button>
                         <button className="btn btn-sm btn-outline" onClick={() => onDelete(null)}>No</button>
                     </>
@@ -153,7 +153,7 @@ export function DisStaff() {
                         <button className="btn btn-primary btn-sm" onClick={() => setShowAddModal(true)}>
                             <span className="material-symbols-rounded">person_add</span> Add Staff
                         </button>
-                        <div className="staff-cards-grid" style={{ marginBottom: '2rem' }}>
+                        <div className="staff-cards-grid mb-1-5">
                             {matrons.map(matron => (
                                 <MatronCard key={matron.id} {...matron}
                                     onEdit={() => setEditingStaff(matron)}
