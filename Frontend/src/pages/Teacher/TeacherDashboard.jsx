@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
@@ -9,15 +10,20 @@ import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNa
 
 
 const dashStats = [
-    { icon: 'check_circle',    value: '94%', label: 'Overall Attendance', trend: '+2.5% from last week', trendClass: 'positive', colorClass: 'success' },
-    { icon: 'school',          value: '81%', label: 'Class Average',       trend: '+4% from last term',  trendClass: 'positive', colorClass: '' },
-    { icon: 'assignment_late', value: '8',   label: 'Pending Grading',     trend: '3 due this week',     trendClass: '',          colorClass: 'warning' },
-    { icon: 'groups',          value: '152', label: 'Total Students',       trend: 'Across 5 classes',    trendClass: '',          colorClass: '' },
-    { icon: 'menu_book',       value: '5',   label: 'Classes Today',        trend: '2 completed, 3 remaining', trendClass: '', colorClass: '' },
-    { icon: 'chat',            value: '15',  label: 'Messages',             trend: '7 unread',             trendClass: 'negative', colorClass: '' },
-    { icon: 'assignment_late', value: '12',  label: 'Pending Results',      trend: '3 due today',          trendClass: 'negative', colorClass: 'red' },
-    { icon: 'check_circle',    value: '94%', label: 'Attendance Rate',      trend: 'This week',             trendClass: 'positive', colorClass: 'success' },
+    { icon: 'check_circle',    value: '94%', label: 'Attendance Rate',  trend: '+2.5% from last week', trendClass: 'positive', colorClass: 'success' },
+    { icon: 'school',          value: '81%', label: 'Class Average',    trend: '+4% from last term',   trendClass: 'positive', colorClass: '' },
+    { icon: 'assignment_late', value: '8',   label: 'Pending Grading',  trend: '3 due this week',      trendClass: 'negative', colorClass: 'warning' },
+    { icon: 'groups',          value: '152', label: 'Total Students',   trend: 'Across 5 classes',     trendClass: '',          colorClass: '' },
+    { icon: 'menu_book',       value: '5',   label: 'Classes Today',    trend: '2 completed, 3 left',  trendClass: '',          colorClass: '' },
 ]
+
+const cardStyle = {
+    background: 'var(--card)',
+    border: '1px solid var(--border)',
+    borderRadius: 16,
+    padding: '1rem 1.25rem',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+}
 
 const todaySchedule = [
     { time: '08:00 - 09:00', room: 'Room 201', className: 'S4A', subject: 'Mathematics', status: 'Completed',   statusClass: 'badge-completed', cardClass: 'completed', showMark: false },
@@ -120,6 +126,8 @@ function ActivityItem({ iconClass, icon, boldText, restText, time }) {
 }
 
 export function TeacherDashboard() {
+    const navigate = useNavigate()
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -138,25 +146,41 @@ export function TeacherDashboard() {
                             role="Mathematics Teacher &bull; Imboni Academy"
                         />
 
-                        <div className="quick-actions">
-                            <button className="btn btn-primary">
-                                <span className="material-symbols-rounded">how_to_reg</span>
-                                Mark Attendance
-                            </button>
-                            <button className="btn btn-outline">
-                                <span className="material-symbols-rounded">edit_note</span>
-                                Enter Results
-                            </button>
-                            <button className="btn btn-outline">
-                                <span className="material-symbols-rounded">report</span>
-                                Report Incident
-                            </button>
+                        {/* Quick actions container */}
+                        <div style={cardStyle}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>
+                                Quick Actions
+                            </div>
+                            <div className="quick-actions" style={{ margin: 0 }}>
+                                <button className="btn btn-primary" onClick={() => navigate('/teacher/attendance')}>
+                                    <span className="material-symbols-rounded">how_to_reg</span>
+                                    Mark Attendance
+                                </button>
+                                <button className="btn btn-outline" onClick={() => navigate('/teacher/classes')}>
+                                    <span className="material-symbols-rounded">edit_note</span>
+                                    Enter Results
+                                </button>
+                                <button className="btn btn-outline" onClick={() => navigate('/teacher/assignments')}>
+                                    <span className="material-symbols-rounded">assignment</span>
+                                    Assignments
+                                </button>
+                                <button className="btn btn-outline" onClick={() => navigate('/teacher/classes')}>
+                                    <span className="material-symbols-rounded">groups</span>
+                                    My Classes
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="portal-stat-grid">
-                            {dashStats.map((stat, i) => (
-                                <StatCard key={i} {...stat} />
-                            ))}
+                        {/* Stats container */}
+                        <div style={cardStyle}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>
+                                Overview
+                            </div>
+                            <div className="portal-stat-grid" style={{ margin: 0 }}>
+                                {dashStats.map((stat, i) => (
+                                    <StatCard key={i} {...stat} />
+                                ))}
+                            </div>
                         </div>
 
                         <div className="content-grid-2-1">

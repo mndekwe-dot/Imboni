@@ -11,8 +11,6 @@ import { StudentAnnouncements } from './pages/Student/StudentAnnouncements';
 import { StudentMessages } from './pages/Student/StudentMessages';
 import { TeacherDashboard } from './pages/Teacher/TeacherDashboard';
 import { TeacherClasses } from './pages/Teacher/TeacherClasses';
-import { TeacherResults } from './pages/Teacher/TeacherResults';
-import { TeacherStudent } from './pages/Teacher/TeacherStudents';
 import { TeacherAttendance } from './pages/Teacher/TeacherAttendance';
 import { TeacherMessages } from './pages/Teacher/TeacherMessages';
 import { TeacherAnnouncement } from './pages/Teacher/TeacherAnnouncement';
@@ -87,8 +85,6 @@ function App() {
       {/* ── Teacher routes ── */}
       <Route path="/teacher" element={<TeacherDashboard />} />
       <Route path="/teacher/classes" element={<TeacherClasses />} />
-      <Route path="/teacher/results" element={<TeacherResults />} />
-      <Route path="/teacher/students" element={<TeacherStudent />} />
       <Route path="/teacher/attendance" element={<TeacherAttendance />} />
       <Route path="/teacher/announcements" element={<TeacherAnnouncement />} />
       <Route path="/teacher/messages" element={<TeacherMessages />} />

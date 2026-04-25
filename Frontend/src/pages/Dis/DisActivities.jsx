@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { NewActivityModal } from '../../components/modals/NewActivityModal'
 import { EditActivityModal } from '../../components/modals/EditActivityModal'
-import { useState } from 'react'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -144,170 +145,59 @@ export function DisActivities() {
                             ))}
                         </div>
 
-                        {/* Create / Edit Form Panel */}
-                        <div className="act-panel" id="actFormPanel">
-                            <div className="card">
-                                <div className="card-header">
-                                    <button className="card-title" id="actFormTitle" onClick={() => setIsOpen(true)}><span className="material-symbols-rounded">add_circle</span> Create New Club / Event</button>
-                                </div>
-                                <div className="card-content">
-                                    <div className="incident-form">
-                                        <div className="form-row-2">
-                                            <div className="form-group">
-                                                <label className="form-label">Club / Event Name</label>
-                                                <input type="text" className="form-input" id="actName" placeholder="e.g. Science Club" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="form-label">Category</label>
-                                                <select className="form-input" id="actCategory">
-                                                    <option>Sports</option>
-                                                    <option>Arts</option>
-                                                    <option>Academic</option>
-                                                    <option>Social</option>
-                                                    <option>Science</option>
-                                                    <option>Event</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="form-row-2">
-                                            <div className="form-group">
-                                                <label className="form-label">Patron Teacher</label>
-                                                <input type="text" className="form-input" id="actPatron" placeholder="e.g. Mr. Nkurunziza" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="form-label">Meeting Schedule</label>
-                                                <input type="text" className="form-input" id="actSchedule" placeholder="e.g. Tue &amp; Thu, 4:30 PM" />
-                                            </div>
-                                        </div>
-                                        <div className="form-row-2">
-                                            <div className="form-group">
-                                                <label className="form-label">Venue / Location</label>
-                                                <input type="text" className="form-input" id="actVenue" placeholder="e.g. Sports Field" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="form-label">Status</label>
-                                                <select className="form-input" id="actStatus">
-                                                    <option value="draft">Draft</option>
-                                                    <option value="active">Active (visible to students)</option>
-                                                    <option value="published">Published (visible to all)</option>
-                                                    <option value="suspended">Suspended</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="form-group">
-                                            <label className="form-label">Description</label>
-                                            <textarea className="form-input form-textarea" id="actDesc" rows="3" placeholder="Brief description of this club or event..."></textarea>
-                                        </div>
-                                        <div className="form-actions">
-                                            <button className="btn btn-secondary" onClick={() => { }}>Cancel</button>
-                                            <button className="btn btn-outline" onClick={() => { }}><span className="material-symbols-rounded">save</span> Save Draft</button>
-                                            <button className="btn btn-primary" onClick={() => { }}><span className="material-symbols-rounded">publish</span> Save &amp; Publish</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Members Panel */}
-                        <div className="act-panel" id="actMembersPanel">
-                            <div className="card">
-                                <div className="card-header">
-                                    <h3 className="card-title" id="membersPanelTitle"><span className="material-symbols-rounded">group</span> Football Club &mdash; Members</h3>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button className="btn btn-primary btn-sm" onClick={() => { }}><span className="material-symbols-rounded">person_add</span> Add Member</button>
-                                        <button className="btn btn-outline btn-sm" onClick={() => { }}>Close</button>
-                                    </div>
-                                </div>
-                                <div className="card-content">
-
-                                    {/* Add member inline form */}
-                                    <div id="addMemberForm" style={{ display: 'none', background: 'var(--muted)', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-                                        <div className="form-row-2" style={{ marginBottom: '0.75rem' }}>
-                                            <div className="form-group">
-                                                <label className="form-label">Student Name / Adm #</label>
-                                                <input type="text" className="form-input" id="newMemberName" placeholder="e.g. Uwase Amina or 2024-S1-001" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="form-label">Class</label>
-                                                <select className="form-input" id="newMemberClass">
-                                                    <option value="">Select class</option>
-                                                    <option>S1A</option><option>S1B</option><option>S1C</option>
-                                                    <option>S2A</option><option>S2B</option><option>S2C</option>
-                                                    <option>S3A</option><option>S3B</option><option>S3C</option>
-                                                    <option>S4A</option><option>S4B</option><option>S4C</option>
-                                                    <option>S5A</option><option>S5B</option><option>S5C</option>
-                                                    <option>S6A</option><option>S6B</option><option>S6C</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="form-actions">
-                                            <button className="btn btn-secondary btn-sm" onClick={() => { }}>Cancel</button>
-                                            <button className="btn btn-primary btn-sm" onClick={() => { }}>Add Member</button>
-                                        </div>
-                                    </div>
-
-                                    <div className="member-list" id="memberList">
-                                        <div className="member-row">
-                                            <div className="student-av-sm patron">KO</div>
-                                            <div className="member-info">
-                                                <div className="member-name">Mutabazi Kevin</div>
-                                                <div className="member-meta">S4A &bull; Adm# 2022-S4-011 &bull; Joined: Jan 2026</div>
-                                            </div>
-                                            <span className="pub-badge active">Captain</span>
-                                            <div className="member-actions">
-                                                <button className="btn btn-outline btn-sm" onClick={() => { }}>Edit Role</button>
-                                                <button className="btn btn-outline btn-sm" onClick={() => { }}>Remove</button>
-                                            </div>
-                                        </div>
-                                        <div className="member-row">
-                                            <div className="student-av-sm patron">PM</div>
-                                            <div className="member-info">
-                                                <div className="member-name">Mugisha Pierre</div>
-                                                <div className="member-meta">S2A &bull; Adm# 2023-S2-012 &bull; Joined: Sep 2025</div>
-                                            </div>
-                                            <span className="pub-badge draft">Member</span>
-                                            <div className="member-actions">
-                                                <button className="btn btn-outline btn-sm" onClick={() => { }}>Edit Role</button>
-                                                <button className="btn btn-outline btn-sm" onClick={() => { }}>Remove</button>
-                                            </div>
-                                        </div>
-                                        <div className="member-row">
-                                            <div className="student-av-sm matron">JA</div>
-                                            <div className="member-info">
-                                                <div className="member-name">Janet Auma</div>
-                                                <div className="member-meta">S2A &bull; Adm# 2023-S2-013 &bull; Joined: Jan 2026</div>
-                                            </div>
-                                            <span className="pub-badge draft">Member</span>
-                                            <div className="member-actions">
-                                                <button className="btn btn-outline btn-sm" onClick={() => { }}>Edit Role</button>
-                                                <button className="btn btn-outline btn-sm" onClick={() => { }}>Remove</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.75rem' }}>Showing 3 of 34 members. <a href="#" style={{ color: 'var(--discipline)' }}>View all members</a></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Filter + Create bar */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                        {/* Toolbar container */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                            flexWrap: 'wrap',
+                            background: 'var(--card)', border: '1px solid var(--border)',
+                            borderRadius: 16, padding: '0.75rem 1rem',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        }}>
                             <FilterBar
                                 options={filterOptions}
                                 active={filter}
                                 onChange={setFilter}
                             />
+                            <div style={{ flex: 1 }} />
                             <button className="btn btn-primary" onClick={() => setIsOpen(true)}>
                                 <span className="material-symbols-rounded">add</span> New Club / Event
                             </button>
                         </div>
 
-                        {/* Activity cards */}
-                        <div className="staff-cards-grid" id="activityGrid">
-                            {visible.map((activity, index) => (
-                                <ActivityCard key={index} {...activity} onEdit={() => setEditingActivity(activity)} />
-                            ))}
-
-                        </div>
+                        {/* Content container or EmptyState */}
+                        {visible.length === 0 ? (
+                            <EmptyState
+                                icon="sports_soccer"
+                                title={`No ${filter === 'all' ? '' : filter + ' '}activities found`}
+                                description="No clubs or events match this filter."
+                                action={{ label: 'Show All', icon: 'refresh', onClick: () => setFilter('all') }}
+                            />
+                        ) : (
+                            <div style={{
+                                background: 'var(--card)', border: '1px solid var(--border)',
+                                borderRadius: 16, overflow: 'hidden',
+                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                            }}>
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
+                                }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+                                        {filter === 'all' ? 'All Clubs & Events' : `${filter.charAt(0).toUpperCase() + filter.slice(1)} Activities`}
+                                    </div>
+                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                        {visible.length} club{visible.length !== 1 ? 's' : ''}
+                                    </span>
+                                </div>
+                                <div style={{ padding: '1rem' }}>
+                                    <div className="staff-cards-grid">
+                                        {visible.map((activity, index) => (
+                                            <ActivityCard key={index} {...activity} onEdit={() => setEditingActivity(activity)} />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Recent incidents */}
                         <div className="card mt-1-5">

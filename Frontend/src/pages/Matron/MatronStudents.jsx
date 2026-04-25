@@ -1,7 +1,8 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { useState } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { useState } from 'react'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
@@ -133,21 +134,48 @@ export function MatronStudents() {
                             ))}
                         </div>
 
-                        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                            <div className="search-bar-wrap" style={{ flex: '1', minWidth: '220px' }}>
+                        {/* Toolbar container */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                            flexWrap: 'wrap', margin: '1rem 0',
+                            background: 'var(--card)', border: '1px solid var(--border)',
+                            borderRadius: 16, padding: '0.75rem 1rem',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        }}>
+                            <div className="search-bar-wrap" style={{ flex: 1, minWidth: 220 }}>
                                 <span className="material-symbols-rounded">search</span>
-                                <input type="text" placeholder="Search by name, class (e.g. S3A) or student ID..." />
+                                <input type="text" placeholder="Search by name, class or student ID..." />
                             </div>
-                            <button className="btn btn-outline btn-sm">
-                                <span className="material-symbols-rounded">download</span> Export List
+                            <div style={{ flex: 1 }} />
+                            <button className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
+                                <span className="material-symbols-rounded icon-sm">download</span> Export List
                             </button>
-                            <button className="btn btn-outline btn-sm">
-                                <span className="material-symbols-rounded">print</span> Print Roll
+                            <button className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
+                                <span className="material-symbols-rounded icon-sm">print</span> Print Roll
                             </button>
                         </div>
 
-                        <div className="card">
-                            <div className="card-content" style={{ padding: '0' }}>
+                        {visibleStudents.length === 0 ? (
+                            <EmptyState
+                                icon="people"
+                                title="No students found"
+                                description="No students match the selected class filter."
+                            />
+                        ) : (
+                            <div style={{
+                                background: 'var(--card)', border: '1px solid var(--border)',
+                                borderRadius: 16, overflow: 'hidden',
+                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                            }}>
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
+                                }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Karisimbi House Students</div>
+                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                        {visibleStudents.length} student{visibleStudents.length !== 1 ? 's' : ''}
+                                    </span>
+                                </div>
                                 <div className="table-responsive">
                                     <table className="students-list-table">
                                         <thead>
@@ -169,7 +197,7 @@ export function MatronStudents() {
                                     </table>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                     </div>
                 </main>

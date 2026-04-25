@@ -1,8 +1,10 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { useState } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
+import { EmptyState } from '../../components/ui/EmptyState'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
 
 
 const teacherStats = [
@@ -12,14 +14,17 @@ const teacherStats = [
     { iconClass: 'info',    icon: 'groups',   trend: 'Optimal',      trendClass: 'positive', value: '1:15', label: 'Student-Teacher Ratio' },
 ]
 
-const teachers = [
-    { initials: 'CU', avClass: 'english',  name: 'Claudine Umutoni',      id: 'TST-001', subject: 'English',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S1A', 'S3A'],          statusClass: 'active', status: 'Active' },
-    { initials: 'PR', avClass: 'math',     name: 'Pacifique Rurangwa',     id: 'TST-002', subject: 'Mathematics', type: 'Full-Time', typeClass: 'fulltime', classes: ['S2A', 'S2B'],          statusClass: 'active', status: 'Active' },
-    { initials: 'IN', avClass: 'sciences', name: 'ImmaculÃ©e Nsabimana',    id: 'TST-003', subject: 'Biology',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S3B', 'S4A'],  statusClass: 'active', status: 'Active' },
-    { initials: 'TB', avClass: 'sciences', name: 'ThÃ©ophile Bizimana',     id: 'TST-004', subject: 'Chemistry',   type: 'Part-Time', typeClass: 'parttime', classes: ['S2B'],                  statusClass: 'active', status: 'Active' },
-    { initials: 'SU', avClass: 'sciences', name: 'Sandrine Uwera',         id: 'TST-005', subject: 'Physics',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S3B', 'S4A'],  statusClass: 'active', status: 'Active' },
-    { initials: 'JN', avClass: 'english',  name: 'Janvier Ntakirutimana',  id: 'TST-006', subject: 'History',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S4A'],          statusClass: 'active', status: 'Active' },
+const allTeachers = [
+    { initials: 'CU', avClass: 'english',  name: 'Claudine Umutoni',       id: 'TST-001', subject: 'English',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S1A', 'S3A'],         statusClass: 'active', status: 'Active' },
+    { initials: 'PR', avClass: 'math',     name: 'Pacifique Rurangwa',      id: 'TST-002', subject: 'Mathematics', type: 'Full-Time', typeClass: 'fulltime', classes: ['S2A', 'S2B'],         statusClass: 'active', status: 'Active' },
+    { initials: 'IN', avClass: 'sciences', name: 'Immaculee Nsabimana',     id: 'TST-003', subject: 'Biology',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S3B', 'S4A'],  statusClass: 'active', status: 'Active' },
+    { initials: 'TB', avClass: 'sciences', name: 'Theophile Bizimana',      id: 'TST-004', subject: 'Chemistry',   type: 'Part-Time', typeClass: 'parttime', classes: ['S2B'],                 statusClass: 'active', status: 'Active' },
+    { initials: 'SU', avClass: 'sciences', name: 'Sandrine Uwera',          id: 'TST-005', subject: 'Physics',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S3B', 'S4A'],  statusClass: 'active', status: 'Active' },
+    { initials: 'JN', avClass: 'english',  name: 'Janvier Ntakirutimana',   id: 'TST-006', subject: 'History',     type: 'Full-Time', typeClass: 'fulltime', classes: ['S3A', 'S4A'],         statusClass: 'active', status: 'Active' },
 ]
+
+const SUBJECTS = ['All Subjects', 'Mathematics', 'English', 'Biology', 'Chemistry', 'Physics', 'History', 'Geography', 'Kinyarwanda', 'CRE', 'Art & Design']
+const TYPES    = ['All Types', 'Full-Time', 'Part-Time']
 
 function TeacherStat({ iconClass, icon, trend, trendClass, value, label }) {
     return (
@@ -59,6 +64,20 @@ function TeacherRow({ initials, avClass, name, id, subject, type, typeClass, cla
 }
 
 export function DosTeachers() {
+    const [search, setSearch]           = useState('')
+    const [subjectFilter, setSubjectFilter] = useState('All Subjects')
+    const [typeFilter, setTypeFilter]   = useState('All Types')
+
+    const filtered = allTeachers.filter(t => {
+        if (subjectFilter !== 'All Subjects' && t.subject !== subjectFilter) return false
+        if (typeFilter    !== 'All Types'    && t.type    !== typeFilter)    return false
+        if (search) {
+            const q = search.toLowerCase()
+            if (!t.name.toLowerCase().includes(q) && !t.subject.toLowerCase().includes(q) && !t.id.toLowerCase().includes(q)) return false
+        }
+        return true
+    })
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -75,13 +94,9 @@ export function DosTeachers() {
                             <p>View, add, update teachers and manage class assignments</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
                             <button className="notification-btn">
                                 <span className="material-symbols-rounded">notifications</span>
                                 <span className="notification-badge">2</span>
-                            </button>
-                            <button className="btn btn-primary">
-                                <span className="material-symbols-rounded">person_add</span> Add Teacher
                             </button>
                             <div className="header-user">
                                 <div className="header-user-info">
@@ -94,54 +109,84 @@ export function DosTeachers() {
                     </header>
 
                     <div className="dashboard-content">
+
                         <div className="quick-stats">
-                            {teacherStats.map((stat, index) => (
-                                <TeacherStat key={index} {...stat} />
-                            ))}
+                            {teacherStats.map((stat, i) => <TeacherStat key={i} {...stat} />)}
                         </div>
 
-                        {/* Search + Filter Bar */}
-                        <div className="tm-toolbar">
-                            <div className="page-search-box">
-                                <span className="material-symbols-rounded">search</span>
-                                <input id="teacher-search" type="text" placeholder="Search by name or subject..." />
+                        {/* Toolbar container */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                            flexWrap: 'wrap', margin: '1rem 0',
+                            background: 'var(--card)', border: '1px solid var(--border)',
+                            borderRadius: 16, padding: '0.75rem 1rem',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.4rem 0.75rem', flex: 1, minWidth: 200 }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--muted-foreground)' }}>search</span>
+                                <input
+                                    type="text"
+                                    placeholder="Search by name or subject..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.875rem', width: '100%' }}
+                                />
+                                {search && (
+                                    <button onClick={() => setSearch('')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--muted-foreground)' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
+                                    </button>
+                                )}
                             </div>
-                            <div className="tm-filter-dropdowns">
-                                <div className="tm-filter-group">
-                                    <label className="tm-filter-label">Subject</label>
-                                    <select className="dos-picker-select" id="subject-filter">
-                                        <option value="">All Subjects</option>
-                                        <option>Mathematics</option>
-                                        <option>English</option>
-                                        <option>Biology</option>
-                                        <option>Chemistry</option>
-                                        <option>Physics</option>
-                                        <option>History</option>
-                                        <option>Geography</option>
-                                        <option>Kinyarwanda</option>
-                                        <option>CRE</option>
-                                        <option>Art &amp; Design</option>
-                                    </select>
-                                </div>
-                                <div className="tm-filter-group">
-                                    <label className="tm-filter-label">Class</label>
-                                    <select className="dos-picker-select" id="class-filter">
-                                        <option value="">All Classes</option>
-                                        <option>S1A</option><option>S1B</option><option>S1C</option>
-                                        <option>S2A</option><option>S2B</option><option>S2C</option>
-                                        <option>S3A</option><option>S3B</option><option>S3C</option>
-                                        <option>S4A</option><option>S4B</option><option>S4C</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <select
+                                className="input input-auto"
+                                value={subjectFilter}
+                                onChange={e => setSubjectFilter(e.target.value)}
+                                style={{ fontSize: '0.82rem' }}
+                            >
+                                {SUBJECTS.map(s => <option key={s}>{s}</option>)}
+                            </select>
+                            <select
+                                className="input input-auto"
+                                value={typeFilter}
+                                onChange={e => setTypeFilter(e.target.value)}
+                                style={{ fontSize: '0.82rem' }}
+                            >
+                                {TYPES.map(t => <option key={t}>{t}</option>)}
+                            </select>
+                            <div style={{ flex: 1 }} />
+                            <button className="btn btn-primary" style={{ fontSize: '0.82rem' }}>
+                                <span className="material-symbols-rounded icon-sm">person_add</span>
+                                Add Teacher
+                            </button>
                         </div>
 
-                        {/* Teacher List Table */}
-                        <div className="card mt-1-5">
-                            <div className="card-header">
-                                <h2 className="card-title">All Teachers <span className="tm-count">85</span></h2>
-                            </div>
-                            <div className="card-content">
+                        {/* Content container or EmptyState */}
+                        {filtered.length === 0 ? (
+                            <EmptyState
+                                icon="school"
+                                title="No teachers found"
+                                description={search ? `No teachers match "${search}".` : 'No teachers match the selected filters.'}
+                                action={{
+                                    label: 'Clear Filters',
+                                    icon: 'close',
+                                    onClick: () => { setSearch(''); setSubjectFilter('All Subjects'); setTypeFilter('All Types') }
+                                }}
+                            />
+                        ) : (
+                            <div style={{
+                                background: 'var(--card)', border: '1px solid var(--border)',
+                                borderRadius: 16, overflow: 'hidden',
+                                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                            }}>
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
+                                }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>All Teachers</div>
+                                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                        {filtered.length} teacher{filtered.length !== 1 ? 's' : ''}
+                                    </span>
+                                </div>
                                 <div className="tm-table-wrap">
                                     <table className="tm-table">
                                         <thead>
@@ -155,14 +200,12 @@ export function DosTeachers() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {teachers.map((teacher, index) => (
-                                                <TeacherRow key={index} {...teacher} />
-                                            ))}
+                                            {filtered.map((t, i) => <TeacherRow key={i} {...t} />)}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </main>
             </div>

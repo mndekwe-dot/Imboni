@@ -1052,7 +1052,38 @@
   .tt-form-row  { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 480px) {
-  .disc-stat-grid { grid-template-columns: 1fr; }
+  /* Collapse stat cards into a single horizontal strip */
+  .disc-stat-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .disc-stat-card {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0.625rem 0.25rem;
+    border-left: none;
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid var(--border);
+    gap: 0.15rem;
+    box-shadow: none;
+  }
+  .disc-stat-card:last-child { border-right: none; }
+  .disc-stat-icon { display: none; }
+  .disc-stat-value { font-size: 1.1rem; margin-bottom: 0; }
+  .disc-stat-label { font-size: 0.58rem; line-height: 1.2; }
+  .disc-stat-trend { display: none; }
+
   .disc-welcome-banner { flex-direction: column; align-items: flex-start; }
   .sched-badge { font-size: 0.65rem; padding: 1px 6px; }
   .class-nav-bar { gap: 0.5rem; padding: 0.6rem; }
@@ -1066,6 +1097,6 @@
 }
 
 @media (max-width: 374px) {
-  .disc-stat-grid { grid-template-columns: 1fr; }
+  .disc-stat-grid { grid-template-columns: repeat(2, 1fr); }
   .disc-picker-group { min-width: unset; flex: 1; }
 }
