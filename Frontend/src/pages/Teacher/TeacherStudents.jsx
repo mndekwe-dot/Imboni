@@ -8,6 +8,7 @@ import '../../styles/components.css'
 import '../../styles/teacher.css'
 import '../../styles/pages.css'
 import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const SECTIONS = [
     { name: 'O-Level', years: ['S1', 'S2', 'S3'], classes: ['A', 'B', 'C'] },
@@ -120,7 +121,7 @@ export function TeacherStudent() {
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
                         <div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Class</div>
                             <div style={{ fontWeight: 600 }}>{selected.className}</div>
@@ -151,7 +152,7 @@ export function TeacherStudent() {
                         {...teacherUser}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <ClassPicker
                             sections={SECTIONS}
@@ -223,7 +224,7 @@ export function TeacherStudent() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

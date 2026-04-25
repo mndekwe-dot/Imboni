@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
@@ -7,6 +8,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const dashStats = [
@@ -26,18 +28,18 @@ const cardStyle = {
 }
 
 const todaySchedule = [
-    { time: '08:00 - 09:00', room: 'Room 201', className: 'S4A', subject: 'Mathematics', status: 'Completed',   statusClass: 'badge-completed', cardClass: 'completed', showMark: false },
-    { time: '09:15 - 10:15', room: 'Room 203', className: 'S4B', subject: 'Mathematics', status: 'In Progress', statusClass: 'badge-primary',   cardClass: 'current',   showMark: true  },
-    { time: '11:00 - 12:00', room: 'Room 205', className: 'S5A', subject: 'Mathematics', status: 'Upcoming',    statusClass: 'badge-secondary', cardClass: 'upcoming',  showMark: false },
-    { time: '02:00 - 03:00', room: 'Room 102', className: 'S3B', subject: 'Mathematics', status: 'Upcoming',    statusClass: 'badge-secondary', cardClass: 'upcoming',  showMark: false },
-    { time: '03:15 - 04:15', room: 'Room 301', className: 'S6A', subject: 'Mathematics', status: 'Upcoming',    statusClass: 'badge-secondary', cardClass: 'upcoming',  showMark: false },
+    { time: '08:00 - 09:00', room: 'Room 201', className: 'S4A', subject: 'Mathematics', status: 'Completed',   statusClass: 'badge-completed', cardClass: 'completed', showMark: false, to: '/teacher/classes'    },
+    { time: '09:15 - 10:15', room: 'Room 203', className: 'S4B', subject: 'Mathematics', status: 'In Progress', statusClass: 'badge-primary',   cardClass: 'current',   showMark: true,  to: '/teacher/attendance' },
+    { time: '11:00 - 12:00', room: 'Room 205', className: 'S5A', subject: 'Mathematics', status: 'Upcoming',    statusClass: 'badge-secondary', cardClass: 'upcoming',  showMark: false, to: '/teacher/classes'    },
+    { time: '02:00 - 03:00', room: 'Room 102', className: 'S3B', subject: 'Mathematics', status: 'Upcoming',    statusClass: 'badge-secondary', cardClass: 'upcoming',  showMark: false, to: '/teacher/classes'    },
+    { time: '03:15 - 04:15', room: 'Room 301', className: 'S6A', subject: 'Mathematics', status: 'Upcoming',    statusClass: 'badge-secondary', cardClass: 'upcoming',  showMark: false, to: '/teacher/classes'    },
 ]
 
 const pendingTasks = [
-    { title: 'Submit S4B Quiz Results',   deadline: 'Due: Today',  priority: 'high',   priorityClass: 'badge-high'   },
-    { title: 'Mark S5A Attendance',       deadline: 'Due: Today',  priority: 'high',   priorityClass: 'badge-high'   },
-    { title: 'Complete Progress Reports', deadline: 'Due: Jan 30', priority: 'medium', priorityClass: 'badge-medium' },
-    { title: 'Review S6A Mock Exams',     deadline: 'Due: Feb 2',  priority: 'low',    priorityClass: 'badge-low'    },
+    { title: 'Submit S4B Quiz Results',   deadline: 'Due: Today',  priority: 'high',   priorityClass: 'badge-high',   to: '/teacher/classes'     },
+    { title: 'Mark S5A Attendance',       deadline: 'Due: Today',  priority: 'high',   priorityClass: 'badge-high',   to: '/teacher/attendance'  },
+    { title: 'Complete Progress Reports', deadline: 'Due: Jan 30', priority: 'medium', priorityClass: 'badge-medium', to: '/teacher/classes'     },
+    { title: 'Review S6A Mock Exams',     deadline: 'Due: Feb 2',  priority: 'low',    priorityClass: 'badge-low',    to: '/teacher/assignments' },
 ]
 
 const classPerformance = [
@@ -55,9 +57,13 @@ const recentActivities = [
     { iconClass: 'announcement', icon: 'campaign',             boldText: 'Created announcement', restText: ' - Homework Assignment',       time: '1 day ago'   },
 ]
 
-function ScheduleCard({ time, room, className, subject, status, statusClass, cardClass, showMark }) {
+function ScheduleCard({ time, room, className, subject, status, statusClass, cardClass, showMark, to, onNavigate }) {
     return (
-        <div className={`schedule-card ${cardClass}`}>
+        <div
+            className={`schedule-card ${cardClass}`}
+            style={{ cursor: 'pointer' }}
+            onClick={() => onNavigate(to)}
+        >
             <div className="schedule-info">
                 <div className="schedule-time">
                     <div className="schedule-time-main">{time}</div>
@@ -69,15 +75,22 @@ function ScheduleCard({ time, room, className, subject, status, statusClass, car
                     <div className="schedule-class-subject">{subject}</div>
                 </div>
             </div>
-            {showMark && <button className="btn-mark-attendance btn btn-primary btn-sm">Mark Attendance</button>}
+            {showMark && (
+                <button
+                    className="btn-mark-attendance btn btn-primary btn-sm"
+                    onClick={e => { e.stopPropagation(); onNavigate('/teacher/attendance') }}
+                >
+                    Mark Attendance
+                </button>
+            )}
             <span className={`badge ${statusClass}`}>{status}</span>
         </div>
     )
 }
 
-function TaskCard({ title, deadline, priority, priorityClass }) {
+function TaskCard({ title, deadline, priority, priorityClass, to, onNavigate }) {
     return (
-        <div className="task-card">
+        <div className="task-card" style={{ cursor: 'pointer' }} onClick={() => onNavigate(to)}>
             <div className={`task-priority-dot ${priority}`}></div>
             <div className="task-content">
                 <div className="task-title">{title}</div>
@@ -88,20 +101,21 @@ function TaskCard({ title, deadline, priority, priorityClass }) {
     )
 }
 
-function PerformanceItem({ className, value, trendClass, trendIcon, trendText }) {
+function barColor(value) {
+    if (value >= 80) return '#10b981'
+    if (value >= 70) return '#003d7a'
+    return '#f59e0b'
+}
+
+function CustomTooltip({ active, payload }) {
+    if (!active || !payload?.length) return null
+    const d = payload[0].payload
     return (
-        <div className="performance-item">
-            <div className="performance-header">
-                <span className="performance-class">{className}</span>
-                <div className="performance-stats">
-                    <span className="performance-value">{value}%</span>
-                    <span className={`performance-trend ${trendClass}`}>
-                        <span className="material-symbols-rounded icon-md">{trendIcon}</span>{trendText}
-                    </span>
-                </div>
-            </div>
-            <div className="performance-bar">
-                <div className="performance-bar-fill" data-width={value}></div>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.5rem 0.75rem', fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <div style={{ fontWeight: 700, marginBottom: 2 }}>{d.className}</div>
+            <div style={{ color: barColor(d.value) }}>{d.value}% average</div>
+            <div style={{ color: d.trendClass === 'up' ? '#10b981' : '#ef4444', fontSize: '0.75rem', marginTop: 2 }}>
+                {d.trendClass === 'up' ? '▲' : '▼'} {d.trendText} vs last term
             </div>
         </div>
     )
@@ -139,7 +153,7 @@ export function TeacherDashboard() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader title="Dashboard" subtitle="Teacher Overview" {...teacherUser} />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <WelcomeBanner
                             name="Mr. Rurangwa"
@@ -190,7 +204,7 @@ export function TeacherDashboard() {
                                 </div>
                                 <div className="card-content">
                                     {todaySchedule.map((slot, i) => (
-                                        <ScheduleCard key={i} {...slot} />
+                                        <ScheduleCard key={i} {...slot} onNavigate={navigate} />
                                     ))}
                                 </div>
                             </div>
@@ -202,7 +216,7 @@ export function TeacherDashboard() {
                                 </div>
                                 <div className="card-content">
                                     {pendingTasks.map((task, i) => (
-                                        <TaskCard key={i} {...task} />
+                                        <TaskCard key={i} {...task} onNavigate={navigate} />
                                     ))}
                                 </div>
                             </div>
@@ -212,11 +226,46 @@ export function TeacherDashboard() {
                             <div className="card">
                                 <div className="card-header">
                                     <h3 className="card-title">Class Performance</h3>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Average score per class</span>
                                 </div>
                                 <div className="card-content">
-                                    {classPerformance.map((item, i) => (
-                                        <PerformanceItem key={i} {...item} />
-                                    ))}
+                                    <ResponsiveContainer width="100%" height={220}>
+                                        <BarChart
+                                            data={classPerformance}
+                                            margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                            <XAxis
+                                                dataKey="className"
+                                                tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                            />
+                                            <YAxis
+                                                domain={[50, 100]}
+                                                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tickFormatter={v => `${v}%`}
+                                            />
+                                            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+                                            <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={44}>
+                                                {classPerformance.map((entry, i) => (
+                                                    <Cell key={i} fill={barColor(entry.value)} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+
+                                    {/* Legend */}
+                                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                                        {[['#10b981', '≥ 80% Excellent'], ['#003d7a', '70–79% Good'], ['#f59e0b', '< 70% Needs attention']].map(([color, label]) => (
+                                            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
+                                                <span style={{ width: 10, height: 10, borderRadius: 2, background: color, display: 'inline-block' }} />
+                                                {label}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
@@ -232,7 +281,7 @@ export function TeacherDashboard() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

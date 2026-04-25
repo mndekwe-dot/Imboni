@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
@@ -5,6 +7,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const dosStats = [
@@ -18,10 +21,70 @@ const recentActivities = [
     { iconClass: 'info',    icon: 'person_add',   title: 'New Teacher Added',        time: '5 hours ago' },
     { iconClass: 'warning', icon: 'pending',      title: '3 Results Pending Review', time: '1 day ago'   },
 ]
-const performanceOverview = [
-    { label: 'School Average',  value: '78%', width: '78%' },
-    { label: 'Attendance Rate', value: '94%', width: '94%' },
+const weeklyTrend = [
+    { week: 'Wk 1', attendance: 92, performance: 74 },
+    { week: 'Wk 2', attendance: 94, performance: 76 },
+    { week: 'Wk 3', attendance: 91, performance: 75 },
+    { week: 'Wk 4', attendance: 96, performance: 78 },
+    { week: 'Wk 5', attendance: 93, performance: 79 },
+    { week: 'Wk 6', attendance: 95, performance: 80 },
+    { week: 'Wk 7', attendance: 94, performance: 82 },
+    { week: 'Wk 8', attendance: 97, performance: 83 },
 ]
+
+function TrendTooltip({ active, payload, label }) {
+    if (!active || !payload?.length) return null
+    return (
+        <div style={{
+            background: 'var(--card)', border: '1px solid var(--border)',
+            borderRadius: 8, padding: '0.5rem 0.875rem',
+            fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>{label}</div>
+            {payload.map(p => (
+                <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: 2 }}>
+                    <span style={{ width: 10, height: 3, borderRadius: 2, background: p.color, display: 'inline-block' }} />
+                    <span style={{ color: 'var(--muted-foreground)' }}>{p.name}:</span>
+                    <span style={{ fontWeight: 600 }}>{p.value}%</span>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+const gradePerformance = [
+    { grade: 'S1', term1: 68, term2: 71 },
+    { grade: 'S2', term1: 70, term2: 73 },
+    { grade: 'S3', term1: 72, term2: 75 },
+    { grade: 'S4', term1: 74, term2: 78 },
+    { grade: 'S5', term1: 76, term2: 80 },
+    { grade: 'S6', term1: 80, term2: 85 },
+]
+
+function GradeTooltip({ active, payload, label }) {
+    if (!active || !payload?.length) return null
+    return (
+        <div style={{
+            background: 'var(--card)', border: '1px solid var(--border)',
+            borderRadius: 8, padding: '0.5rem 0.875rem',
+            fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>{label}</div>
+            {payload.map(p => (
+                <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: 2 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: 2, background: p.fill, display: 'inline-block' }} />
+                    <span style={{ color: 'var(--muted-foreground)' }}>{p.name}:</span>
+                    <span style={{ fontWeight: 600 }}>{p.value}%</span>
+                </div>
+            ))}
+            {payload.length === 2 && (
+                <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid var(--border)', fontSize: '0.75rem', color: payload[1].value >= payload[0].value ? '#10b981' : '#ef4444' }}>
+                    {payload[1].value >= payload[0].value ? '▲' : '▼'} {Math.abs(payload[1].value - payload[0].value)}% vs Term 1
+                </div>
+            )}
+        </div>
+    )
+}
 
 function StatCard({ iconClass, icon, trend, trendClass, trendIcon, value, label }) {
     return (
@@ -70,6 +133,7 @@ function ProgressItem({ label, value, width }) {
 }
 
 export function DosDashboard() {
+    const navigate = useNavigate()
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -88,7 +152,7 @@ export function DosDashboard() {
                         notifications={dosUser.notifications}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <WelcomeBanner
                             name="Dr. Ndagijimana"
                             role="Director of Studies &bull; Imboni Academy"
@@ -100,22 +164,37 @@ export function DosDashboard() {
                             ))}
                         </div>
 
-                        <div className="cards-grid">
+                        {/* One container for all three cards */}
+                        <div style={{
+                            background: 'var(--card)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 16,
+                            overflow: 'hidden',
+                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        }}>
+                            <div style={{
+                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)',
+                            }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Overview</span>
+                            </div>
+
+                            <div className="cards-grid" style={{ padding: '1rem', gap: '1rem' }}>
                             <div className="card">
                                 <div className="card-header">
                                     <h2 className="card-title">Quick Actions</h2>
                                 </div>
                                 <div className="card-content">
                                     <div className="action-buttons">
-                                        <button className="btn btn-primary">
+                                        <button className="btn btn-primary" onClick={() => navigate('/dos/results')}>
                                             <span className="material-symbols-rounded">fact_check</span>
                                             Approve Results
                                         </button>
-                                        <button className="btn btn-secondary">
+                                        <button className="btn btn-secondary" onClick={() => navigate('/dos/teachers')}>
                                             <span className="material-symbols-rounded">school</span>
                                             View Teachers
                                         </button>
-                                        <button className="btn btn-secondary">
+                                        <button className="btn btn-secondary" onClick={() => navigate('/dos/students')}>
                                             <span className="material-symbols-rounded">people</span>
                                             Manage Students
                                         </button>
@@ -138,35 +217,115 @@ export function DosDashboard() {
 
                             <div className="card">
                                 <div className="card-header">
-                                    <h2 className="card-title">Performance Overview</h2>
+                                    <h2 className="card-title">Term Trend</h2>
+                                    <p className="card-subtitle">Weekly attendance & performance</p>
                                 </div>
                                 <div className="card-content">
-                                    <div className="progress-group">
-                                        {performanceOverview.map((item) => (
-                                            <ProgressItem key={item.label} {...item} />
+                                    <ResponsiveContainer width="100%" height={185}>
+                                        <AreaChart
+                                            data={weeklyTrend}
+                                            margin={{ top: 6, right: 6, left: -22, bottom: 0 }}
+                                        >
+                                            <defs>
+                                                <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%"  stopColor="#10b981" stopOpacity={0.2} />
+                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                </linearGradient>
+                                                <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%"  stopColor="#003d7a" stopOpacity={0.2} />
+                                                    <stop offset="95%" stopColor="#003d7a" stopOpacity={0} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                            <XAxis
+                                                dataKey="week"
+                                                tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                            />
+                                            <YAxis
+                                                domain={[65, 100]}
+                                                tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tickFormatter={v => `${v}%`}
+                                            />
+                                            <Tooltip content={<TrendTooltip />} cursor={{ stroke: 'var(--border)', strokeWidth: 1 }} />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="attendance"
+                                                name="Attendance"
+                                                stroke="#10b981"
+                                                strokeWidth={2}
+                                                fill="url(#attGrad)"
+                                                dot={false}
+                                                activeDot={{ r: 4 }}
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="performance"
+                                                name="Performance"
+                                                stroke="#003d7a"
+                                                strokeWidth={2}
+                                                fill="url(#perfGrad)"
+                                                dot={false}
+                                                activeDot={{ r: 4 }}
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '0.25rem' }}>
+                                        {[['#10b981', 'Attendance'], ['#003d7a', 'Performance']].map(([color, label]) => (
+                                            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
+                                                <span style={{ width: 16, height: 2, background: color, display: 'inline-block', borderRadius: 1 }} />
+                                                {label}
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        </div>{/* end outer container */}
 
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">Performance by Grade</h2>
-                                <p className="card-subtitle">Average scores across all grades</p>
+                                <p className="card-subtitle">Term 1 vs Term 2 — average scores across all grades</p>
                             </div>
                             <div className="card-content">
-                                <div className="chart-container">
-                                    <div className="chart-placeholder">
-                                        <span className="material-symbols-rounded">analytics</span>
-                                        <p>
-                                            S6: 82% | S5: 78% | S4: 75% | S3: 72%
-                                        </p>
-                                    </div>
-                                </div>
+                                <ResponsiveContainer width="100%" height={260}>
+                                    <BarChart
+                                        data={gradePerformance}
+                                        margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+                                        barGap={4}
+                                        barCategoryGap="28%"
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                        <XAxis
+                                            dataKey="grade"
+                                            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                                            axisLine={false}
+                                            tickLine={false}
+                                        />
+                                        <YAxis
+                                            domain={[55, 100]}
+                                            tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tickFormatter={v => `${v}%`}
+                                        />
+                                        <Tooltip content={<GradeTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+                                        <Legend
+                                            iconType="square"
+                                            iconSize={10}
+                                            wrapperStyle={{ fontSize: '0.78rem', paddingTop: '0.75rem' }}
+                                        />
+                                        <Bar dataKey="term1" name="Term 1" fill="#93c5fd" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                                        <Bar dataKey="term2" name="Term 2" fill="#003d7a" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                                    </BarChart>
+                                </ResponsiveContainer>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const conductStats = [
@@ -149,7 +150,7 @@ export function StudentDiscipline() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Discipline Master profile */}
                         <div className="staff-profile-card">
@@ -237,7 +238,7 @@ export function StudentDiscipline() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

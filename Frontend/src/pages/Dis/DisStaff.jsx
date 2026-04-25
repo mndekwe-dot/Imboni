@@ -8,6 +8,7 @@ import '../../styles/discipline.css'
 
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { useState } from 'react'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const initialMatrons = [
     { id: 'm1', initials: 'GH', name: 'Mrs. G. Hakizimana', role: 'Matron \u2014 Karisimbi House', students: '42 students in care', ext: 'Extension 301', email: 'g.hakizimana@imboni.edu', duty: '6:00 PM \u2013 7:00 AM' },
@@ -143,7 +144,7 @@ export function DisStaff() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader title="Matrons & Patrons" subtitle="Staff under your supervision" {...disUser} />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="disc-section-header">
                             <div className="disc-section-title"><span className="material-symbols-rounded">home</span> Boarding Matrons</div>
@@ -176,7 +177,7 @@ export function DisStaff() {
                             ))}
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

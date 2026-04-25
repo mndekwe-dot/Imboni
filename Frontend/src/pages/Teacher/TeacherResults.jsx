@@ -6,6 +6,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const SECTIONS = [
     { name: 'O-Level', years: ['S1', 'S2', 'S3'], classes: ['A', 'B', 'C'] },
@@ -92,7 +93,7 @@ export function TeacherResults() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <ClassPicker
                             sections={SECTIONS}
                             section={section}
@@ -227,7 +228,7 @@ export function TeacherResults() {
                                 </div>
                             </>
                         )}
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

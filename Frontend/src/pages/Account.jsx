@@ -3,6 +3,7 @@ import { Sidebar } from '../../src/components/layout/Sidebar'
 import '../styles/layout.css'
 import '../styles/components.css'
 import '../styles/parent.css'
+import { DashboardContent } from '../components/layout/DashboardContent'
 
 /* â”€â”€ Nav items for every portal â”€â”€ */
 const NAV = {
@@ -148,7 +149,7 @@ export function Account() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="account-settings-grid">
 
                             {/* Settings sidebar nav */}
@@ -300,7 +301,7 @@ export function Account() {
 
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

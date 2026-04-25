@@ -10,6 +10,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 // Classes this teacher is assigned to — T001 Mr. Pacifique Rurangwa teaches Math
@@ -42,7 +43,7 @@ export function TeacherTimetable() {
                         initials="PR"
                         avatarClass="teacher-av"
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Read-only notice */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--teacher-light)', border: '1px solid var(--teacher)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.875rem', color: 'var(--teacher-hover)' }}>
@@ -60,7 +61,8 @@ export function TeacherTimetable() {
 
                         <div className="card">
                             <div className="card-header">
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                {/* View toggle — left */}
+                                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                                     <button
                                         className={`btn btn-sm ${view === 'schedule' ? 'btn-primary' : 'btn-outline'}`}
                                         onClick={() => setView('schedule')}
@@ -77,19 +79,19 @@ export function TeacherTimetable() {
                                     </button>
                                 </div>
 
+                                {/* Right controls — week picker or class selector */}
                                 {view === 'schedule' && (
                                     <WeekPicker
                                         currentMonday={currentMonday}
                                         onChange={setCurrentMonday}
                                     />
                                 )}
-
                                 {view === 'class' && (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <label className="form-label" style={{ margin: 0 }}>Class:</label>
+                                        <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>Class:</label>
                                         <select
-                                            className="form-input"
-                                            style={{ width: 'auto' }}
+                                            className="form-control"
+                                            style={{ width: 'auto', minWidth: 80 }}
                                             value={classId}
                                             onChange={e => setClassId(e.target.value)}
                                         >
@@ -117,7 +119,7 @@ export function TeacherTimetable() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

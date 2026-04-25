@@ -6,6 +6,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const assignmentStats = [
@@ -91,7 +92,7 @@ export function StudentAssignments() {
             userName="Uwase Amina" userRole="Student · S4A"
             userInitials="UA" avatarClass="student-av" notifications={studentUser.notifications}
           />
-          <div className="dashboard-content">
+          <DashboardContent>
 
             {/* Stat cards */}
             <div className="student-stats-grid">
@@ -159,7 +160,7 @@ export function StudentAssignments() {
               </div>
             )}
 
-          </div>
+          </DashboardContent>
         </main>
       </div>
     </>

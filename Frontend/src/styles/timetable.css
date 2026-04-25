@@ -2,8 +2,8 @@
 .week-picker {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: 0.5rem;
+    margin-bottom: 0;
 }
 .week-picker-btn {
     display: flex;
@@ -17,14 +17,20 @@
     cursor: pointer;
     color: var(--foreground);
     transition: background 0.15s;
+    flex-shrink: 0;
 }
 .week-picker-btn:hover { background: var(--muted); }
 .week-picker-label {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--foreground);
-    min-width: 160px;
+    min-width: 120px;
     text-align: center;
+    white-space: nowrap;
+}
+@media (max-width: 480px) {
+    .week-picker-label { min-width: 90px; font-size: 0.78rem; }
+    .week-picker-today { display: none; }
 }
 .week-picker-today {
     font-size: 0.78rem;

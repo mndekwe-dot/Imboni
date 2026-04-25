@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const behaviourStats = [
@@ -129,7 +130,7 @@ export function ParentBehaviour() {
                         </button>
                     </div>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Conduct Hero */}
                         <div className="conduct-hero">
@@ -198,7 +199,7 @@ export function ParentBehaviour() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

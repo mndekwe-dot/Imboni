@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const examRows = [
@@ -74,7 +75,7 @@ export function DosExamSchedule() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         {/* Page Tabs */}
                         <nav className="es-tabs">
                             <button className="es-tab active">
@@ -141,7 +142,7 @@ export function DosExamSchedule() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

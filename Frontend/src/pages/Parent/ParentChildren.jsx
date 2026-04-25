@@ -4,6 +4,7 @@ import '../../styles/components.css'
 import '../../styles/parent.css'
 import '../../styles/my-children.css'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const children = [
@@ -107,7 +108,7 @@ export function ParentChildren() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="add-child-mobile-bar">
                             <button className="btn btn-primary">
                                 <span className="material-symbols-rounded">person_add</span>
@@ -119,7 +120,7 @@ export function ParentChildren() {
                                 <ChildCard key={index} {...child} />
                             ))}
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

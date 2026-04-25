@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const analyticsStats = [
@@ -95,7 +96,7 @@ export function DosAnalytics() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="stat-cards-grid">
                             {analyticsStats.map((stat, index) => (
                                 <AnalyticsStat key={index} {...stat} />
@@ -129,7 +130,7 @@ export function DosAnalytics() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

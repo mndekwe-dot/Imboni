@@ -10,6 +10,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const ALL_CLASSES = ['S1A', 'S1B', 'S2A', 'S2B', 'S3A', 'S3B', 'S4A', 'S4B', 'S5A', 'S5B', 'S6A', 'S6B']
@@ -92,7 +93,7 @@ export function DosTimetable() {
                         initials="JN"
                         avatarClass="dos-av"
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="portal-stat-grid" style={{ marginBottom: '1.25rem' }}>
                             {timetableStats.map((stat, i) => (
@@ -163,7 +164,7 @@ export function DosTimetable() {
                             />
                         )}
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

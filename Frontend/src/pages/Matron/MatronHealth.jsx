@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const healthStats = [
@@ -110,7 +111,7 @@ export const MatronHealth = () => {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="health-stats">
                             {healthStats.map((stat, index) => (
@@ -242,7 +243,7 @@ export const MatronHealth = () => {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

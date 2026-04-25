@@ -221,6 +221,16 @@
    BEHAVIOR STYLES
    =============================================== */
 
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}
+.mt-1-5 { margin-top: 0; }
+
 .behavior-grid {
   display: flex;
   flex-direction: column;
@@ -864,6 +874,90 @@
 
 .achievement-pill .material-symbols-rounded { font-size: 14px; }
 
+/* --- Achievements Grid --- */
+.achievements-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.achievement-card {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.achievement-card:last-child { border-bottom: none; }
+.achievement-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--accent-light, #fef3c7);
+    color: var(--accent, #d97706);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.achievement-icon .material-symbols-rounded { font-size: 1.1rem; }
+.achievement-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0;
+}
+.achievement-date {
+    font-size: 0.78rem;
+    color: var(--muted-foreground);
+    margin: 0.1rem 0 0;
+}
+
+/* --- Behavior Filter Bar --- */
+.behavior-filter-bar {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.behavior-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.behavior-filter-btn:hover {
+    background: var(--muted);
+    color: var(--foreground);
+}
+.behavior-filter-btn.active {
+    background: var(--parent-light, #ede9fe);
+    border-color: var(--parent, #7c3aed);
+    color: var(--parent, #7c3aed);
+    font-weight: 600;
+}
+.behavior-filter-btn .count-badge {
+    background: var(--muted);
+    color: var(--muted-foreground);
+    border-radius: 999px;
+    padding: 0 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    min-width: 18px;
+    text-align: center;
+}
+.behavior-filter-btn.active .count-badge {
+    background: var(--parent, #7c3aed);
+    color: white;
+}
+
 /* --- Utilities --- */
 .animate-fade-in {
     animation: fadeIn 0.5s ease-out;
@@ -1383,4 +1477,136 @@
     .pmsg-conv-panel { width: 100%; border-right: none; }
     .pmsg-thread-panel { display: none; }
     .pmsg-wrap { flex-direction: column; }
+}
+
+/* ── Child Switcher Bar ───────────────────────────────────────────────────── */
+.child-switcher-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+.child-switcher-label {
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+    font-weight: 500;
+    margin-right: 0.25rem;
+}
+.child-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--foreground);
+    transition: background 0.15s, border-color 0.15s;
+}
+.child-tab:hover { background: var(--muted); }
+.child-tab.active {
+    background: var(--parent-light, #ede9fe);
+    border-color: var(--parent, #7c3aed);
+    color: var(--parent, #7c3aed);
+    font-weight: 600;
+}
+.child-tab-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--parent, #7c3aed);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.child-tab-name { font-weight: 500; }
+.child-tab-grade { opacity: 0.6; font-size: 0.78rem; }
+
+/* ── Quick Stats Grid ─────────────────────────────────────────────────────── */
+.quick-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+@media (max-width: 900px) { .quick-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .quick-stats-grid { grid-template-columns: 1fr; } }
+
+/* ── Conduct Hero ─────────────────────────────────────────────────────────── */
+.conduct-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: linear-gradient(135deg, var(--parent, #7c3aed) 0%, #9d5cf7 100%);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    color: white;
+    flex-wrap: wrap;
+}
+.conduct-hero-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.conduct-hero-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.conduct-hero-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0;
+    color: white;
+}
+.conduct-hero-sub {
+    font-size: 0.82rem;
+    opacity: 0.85;
+    margin: 0.15rem 0 0;
+    color: white;
+}
+.conduct-hero-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+.conduct-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+}
+.conduct-stat .label {
+    font-size: 0.72rem;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.conduct-stat .value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+}
+.conduct-stat .value.grade-a { color: #86efac; }
+
+@media (max-width: 600px) {
+    .conduct-hero { flex-direction: column; align-items: flex-start; }
+    .conduct-hero-stats { gap: 1rem; }
+    .conduct-stat .value { font-size: 1.1rem; }
 }

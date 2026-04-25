@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // ── Initial dormitory configuration ──
 const initialHouseConfig = [
@@ -423,7 +424,7 @@ export function DisBoarding() {
                         subtitle="Dormitory rooms, student assignments and room leadership — Term 2, 2026"
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         {/* Section tab — Dormitories / Dining */}
                         <div style={{ marginBottom: '1.5rem' }}>
@@ -666,7 +667,7 @@ export function DisBoarding() {
                                 sabyinyo:  { solid: '#ea580c', light: 'rgba(249,115,22,0.10)', text: '#9a3412' },
                             }
                             return (
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem', marginBottom: '1.75rem' }}>
+                                <div className="resp-grid-2" style={{ gap: '1.25rem', marginBottom: '1.75rem' }}>
                                     {houseConfig.map(house => {
                                         const col = houseColors[house.key]
                                         const assigned = students.filter(s => s.house === house.key).length
@@ -729,7 +730,7 @@ export function DisBoarding() {
                                                         </div>
                                                     ) : (
                                                         /* Desktop: 2×2 stat grid */
-                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', marginBottom: '1rem', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
+                                                        <div className="resp-grid-2" style={{ gap: '0', marginBottom: '1rem', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
                                                             {[
                                                                 { value: assigned,            label: 'Assigned',  color: col.text },
                                                                 { value: capacity - assigned, label: 'Available', color: undefined },
@@ -866,7 +867,7 @@ export function DisBoarding() {
 
                         </>}
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

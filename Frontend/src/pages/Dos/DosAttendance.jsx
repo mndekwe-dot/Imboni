@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const attendanceStats = [
@@ -88,7 +89,7 @@ export function DosAttendance() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="quick-stats">
                             {attendanceStats.map((stat, index) => (
                                 <AttendanceStat key={index} {...stat} />
@@ -176,7 +177,7 @@ export function DosAttendance() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

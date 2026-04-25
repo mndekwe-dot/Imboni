@@ -9,6 +9,7 @@ import '../../styles/discipline.css'
 
 
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 const leaderStats = [
     { iconClass: 'info', icon: 'military_tech', value: '12', label: 'Total Prefects', trend: 'Head Boy & Girl included', trendClass: 'positive' },
@@ -163,7 +164,7 @@ export function DisStudentLeaders() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader title="Student Leaders" subtitle="Manage prefects, dormitory captains and club leaders" {...disUser} />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
 
                         <div className="disc-stat-grid">
                             {leaderStats.map((stat, index) => (
@@ -278,7 +279,7 @@ export function DisStudentLeaders() {
                             </div>
                         </div>
 
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

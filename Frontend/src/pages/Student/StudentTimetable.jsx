@@ -5,6 +5,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 // Student's assigned class — replace with auth profile data later
@@ -26,7 +27,7 @@ export function StudentTimetable() {
                         userInitials="UA"
                         avatarClass="student-av"
                     />
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">Class {MY_CLASS} — Weekly Schedule</h2>
@@ -36,7 +37,7 @@ export function StudentTimetable() {
                                 <Timetable type="academic" classId={MY_CLASS} />
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

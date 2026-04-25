@@ -3,6 +3,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const leaderStats = [
@@ -100,7 +101,7 @@ export function DosStudentLeaders() {
                         </div>
                     </header>
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         <div className="dos-welcome-banner">
                             <div className="dos-welcome-text">
                                 <h2>Student Leadership Programme</h2>
@@ -168,7 +169,7 @@ export function DosStudentLeaders() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

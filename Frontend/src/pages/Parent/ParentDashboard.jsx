@@ -4,6 +4,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const children = [
@@ -116,7 +117,7 @@ export function ParentDashboard() {
                         userInitials="CU" avatarClass="parent-av" notifications={parentUser.notifications}
                     />
 
-                    <div className="dashboard-content">
+                    <DashboardContent>
                         {/* Tabs */}
                         <div className="tabs">
                             <div className="tabs-list">
@@ -198,7 +199,7 @@ export function ParentDashboard() {
                             </div>
 
                         </div>
-                    </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>
