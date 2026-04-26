@@ -104,13 +104,7 @@ export function StudentActivities() {
             </div>
 
             {/* Toolbar container */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
-              flexWrap: 'wrap', margin: '1rem 0',
-              background: 'var(--card)', border: '1px solid var(--border)',
-              borderRadius: 16, padding: '0.75rem 1rem',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-            }}>
+            <div className="toolbar-card">
               {MAIN_TABS.map(tab => (
                 <button
                   key={tab}
@@ -123,7 +117,7 @@ export function StudentActivities() {
               ))}
               {mainTab === 'Discipline Records' && (
                 <>
-                  <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 0.25rem' }} />
+                  <div className="vdivider" />
                   {TYPE_TABS.map(t => (
                     <button
                       key={t}
@@ -132,7 +126,7 @@ export function StudentActivities() {
                       onClick={() => setTypeFilter(t)}
                     >
                       {t}
-                      <span style={{ marginLeft: '0.3rem', opacity: 0.7, fontSize: '0.75rem' }}>{countFor(t)}</span>
+                      <span className="tab-count-sm">{countFor(t)}</span>
                     </button>
                   ))}
                 </>
@@ -149,17 +143,10 @@ export function StudentActivities() {
                   action={{ label: 'Show All', icon: 'refresh', onClick: () => setTypeFilter('All') }}
                 />
               ) : (
-                <div style={{
-                  background: 'var(--card)', border: '1px solid var(--border)',
-                  borderRadius: 16, overflow: 'hidden',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)',
-                  }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Behavior & Discipline Records</div>
-                    <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                <div className="act-list-card">
+                  <div className="act-list-header">
+                    <div className="act-list-title">Behavior & Discipline Records</div>
+                    <span className="act-list-count">
                       {filtered.length} record{filtered.length !== 1 ? 's' : ''}
                     </span>
                   </div>

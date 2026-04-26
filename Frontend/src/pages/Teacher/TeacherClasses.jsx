@@ -115,8 +115,8 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
             </div>
 
             {monitor && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--warning)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>stars</span>
+                <div className="class-monitor-badge">
+                    <span className="material-symbols-rounded">stars</span>
                     Monitor: {monitor.name}
                 </div>
             )}
@@ -134,11 +134,11 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
 
             <div className="class-schedule">
                 <div className="class-schedule-item">
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>schedule</span>
+                    <span className="material-symbols-rounded icon-schedule">schedule</span>
                     <span>{cls.schedule}</span>
                 </div>
                 <div className="class-schedule-item">
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>room</span>
+                    <span className="material-symbols-rounded icon-schedule">room</span>
                     <span>{cls.room}</span>
                 </div>
             </div>
@@ -193,49 +193,29 @@ function ResultsModal({ cls, onClose }) {
     // ── Step 1 — pick assignment ──────────────────────────────────────────────
     if (step === 1) return (
         <Modal title={`Enter Results — ${cls.id}`} icon="edit_note" onClose={onClose} size="wide">
-            <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+            <p className="modal-desc">
                 Select a published assignment to enter or review scores for <strong>{cls.id}</strong>.
             </p>
 
             {published.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--muted-foreground)' }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', display: 'block', marginBottom: 8 }}>assignment_late</span>
-                    <div style={{ fontWeight: 600, marginBottom: 4 }}>No published assignments</div>
-                    <div style={{ fontSize: '0.82rem' }}>Publish an assignment for {cls.id} first.</div>
+                <div className="results-empty">
+                    <span className="material-symbols-rounded">assignment_late</span>
+                    <div className="results-empty-title">No published assignments</div>
+                    <div className="results-empty-sub">Publish an assignment for {cls.id} first.</div>
                 </div>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                <div className="asgn-pick-list">
                     {published.map(a => {
                         const badge = modeBadge(a.mode)
                         return (
-                            <button
-                                key={a.id}
-                                onClick={() => selectAssignment(a)}
-                                style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '0.875rem 1rem',
-                                    border: '1px solid var(--border)', borderRadius: 10,
-                                    background: 'var(--card)', cursor: 'pointer',
-                                    textAlign: 'left', gap: '1rem',
-                                    transition: 'border-color 0.15s, box-shadow 0.15s',
-                                }}
-                                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-                                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-                            >
+                            <button key={a.id} onClick={() => selectAssignment(a)} className="asgn-pick-btn">
                                 <div>
-                                    <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: 3 }}>{a.title}</div>
-                                    <div style={{ fontSize: '0.76rem', color: 'var(--muted-foreground)' }}>
-                                        {a.type} • Max score: {a.maxScore}
-                                    </div>
+                                    <div className="asgn-pick-title">{a.title}</div>
+                                    <div className="asgn-pick-meta">{a.type} • Max score: {a.maxScore}</div>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-                                    <span style={{
-                                        fontSize: '0.72rem', fontWeight: 600, padding: '3px 8px',
-                                        borderRadius: 20, background: badge.bg, color: badge.color,
-                                    }}>{badge.label}</span>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '1.1rem', color: 'var(--muted-foreground)' }}>
-                                        chevron_right
-                                    </span>
+                                <div className="asgn-pick-right">
+                                    <span className="asgn-pick-badge" style={{ background: badge.bg, color: badge.color }}>{badge.label}</span>
+                                    <span className="material-symbols-rounded asgn-pick-chevron">chevron_right</span>
                                 </div>
                             </button>
                         )
@@ -257,17 +237,13 @@ function ResultsModal({ cls, onClose }) {
             onClose={onClose}
             size="wide"
             footer={
-                <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '0.75rem' }}>
-                    <button
-                        className="btn btn-outline btn-sm"
-                        onClick={() => { setStep(1); setAssignment(null) }}
-                        style={{ marginRight: 'auto' }}
-                    >
+                <div className="modal-footer-row">
+                    <button className="btn btn-outline btn-sm mr-auto" onClick={() => { setStep(1); setAssignment(null) }}>
                         <span className="material-symbols-rounded icon-sm">arrow_back</span>
                         Back
                     </button>
                     {!isPaper && flagCount > 0 && (
-                        <span style={{ fontSize: '0.78rem', color: 'var(--warning)', fontWeight: 600 }}>
+                        <span className="results-warning">
                             {flagCount} score{flagCount > 1 ? 's' : ''} flagged for review
                         </span>
                     )}
@@ -279,111 +255,63 @@ function ResultsModal({ cls, onClose }) {
             }
         >
             {/* Assignment info bar */}
-            <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '0.65rem 0.875rem', background: 'var(--muted)',
-                borderRadius: 8, marginBottom: '1.25rem', gap: '0.75rem',
-            }}>
-                <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+            <div className="results-info-bar">
+                <div className="results-info-text">
                     <strong>{cls.id}</strong> • {assignment.type} • Max: <strong>{assignment.maxScore}</strong>
                 </div>
-                <span style={{
-                    fontSize: '0.72rem', fontWeight: 600, padding: '3px 8px',
-                    borderRadius: 20, background: badge.bg, color: badge.color, flexShrink: 0,
-                }}>{badge.label}</span>
+                <span className="results-info-pill" style={{ background: badge.bg, color: badge.color }}>{badge.label}</span>
             </div>
 
             {/* Online mode notice */}
             {!isPaper && (
-                <div style={{
-                    display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
-                    padding: '0.65rem 0.875rem', marginBottom: '1rem',
-                    background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)',
-                    borderRadius: 8, fontSize: '0.8rem', color: 'var(--muted-foreground)',
-                }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--success)', flexShrink: 0 }}>info</span>
+                <div className="results-online-notice">
+                    <span className="material-symbols-rounded">info</span>
                     Scores were auto-marked by the system. Review and flag any suspicious results before submitting to DOS.
                 </div>
             )}
 
             {/* Score table */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="score-table-body">
                 {/* Header row */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isPaper ? '1fr 100px' : '1fr 100px 80px',
-                    gap: '0.5rem', padding: '0 0.5rem',
-                    fontSize: '0.75rem', fontWeight: 700,
-                    color: 'var(--muted-foreground)', textTransform: 'uppercase',
-                }}>
+                <div className={`score-table-head ${isPaper ? 'score-grid-2' : 'score-grid-3'}`}>
                     <span>Student</span>
-                    <span style={{ textAlign: 'center' }}>Score / {assignment.maxScore}</span>
-                    {!isPaper && <span style={{ textAlign: 'center' }}>Flag</span>}
+                    <span className="center">Score / {assignment.maxScore}</span>
+                    {!isPaper && <span className="center">Flag</span>}
                 </div>
 
                 {cls.students.map(student => (
-                    <div
-                        key={student.id}
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: isPaper ? '1fr 100px' : '1fr 100px 80px',
-                            gap: '0.5rem', alignItems: 'center',
-                            padding: '0.6rem 0.5rem',
-                            border: `1px solid ${flagged[student.id] ? 'rgba(245,158,11,0.4)' : 'var(--border)'}`,
-                            borderRadius: 8,
-                            background: flagged[student.id] ? 'rgba(245,158,11,0.04)' : 'transparent',
-                        }}
-                    >
-                        {/* Student info */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
-                            <div className="student-avatar" style={{ width: 30, height: 30, fontSize: '0.72rem', flexShrink: 0 }}>
+                    <div key={student.id} className={`score-row ${isPaper ? 'score-grid-2' : 'score-grid-3'}${flagged[student.id] ? ' flagged' : ''}`}>
+                        <div className="score-student-cell">
+                            <div className="student-avatar score-avatar">
                                 {student.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                             </div>
-                            <div style={{ minWidth: 0 }}>
-                                <div style={{ fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div className="score-student-info">
+                                <div className="score-student-name">
                                     {student.name}
-                                    {student.isMonitor && (
-                                        <span className="material-symbols-rounded" style={{ fontSize: '0.8rem', color: 'var(--warning)', marginLeft: 3, verticalAlign: 'middle' }}>stars</span>
-                                    )}
+                                    {student.isMonitor && <span className="material-symbols-rounded">stars</span>}
                                 </div>
-                                <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>{student.code}</div>
+                                <div className="score-student-code">{student.code}</div>
                             </div>
                         </div>
 
-                        {/* Score input */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'center' }}>
+                        <div className="score-input-cell">
                             <input
-                                type="number"
-                                min="0"
-                                max={assignment.maxScore}
-                                placeholder="—"
+                                type="number" min="0" max={assignment.maxScore} placeholder="—"
                                 value={scores[student.id] || ''}
                                 onChange={e => setScores(prev => ({ ...prev, [student.id]: e.target.value }))}
                                 readOnly={!isPaper}
-                                style={{
-                                    width: 58, padding: '0.35rem 0.4rem',
-                                    border: '1px solid var(--border)', borderRadius: 7,
-                                    fontSize: '0.88rem', textAlign: 'center',
-                                    background: isPaper ? 'var(--background)' : 'var(--muted)',
-                                    color: 'var(--foreground)', cursor: isPaper ? 'text' : 'default',
-                                }}
+                                className={`score-input${!isPaper ? ' readonly' : ''}`}
                             />
                         </div>
 
-                        {/* Flag button (online only) */}
                         {!isPaper && (
-                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <div className="score-flag-cell">
                                 <button
                                     onClick={() => toggleFlag(student.id)}
                                     title={flagged[student.id] ? 'Remove flag' : 'Flag for review'}
-                                    style={{
-                                        background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-                                        color: flagged[student.id] ? 'var(--warning)' : 'var(--muted-foreground)',
-                                    }}
+                                    className={`score-flag-btn${flagged[student.id] ? ' active' : ''}`}
                                 >
-                                    <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>
-                                        {flagged[student.id] ? 'flag' : 'flag'}
-                                    </span>
+                                    <span className="material-symbols-rounded">flag</span>
                                 </button>
                             </div>
                         )}
@@ -406,70 +334,48 @@ function StudentsPanel({ cls, onClose, onViewStudent, onEnterResult }) {
 
     return (
         <Modal title={`${cls.id} — Students`} icon="group" onClose={onClose} size="wide">
-            {/* Class monitor banner */}
             {monitor && (
-                <div style={{
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    padding: '0.75rem 1rem', background: 'rgba(245,158,11,0.08)',
-                    border: '1px solid rgba(245,158,11,0.25)', borderRadius: 10,
-                    marginBottom: '1rem',
-                }}>
-                    <span className="material-symbols-rounded" style={{ color: 'var(--warning)', fontSize: '1.25rem' }}>stars</span>
-                    <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Class Monitor</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{monitor.name} • {monitor.code}</div>
+                <div className="monitor-banner">
+                    <span className="material-symbols-rounded">stars</span>
+                    <div className="monitor-banner-info">
+                        <div className="monitor-banner-name">Class Monitor</div>
+                        <div className="monitor-banner-sub">{monitor.name} • {monitor.code}</div>
                     </div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>Appointed by DOS</span>
+                    <span className="monitor-banner-tag">Appointed by DOS</span>
                 </div>
             )}
 
-            {/* Search */}
-            <div style={{
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                background: 'var(--muted)', borderRadius: 10,
-                padding: '0.5rem 0.75rem', marginBottom: '1rem',
-                border: '1px solid var(--border)',
-            }}>
-                <span className="material-symbols-rounded" style={{ color: 'var(--muted-foreground)', fontSize: '1.1rem', flexShrink: 0 }}>search</span>
+            <div className="modal-search">
+                <span className="material-symbols-rounded">search</span>
                 <input
                     type="text"
                     placeholder="Search by name or student code..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.875rem', width: '100%', color: 'var(--foreground)' }}
                 />
                 {search && (
-                    <button onClick={() => setSearch('')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--muted-foreground)', flexShrink: 0 }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
+                    <button onClick={() => setSearch('')} className="modal-search-clear">
+                        <span className="material-symbols-rounded">close</span>
                     </button>
                 )}
             </div>
 
-            {/* Student list */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="stu-list">
                 {filtered.map(student => (
-                    <div key={student.id} style={{
-                        display: 'flex', alignItems: 'center', gap: '0.75rem',
-                        padding: '0.625rem 0.75rem',
-                        border: `1px solid ${student.isMonitor ? 'rgba(245,158,11,0.3)' : 'var(--border)'}`,
-                        borderRadius: 10,
-                        background: student.isMonitor ? 'rgba(245,158,11,0.04)' : 'transparent',
-                    }}>
-                        <div className="student-avatar" style={{ width: 36, height: 36, fontSize: '0.82rem', flexShrink: 0 }}>
+                    <div key={student.id} className={`stu-row${student.isMonitor ? ' monitor' : ''}`}>
+                        <div className="student-avatar stu-avatar">
                             {student.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>
+                        <div className="stu-info">
+                            <div className="stu-name">
                                 {student.name}
-                                {student.isMonitor && (
-                                    <span className="material-symbols-rounded" style={{ fontSize: '0.85rem', color: 'var(--warning)', marginLeft: 4, verticalAlign: 'middle' }}>stars</span>
-                                )}
+                                {student.isMonitor && <span className="material-symbols-rounded">stars</span>}
                             </div>
-                            <div style={{ fontSize: '0.74rem', color: 'var(--muted-foreground)' }}>
+                            <div className="stu-meta">
                                 {student.code} • {student.gender === 'M' ? 'Male' : 'Female'}
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                        <div className="stu-actions">
                             <button className="btn btn-outline btn-sm" onClick={() => onViewStudent(student)}>
                                 <span className="material-symbols-rounded icon-sm">visibility</span>
                                 View
@@ -481,11 +387,7 @@ function StudentsPanel({ cls, onClose, onViewStudent, onEnterResult }) {
                         </div>
                     </div>
                 ))}
-                {filtered.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted-foreground)' }}>
-                        No students match your search.
-                    </div>
-                )}
+                {filtered.length === 0 && <div className="stu-empty">No students match your search.</div>}
             </div>
         </Modal>
     )
@@ -574,7 +476,7 @@ export function TeacherClasses() {
                         size="wide"
                         onClose={() => setViewStudent(null)}
                         footer={
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+                            <div className="modal-footer-row" style={{ justifyContent: 'flex-end' }}>
                                 <button className="btn btn-outline" onClick={() => setViewStudent(null)}>Close</button>
                                 <button className="btn btn-primary" onClick={() => setViewStudent(null)}>
                                     <span className="material-symbols-rounded icon-sm">save</span>Save Changes
@@ -583,41 +485,35 @@ export function TeacherClasses() {
                         }
                     >
                         {/* Student header */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', padding: '1rem', background: 'var(--muted)', borderRadius: 10 }}>
-                            <div className="student-avatar" style={{ width: 52, height: 52, fontSize: '1.1rem', flexShrink: 0 }}>
+                        <div className="stu-profile-bar">
+                            <div className="student-avatar student-profile-avatar">
                                 {viewStudent.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{viewStudent.name}</div>
-                                <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                            <div className="stu-profile-info">
+                                <div className="stu-profile-name">{viewStudent.name}</div>
+                                <div className="stu-profile-sub">
                                     {viewStudent.code} • {viewStudent.gender === 'M' ? 'Male' : 'Female'} • {cls?.id}
                                 </div>
                                 {viewStudent.isMonitor && (
-                                    <div style={{ fontSize: '0.78rem', color: 'var(--warning)', fontWeight: 600, marginTop: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>stars</span>
+                                    <div className="stu-profile-role">
+                                        <span className="material-symbols-rounded">stars</span>
                                         Class Monitor
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Results section */}
-                        <div style={{ fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted-foreground)', marginBottom: '0.75rem' }}>
-                            Results — {cls?.id}
-                        </div>
+                        <div className="section-label-sm">Results — {cls?.id}</div>
 
                         {classAssignments.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>
-                                No published assignments for this class yet.
-                            </div>
+                            <div className="results-no-asgn">No published assignments for this class yet.</div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                {/* Table header */}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 110px 60px', gap: '0.5rem', padding: '0 0.75rem', fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>
+                            <div className="score-view-body">
+                                <div className="score-view-grid score-view-head">
                                     <span>Assignment</span>
-                                    <span style={{ textAlign: 'center' }}>Type</span>
-                                    <span style={{ textAlign: 'center' }}>Score</span>
-                                    <span style={{ textAlign: 'center' }}>Grade</span>
+                                    <span className="text-center">Type</span>
+                                    <span className="text-center">Score</span>
+                                    <span className="text-center">Grade</span>
                                 </div>
 
                                 {classAssignments.map(a => {
@@ -625,18 +521,10 @@ export function TeacherClasses() {
                                     const score   = allScores[a.id]?.[viewStudent.id] ?? ''
                                     const grade   = score !== '' ? getGrade(score, a.maxScore) : null
                                     return (
-                                        <div key={a.id} style={{
-                                            display: 'grid', gridTemplateColumns: '1fr 90px 110px 60px',
-                                            gap: '0.5rem', alignItems: 'center',
-                                            padding: '0.65rem 0.75rem',
-                                            border: '1px solid var(--border)', borderRadius: 8,
-                                            background: 'var(--card)',
-                                        }}>
-                                            {/* Title + mode badge */}
-                                            <div>
-                                                <div style={{ fontWeight: 600, fontSize: '0.87rem' }}>{a.title}</div>
-                                                <span style={{
-                                                    fontSize: '0.67rem', fontWeight: 600, padding: '1px 6px', borderRadius: 20,
+                                        <div key={a.id} className="score-view-grid score-view-row">
+                                            <div className="asgn-title-cell">
+                                                <div className="asgn-title-name">{a.title}</div>
+                                                <span className="asgn-mode-badge" style={{
                                                     background: isPaper ? 'rgba(99,102,241,0.1)' : 'rgba(16,185,129,0.1)',
                                                     color: isPaper ? '#6366f1' : 'var(--success)',
                                                 }}>
@@ -644,43 +532,26 @@ export function TeacherClasses() {
                                                 </span>
                                             </div>
 
-                                            {/* Type */}
-                                            <div style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>{a.type}</div>
+                                            <div className="score-type-col">{a.type}</div>
 
-                                            {/* Score input */}
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                                            <div className="score-val-cell">
                                                 <input
-                                                    type="number"
-                                                    min="0"
-                                                    max={a.maxScore}
-                                                    value={score}
+                                                    type="number" min="0" max={a.maxScore} value={score}
                                                     readOnly={!isPaper}
                                                     onChange={e => updateScore(a.id, viewStudent.id, e.target.value)}
-                                                    style={{
-                                                        width: 52, padding: '0.3rem 0.35rem',
-                                                        border: `1px solid ${isPaper ? 'var(--border)' : 'transparent'}`,
-                                                        borderRadius: 6, fontSize: '0.88rem', textAlign: 'center',
-                                                        background: isPaper ? 'var(--background)' : 'var(--muted)',
-                                                        color: 'var(--foreground)',
-                                                        cursor: isPaper ? 'text' : 'default',
-                                                    }}
+                                                    className={`score-input-sm${!isPaper ? ' readonly' : ''}`}
+                                                    style={{ border: `1px solid ${isPaper ? 'var(--border)' : 'transparent'}` }}
                                                 />
-                                                <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>/{a.maxScore}</span>
+                                                <span className="score-max-sm">/{a.maxScore}</span>
                                             </div>
 
-                                            {/* Grade badge */}
-                                            <div style={{ textAlign: 'center' }}>
+                                            <div className="grade-cell">
                                                 {grade ? (
-                                                    <span style={{
-                                                        fontWeight: 700, fontSize: '0.85rem',
-                                                        color: grade.color,
-                                                        background: `${grade.color}18`,
-                                                        padding: '2px 10px', borderRadius: 20,
-                                                    }}>
+                                                    <span className="grade-badge" style={{ color: grade.color, background: `${grade.color}18` }}>
                                                         {grade.label}
                                                     </span>
                                                 ) : (
-                                                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>—</span>
+                                                    <span className="grade-empty">—</span>
                                                 )}
                                             </div>
                                         </div>
@@ -710,29 +581,16 @@ export function TeacherClasses() {
                             classVal={classVal} onClassChange={setClassVal}
                         />
 
-                        <div style={{
-                            background: 'var(--card)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 16,
-                            overflow: 'hidden',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
-                            {/* Container header */}
-                            <div style={{
-                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)',
-                            }}>
-                                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>My Classes</div>
-                                <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                        <div className="classes-wrap">
+                            <div className="classes-wrap-header">
+                                <div className="classes-wrap-title">My Classes</div>
+                                <span className="classes-wrap-count">
                                     {visible.length} class{visible.length !== 1 ? 'es' : ''}
                                 </span>
                             </div>
-
-                            <div style={{ padding: '1rem' }}>
+                            <div className="classes-wrap-body">
                                 {visible.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-                                        No classes match the selected filter.
-                                    </div>
+                                    <div className="classes-wrap-empty">No classes match the selected filter.</div>
                                 ) : (
                                     <div className="classes-grid">
                                         {visible.map((cls, i) => (

@@ -107,30 +107,21 @@ export function TeacherResults() {
                         />
 
                         {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap', margin: '1rem 0',
-                            background: 'var(--card)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 16,
-                            padding: '0.75rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
-                            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--muted-foreground)' }}>Assessment:</span>
+                        <div className="toolbar-card">
+                            <span className="settings-info-text fw-600">Assessment:</span>
                             <select
-                                className="input input-auto"
+                                className="input input-auto select-xs"
                                 value={assessment}
                                 onChange={e => setAssessment(e.target.value)}
-                                style={{ fontSize: '0.82rem' }}
                             >
                                 {ASSESSMENTS.map(a => <option key={a}>{a}</option>)}
                             </select>
-                            <div style={{ flex: 1 }} />
-                            <button className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
+                            <div className="toolbar-spacer" />
+                            <button className="btn btn-outline select-xs">
                                 <span className="material-symbols-rounded icon-sm">file_upload</span>
                                 Import CSV
                             </button>
-                            <button className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
+                            <button className="btn btn-outline select-xs">
                                 <span className="material-symbols-rounded icon-sm">download</span>
                                 Export
                             </button>
@@ -143,16 +134,16 @@ export function TeacherResults() {
                             <>
                                 {/* Quick stats */}
                                 {rows.length > 0 && (
-                                    <div style={{ display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
+                                    <div className="mini-stats-row">
                                         {[
                                             { label:'Class Average', value:`${avg}%`,      color:'var(--primary)'   },
                                             { label:'Top Score',     value: highest ? `${highest.score}/${highest.max}` : '—', color:'var(--success)' },
                                             { label:'Pass Rate',     value:`${passRate}%`,  color:'var(--warning)'   },
                                             { label:'Students',      value: rows.length,    color:'var(--muted-foreground)' },
                                         ].map(s => (
-                                            <div key={s.label} style={{ flex:1, minWidth:90, background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:'var(--space-3) var(--space-4)', boxShadow:'var(--card-shadow)' }}>
-                                                <div style={{ fontSize:'1.5rem', fontWeight:700, color:s.color }}>{s.value}</div>
-                                                <div style={{ fontSize:'var(--font-xs)', color:'var(--muted-foreground)' }}>{s.label}</div>
+                                            <div key={s.label} className="mini-stat">
+                                                <div className="mini-stat-value" style={{ color:s.color }}>{s.value}</div>
+                                                <div className="mini-stat-label">{s.label}</div>
                                             </div>
                                         ))}
                                     </div>
@@ -167,7 +158,7 @@ export function TeacherResults() {
                                             <tr key={r.id}>
                                                 <td>
                                                     <div className="dt-cell-user">
-                                                        <div className="dt-avatar" style={{ background:'var(--primary)' }}>{r.initials}</div>
+                                                        <div className="dt-avatar">{r.initials}</div>
                                                         <div><div className="dt-name">{r.name}</div><div className="dt-sub">{r.id}</div></div>
                                                     </div>
                                                 </td>

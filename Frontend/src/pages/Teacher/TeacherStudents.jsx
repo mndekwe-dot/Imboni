@@ -54,7 +54,7 @@ function StudentRow({ student, onView }) {
                         <div className="student-name">
                             {student.name}
                             {student.isMonitor && (
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', color: 'var(--warning)', marginLeft: 4, verticalAlign: 'middle' }}>stars</span>
+                                <span className="material-symbols-rounded monitor-star">stars</span>
                             )}
                         </div>
                         <div className="student-id-text">{student.code}</div>
@@ -107,16 +107,16 @@ export function TeacherStudent() {
 
             {selected && (
                 <Modal title="Student Profile" icon="person" onClose={() => setSelected(null)}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
-                        <div className="student-avatar" style={{ width: 52, height: 52, fontSize: '1.1rem', flexShrink: 0 }}>
+                    <div className="student-profile-header">
+                        <div className="student-avatar student-profile-avatar">
                             {selected.initials}
                         </div>
                         <div>
-                            <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{selected.name}</div>
-                            <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>{selected.code}</div>
+                            <div className="student-profile-name">{selected.name}</div>
+                            <div className="student-profile-code">{selected.code}</div>
                             {selected.isMonitor && (
-                                <div style={{ fontSize: '0.78rem', color: 'var(--warning)', fontWeight: 600, marginTop: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>stars</span>
+                                <div className="student-profile-role">
+                                    <span className="material-symbols-rounded">stars</span>
                                     Class Monitor — Appointed by DOS
                                 </div>
                             )}
@@ -125,19 +125,19 @@ export function TeacherStudent() {
 
                     <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
                         <div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Class</div>
-                            <div style={{ fontWeight: 600 }}>{selected.className}</div>
+                            <div className="detail-label">Class</div>
+                            <div className="detail-value">{selected.className}</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Gender</div>
-                            <div style={{ fontWeight: 600 }}>{selected.gender === 'F' ? 'Female' : 'Male'}</div>
+                            <div className="detail-label">Gender</div>
+                            <div className="detail-value">{selected.gender === 'F' ? 'Female' : 'Male'}</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Attendance</div>
+                            <div className="detail-label">Attendance</div>
                             <span className={`badge ${attendanceBadge(selected.attendance).cls}`}>{selected.attendance}%</span>
                         </div>
                         <div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: 2 }}>Performance</div>
+                            <div className="detail-label">Performance</div>
                             <span className={`badge ${performanceBadge(selected.performance).cls}`}>{selected.performance}%</span>
                         </div>
                     </div>
@@ -164,7 +164,7 @@ export function TeacherStudent() {
                         />
 
                         {/* Search + performance filter */}
-                        <div className="search-filter-bar" style={{ marginBottom: '1.25rem' }}>
+                        <div className="search-filter-bar mb-5">
                             <div className="search-input-wrapper">
                                 <span className="material-symbols-rounded search-input-icon">search</span>
                                 <input

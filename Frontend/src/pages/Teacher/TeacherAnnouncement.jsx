@@ -61,7 +61,7 @@ export function TeacherAnnouncement() {
             <div className="card mb-1-5">
                 <div className="card-header">
                     <h3 className="card-title">Create New Announcement</h3>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>
+                    <span className="settings-info-text">
                         Visible to: <strong>Students only</strong>
                     </span>
                 </div>

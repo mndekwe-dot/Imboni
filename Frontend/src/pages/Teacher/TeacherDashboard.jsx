@@ -19,13 +19,6 @@ const dashStats = [
     { icon: 'menu_book',       value: '5',   label: 'Classes Today',    trend: '2 completed, 3 left',  trendClass: '',          colorClass: '' },
 ]
 
-const cardStyle = {
-    background: 'var(--card)',
-    border: '1px solid var(--border)',
-    borderRadius: 16,
-    padding: '1rem 1.25rem',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-}
 
 const todaySchedule = [
     { time: '08:00 - 09:00', room: 'Room 201', className: 'S4A', subject: 'Mathematics', status: 'Completed',   statusClass: 'badge-completed', cardClass: 'completed', showMark: false, to: '/teacher/classes'    },
@@ -60,8 +53,7 @@ const recentActivities = [
 function ScheduleCard({ time, room, className, subject, status, statusClass, cardClass, showMark, to, onNavigate }) {
     return (
         <div
-            className={`schedule-card ${cardClass}`}
-            style={{ cursor: 'pointer' }}
+            className={`schedule-card ${cardClass} cursor-ptr`}
             onClick={() => onNavigate(to)}
         >
             <div className="schedule-info">
@@ -90,7 +82,7 @@ function ScheduleCard({ time, room, className, subject, status, statusClass, car
 
 function TaskCard({ title, deadline, priority, priorityClass, to, onNavigate }) {
     return (
-        <div className="task-card" style={{ cursor: 'pointer' }} onClick={() => onNavigate(to)}>
+        <div className="task-card cursor-ptr" onClick={() => onNavigate(to)}>
             <div className={`task-priority-dot ${priority}`}></div>
             <div className="task-content">
                 <div className="task-title">{title}</div>
@@ -111,10 +103,10 @@ function CustomTooltip({ active, payload }) {
     if (!active || !payload?.length) return null
     const d = payload[0].payload
     return (
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.5rem 0.75rem', fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-            <div style={{ fontWeight: 700, marginBottom: 2 }}>{d.className}</div>
+        <div className="chart-tooltip">
+            <div className="chart-tooltip-label">{d.className}</div>
             <div style={{ color: barColor(d.value) }}>{d.value}% average</div>
-            <div style={{ color: d.trendClass === 'up' ? '#10b981' : '#ef4444', fontSize: '0.75rem', marginTop: 2 }}>
+            <div className="chart-tooltip-trend" style={{ color: d.trendClass === 'up' ? '#10b981' : '#ef4444' }}>
                 {d.trendClass === 'up' ? '▲' : '▼'} {d.trendText} vs last term
             </div>
         </div>
@@ -161,11 +153,11 @@ export function TeacherDashboard() {
                         />
 
                         {/* Quick actions container */}
-                        <div style={cardStyle}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>
+                        <div className="dash-card">
+                            <div className="section-label-sm">
                                 Quick Actions
                             </div>
-                            <div className="quick-actions" style={{ margin: 0 }}>
+                            <div className="quick-actions">
                                 <button className="btn btn-primary" onClick={() => navigate('/teacher/attendance')}>
                                     <span className="material-symbols-rounded">how_to_reg</span>
                                     Mark Attendance
@@ -186,11 +178,11 @@ export function TeacherDashboard() {
                         </div>
 
                         {/* Stats container */}
-                        <div style={cardStyle}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>
+                        <div className="dash-card">
+                            <div className="section-label-sm">
                                 Overview
                             </div>
-                            <div className="portal-stat-grid" style={{ margin: 0 }}>
+                            <div className="portal-stat-grid">
                                 {dashStats.map((stat, i) => (
                                     <StatCard key={i} {...stat} />
                                 ))}
@@ -226,7 +218,7 @@ export function TeacherDashboard() {
                             <div className="card">
                                 <div className="card-header">
                                     <h3 className="card-title">Class Performance</h3>
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Average score per class</span>
+                                    <span className="text-xs-muted">Average score per class</span>
                                 </div>
                                 <div className="card-content">
                                     <ResponsiveContainer width="100%" height={220}>
@@ -258,10 +250,10 @@ export function TeacherDashboard() {
                                     </ResponsiveContainer>
 
                                     {/* Legend */}
-                                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                                    <div className="chart-legend-row">
                                         {[['#10b981', '≥ 80% Excellent'], ['#003d7a', '70–79% Good'], ['#f59e0b', '< 70% Needs attention']].map(([color, label]) => (
-                                            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
-                                                <span style={{ width: 10, height: 10, borderRadius: 2, background: color, display: 'inline-block' }} />
+                                            <div key={label} className="chart-legend-item">
+                                                <span className="chart-legend-dot-sq" style={{ background: color }} />
                                                 {label}
                                             </div>
                                         ))}
