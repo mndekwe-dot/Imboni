@@ -217,6 +217,7 @@
   font-size: 0.8rem;
   color: white;
   flex-shrink: 0;
+  background: var(--primary);
 }
 .dt-name {
   font-weight: 600;

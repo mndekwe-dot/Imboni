@@ -46,14 +46,14 @@ export function TeacherTimetable() {
                     <DashboardContent>
 
                         {/* Read-only notice */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--teacher-light)', border: '1px solid var(--teacher)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.875rem', color: 'var(--teacher-hover)' }}>
-                            <span className="material-symbols-rounded" style={{ fontSize: '1.2rem' }}>lock</span>
+                        <div className="tt-notice">
+                            <span className="material-symbols-rounded">lock</span>
                             <div>
                                 <strong>Read-only timetable</strong> — Issued by Dr. I. Nsabimana (DOS). Contact the Director of Studies to request changes.
                             </div>
                         </div>
 
-                        <div className="portal-stat-grid" style={{ marginBottom: '1.25rem' }}>
+                        <div className="portal-stat-grid mb-5">
                             {timetableStats.map((stat, i) => (
                                 <StatCard key={i} {...stat} />
                             ))}
@@ -62,7 +62,7 @@ export function TeacherTimetable() {
                         <div className="card">
                             <div className="card-header">
                                 {/* View toggle — left */}
-                                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                                <div className="btn-row-sm">
                                     <button
                                         className={`btn btn-sm ${view === 'schedule' ? 'btn-primary' : 'btn-outline'}`}
                                         onClick={() => setView('schedule')}
@@ -87,8 +87,8 @@ export function TeacherTimetable() {
                                     />
                                 )}
                                 {view === 'class' && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>Class:</label>
+                                    <div className="flex-row-gap-sm">
+                                        <label className="form-label mb-0 whitespace-nowrap">Class:</label>
                                         <select
                                             className="form-control"
                                             style={{ width: 'auto', minWidth: 80 }}

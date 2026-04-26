@@ -418,7 +418,7 @@ export function LandingPage() {
                 <div className="cta-strip-inner">
                     <div className="cta-strip-orb" />
                     <div className="cta-strip-orb cta-strip-orb-2" />
-                    <div className="section-label" style={{ color: '#fb923c', marginBottom: '1rem' }}>Get Started</div>
+                    <div className="section-label cta-strip-label">Get Started</div>
                     <h2 className="cta-strip-title">Ready to sign in?</h2>
                     <p className="cta-strip-subtitle">
                         Use your school-issued credentials to access your portal.

@@ -1265,3 +1265,7 @@
 
 .border-bottom-sep + .border-bottom-sep,
 .border-bottom-sep { border-bottom: 1px solid var(--border); }
+
+.score-pos  { color: var(--success); }
+.score-neg  { color: var(--destructive); }
+.score-hist { color: var(--muted-foreground); }

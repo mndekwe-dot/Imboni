@@ -122,7 +122,7 @@ export const MatronHealth = () => {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title"><span className="material-symbols-rounded">bed</span> Sick Bay &mdash; Current Residents</h3>
-                                <span className="settings-info-text" style={{ alignSelf: 'center' }}>6 beds total &middot; 3 occupied &middot; 3 free</span>
+                                <span className="settings-info-text align-self-center">6 beds total &middot; 3 occupied &middot; 3 free</span>
                             </div>
                             <div className="card-content">
                                 <div className="sickbay-grid">

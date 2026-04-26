@@ -127,15 +127,7 @@ export function TeacherAttendance() {
                         />
 
                         {/* Toolbar container */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                            flexWrap: 'wrap', margin: '1rem 0',
-                            background: 'var(--card)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 16,
-                            padding: '0.75rem 1rem',
-                            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        }}>
+                        <div className="toolbar-card">
                             {VIEW_TABS.map(tab => (
                                 <button
                                     key={tab}
@@ -146,12 +138,12 @@ export function TeacherAttendance() {
                                     {tab}
                                 </button>
                             ))}
-                            <div style={{ flex: 1 }} />
-                            <button className="btn btn-outline" onClick={markAllPresent} style={{ fontSize: '0.82rem' }}>
+                            <div className="toolbar-spacer" />
+                            <button className="btn btn-outline select-xs" onClick={markAllPresent}>
                                 <span className="material-symbols-rounded icon-sm">done_all</span>
                                 Mark All Present
                             </button>
-                            <button className="btn btn-outline" style={{ fontSize: '0.82rem' }}>
+                            <button className="btn btn-outline select-xs">
                                 <span className="material-symbols-rounded icon-sm">download</span>
                                 Export
                             </button>
@@ -163,16 +155,16 @@ export function TeacherAttendance() {
                         ) : (
                             <>
                                 {/* Quick stats */}
-                                <div style={{ display:'flex', gap:'var(--space-3)', flexWrap:'wrap' }}>
+                                <div className="mini-stats-row">
                                     {[
                                         { label:'Present', value: presentCount, color: STATUS_COLORS.Present },
                                         { label:'Absent',  value: absentCount,  color: STATUS_COLORS.Absent  },
                                         { label:'Late',    value: lateCount,    color: STATUS_COLORS.Late    },
                                         { label:'Total',   value: students.length, color:'var(--primary)'   },
                                     ].map(s => (
-                                        <div key={s.label} style={{ flex:1, minWidth:80, background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:'var(--space-3) var(--space-4)', boxShadow:'var(--card-shadow)' }}>
-                                            <div style={{ fontSize:'1.5rem', fontWeight:700, color:s.color }}>{s.value}</div>
-                                            <div style={{ fontSize:'var(--font-xs)', color:'var(--muted-foreground)' }}>{s.label}</div>
+                                        <div key={s.label} className="mini-stat">
+                                            <div className="mini-stat-value" style={{ color:s.color }}>{s.value}</div>
+                                            <div className="mini-stat-label">{s.label}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -185,7 +177,7 @@ export function TeacherAttendance() {
                                         <tr key={s.id}>
                                             <td>
                                                 <div className="dt-cell-user">
-                                                    <div className="dt-avatar" style={{ background:'var(--primary)' }}>{s.initials}</div>
+                                                    <div className="dt-avatar">{s.initials}</div>
                                                     <div><div className="dt-name">{s.name}</div><div className="dt-sub">{s.id}</div></div>
                                                 </div>
                                             </td>
@@ -203,14 +195,14 @@ export function TeacherAttendance() {
                                     emptyTitle="No students found"
                                     emptyDesc={`No student records are available for ${classKey}.`}
                                     headerRight={
-                                        <select className="input input-auto" style={{ fontSize:'var(--font-xs)' }}>
+                                        <select className="input input-auto select-xs">
                                             <option>Today — {todayLabel}</option>
                                             <option>Yesterday</option>
                                         </select>
                                     }
                                 />
 
-                                <div style={{ display:'flex', justifyContent:'flex-end', gap:'var(--space-3)' }}>
+                                <div className="modal-confirm-actions">
                                     <button className="btn btn-outline" onClick={() => setAttendance({})}>Reset</button>
                                     <button className="btn btn-primary"><span className="material-symbols-rounded icon-sm">save</span> Save Attendance</button>
                                 </div>

@@ -2145,3 +2145,441 @@
   .stat-cards-grid { grid-template-columns: 1fr; }
 }
 
+
+/* ── Mini stat cards (Attendance / Results) ── */
+.mini-stats-row { display: flex; gap: var(--space-3, 0.75rem); flex-wrap: wrap; }
+.mini-stat {
+  flex: 1;
+  min-width: 80px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  box-shadow: var(--card-shadow, 0 2px 8px rgba(0,0,0,0.08));
+}
+.mini-stat-value { font-size: 1.5rem; font-weight: 700; }
+.mini-stat-label { font-size: var(--font-xs, 0.75rem); color: var(--muted-foreground); }
+
+/* ── Student profile card (modal) ── */
+.student-profile-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+.student-profile-avatar { width: 52px; height: 52px; font-size: 1.1rem; flex-shrink: 0; }
+.student-profile-name   { font-weight: 700; font-size: 1.05rem; }
+.student-profile-code   { font-size: 0.82rem; color: var(--muted-foreground); }
+.student-profile-role   {
+  font-size: 0.78rem;
+  color: var(--warning, #d97706);
+  font-weight: 600;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.student-profile-role .material-symbols-rounded { font-size: 0.9rem; }
+
+.detail-label { font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: 2px; }
+.detail-value { font-weight: 600; }
+
+/* ── Quick actions section label ── */
+.section-label-sm {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.75rem;
+}
+
+/* ── Recharts tooltip (teacher portal) ── */
+.chart-tooltip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.82rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.chart-tooltip-label { font-weight: 700; margin-bottom: 2px; }
+.chart-tooltip-key   { color: var(--muted-foreground); }
+.chart-tooltip-val   { font-weight: 600; }
+
+.chart-legend-row  { display: flex; gap: 1rem; justify-content: center; margin-top: 0.5rem; flex-wrap: wrap; }
+.chart-legend-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; color: var(--muted-foreground); }
+.chart-legend-dot-sq { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* ── Timetable notice banner ── */
+.tt-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--teacher-light, rgba(20,184,166,0.1));
+  border: 1px solid var(--teacher, #0d9488);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--teacher-hover, #0f766e);
+}
+.tt-notice .material-symbols-rounded { font-size: 1.2rem; flex-shrink: 0; }
+
+.cursor-ptr { cursor: pointer; }
+
+/* ── Dashboard container card ── */
+.dash-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+/* ── Form select (teacher portal) ── */
+.form-select-wrap { position: relative; }
+.form-select-btn:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--teacher-light); }
+.form-select-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  transition: border-color 0.15s;
+  text-align: left;
+}
+.form-select-btn.has-value { color: var(--foreground); }
+.form-select-btn .material-symbols-rounded { font-size: 1.1rem; color: var(--muted-foreground); flex-shrink: 0; }
+.form-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 300;
+  overflow: hidden;
+}
+.form-select-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.875rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 400;
+  background: transparent;
+  color: var(--foreground);
+}
+.form-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
+
+/* ── Assignment card ── */
+.asgn-card { padding: 1rem; display: flex; align-items: flex-start; gap: 0.875rem; }
+.asgn-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.asgn-icon.online { background: rgba(16,185,129,0.1); color: var(--success); }
+.asgn-icon.paper  { background: var(--primary-light, #e8f2ff); color: var(--primary); }
+.asgn-body        { flex: 1; min-width: 0; }
+.asgn-header      { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 6px; }
+.asgn-title       { font-weight: 700; font-size: 0.9rem; line-height: 1.3; }
+.asgn-meta        { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin-bottom: 8px; }
+.asgn-meta-text   { font-size: 0.75rem; color: var(--muted-foreground); }
+.asgn-actions     { display: flex; justify-content: flex-end; gap: 0.4rem; }
+.asgn-attachment  {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(59,130,246,0.1);
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.asgn-attachment .material-symbols-rounded { font-size: 0.8rem; }
+
+/* ── File upload area ── */
+.file-upload-area {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.file-upload-area:hover { border-color: var(--primary); background: var(--primary-light, #e8f2ff); }
+.file-upload-icon { font-size: 2rem !important; display: block; margin-bottom: 6px; }
+.file-upload-title  { font-weight: 600; font-size: 0.88rem; }
+.file-upload-hint   { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 2px; }
+.file-upload-selected-name { font-weight: 600; font-size: 0.88rem; color: #3b82f6; }
+.file-upload-selected-hint { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 2px; }
+.file-upload-remove {
+  margin-top: 0.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--destructive);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.file-upload-remove .material-symbols-rounded { font-size: 0.9rem; }
+
+/* ── Quiz question editor ── */
+.quiz-q { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 0.65rem; background: var(--card); }
+.quiz-q-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+.quiz-q-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: var(--primary);
+  color: #fff;
+}
+.quiz-q-delete {
+  background: none; border: none; cursor: pointer;
+  color: var(--destructive); padding: 4px;
+}
+.quiz-q-delete .material-symbols-rounded { font-size: 1.1rem; }
+.quiz-q-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.quiz-q-option  { border: 1.5px solid var(--border); border-radius: 8px; padding: 0.4rem 0.6rem; background: transparent; display: flex; align-items: center; gap: 0.5rem; }
+.quiz-q-option.correct { border-color: var(--success); background: rgba(16,185,129,0.05); }
+.quiz-q-option input[type=radio] { accent-color: var(--success); flex-shrink: 0; }
+
+/* ── Add question button ── */
+.quiz-add-btn { border: 2px dashed var(--border); border-radius: 10px; padding: 0.75rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; background: transparent; font-size: 0.875rem; color: var(--muted-foreground); transition: border-color 0.15s; }
+.quiz-add-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ── Class detail card ── */
+.class-detail-card { border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 0.75rem; cursor: pointer; transition: box-shadow 0.15s; }
+.class-detail-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.class-monitor-badge { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--warning); font-weight: 600; margin-bottom: 0.5rem; }
+.class-monitor-badge .material-symbols-rounded { font-size: 0.9rem; }
+
+/* ── Class assignment list ── */
+.class-asgn-list { display: flex; flex-direction: column; gap: 0.65rem; }
+.class-asgn-row  { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--card); cursor: pointer; }
+.class-asgn-row:hover { background: var(--muted); }
+.class-asgn-info { flex: 1; min-width: 0; }
+.class-asgn-name { font-weight: 600; font-size: 0.92rem; margin-bottom: 3px; }
+.class-asgn-meta { font-size: 0.76rem; color: var(--muted-foreground); }
+.class-asgn-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+/* ── Results table in class view ── */
+.results-form-header { display: flex; align-items: center; width: 100%; gap: 0.75rem; }
+.results-form-info   { margin-right: auto; }
+.results-warning     { font-size: 0.78rem; color: var(--warning); font-weight: 600; }
+.results-note-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  background: var(--muted);
+  margin-bottom: 1rem;
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+}
+.results-note-box .material-symbols-rounded { font-size: 1rem; color: var(--success); flex-shrink: 0; }
+.results-score-grid { display: flex; flex-direction: column; gap: 0.5rem; }
+.results-score-row  { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.625rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); }
+.results-score-row:hover { background: var(--muted); }
+
+/* ── Assignment page toolbar & list ── */
+.asgn-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 0.75rem 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.asgn-toolbar-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+.asgn-list-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.asgn-list-header { padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.asgn-list-count  { font-weight: 700; font-size: 0.9rem; }
+.asgn-list-filter { font-size: 0.78rem; color: var(--muted-foreground); }
+.asgn-list-body   { display: flex; flex-direction: column; }
+.asgn-list-item   { border-bottom: 1px solid var(--border); padding: 0.25rem 0.5rem; }
+.asgn-list-item:last-child { border-bottom: none; }
+
+/* Submission pill (dynamic bg/color kept inline) */
+.asgn-sub-pill { font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; white-space: nowrap; }
+
+/* Status / mode mini chip */
+.asgn-chip { font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+
+/* ── Mode toggle buttons (new-assignment modal) ── */
+.mode-toggle-btn { padding: 0.875rem; border-radius: 12px; cursor: pointer; text-align: left; transition: all 0.15s; }
+.mode-toggle-btn-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 3px; }
+.mode-toggle-btn-icon   { font-size: 1.1rem !important; color: var(--muted-foreground); }
+.mode-toggle-btn.active .mode-toggle-btn-icon  { color: var(--primary); }
+.mode-toggle-btn-label  { font-weight: 700; font-size: 0.88rem; color: var(--foreground); }
+.mode-toggle-btn.active .mode-toggle-btn-label { color: var(--primary); }
+.mode-toggle-btn-sub    { font-size: 0.75rem; color: var(--muted-foreground); padding-left: 1.6rem; }
+
+/* ── Modal footer row ── */
+.modal-footer-row  { display: flex; align-items: center; gap: 0.75rem; width: 100%; }
+.modal-footer-hint { flex: 1; font-size: 0.78rem; color: var(--muted-foreground); }
+
+/* ── Date input with leading icon ── */
+.input-icon-wrap { position: relative; }
+.input-icon { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); font-size: 1rem !important; color: var(--muted-foreground); pointer-events: none; }
+.input-icon-field { padding-left: 2rem !important; }
+
+/* ── Misc helpers ── */
+.label-muted  { font-weight: 400; color: var(--muted-foreground); }
+.textarea-sm  { min-height: 72px; resize: vertical; }
+.input-muted  { background: var(--muted) !important; cursor: default; }
+.attach-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 0.6rem; }
+.attach-label-opt { font-weight: 400; text-transform: none; letter-spacing: 0; }
+.quiz-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.quiz-section-count  { font-size: 0.78rem; color: var(--muted-foreground); }
+
+/* ── Quiz editor helpers ── */
+.quiz-q-option-input { font-size: 0.83rem; border: none; padding: 0.2rem 0; background: transparent; outline: none; flex: 1; min-width: 0; }
+.quiz-q-option input[type="radio"] { accent-color: var(--success); flex-shrink: 0; }
+.quiz-q-help { font-size: 0.72rem; color: var(--muted-foreground); margin-top: 0.5rem; }
+.quiz-q-help .material-symbols-rounded { font-size: 0.8rem !important; vertical-align: middle; color: var(--success); }
+.quiz-q-empty { text-align: center; padding: 1.5rem; color: var(--muted-foreground); font-size: 0.85rem; border: 1px dashed var(--border); border-radius: 10px; margin-bottom: 0.75rem; }
+
+/* ── Class filter dropdown ── */
+.class-dd-wrap { position: relative; }
+.class-dd-menu { position: absolute; top: calc(100% + 6px); right: 0; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 200; min-width: 140px; overflow: hidden; }
+.class-dd-opt { display: block; width: 100%; text-align: left; padding: 0.55rem 1rem; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 400; background: transparent; color: var(--foreground); }
+.class-dd-opt:hover:not(.active) { background: var(--muted); }
+.class-dd-opt.active { background: var(--primary); color: white; font-weight: 600; }
+
+/* ── Utility ── */
+.w-full      { width: 100%; }
+.flex-1      { flex: 1; min-width: 0; }
+.flex-shrink-0    { flex-shrink: 0; }
+.whitespace-nowrap { white-space: nowrap; }
+.col-full    { grid-column: 1 / -1; }
+
+/* ── Classes page container ── */
+.classes-wrap        { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.classes-wrap-header { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border); }
+.classes-wrap-title  { font-weight: 700; font-size: 0.95rem; }
+.classes-wrap-count  { font-size: 0.82rem; color: var(--muted-foreground); }
+.classes-wrap-body   { padding: 1rem; }
+.classes-wrap-empty  { text-align: center; padding: 2.5rem; color: var(--muted-foreground); font-size: 0.875rem; }
+
+/* ── Results modal — step 1 assignment picker ── */
+.modal-desc     { font-size: 0.85rem; color: var(--muted-foreground); margin-bottom: 1rem; }
+.results-empty  { text-align: center; padding: 2.5rem; color: var(--muted-foreground); }
+.results-empty .material-symbols-rounded { font-size: 2.5rem !important; display: block; margin-bottom: 8px; opacity: 0.6; }
+.results-empty-title { font-weight: 600; margin-bottom: 4px; }
+.results-empty-sub   { font-size: 0.82rem; }
+
+.asgn-pick-list  { display: flex; flex-direction: column; gap: 0.65rem; }
+.asgn-pick-btn   { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--card); cursor: pointer; text-align: left; gap: 1rem; width: 100%; transition: border-color 0.15s; }
+.asgn-pick-btn:hover { border-color: var(--primary); }
+.asgn-pick-title { font-weight: 600; font-size: 0.92rem; margin-bottom: 3px; }
+.asgn-pick-meta  { font-size: 0.76rem; color: var(--muted-foreground); }
+.asgn-pick-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+.asgn-pick-badge { font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+.asgn-pick-chevron { font-size: 1.1rem !important; color: var(--muted-foreground); }
+
+/* ── Results modal — step 2 ── */
+.results-info-bar  { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.875rem; background: var(--muted); border-radius: 8px; margin-bottom: 1.25rem; gap: 0.75rem; }
+.results-info-text { font-size: 0.82rem; color: var(--muted-foreground); }
+.results-info-pill { font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
+.results-online-notice { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.65rem 0.875rem; margin-bottom: 1rem; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; font-size: 0.8rem; color: var(--muted-foreground); }
+.results-online-notice .material-symbols-rounded { font-size: 1rem !important; color: var(--success); flex-shrink: 0; }
+
+/* Score table (paper=2-col, online=3-col set by className) */
+.score-grid-2   { display: grid; grid-template-columns: 1fr 100px; }
+.score-grid-3   { display: grid; grid-template-columns: 1fr 100px 80px; }
+.score-table-head { gap: 0.5rem; padding: 0 0.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--muted-foreground); text-transform: uppercase; }
+.score-table-head span { }
+.score-table-head .center { text-align: center; }
+.score-table-body { display: flex; flex-direction: column; gap: 0.5rem; }
+.score-row { gap: 0.5rem; align-items: center; padding: 0.6rem 0.5rem; border: 1px solid var(--border); border-radius: 8px; background: transparent; }
+.score-row.flagged { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.04); }
+.score-student-cell { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.score-avatar       { width: 30px !important; height: 30px !important; font-size: 0.72rem !important; flex-shrink: 0; }
+.score-student-info { min-width: 0; }
+.score-student-name { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.score-student-name .material-symbols-rounded { font-size: 0.8rem !important; color: var(--warning); margin-left: 3px; vertical-align: middle; }
+.score-student-code { font-size: 0.72rem; color: var(--muted-foreground); }
+.score-input-cell   { display: flex; align-items: center; gap: 0.3rem; justify-content: center; }
+.score-input { width: 58px; padding: 0.35rem 0.4rem; border: 1px solid var(--border); border-radius: 7px; font-size: 0.88rem; text-align: center; color: var(--foreground); background: var(--background); }
+.score-input.readonly { background: var(--muted); cursor: default; border-color: transparent; }
+.score-flag-cell    { display: flex; justify-content: center; }
+.score-flag-btn     { background: none; border: none; cursor: pointer; padding: 4px; color: var(--muted-foreground); }
+.score-flag-btn.active { color: var(--warning); }
+.score-flag-btn .material-symbols-rounded { font-size: 1.1rem !important; }
+.score-max          { font-size: 0.78rem; color: var(--muted-foreground); }
+.text-center        { text-align: center; }
+
+/* Per-student results view grid */
+.score-view-grid { display: grid; grid-template-columns: 1fr 90px 110px 60px; }
+.score-view-head { gap: 0.5rem; padding: 0 0.75rem; margin-bottom: 0.5rem; font-size: 0.72rem; font-weight: 700; color: var(--muted-foreground); text-transform: uppercase; }
+.score-view-row  { gap: 0.5rem; align-items: center; padding: 0.65rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+.score-view-body { display: flex; flex-direction: column; gap: 0.5rem; }
+.asgn-title-cell { }
+.asgn-title-name { font-weight: 600; font-size: 0.87rem; }
+.asgn-mode-badge { font-size: 0.67rem; font-weight: 600; padding: 1px 6px; border-radius: 20px; }
+.score-type-col  { text-align: center; font-size: 0.78rem; color: var(--muted-foreground); }
+.score-val-cell  { display: flex; align-items: center; justify-content: center; gap: 0.25rem; }
+.score-input-sm  { width: 52px; padding: 0.3rem 0.35rem; border-radius: 6px; font-size: 0.88rem; text-align: center; color: var(--foreground); }
+.score-input-sm.readonly { background: var(--muted); cursor: default; border-color: transparent; }
+.score-max-sm    { font-size: 0.78rem; color: var(--muted-foreground); }
+.grade-cell      { text-align: center; }
+.grade-badge     { font-weight: 700; font-size: 0.85rem; padding: 2px 10px; border-radius: 20px; }
+.grade-empty     { font-size: 0.78rem; color: var(--muted-foreground); }
+.results-no-asgn { text-align: center; padding: 2rem; color: var(--muted-foreground); font-size: 0.85rem; }
+
+/* ── Monitor banner (students panel) ── */
+.monitor-banner       { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; margin-bottom: 1rem; }
+.monitor-banner .material-symbols-rounded { color: var(--warning); font-size: 1.25rem !important; }
+.monitor-banner-info  { flex: 1; }
+.monitor-banner-name  { font-weight: 700; font-size: 0.9rem; }
+.monitor-banner-sub   { font-size: 0.78rem; color: var(--muted-foreground); }
+.monitor-banner-tag   { font-size: 0.72rem; color: var(--muted-foreground); flex-shrink: 0; }
+
+/* ── Modal search bar ── */
+.modal-search           { display: flex; align-items: center; gap: 0.5rem; background: var(--muted); border-radius: 10px; padding: 0.5rem 0.75rem; margin-bottom: 1rem; border: 1px solid var(--border); }
+.modal-search .material-symbols-rounded { color: var(--muted-foreground); font-size: 1.1rem !important; flex-shrink: 0; }
+.modal-search input     { border: none; background: transparent; outline: none; font-size: 0.875rem; width: 100%; color: var(--foreground); }
+.modal-search-clear     { border: none; background: none; cursor: pointer; padding: 0; display: flex; color: var(--muted-foreground); flex-shrink: 0; }
+.modal-search-clear .material-symbols-rounded { font-size: 1rem !important; }
+
+/* ── Student list rows ── */
+.stu-list    { display: flex; flex-direction: column; gap: 0.5rem; }
+.stu-row     { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.75rem; border-radius: 10px; border: 1px solid var(--border); background: transparent; }
+.stu-row.monitor { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.04); }
+.stu-avatar  { width: 36px !important; height: 36px !important; font-size: 0.82rem !important; flex-shrink: 0; }
+.stu-info    { flex: 1; min-width: 0; }
+.stu-name    { font-weight: 600; font-size: 0.88rem; }
+.stu-name .material-symbols-rounded { font-size: 0.85rem !important; color: var(--warning); margin-left: 4px; vertical-align: middle; }
+.stu-meta    { font-size: 0.74rem; color: var(--muted-foreground); }
+.stu-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+.stu-empty   { text-align: center; padding: 2rem; color: var(--muted-foreground); font-size: 0.85rem; }
+
+/* ── Student profile bar (view student modal) ── */
+.stu-profile-bar  { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding: 1rem; background: var(--muted); border-radius: 10px; }
+.stu-profile-info { flex: 1; }
+.stu-profile-name { font-weight: 700; font-size: 1.05rem; }
+.stu-profile-sub  { font-size: 0.82rem; color: var(--muted-foreground); }
+.stu-profile-role { font-size: 0.78rem; color: var(--warning); font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 3px; }
+.stu-profile-role .material-symbols-rounded { font-size: 0.9rem !important; }
+
+/* ── Misc ── */
+.mr-auto  { margin-right: auto; }
+.icon-sm-btn .material-symbols-rounded { font-size: 0.8rem; }
+.icon-schedule { font-size: 0.9rem !important; }
+.monitor-star  { color: var(--warning); margin-left: 4px; vertical-align: middle; }
+.chart-tooltip-trend { font-size: 0.75rem; margin-top: 2px; }

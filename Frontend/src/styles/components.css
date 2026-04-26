@@ -1293,3 +1293,16 @@ tr:hover td {
 
 /* Warning text */
 .text-warning-bold { color: #f59e0b; font-weight: 700; }
+
+/* Margin utilities */
+.mt-1 { margin-top: 1rem; }
+.align-self-center { align-self: center; }
+
+/* ── Toggle switch (Account settings) ── */
+.notif-list { display: flex; flex-direction: column; gap: 1rem; }
+.notif-row  { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.notif-label { font-weight: 500; font-size: 0.9rem; }
+.notif-desc  { font-size: 0.8125rem; color: var(--muted-foreground); }
+.toggle-wrap { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-thumb { position: absolute; inset: 0; background: var(--primary); border-radius: 999px; cursor: pointer; }

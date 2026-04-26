@@ -240,21 +240,21 @@ export function Account() {
                                         <h3>Notifications</h3>
                                     </div>
                                     <div className="card-content">
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        <div className="notif-list">
                                             {[
                                                 { label: 'New messages', desc: 'Get notified when you receive a new message' },
                                                 { label: 'Announcements', desc: 'Get notified when a new announcement is posted' },
                                                 { label: 'Results published', desc: 'Get notified when exam results are available' },
                                                 { label: 'Discipline reports', desc: 'Get notified when a discipline record is added' },
                                             ].map((item) => (
-                                                <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                                                <div key={item.label} className="notif-row">
                                                     <div>
-                                                        <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>{item.label}</div>
-                                                        <div style={{ fontSize: '0.8125rem', color: 'var(--muted-foreground)' }}>{item.desc}</div>
+                                                        <div className="notif-label">{item.label}</div>
+                                                        <div className="notif-desc">{item.desc}</div>
                                                     </div>
-                                                    <label style={{ position: 'relative', display: 'inline-block', width: 44, height: 24, flexShrink: 0 }}>
-                                                        <input type="checkbox" defaultChecked style={{ opacity: 0, width: 0, height: 0 }} />
-                                                        <span style={{ position: 'absolute', inset: 0, background: 'var(--primary)', borderRadius: 999, cursor: 'pointer' }}></span>
+                                                    <label className="toggle-wrap">
+                                                        <input type="checkbox" defaultChecked />
+                                                        <span className="toggle-thumb"></span>
                                                     </label>
                                                 </div>
                                             ))}
@@ -293,7 +293,7 @@ export function Account() {
                                                 <span className="badge status-paid">Verified</span>
                                             </div>
                                         </div>
-                                        <button className="btn btn-outline" style={{ marginTop: '1rem', width: '100%' }}>
+                                        <button className="btn btn-outline mt-1 w-full">
                                             <span className="material-symbols-rounded">person_add</span> Link New Student
                                         </button>
                                     </div>
