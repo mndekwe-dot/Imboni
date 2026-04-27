@@ -55,6 +55,8 @@ import {MatronSchedule} from './pages/Matron/MatronSchedule';
 import { StudentDiscipline } from './pages/Student/StudentDiscipline';
 import { TeacherAssignments } from './pages/Teacher/TeacherAssignments';
 import { TeacherTimetable } from './pages/Teacher/TeacherTimetable';
+import { TeacherResults } from './pages/Teacher/TeacherResults';
+import { TeacherStudent } from './pages/Teacher/TeacherStudents';
 import { Account } from './pages/Account';
 import { DosSettings } from './pages/Dos/DosSettings';
 import { AdminDashboard } from './pages/Admin/AdminDashboard';
@@ -148,7 +150,9 @@ function App() {
       <Route path="/student/discipline" element={<StudentDiscipline />} />
       {/* ── Teacher extra routes ── */}
       <Route path="/teacher/assignments" element={<TeacherAssignments />} />
-      <Route path="/teacher/timetable" element={<TeacherTimetable />} />
+      <Route path="/teacher/timetable"   element={<TeacherTimetable />} />
+      <Route path="/teacher/results"     element={<TeacherResults />} />
+      <Route path="/teacher/students"    element={<TeacherStudent />} />
     </Routes>
   )
 }

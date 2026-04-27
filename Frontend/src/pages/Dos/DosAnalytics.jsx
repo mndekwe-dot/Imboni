@@ -1,4 +1,5 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -7,10 +8,10 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const analyticsStats = [
-    { iconClass: 'primary', icon: 'trending_up',  value: '78%',  label: 'Overall Performance',   trend: '+3% from last term', trendClass: 'positive' },
-    { iconClass: 'success', icon: 'check_circle', value: '94%',  label: 'Attendance Rate',       trend: 'Above target',       trendClass: 'positive' },
-    { iconClass: 'warning', icon: 'groups',       value: '1:15', label: 'Teacher-Student Ratio', trend: 'Optimal range',      trendClass: 'neutral'  },
-    { iconClass: 'info',    icon: 'emoji_events', value: '342',  label: 'Top Performers',        trend: 'Above 80%',          trendClass: 'positive' },
+    { icon: 'trending_up',  value: '78%',  label: 'Overall Performance',   trend: '+3% from last term', trendClass: 'positive', colorClass: ''        },
+    { icon: 'check_circle', value: '94%',  label: 'Attendance Rate',       trend: 'Above target',       trendClass: 'positive', colorClass: 'success' },
+    { icon: 'groups',       value: '1:15', label: 'Teacher-Student Ratio', trend: 'Optimal range',      trendClass: '',         colorClass: 'warning' },
+    { icon: 'emoji_events', value: '342',  label: 'Top Performers',        trend: 'Above 80%',          trendClass: 'positive', colorClass: 'info'    },
 ]
 
 const gradePerformance = [
@@ -31,18 +32,6 @@ const subjectPerformance = [
     { subject: 'Kiswahili',   value: '68%', width: '68%', barColor: 'var(--warning)' },
 ]
 
-function AnalyticsStat({ iconClass, icon, value, label, trend, trendClass }) {
-    return (
-        <div className="stat-card">
-            <div className="stat-header">
-                <div className={`stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-            </div>
-            <div className="stat-value">{value}</div>
-            <div className="stat-label">{label}</div>
-            <div className={`stat-trend ${trendClass}`}>{trend}</div>
-        </div>
-    )
-}
 
 function GradeRow({ grade, value, width }) {
     return (
@@ -97,10 +86,8 @@ export function DosAnalytics() {
                     </header>
 
                     <DashboardContent>
-                        <div className="stat-cards-grid">
-                            {analyticsStats.map((stat, index) => (
-                                <AnalyticsStat key={index} {...stat} />
-                            ))}
+                        <div className="portal-stat-grid">
+                            {analyticsStats.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
                         <div className="analytics-grid">

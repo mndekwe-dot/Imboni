@@ -1,4 +1,5 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -7,10 +8,10 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const leaderStats = [
-    { iconClass: 'info',    icon: 'military_tech', trend: 'School-wide',  trendClass: 'neutral',  value: '6',  label: 'Prefects'       },
-    { iconClass: 'success', icon: 'home',          trend: '4 houses',     trendClass: 'neutral',  value: '8',  label: 'Dormitory Captains' },
-    { iconClass: 'warning', icon: 'groups',        trend: 'Active clubs', trendClass: 'neutral',  value: '12', label: 'Club Leaders'   },
-    { iconClass: 'info',    icon: 'person',        trend: '+2 this term', trendClass: 'positive', value: '26', label: 'Total Leaders'  },
+    { icon: 'military_tech', value: '6',  label: 'Prefects',          trend: 'School-wide',  trendClass: '',         colorClass: 'info'    },
+    { icon: 'home',          value: '8',  label: 'Dormitory Captains',trend: '4 houses',     trendClass: '',         colorClass: 'success' },
+    { icon: 'groups',        value: '12', label: 'Club Leaders',      trend: 'Active clubs', trendClass: '',         colorClass: 'warning' },
+    { icon: 'person',        value: '26', label: 'Total Leaders',     trend: '+2 this term', trendClass: 'positive', colorClass: 'info'    },
 ]
 
 const prefects = [
@@ -29,18 +30,6 @@ const houseCaptains = [
     { initials: 'HM', name: 'Habimana Moses',   house: 'Sabyinyo',  form: 'S3C', since: 'Jan 2026' },
 ]
 
-function LeaderStat({ iconClass, icon, trend, trendClass, value, label }) {
-    return (
-        <div className="stat-card">
-            <div className="stat-header">
-                <div className={`stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-                <span className={`stat-trend ${trendClass}`}>{trend}</span>
-            </div>
-            <div className="stat-value">{value}</div>
-            <div className="stat-label">{label}</div>
-        </div>
-    )
-}
 
 function PrefectCard({ initials, name, roleTag, role, form, since }) {
     return (
@@ -112,9 +101,9 @@ export function DosStudentLeaders() {
                             </div>
                         </div>
 
-                        <div className="quick-stats">
-                            {leaderStats.map((stat, index) => (
-                                <LeaderStat key={index} {...stat} />
+                        <div className="portal-stat-grid">
+                            {leaderStats.map((s, i) => (
+                                <StatCard key={i} {...s} />
                             ))}
                         </div>
 

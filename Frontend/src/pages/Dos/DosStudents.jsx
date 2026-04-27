@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
+import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -16,10 +17,10 @@ const SECTIONS = [
 ]
 
 const studentStats = [
-    { iconClass: 'info',    icon: 'people',       trend: '+15 this term',   trendClass: 'positive', value: '1,245', label: 'Total Students'      },
-    { iconClass: 'success', icon: 'check_circle', trend: '96% enrollment',  trendClass: 'positive', value: '1,198', label: 'Active Students'     },
-    { iconClass: 'warning', icon: 'person_add',   trend: 'This term',       trendClass: 'neutral',  value: '47',    label: 'New Admissions'      },
-    { iconClass: 'success', icon: 'trending_up',  trend: '+3% improvement', trendClass: 'positive', value: '78%',   label: 'Average Performance' },
+    { icon: 'people',       value: '1,245', label: 'Total Students',    trend: '+15 this term',   trendClass: 'positive', colorClass: 'info'    },
+    { icon: 'check_circle', value: '1,198', label: 'Active Students',   trend: '96% enrollment',  trendClass: 'positive', colorClass: 'success' },
+    { icon: 'person_add',   value: '47',    label: 'New Admissions',    trend: 'This term',       trendClass: '',         colorClass: 'warning' },
+    { icon: 'trending_up',  value: '78%',   label: 'Avg Performance',   trend: '+3% improvement', trendClass: 'positive', colorClass: 'success' },
 ]
 
 const allStudents = [
@@ -33,18 +34,6 @@ const allStudents = [
     { initials: 'EN', name: 'Ndagijimana Eric',adm: 'ADM-2026-008', year: 'S1', classLetter: 'B', house: 'Sabyinyo',  t1: '48%', t2: '55%', curr: '59%', standClass: 'dos-stand-concern',   standing: 'Concern'   },
 ]
 
-function StudentStatCard({ iconClass, icon, trend, trendClass, value, label }) {
-    return (
-        <div className="stat-card">
-            <div className="stat-header">
-                <div className={`stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-                <span className={`stat-trend ${trendClass}`}>{trend}</span>
-            </div>
-            <div className="stat-value">{value}</div>
-            <div className="stat-label">{label}</div>
-        </div>
-    )
-}
 
 function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, standing }) {
     return (
@@ -107,8 +96,8 @@ export function DosStudents() {
 
                     <DashboardContent>
 
-                        <div className="quick-stats">
-                            {studentStats.map(stat => <StudentStatCard key={stat.label} {...stat} />)}
+                        <div className="portal-stat-grid">
+                            {studentStats.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
                         <ClassPicker

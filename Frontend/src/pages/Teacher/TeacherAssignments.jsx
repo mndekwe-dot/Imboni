@@ -4,6 +4,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { Modal } from '../../components/ui/Modal'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -538,17 +539,7 @@ export function TeacherAssignments() {
                                 { icon: 'check_circle', value: assignments.filter(a => a.status === 'active').length, label: 'Active',          colorClass: 'success' },
                                 { icon: 'quiz',         value: assignments.filter(a => a.mode === 'online').length,   label: 'Online Quizzes',  colorClass: ''        },
                                 { icon: 'draft',        value: assignments.filter(a => a.status === 'draft').length,  label: 'Drafts',          colorClass: 'warning' },
-                            ].map((s, i) => (
-                                <div key={i} className="stat-card">
-                                    <div className="stat-header">
-                                        <div className={`stat-icon ${s.colorClass}`}>
-                                            <span className="material-symbols-rounded">{s.icon}</span>
-                                        </div>
-                                    </div>
-                                    <div className="stat-value">{s.value}</div>
-                                    <div className="stat-label">{s.label}</div>
-                                </div>
-                            ))}
+                            ].map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
                         {/* Toolbar */}

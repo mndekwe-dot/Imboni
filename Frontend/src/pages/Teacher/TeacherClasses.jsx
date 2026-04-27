@@ -393,6 +393,105 @@ function StudentsPanel({ cls, onClose, onViewStudent, onEnterResult }) {
     )
 }
 
+// ── View Student Modal ────────────────────────────────────────────────────────
+function ViewStudentModal({ student, cls, allScores, onClose, onUpdateScore }) {
+    const classAssignments = ASSIGNMENTS.filter(
+        a => a.classId === cls?.id && a.status === 'published'
+    )
+
+    return (
+        <Modal
+            title="Student Profile"
+            icon="person"
+            size="wide"
+            onClose={onClose}
+            footer={
+                <div className="modal-footer-row" style={{ justifyContent: 'flex-end' }}>
+                    <button className="btn btn-outline" onClick={onClose}>Close</button>
+                    <button className="btn btn-primary" onClick={onClose}>
+                        <span className="material-symbols-rounded icon-sm">save</span>Save Changes
+                    </button>
+                </div>
+            }
+        >
+            <div className="stu-profile-bar">
+                <div className="student-avatar student-profile-avatar">
+                    {student.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                </div>
+                <div className="stu-profile-info">
+                    <div className="stu-profile-name">{student.name}</div>
+                    <div className="stu-profile-sub">
+                        {student.code} • {student.gender === 'M' ? 'Male' : 'Female'} • {cls?.id}
+                    </div>
+                    {student.isMonitor && (
+                        <div className="stu-profile-role">
+                            <span className="material-symbols-rounded">stars</span>
+                            Class Monitor
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="section-label-sm">Results — {cls?.id}</div>
+
+            {classAssignments.length === 0 ? (
+                <div className="results-no-asgn">No published assignments for this class yet.</div>
+            ) : (
+                <div className="score-view-body">
+                    <div className="score-view-grid score-view-head">
+                        <span>Assignment</span>
+                        <span className="text-center">Type</span>
+                        <span className="text-center">Score</span>
+                        <span className="text-center">Grade</span>
+                    </div>
+
+                    {classAssignments.map(a => {
+                        const isPaper = a.mode === 'paper'
+                        const score   = allScores[a.id]?.[student.id] ?? ''
+                        const grade   = score !== '' ? getGrade(score, a.maxScore) : null
+                        return (
+                            <div key={a.id} className="score-view-grid score-view-row">
+                                <div className="asgn-title-cell">
+                                    <div className="asgn-title-name">{a.title}</div>
+                                    <span className="asgn-mode-badge" style={{
+                                        background: isPaper ? 'rgba(99,102,241,0.1)' : 'rgba(16,185,129,0.1)',
+                                        color: isPaper ? '#6366f1' : 'var(--success)',
+                                    }}>
+                                        {isPaper ? 'Paper' : 'Online · Auto'}
+                                    </span>
+                                </div>
+
+                                <div className="score-type-col">{a.type}</div>
+
+                                <div className="score-val-cell">
+                                    <input
+                                        type="number" min="0" max={a.maxScore} value={score}
+                                        readOnly={!isPaper}
+                                        onChange={e => onUpdateScore(a.id, student.id, e.target.value)}
+                                        className={`score-input-sm${!isPaper ? ' readonly' : ''}`}
+                                        style={{ border: `1px solid ${isPaper ? 'var(--border)' : 'transparent'}` }}
+                                    />
+                                    <span className="score-max-sm">/{a.maxScore}</span>
+                                </div>
+
+                                <div className="grade-cell">
+                                    {grade ? (
+                                        <span className="grade-badge" style={{ color: grade.color, background: `${grade.color}18` }}>
+                                            {grade.label}
+                                        </span>
+                                    ) : (
+                                        <span className="grade-empty">—</span>
+                                    )}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            )}
+        </Modal>
+    )
+}
+
 // ── Shared score helpers ───────────────────────────────────────────────────────
 function getGrade(score, max) {
     const pct = (Number(score) / max) * 100
@@ -464,104 +563,15 @@ export function TeacherClasses() {
             )}
 
             {/* View student modal — profile + results */}
-            {viewStudent && (() => {
-                const cls = openClass
-                const classAssignments = ASSIGNMENTS.filter(
-                    a => a.classId === cls?.id && a.status === 'published'
-                )
-                return (
-                    <Modal
-                        title="Student Profile"
-                        icon="person"
-                        size="wide"
-                        onClose={() => setViewStudent(null)}
-                        footer={
-                            <div className="modal-footer-row" style={{ justifyContent: 'flex-end' }}>
-                                <button className="btn btn-outline" onClick={() => setViewStudent(null)}>Close</button>
-                                <button className="btn btn-primary" onClick={() => setViewStudent(null)}>
-                                    <span className="material-symbols-rounded icon-sm">save</span>Save Changes
-                                </button>
-                            </div>
-                        }
-                    >
-                        {/* Student header */}
-                        <div className="stu-profile-bar">
-                            <div className="student-avatar student-profile-avatar">
-                                {viewStudent.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                            </div>
-                            <div className="stu-profile-info">
-                                <div className="stu-profile-name">{viewStudent.name}</div>
-                                <div className="stu-profile-sub">
-                                    {viewStudent.code} • {viewStudent.gender === 'M' ? 'Male' : 'Female'} • {cls?.id}
-                                </div>
-                                {viewStudent.isMonitor && (
-                                    <div className="stu-profile-role">
-                                        <span className="material-symbols-rounded">stars</span>
-                                        Class Monitor
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="section-label-sm">Results — {cls?.id}</div>
-
-                        {classAssignments.length === 0 ? (
-                            <div className="results-no-asgn">No published assignments for this class yet.</div>
-                        ) : (
-                            <div className="score-view-body">
-                                <div className="score-view-grid score-view-head">
-                                    <span>Assignment</span>
-                                    <span className="text-center">Type</span>
-                                    <span className="text-center">Score</span>
-                                    <span className="text-center">Grade</span>
-                                </div>
-
-                                {classAssignments.map(a => {
-                                    const isPaper = a.mode === 'paper'
-                                    const score   = allScores[a.id]?.[viewStudent.id] ?? ''
-                                    const grade   = score !== '' ? getGrade(score, a.maxScore) : null
-                                    return (
-                                        <div key={a.id} className="score-view-grid score-view-row">
-                                            <div className="asgn-title-cell">
-                                                <div className="asgn-title-name">{a.title}</div>
-                                                <span className="asgn-mode-badge" style={{
-                                                    background: isPaper ? 'rgba(99,102,241,0.1)' : 'rgba(16,185,129,0.1)',
-                                                    color: isPaper ? '#6366f1' : 'var(--success)',
-                                                }}>
-                                                    {isPaper ? 'Paper' : 'Online · Auto'}
-                                                </span>
-                                            </div>
-
-                                            <div className="score-type-col">{a.type}</div>
-
-                                            <div className="score-val-cell">
-                                                <input
-                                                    type="number" min="0" max={a.maxScore} value={score}
-                                                    readOnly={!isPaper}
-                                                    onChange={e => updateScore(a.id, viewStudent.id, e.target.value)}
-                                                    className={`score-input-sm${!isPaper ? ' readonly' : ''}`}
-                                                    style={{ border: `1px solid ${isPaper ? 'var(--border)' : 'transparent'}` }}
-                                                />
-                                                <span className="score-max-sm">/{a.maxScore}</span>
-                                            </div>
-
-                                            <div className="grade-cell">
-                                                {grade ? (
-                                                    <span className="grade-badge" style={{ color: grade.color, background: `${grade.color}18` }}>
-                                                        {grade.label}
-                                                    </span>
-                                                ) : (
-                                                    <span className="grade-empty">—</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        )}
-                    </Modal>
-                )
-            })()}
+            {viewStudent && (
+                <ViewStudentModal
+                    student={viewStudent}
+                    cls={openClass}
+                    allScores={allScores}
+                    onClose={() => setViewStudent(null)}
+                    onUpdateScore={updateScore}
+                />
+            )}
 
             <div className="dashboard-layout">
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />

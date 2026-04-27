@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
+import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -11,10 +12,10 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const dosStats = [
-    { iconClass: '',        icon: 'people',          trend: '+15',    trendClass: 'positive', trendIcon: 'trending_up', value: '1,245', label: 'Total Students'    },
-    { iconClass: 'warning', icon: 'school',          trend: '45 FT',  trendClass: 'neutral',  trendIcon: null,          value: '85',    label: 'Teaching Staff'    },
-    { iconClass: 'success', icon: 'analytics',       trend: '+3%',    trendClass: 'positive', trendIcon: 'trending_up', value: '78%',   label: 'Avg Performance'   },
-    { iconClass: 'danger',  icon: 'pending_actions', trend: 'Urgent', trendClass: 'negative', trendIcon: null,          value: '24',    label: 'Pending Approvals' },
+    { icon: 'people',          value: '1,245', label: 'Total Students',    trend: '+15 this term',  trendClass: 'positive', colorClass: ''        },
+    { icon: 'school',          value: '85',    label: 'Teaching Staff',    trend: '45 full-time',   trendClass: '',         colorClass: 'warning' },
+    { icon: 'analytics',       value: '78%',   label: 'Avg Performance',   trend: '+3% this term',  trendClass: 'positive', colorClass: 'success' },
+    { icon: 'pending_actions', value: '24',    label: 'Pending Approvals', trend: 'Requires action',trendClass: 'negative', colorClass: 'warning' },
 ]
 const recentActivities = [
     { iconClass: 'success', icon: 'check_circle', title: 'S4A Results Approved', time: '2 hours ago' },
@@ -79,24 +80,6 @@ function GradeTooltip({ active, payload, label }) {
     )
 }
 
-function StatCard({ iconClass, icon, trend, trendClass, trendIcon, value, label }) {
-    return (
-        <div className="stat-card">
-            <div className="stat-header">
-                <div className={`stat-icon${iconClass ? ' ' + iconClass : ''}`}>
-                    <span className="material-symbols-rounded">{icon}</span>
-                </div>
-                <span className={`stat-trend ${trendClass}`}>
-                    {trendIcon && <span className="material-symbols-rounded">{trendIcon}</span>}
-                    {trend}
-                </span>
-            </div>
-            <div className="stat-value">{value}</div>
-            <div className="stat-label">{label}</div>
-        </div>
-    )
-}
-
 function ActivityItem({ iconClass, icon, title, time }) {
     return (
         <div className="activity-item">
@@ -151,10 +134,8 @@ export function DosDashboard() {
                             role="Director of Studies &bull; Imboni Academy"
                         />
 
-                        <div className="quick-stats">
-                            {dosStats.map((stat) => (
-                                <StatCard key={stat.label} {...stat} />
-                            ))}
+                        <div className="portal-stat-grid">
+                            {dosStats.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
                         {/* One container for all three cards */}

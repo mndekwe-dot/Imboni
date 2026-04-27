@@ -443,3 +443,17 @@
   .adm-table th:nth-child(n+4),
   .adm-table td:nth-child(n+4) { display: none; }
 }
+
+/* ── Recharts tooltip & legend (admin dashboard) ── */
+.chart-tooltip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.82rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.chart-tooltip-label { font-weight: 700; margin-bottom: 2px; color: var(--foreground); }
+.chart-legend-row    { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.chart-legend-item   { display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; color: var(--muted-foreground); }
+.chart-legend-dot-sq { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }

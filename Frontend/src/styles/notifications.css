@@ -16,12 +16,20 @@
   overflow: hidden;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 600px) {
   .notif-dropdown {
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100vw - 1rem);
+    position: fixed;
+    top: 64px;
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    max-width: none;
+    max-height: 75vh;
+    transform: none;
+    border-radius: 14px;
+  }
+  .notif-list {
+    max-height: calc(75vh - 52px);
   }
 }
 
