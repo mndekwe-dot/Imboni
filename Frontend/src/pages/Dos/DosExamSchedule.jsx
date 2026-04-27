@@ -1,4 +1,5 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -70,7 +71,7 @@ export function DosExamSchedule() {
                                     <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
                                     <span className="header-user-role">Director of Studies</span>
                                 </div>
-                                <div className="header-user-av dos-av">JN</div>
+                                <Link to="/profile" className="header-user-av dos-av">JN</Link>
                             </div>
                         </div>
                     </header>

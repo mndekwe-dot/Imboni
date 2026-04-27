@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { NotificationDropdown } from '../NotificationDropdown'
 
 export function DashboardHeader({ title, subtitle, userName, userRole, userInitials, avatarClass, notifications }) {
@@ -33,7 +34,7 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
             <span className="header-user-name">{userName}</span>
             <span className="header-user-role">{userRole}</span>
           </div>
-          <div className={`header-user-av ${avatarClass}`}>{userInitials}</div>
+          <Link to="/profile" className={`header-user-av ${avatarClass}`}>{userInitials}</Link>
         </div>
       </div>
     </header>

@@ -1,4 +1,5 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { Link } from 'react-router'
 import { FilterBar } from '../../components/ui/FilterBar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -61,7 +62,7 @@ export function MatronIncidents() {
                                     <span className="header-user-name">Mrs. Gloriose Hakizimana</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <div className="header-user-av matron-av">GH</div>
+                                <Link to="/profile" className="header-user-av matron-av">GH</Link>
                             </div>
                         </div>
                     </header>

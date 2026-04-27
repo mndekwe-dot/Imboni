@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
+import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
@@ -179,7 +180,7 @@ export function DosStudents() {
                                     <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
                                     <span className="header-user-role">Director of Studies</span>
                                 </div>
-                                <div className="header-user-av dos-av">JN</div>
+                                <Link to="/profile" className="header-user-av dos-av">JN</Link>
                             </div>
                         </div>
                     </header>

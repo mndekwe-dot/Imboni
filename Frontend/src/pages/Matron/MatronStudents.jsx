@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react'
+import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
@@ -115,7 +116,7 @@ export function MatronStudents() {
                                     <span className="header-user-name">Mrs. Gloriose Hakizimana</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <div className="header-user-av matron-av">GH</div>
+                                <Link to="/profile" className="header-user-av matron-av">GH</Link>
                             </div>
                         </div>
                     </header>
