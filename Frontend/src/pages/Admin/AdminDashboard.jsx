@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
@@ -27,11 +28,28 @@ const recentActivities = [
 ]
 
 const performanceData = [
-    { label: 'School Average',  value: '78%', width: '78%' },
-    { label: 'Attendance Rate', value: '94%', width: '94%' },
-    { label: 'Fee Collection',  value: '94%', width: '94%' },
-    { label: 'Staff Retention', value: '97%', width: '97%' },
+    { label: 'School Avg',   value: 78 },
+    { label: 'Attendance',   value: 94 },
+    { label: 'Fee Collect.', value: 94 },
+    { label: 'Staff Retent.',value: 97 },
 ]
+
+function barColor(value) {
+    if (value >= 90) return '#10b981'
+    if (value >= 75) return '#003d7a'
+    return '#f59e0b'
+}
+
+function OverviewTooltip({ active, payload }) {
+    if (!active || !payload?.length) return null
+    const d = payload[0].payload
+    return (
+        <div className="chart-tooltip">
+            <div className="chart-tooltip-label">{d.label}</div>
+            <div style={{ color: barColor(d.value), fontWeight: 700 }}>{d.value}%</div>
+        </div>
+    )
+}
 
 const initialTasks = [
     { id: 1, icon: 'description', text: 'Review and sign Form 4 exam authorization letter', due: 'Due today'     },
@@ -110,24 +128,54 @@ export function AdminDashboard() {
                                 </div>
                             </div>
 
-                            {/* School Performance */}
+                            {/* School Overview chart */}
                             <div className="card">
                                 <div className="card-header">
                                     <h2 className="card-title">School Overview</h2>
                                     <p className="card-description">Key indicators — Term 2</p>
                                 </div>
                                 <div className="card-content">
-                                    {performanceData.map((item, i) => (
-                                        <div key={i} className="progress-item">
-                                            <div className="progress-label">
-                                                <span>{item.label}</span>
-                                                <span className="progress-value">{item.value}</span>
+                                    <ResponsiveContainer width="100%" height={200}>
+                                        <BarChart
+                                            data={performanceData}
+                                            margin={{ top: 16, right: 8, left: -20, bottom: 0 }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                            <XAxis
+                                                dataKey="label"
+                                                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                            />
+                                            <YAxis
+                                                domain={[60, 100]}
+                                                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tickFormatter={v => `${v}%`}
+                                            />
+                                            <Tooltip content={<OverviewTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+                                            <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={48}>
+                                                <LabelList
+                                                    dataKey="value"
+                                                    position="top"
+                                                    formatter={v => `${v}%`}
+                                                    style={{ fontSize: 11, fontWeight: 700, fill: 'var(--foreground)' }}
+                                                />
+                                                {performanceData.map((entry, i) => (
+                                                    <Cell key={i} fill={barColor(entry.value)} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                    <div className="chart-legend-row" style={{ marginTop: '0.75rem' }}>
+                                        {[['#10b981', '≥ 90% Excellent'], ['#003d7a', '75–89% Good'], ['#f59e0b', '< 75% Needs attention']].map(([color, label]) => (
+                                            <div key={label} className="chart-legend-item">
+                                                <span className="chart-legend-dot-sq" style={{ background: color }} />
+                                                {label}
                                             </div>
-                                            <div className="progress-bar">
-                                                <div className="progress-fill" style={{ width: item.width }}></div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 

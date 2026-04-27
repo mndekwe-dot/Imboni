@@ -37,6 +37,8 @@ export function AdminAnnouncements() {
             announcements={announcements}
             chips={['All', 'Urgent', 'School', 'Academic', 'Events', 'General']}
             topPanel={topPanel}
+            canCompose={true}
+            authorName="Dr. A. Nkurunziza (Principal)"
         />
     )
 }

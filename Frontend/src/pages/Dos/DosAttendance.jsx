@@ -1,4 +1,5 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -7,10 +8,10 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const attendanceStats = [
-    { iconClass: 'success', icon: 'how_to_reg',         trend: 'This week',       trendClass: 'positive', value: '94%', label: 'Student Attendance Rate' },
-    { iconClass: 'warning', icon: 'person_off',         trend: 'Needs follow-up', trendClass: 'negative', value: '73',  label: 'Absent Today'            },
-    { iconClass: 'info',    icon: 'schedule',           trend: 'This week',       trendClass: 'neutral',  value: '18',  label: 'Late Arrivals'           },
-    { iconClass: 'success', icon: 'supervisor_account', trend: 'Today',           trendClass: 'positive', value: '98%', label: 'Teacher Attendance Rate' },
+    { icon: 'how_to_reg',         value: '94%', label: 'Student Attendance',  trend: 'This week',       trendClass: 'positive', colorClass: 'success' },
+    { icon: 'person_off',         value: '73',  label: 'Absent Today',        trend: 'Needs follow-up', trendClass: 'negative', colorClass: 'warning' },
+    { icon: 'schedule',           value: '18',  label: 'Late Arrivals',       trend: 'This week',       trendClass: '',         colorClass: 'info'    },
+    { icon: 'supervisor_account', value: '98%', label: 'Teacher Attendance',  trend: 'Today',           trendClass: 'positive', colorClass: 'success' },
 ]
 
 const attendanceRows = [
@@ -24,18 +25,6 @@ const attendanceRows = [
     { initials: 'EN', name: 'Ndagijimana Eric', mon: 'excused', tue: 'present', wed: 'present', thu: 'present', fri: 'absent',  present: 3, rate: '60%'  },
 ]
 
-function AttendanceStat({ iconClass, icon, trend, trendClass, value, label }) {
-    return (
-        <div className="stat-card">
-            <div className="stat-header">
-                <div className={`stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-                <span className={`stat-trend ${trendClass}`}>{trend}</span>
-            </div>
-            <div className="stat-value">{value}</div>
-            <div className="stat-label">{label}</div>
-        </div>
-    )
-}
 
 function AttendancePip({ status }) {
     const letter = { present: 'P', absent: 'A', late: 'L', excused: 'E' }[status] || status[0].toUpperCase()
@@ -90,9 +79,9 @@ export function DosAttendance() {
                     </header>
 
                     <DashboardContent>
-                        <div className="quick-stats">
-                            {attendanceStats.map((stat, index) => (
-                                <AttendanceStat key={index} {...stat} />
+                        <div className="portal-stat-grid">
+                            {attendanceStats.map((s, i) => (
+                                <StatCard key={i} {...s} />
                             ))}
                         </div>
 
