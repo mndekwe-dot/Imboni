@@ -376,6 +376,10 @@
   font-weight: 600;
   text-decoration: none;
   transition: color 0.15s;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 .forgot-link:hover {
   color: #ea580c;

@@ -5,14 +5,15 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
+import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
 const dashboardStats = [
-  { iconClass: 'blue',   icon: 'grade',      value: '3.8', label: 'Overall GPA',        sub: '▲ +0.2 this term',     subColor: null                      },
-  { iconClass: 'teal',   icon: 'fact_check', value: '96%', label: 'Attendance',          sub: '48 / 50 days present', subColor: null                      },
-  { iconClass: 'orange', icon: 'assignment', value: '3',   label: 'Pending Assignments', sub: '1 due tomorrow',       subColor: 'var(--warning)'          },
-  { iconClass: 'yellow', icon: 'event',      value: '5',   label: 'Days to Next Exam',   sub: 'Physics — Mar 14',     subColor: 'var(--muted-foreground)' },
+  { icon: 'grade',      value: '3.8', label: 'Overall GPA',        trend: '▲ +0.2 this term',     trendClass: 'positive', colorClass: 'info'    },
+  { icon: 'fact_check', value: '96%', label: 'Attendance',          trend: '48 / 50 days present', trendClass: 'positive', colorClass: 'success' },
+  { icon: 'assignment', value: '3',   label: 'Pending Assignments', trend: '1 due tomorrow',       trendClass: 'negative', colorClass: 'warning' },
+  { icon: 'event',      value: '5',   label: 'Days to Next Exam',   trend: 'Physics — Mar 14',     trendClass: '',         colorClass: ''        },
 ]
 
 const todaySchedule = [
@@ -38,18 +39,6 @@ const recentGrades = [
   { subject: 'Chemistry',   assessment: 'Lab Report', score: '71%', grade: 'B',  badgeClass: 'badge-soft-warning', date: 'Feb 28, 2026', teacher: 'Mr. Bizimana'   },
 ]
 
-function DashboardStat({ iconClass, icon, value, label, sub, subColor }) {
-  return (
-    <div className="student-stat-card">
-      <div className={`stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-      <div className="stat-body">
-        <div className="stat-value">{value}</div>
-        <div className="stat-label">{label}</div>
-        <div className="stat-sub" style={subColor ? { color: subColor } : {}}>{sub}</div>
-      </div>
-    </div>
-  )
-}
 
 function ScheduleSlot({ time, dotClass, subject, room, badge, badgeClass }) {
   return (
@@ -131,10 +120,8 @@ export function StudentDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="student-stats-grid">
-              {dashboardStats.map((stat, i) => (
-                <DashboardStat key={i} {...stat} />
-              ))}
+            <div className="portal-stat-grid">
+              {dashboardStats.map((s, i) => <StatCard key={i} {...s} />)}
             </div>
 
             {/* Two-column layout */}

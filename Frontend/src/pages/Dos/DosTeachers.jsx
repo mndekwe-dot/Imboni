@@ -5,6 +5,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { StatCard } from '../../components/layout/StatCard'
 import { Modal } from '../../components/ui/Modal'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -12,9 +13,8 @@ import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const SUBJECTS    = ['Mathematics','English','Biology','Chemistry','Physics','History','Geography','Kinyarwanda','CRE','Art & Design']
-const TYPES       = ['Full-Time','Part-Time']
-const ALL_CLASSES = ['S1A','S1B','S2A','S2B','S3A','S3B','S4A','S4B','S5A','S5B','S6A','S6B']
+const SUBJECTS = ['Mathematics','English','Biology','Chemistry','Physics','History','Geography','Kinyarwanda','CRE','Art & Design']
+const TYPES    = ['Full-Time','Part-Time']
 
 const AVATAR_COLORS = ['#003d7a','#10b981','#f59e0b','#6366f1','#ef4444','#0891b2','#7c3aed','#be185d']
 function avatarColor(name) { return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length] }
@@ -97,32 +97,80 @@ function FormSelect({ value, onChange, options, placeholder }) {
     )
 }
 
-// ── Add / Edit Teacher Modal ──────────────────────────────────────────────────
-function TeacherModal({ teacher, onClose, onSave }) {
-    const isEdit = !!teacher
-    const [form, setForm] = useState(teacher ? { name: teacher.name, subject: teacher.subject, type: teacher.type, status: teacher.status } : { ...EMPTY_FORM })
+// ── Unified Add / Edit Teacher Modal (details + class assignment) ─────────────
+function TeacherModal({ teacher, config, onClose, onSave }) {
+    const isEdit   = !!teacher
+    const sections = config.sections ?? []
+    const noConfig = sections.length === 0 ||
+        sections.every(s => s.years.length === 0 || s.classes.length === 0)
+
+    const [form, setForm] = useState(
+        isEdit
+            ? { name: teacher.name, subject: teacher.subject, type: teacher.type, status: teacher.status }
+            : { ...EMPTY_FORM }
+    )
+    const [selected, setSelected] = useState(new Set(teacher?.classes ?? []))
 
     const isValid = form.name.trim() && form.subject && form.type
 
+    function toggle(cls) {
+        setSelected(prev => {
+            const next = new Set(prev)
+            next.has(cls) ? next.delete(cls) : next.add(cls)
+            return next
+        })
+    }
+
+    function toggleYear(year, streams) {
+        const yearClasses = streams.map(s => `${year}${s}`)
+        const allOn = yearClasses.every(c => selected.has(c))
+        setSelected(prev => {
+            const next = new Set(prev)
+            yearClasses.forEach(c => allOn ? next.delete(c) : next.add(c))
+            return next
+        })
+    }
+
+    function toggleSection(sec) {
+        const sectionClasses = sec.years.flatMap(y => sec.classes.map(s => `${y}${s}`))
+        const allOn = sectionClasses.every(c => selected.has(c))
+        setSelected(prev => {
+            const next = new Set(prev)
+            sectionClasses.forEach(c => allOn ? next.delete(c) : next.add(c))
+            return next
+        })
+    }
+
+    function handleSave() {
+        onSave({ ...form, classes: [...selected].sort() })
+        onClose()
+    }
+
     return (
-        <Modal title={isEdit ? 'Edit Teacher' : 'Add Teacher'} icon="person_add" onClose={onClose}
+        <Modal
+            title={isEdit ? 'Edit Teacher' : 'Add Teacher'}
+            icon={isEdit ? 'edit' : 'person_add'}
+            onClose={onClose}
+            size="wide"
             footer={
                 <div className="modal-confirm-actions" style={{ width: '100%' }}>
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
-                    <button className="btn btn-primary" disabled={!isValid} onClick={() => { onSave(form); onClose() }}>
+                    <button className="btn btn-primary" disabled={!isValid} onClick={handleSave}>
                         <span className="material-symbols-rounded icon-sm">{isEdit ? 'save' : 'person_add'}</span>
                         {isEdit ? 'Save Changes' : 'Add Teacher'}
                     </button>
                 </div>
             }
         >
+            {/* ── Teacher Details ── */}
+            <p className="teacher-modal-section-label">Teacher Details</p>
             <div className="settings-form">
                 <div className="form-group">
                     <label className="form-label">Full Name *</label>
                     <input className="form-control" placeholder="e.g. Jean-Pierre Habimana"
-                        value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+                        value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} autoFocus />
                 </div>
-                <div className="resp-grid-2" style={{ gap:'0.75rem' }}>
+                <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
                     <div className="form-group">
                         <label className="form-label">Subject *</label>
                         <FormSelect value={form.subject} onChange={v => setForm(p => ({ ...p, subject: v }))}
@@ -141,68 +189,85 @@ function TeacherModal({ teacher, onClose, onSave }) {
                         <label className="form-label">Status</label>
                         <FormSelect value={form.status} onChange={v => setForm(p => ({ ...p, status: v }))}
                             placeholder=""
-                            options={[{ value:'Active', label:'Active' }, { value:'Inactive', label:'Inactive' }]} />
+                            options={[{ value: 'Active', label: 'Active' }, { value: 'Inactive', label: 'Inactive' }]} />
                     </div>
                 )}
             </div>
-        </Modal>
-    )
-}
 
-// ── Assign Classes Modal ──────────────────────────────────────────────────────
-function AssignModal({ teacher, onClose, onSave }) {
-    const [selected, setSelected] = useState(new Set(teacher.classes))
-    function toggle(cls) {
-        setSelected(prev => {
-            const next = new Set(prev)
-            next.has(cls) ? next.delete(cls) : next.add(cls)
-            return next
-        })
-    }
-    return (
-        <Modal title="Assign Classes" icon="class" onClose={onClose}
-            footer={
-                <div className="modal-confirm-actions" style={{ width: '100%' }}>
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
-                    <button className="btn btn-primary" onClick={() => { onSave([...selected].sort()); onClose() }}>
-                        <span className="material-symbols-rounded icon-sm">save</span>
-                        Save Assignments
-                    </button>
-                </div>
-            }
-        >
-            <div className="teacher-modal-header">
-                <div className="teacher-modal-name">{teacher.name}</div>
-                <div className="teacher-modal-meta">{teacher.subject} · {teacher.id}</div>
-            </div>
-            <div className="teacher-assign-note">Select the classes this teacher will be assigned to:</div>
-            <div className="assign-class-grid">
-                {ALL_CLASSES.map(cls => {
-                    const active = selected.has(cls)
-                    return (
-                        <button key={cls} type="button" onClick={() => toggle(cls)}
-                            className={`assign-class-btn${active ? ' active' : ''}`}>
-                            {cls}
-                        </button>
-                    )
-                })}
-            </div>
-            <div className="teacher-assign-hint">
-                {selected.size} class{selected.size !== 1 ? 'es' : ''} selected
-            </div>
+            {/* ── Divider ── */}
+            <div className="teacher-modal-divider" />
+
+            {/* ── Classes to Teach ── */}
+            <p className="teacher-modal-section-label">Classes to Teach</p>
+
+            {noConfig ? (
+                <EmptyState
+                    icon="settings"
+                    title="No classes configured yet"
+                    description="Go to School Settings to add sections, year groups, and streams before assigning classes."
+                />
+            ) : (
+                <>
+                    {sections.map(sec => {
+                        const sectionClasses = sec.years.flatMap(y => sec.classes.map(s => `${y}${s}`))
+                        const allSectionOn   = sectionClasses.length > 0 && sectionClasses.every(c => selected.has(c))
+                        return (
+                            <div key={sec.name} className="assign-section">
+                                <div className="assign-section-hdr">
+                                    <span className="assign-section-name">{sec.name}</span>
+                                    <button type="button" className="assign-select-all" onClick={() => toggleSection(sec)}>
+                                        {allSectionOn ? 'Deselect All' : 'Select All'}
+                                    </button>
+                                </div>
+                                {sec.years.map(year => {
+                                    const allYearOn = sec.classes.length > 0 &&
+                                        sec.classes.map(s => `${year}${s}`).every(c => selected.has(c))
+                                    return (
+                                        <div key={year} className="assign-year-row">
+                                            <button type="button"
+                                                className={`assign-year-lbl${allYearOn ? ' active' : ''}`}
+                                                onClick={() => toggleYear(year, sec.classes)}
+                                                title={`Toggle all ${year} classes`}>
+                                                {year}
+                                            </button>
+                                            <div className="assign-stream-group">
+                                                {sec.classes.map(stream => {
+                                                    const cls = `${year}${stream}`
+                                                    return (
+                                                        <button key={stream} type="button" onClick={() => toggle(cls)}
+                                                            className={`assign-class-btn${selected.has(cls) ? ' active' : ''}`}>
+                                                            {stream}
+                                                        </button>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )
+                    })}
+                    <div className="teacher-assign-hint">
+                        {selected.size === 0
+                            ? 'No classes selected — teacher will not appear on any timetable'
+                            : `${selected.size} class${selected.size !== 1 ? 'es' : ''} selected · ${[...selected].sort().join(', ')}`
+                        }
+                    </div>
+                </>
+            )}
         </Modal>
     )
 }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function DosTeachers() {
+    const { config }                      = useSchoolConfig()
     const [teachers,     setTeachers]     = useState(INITIAL_TEACHERS)
     const [search,       setSearch]       = useState('')
     const [subjectFilter,setSubjectFilter]= useState('')
     const [typeFilter,   setTypeFilter]   = useState('')
-    const [addOpen,      setAddOpen]      = useState(false)
-    const [editing,      setEditing]      = useState(null)
-    const [assigning,    setAssigning]    = useState(null)
+    const [addOpen,  setAddOpen]  = useState(false)
+    const [editing,  setEditing]  = useState(null)
     let nextId = useRef(teachers.length + 1)
 
     const teacherStats = [
@@ -212,15 +277,13 @@ export function DosTeachers() {
         { colorClass: 'info',    icon: 'groups',   trend: 'Optimal',      value: '1:15',                                            label: 'Student-Teacher Ratio' },
     ]
 
-    function handleAdd(form) {
-        const id = `TST-${String(nextId.current++).padStart(3,'0')}`
-        setTeachers(prev => [...prev, { id, ...form, classes: [] }])
+    function handleAdd({ name, subject, type, status, classes }) {
+        const id = `TST-${String(nextId.current++).padStart(3, '0')}`
+        setTeachers(prev => [...prev, { id, name, subject, type, status, classes }])
     }
-    function handleEdit(form) {
-        setTeachers(prev => prev.map(t => t.id === editing.id ? { ...t, ...form } : t))
-    }
-    function handleAssign(classes) {
-        setTeachers(prev => prev.map(t => t.id === assigning.id ? { ...t, classes } : t))
+
+    function handleEdit({ name, subject, type, status, classes }) {
+        setTeachers(prev => prev.map(t => t.id === editing.id ? { ...t, name, subject, type, status, classes } : t))
     }
 
     const filtered = teachers.filter(t => {
@@ -283,10 +346,9 @@ export function DosTeachers() {
                                         </span>
                                     </td>
                                     <td>
-                                        <div className="dt-actions">
-                                            <button className="btn btn-outline btn-sm" onClick={() => setEditing(t)}><span className="material-symbols-rounded icon-sm">edit</span> Edit</button>
-                                            <button className="btn btn-primary btn-sm" onClick={() => setAssigning(t)}><span className="material-symbols-rounded icon-sm">class</span> Assign</button>
-                                        </div>
+                                        <button className="btn btn-primary btn-sm" onClick={() => setEditing(t)}>
+                                            <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                                        </button>
                                     </td>
                                 </tr>
                             )}
@@ -299,9 +361,8 @@ export function DosTeachers() {
                 </main>
             </div>
 
-            {addOpen   && <TeacherModal onClose={() => setAddOpen(false)}   onSave={handleAdd}    />}
-            {editing   && <TeacherModal teacher={editing}   onClose={() => setEditing(null)}   onSave={handleEdit}   />}
-            {assigning && <AssignModal  teacher={assigning} onClose={() => setAssigning(null)} onSave={handleAssign} />}
+            {addOpen  && <TeacherModal config={config} onClose={() => setAddOpen(false)} onSave={handleAdd} />}
+            {editing  && <TeacherModal config={config} teacher={editing} onClose={() => setEditing(null)} onSave={handleEdit} />}
         </>
     )
 }

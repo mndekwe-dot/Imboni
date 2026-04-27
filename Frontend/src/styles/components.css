@@ -433,6 +433,9 @@ tr:hover td {
   box-shadow: 0 0 0 3px var(--primary-light, rgba(0,61,122,0.12));
 }
 
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 480px) { .form-row-2 { grid-template-columns: 1fr; } }
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -798,6 +801,7 @@ tr:hover td {
    =============================================== */
 
 .text-center { text-align: center; }
+.text-primary { color: var(--primary); }
 .text-muted { color: var(--muted-foreground); }
 .text-success { color: var(--success); }
 .text-warning { color: var(--warning); }
