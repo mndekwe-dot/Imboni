@@ -1,4 +1,5 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
@@ -112,7 +113,7 @@ export function ParentResults() {
                                     <span className="header-user-name">Mrs. Chantal Uwase</span>
                                     <span className="header-user-role">Parent</span>
                                 </div>
-                                <div className="header-user-av parent-av">CU</div>
+                                <Link to="/profile" className="header-user-av parent-av">CU</Link>
                             </div>
                         </div>
                     </header>

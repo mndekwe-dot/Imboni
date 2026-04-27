@@ -1,4 +1,5 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -145,7 +146,7 @@ export function StudentDiscipline() {
                                     <span className="header-user-name">Uwase Amina</span>
                                     <span className="header-user-role">Student Â· S4A</span>
                                 </div>
-                                <div className="header-user-av student-av">UA</div>
+                                <Link to="/profile" className="header-user-av student-av">UA</Link>
                             </div>
                         </div>
                     </header>

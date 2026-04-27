@@ -1,4 +1,5 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
+import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -110,7 +111,7 @@ export function TeacherAttendance() {
                                     <span className="header-user-name">Pacifique Rurangwa</span>
                                     <span className="header-user-role">Teacher</span>
                                 </div>
-                                <div className="header-user-av teacher-av">PR</div>
+                                <Link to="/profile" className="header-user-av teacher-av">PR</Link>
                             </div>
                         </div>
                     </header>

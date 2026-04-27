@@ -1,4 +1,5 @@
 ﻿import { useSearchParams } from 'react-router'
+import { Link } from 'react-router'
 import { Sidebar } from '../../src/components/layout/Sidebar'
 import '../styles/layout.css'
 import '../styles/components.css'
@@ -144,7 +145,7 @@ export function Account() {
                                     <span className="header-user-name">Sandrine Uwera</span>
                                     <span className="header-user-role">User</span>
                                 </div>
-                                <div className="header-user-av parent-av">SU</div>
+                                <Link to="/profile" className="header-user-av parent-av">SU</Link>
                             </div>
                         </div>
                     </header>

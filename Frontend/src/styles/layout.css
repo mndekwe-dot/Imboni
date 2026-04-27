@@ -642,6 +642,13 @@
   border: 2px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.18);
   letter-spacing: 0.03em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.header-user-av:hover {
+  opacity: 0.85;
+  transform: scale(1.08);
 }
 
 /* Portal-specific avatar colours */
