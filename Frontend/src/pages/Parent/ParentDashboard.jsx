@@ -4,6 +4,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
@@ -12,10 +13,10 @@ const children = [
 ]
 
 const aminaStats = [
-    { title: 'Overall Performance',   value: '85%', change: '+5% from last term', changeClass: 'positive', iconBg: 'var(--success-light)',              iconColor: 'var(--success)',  icon: 'trending_up'   },
-    { title: 'Attendance Rate',       value: '96%', change: '23 present, 1 absent', changeClass: 'neutral',  iconBg: 'var(--primary-light)',              iconColor: 'var(--primary)',  icon: 'event_available' },
-    { title: 'Unread Announcements',  value: '3',   change: '2 urgent',            changeClass: 'negative', iconBg: 'rgba(249,115,22,0.1)',              iconColor: 'var(--accent)',   icon: 'campaign'      },
-    { title: 'Behavior Reports',      value: '2',   change: 'All positive',        changeClass: 'positive', iconBg: 'rgba(245,158,11,0.1)',              iconColor: 'var(--warning)',  icon: 'shield_person' },
+    { icon: 'trending_up',    value: '85%', label: 'Overall Performance',  trend: '+5% from last term',   trendClass: 'positive', colorClass: 'success' },
+    { icon: 'event_available',value: '96%', label: 'Attendance Rate',       trend: '23 present, 1 absent', trendClass: '',         colorClass: ''        },
+    { icon: 'campaign',       value: '3',   label: 'Unread Announcements',  trend: '2 urgent',             trendClass: 'negative', colorClass: 'warning' },
+    { icon: 'shield_person',  value: '2',   label: 'Behavior Reports',      trend: 'All positive',         trendClass: 'positive', colorClass: 'warning' },
 ]
 
 const recentAssessments = [
@@ -39,22 +40,6 @@ const upcomingEvents = [
     { iconClass: 'event',   icon: 'brand_awareness', title: 'Sports Day',              date: 'May 20, 2026', time: '10:00 AM' },
 ]
 
-function StatsCard({ title, value, change, changeClass, iconBg, iconColor, icon }) {
-    return (
-        <div className="stats-card">
-            <div className="stats-card-content">
-                <div className="stats-card-info">
-                    <span className="stats-card-title">{title}</span>
-                    <span className="stats-card-value">{value}</span>
-                    <span className={`stats-card-change ${changeClass}`}>{change}</span>
-                </div>
-                <div className="stats-card-icon" style={{ backgroundColor: iconBg, color: iconColor }}>
-                    <span className="material-symbols-rounded">{icon}</span>
-                </div>
-            </div>
-        </div>
-    )
-}
 
 function AssessmentItem({ iconClass, icon, title, sub, score, scoreClass }) {
     return (
@@ -71,9 +56,9 @@ function AssessmentItem({ iconClass, icon, title, sub, score, scoreClass }) {
     )
 }
 
-function ResultRow({ subject, type, score, grade, badgeClass, date, lastRow }) {
+function ResultRow({ subject, type, score, grade, badgeClass, date }) {
     return (
-        <tr style={lastRow ? { borderBottom: 'none' } : {}}>
+        <tr>
             <td className="subject-name">{subject}</td>
             <td className="type-submission">{type}</td>
             <td>{score}</td>
@@ -133,9 +118,9 @@ export function ParentDashboard() {
                             {/* Amina's Tab Content */}
                             <div id="amina-tab" className="tabs-content active">
                                 {/* Stats Cards */}
-                                <div className="stats-grid">
-                                    {aminaStats.map((stat) => (
-                                        <StatsCard key={stat.title} {...stat} />
+                                <div className="portal-stat-grid">
+                                    {aminaStats.map((s, i) => (
+                                        <StatCard key={i} {...s} />
                                     ))}
                                 </div>
 

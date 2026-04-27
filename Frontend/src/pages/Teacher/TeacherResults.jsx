@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -51,17 +51,60 @@ function getGrade(score, max) {
 }
 
 export function TeacherResults() {
-    const [section, setSection]     = useState('')
-    const [year, setYear]           = useState('')
-    const [classVal, setClassVal]   = useState('')
+    const [section, setSection]       = useState('')
+    const [year, setYear]             = useState('')
+    const [classVal, setClassVal]     = useState('')
     const [assessment, setAssessment] = useState('Mid-Term Exam')
+    const [importedMap, setImportedMap] = useState({})
+    const fileInputRef = useRef(null)
 
-    const classKey = year && classVal ? `${year}${classVal}` : ''
-    const rows = classKey ? (MOCK_RESULTS[classKey]?.[assessment] ?? []) : []
+    const classKey   = year && classVal ? `${year}${classVal}` : ''
+    const mapKey     = `${classKey}:${assessment}`
+    const baseRows   = classKey ? (MOCK_RESULTS[classKey]?.[assessment] ?? []) : []
+    const rows       = importedMap[mapKey] ?? baseRows
 
-    const avg     = rows.length ? Math.round(rows.reduce((s, r) => s + r.score, 0) / rows.length) : 0
-    const highest = rows.length ? rows.reduce((a, b) => a.score > b.score ? a : b) : null
+    const avg      = rows.length ? Math.round(rows.reduce((s, r) => s + r.score, 0) / rows.length) : 0
+    const highest  = rows.length ? rows.reduce((a, b) => a.score > b.score ? a : b) : null
     const passRate = rows.length ? Math.round((rows.filter(r => (r.score / r.max) >= 0.5).length / rows.length) * 100) : 0
+
+    function handleExport() {
+        if (!rows.length) return
+        const header = 'Student,Score,Max,Grade,Date'
+        const body = rows.map(r => {
+            const g = getGrade(r.score, r.max)
+            return `"${r.name}",${r.score},${r.max},${g.label},"${r.date}"`
+        }).join('\n')
+        const blob = new Blob([header + '\n' + body], { type: 'text/csv' })
+        const url  = URL.createObjectURL(blob)
+        const a    = document.createElement('a')
+        a.href = url; a.download = `${classKey || 'results'}-${assessment}.csv`; a.click()
+        URL.revokeObjectURL(url)
+    }
+
+    function handleImport(e) {
+        const file = e.target.files?.[0]
+        if (!file || !classKey) return
+        const reader = new FileReader()
+        reader.onload = ev => {
+            const lines = ev.target.result.split('\n').filter(l => l.trim())
+            const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase())
+            const parsed = lines.slice(1).map((line, i) => {
+                const vals = line.split(',').map(v => v.replace(/"/g, '').trim())
+                const obj  = Object.fromEntries(headers.map((h, j) => [h, vals[j] ?? '']))
+                return {
+                    id:       `IMP-${String(i + 1).padStart(3, '0')}`,
+                    initials: (obj.student || obj.name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase(),
+                    name:     obj.student || obj.name || `Student ${i + 1}`,
+                    score:    parseInt(obj.score) || 0,
+                    max:      parseInt(obj.max)   || 100,
+                    date:     obj.date || 'Imported',
+                }
+            }).filter(r => r.name)
+            if (parsed.length) setImportedMap(prev => ({ ...prev, [mapKey]: parsed }))
+        }
+        reader.readAsText(file)
+        e.target.value = ''
+    }
 
     return (
         <>
@@ -117,11 +160,12 @@ export function TeacherResults() {
                                 {ASSESSMENTS.map(a => <option key={a}>{a}</option>)}
                             </select>
                             <div className="toolbar-spacer" />
-                            <button className="btn btn-outline select-xs">
+                            <input ref={fileInputRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleImport} />
+                            <button className="btn btn-outline select-xs" onClick={() => classKey && fileInputRef.current?.click()} title={classKey ? 'Import results from CSV' : 'Select a class first'}>
                                 <span className="material-symbols-rounded icon-sm">file_upload</span>
                                 Import CSV
                             </button>
-                            <button className="btn btn-outline select-xs">
+                            <button className="btn btn-outline select-xs" onClick={handleExport} disabled={!rows.length}>
                                 <span className="material-symbols-rounded icon-sm">download</span>
                                 Export
                             </button>
@@ -136,13 +180,13 @@ export function TeacherResults() {
                                 {rows.length > 0 && (
                                     <div className="mini-stats-row">
                                         {[
-                                            { label:'Class Average', value:`${avg}%`,      color:'var(--primary)'   },
-                                            { label:'Top Score',     value: highest ? `${highest.score}/${highest.max}` : '—', color:'var(--success)' },
-                                            { label:'Pass Rate',     value:`${passRate}%`,  color:'var(--warning)'   },
-                                            { label:'Students',      value: rows.length,    color:'var(--muted-foreground)' },
+                                            { label:'Class Average', value:`${avg}%`,      colorClass:'text-primary'  },
+                                            { label:'Top Score',     value: highest ? `${highest.score}/${highest.max}` : '—', colorClass:'text-success' },
+                                            { label:'Pass Rate',     value:`${passRate}%`,  colorClass:'text-warning'  },
+                                            { label:'Students',      value: rows.length,    colorClass:'text-muted'    },
                                         ].map(s => (
                                             <div key={s.label} className="mini-stat">
-                                                <div className="mini-stat-value" style={{ color:s.color }}>{s.value}</div>
+                                                <div className={`mini-stat-value ${s.colorClass}`}>{s.value}</div>
                                                 <div className="mini-stat-label">{s.label}</div>
                                             </div>
                                         ))}

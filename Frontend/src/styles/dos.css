@@ -2503,22 +2503,49 @@ body.tm-panel-open { overflow: hidden; }
 .form-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
 
 /* ── Assign class grid ── */
-.assign-class-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 0.5rem;
+.teacher-modal-section-label {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--muted-foreground);
+  margin-bottom: 0.75rem;
 }
+.teacher-modal-divider {
+  border: none; border-top: 1px solid var(--border);
+  margin: 1.25rem 0;
+}
+
+.assign-section        { margin-bottom: 1.1rem; }
+.assign-section-hdr    { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
+.assign-section-name   { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted-foreground); }
+.assign-select-all     { font-size: 0.75rem; font-weight: 600; color: var(--primary); background: none; border: none; cursor: pointer; padding: 0; }
+.assign-select-all:hover { text-decoration: underline; }
+.assign-year-row       { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+.assign-year-lbl {
+  min-width: 2.75rem; text-align: center;
+  font-size: 0.8rem; font-weight: 700;
+  padding: 0.45rem 0.5rem;
+  border-radius: 7px;
+  border: 2px solid var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  cursor: pointer; transition: all 0.15s;
+}
+.assign-year-lbl.active  { border-color: var(--primary); background: var(--primary); color: #fff; }
+.assign-year-lbl:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+.assign-stream-group   { display: flex; gap: 0.4rem; }
+
 .assign-class-btn {
-  padding: 0.6rem;
-  border-radius: 8px;
+  padding: 0.45rem 0.9rem;
+  border-radius: 7px;
   border: 2px solid var(--border);
   background: var(--card);
   color: var(--foreground);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.15s;
+  min-width: 2.5rem; text-align: center;
 }
+.assign-class-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
 .assign-class-btn.active {
   border-color: var(--primary);
   background: var(--primary);

@@ -1,5 +1,47 @@
+import { useState } from 'react'
 import '../styles/login.css'
+import '../styles/components.css'
 import logo from '../assets/images/imboni-logo.png'
+
+function ForgotPasswordModal({ onClose }) {
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                    <div className="modal-header-left">
+                        <span className="material-symbols-rounded">lock_reset</span>
+                        <h2 className="modal-title">Reset Password</h2>
+                    </div>
+                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                </div>
+                <div className="modal-body">
+                    <p style={{ marginBottom: '1rem', lineHeight: 1.6 }}>
+                        Password resets are handled by the school administration. Please contact the school office using one of the options below:
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--muted)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
+                            <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>mail</span>
+                            <div>
+                                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Email</div>
+                                <div style={{ fontSize: '0.85rem' }}>admin@imboni.edu</div>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--muted)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
+                            <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>phone</span>
+                            <div>
+                                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>School Extension</div>
+                                <div style={{ fontSize: '0.85rem' }}>Extension 100</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="modal-footer">
+                    <button className="btn btn-primary" onClick={onClose} style={{ width: '100%' }}>Got it</button>
+                </div>
+            </div>
+        </div>
+    )
+}
 
 const roles = [
     'Student', 'Teacher', 'Parent', 'Director of Studies', 'Discipline', 'Matron',
@@ -13,6 +55,8 @@ const stats = [
 ]
 
 export function LogIn() {
+    const [showForgot, setShowForgot] = useState(false)
+
     return (
         <div className="login-page">
 
@@ -124,7 +168,7 @@ export function LogIn() {
                             <input type="checkbox" name="remember" />
                             Remember me
                         </label>
-                        <a href="#" className="forgot-link">Forgot password?</a>
+                        <button type="button" className="forgot-link" onClick={() => setShowForgot(true)}>Forgot password?</button>
                     </div>
 
                     <button type="submit" className="login-btn">
@@ -152,6 +196,7 @@ export function LogIn() {
                 </div>
 
             </div>
+            {showForgot && <ForgotPasswordModal onClose={() => setShowForgot(false)} />}
         </div>
     )
 }
