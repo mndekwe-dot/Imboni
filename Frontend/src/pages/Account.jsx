@@ -1,124 +1,30 @@
 ﻿import { useSearchParams } from 'react-router'
 import { Link } from 'react-router'
-import { Sidebar } from '../../src/components/layout/Sidebar'
+import { Sidebar } from '../components/layout/Sidebar'
 import '../styles/layout.css'
 import '../styles/components.css'
 import '../styles/parent.css'
 import { DashboardContent } from '../components/layout/DashboardContent'
+import { dosNavItems,      dosSecondaryItems      } from './Dos/dosNav'
+import { teacherNavItems,  teacherSecondaryItems  } from './Teacher/teacherNav'
+import { studentNavItems,  studentSecondaryItems  } from './Student/studentNav'
+import { parentNavItems,   parentSecondaryItems   } from './Parent/parentNav'
+import { matronNavItems,   matronSecondaryItems   } from './Matron/matronNav'
+import { disNavItems,      disSecondaryItems      } from './Dis/disNav'
+import { adminNavItems,    adminSecondaryItems    } from './Admin/adminNav'
 
-/* â”€â”€ Nav items for every portal â”€â”€ */
+/* Single source of truth — nav comes directly from each portal's nav file */
 const NAV = {
-    student: {
-        navItems: [
-            { to: '/student',               icon: 'dashboard', label: 'Dashboard', end: true },
-            { to: '/student/results',       icon: 'assessment',     label: 'My Results' },
-            { to: '/student/attendance',    icon: 'fact_check',     label: 'Attendance' },
-            { to: '/student/timetable',     icon: 'calendar_month', label: 'Timetable' },
-            { to: '/student/assignments',   icon: 'assignment',     label: 'Assignments' },
-            { to: '/student/activities',    icon: 'emoji_events',   label: 'Activities' },
-            { to: '/student/discipline',    icon: 'gavel',          label: 'Discipline' },
-            { to: '/student/announcements', icon: 'announcement',   label: 'Announcements' },
-            { to: '/student/messages',      icon: 'chat',           label: 'Messages' },
-        ],
-        secondaryItems: [
-            { to: '/profile?role=student', icon: 'account_circle', label: 'Profile' },
-            { to: '/login',                     icon: 'logout',          label: 'Logout' },
-        ],
-    },
-    teacher: {
-        navItems: [
-            { to: '/teacher',               icon: 'dashboard', label: 'Dashboard', end: true },
-            { to: '/teacher/classes',       icon: 'book',           label: 'My Classes' },
-            { to: '/teacher/students',      icon: 'people',         label: 'Students' },
-            { to: '/teacher/attendance',    icon: 'fact_check',     label: 'Attendance' },
-            { to: '/teacher/results',       icon: 'school',         label: 'Results' },
-            { to: '/teacher/assignments',   icon: 'assignment',     label: 'Assignments' },
-            { to: '/teacher/timetable',     icon: 'calendar_month', label: 'Timetable' },
-            { to: '/teacher/announcements', icon: 'announcement',   label: 'Announcements' },
-            { to: '/teacher/messages',      icon: 'chat',           label: 'Messages' },
-        ],
-        secondaryItems: [
-            { to: '/profile?role=teacher', icon: 'account_circle', label: 'Profile' },
-            { to: '/login',                     icon: 'logout',          label: 'Logout' },
-        ],
-    },
-    parent: {
-        navItems: [
-            { to: '/parent',               icon: 'dashboard', label: 'Dashboard', end: true },
-            { to: '/parent/children',      icon: 'child_care',  label: 'My Children' },
-            { to: '/parent/results',       icon: 'assessment',  label: 'Results' },
-            { to: '/parent/attendance',    icon: 'fact_check',  label: 'Attendance' },
-            { to: '/parent/behaviour',     icon: 'gavel',       label: 'Behaviour' },
-            { to: '/parent/announcements', icon: 'announcement',label: 'Announcements' },
-        ],
-        secondaryItems: [
-            { to: '/profile?role=parent', icon: 'account_circle', label: 'Profile' },
-            { to: '/login',                    icon: 'logout',          label: 'Logout' },
-        ],
-    },
-    discipline: {
-        navItems: [
-            { to: '/discipline',          icon: 'dashboard', label: 'Dashboard', end: true },
-            { to: '/discipline/students', icon: 'groups',            label: 'Students' },
-            { to: '/discipline/reports',  icon: 'report',            label: 'Reports' },
-            { to: '/discipline/activities',icon: 'emoji_events',     label: 'Activities' },
-            { to: '/discipline/boarding', icon: 'home',              label: 'Boarding' },
-            { to: '/discipline/dining',   icon: 'restaurant',        label: 'Dining' },
-            { to: '/discipline/staff',    icon: 'badge',             label: 'Staff' },
-            { to: '/discipline/leaders',  icon: 'military_tech',     label: 'Student Leaders' },
-            { to: '/discipline/timetable',icon: 'calendar_month',    label: 'Timetable' },
-            { to: '/discipline/messages', icon: 'chat',              label: 'Messages' },
-        ],
-        secondaryItems: [
-            { to: '/profile?role=discipline', icon: 'account_circle', label: 'Profile' },
-            { to: '/login',                        icon: 'logout',          label: 'Logout' },
-        ],
-    },
-    dos: {
-        navItems: [
-            { to: '/dos',               icon: 'dashboard', label: 'Dashboard', end: true },
-            { to: '/dos/analytics',     icon: 'bar_chart',   label: 'Analytics' },
-            { to: '/dos/results',       icon: 'assessment',  label: 'Results Approval' },
-            { to: '/dos/teachers',      icon: 'badge',       label: 'Teachers' },
-            { to: '/dos/students',      icon: 'people',      label: 'Students' },
-            { to: '/dos/attendance',    icon: 'fact_check',  label: 'Attendance' },
-            { to: '/dos/exams',         icon: 'school',      label: 'Exam Schedule' },
-            { to: '/dos/timetable',     icon: 'calendar_month', label: 'Timetable' },
-            { to: '/dos/leaders',       icon: 'military_tech',  label: 'Student Leaders' },
-            { to: '/dos/announcements', icon: 'announcement',   label: 'Announcements' },
-            { to: '/dos/messages',      icon: 'chat',           label: 'Messages' },
-        ],
-        secondaryItems: [
-            { to: '/profile?role=dos', icon: 'account_circle', label: 'Profile' },
-            { to: '/login',                 icon: 'logout',          label: 'Logout' },
-        ],
-    },
-    matron: {
-        navItems: [
-            { to: '/matron',                      icon: 'dashboard', label: 'Dashboard', end: true },
-            { to: '/matron/students',             icon: 'groups',            label: 'My Students' },
-            { to: '/matron/schedule',             icon: 'schedule',          label: 'Daily Schedule' },
-            { to: '/matron/incidents',            icon: 'report',            label: 'Report Incident' },
-            { to: '/matron/health',               icon: 'health_and_safety', label: 'Health & Wellness' },
-            { to: '/matron/parent-communication', icon: 'family_restroom',   label: 'Parent Comms' },
-            { to: '/matron/messages',             icon: 'chat',              label: 'Messages' },
-        ],
-        secondaryItems: [
-            { to: '/profile?role=matron', icon: 'account_circle', label: 'Profile' },
-            { to: '/login',                    icon: 'logout',          label: 'Logout' },
-        ],
-    },
+    dos:        { navItems: dosNavItems,     secondaryItems: dosSecondaryItems      },
+    teacher:    { navItems: teacherNavItems, secondaryItems: teacherSecondaryItems  },
+    student:    { navItems: studentNavItems, secondaryItems: studentSecondaryItems  },
+    parent:     { navItems: parentNavItems,  secondaryItems: parentSecondaryItems   },
+    matron:     { navItems: matronNavItems,  secondaryItems: matronSecondaryItems   },
+    discipline: { navItems: disNavItems,     secondaryItems: disSecondaryItems      },
+    admin:      { navItems: adminNavItems,   secondaryItems: adminSecondaryItems    },
 }
 
-/* Fallback when no ?role= is provided */
-const fallbackNav = {
-    navItems: [
-        { to: '/profile', icon: 'account_circle', label: 'Profile' },
-    ],
-    secondaryItems: [
-        { to: '/login', icon: 'logout', label: 'Logout' },
-    ],
-}
+const fallbackNav = NAV.teacher
 
 export function Account() {
     const [searchParams] = useSearchParams()

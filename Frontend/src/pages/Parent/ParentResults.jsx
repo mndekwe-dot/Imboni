@@ -113,7 +113,7 @@ export function ParentResults() {
                                     <span className="header-user-name">Mrs. Chantal Uwase</span>
                                     <span className="header-user-role">Parent</span>
                                 </div>
-                                <Link to="/profile" className="header-user-av parent-av">CU</Link>
+                                <Link to="/profile?role=parent" className="header-user-av parent-av">CU</Link>
                             </div>
                         </div>
                     </header>

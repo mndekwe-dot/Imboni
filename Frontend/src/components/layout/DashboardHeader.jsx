@@ -34,7 +34,7 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
             <span className="header-user-name">{userName}</span>
             <span className="header-user-role">{userRole}</span>
           </div>
-          <Link to="/profile" className={`header-user-av ${avatarClass}`}>{userInitials}</Link>
+          <Link to={`/profile?role=${avatarClass?.replace('-av', '') ?? ''}`} className={`header-user-av ${avatarClass}`}>{userInitials}</Link>
         </div>
       </div>
     </header>

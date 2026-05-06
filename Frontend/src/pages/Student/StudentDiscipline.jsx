@@ -146,7 +146,7 @@ export function StudentDiscipline() {
                                     <span className="header-user-name">Uwase Amina</span>
                                     <span className="header-user-role">Student Â· S4A</span>
                                 </div>
-                                <Link to="/profile" className="header-user-av student-av">UA</Link>
+                                <Link to="/profile?role=student" className="header-user-av student-av">UA</Link>
                             </div>
                         </div>
                     </header>
