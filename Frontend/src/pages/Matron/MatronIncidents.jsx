@@ -62,7 +62,7 @@ export function MatronIncidents() {
                                     <span className="header-user-name">Mrs. Gloriose Hakizimana</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <Link to="/profile" className="header-user-av matron-av">GH</Link>
+                                <Link to="/profile?role=matron" className="header-user-av matron-av">GH</Link>
                             </div>
                         </div>
                     </header>

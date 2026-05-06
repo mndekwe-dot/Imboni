@@ -81,7 +81,7 @@ export function DosAnalytics() {
                                     <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
                                     <span className="header-user-role">Director of Studies</span>
                                 </div>
-                                <Link to="/profile" className="header-user-av dos-av">JN</Link>
+                                <Link to="/profile?role=dos" className="header-user-av dos-av">JN</Link>
                             </div>
                         </div>
                     </header>

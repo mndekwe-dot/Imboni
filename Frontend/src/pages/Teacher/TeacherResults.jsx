@@ -134,7 +134,7 @@ export function TeacherResults() {
                                     <span className="header-user-name">Pacifique Rurangwa</span>
                                     <span className="header-user-role">Teacher</span>
                                 </div>
-                                <Link to="/profile" className="header-user-av teacher-av">PR</Link>
+                                <Link to="/profile?role=teacher" className="header-user-av teacher-av">PR</Link>
                             </div>
                         </div>
                     </header>
