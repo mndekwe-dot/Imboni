@@ -94,15 +94,46 @@ class AuthViewSet(viewsets.ViewSet):
     """
     permission_classes = [permissions.AllowAny]
     
+    # Maps each portal slug to the roles allowed through it
+    PORTAL_ROLES = {
+        'student':    ['student'],
+        'teacher':    ['teacher'],
+        'dos':        ['dos'],
+        'parent':     ['parent'],
+        'discipline': ['discipline'],
+        'matron':     ['matron'],
+        'admin':      ['admin'],
+    }
+
+    PORTAL_LABELS = {
+        'student':    'Student Portal',
+        'teacher':    'Teacher Portal',
+        'dos':        'Director of Studies Portal',
+        'parent':     'Parent Portal',
+        'discipline': 'Discipline Portal',
+        'matron':     'Matron Portal',
+        'admin':      'Admin Portal',
+    }
+
     @action(detail=False, methods=['post'])
     def login(self, request):
-        """Login user — accepts username or email + password"""
+        """
+        Login user — accepts email + password + portal.
+        The portal field restricts which role can log in through this endpoint.
+        """
         identifier = request.data.get('username') or request.data.get('email')
         password   = request.data.get('password')
+        portal     = request.data.get('portal', '').strip().lower()
 
         if not identifier or not password:
             return Response(
-                {'error': 'username/email and password are required.'},
+                {'error': 'Email and password are required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if portal and portal not in self.PORTAL_ROLES:
+            return Response(
+                {'error': 'Invalid portal.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -110,25 +141,32 @@ class AuthViewSet(viewsets.ViewSet):
         user = authenticate(username=identifier, password=password)
 
         if user is None:
-            # identifier might be an email — find the matching username and retry
             try:
                 matched = User.objects.get(email__iexact=identifier)
                 user = authenticate(username=matched.username, password=password)
             except User.DoesNotExist:
                 pass
 
-        if user:
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'access':  str(refresh.access_token),
-                'refresh': str(refresh),
-                'user':    UserSerializer(user).data,
-            })
+        if user is None:
+            return Response(
+                {'error': 'Invalid email or password.'},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
-        return Response(
-            {'error': 'Invalid credentials'},
-            status=status.HTTP_401_UNAUTHORIZED,
-        )
+        # Role check — only allow if user's role matches the portal
+        if portal and user.role not in self.PORTAL_ROLES[portal]:
+            portal_label = self.PORTAL_LABELS.get(portal, portal)
+            return Response(
+                {'error': f'Your account does not have access.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'access':  str(refresh.access_token),
+            'refresh': str(refresh),
+            'user':    UserSerializer(user).data,
+        })
     
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def logout(self, request):
