@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router'
+import { useAuth } from '../../hooks/useAuth'
 import logo from '../../assets/images/imboni-logo.png'
 
 export function Sidebar({ navItems, secondaryItems }) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { logout } = useAuth()
 
   // Listen for the mobile-menu-btn in DashboardHeader to open us
   useEffect(() => {
@@ -81,20 +83,31 @@ export function Sidebar({ navItems, secondaryItems }) {
           <ul className="nav-list secondary-nav">
             {secondaryItems.map((item) => (
               <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    'sidebar-nav-item' + (isActive ? ' active' : '')
-                  }
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <span className="material-symbols-rounded">{item.icon}</span>
-                  <span>{item.label}</span>
-                </NavLink>
+                {item.label === 'Logout' ? (
+                  <button
+                    className="sidebar-nav-item"
+                    onClick={() => { setMobileOpen(false); logout() }}
+                  >
+                    <span className="material-symbols-rounded">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ) : (
+                  <NavLink
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      'sidebar-nav-item' + (isActive ? ' active' : '')
+                    }
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <span className="material-symbols-rounded">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </NavLink>
+                )}
               </li>
             ))}
           </ul>
+
         </nav>
       </aside>
     </>
