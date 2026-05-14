@@ -442,6 +442,10 @@
   white-space: nowrap;
   min-height: var(--touch-min);
   position: relative;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
 }
 
 .sidebar-nav-item::before {

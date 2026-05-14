@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router'
-import { loginUser } from '../api/auth'
+import { useAuth } from '../hooks/useAuth'
+import {Link} from 'react-router'
 import logo from '../assets/images/imboni-logo.png'
 import '../styles/login.css'
 import '../styles/components.css'
@@ -61,7 +61,7 @@ function ForgotPasswordModal({ onClose }) {
  *   redirectTo  — path after login          e.g. '/dos'
  */
 export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeholder, redirectTo }) {
-    const navigate = useNavigate()
+    const {login} = useAuth()
     const [email,      setEmail]      = useState('')
     const [password,   setPassword]   = useState('')
     const [showPw,     setShowPw]     = useState(false)
@@ -74,11 +74,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
         setError('')
         setLoading(true)
         try {
-            const data = await loginUser(email, password, portal)
-            localStorage.setItem('imboni_access',  data.access)
-            localStorage.setItem('imboni_refresh', data.refresh)
-            localStorage.setItem('imboni_user',    JSON.stringify(data.user))
-            navigate(redirectTo)
+            await login(email,password,portal,redirectTo)
         } catch (err) {
             setError(err.message)
         } finally {
