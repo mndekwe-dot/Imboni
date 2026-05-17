@@ -37,3 +37,25 @@ class ExamSchedule(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.exam_date})"
+
+class SchoolSection(models.Model):
+    """
+    Stores school structure — sections, years and streams.
+    e.g. O-Level with years S1-S3 and streams A, B, C
+    DOS can edit this from DosSettings page.
+    """
+    id=models.URLField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50)
+    years = models.JSONField(default=list)  # List of years (e.g. S1, S2, S3)
+    streams = models.JSONField(default=list)  # List of streams (e.g. A, B, C)
+    is_active = models.BooleanField(default=True)
+    academic_term = models.CharField(max_length=20, blank=True)  # e.g. Term 1, Term 2, Term 3  
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'school_sections'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name

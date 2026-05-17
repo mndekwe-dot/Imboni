@@ -33,7 +33,9 @@ from .serializers import (
     CSVImportSerializer,
     DOSResultSerializer,
     ExamScheduleSerializer,
+    SchoolSectionSerializer,
 )
+from .models import ExamSchedule, SchoolSection
 
 
 # ---------------------------------------------------------------------------
@@ -1497,3 +1499,38 @@ class DOSAnalyticsView(APIView):
             'performance_trend': perf_trend,
             'subject_averages':  subj_avgs,
         })
+
+# ---------------------------------------------------------------------------
+# School Config
+# ---------------------------------------------------------------------------
+
+class SchoolConfigView(APIView):
+    """
+    GET /imboni/dos/school-config/  — return all school sections
+    PUT /imboni/dos/school-config/  — replace all school sections
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self,request):
+        sections = SchoolSection.objects.filter(is_active=True)
+        return Response (SchoolSectionSerializer(sections,many=True).data)
+    def put(self,request):
+        #request.data should be a list of section objects
+        sections_data = request.data
+        if not isinstance(sections_data,list):
+            return Response(
+                {'error':'Expected a list of sections. '},
+                status=http_status.HTTP_400_BAD_REQUEST
+            )
+
+        # Delete existing and recreate - simple replace strategy
+        SchoolSection.objects.all().delete()
+        created = []
+        for item in sections_data:
+            serializer =SchoolSectionSerializer(data=item)
+            if serializer.is_valid():
+                serializer.save()
+                created.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+        return Response(created)

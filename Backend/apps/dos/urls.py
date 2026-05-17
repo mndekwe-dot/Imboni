@@ -68,4 +68,8 @@ urlpatterns = [
     path('dos/reports/student/<uuid:pk>/',         report_views.StudentReportCardView.as_view(),  name='dos-student-report'),
     path('dos/reports/class/<uuid:class_id>/',     report_views.ClassReportCardsView.as_view(),   name='dos-class-reports'),
     path('dos/reports/export/results/',            report_views.ExportResultsCSVView.as_view(),   name='dos-export-results-csv'),
+
+    # ── School Config ────────────────────────────────────────────────────────
+    path('dos/school-config/', views.SchoolConfigView.as_view(), name='dos-school-config'),
+
 ]

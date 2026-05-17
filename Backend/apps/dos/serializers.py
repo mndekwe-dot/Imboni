@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import SchoolSection
 
 
 class DOSDashboardStatsSerializer(serializers.Serializer):
@@ -248,3 +249,12 @@ class ExamScheduleSerializer(serializers.Serializer):
     exam_type   = serializers.CharField()
     invigilator = serializers.CharField(allow_null=True)
     notes       = serializers.CharField()
+
+class SchoolSectionSerializer(serializers.ModelSerializer):
+    """
+    Converts SchoolSection model to JSON.
+    Used by GET /imboni/dos/school-config/ and PUT /imboni/dos/school-config/
+    """
+    class Meta:
+        model = SchoolSection
+        fields = ['id', 'name', 'years', 'streams', 'is_active', 'academic_term']
