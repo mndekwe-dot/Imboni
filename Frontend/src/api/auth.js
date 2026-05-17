@@ -22,3 +22,7 @@ export async function logoutUser() {
     localStorage.removeItem('imboni_refresh')
     localStorage.removeItem('imboni_user')
 }
+
+//send password reset email - no token needed, user is not logged in 
+export const requestPasswordReset = (email) =>
+    axios.post(`${BASE}/imboni/auth/password-reset/`,{email})

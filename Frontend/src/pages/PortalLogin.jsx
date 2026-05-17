@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { requestPasswordReset } from '../api/auth'
 import { useAuth } from '../hooks/useAuth'
 import {Link} from 'react-router'
 import logo from '../assets/images/imboni-logo.png'
@@ -6,6 +7,27 @@ import '../styles/login.css'
 import '../styles/components.css'
 
 function ForgotPasswordModal({ onClose }) {
+    // Form state
+    const [email,   setEmail]   = useState('')
+    const [sending, setSending] = useState(false) // true while API call is running
+    const [sent,    setSent]    = useState(false)  // true after email sent successfully
+    const [error,   setError]   = useState('')     // error message from server
+
+    // Sends the email to the backend which generates a token and emails the reset link.
+    // The frontend never handles the token — only the backend does.
+    async function handleReset() {
+        setSending(true)
+        setError('')
+        try {
+            await requestPasswordReset(email)
+            setSent(true)  // switch modal body to success message
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setSending(false)
+        }
+    }
+
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
@@ -18,31 +40,58 @@ function ForgotPasswordModal({ onClose }) {
                         <span className="material-symbols-rounded">close</span>
                     </button>
                 </div>
+
                 <div className="modal-body">
-                    <p style={{ marginBottom: '1rem', lineHeight: 1.6 }}>
-                        Password resets are handled by the school administration.
-                        Please contact the school office using one of the options below:
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        <div className="portal-login-contact-row">
-                            <span className="material-symbols-rounded">mail</span>
-                            <div>
-                                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Email</div>
-                                <div style={{ fontSize: '0.85rem' }}>admin@imboni.rw</div>
+                    {/* After sending — show success message instead of the form */}
+                    {sent ? (
+                        <p style={{ lineHeight: 1.6 }}>
+                            A password reset link has been sent to <strong>{email}</strong>.
+                            Check your email and follow the instructions.
+                        </p>
+                    ) : (
+                        <>
+                            <p style={{ marginBottom: '1rem', lineHeight: 1.6 }}>
+                                Enter your email address and we will send you a reset link.
+                            </p>
+                            {/* Show server error if request failed */}
+                            {error && (
+                                <p style={{ color: 'var(--danger)', marginBottom: '0.75rem' }}>{error}</p>
+                            )}
+                            <div className="form-group">
+                                <label className="form-label">Email address</label>
+                                <input
+                                    type="email"
+                                    className="form-input"
+                                    placeholder="Enter your email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                />
                             </div>
-                        </div>
-                        <div className="portal-login-contact-row">
-                            <span className="material-symbols-rounded">phone</span>
-                            <div>
-                                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>School Extension</div>
-                                <div style={{ fontSize: '0.85rem' }}>Extension 100</div>
-                            </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
+
                 <div className="modal-footer">
-                    <button className="btn btn-primary" onClick={onClose} style={{ width: '100%' }}>Got it</button>
+                    {/* After sending — only show Done button */}
+                    {sent ? (
+                        <button className="btn btn-primary" onClick={onClose} style={{ width: '100%' }}>
+                            Done
+                        </button>
+                    ) : (
+                        <>
+                            <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                            {/* Disabled until email is typed and while request is running */}
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleReset}
+                                disabled={sending || !email}
+                            >
+                                {sending ? 'Sending...' : 'Send Reset Link'}
+                            </button>
+                        </>
+                    )}
                 </div>
+
             </div>
         </div>
     )
