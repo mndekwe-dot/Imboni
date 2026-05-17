@@ -1,5 +1,5 @@
-﻿import { useState, useEffect } from 'react'
-import { changePassword, getProfile, updateProfile } from '../api/account'
+﻿import { useState, useEffect, useRef } from 'react'
+import { changePassword, getProfile, updateProfile, uploadAvatar } from '../api/account'
 import { useSearchParams } from 'react-router'
 import { Link } from 'react-router'
 import { Sidebar } from '../components/layout/Sidebar'
@@ -27,14 +27,13 @@ const NAV = {
     admin: { navItems: adminNavItems, secondaryItems: adminSecondaryItems },
 }
 
-
 export function Account() {
     // --- Profile state ---
     const [profile, setProfile] = useState(null)   // original data from server — never edited directly
     const [loading, setLoading] = useState(true)   // true while fetching profile from API
-    const [form,    setForm]    = useState({ first_name: '', last_name: '', phone_number: '' }) // editable copy
-    const [saving,  setSaving]  = useState(false)  // true while profile save request is running
-    const [saved,   setSaved]   = useState(false)  // true for 3s after successful profile save
+    const [form, setForm] = useState({ first_name: '', last_name: '', phone_number: '' }) // editable copy
+    const [saving, setSaving] = useState(false)  // true while profile save request is running
+    const [saved, setSaved] = useState(false)  // true for 3s after successful profile save
 
     // --- Sidebar nav ---
     // Role comes from URL (?role=dos) first, then localStorage, then empty string
@@ -43,11 +42,14 @@ export function Account() {
     const role = searchParams.get('role') || storedUser?.role || ''
     const { navItems = [], secondaryItems = [] } = NAV[role] ?? {}
 
+    // Ref pointing to the hidden file input — used to trigger file picker from the button
+    const avatarInputRef = useRef(null)
+
     // --- Password state ---
-    const [pwForm,   setPwForm]   = useState({ old_password: '', new_password: '', confirm_password: '' })
+    const [pwForm, setPwForm] = useState({ old_password: '', new_password: '', confirm_password: '' })
     const [pwSaving, setPwSaving] = useState(false)  // true while password save request is running
-    const [pwSaved,  setPwSaved]  = useState(false)  // true for 3s after successful password change
-    const [pwError,  setPwError]  = useState('')      // error message shown below password form
+    const [pwSaved, setPwSaved] = useState(false)  // true for 3s after successful password change
+    const [pwError, setPwError] = useState('')      // error message shown below password form
 
     // Fetch real user data from the server when the page first loads.
     // Sets both profile (original) and form (editable copy) at the same time.
@@ -56,8 +58,8 @@ export function Account() {
             .then(data => {
                 setProfile(data)
                 setForm({
-                    first_name:   data.first_name   ?? '',
-                    last_name:    data.last_name    ?? '',
+                    first_name: data.first_name ?? '',
+                    last_name: data.last_name ?? '',
                     phone_number: data.phone_number ?? '',
                 })
             })
@@ -110,6 +112,17 @@ export function Account() {
         } finally {
             setPwSaving(false)
         }
+    }
+    async function handleAvatarChange(e) {
+        const file = e.target.files[0]
+        if (!file) return
+        try {
+            const updated = await uploadAvatar(file)
+            setProfile(updated)
+        } catch (err) {
+            console.error(err)
+        }
+
     }
     return (
         <>
@@ -167,8 +180,23 @@ export function Account() {
                                     <div className="card-content">
                                         <div className="profile-upload-container">
                                             <div className="avatar-large">{initials}</div>
-                                            <button className="btn btn-outline btn-sm">Change Photo</button>
+                                            {/* Hidden file input — triggered by the button below */}
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                ref={avatarInputRef}
+                                                style={{ display: 'none' }}
+                                                onChange={handleAvatarChange}
+                                            />
+                                            {/* Clicking this button opens the file picker */}
+                                            <button
+                                                className="btn btn-outline btn-sm"
+                                                onClick={() => avatarInputRef.current.click()}
+                                            >
+                                                Change Photo
+                                            </button>
                                         </div>
+
                                         <div className="form-row">
                                             <div className="form-group">
                                                 <label className="form-label">Full Name</label>
