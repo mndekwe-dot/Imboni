@@ -1,12 +1,13 @@
 from django.utils import timezone
-from rest_framework import generics, viewsets, status
+from rest_framework import generics, viewsets, status, permissions 
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.authentication.permissions import IsTeacher, IsDOSOrAdmin, IsTeacherOrDOS
-from .models import Assessment, Result
+from .models import Assessment, Result, AcademicTerm
 from .serializers import (
     AssessmentSerializer, AssessmentCreateSerializer,
     ResultSerializer, ResultCreateUpdateSerializer, TeacherReviewSerializer,
+    AcademicTermSerializer
 )
 
 
@@ -191,3 +192,22 @@ class ResultBulkSubmitView(APIView):
             .update(status='submitted', submitted_at=timezone.now())
         )
         return Response({'submitted': updated})
+
+class AcademicTermListView(APIView):
+    """Get /imboni/results/terms/ - list all academic terms"""
+    permission_classes =[permissions.IsAuthenticated]
+
+    def get(self,request):
+        terms = AcademicTerm.objects.all()
+        return Response(AcademicTermSerializer(terms,many=True).data)
+
+class CurrentTermView(APIView):
+    """GET /imboni/results/terms/current - return the active term """
+
+    permission_classes =[permissions.IsAuthenticated]
+
+    def get(self,request):
+        term=AcademicTerm.objects.filter(is_current=True).first()
+        if not term:
+            return Response({'error':'No active term found'},status=404)
+        return Response(AcademicTermSerializer(term).data)

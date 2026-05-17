@@ -118,3 +118,8 @@ class ResultCreateUpdateSerializer(serializers.Serializer):
     class_test_marks = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
     exam_score      = serializers.DecimalField(max_digits=5, decimal_places=2)
     teacher_comment = serializers.CharField(required=False, allow_blank=True, default='')
+
+class AcademicTermSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicTerm
+        fields=['id','name','term','year','start_date','end_date','is_current']
