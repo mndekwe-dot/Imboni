@@ -1,6 +1,6 @@
 # Imboni — School Management System
 
-> **Status: Active Development** — React frontend complete. Django REST API backend in progress.
+> **Status: Active Development** — Authentication complete. Portals being connected to backend API (May–July 2026).
 
 **Imboni Education Connects** is a full-stack, multi-role school management platform built to digitise academic operations for secondary schools. It provides dedicated portals for every stakeholder — from the Director of Studies down to students and parents — each with role-appropriate data, actions, and workflows.
 
@@ -110,6 +110,7 @@
 |---|---|
 | Framework | React 19 |
 | Routing | React Router v7 |
+| HTTP Client | Axios (interceptors for JWT + global error handling) |
 | Styling | Custom CSS — CSS variables, responsive grid, no UI library |
 | Charts | Recharts |
 | Icons | Google Material Symbols Rounded |
@@ -134,7 +135,7 @@ Imboni/
 ├── Backend/
 │   ├── Imboni/              # Django project settings & URL routing
 │   └── apps/
-│       ├── authentication/  # User models, JWT auth, invitation system
+│       ├── authentication/  # User models, JWT auth, invitation system, password reset
 │       ├── analytics/       # School-wide analytics endpoints
 │       ├── announcements/   # Announcement CRUD and audience targeting
 │       ├── attendance/      # Student and teacher attendance records
@@ -150,10 +151,17 @@ Imboni/
 │
 └── Frontend/                # React + Vite application
     ├── src/
+    │   ├── api/             # One file per portal — all axios calls
+    │   │   ├── client.js    # Axios instance with JWT interceptors
+    │   │   ├── auth.js      # Login, logout, password reset
+    │   │   └── account.js   # Profile, password change, avatar upload
+    │   ├── hooks/           # Custom React hooks
+    │   │   └── useAuth.jsx  # Login, logout, isAuthenticated
     │   ├── assets/          # Images and static files
     │   ├── components/      # Shared layout and UI components
     │   │   ├── layout/      # Sidebar, DashboardHeader, WelcomeBanner, etc.
-    │   │   └── ui/          # DataTable, Modal, ClassPicker, FilterBar, etc.
+    │   │   ├── ui/          # DataTable, Modal, ClassPicker, FilterBar, etc.
+    │   │   └── ProtectedRoute.jsx  # Redirects to /login if no token
     │   ├── pages/           # Page components per portal
     │   │   ├── Admin/
     │   │   ├── Dis/         # Discipline portal
@@ -221,18 +229,33 @@ App available at `http://localhost:5173/`
 
 ## Roadmap
 
+### Done
 - [x] Multi-role authentication with invitation system
 - [x] Director of Studies portal — analytics, results approval, exam schedule, timetable
 - [x] Teacher portal — classes, attendance, results, assignments, timetable, messaging
-- [x] Student, Parent, Discipline, Matron portals
+- [x] Student, Parent, Discipline, Matron, Admin portals
 - [x] React frontend — all portals fully built
 - [x] Responsive design (mobile + tablet + desktop)
 - [x] Shared component library (DataTable, Modal, ClassPicker, FilterBar, etc.)
-- [ ] React frontend connected to Django REST API
+- [x] JWT authentication — login, logout, protected routes, token interceptors
+- [x] Portal-specific login pages with role validation
+- [x] Profile page — load real user, edit profile, change password, avatar upload
+- [x] Forgot password — sends real reset email via backend
+
+### In Progress (May–July 2026)
+- [ ] Connect DOS portal to backend API
+- [ ] Connect Teacher portal to backend API
+- [ ] Connect Student and Parent portals to backend API
+- [ ] Connect Discipline and Matron portals to backend API
+- [ ] School config management (sections, years, streams)
+- [ ] Academic term tracking
+
+### Planned
 - [ ] Real-time notifications (WebSockets)
 - [ ] PDF report generation
 - [ ] Multi-tenant support (one platform, multiple schools)
 - [ ] MTN Mobile Money billing integration
+- [ ] Switch token storage from localStorage to httpOnly cookies
 
 ---
 
@@ -246,6 +269,12 @@ Django's ORM and DRF together make it easy to write clean, testable, permission-
 
 **Why custom CSS instead of Tailwind or a UI library?**
 The design system uses CSS variables throughout, giving full control over every token (color, spacing, radius, shadow) per portal. No third-party class names leak into the markup, and the bundle stays small.
+
+**Why axios instead of fetch?**
+Axios interceptors allow attaching the JWT token to every request in one place and handling 401 errors globally — no repetition across 50+ API calls. When the project scales to React Query, axios works seamlessly as the fetcher.
+
+**Why portal-specific login pages?**
+Each portal has its own login URL (`/login/dos`, `/login/teacher`, etc.) and the backend validates that the user's role matches the portal before issuing a token. A student cannot log into the DOS portal even with valid credentials.
 
 ---
 
