@@ -35,6 +35,7 @@ from .serializers import (
     ExamScheduleSerializer,
     SchoolSectionSerializer,
     SchoolSettingSerializer,
+    SubjectSerializer,
 )
 from .models import ExamSchedule, SchoolSection,SchoolSetting
 
@@ -1558,3 +1559,90 @@ class SchoolSettingsView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+
+# ---------------------------------------------------------------------------
+# Subject Management
+# ---------------------------------------------------------------------------
+
+class SubjectListCreateView(APIView):
+    """
+    GET  /imboni/dos/subjects/  — list all active subjects
+    POST /imboni/dos/subjects/  — create a new subject
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self, request):
+        from apps.results.models import Subject
+        subjects = Subject.objects.filter(is_active=True).order_by('name')
+        return Response(SubjectSerializer(subjects, many=True).data)
+
+    def post(self, request):
+        from apps.results.models import Subject
+        serializer = SubjectSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=http_status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+
+class SubjectDetailView(APIView):
+    """
+    PATCH  /imboni/dos/subjects/<pk>/  — rename a subject
+    DELETE /imboni/dos/subjects/<pk>/  — delete a subject
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def _get_subject(self, pk):
+        from apps.results.models import Subject
+        try:
+            return Subject.objects.get(pk=pk)
+        except Subject.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        subject = self._get_subject(pk)
+        if not subject:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        serializer = SubjectSerializer(subject, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        subject = self._get_subject(pk)
+        if not subject:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        subject.delete()
+        return Response(status=http_status.HTTP_204_NO_CONTENT)
+
+
+class SubjectCategoryRenameView(APIView):
+    """
+    POST /imboni/dos/subject-categories/rename/
+    Body: { old_name, new_name }
+    Renames all subjects in a category at once.
+
+    DELETE /imboni/dos/subject-categories/delete/
+    Body: { name }
+    Deletes all subjects in that category.
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def post(self, request):
+        from apps.results.models import Subject
+        old_name = request.data.get('old_name', '').strip()
+        new_name = request.data.get('new_name', '').strip()
+        if not old_name or not new_name:
+            return Response({'detail': 'old_name and new_name are required.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        updated = Subject.objects.filter(category=old_name).update(category=new_name)
+        return Response({'updated': updated, 'category': new_name})
+
+    def delete(self, request):
+        from apps.results.models import Subject
+        name = request.data.get('name', '').strip()
+        if not name:
+            return Response({'detail': 'name is required.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        deleted, _ = Subject.objects.filter(category=name).delete()
+        return Response({'deleted': deleted})

@@ -62,6 +62,7 @@ import { TeacherResults } from './pages/Teacher/TeacherResults';
 import { TeacherStudent } from './pages/Teacher/TeacherStudents';
 import { Account } from './pages/Account';
 import { DosSettings } from './pages/Dos/DosSettings';
+import { TeacherRegistration } from './pages/TeacherRegistration';
 import { AdminDashboard } from './pages/Admin/AdminDashboard';
 import { AdminStaff } from './pages/Admin/AdminStaff';
 import { AdminStudents } from './pages/Admin/AdminStudents';
@@ -122,6 +123,8 @@ function App() {
           icon="admin_panel_settings" accentColor="#4f46e5"
           placeholder="admin@imboni.rw" redirectTo="/admin" />
       } />
+      {/* ── Public registration routes ── */}
+      <Route path="/register/:uid/:token" element={<TeacherRegistration />} />
       {/* ── Student routes ── */}
       <Route path="/student" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
       <Route path="/student/results" element={<ProtectedRoute><StudentResults /></ProtectedRoute>} />

@@ -23,6 +23,26 @@ export async function logoutUser() {
     localStorage.removeItem('imboni_user')
 }
 
-//send password reset email - no token needed, user is not logged in 
+//send password reset email - no token needed, user is not logged in
 export const requestPasswordReset = (email) =>
-    axios.post(`${BASE}/imboni/auth/password-reset/`,{email})
+    axios.post(`${BASE}/imboni/auth/password-reset/`, { email })
+
+// Send invitation — DOS is logged in, use client for auth header
+export const sendInvitation = (data) => client.post('/imboni/auth/invite/', data)
+
+// Verify invitation link — public, no token needed
+export const verifyInvitation = (uid, token) =>
+    axios.get(`${BASE}/imboni/auth/register/verify/${uid}/${token}/`)
+
+// Complete registration — public, no token needed
+export const completeRegistration = (data) =>
+    axios.post(`${BASE}/imboni/auth/register/complete/`, data)
+
+// List invitations sent by the current user
+export const getInvitations = () => client.get('/imboni/auth/invite/list/')
+
+// Resend an invitation (generates a fresh token and re-sends)
+export const resendInvitation = (id) => client.post(`/imboni/auth/invite/resend/${id}/`)
+
+// Cancel (delete) a pending invitation
+export const cancelInvitation = (id) => client.delete(`/imboni/auth/invite/${id}/cancel/`)

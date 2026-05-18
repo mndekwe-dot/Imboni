@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from zoneinfo import ZoneInfo,ZoneInfoNotFoundError
-from .models import SchoolSection,SchoolSetting
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from .models import SchoolSection, SchoolSetting
+from apps.results.models import Subject
 
 
 class DOSDashboardStatsSerializer(serializers.Serializer):
@@ -259,6 +260,12 @@ class SchoolSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolSection
         fields = ['id', 'name', 'years', 'streams', 'is_active', 'academic_term']
+
+class SubjectSerializer(serializers.ModelSerializer):
+    """Add / rename / list subjects from DosSettings."""
+    class Meta:
+        model  = Subject
+        fields = ['id', 'name', 'code', 'category']
 
 class SchoolSettingSerializer(serializers.ModelSerializer):
     class Meta:

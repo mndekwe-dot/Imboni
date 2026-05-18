@@ -1,4 +1,5 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
+import { getDosStudentLeaders } from '../../api/dos'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { StatCard } from '../../components/layout/StatCard'
@@ -176,8 +177,15 @@ function HouseCaptainRow({ initials, name, house, form, since, editMode, onEdit,
 
 export function DosStudentLeaders() {
     const { setting } = useSchoolSettings()
+    const [apiLeaders,     setApiLeaders]     = useState([])
     const [prefectList,    setPrefectList]    = useState(prefects)
     const [captainList,    setCaptainList]    = useState(houseCaptains)
+
+    useEffect(() => {
+        getDosStudentLeaders()
+            .then(data => setApiLeaders(data))
+            .catch(err => console.error(err))
+    }, [])
     const [showAppoint,    setShowAppoint]    = useState(false)
     const [editLeader,     setEditLeader]     = useState(null)   // { type, index, data }
     const [prefectEditMode, setPrefectEditMode] = useState(false)
