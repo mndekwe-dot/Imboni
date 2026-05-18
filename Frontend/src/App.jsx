@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LandingPage } from './pages/LandingPage';
 import { LogIn } from './pages/login';
+import { NotFound } from './pages/NotFound';
 import { PortalLogin } from './pages/PortalLogin';
 import { StudentDashboard } from './pages/Student/StudentDashboard';
 import { StudentResults } from './pages/Student/StudentResults';
@@ -199,6 +200,8 @@ function App() {
       <Route path="/teacher/timetable"   element={<ProtectedRoute><TeacherTimetable /></ProtectedRoute>} />
       <Route path="/teacher/results"     element={<ProtectedRoute><TeacherResults /></ProtectedRoute>} />
       <Route path="/teacher/students"    element={<ProtectedRoute><TeacherStudent /></ProtectedRoute>} />
+      {/* ── Not Found route ── */}
+      <Route path="*"    element={<NotFound/>} />
     </Routes>
   )
 }
