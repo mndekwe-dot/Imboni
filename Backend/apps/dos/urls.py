@@ -71,5 +71,7 @@ urlpatterns = [
 
     # ── School Config ────────────────────────────────────────────────────────
     path('dos/school-config/', views.SchoolConfigView.as_view(), name='dos-school-config'),
-
+    
+    # ── School Setting ────────────────────────────────────────────────────────
+    path('dos/school-settings/', views.SchoolSettingsView.as_view(), name='dos-school-settings'),
 ]

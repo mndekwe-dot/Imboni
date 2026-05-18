@@ -6,6 +6,8 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 
 
 const attendanceStats = [
@@ -48,6 +50,7 @@ function AttendanceRow({ initials, name, mon, tue, wed, thu, fri, present, rate 
 }
 
 export function DosAttendance() {
+    const { setting } = useSchoolSettings()
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -64,7 +67,7 @@ export function DosAttendance() {
                             <p>Track student and teacher attendance by class</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <button className="notification-btn">
                                 <span className="material-symbols-rounded">notifications</span>
                                 <span className="notification-badge">2</span>

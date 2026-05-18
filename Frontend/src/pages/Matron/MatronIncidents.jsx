@@ -7,6 +7,8 @@ import '../../styles/matron.css'
 import { useState } from 'react'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 
 
 const pastReports = [
@@ -36,6 +38,7 @@ function PastReportRow({ date, name, type, severityStyle, severity, statusClass,
 }
 
 export function MatronIncidents() {
+    const { setting } = useSchoolSettings()
     const [filter,setFilter]= useState('all')
     const visible= filter === 'all'
         ? pastReports
@@ -56,7 +59,7 @@ export function MatronIncidents() {
                             <p>Submit incident reports directly to the Director of Discipline</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
                                     <span className="header-user-name">Mrs. Gloriose Hakizimana</span>

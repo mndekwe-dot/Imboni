@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { updateSchoolSettings } from '../../api/dos'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 
 // ── Small reusable components ────────────────────────────────────────────────
 
@@ -68,8 +70,16 @@ function ConfigSection({ title, description, items, onAdd, onRemove, placeholder
 
 export function DosSettings() {
     const { config, saveConfig, loading, error } = useSchoolConfig()
+    const { setting, loading: settingsLoading } = useSchoolSettings()
+    const [timezone,  setTimezone]  = useState('Africa/Kigali')
+    const [tzSaving,  setTzSaving]  = useState(false)
+    const [tzSaved,   setTzSaved]   = useState(false)
     const [saving, setSaving] = useState(false)
     const [saved,  setSaved]  = useState(false)
+
+    useEffect(() => {
+        if (!settingsLoading) setTimezone(setting.timezone)
+    }, [settingsLoading, setting.timezone])
 
     // ── Loading / error / empty states ───────────────────────────────────────
 
@@ -161,6 +171,19 @@ export function DosSettings() {
             console.error(err)
         } finally {
             setSaving(false)
+        }
+    }
+
+    async function handleTimezoneSave() {
+        setTzSaving(true)
+        try{
+            await updateSchoolSettings({timezone})
+            setTzSaved(true)
+            setTimeout(()=>setTzSaved(false),3000)
+        }catch (err){
+            console.error(err)
+        } finally{
+            setTzSaving(false)
         }
     }
 
@@ -258,6 +281,37 @@ export function DosSettings() {
 
                             </div>
                         </div>
+
+                        {/* Timezone card */}
+                        <div className="card" style={{ marginTop: '1.5rem' }}>
+                            <div className="card-header">
+                                <h2 className="card-title">School Settings</h2>
+                                <span className="settings-info-text">Timezone used for all dates and times</span>
+                            </div>
+                            <div className="card-content">
+                                <div className="settings-block">
+                                    <div className="settings-block-label">
+                                        <p className="settings-block-title">Timezone</p>
+                                        <p className="settings-block-desc">All dates shown to users will use this timezone</p>
+                                    </div>
+                                    <div className="settings-block-input-row">
+                                        <input
+                                            className="disc-picker-select flex-1"
+                                            value={timezone}
+                                            onChange={e => setTimezone(e.target.value)}
+                                            placeholder="e.g. Africa/Kigali"
+                                        />
+                                        <button className="btn btn-primary btn-sm" onClick={handleTimezoneSave} disabled={tzSaving}>
+                                            {tzSaved ? 'Saved!' : tzSaving ? 'Saving...' : 'Save'}
+                                        </button>
+                                    </div>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.5rem' }}>
+                                        Use IANA timezone names e.g. Africa/Kigali, Africa/Nairobi, Europe/London
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                     </DashboardContent>
                 </main>
             </div>

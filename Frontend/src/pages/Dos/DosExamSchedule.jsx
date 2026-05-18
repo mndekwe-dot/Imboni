@@ -5,6 +5,8 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 
 
 const examRows = [
@@ -48,6 +50,7 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
 }
 
 export function DosExamSchedule() {
+    const { setting } = useSchoolSettings()
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -64,7 +67,7 @@ export function DosExamSchedule() {
                             <p>Create and manage examination timetables</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <button className="btn btn-primary">+ Add Exam</button>
                             <div className="header-user">
                                 <div className="header-user-info">

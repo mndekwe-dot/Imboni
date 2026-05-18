@@ -36,3 +36,7 @@ export const getCurrentTerm = () => client.get("/imboni/results/terms/current/")
 //  School Config 
 export const getSchoolConfig = () => client.get("/imboni/dos/school-config/");
 export const updateSchoolConfig = (data) => client.put("/imboni/dos/school-config/", data);
+
+// school Setting
+export const getSchoolSettings    = () => client.get('/imboni/dos/school-settings/')
+export const updateSchoolSettings = (data) => client.patch('/imboni/dos/school-settings/', data)
