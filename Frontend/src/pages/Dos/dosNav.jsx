@@ -10,8 +10,9 @@ export const dosNavItems = [
 ]
 
 export const dosSecondaryItems = [
-    { to: '/profile?role=dos', icon: 'account_circle', label: 'Profile' },
-    { to: '/login',            icon: 'logout',         label: 'Logout'  },
+    { to: '/dos/settings',     icon: 'settings',       label: 'Settings' },
+    { to: '/profile?role=dos', icon: 'account_circle', label: 'Profile'  },
+    { to: '/login',            icon: 'logout',         label: 'Logout'   },
 ]
 
 import { notifications } from '../../data/notifications'

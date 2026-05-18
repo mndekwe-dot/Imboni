@@ -1,5 +1,7 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { useState, useEffect } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
 import { Link } from 'react-router'
+import { getDosExamSchedule, deleteDosExamSchedule } from '../../api/dos'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -19,7 +21,7 @@ const examRows = [
     { num: 7, subject: 'History',              code: 'HIS 301', classes: 'S3A \u00b7 S3B \u00b7 S3C', date: 'Tue, 17 Mar 2026', time: '2:00 \u2013 4:30',  duration: '2.5 hrs', rooms: ['Room 10', 'Room 11'], invigilator: 'Mr. Nsabimana',   statusClass: 'badge-upcoming', status: 'Upcoming' },
 ]
 
-function ExamRow({ num, subject, code, classes, date, time, duration, rooms, invigilator, statusClass, status }) {
+function ExamRow({ num, subject, code, classes, date, time, duration, rooms, invigilator, statusClass, status, id, onDelete }) {
     return (
         <tr>
             <td>{num}</td>
@@ -42,7 +44,7 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
                 <div className="es-row-actions">
                     <button className="es-icon-btn"><span className="material-symbols-rounded">edit</span></button>
                     <button className="es-icon-btn"><span className="material-symbols-rounded">visibility</span></button>
-                    <button className="es-icon-btn danger"><span className="material-symbols-rounded">delete</span></button>
+                    <button className="es-icon-btn danger" onClick={() => id && onDelete(id)}><span className="material-symbols-rounded">delete</span></button>
                 </div>
             </td>
         </tr>
@@ -51,6 +53,44 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
 
 export function DosExamSchedule() {
     const { setting } = useSchoolSettings()
+    const [exams,   setExams]   = useState(examRows)
+    const [loading, setLoading] = useState(true)
+    const [error,   setError]   = useState(null)
+
+    useEffect(() => {
+        getDosExamSchedule()
+            .then(data => {
+                if (data.length > 0) {
+                    setExams(data.map((e, i) => ({
+                        num:         i + 1,
+                        subject:     e.subject,
+                        code:        e.exam_type,
+                        classes:     e.class_name || '—',
+                        date:        e.exam_date,
+                        time:        `${e.start_time} – ${e.end_time}`,
+                        duration:    '—',
+                        rooms:       e.venue ? [e.venue] : ['—'],
+                        invigilator: e.invigilator || '—',
+                        statusClass: 'badge-upcoming',
+                        status:      'Upcoming',
+                        id:          e.id,
+                    })))
+                }
+            })
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    async function handleDelete(id) {
+        try {
+            await deleteDosExamSchedule(id)
+            setExams(prev => prev.filter(e => e.id !== id))
+        } catch (err) { console.error(err) }
+    }
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -138,8 +178,8 @@ export function DosExamSchedule() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {examRows.map((row, index) => (
-                                                <ExamRow key={index} {...row} />
+                                            {exams.map((row, index) => (
+                                                <ExamRow key={index} {...row} onDelete={handleDelete} />
                                             ))}
                                         </tbody>
                                     </table>

@@ -4,6 +4,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
 import { StatCard } from '../../components/layout/StatCard'
+import { getDosStudents, getDosStudentStats, createDosStudent } from '../../api/dos'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -17,23 +18,6 @@ const SECTIONS = [
     { name: 'A-Level', years: ['S4', 'S5', 'S6'], classes: ['A', 'B', 'C'] },
 ]
 
-const studentStats = [
-    { icon: 'people',       value: '1,245', label: 'Total Students',    trend: '+15 this term',   trendClass: 'positive', colorClass: 'info'    },
-    { icon: 'check_circle', value: '1,198', label: 'Active Students',   trend: '96% enrollment',  trendClass: 'positive', colorClass: 'success' },
-    { icon: 'person_add',   value: '47',    label: 'New Admissions',    trend: 'This term',       trendClass: '',         colorClass: 'warning' },
-    { icon: 'trending_up',  value: '78%',   label: 'Avg Performance',   trend: '+3% improvement', trendClass: 'positive', colorClass: 'success' },
-]
-
-const allStudents = [
-    { initials: 'UA', name: 'Uwase Amina',     adm: 'ADM-2026-001', year: 'S4', classLetter: 'A', house: 'Bisoke',    t1: '74%', t2: '78%', curr: '81%', standClass: 'dos-stand-good',      standing: 'Good'      },
-    { initials: 'KM', name: 'Mutabazi Kevin',  adm: 'ADM-2026-002', year: 'S3', classLetter: 'B', house: 'Muhabura',  t1: '65%', t2: '68%', curr: '70%', standClass: 'dos-stand-good',      standing: 'Good'      },
-    { initials: 'IM', name: 'Ingabire Marie',  adm: 'ADM-2026-003', year: 'S3', classLetter: 'A', house: 'Bisoke',    t1: '88%', t2: '91%', curr: '90%', standClass: 'dos-stand-excellent', standing: 'Excellent' },
-    { initials: 'PN', name: 'Nkurunziza Peter',adm: 'ADM-2026-004', year: 'S2', classLetter: 'A', house: 'Sabyinyo',  t1: '55%', t2: '52%', curr: '58%', standClass: 'dos-stand-concern',   standing: 'Concern'   },
-    { initials: 'UD', name: 'Umutoni Diane',   adm: 'ADM-2026-005', year: 'S5', classLetter: 'A', house: 'Karisimbi', t1: '79%', t2: '82%', curr: '84%', standClass: 'dos-stand-excellent', standing: 'Excellent' },
-    { initials: 'JB', name: 'Bizimana James',  adm: 'ADM-2026-006', year: 'S5', classLetter: 'A', house: 'Muhabura',  t1: '61%', t2: '65%', curr: '67%', standClass: 'dos-stand-good',      standing: 'Good'      },
-    { initials: 'HG', name: 'Hakizimana Grace',adm: 'ADM-2026-007', year: 'S1', classLetter: 'A', house: 'Bisoke',    t1: '93%', t2: '95%', curr: '94%', standClass: 'dos-stand-excellent', standing: 'Excellent' },
-    { initials: 'EN', name: 'Ndagijimana Eric',adm: 'ADM-2026-008', year: 'S1', classLetter: 'B', house: 'Sabyinyo',  t1: '48%', t2: '55%', curr: '59%', standClass: 'dos-stand-concern',   standing: 'Concern'   },
-]
 
 
 const ADMIT_YEARS   = ['S1','S2','S3','S4','S5','S6']
@@ -123,13 +107,56 @@ function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, stan
     )
 }
 
+const gradeMap = { '1':'S1','2':'S2','3':'S3','4':'S4','5':'S5','6':'S6' }
+const standMap = (p) => p >= 80 ? ['dos-stand-excellent','Excellent'] : p >= 60 ? ['dos-stand-good','Good'] : ['dos-stand-concern','Concern']
+
+function apiToStudent(s) {
+    const [standClass, standing] = standMap(s.avg_performance ?? 0)
+    return {
+        initials:    s.initials,
+        name:        s.full_name,
+        adm:         s.student_code,
+        year:        gradeMap[s.grade] || s.grade,
+        classLetter: s.section,
+        house:       '—',
+        t1:          '—',
+        t2:          '—',
+        curr:        s.avg_performance != null ? `${s.avg_performance}%` : 'N/A',
+        standClass,
+        standing,
+    }
+}
+
 export function DosStudents() {
-    const [students, setStudents] = useState(allStudents)
-    const [section, setSection]   = useState('')
-    const [year, setYear]         = useState('')
-    const [classVal, setClassVal] = useState('')
-    const [search, setSearch]     = useState('')
-    const [showAdd, setShowAdd]   = useState(false)
+    const [students,  setStudents]  = useState([])
+    const [apiStats,  setApiStats]  = useState(null)
+    const [loading,   setLoading]   = useState(true)
+    const [error,     setError]     = useState(null)
+    const [section,   setSection]   = useState('')
+    const [year,      setYear]      = useState('')
+    const [classVal,  setClassVal]  = useState('')
+    const [search,    setSearch]    = useState('')
+    const [showAdd,   setShowAdd]   = useState(false)
+
+    useEffect(() => {
+        Promise.all([getDosStudents(), getDosStudentStats()])
+            .then(([list, stats]) => {
+                setStudents((list.results ?? list).map(apiToStudent))
+                setApiStats(stats)
+            })
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    const studentStats = apiStats ? [
+        { icon: 'people',       value: apiStats.total_students,  label: 'Total Students',  trend: `+${apiStats.new_this_term} this term`,           trendClass: 'positive', colorClass: 'info'    },
+        { icon: 'check_circle', value: apiStats.active_students, label: 'Active Students', trend: `${apiStats.enrollment_pct}% enrollment`,          trendClass: 'positive', colorClass: 'success' },
+        { icon: 'person_add',   value: apiStats.new_admissions,  label: 'New Admissions',  trend: 'This term',                                       trendClass: '',         colorClass: 'warning' },
+        { icon: 'trending_up',  value: `${apiStats.avg_performance}%`, label: 'Avg Performance', trend: `+${apiStats.avg_performance_change}% improvement`, trendClass: 'positive', colorClass: 'success' },
+    ] : []
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     const filtered = students.filter(s => {
         if (year && s.year !== year) return false
@@ -230,7 +257,24 @@ export function DosStudents() {
                 <AddStudentModal
                     count={students.length}
                     onClose={() => setShowAdd(false)}
-                    onAdd={s => setStudents(prev => [...prev, s])}
+                    onAdd={async ({ name, year, classLetter }) => {
+                        const parts = name.trim().split(' ')
+                        const last_name  = parts.pop()
+                        const first_name = parts.join(' ') || last_name
+                        const gradeNum   = Object.entries(gradeMap).find(([,v]) => v === year)?.[0] || '1'
+                        try {
+                            await createDosStudent({
+                                first_name, last_name,
+                                email:           `${first_name.toLowerCase()}.${last_name.toLowerCase()}@school.rw`,
+                                grade:           gradeNum,
+                                section:         classLetter,
+                                enrollment_date: new Date().toISOString().split('T')[0],
+                                password:        'Imboni@2025',
+                            })
+                            const list = await getDosStudents()
+                            setStudents((list.results ?? list).map(apiToStudent))
+                        } catch (err) { console.error(err) }
+                    }}
                 />
             )}
         </>

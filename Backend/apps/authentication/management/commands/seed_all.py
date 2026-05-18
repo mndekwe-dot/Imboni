@@ -79,16 +79,42 @@ USERS = [
 ]
 
 SUBJECTS_DATA = [
-    ('MTH', 'Mathematics'),
-    ('ENG', 'English'),
-    ('BIO', 'Biology'),
-    ('CHE', 'Chemistry'),
-    ('PHY', 'Physics'),
-    ('HIS', 'History'),
-    ('GEO', 'Geography'),
-    ('KIN', 'Kinyarwanda'),
-    ('CRE', 'CRE'),
-    ('ICT', 'Computer Science'),
+    # (code, name, category)
+    ('MTH', 'Mathematics',        'Sciences'),
+    ('PHY', 'Physics',            'Sciences'),
+    ('CHE', 'Chemistry',          'Sciences'),
+    ('BIO', 'Biology',            'Sciences'),
+    ('ICT', 'Computer Science',   'Sciences'),
+    ('ENG', 'English',            'Languages'),
+    ('FRE', 'French',             'Languages'),
+    ('KIN', 'Kinyarwanda',        'Languages'),
+    ('HIS', 'History',            'Humanities'),
+    ('GEO', 'Geography',          'Humanities'),
+    ('CRE', 'CRE',                'Humanities'),
+    ('ENT', 'Entrepreneurship',   'Humanities'),
+    ('ECO', 'Economics',          'Social Sciences'),
+    ('GS',  'General Studies',    'Social Sciences'),
+    ('ART', 'Art & Design',       'Arts'),
+    ('MUS', 'Music',              'Arts'),
+]
+
+SCHOOL_SECTIONS = [
+    {
+        'name': 'O-Level',
+        'years': [
+            {'name': 'S1', 'streams': ['A', 'B', 'C']},
+            {'name': 'S2', 'streams': ['A', 'B', 'C']},
+            {'name': 'S3', 'streams': ['A', 'B', 'C']},
+        ]
+    },
+    {
+        'name': 'A-Level',
+        'years': [
+            {'name': 'S4', 'streams': ['MPG', 'PCB', 'MCE']},
+            {'name': 'S5', 'streams': ['MPG', 'PCB', 'MCE']},
+            {'name': 'S6', 'streams': ['MPG', 'PCB', 'HEG']},
+        ]
+    },
 ]
 
 # grade, section, name
@@ -131,12 +157,12 @@ PARENT_LINKS = [
 
 # teacher email, subject code
 TEACHER_SUBJECTS = {
-    'c.umutoni@imboni.rw':      'ENG',
-    'p.rurangwa@imboni.rw':     'MTH',
-    'i.nsabimana@imboni.rw':    'BIO',
-    't.bizimana@imboni.rw':     'CHE',
-    's.uwera@imboni.rw':        'PHY',
-    'j.ntakirutimana@imboni.rw':'HIS',
+    'c.umutoni@imboni.rw':       'ENG',
+    'p.rurangwa@imboni.rw':      'MTH',
+    'i.nsabimana@imboni.rw':     'BIO',
+    't.bizimana@imboni.rw':      'CHE',
+    's.uwera@imboni.rw':         'PHY',
+    'j.ntakirutimana@imboni.rw': 'HIS',
 }
 
 # teacher email -> list of class names they teach
@@ -269,10 +295,32 @@ class Command(BaseCommand):
         self.stdout.write('Creating subjects...')
         Subject = m['Subject']
         subjects = {}
-        for code, name in SUBJECTS_DATA:
-            subj, _ = Subject.objects.get_or_create(code=code, defaults={'name': name, 'is_active': True})
+        for code, name, category in SUBJECTS_DATA:
+            subj, _ = Subject.objects.get_or_create(
+                code=code,
+                defaults={'name': name, 'category': category, 'is_active': True}
+            )
+            # update category if subject already existed without one
+            if subj.category != category:
+                subj.category = category
+                subj.save(update_fields=['category'])
             subjects[code] = subj
         self.stdout.write(self.style.SUCCESS(f'  {len(subjects)} subjects ready'))
+
+        # ── School Sections (new per-year stream format) ───────────────────────
+        self.stdout.write('Creating school sections...')
+        from apps.dos.models import SchoolSection, SchoolSetting
+        SchoolSection.objects.all().delete()
+        for sec in SCHOOL_SECTIONS:
+            SchoolSection.objects.create(name=sec['name'], years=sec['years'])
+        self.stdout.write(self.style.SUCCESS(f'  {len(SCHOOL_SECTIONS)} sections created'))
+
+        # ── School Settings (timezone default) ────────────────────────────────
+        settings = SchoolSetting.get_setting()
+        if not settings.timezone:
+            settings.timezone = 'Africa/Kigali'
+            settings.save()
+        self.stdout.write(self.style.SUCCESS('  School settings ready'))
 
         # ── 4. Classes ─────────────────────────────────────────────────────────
         self.stdout.write('Creating classes...')

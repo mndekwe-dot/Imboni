@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getDosResults, approveResult, rejectResult } from '../../api/dos'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
     PieChart, Pie, Legend, AreaChart, Area,
@@ -404,11 +405,17 @@ export function DosResults() {
     const [viewing,     setViewing]     = useState(null)
     const [activeTerm,  setActiveTerm]  = useState('Term 2')
 
-    function handleApprove(id) {
-        setResults(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' } : r))
+    async function handleApprove(id) {
+        try {
+            await approveResult(id)
+            setResults(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' } : r))
+        } catch (err) { console.error(err) }
     }
-    function handleReject(id) {
-        setResults(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } : r))
+    async function handleReject(id) {
+        try {
+            await rejectResult(id)
+            setResults(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } : r))
+        } catch (err) { console.error(err) }
     }
 
     const statusTabsWithCount = STATUS_TABS.map(t => ({

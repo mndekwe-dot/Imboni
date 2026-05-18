@@ -37,6 +37,14 @@ export const getCurrentTerm = () => client.get("/imboni/results/terms/current/")
 export const getSchoolConfig = () => client.get("/imboni/dos/school-config/");
 export const updateSchoolConfig = (data) => client.put("/imboni/dos/school-config/", data);
 
-// school Setting
+// School Settings
 export const getSchoolSettings    = () => client.get('/imboni/dos/school-settings/')
 export const updateSchoolSettings = (data) => client.patch('/imboni/dos/school-settings/', data)
+
+// Subject Management
+export const getSubjects            = () => client.get('/imboni/dos/subjects/')
+export const createSubject          = (data) => client.post('/imboni/dos/subjects/', data)
+export const updateSubject          = (id, data) => client.patch(`/imboni/dos/subjects/${id}/`, data)
+export const deleteSubject          = (id) => client.delete(`/imboni/dos/subjects/${id}/`)
+export const renameSubjectCategory  = (old_name, new_name) => client.post('/imboni/dos/subject-categories/rename/', { old_name, new_name })
+export const deleteSubjectCategory  = (name) => client.delete('/imboni/dos/subject-categories/delete/', { data: { name } })

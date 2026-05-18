@@ -71,7 +71,13 @@ urlpatterns = [
 
     # ── School Config ────────────────────────────────────────────────────────
     path('dos/school-config/', views.SchoolConfigView.as_view(), name='dos-school-config'),
-    
-    # ── School Setting ────────────────────────────────────────────────────────
+
+    # ── School Settings ───────────────────────────────────────────────────────
     path('dos/school-settings/', views.SchoolSettingsView.as_view(), name='dos-school-settings'),
+
+    # ── Subject Management ────────────────────────────────────────────────────
+    path('dos/subjects/',                        views.SubjectListCreateView.as_view(),    name='dos-subjects'),
+    path('dos/subjects/<uuid:pk>/',              views.SubjectDetailView.as_view(),        name='dos-subject-detail'),
+    path('dos/subject-categories/rename/',       views.SubjectCategoryRenameView.as_view(), name='dos-subject-category-rename'),
+    path('dos/subject-categories/delete/',       views.SubjectCategoryRenameView.as_view(), name='dos-subject-category-delete'),
 ]

@@ -3,21 +3,28 @@ import '../../styles/discipline.css'
 export function ClassPicker({ sections, section, onSectionChange, year, onYearChange, classVal, onClassChange }) {
     const activeSection = sections.find(s => s.name === section)
 
-    // show only years/classes of selected section, otherwise show all
-    const yearOptions  = activeSection
-        ? activeSection.years
-        : [...new Set(sections.flatMap(s => s.years))]
+    const yearOptions = activeSection
+        ? activeSection.years.map(y => y.name)
+        : [...new Set(sections.flatMap(s => s.years.map(y => y.name)))]
 
-    const classOptions = activeSection
-        ? activeSection.classes
-        : [...new Set(sections.flatMap(s => s.streams))]
+    const activeYear = activeSection?.years.find(y => y.name === year)
+    const classOptions = activeYear
+        ? activeYear.streams
+        : year
+            ? [...new Set(sections.flatMap(s => s.years.filter(y => y.name === year).flatMap(y => y.streams)))]
+            : [...new Set(sections.flatMap(s => s.years.flatMap(y => y.streams)))]
 
     const current = [section, year, classVal].filter(Boolean).join(' · ') || 'All Classes'
 
     function handleSectionChange(val) {
         onSectionChange(val)
-        onYearChange('')    // reset year when section changes
-        onClassChange('')   // reset class when section changes
+        onYearChange('')
+        onClassChange('')
+    }
+
+    function handleYearChange(val) {
+        onYearChange(val)
+        onClassChange('')
     }
 
     return (
@@ -31,7 +38,7 @@ export function ClassPicker({ sections, section, onSectionChange, year, onYearCh
             </div>
             <div className="disc-picker-group">
                 <label className="disc-picker-label">Year</label>
-                <select className="disc-picker-select" value={year} onChange={e => onYearChange(e.target.value)}>
+                <select className="disc-picker-select" value={year} onChange={e => handleYearChange(e.target.value)}>
                     <option value="">All Years</option>
                     {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>

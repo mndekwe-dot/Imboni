@@ -10,11 +10,12 @@ class Subject(models.Model):
     Academic subjects/courses
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100)
-    code = models.CharField(max_length=20, unique=True)
-    description = models.TextField(blank=True)
+    name         = models.CharField(max_length=100)
+    code         = models.CharField(max_length=20, unique=True)
+    category     = models.CharField(max_length=100, blank=True, default='')
+    description  = models.TextField(blank=True)
     credit_hours = models.IntegerField(default=1)
-    is_active = models.BooleanField(default=True)
+    is_active    = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
