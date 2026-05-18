@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
+import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade } from '../../api/dos'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -10,18 +12,6 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
-
-const dosStats = [
-    { icon: 'people',          value: '1,245', label: 'Total Students',    trend: '+15 this term',  trendClass: 'positive', colorClass: ''        },
-    { icon: 'school',          value: '85',    label: 'Teaching Staff',    trend: '45 full-time',   trendClass: '',         colorClass: 'warning' },
-    { icon: 'analytics',       value: '78%',   label: 'Avg Performance',   trend: '+3% this term',  trendClass: 'positive', colorClass: 'success' },
-    { icon: 'pending_actions', value: '24',    label: 'Pending Approvals', trend: 'Requires action',trendClass: 'negative', colorClass: 'warning' },
-]
-const recentActivities = [
-    { iconClass: 'success', icon: 'check_circle', title: 'S4A Results Approved', time: '2 hours ago' },
-    { iconClass: 'info',    icon: 'person_add',   title: 'New Teacher Added',        time: '5 hours ago' },
-    { iconClass: 'warning', icon: 'pending',      title: '3 Results Pending Review', time: '1 day ago'   },
-]
 const weeklyTrend = [
     { week: 'Wk 1', attendance: 92, performance: 74 },
     { week: 'Wk 2', attendance: 94, performance: 76 },
@@ -48,15 +38,6 @@ function TrendTooltip({ active, payload, label }) {
         </div>
     )
 }
-
-const gradePerformance = [
-    { grade: 'S1', term1: 68, term2: 71 },
-    { grade: 'S2', term1: 70, term2: 73 },
-    { grade: 'S3', term1: 72, term2: 75 },
-    { grade: 'S4', term1: 74, term2: 78 },
-    { grade: 'S5', term1: 76, term2: 80 },
-    { grade: 'S6', term1: 80, term2: 85 },
-]
 
 function GradeTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null
@@ -110,6 +91,54 @@ function ProgressItem({ label, value, width }) {
 
 export function DosDashboard() {
     const navigate = useNavigate()
+
+    const [stats, setStats] = useState(null)
+    const [activities, setActivities] = useState([])
+    const [gradeData, setGradeData] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        Promise.all([
+            getDosDashboardStats(),
+            getDosRecentActivity(),
+            getDosPerformanceByGrade(),
+        ])
+            .then(([s, a, g]) => {
+                setStats(s)
+                setActivities(a)
+                setGradeData(g)
+            })
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+
+    }, [])
+
+    const dosStats = stats ? [
+        { icon: 'people', value: stats.total_students, label: 'Total Students', trend: `+${stats.new_students} this term`, trendClass: 'positive', colorClass: '' },
+        { icon: 'school', value: stats.teaching_staff, label: 'Teaching Staff', trend: 'active teachers', trendClass: '', colorClass: 'warning' },
+        { icon: 'analytics', value: `${stats.avg_performance}%`, label: 'Avg Performance', trend: `${stats.avg_performance_change >= 0 ? '+' : ''}${stats.avg_performance_change}% this term`, trendClass: stats.avg_performance_change >= 0 ? 'positive' : 'negative', colorClass: 'success' },
+        { icon: 'pending_actions', value: stats.pending_approvals, label: 'Pending Approvals', trend: 'Requires action', trendClass: 'negative', colorClass: 'warning' },
+    ] : []
+
+    const iconMap = {
+        approval: { iconClass: 'success', icon: 'check_circle' },
+        staff: { iconClass: 'info', icon: 'person_add' },
+        pending: { iconClass: 'warning', icon: 'pending' },
+    }
+
+    const recentActivities = activities.map(a => ({
+        iconClass: iconMap[a.activity_type]?.iconClass || 'info',
+        icon: iconMap[a.activity_type]?.icon || 'info',
+        title: a.description,
+        time: a.time_ago,
+    }))
+
+    const gradePerformance = gradeData
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -145,116 +174,116 @@ export function DosDashboard() {
                             </div>
 
                             <div className="cards-grid overview-panel-body">
-                            <div className="card">
-                                <div className="card-header">
-                                    <h2 className="card-title">Quick Actions</h2>
-                                </div>
-                                <div className="card-content">
-                                    <div className="action-buttons">
-                                        <button className="btn btn-primary" onClick={() => navigate('/dos/results')}>
-                                            <span className="material-symbols-rounded">fact_check</span>
-                                            Approve Results
-                                        </button>
-                                        <button className="btn btn-secondary" onClick={() => navigate('/dos/teachers')}>
-                                            <span className="material-symbols-rounded">school</span>
-                                            View Teachers
-                                        </button>
-                                        <button className="btn btn-secondary" onClick={() => navigate('/dos/students')}>
-                                            <span className="material-symbols-rounded">people</span>
-                                            Manage Students
-                                        </button>
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h2 className="card-title">Quick Actions</h2>
+                                    </div>
+                                    <div className="card-content">
+                                        <div className="action-buttons">
+                                            <button className="btn btn-primary" onClick={() => navigate('/dos/results')}>
+                                                <span className="material-symbols-rounded">fact_check</span>
+                                                Approve Results
+                                            </button>
+                                            <button className="btn btn-secondary" onClick={() => navigate('/dos/teachers')}>
+                                                <span className="material-symbols-rounded">school</span>
+                                                View Teachers
+                                            </button>
+                                            <button className="btn btn-secondary" onClick={() => navigate('/dos/students')}>
+                                                <span className="material-symbols-rounded">people</span>
+                                                Manage Students
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="card">
-                                <div className="card-header">
-                                    <h2 className="card-title">Recent Activity</h2>
-                                </div>
-                                <div className="card-content">
-                                    <div className="activity-list">
-                                        {recentActivities.map((item) => (
-                                            <ActivityItem key={item.title} {...item} />
-                                        ))}
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h2 className="card-title">Recent Activity</h2>
+                                    </div>
+                                    <div className="card-content">
+                                        <div className="activity-list">
+                                            {recentActivities.map((item) => (
+                                                <ActivityItem key={item.title} {...item} />
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="card">
-                                <div className="card-header">
-                                    <h2 className="card-title">Term Trend</h2>
-                                    <p className="card-subtitle">Weekly attendance & performance</p>
-                                </div>
-                                <div className="card-content">
-                                    <ResponsiveContainer width="100%" height={185}>
-                                        <AreaChart
-                                            data={weeklyTrend}
-                                            margin={{ top: 6, right: 6, left: -22, bottom: 0 }}
-                                        >
-                                            <defs>
-                                                <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%"  stopColor="#10b981" stopOpacity={0.2} />
-                                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                                </linearGradient>
-                                                <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%"  stopColor="#003d7a" stopOpacity={0.2} />
-                                                    <stop offset="95%" stopColor="#003d7a" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                                            <XAxis
-                                                dataKey="week"
-                                                tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
-                                                axisLine={false}
-                                                tickLine={false}
-                                            />
-                                            <YAxis
-                                                domain={[65, 100]}
-                                                tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
-                                                axisLine={false}
-                                                tickLine={false}
-                                                tickFormatter={v => `${v}%`}
-                                            />
-                                            <Tooltip content={<TrendTooltip />} cursor={{ stroke: 'var(--border)', strokeWidth: 1 }} />
-                                            <Area
-                                                type="monotone"
-                                                dataKey="attendance"
-                                                name="Attendance"
-                                                stroke="#10b981"
-                                                strokeWidth={2}
-                                                fill="url(#attGrad)"
-                                                dot={false}
-                                                activeDot={{ r: 4 }}
-                                            />
-                                            <Area
-                                                type="monotone"
-                                                dataKey="performance"
-                                                name="Performance"
-                                                stroke="#003d7a"
-                                                strokeWidth={2}
-                                                fill="url(#perfGrad)"
-                                                dot={false}
-                                                activeDot={{ r: 4 }}
-                                            />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                    <div className="chart-legend-row">
-                                        {[['#10b981', 'Attendance'], ['#003d7a', 'Performance']].map(([color, label]) => (
-                                            <div key={label} className="chart-legend-item">
-                                                <span className="chart-legend-dot" style={{ background: color }} />
-                                                {label}
-                                            </div>
-                                        ))}
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h2 className="card-title">Term Trend</h2>
+                                        <p className="card-subtitle">Weekly attendance & performance</p>
+                                    </div>
+                                    <div className="card-content">
+                                        <ResponsiveContainer width="100%" height={185}>
+                                            <AreaChart
+                                                data={weeklyTrend}
+                                                margin={{ top: 6, right: 6, left: -22, bottom: 0 }}
+                                            >
+                                                <defs>
+                                                    <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                    </linearGradient>
+                                                    <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#003d7a" stopOpacity={0.2} />
+                                                        <stop offset="95%" stopColor="#003d7a" stopOpacity={0} />
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                                <XAxis
+                                                    dataKey="week"
+                                                    tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                />
+                                                <YAxis
+                                                    domain={[65, 100]}
+                                                    tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                    tickFormatter={v => `${v}%`}
+                                                />
+                                                <Tooltip content={<TrendTooltip />} cursor={{ stroke: 'var(--border)', strokeWidth: 1 }} />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="attendance"
+                                                    name="Attendance"
+                                                    stroke="#10b981"
+                                                    strokeWidth={2}
+                                                    fill="url(#attGrad)"
+                                                    dot={false}
+                                                    activeDot={{ r: 4 }}
+                                                />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="performance"
+                                                    name="Performance"
+                                                    stroke="#003d7a"
+                                                    strokeWidth={2}
+                                                    fill="url(#perfGrad)"
+                                                    dot={false}
+                                                    activeDot={{ r: 4 }}
+                                                />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                        <div className="chart-legend-row">
+                                            {[['#10b981', 'Attendance'], ['#003d7a', 'Performance']].map(([color, label]) => (
+                                                <div key={label} className="chart-legend-item">
+                                                    <span className="chart-legend-dot" style={{ background: color }} />
+                                                    {label}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         </div>{/* end outer container */}
 
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">Performance by Grade</h2>
-                                <p className="card-subtitle">Term 1 vs Term 2 — average scores across all grades</p>
+                                <p className="card-subtitle">Average score per grade — current term</p>
                             </div>
                             <div className="card-content">
                                 <ResponsiveContainer width="100%" height={260}>
@@ -284,8 +313,7 @@ export function DosDashboard() {
                                             iconSize={10}
                                             wrapperStyle={{ fontSize: '0.78rem', paddingTop: '0.75rem' }}
                                         />
-                                        <Bar dataKey="term1" name="Term 1" fill="#93c5fd" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                                        <Bar dataKey="term2" name="Term 2" fill="#003d7a" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                                        <Bar dataKey="avg_score" name="Avg Score" fill="#003d7a" radius={[4, 4, 0, 0]} maxBarSize={32} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
