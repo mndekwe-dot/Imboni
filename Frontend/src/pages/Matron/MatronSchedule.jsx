@@ -5,6 +5,8 @@ import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 
 
 const scheduleStats = [
@@ -117,6 +119,7 @@ function WeekendRow({ time, label, isBreak, breakText, sat, sun }) {
 }
 
 export function MatronSchedule() {
+    const { setting } = useSchoolSettings()
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -133,7 +136,7 @@ export function MatronSchedule() {
                             <p>Timetable sent by the Discipline Master &mdash; Karisimbi House</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <button className="notification-btn">
                                 <span className="material-symbols-rounded">notifications</span>
                                 <span className="notification-badge">1</span>
@@ -154,7 +157,7 @@ export function MatronSchedule() {
                             <span className="material-symbols-rounded" style={{ fontSize: '1.5rem' }}>verified</span>
                             <div>
                                 <div className="banner-title">Schedule issued by Mr. E. Mutabazi &mdash; Director of Discipline</div>
-                                <div className="banner-sub">Last updated: Monday, March 09, 2026 &middot; Term 1, Week 9 &middot; Read-only &mdash; contact Discipline Master to request changes</div>
+                                <div className="banner-sub">Last updated: {formatSchoolDate(setting.timezone)} &middot; Term 1, Week 9 &middot; Read-only &mdash; contact Discipline Master to request changes</div>
                             </div>
                         </div>
 

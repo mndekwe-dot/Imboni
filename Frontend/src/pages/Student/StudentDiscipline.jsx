@@ -5,6 +5,8 @@ import '../../styles/components.css'
 import '../../styles/student.css'
 import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 
 
 const conductStats = [
@@ -126,6 +128,7 @@ function ConductCategory({ cardClass, iconClass, icon, title, rules }) {
 }
 
 export function StudentDiscipline() {
+    const { setting } = useSchoolSettings()
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -140,7 +143,7 @@ export function StudentDiscipline() {
                             <p>School rules, your discipline record &amp; appeals</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
                                     <span className="header-user-name">Uwase Amina</span>

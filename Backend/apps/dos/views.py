@@ -34,8 +34,9 @@ from .serializers import (
     DOSResultSerializer,
     ExamScheduleSerializer,
     SchoolSectionSerializer,
+    SchoolSettingSerializer,
 )
-from .models import ExamSchedule, SchoolSection
+from .models import ExamSchedule, SchoolSection,SchoolSetting
 
 
 # ---------------------------------------------------------------------------
@@ -1534,3 +1535,26 @@ class SchoolConfigView(APIView):
             else:
                 return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
         return Response(created)
+    
+# ---------------------------------------------------------------------------
+# School Settings
+# ---------------------------------------------------------------------------
+
+class SchoolSettingsView(APIView):
+    """
+    GET   /imboni/dos/school-settings/  — return timezone and school name
+    PATCH /imboni/dos/school-settings/  — update timezone or school name
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self, request):
+        settings = SchoolSetting.get_setting()
+        return Response(SchoolSettingSerializer(settings).data)
+
+    def patch(self, request):
+        settings = SchoolSetting.get_setting()
+        serializer = SchoolSettingSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)

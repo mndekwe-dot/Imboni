@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import SchoolSection
+from zoneinfo import ZoneInfo,ZoneInfoNotFoundError
+from .models import SchoolSection,SchoolSetting
 
 
 class DOSDashboardStatsSerializer(serializers.Serializer):
@@ -258,3 +259,15 @@ class SchoolSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolSection
         fields = ['id', 'name', 'years', 'streams', 'is_active', 'academic_term']
+
+class SchoolSettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolSetting
+        fields = ['timezone','school_name']
+
+    def validate_timezone(self, value):
+        try:
+            ZoneInfo(value)
+        except (ZoneInfoNotFoundError,KeyError):
+            raise serializers.ValidationError(f"'{value}' is not a valid timezone.")
+        return value

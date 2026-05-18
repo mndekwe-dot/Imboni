@@ -59,3 +59,18 @@ class SchoolSection(models.Model):
 
     def __str__(self):
         return self.name
+    
+class SchoolSetting(models.Model):
+    timezone = models.CharField(max_length=50 ,default='Africa/Kigali')
+    school_name = models.CharField(max_length=100,blank=True,default='')
+
+    class Meta:
+        db_table= 'school_setting'
+
+    @classmethod
+    def get_setting(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+    
+    def __str__(self):
+        return f"School Setting (timezone: {self.timezone})"

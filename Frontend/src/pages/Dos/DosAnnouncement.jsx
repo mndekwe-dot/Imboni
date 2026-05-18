@@ -5,6 +5,8 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 
 
 const recentBroadcasts = [
@@ -44,6 +46,7 @@ function BroadcastItem({ avatar, avatarClass, title, sentTo, time, badgeClass, b
 }
 
 export function DosAnnouncement() {
+    const { setting } = useSchoolSettings()
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -60,7 +63,7 @@ export function DosAnnouncement() {
                             <p>Compose and broadcast school-wide announcements</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
                                     <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>

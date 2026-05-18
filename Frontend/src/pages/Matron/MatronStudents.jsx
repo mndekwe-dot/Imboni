@@ -10,6 +10,8 @@ import '../../styles/matron.css'
 import '../../styles/pages.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 
 
 const students = [
@@ -73,6 +75,7 @@ function StudentRow({ initials, name, id, year, classLetter, classBadge, room, d
 
 export function MatronStudents() {
     const { config } = useSchoolConfig()
+    const { setting } = useSchoolSettings()
     const [section, setSection] = useState('')
     const [year, setYear] = useState('')
     const [classVal, setClassVal] = useState('')
@@ -106,7 +109,7 @@ export function MatronStudents() {
                             <p>Karisimbi House &mdash; 10 students</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <button className="notification-btn">
                                 <span className="material-symbols-rounded">notifications</span>
                                 <span className="notification-badge">2</span>

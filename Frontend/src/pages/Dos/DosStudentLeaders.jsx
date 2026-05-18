@@ -7,6 +7,8 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 
 
 const leaderStats = [
@@ -173,6 +175,7 @@ function HouseCaptainRow({ initials, name, house, form, since, editMode, onEdit,
 }
 
 export function DosStudentLeaders() {
+    const { setting } = useSchoolSettings()
     const [prefectList,    setPrefectList]    = useState(prefects)
     const [captainList,    setCaptainList]    = useState(houseCaptains)
     const [showAppoint,    setShowAppoint]    = useState(false)
@@ -214,7 +217,7 @@ export function DosStudentLeaders() {
                             <p>Appoint and manage school prefects, house captains, and club leaders</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 09, 2026</span>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <button className="btn btn-primary" onClick={() => setShowAppoint(true)}>
                                 <span className="material-symbols-rounded">add</span> Appoint Leader
                             </button>
