@@ -10,7 +10,7 @@ export function ClassPicker({ sections, section, onSectionChange, year, onYearCh
 
     const classOptions = activeSection
         ? activeSection.classes
-        : [...new Set(sections.flatMap(s => s.classes))]
+        : [...new Set(sections.flatMap(s => s.streams))]
 
     const current = [section, year, classVal].filter(Boolean).join(' · ') || 'All Classes'
 

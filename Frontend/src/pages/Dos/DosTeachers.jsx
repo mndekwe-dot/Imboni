@@ -100,9 +100,9 @@ function FormSelect({ value, onChange, options, placeholder }) {
 // ── Unified Add / Edit Teacher Modal (details + class assignment) ─────────────
 function TeacherModal({ teacher, config, onClose, onSave }) {
     const isEdit   = !!teacher
-    const sections = config.sections ?? []
+    const sections = config ?? []
     const noConfig = sections.length === 0 ||
-        sections.every(s => s.years.length === 0 || s.classes.length === 0)
+        sections.every(s => s.years.length === 0 || s.streams.length === 0)
 
     const [form, setForm] = useState(
         isEdit
@@ -132,7 +132,7 @@ function TeacherModal({ teacher, config, onClose, onSave }) {
     }
 
     function toggleSection(sec) {
-        const sectionClasses = sec.years.flatMap(y => sec.classes.map(s => `${y}${s}`))
+        const sectionClasses = sec.years.flatMap(y => sec.streams.map(s => `${y}${s}`))
         const allOn = sectionClasses.every(c => selected.has(c))
         setSelected(prev => {
             const next = new Set(prev)
@@ -209,7 +209,7 @@ function TeacherModal({ teacher, config, onClose, onSave }) {
             ) : (
                 <>
                     {sections.map(sec => {
-                        const sectionClasses = sec.years.flatMap(y => sec.classes.map(s => `${y}${s}`))
+                        const sectionClasses = sec.years.flatMap(y => sec.streams.map(s => `${y}${s}`))
                         const allSectionOn   = sectionClasses.length > 0 && sectionClasses.every(c => selected.has(c))
                         return (
                             <div key={sec.name} className="assign-section">
@@ -220,18 +220,18 @@ function TeacherModal({ teacher, config, onClose, onSave }) {
                                     </button>
                                 </div>
                                 {sec.years.map(year => {
-                                    const allYearOn = sec.classes.length > 0 &&
-                                        sec.classes.map(s => `${year}${s}`).every(c => selected.has(c))
+                                    const allYearOn = sec.streams.length > 0 &&
+                                        sec.streams.map(s => `${year}${s}`).every(c => selected.has(c))
                                     return (
                                         <div key={year} className="assign-year-row">
                                             <button type="button"
                                                 className={`assign-year-lbl${allYearOn ? ' active' : ''}`}
-                                                onClick={() => toggleYear(year, sec.classes)}
+                                                onClick={() => toggleYear(year, sec.streams)}
                                                 title={`Toggle all ${year} classes`}>
                                                 {year}
                                             </button>
                                             <div className="assign-stream-group">
-                                                {sec.classes.map(stream => {
+                                                {sec.streams.map(stream => {
                                                     const cls = `${year}${stream}`
                                                     return (
                                                         <button key={stream} type="button" onClick={() => toggle(cls)}

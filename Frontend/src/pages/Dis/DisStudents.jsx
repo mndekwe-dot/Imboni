@@ -178,7 +178,7 @@ export function DisStudents() {
                         {activeTab === 'students' && (
                             <>
                                 <ClassPicker
-                                    sections={config.sections}
+                                    sections={config}
                                     section={section} onSectionChange={setSection}
                                     year={year} onYearChange={setYear}
                                     classVal={classVal} onClassChange={setClassVal}
