@@ -1,18 +1,12 @@
+import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { useState } from 'react'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
-import { DashboardContent } from '../../components/layout/DashboardContent'
-
-const settingsStats = [
-    { iconClass: 'info',    icon: 'layers',         label: 'Sections'       },
-    { iconClass: 'success', icon: 'calendar_month', label: 'Year Groups'    },
-    { iconClass: 'warning', icon: 'groups',         label: 'Stream Classes' },
-]
+import { disNavItems, disSecondaryItems, disUser } from './disNav'
 
 function TagList({ items, onRemove }) {
     return (
@@ -67,50 +61,82 @@ function ConfigSection({ title, description, items, onAdd, onRemove, placeholder
 }
 
 export function DisSettings() {
-    const { config, saveConfig } = useSchoolConfig()
+    const { config, saveConfig, loading, error } = useSchoolConfig()
+    const [saving, setSaving] = useState(false)
+    const [saved,  setSaved]  = useState(false)
 
-    // computed outside render loop
-    const totalClasses = config.sections.reduce((sum, sec) => sum + sec.classes.length, 0)
-    const statCounts   = [config.sections.length, config.years.length, totalClasses]
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+
+    if (config.length === 0) return (
+        <div className="dashboard-layout">
+            <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
+            <main className="dashboard-main">
+                <DashboardHeader
+                    title="Portal Settings"
+                    subtitle="Configure school structure"
+                    {...disUser}
+                />
+                <DashboardContent>
+                    <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
+                        <p>No school structure configured yet.</p>
+                        <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>
+                            The DOS must configure the school structure first.
+                        </p>
+                    </div>
+                </DashboardContent>
+            </main>
+        </div>
+    )
+
+    const totalYears   = config.reduce((sum, sec) => sum + sec.years.length,   0)
+    const totalStreams  = config.reduce((sum, sec) => sum + sec.streams.length, 0)
+
+    const settingsStats = [
+        { iconClass: 'info',    icon: 'layers',         label: 'Sections',       value: config.length },
+        { iconClass: 'success', icon: 'calendar_month', label: 'Year Groups',    value: totalYears    },
+        { iconClass: 'warning', icon: 'groups',         label: 'Stream Classes', value: totalStreams  },
+    ]
+
+    function updateSection(sectionName, field, updatedArray) {
+        const updated = config.map(s =>
+            s.name === sectionName ? { ...s, [field]: updatedArray } : s
+        )
+        saveConfig(updated)
+    }
+
+    function addToSection(sectionName, field, val) {
+        const sec = config.find(s => s.name === sectionName)
+        if (!sec || sec[field].includes(val)) return
+        updateSection(sectionName, field, [...sec[field], val])
+    }
+
+    function removeFromSection(sectionName, field, val) {
+        const sec = config.find(s => s.name === sectionName)
+        if (!sec) return
+        updateSection(sectionName, field, sec[field].filter(v => v !== val))
+    }
 
     function addSection(name) {
-        if (config.sections.find(s => s.name === name)) return
-        saveConfig({ ...config, sections: [...config.sections, { name, classes: [] }] })
+        if (config.find(s => s.name === name)) return
+        saveConfig([...config, { name, years: [], streams: [] }])
     }
 
     function removeSection(name) {
-        saveConfig({ ...config, sections: config.sections.filter(s => s.name !== name) })
+        saveConfig(config.filter(s => s.name !== name))
     }
 
-    function addClassToSection(sectionName, className) {
-        saveConfig({
-            ...config,
-            sections: config.sections.map(s =>
-                s.name === sectionName && !s.classes.includes(className)
-                    ? { ...s, classes: [...s.classes, className] }
-                    : s
-            )
-        })
-    }
-
-    function removeClassFromSection(sectionName, className) {
-        saveConfig({
-            ...config,
-            sections: config.sections.map(s =>
-                s.name === sectionName
-                    ? { ...s, classes: s.classes.filter(c => c !== className) }
-                    : s
-            )
-        })
-    }
-
-    function addYear(val) {
-        if (config.years.includes(val)) return
-        saveConfig({ ...config, years: [...config.years, val] })
-    }
-
-    function removeYear(val) {
-        saveConfig({ ...config, years: config.years.filter(y => y !== val) })
+    async function handleSave() {
+        setSaving(true)
+        try {
+            await saveConfig(config)
+            setSaved(true)
+            setTimeout(() => setSaved(false), 3000)
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setSaving(false)
+        }
     }
 
     return (
@@ -123,75 +149,73 @@ export function DisSettings() {
                     <DashboardHeader
                         title="Portal Settings"
                         subtitle="Configure school structure — sections, year groups and stream classes"
+                        {...disUser}
                     />
 
                     <DashboardContent>
                         <div className="disc-stat-grid mb-1-5">
-                            {settingsStats.map((s, i) => (
-                                <div key={i} className="disc-stat-card">
+                            {settingsStats.map(s => (
+                                <div key={s.label} className="disc-stat-card">
                                     <div className={`disc-stat-icon ${s.iconClass}`}>
                                         <span className="material-symbols-rounded">{s.icon}</span>
                                     </div>
                                     <div>
-                                        <div className="disc-stat-value">{statCounts[i]}</div>
+                                        <div className="disc-stat-value">{s.value}</div>
                                         <div className="disc-stat-label">{s.label}</div>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="card mb-1-5">
-                            <div className="card-header">
-                                <h2 className="card-title">Year Groups</h2>
-                                <span className="settings-info-text">Year or grade levels in your school</span>
-                            </div>
-                            <div className="card-content">
-                                <ConfigSection
-                                    title="Year Groups"
-                                    description="e.g. S1, S2, S3 or Grade 7, Grade 8"
-                                    items={config.years}
-                                    onAdd={addYear}
-                                    onRemove={removeYear}
-                                    placeholder="e.g. S1"
-                                />
-                            </div>
-                        </div>
-
                         <div className="card">
                             <div className="card-header">
-                                <h2 className="card-title">Sections &amp; Classes</h2>
-                                <span className="settings-info-text">Each section has its own class streams</span>
+                                <h2 className="card-title">Sections, Years &amp; Classes</h2>
+                                <span className="settings-info-text">Each section has its own year groups and stream classes</span>
                             </div>
                             <div className="card-content">
                                 <ConfigSection
                                     title="Add Section"
                                     description="Academic divisions e.g. O-Level, A-Level"
-                                    items={config.sections.map(s => s.name)}
+                                    items={config.map(s => s.name)}
                                     onAdd={addSection}
                                     onRemove={removeSection}
                                     placeholder="e.g. O-Level"
                                 />
 
-                                {config.sections.length > 0 && (
+                                {config.length > 0 && (
                                     <div className="settings-border-section">
-                                        <p className="settings-border-title">Classes per Section</p>
-                                        {config.sections.map(sec => (
-                                            <ConfigSection
-                                                key={sec.name}
-                                                title={sec.name}
-                                                description={`Stream classes for ${sec.name}`}
-                                                items={sec.classes}
-                                                onAdd={val => addClassToSection(sec.name, val)}
-                                                onRemove={val => removeClassFromSection(sec.name, val)}
-                                                placeholder="e.g. A or MPG"
-                                            />
+                                        {config.map(sec => (
+                                            <div key={sec.name} className="sec-config-block">
+                                                <p className="sec-config-block-title">{sec.name}</p>
+                                                <ConfigSection
+                                                    title="Year Groups"
+                                                    description={`e.g. S1, S2 for ${sec.name}`}
+                                                    items={sec.years}
+                                                    onAdd={val => addToSection(sec.name, 'years', val)}
+                                                    onRemove={val => removeFromSection(sec.name, 'years', val)}
+                                                    placeholder="e.g. S1"
+                                                />
+                                                <ConfigSection
+                                                    title="Stream Classes"
+                                                    description={`e.g. A, B or MPG, PCB for ${sec.name}`}
+                                                    items={sec.streams}
+                                                    onAdd={val => addToSection(sec.name, 'streams', val)}
+                                                    onRemove={val => removeFromSection(sec.name, 'streams', val)}
+                                                    placeholder="e.g. A or MPG"
+                                                />
+                                            </div>
                                         ))}
                                     </div>
                                 )}
 
                                 <div className="cloud-save-row">
-                                    <span className="material-symbols-rounded cloud-save-icon">cloud_done</span>
-                                    <span className="settings-info-text">Changes are saved automatically</span>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={handleSave}
+                                        disabled={saving}
+                                    >
+                                        {saved ? 'Saved!' : saving ? 'Saving...' : 'Save to Database'}
+                                    </button>
                                 </div>
                             </div>
                         </div>

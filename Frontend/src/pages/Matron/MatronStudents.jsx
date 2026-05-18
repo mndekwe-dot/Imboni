@@ -124,7 +124,7 @@ export function MatronStudents() {
                     <DashboardContent>
 
                         <ClassPicker
-                            sections={config.sections}
+                            sections={config}
                             section={section} onSectionChange={setSection}
                             year={year} onYearChange={setYear}
                             classVal={classVal} onClassChange={setClassVal}
