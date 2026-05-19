@@ -1646,3 +1646,37 @@ class SubjectCategoryRenameView(APIView):
             return Response({'detail': 'name is required.'}, status=http_status.HTTP_400_BAD_REQUEST)
         deleted, _ = Subject.objects.filter(category=name).delete()
         return Response({'deleted': deleted})
+    
+class TeacherClassesView(APIView):
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self, request, pk):
+        from apps.teacher.models import TeacherClassList
+        names = TeacherClassList.objects.filter(
+            teacher_id=pk
+        ).values_list('class_name', flat=True)
+        return Response({'classes': list(names)})
+
+    def patch(self, request, pk):
+        from apps.teacher.models import TeacherClassList
+        class_names = request.data.get('classes', [])
+        TeacherClassList.objects.filter(teacher_id=pk).delete()
+        for name in class_names:
+            TeacherClassList.objects.create(teacher_id=pk, class_name=name)
+        return Response({'classes': class_names})
+
+
+class TeacherDetailView(APIView):
+    permission_classes = [IsDOSOrAdmin]
+
+    def patch(self, request, pk):
+        try:
+            teacher = User.objects.get(pk=pk, role='teacher')
+        except User.DoesNotExist:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        
+        for field in ('first_name', 'last_name', 'employment_type'):
+            if field in request.data:
+                setattr(teacher, field, request.data[field])
+        teacher.save()
+        return Response({'detail': 'Updated.'})

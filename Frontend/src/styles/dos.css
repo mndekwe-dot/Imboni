@@ -2443,7 +2443,8 @@ body.tm-panel-open { overflow: hidden; }
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 300;
   min-width: 160px;
-  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
 }
 .inline-select-opt {
   display: block;
@@ -2486,7 +2487,8 @@ body.tm-panel-open { overflow: hidden; }
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 300;
-  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
 }
 .form-select-opt {
   display: block;

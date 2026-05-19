@@ -80,4 +80,11 @@ urlpatterns = [
     path('dos/subjects/<uuid:pk>/',              views.SubjectDetailView.as_view(),        name='dos-subject-detail'),
     path('dos/subject-categories/rename/',       views.SubjectCategoryRenameView.as_view(), name='dos-subject-category-rename'),
     path('dos/subject-categories/delete/',       views.SubjectCategoryRenameView.as_view(), name='dos-subject-category-delete'),
+
+    # ClassLists
+    path('dos/teachers/<uuid:pk>/classes/', views.TeacherClassesView.as_view(), name='dos-teacher-classes'),
+    path('dos/teachers/<uuid:pk>/', views.TeacherDetailView.as_view(), name='dos-teacher-detail'),
+
+
 ]
+

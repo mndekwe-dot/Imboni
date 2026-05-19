@@ -2262,7 +2262,8 @@
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 300;
-  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
 }
 .form-select-opt {
   display: block;
@@ -2456,7 +2457,7 @@
 
 /* ── Class filter dropdown ── */
 .class-dd-wrap { position: relative; }
-.class-dd-menu { position: absolute; top: calc(100% + 6px); right: 0; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 200; min-width: 140px; overflow: hidden; }
+.class-dd-menu { position: absolute; top: calc(100% + 6px); right: 0; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 200; min-width: 140px; max-height: 220px; overflow-y: auto; }
 .class-dd-opt { display: block; width: 100%; text-align: left; padding: 0.55rem 1rem; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 400; background: transparent; color: var(--foreground); }
 .class-dd-opt:hover:not(.active) { background: var(--muted); }
 .class-dd-opt.active { background: var(--primary); color: white; font-weight: 600; }

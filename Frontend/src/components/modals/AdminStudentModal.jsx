@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import '../../styles/components.css'
-
-const CLASSES = ['S1A', 'S1B', 'S1C', 'S2A', 'S2B', 'S2C', 'S3A', 'S3B', 'S4A', 'S4B', 'S5A', 'S5B', 'S6A', 'S6B']
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { classesFromConfig } from '../../utils/classes'
 const HOUSES  = ['Kigoma', 'Qatar', 'Europe', 'Samiyonga']
 const FEE_STATUSES = ['Paid', 'Partial', 'Overdue']
 const STATUSES     = ['Active', 'On Leave', 'Deferred']
 
 export function AdminStudentModal({ student, onClose, onSave, readOnly = false }) {
+    const { config } = useSchoolConfig()
+    const allClasses = classesFromConfig(config)
     const isEditing = !!student
     const title = readOnly ? 'Student Details' : isEditing ? 'Edit Student' : 'Admit Student'
 
@@ -89,7 +91,7 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
                         <div className="form-group">
                             <label className="form-label">Class</label>
                             <select className="form-input" name="class" value={form.class} onChange={handleChange} disabled={readOnly}>
-                                {CLASSES.map(c => <option key={c}>{c}</option>)}
+                                {allClasses.map(c => <option key={c}>{c}</option>)}
                             </select>
                         </div>
                         <div className="form-group">

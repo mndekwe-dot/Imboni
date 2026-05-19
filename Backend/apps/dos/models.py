@@ -74,3 +74,4 @@ class SchoolSetting(models.Model):
     
     def __str__(self):
         return f"School Setting (timezone: {self.timezone})"
+            

@@ -10,6 +10,8 @@ import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { classesFromConfig } from '../../utils/classes'
 
 
 const leaderStats = [
@@ -38,14 +40,14 @@ const houseCaptains = [
 
 const PREFECT_ROLES  = ['Head Girl','Head Boy','Deputy Head Girl','Deputy Head Boy','Academics Prefect','Games Prefect','Discipline Prefect','Health Prefect']
 const CAPTAIN_HOUSES = ['Karisimbi','Muhabura','Bisoke','Sabyinyo']
-const LEADER_YEARS   = ['S1A','S1B','S1C','S2A','S2B','S2C','S3A','S3B','S3C','S4A','S4B','S4C','S5A','S5B','S5C','S6A','S6B','S6C']
+// classes come from DOS settings — injected as prop
 
 function getRoleTag(role) {
     if (role.includes('Deputy')) return 'deputy'
     return 'prefect'
 }
 
-function LeaderFormModal({ leader, onClose, onSave }) {
+function LeaderFormModal({ leader, onClose, onSave, allClasses }) {
     const isEdit = !!leader
     const [type,   setType]   = useState(leader?.type   || 'prefect')
     const [name,   setName]   = useState(leader?.name   || '')
@@ -108,7 +110,7 @@ function LeaderFormModal({ leader, onClose, onSave }) {
                         <div className="form-group">
                             <label className="form-label">Class / Form</label>
                             <select className="form-input" value={form} onChange={e => setForm(e.target.value)}>
-                                {LEADER_YEARS.map(y => <option key={y}>{y}</option>)}
+                                {allClasses.map(y => <option key={y}>{y}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
@@ -177,6 +179,8 @@ function HouseCaptainRow({ initials, name, house, form, since, editMode, onEdit,
 
 export function DosStudentLeaders() {
     const { setting } = useSchoolSettings()
+    const { config }  = useSchoolConfig()
+    const allClasses  = classesFromConfig(config)
     const [apiLeaders,     setApiLeaders]     = useState([])
     const [prefectList,    setPrefectList]    = useState(prefects)
     const [captainList,    setCaptainList]    = useState(houseCaptains)
@@ -328,6 +332,7 @@ export function DosStudentLeaders() {
                 <LeaderFormModal
                     onClose={() => setShowAppoint(false)}
                     onSave={data => { handleAppoint(data); setShowAppoint(false) }}
+                    allClasses={allClasses}
                 />
             )}
             {editLeader && (
@@ -335,6 +340,7 @@ export function DosStudentLeaders() {
                     leader={{ ...editLeader.data, type: editLeader.type }}
                     onClose={() => setEditLeader(null)}
                     onSave={handleEditSave}
+                    allClasses={allClasses}
                 />
             )}
         </>

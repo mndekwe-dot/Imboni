@@ -15,6 +15,8 @@ export const getDosTeachers = (params) => client.get("/imboni/dos/teachers/", { 
 export const getDosTeacherStats = () => client.get("/imboni/dos/teachers/stats/");
 export const createDosTeacher = (data) => client.post("/imboni/dos/teachers/", data);
 export const updateDosTeacher = (id, data) => client.patch(`/imboni/dos/teachers/${id}/`, data);
+export const getDosTeacherClasses = (id) => client.get(`/imboni/dos/teachers/${id}/classes/`)
+export const assignDosTeacherClasses = (id, classes) => client.patch(`/imboni/dos/teachers/${id}/classes/`, { classes })
 
 //  Results 
 export const getDosResults = (params) => client.get("/imboni/dos/results/", { params });
