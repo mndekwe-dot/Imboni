@@ -15,113 +15,112 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const resultStats = [
-    { colorClass: 'warning', icon: 'pending',      trend: 'Requires review',  value: '24',  label: 'Pending Approval' },
-    { colorClass: 'success', icon: 'check_circle', trend: 'This term',        value: '156', label: 'Approved'         },
-    { colorClass: 'danger',  icon: 'cancel',       trend: 'Needs correction', value: '8',   label: 'Rejected'         },
-    { colorClass: 'info',    icon: 'analytics',    trend: 'Average',          value: '87%', label: 'Approval Rate'    },
-]
+const STATUS_MAP = { submitted: 'pending', approved: 'approved', rejected: 'rejected' }
 
-const allResults = [
-    {
-        id: 1, title: 'S4A - Mathematics Mid-Term', submittedBy: 'Mr. Pacifique Rurangwa',
-        date: 'Feb 8, 2026', students: 32, avg: '85%', highest: 94, lowest: 61, status: 'pending',
-        maxScore: 100, examType: 'Mid-Term Exam', subject: 'Mathematics', class: 'S4A',
-        questionPaper: { name: 'S4A_Mathematics_MidTerm_2026.pdf', size: '1.2 MB', pages: 4, uploadedAt: 'Feb 8, 2026 · 07:45 AM' },
-        studentMarks: [
-            { id:'STU-001', name:'Uwase Amina',        score:92, grade:'A' },
-            { id:'STU-002', name:'Mutabazi Kevin',      score:78, grade:'B' },
-            { id:'STU-003', name:'Hakizimana Grace',    score:94, grade:'A' },
-            { id:'STU-004', name:'Ingabire Marie',      score:85, grade:'A' },
-            { id:'STU-005', name:'Nkurunziza Peter',    score:61, grade:'D' },
-            { id:'STU-006', name:'Bizimana James',      score:88, grade:'A' },
-            { id:'STU-007', name:'Umutoni Diane',       score:74, grade:'B' },
-            { id:'STU-008', name:'Rugamba Patrick',     score:83, grade:'A' },
-        ],
-    },
-    {
-        id: 2, title: 'S3B - English Language', submittedBy: 'Mr. Fidèle Hakizimana',
-        date: 'Feb 7, 2026', students: 28, avg: '78%', highest: 88, lowest: 54, status: 'pending',
-        maxScore: 100, examType: 'End-Term Exam', subject: 'English', class: 'S3B',
-        questionPaper: { name: 'S3B_English_EndTerm_2026.pdf', size: '0.8 MB', pages: 3, uploadedAt: 'Feb 7, 2026 · 08:10 AM' },
-        studentMarks: [
-            { id:'STU-011', name:'Bizimana Norbert',    score:88, grade:'A' },
-            { id:'STU-012', name:'Rugamba Patrick',     score:76, grade:'B' },
-            { id:'STU-013', name:'Niyonzima Kevin',     score:54, grade:'F' },
-            { id:'STU-014', name:'Kayitesi Alice',      score:82, grade:'A' },
-            { id:'STU-015', name:'Tuyisenge Nina',      score:71, grade:'B' },
-            { id:'STU-016', name:'Rukundo Marc',        score:68, grade:'C' },
-        ],
-    },
-    {
-        id: 3, title: 'S2A - Biology Practical', submittedBy: 'Dr. Immaculée Nsabimana',
-        date: 'Feb 6, 2026', students: 30, avg: '82%', highest: 97, lowest: 58, status: 'pending',
-        maxScore: 50, examType: 'Practical Exam', subject: 'Biology', class: 'S2A',
-        questionPaper: { name: 'S2A_Biology_Practical_Feb2026.pdf', size: '2.1 MB', pages: 6, uploadedAt: 'Feb 6, 2026 · 06:55 AM' },
-        studentMarks: [
-            { id:'STU-021', name:'Mugisha Jean',        score:45, grade:'A' },
-            { id:'STU-022', name:'Kayitesi Alice',      score:38, grade:'B' },
-            { id:'STU-023', name:'Nzeyimana Eric',      score:48, grade:'A' },
-            { id:'STU-024', name:'Akimana Claire',      score:29, grade:'D' },
-            { id:'STU-025', name:'Bagirishya Henri',    score:42, grade:'B' },
-        ],
-    },
-    { id: 4, title: 'S1B - History Essay',     submittedBy: 'Mr. Jean Ntakirutimana', date: 'Feb 4, 2026',  students: 27, avg: '74%', highest: 91, lowest: 50, status: 'approved', maxScore: 40,  examType: 'Essay',         subject: 'History',   class: 'S1B', questionPaper: { name: 'S1B_History_Essay_2026.pdf',       size: '0.5 MB', pages: 2, uploadedAt: 'Feb 4, 2026 · 09:00 AM' }, studentMarks: [] },
-    { id: 5, title: 'S5A - Chemistry CAT 2',   submittedBy: 'Mr. Eric Bizimana',      date: 'Feb 3, 2026',  students: 25, avg: '79%', highest: 95, lowest: 55, status: 'approved', maxScore: 50,  examType: 'CAT',           subject: 'Chemistry', class: 'S5A', questionPaper: { name: 'S5A_Chemistry_CAT2_2026.pdf',      size: '1.0 MB', pages: 3, uploadedAt: 'Feb 3, 2026 · 07:30 AM' }, studentMarks: [] },
-    { id: 6, title: 'S6B - Physics End-Term',  submittedBy: 'Ms. Sandrine Uwera',     date: 'Jan 30, 2026', students: 22, avg: '71%', highest: 89, lowest: 48, status: 'rejected', maxScore: 100, examType: 'End-Term Exam', subject: 'Physics',   class: 'S6B', questionPaper: null, studentMarks: [] },
-]
+function groupResults(raw) {
+    const map = {}
+
+    raw.forEach(r => {
+        //Build the class name from grade and section: Grade=4 , section=A => "S1A"
+        const cls = `S${r.grade}${r.section}`
+        //Translate backend status to display status
+        const status = STATUS_MAP[r.status] || r.status
+        // Unique key per card: same class + subject +status = same card
+        const key = `${cls}-${r.subject}-${status}`
+
+        //if This is the first student we see for this group , create the card
+        if (!map[key]) {
+            map[key] = {
+                key,          // used later to identify which card to update
+                ids: [],  // collect all result IDs in this group (needed for bulk approve/reject)
+                title: `${cls} - ${r.subject}`,
+                submittedBy: r.teacher || '—',
+                date: r.submitted_at
+                    ? new Date(r.submitted_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                    : '—',
+                subject: r.subject,
+                class: cls,
+                status,
+                scores: [],  // collect all final scores to compute avg/highest/lowest
+                studentMarks: [],  // rows shown in the Student Marks tab of the modal
+                examType: 'Assessment',
+                maxScore: 100,
+                questionPaper: null,
+            }
+        }
+
+        // Add this student's data to the existing group
+        map[key].ids.push(r.id)
+        if (r.final_score != null) map[key].scores.push(parseFloat(r.final_score))
+        map[key].studentMarks.push({
+            id:    r.student_id_code,
+            name:  r.student,
+            score: r.exam_score,
+            grade: r.grade_letter,
+        })
+    })
+
+    // convert the map object into an array and compute final stats per card
+    return Object.values(map).map(g => ({
+        ...g,
+        students: g.studentMarks.length,
+        //Average: sum all scores ÷ count, rounded to nearest whole number
+        avg:     g.scores.length ? `${Math.round(g.scores.reduce((a, b) => a + b, 0) / g.scores.length)}%` : '—',
+        highest: g.scores.length ? Math.max(...g.scores) : '—',
+        lowest:  g.scores.length ? Math.min(...g.scores) : '—',
+    }))
+}
 
 const analyticsStats = [
-    { colorClass: '',        icon: 'trending_up',  value: '78%',  label: 'Overall Performance',   trend: '+3% from last term' },
-    { colorClass: 'success', icon: 'check_circle', value: '94%',  label: 'Attendance Rate',       trend: 'Above target'       },
-    { colorClass: 'warning', icon: 'groups',       value: '1:15', label: 'Teacher-Student Ratio', trend: 'Optimal range'      },
-    { colorClass: 'info',    icon: 'emoji_events', value: '342',  label: 'Top Performers',        trend: 'Above 80%'          },
+    { colorClass: '', icon: 'trending_up', value: '78%', label: 'Overall Performance', trend: '+3% from last term' },
+    { colorClass: 'success', icon: 'check_circle', value: '94%', label: 'Attendance Rate', trend: 'Above target' },
+    { colorClass: 'warning', icon: 'groups', value: '1:15', label: 'Teacher-Student Ratio', trend: 'Optimal range' },
+    { colorClass: 'info', icon: 'emoji_events', value: '342', label: 'Top Performers', trend: 'Above 80%' },
 ]
 
 // Analytics data per term
 const ANALYTICS_DATA = {
     'Term 1': {
-        gradePerf:    [{ grade:'S6',score:79 },{ grade:'S5',score:75 },{ grade:'S4',score:71 },{ grade:'S3',score:69 },{ grade:'S2',score:66 },{ grade:'S1',score:68 }],
-        subjectPerf:  [{ subject:'Mathematics',score:73 },{ subject:'English',score:78 },{ subject:'Science',score:70 },{ subject:'History',score:76 },{ subject:'Geography',score:71 },{ subject:'Kinyarwanda',score:65 }],
-        gradeDist:    [{ name:'A (80–100)',value:22,color:'#10b981' },{ name:'B (70–79)',value:31,color:'#003d7a' },{ name:'C (60–69)',value:26,color:'#3b82f6' },{ name:'D (50–59)',value:14,color:'#f59e0b' },{ name:'F (<50)', value:7, color:'#ef4444' }],
-        attendance:   [{ month:'Jan',rate:91 },{ month:'Feb',rate:88 },{ month:'Mar',rate:90 }],
-        passFail:     [{ class:'S1',pass:78,fail:22 },{ class:'S2',pass:74,fail:26 },{ class:'S3',pass:81,fail:19 },{ class:'S4',pass:83,fail:17 },{ class:'S5',pass:86,fail:14 },{ class:'S6',pass:88,fail:12 }],
-        submissions:  [{ subject:'Mathematics',submitted:8,pending:2 },{ subject:'English',submitted:7,pending:3 },{ subject:'Science',submitted:9,pending:1 },{ subject:'History',submitted:6,pending:4 },{ subject:'Geography',submitted:8,pending:2 },{ subject:'Kinyarwanda',submitted:5,pending:5 }],
+        gradePerf: [{ grade: 'S6', score: 79 }, { grade: 'S5', score: 75 }, { grade: 'S4', score: 71 }, { grade: 'S3', score: 69 }, { grade: 'S2', score: 66 }, { grade: 'S1', score: 68 }],
+        subjectPerf: [{ subject: 'Mathematics', score: 73 }, { subject: 'English', score: 78 }, { subject: 'Science', score: 70 }, { subject: 'History', score: 76 }, { subject: 'Geography', score: 71 }, { subject: 'Kinyarwanda', score: 65 }],
+        gradeDist: [{ name: 'A (80–100)', value: 22, color: '#10b981' }, { name: 'B (70–79)', value: 31, color: '#003d7a' }, { name: 'C (60–69)', value: 26, color: '#3b82f6' }, { name: 'D (50–59)', value: 14, color: '#f59e0b' }, { name: 'F (<50)', value: 7, color: '#ef4444' }],
+        attendance: [{ month: 'Jan', rate: 91 }, { month: 'Feb', rate: 88 }, { month: 'Mar', rate: 90 }],
+        passFail: [{ class: 'S1', pass: 78, fail: 22 }, { class: 'S2', pass: 74, fail: 26 }, { class: 'S3', pass: 81, fail: 19 }, { class: 'S4', pass: 83, fail: 17 }, { class: 'S5', pass: 86, fail: 14 }, { class: 'S6', pass: 88, fail: 12 }],
+        submissions: [{ subject: 'Mathematics', submitted: 8, pending: 2 }, { subject: 'English', submitted: 7, pending: 3 }, { subject: 'Science', submitted: 9, pending: 1 }, { subject: 'History', submitted: 6, pending: 4 }, { subject: 'Geography', submitted: 8, pending: 2 }, { subject: 'Kinyarwanda', submitted: 5, pending: 5 }],
     },
     'Term 2': {
-        gradePerf:    [{ grade:'S6',score:82 },{ grade:'S5',score:78 },{ grade:'S4',score:75 },{ grade:'S3',score:72 },{ grade:'S2',score:69 },{ grade:'S1',score:71 }],
-        subjectPerf:  [{ subject:'Mathematics',score:76 },{ subject:'English',score:81 },{ subject:'Science',score:73 },{ subject:'History',score:79 },{ subject:'Geography',score:74 },{ subject:'Kinyarwanda',score:68 }],
-        gradeDist:    [{ name:'A (80–100)',value:28,color:'#10b981' },{ name:'B (70–79)',value:34,color:'#003d7a' },{ name:'C (60–69)',value:23,color:'#3b82f6' },{ name:'D (50–59)',value:11,color:'#f59e0b' },{ name:'F (<50)', value:4, color:'#ef4444' }],
-        attendance:   [{ month:'Apr',rate:93 },{ month:'May',rate:91 },{ month:'Jun',rate:89 },{ month:'Jul',rate:92 }],
-        passFail:     [{ class:'S1',pass:82,fail:18 },{ class:'S2',pass:78,fail:22 },{ class:'S3',pass:85,fail:15 },{ class:'S4',pass:87,fail:13 },{ class:'S5',pass:89,fail:11 },{ class:'S6',pass:91,fail:9 }],
-        submissions:  [{ subject:'Mathematics',submitted:10,pending:0 },{ subject:'English',submitted:9,pending:1 },{ subject:'Science',submitted:10,pending:0 },{ subject:'History',submitted:8,pending:2 },{ subject:'Geography',submitted:9,pending:1 },{ subject:'Kinyarwanda',submitted:7,pending:3 }],
+        gradePerf: [{ grade: 'S6', score: 82 }, { grade: 'S5', score: 78 }, { grade: 'S4', score: 75 }, { grade: 'S3', score: 72 }, { grade: 'S2', score: 69 }, { grade: 'S1', score: 71 }],
+        subjectPerf: [{ subject: 'Mathematics', score: 76 }, { subject: 'English', score: 81 }, { subject: 'Science', score: 73 }, { subject: 'History', score: 79 }, { subject: 'Geography', score: 74 }, { subject: 'Kinyarwanda', score: 68 }],
+        gradeDist: [{ name: 'A (80–100)', value: 28, color: '#10b981' }, { name: 'B (70–79)', value: 34, color: '#003d7a' }, { name: 'C (60–69)', value: 23, color: '#3b82f6' }, { name: 'D (50–59)', value: 11, color: '#f59e0b' }, { name: 'F (<50)', value: 4, color: '#ef4444' }],
+        attendance: [{ month: 'Apr', rate: 93 }, { month: 'May', rate: 91 }, { month: 'Jun', rate: 89 }, { month: 'Jul', rate: 92 }],
+        passFail: [{ class: 'S1', pass: 82, fail: 18 }, { class: 'S2', pass: 78, fail: 22 }, { class: 'S3', pass: 85, fail: 15 }, { class: 'S4', pass: 87, fail: 13 }, { class: 'S5', pass: 89, fail: 11 }, { class: 'S6', pass: 91, fail: 9 }],
+        submissions: [{ subject: 'Mathematics', submitted: 10, pending: 0 }, { subject: 'English', submitted: 9, pending: 1 }, { subject: 'Science', submitted: 10, pending: 0 }, { subject: 'History', submitted: 8, pending: 2 }, { subject: 'Geography', submitted: 9, pending: 1 }, { subject: 'Kinyarwanda', submitted: 7, pending: 3 }],
     },
     'Term 3': {
-        gradePerf:    [{ grade:'S6',score:85 },{ grade:'S5',score:81 },{ grade:'S4',score:78 },{ grade:'S3',score:75 },{ grade:'S2',score:72 },{ grade:'S1',score:74 }],
-        subjectPerf:  [{ subject:'Mathematics',score:79 },{ subject:'English',score:84 },{ subject:'Science',score:76 },{ subject:'History',score:82 },{ subject:'Geography',score:77 },{ subject:'Kinyarwanda',score:71 }],
-        gradeDist:    [{ name:'A (80–100)',value:33,color:'#10b981' },{ name:'B (70–79)',value:36,color:'#003d7a' },{ name:'C (60–69)',value:20,color:'#3b82f6' },{ name:'D (50–59)',value:8, color:'#f59e0b' },{ name:'F (<50)', value:3, color:'#ef4444' }],
-        attendance:   [{ month:'Aug',rate:94 },{ month:'Sep',rate:93 },{ month:'Oct',rate:95 },{ month:'Nov',rate:92 }],
-        passFail:     [{ class:'S1',pass:85,fail:15 },{ class:'S2',pass:81,fail:19 },{ class:'S3',pass:88,fail:12 },{ class:'S4',pass:90,fail:10 },{ class:'S5',pass:92,fail:8 },{ class:'S6',pass:94,fail:6 }],
-        submissions:  [{ subject:'Mathematics',submitted:10,pending:0 },{ subject:'English',submitted:10,pending:0 },{ subject:'Science',submitted:10,pending:0 },{ subject:'History',submitted:9,pending:1 },{ subject:'Geography',submitted:10,pending:0 },{ subject:'Kinyarwanda',submitted:8,pending:2 }],
+        gradePerf: [{ grade: 'S6', score: 85 }, { grade: 'S5', score: 81 }, { grade: 'S4', score: 78 }, { grade: 'S3', score: 75 }, { grade: 'S2', score: 72 }, { grade: 'S1', score: 74 }],
+        subjectPerf: [{ subject: 'Mathematics', score: 79 }, { subject: 'English', score: 84 }, { subject: 'Science', score: 76 }, { subject: 'History', score: 82 }, { subject: 'Geography', score: 77 }, { subject: 'Kinyarwanda', score: 71 }],
+        gradeDist: [{ name: 'A (80–100)', value: 33, color: '#10b981' }, { name: 'B (70–79)', value: 36, color: '#003d7a' }, { name: 'C (60–69)', value: 20, color: '#3b82f6' }, { name: 'D (50–59)', value: 8, color: '#f59e0b' }, { name: 'F (<50)', value: 3, color: '#ef4444' }],
+        attendance: [{ month: 'Aug', rate: 94 }, { month: 'Sep', rate: 93 }, { month: 'Oct', rate: 95 }, { month: 'Nov', rate: 92 }],
+        passFail: [{ class: 'S1', pass: 85, fail: 15 }, { class: 'S2', pass: 81, fail: 19 }, { class: 'S3', pass: 88, fail: 12 }, { class: 'S4', pass: 90, fail: 10 }, { class: 'S5', pass: 92, fail: 8 }, { class: 'S6', pass: 94, fail: 6 }],
+        submissions: [{ subject: 'Mathematics', submitted: 10, pending: 0 }, { subject: 'English', submitted: 10, pending: 0 }, { subject: 'Science', submitted: 10, pending: 0 }, { subject: 'History', submitted: 9, pending: 1 }, { subject: 'Geography', submitted: 10, pending: 0 }, { subject: 'Kinyarwanda', submitted: 8, pending: 2 }],
     },
 }
 
 const STATUS_TABS = [
-    { key: 'all',      label: 'All'      },
-    { key: 'pending',  label: 'Pending'  },
+    { key: 'all', label: 'All' },
+    { key: 'pending', label: 'Pending' },
     { key: 'approved', label: 'Approved' },
     { key: 'rejected', label: 'Rejected' },
 ]
 
 const STATUS_STYLE = {
-    pending:  { bg: 'rgba(245,158,11,0.12)',  color: 'var(--warning)',     label: 'Pending'  },
-    approved: { bg: 'rgba(16,185,129,0.12)',  color: 'var(--success)',     label: 'Approved' },
-    rejected: { bg: 'rgba(239,68,68,0.12)',   color: 'var(--destructive)', label: 'Rejected' },
+    pending: { bg: 'rgba(245,158,11,0.12)', color: 'var(--warning)', label: 'Pending' },
+    approved: { bg: 'rgba(16,185,129,0.12)', color: 'var(--success)', label: 'Approved' },
+    rejected: { bg: 'rgba(239,68,68,0.12)', color: 'var(--destructive)', label: 'Rejected' },
 }
 
 // ── Result Card ───────────────────────────────────────────────────────────────
-function ResultCard({ result, onReview, onView, onApprove, onReject }) {
+function ResultCard({ result, onReview, onView }) {
     const s = STATUS_STYLE[result.status]
     return (
         <div className="card dos-result-card">
@@ -143,8 +142,8 @@ function ResultCard({ result, onReview, onView, onApprove, onReject }) {
             <div className="dos-mini-stats">
                 {[
                     { label: 'Students', value: result.students },
-                    { label: 'Average',  value: result.avg      },
-                    { label: 'Highest',  value: result.highest  },
+                    { label: 'Average', value: result.avg },
+                    { label: 'Highest', value: result.highest },
                 ].map(s => (
                     <div key={s.label} className="dos-mini-stat">
                         <div className="dos-mini-stat-value">{s.value}</div>
@@ -183,18 +182,18 @@ function ResultCard({ result, onReview, onView, onApprove, onReject }) {
 
 // ── Grade helper ──────────────────────────────────────────────────────────────
 function gradeColor(g) {
-    return { A:'#10b981', B:'#003d7a', C:'#3b82f6', D:'#f59e0b', F:'#ef4444' }[g] ?? 'var(--muted-foreground)'
+    return { A: '#10b981', B: '#003d7a', C: '#3b82f6', D: '#f59e0b', F: '#ef4444' }[g] ?? 'var(--muted-foreground)'
 }
 
 // ── Review Modal ──────────────────────────────────────────────────────────────
 function ReviewModal({ result, onClose, onApprove, onReject }) {
-    const [tab,     setTab]     = useState('overview')
+    const [tab, setTab] = useState('overview')
     const [comment, setComment] = useState('')
 
     const TABS = [
-        { key: 'overview',  icon: 'info',        label: 'Overview'        },
-        { key: 'questions', icon: 'quiz',         label: 'Question Paper'  },
-        { key: 'marks',     icon: 'assignment',   label: 'Student Marks'   },
+        { key: 'overview', icon: 'info', label: 'Overview' },
+        { key: 'questions', icon: 'quiz', label: 'Question Paper' },
+        { key: 'marks', icon: 'assignment', label: 'Student Marks' },
     ]
 
     return (
@@ -203,10 +202,10 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                 <div className="modal-confirm-actions flex-wrap-gap-3" style={{ width: '100%' }}>
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
                     <button className="btn btn-outline btn-destructive-outline"
-                        onClick={() => { onReject(result.id); onClose() }}>
+                        onClick={() => { onReject(result); onClose() }}>
                         <span className="material-symbols-rounded icon-sm">cancel</span> Reject
                     </button>
-                    <button className="btn btn-primary" onClick={() => { onApprove(result.id); onClose() }}>
+                    <button className="btn btn-primary" onClick={() => { onApprove(result); onClose() }}>
                         <span className="material-symbols-rounded icon-sm">check_circle</span> Approve
                     </button>
                 </div>
@@ -226,9 +225,9 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                     </div>
                     <div className="dos-review-stats">
                         {[
-                            { label:'Students', value: result.students },
-                            { label:'Average',  value: result.avg      },
-                            { label:'Highest',  value: result.highest  },
+                            { label: 'Students', value: result.students },
+                            { label: 'Average', value: result.avg },
+                            { label: 'Highest', value: result.highest },
                         ].map(s => (
                             <div key={s.label} className="dos-review-stat">
                                 <div className="dos-review-stat-value">{s.value}</div>
@@ -257,10 +256,10 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                 <div className="settings-form">
                     <div className="dos-overview-stats">
                         {[
-                            { label:'Total Students', value: result.students, color:'var(--primary)'     },
-                            { label:'Class Average',  value: result.avg,      color:'var(--success)'     },
-                            { label:'Highest Score',  value: result.highest,  color:'var(--success)'     },
-                            { label:'Lowest Score',   value: result.lowest,   color:'var(--destructive)' },
+                            { label: 'Total Students', value: result.students, color: 'var(--primary)' },
+                            { label: 'Class Average', value: result.avg, color: 'var(--success)' },
+                            { label: 'Highest Score', value: result.highest, color: 'var(--success)' },
+                            { label: 'Lowest Score', value: result.lowest, color: 'var(--destructive)' },
                         ].map(s => (
                             <div key={s.label} className="dos-overview-stat">
                                 <div className="dos-overview-stat-value" style={{ color: s.color }}>{s.value}</div>
@@ -306,7 +305,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                             <span className="material-symbols-rounded qp-preview-icon">picture_as_pdf</span>
                             <div className="qp-preview-title">{result.questionPaper.name}</div>
                             <div className="qp-preview-meta">{result.questionPaper.pages} pages · {result.questionPaper.size}</div>
-                            <button className="btn btn-primary btn-sm" style={{ marginTop:'0.25rem' }}>
+                            <button className="btn btn-primary btn-sm" style={{ marginTop: '0.25rem' }}>
                                 <span className="material-symbols-rounded icon-sm">open_in_new</span> Open Document
                             </button>
                         </div>
@@ -326,7 +325,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                         <table className="marks-table">
                             <thead>
                                 <tr>
-                                    {['#','Student ID','Name','Score','Grade'].map(h => (
+                                    {['#', 'Student ID', 'Name', 'Score', 'Grade'].map(h => (
                                         <th key={h}>{h}</th>
                                     ))}
                                 </tr>
@@ -339,7 +338,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                                         <td className="marks-td-name">{s.name}</td>
                                         <td className="marks-td-score">{s.score}/{result.maxScore}</td>
                                         <td>
-                                            <span style={{ fontWeight:700, fontSize:'0.82rem', padding:'2px 10px', borderRadius:20, background:`${gradeColor(s.grade)}18`, color:gradeColor(s.grade) }}>{s.grade}</span>
+                                            <span style={{ fontWeight: 700, fontSize: '0.82rem', padding: '2px 10px', borderRadius: 20, background: `${gradeColor(s.grade)}18`, color: gradeColor(s.grade) }}>{s.grade}</span>
                                         </td>
                                     </tr>
                                 ))}
@@ -358,8 +357,8 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
 // ── View Details Modal ────────────────────────────────────────────────────────
 function ViewModal({ result, onClose }) {
     const s = STATUS_STYLE[result.status]
-    const passCount   = Math.round(result.students * 0.88)
-    const failCount   = result.students - passCount
+    const passCount = Math.round(result.students * 0.88)
+    const failCount = result.students - passCount
     return (
         <Modal title="Result Details" icon="assessment" onClose={onClose}
             footer={<button className="btn btn-outline" onClick={onClose}>Close</button>}
@@ -374,12 +373,12 @@ function ViewModal({ result, onClose }) {
 
             <div className="view-stat-grid">
                 {[
-                    { label: 'Total Students', value: result.students, color: 'var(--primary)'     },
-                    { label: 'Class Average',  value: result.avg,      color: 'var(--success)'     },
-                    { label: 'Highest Score',  value: result.highest,  color: 'var(--success)'     },
-                    { label: 'Lowest Score',   value: result.lowest,   color: 'var(--destructive)' },
-                    { label: 'Passed',         value: passCount,       color: 'var(--success)'     },
-                    { label: 'Failed',         value: failCount,       color: 'var(--destructive)' },
+                    { label: 'Total Students', value: result.students, color: 'var(--primary)' },
+                    { label: 'Class Average', value: result.avg, color: 'var(--success)' },
+                    { label: 'Highest Score', value: result.highest, color: 'var(--success)' },
+                    { label: 'Lowest Score', value: result.lowest, color: 'var(--destructive)' },
+                    { label: 'Passed', value: passCount, color: 'var(--success)' },
+                    { label: 'Failed', value: failCount, color: 'var(--destructive)' },
                 ].map(item => (
                     <div key={item.label} className="view-stat-cell">
                         <span className="view-stat-label">{item.label}</span>
@@ -397,37 +396,95 @@ function ViewModal({ result, onClose }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function DosResults() {
-    const [activeTab,   setActiveTab]   = useState('approval')
-    const [statusFilter,setStatusFilter]= useState('all')
-    const [search,      setSearch]      = useState('')
-    const [results,     setResults]     = useState(allResults)
-    const [reviewing,   setReviewing]   = useState(null)
-    const [viewing,     setViewing]     = useState(null)
-    const [activeTerm,  setActiveTerm]  = useState('Term 2')
+    // UI tab: 'approval' shows the result cards, 'analytics' shows charts
+    const [activeTab, setActiveTab] = useState('approval')
+    // Filter buttons: 'all', 'pending', 'approved', 'rejected'
+    const [statusFilter, setStatusFilter] = useState('all')
+    const [search, setSearch] = useState('')
+    // cards = the grouped, transformed result cards shown in the UI
+    const [cards, setCards] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    // reviewing = the card currently open in the Review modal
+    const [reviewing, setReviewing] = useState(null)
+    // viewing = the card currently open in the View Details modal
+    const [viewing, setViewing] = useState(null)
+    const [activeTerm, setActiveTerm] = useState('Term 2')
 
-    async function handleApprove(id) {
+    // Fetch all results from the API when the page loads
+    useEffect(() => {
+        getDosResults()
+            .then(data => {
+                // The client interceptor unwraps .data already.
+                // Handle both paginated { results: [] } and plain array responses.
+                const raw = Array.isArray(data) ? data : (data.results ?? [])
+                // Group individual student rows into class+subject cards
+                setCards(groupResults(raw))
+            })
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    // Derive stat card numbers live from the cards array.
+    // This means they update automatically when you approve/reject without refetching.
+    const resultStats = [
+        {
+            colorClass: 'warning', icon: 'pending', trend: 'Requires review',
+            value: cards.filter(c => c.status === 'pending').length, label: 'Pending Approval'
+        },
+        {
+            colorClass: 'success', icon: 'check_circle', trend: 'This term',
+            value: cards.filter(c => c.status === 'approved').length, label: 'Approved'
+        },
+        {
+            colorClass: 'danger', icon: 'cancel', trend: 'Needs correction',
+            value: cards.filter(c => c.status === 'rejected').length, label: 'Rejected'
+        },
+        {
+            colorClass: 'info', icon: 'analytics', trend: 'Average',
+            // Approval rate = approved cards ÷ total cards × 100
+            value: cards.length
+                ? `${Math.round(cards.filter(c => c.status === 'approved').length / cards.length * 100)}%`
+                : '0%',
+            label: 'Approval Rate'
+        },
+    ]
+
+    // Approve all individual student results inside this card.
+    // A card groups many students, so we call approveResult() for each ID.
+    // Promise.all runs all the API calls at the same time (parallel), not one by one.
+    async function handleApprove(card) {
         try {
-            await approveResult(id)
-            setResults(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' } : r))
+            await Promise.all(card.ids.map(id => approveResult(id)))
+            // Update the card's status in local state so UI reflects change immediately
+            // without needing to refetch from the API
+            setCards(prev => prev.map(c => c.key === card.key ? { ...c, status: 'approved' } : c))
         } catch (err) { console.error(err) }
     }
-    async function handleReject(id) {
+
+    // Same pattern as approve — reject all results in this card group
+    async function handleReject(card) {
         try {
-            await rejectResult(id)
-            setResults(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } : r))
+            await Promise.all(card.ids.map(id => rejectResult(id, '')))
+            setCards(prev => prev.map(c => c.key === card.key ? { ...c, status: 'rejected' } : c))
         } catch (err) { console.error(err) }
     }
 
+    // Add a count badge to each filter tab (e.g. "Pending 3")
     const statusTabsWithCount = STATUS_TABS.map(t => ({
         ...t,
-        count: t.key === 'all' ? undefined : results.filter(r => r.status === t.key).length,
+        count: t.key === 'all' ? undefined : cards.filter(c => c.status === t.key).length,
     }))
 
-    const visible = results.filter(r => {
-        if (statusFilter !== 'all' && r.status !== statusFilter) return false
-        if (search && !`${r.title} ${r.submittedBy}`.toLowerCase().includes(search.toLowerCase())) return false
+    // Apply the active status filter and search box to reduce the visible cards
+    const visible = cards.filter(c => {
+        if (statusFilter !== 'all' && c.status !== statusFilter) return false
+        if (search && !`${c.title} ${c.submittedBy}`.toLowerCase().includes(search.toLowerCase())) return false
         return true
     })
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     return (
         <>
@@ -443,8 +500,8 @@ export function DosResults() {
                         {/* Main tab switcher */}
                         <div className="flex-wrap-gap-3">
                             {[
-                                { key: 'approval',   icon: 'pending',   label: 'Approval Queue', badge: results.filter(r => r.status === 'pending').length },
-                                { key: 'analytics',  icon: 'bar_chart', label: 'Analytics'       },
+                                { key: 'approval', icon: 'pending', label: 'Approval Queue', badge: cards.filter(c => c.status === 'pending').length },
+                                { key: 'analytics', icon: 'bar_chart', label: 'Analytics' },
                             ].map(t => (
                                 <button key={t.key}
                                     className={`btn btn-sm ${activeTab === t.key ? 'btn-primary' : 'btn-outline'}`}
@@ -562,8 +619,8 @@ export function DosResults() {
                                                     <AreaChart data={d.attendance} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                                                         <defs>
                                                             <linearGradient id="attGrad2" x1="0" y1="0" x2="0" y2="1">
-                                                                <stop offset="5%"  stopColor="#10b981" stopOpacity={0.2} />
-                                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}   />
+                                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                                             </linearGradient>
                                                         </defs>
                                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -591,8 +648,8 @@ export function DosResults() {
                                                     <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                                                     <Tooltip formatter={(v, n) => [`${v}%`, n]} contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                                                     <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: '0.78rem' }} />
-                                                    <Bar dataKey="pass" name="Passed" stackId="a" fill="#10b981" radius={[0,0,0,0]} maxBarSize={40} />
-                                                    <Bar dataKey="fail" name="Failed" stackId="a" fill="#ef4444" radius={[4,4,0,0]} maxBarSize={40} />
+                                                    <Bar dataKey="pass" name="Passed" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} maxBarSize={40} />
+                                                    <Bar dataKey="fail" name="Failed" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={40} />
                                                 </BarChart>
                                             </ResponsiveContainer>
                                         </div>
@@ -615,8 +672,8 @@ export function DosResults() {
                                                         <YAxis type="category" dataKey="subject" tick={{ fontSize: 10, fill: 'var(--foreground)' }} axisLine={false} tickLine={false} width={78} />
                                                         <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                                                         <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: '0.78rem' }} />
-                                                        <Bar dataKey="submitted" name="Submitted" stackId="b" fill="#003d7a" radius={[0,0,0,0]} maxBarSize={18} />
-                                                        <Bar dataKey="pending"   name="Pending"   stackId="b" fill="#f59e0b" radius={[0,4,4,0]} maxBarSize={18} />
+                                                        <Bar dataKey="submitted" name="Submitted" stackId="b" fill="#003d7a" radius={[0, 0, 0, 0]} maxBarSize={18} />
+                                                        <Bar dataKey="pending" name="Pending" stackId="b" fill="#f59e0b" radius={[0, 4, 4, 0]} maxBarSize={18} />
                                                     </BarChart>
                                                 </ResponsiveContainer>
                                             </div>
@@ -635,7 +692,7 @@ export function DosResults() {
                                                         <XAxis type="number" domain={[50, 100]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                                                         <YAxis type="category" dataKey="grade" tick={{ fontSize: 12, fontWeight: 600, fill: 'var(--foreground)' }} axisLine={false} tickLine={false} width={28} />
                                                         <Tooltip formatter={v => [`${v}%`, 'Average']} contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-                                                        <Bar dataKey="score" radius={[0,6,6,0]} maxBarSize={20}>
+                                                        <Bar dataKey="score" radius={[0, 6, 6, 0]} maxBarSize={20}>
                                                             {d.gradePerf.map((e, i) => <Cell key={i} fill={e.score >= 80 ? '#10b981' : e.score >= 70 ? '#003d7a' : '#f59e0b'} />)}
                                                         </Bar>
                                                     </BarChart>
@@ -657,7 +714,7 @@ export function DosResults() {
                                                     <XAxis type="number" domain={[50, 100]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                                                     <YAxis type="category" dataKey="subject" tick={{ fontSize: 11, fontWeight: 600, fill: 'var(--foreground)' }} axisLine={false} tickLine={false} width={78} />
                                                     <Tooltip formatter={v => [`${v}%`, 'Average']} contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-                                                    <Bar dataKey="score" radius={[0,6,6,0]} maxBarSize={20}>
+                                                    <Bar dataKey="score" radius={[0, 6, 6, 0]} maxBarSize={20}>
                                                         {d.subjectPerf.map((e, i) => <Cell key={i} fill={e.score >= 78 ? '#10b981' : '#f59e0b'} />)}
                                                     </Bar>
                                                 </BarChart>
