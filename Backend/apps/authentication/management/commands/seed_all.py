@@ -17,7 +17,7 @@ User = get_user_model()
 def get_models():
     from apps.results.models     import Subject, AcademicTerm, Result, Assessment
     from apps.student.models     import Student, Activity, ActivityEnrollment, Assignment, AssignmentSubmission
-    from apps.teacher.models     import Class, ClassAssignment, SubjectTeacherAssignment, Timetable, Task
+    from apps.teacher.models     import Class, ClassAssignment, SubjectTeacherAssignment, Timetable, Task, TeacherClassList
     from apps.attendance.models  import AttendanceRecord, AttendanceSummary
     from apps.behavior.models    import BehaviorReport, ConductGrade
     from apps.announcements.models import Announcement
@@ -39,6 +39,7 @@ def get_models():
         'DiningPlan': DiningPlan,
         'ParentStudentRelationship': ParentStudentRelationship,
         'Conversation': Conversation, 'Message': Message,
+        'TeacherClassList': TeacherClassList,
     }
 
 
@@ -244,6 +245,7 @@ class Command(BaseCommand):
             m['StudentLeader'].objects.all().delete()
             m['DisciplineStaff'].objects.all().delete()
             m['Timetable'].objects.all().delete()
+            m['TeacherClassList'].objects.all().delete()
             m['SubjectTeacherAssignment'].objects.all().delete()
             m['ClassAssignment'].objects.all().delete()
             m['ParentStudentRelationship'].objects.all().delete()
@@ -666,6 +668,21 @@ class Command(BaseCommand):
                     if created:
                         msg_count += 1
         self.stdout.write(self.style.SUCCESS(f'  {msg_count} messages created'))
+
+        # ── 19. Teacher Class Lists ────────────────────────────────────────────
+        self.stdout.write('Assigning teacher class lists...')
+        TeacherClassList = m['TeacherClassList']
+        TeacherClassList.objects.all().delete()
+        for teacher_email, class_names in TEACHER_CLASSES.items():
+            teacher = users.get(teacher_email)
+            if not teacher:
+                continue
+            for class_name in class_names:
+                TeacherClassList.objects.get_or_create(
+                    teacher=teacher,
+                    class_name=class_name,
+                )
+        self.stdout.write(self.style.SUCCESS('  Teacher class lists seeded'))
 
         # ── Done ───────────────────────────────────────────────────────────────
         self.stdout.write('')

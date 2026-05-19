@@ -1,4 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { classesFromConfig, yearsFromConfig } from '../../utils/classes'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -13,18 +15,10 @@ import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
-const SECTIONS = [
-    { name: 'O-Level', years: ['S1', 'S2', 'S3'], classes: ['A', 'B', 'C'] },
-    { name: 'A-Level', years: ['S4', 'S5', 'S6'], classes: ['A', 'B', 'C'] },
-]
-
-
-
-const ADMIT_YEARS   = ['S1','S2','S3','S4','S5','S6']
-const ADMIT_CLASSES = ['A','B','C']
+// ADMIT_YEARS and ADMIT_CLASSES are now derived from school config inside the component
 const ADMIT_HOUSES  = ['Bisoke','Muhabura','Karisimbi','Sabyinyo']
 
-function AddStudentModal({ onClose, onAdd, count }) {
+function AddStudentModal({ onClose, onAdd, count, admitYears, admitStreams }) {
     const [form, setForm] = useState({ name: '', year: 'S1', classLetter: 'A', house: 'Bisoke' })
     const [err, setErr]   = useState({})
 
@@ -67,13 +61,13 @@ function AddStudentModal({ onClose, onAdd, count }) {
                         <div className="form-group">
                             <label className="form-label">Year</label>
                             <select className="form-input" name="year" value={form.year} onChange={handle}>
-                                {ADMIT_YEARS.map(y => <option key={y}>{y}</option>)}
+                                {admitYears.map(y => <option key={y}>{y}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
                             <label className="form-label">Class</label>
                             <select className="form-input" name="classLetter" value={form.classLetter} onChange={handle}>
-                                {ADMIT_CLASSES.map(c => <option key={c}>{c}</option>)}
+                                {admitStreams.map(c => <option key={c}>{c}</option>)}
                             </select>
                         </div>
                     </div>
@@ -128,6 +122,9 @@ function apiToStudent(s) {
 }
 
 export function DosStudents() {
+    const { config }   = useSchoolConfig()
+    const admitYears   = yearsFromConfig(config)
+    const admitStreams  = [...new Set(config.flatMap(s => s.years.flatMap(y => y.streams)))]
     const [students,  setStudents]  = useState([])
     const [apiStats,  setApiStats]  = useState(null)
     const [loading,   setLoading]   = useState(true)
@@ -219,7 +216,7 @@ export function DosStudents() {
                         </div>
 
                         <ClassPicker
-                            sections={SECTIONS}
+                            sections={config}
                             section={section}
                             onSectionChange={s => { setSection(s); setYear(''); setClassVal('') }}
                             year={year}
@@ -256,6 +253,8 @@ export function DosStudents() {
             {showAdd && (
                 <AddStudentModal
                     count={students.length}
+                    admitYears={admitYears}
+                    admitStreams={admitStreams}
                     onClose={() => setShowAdd(false)}
                     onAdd={async ({ name, year, classLetter }) => {
                         const parts = name.trim().split(' ')

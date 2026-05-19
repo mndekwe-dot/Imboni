@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { getSubjects } from '../../api/dos'
 import { DataTable } from '../../components/ui/DataTable'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -6,7 +7,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { Modal } from '../../components/ui/Modal'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { getDosTeachers, getDosTeacherStats, updateDosTeacher } from '../../api/dos'
+import { getDosTeachers, getDosTeacherStats, updateDosTeacher, getDosTeacherClasses, assignDosTeacherClasses } from '../../api/dos'
 import { sendInvitation, getInvitations, resendInvitation, cancelInvitation } from '../../api/auth'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -15,21 +16,12 @@ import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const SUBJECTS = ['Mathematics', 'English', 'Biology', 'Chemistry', 'Physics', 'History', 'Geography', 'Kinyarwanda', 'CRE', 'Art & Design']
 const TYPES = ['Full-Time', 'Part-Time']
 
 const AVATAR_COLORS = ['#003d7a', '#10b981', '#f59e0b', '#6366f1', '#ef4444', '#0891b2', '#7c3aed', '#be185d']
 function avatarColor(name) { return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length] }
 function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() }
 
-const INITIAL_TEACHERS = [
-    { id: 'TST-001', name: 'Claudine Umutoni', subject: 'English', type: 'Full-Time', classes: ['S1A', 'S3A'], status: 'Active' },
-    { id: 'TST-002', name: 'Pacifique Rurangwa', subject: 'Mathematics', type: 'Full-Time', classes: ['S2A', 'S2B'], status: 'Active' },
-    { id: 'TST-003', name: 'Immaculee Nsabimana', subject: 'Biology', type: 'Full-Time', classes: ['S3A', 'S3B', 'S4A'], status: 'Active' },
-    { id: 'TST-004', name: 'Theophile Bizimana', subject: 'Chemistry', type: 'Part-Time', classes: ['S2B'], status: 'Active' },
-    { id: 'TST-005', name: 'Sandrine Uwera', subject: 'Physics', type: 'Full-Time', classes: ['S3A', 'S3B', 'S4A'], status: 'Active' },
-    { id: 'TST-006', name: 'Janvier Ntakirutimana', subject: 'History', type: 'Full-Time', classes: ['S3A', 'S4A'], status: 'Active' },
-]
 
 const EMPTY_FORM = { name: '', subject: '', type: 'Full-Time', status: 'Active', email: '', password: '' }
 
@@ -100,7 +92,7 @@ function FormSelect({ value, onChange, options, placeholder }) {
 }
 
 // ── Unified Add / Edit Teacher Modal (details + class assignment) ─────────────
-function TeacherModal({ teacher, config, onClose, onSave }) {
+function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
     const isEdit = !!teacher
     const sections = config ?? []
     const noConfig = sections.length === 0 ||
@@ -178,7 +170,7 @@ function TeacherModal({ teacher, config, onClose, onSave }) {
                         <label className="form-label">Subject *</label>
                         <FormSelect value={form.subject} onChange={v => setForm(p => ({ ...p, subject: v }))}
                             placeholder="— Select subject —"
-                            options={SUBJECTS.map(s => ({ value: s, label: s }))} />
+                            options={subjectOptions.map(s => ({ value: s, label: s }))} />
                     </div>
                     <div className="form-group">
                         <label className="form-label">Employment Type *</label>
@@ -278,10 +270,10 @@ function TeacherModal({ teacher, config, onClose, onSave }) {
 
 // ── Invite Teacher Modal ──────────────────────────────────────────────────────
 function InviteTeacherModal({ onClose, onInvite }) {
-    const [form,     setForm]     = useState({ first_name: '', last_name: '', email: '', type: 'Full-Time' })
-    const [sending,  setSending]  = useState(false)
-    const [sent,     setSent]     = useState(false)
-    const [error,    setError]    = useState('')
+    const [form, setForm] = useState({ first_name: '', last_name: '', email: '', type: 'Full-Time' })
+    const [sending, setSending] = useState(false)
+    const [sent, setSent] = useState(false)
+    const [error, setError] = useState('')
 
     const isValid = form.first_name.trim() && form.last_name.trim() && form.email.trim()
 
@@ -367,7 +359,7 @@ function daysAgo(dateStr) {
 
 // ── Pending Invitations Card ──────────────────────────────────────────────────
 function PendingInvitationsCard({ invitations, onResend, onCancel }) {
-    const [resending,  setResending]  = useState(null)
+    const [resending, setResending] = useState(null)
     const [cancelling, setCancelling] = useState(null)
 
     if (invitations.length === 0) return null
@@ -398,10 +390,10 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
                 <thead>
                     <tr style={{ fontSize: '0.78rem', color: 'var(--muted)', background: 'var(--surface-2, #f8f9fa)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                         <th style={{ padding: '0.55rem 1.25rem', textAlign: 'left', fontWeight: 600 }}>Teacher</th>
-                        <th style={{ padding: '0.55rem 1rem',   textAlign: 'left', fontWeight: 600 }}>Email</th>
-                        <th style={{ padding: '0.55rem 1rem',   textAlign: 'left', fontWeight: 600 }}>Status</th>
-                        <th style={{ padding: '0.55rem 1rem',   textAlign: 'left', fontWeight: 600 }}>Invited</th>
-                        <th style={{ padding: '0.55rem 1rem',   textAlign: 'left', fontWeight: 600 }}>Expires</th>
+                        <th style={{ padding: '0.55rem 1rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
+                        <th style={{ padding: '0.55rem 1rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
+                        <th style={{ padding: '0.55rem 1rem', textAlign: 'left', fontWeight: 600 }}>Invited</th>
+                        <th style={{ padding: '0.55rem 1rem', textAlign: 'left', fontWeight: 600 }}>Expires</th>
                         <th style={{ padding: '0.55rem 1.25rem', textAlign: 'right', fontWeight: 600 }}>Actions</th>
                     </tr>
                 </thead>
@@ -420,7 +412,7 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
                                 <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.875rem' }}>{inv.email || '—'}</td>
                                 <td style={{ padding: '0.75rem 1rem' }}>
                                     {expired
-                                        ? <span style={{ color: 'var(--danger)',  fontWeight: 600, fontSize: '0.8rem' }}>Expired</span>
+                                        ? <span style={{ color: 'var(--danger)', fontWeight: 600, fontSize: '0.8rem' }}>Expired</span>
                                         : inv.delivery_status === 'sent'
                                             ? <span style={{ color: 'var(--success)', fontWeight: 600, fontSize: '0.8rem' }}>Sent</span>
                                             : <span style={{ color: 'var(--warning)', fontWeight: 600, fontSize: '0.8rem' }}>Failed</span>
@@ -454,47 +446,62 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
     )
 }
 
+const typeMap = { full_time: 'Full-Time', part_time: 'Part-Time' }
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function DosTeachers() {
     const { config } = useSchoolConfig()
 
     // ── All hooks first ────────────────────────────────────────────────────────
-    const [teachers,      setTeachers]      = useState([])
-    const [apiStats,      setApiStats]      = useState(null)
-    const [loading,       setLoading]       = useState(true)
-    const [error,         setError]         = useState(null)
-    const [search,        setSearch]        = useState('')
+    const [teachers, setTeachers] = useState([])
+    const [apiStats, setApiStats] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [search, setSearch] = useState('')
     const [subjectFilter, setSubjectFilter] = useState('')
-    const [typeFilter,    setTypeFilter]    = useState('')
-    const [addOpen,       setAddOpen]       = useState(false)
-    const [editing,       setEditing]       = useState(null)
-    const [invitations,   setInvitations]   = useState([])
-    const typeMap = { full_time: 'Full-Time', part_time: 'Part-Time' }
+    const [typeFilter, setTypeFilter] = useState('')
+    const [addOpen, setAddOpen] = useState(false)
+    const [editing, setEditing] = useState(null)
+    const [invitations, setInvitations] = useState([])
+    const [subjects,    setSubjects]    = useState([])
 
     useEffect(() => {
-        Promise.all([getDosTeachers(), getDosTeacherStats(), getInvitations()])
-            .then(([list, stats, invList]) => {
-                setTeachers(list.map(t => ({
-                    id:      t.teacher_id,
-                    name:    t.full_name,
+        async function load() {
+            try {
+                const [list, stats, invList, subjectList] = await Promise.all([
+                    getDosTeachers(), getDosTeacherStats(), getInvitations(), getSubjects()
+                ])
+                const teacherList = list.map(t => ({
+                    id: t.teacher_id,
+                    name: t.full_name,
                     subject: t.subjects[0] || '—',
-                    type:    typeMap[t.employment_type] || 'Full-Time',
+                    type: typeMap[t.employment_type] || 'Full-Time',
                     classes: [],
-                    status:  'Active',
-                })))
+                    status: 'Active',
+                }))
+                const classResults = await Promise.all(
+                    teacherList.map(t => getDosTeacherClasses(t.id).catch(() => ({ classes: [] })))
+                )
+                teacherList.forEach((t, i) => { t.classes = classResults[i].classes ?? [] })
+                setTeachers(teacherList)
                 setApiStats(stats)
                 const invArr = Array.isArray(invList) ? invList : (invList?.results ?? [])
                 setInvitations(invArr.filter(inv => inv.role === 'teacher' && !inv.is_used))
-            })
-            .catch(err => setError(err.message))
-            .finally(() => setLoading(false))
+                setSubjects(subjectList.map(s => s.name))
+            } catch (err) {
+                setError(err.message)
+            } finally {
+                setLoading(false)
+            }
+        }
+        load()
     }, [])
 
     const teacherStats = apiStats ? [
-        { colorClass: 'info',    icon: 'school',   trend: `+${apiStats.new_this_term} this term`,   value: apiStats.total_teachers,        label: 'Total Teachers'        },
-        { colorClass: 'success', icon: 'badge',    trend: `${apiStats.full_time_pct}% of staff`,    value: apiStats.full_time_count,       label: 'Full-Time'             },
-        { colorClass: 'warning', icon: 'schedule', trend: `${apiStats.part_time_pct}% of staff`,    value: apiStats.part_time_count,       label: 'Part-Time'             },
-        { colorClass: 'info',    icon: 'groups',   trend: apiStats.ratio_label,                     value: apiStats.student_teacher_ratio, label: 'Student-Teacher Ratio' },
+        { colorClass: 'info', icon: 'school', trend: `+${apiStats.new_this_term} this term`, value: apiStats.total_teachers, label: 'Total Teachers' },
+        { colorClass: 'success', icon: 'badge', trend: `${apiStats.full_time_pct}% of staff`, value: apiStats.full_time_count, label: 'Full-Time' },
+        { colorClass: 'warning', icon: 'schedule', trend: `${apiStats.part_time_pct}% of staff`, value: apiStats.part_time_count, label: 'Part-Time' },
+        { colorClass: 'info', icon: 'groups', trend: apiStats.ratio_label, value: apiStats.student_teacher_ratio, label: 'Student-Teacher Ratio' },
     ] : []
 
     async function handleInvite(first_name, last_name, email) {
@@ -514,22 +521,25 @@ export function DosTeachers() {
         setInvitations(prev => prev.filter(inv => inv.id !== id))
     }
 
-    async function handleEdit({ name, type, status }) {
+    async function handleEdit({ name, type, status, classes }) {
         const parts = name.trim().split(' ')
-        const last_name  = parts.pop()
+        const last_name = parts.pop()
         const first_name = parts.join(' ') || last_name
         const employment_type = type === 'Full-Time' ? 'full_time' : 'part_time'
         try {
-            await updateDosTeacher(editing.id, { first_name, last_name, employment_type })
+            await Promise.all([
+                updateDosTeacher(editing.id, { first_name, last_name, employment_type }),
+                assignDosTeacherClasses(editing.id, classes),
+            ])
             setTeachers(prev => prev.map(t =>
-                t.id === editing.id ? { ...t, name, type, status } : t
+                t.id === editing.id ? { ...t, name, type, status, classes } : t
             ))
         } catch (err) { console.error(err) }
     }
 
     const filtered = teachers.filter(t => {
         if (subjectFilter && t.subject !== subjectFilter) return false
-        if (typeFilter    && t.type    !== typeFilter)    return false
+        if (typeFilter && t.type !== typeFilter) return false
         if (search) {
             const q = search.toLowerCase()
             if (!t.name.toLowerCase().includes(q) && !t.subject.toLowerCase().includes(q) && !t.id.toLowerCase().includes(q)) return false
@@ -538,7 +548,7 @@ export function DosTeachers() {
     })
 
     if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
-    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     return (
         <>
@@ -560,7 +570,7 @@ export function DosTeachers() {
                                 <input placeholder="Search by name or subject..." value={search} onChange={e => setSearch(e.target.value)} />
                                 {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
                             </div>
-                            <InlineSelect value={subjectFilter} onChange={setSubjectFilter} options={SUBJECTS} placeholder="All Subjects" />
+                            <InlineSelect value={subjectFilter} onChange={setSubjectFilter} options={subjects} placeholder="All Subjects" />
                             <InlineSelect value={typeFilter} onChange={setTypeFilter} options={TYPES} placeholder="All Types" />
                             <div className="toolbar-spacer" />
                             <button className="btn btn-primary" onClick={() => setAddOpen(true)}>
@@ -612,7 +622,7 @@ export function DosTeachers() {
             </div>
 
             {addOpen && <InviteTeacherModal onClose={() => setAddOpen(false)} onInvite={handleInvite} />}
-            {editing  && <TeacherModal config={config} teacher={editing} onClose={() => setEditing(null)} onSave={handleEdit} />}
+            {editing && <TeacherModal config={config} subjectOptions={subjects} teacher={editing} onClose={() => setEditing(null)} onSave={handleEdit} />}
         </>
     )
 }

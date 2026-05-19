@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { classesFromConfig } from '../../utils/classes'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { StatCard } from '../../components/layout/StatCard'
@@ -13,7 +15,6 @@ import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
-const ALL_CLASSES = ['S1A', 'S1B', 'S2A', 'S2B', 'S3A', 'S3B', 'S4A', 'S4B', 'S5A', 'S5B', 'S6A', 'S6B']
 
 const timetableStats = [
     { colorClass: 'info',    icon: 'calendar_view_week', value: '8',      label: 'Periods per Day',   trend: 'Mon – Sat'    },
@@ -23,6 +24,8 @@ const timetableStats = [
 ]
 
 export function DosTimetable() {
+    const { config } = useSchoolConfig()
+    const allClasses = classesFromConfig(config)
     const [classId, setClassId] = useState('S3A')
     const [editingSlot, setEditingSlot] = useState(null)
     const [showForm, setShowForm] = useState(false)
@@ -113,7 +116,7 @@ export function DosTimetable() {
                                             value={classId}
                                             onChange={e => setClassId(e.target.value)}
                                         >
-                                            {ALL_CLASSES.map(c => (
+                                            {allClasses.map(c => (
                                                 <option key={c} value={c}>{c}</option>
                                             ))}
                                         </select>
