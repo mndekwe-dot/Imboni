@@ -427,45 +427,67 @@ class Command(BaseCommand):
         self.stdout.write('Creating results...')
         Result = m['Result']
         dos_user = users.get('dos@imboni.rw')
+
+        # Format: student_email, subject_code, class_test, exam_score, teacher_comment, status, rejection_reason
+        # status options:
+        #   'approved'  → DOS reviewed and accepted
+        #   'submitted' → teacher submitted, DOS has not reviewed yet (shows as 'pending' in UI)
+        #   'rejected'  → DOS reviewed and sent back for correction
         result_data = [
-            # student_email, subject_code, class_test, exam_score, comment
-            ('a.uwase@imboni.rw',         'MTH', 18, 67, 'Good performance. Keep it up.'),
-            ('a.uwase@imboni.rw',         'ENG', 17, 64, 'Strong written work.'),
-            ('m.ingabire@imboni.rw',      'MTH', 19, 72, 'Excellent analytical skills.'),
-            ('m.ingabire@imboni.rw',      'BIO', 20, 75, 'Outstanding lab work.'),
-            ('k.mutabazi@imboni.rw',      'ENG', 15, 53, 'Needs improvement in grammar.'),
-            ('p.nkurunziza@imboni.rw',    'MTH', 12, 40, 'Requires extra support.'),
-            ('d.umutoni@imboni.rw',       'PHY', 18, 66, 'Shows great understanding.'),
-            ('j.bizimana@imboni.rw',      'CHE', 14, 53, 'Satisfactory performance.'),
-            ('g.hakizimana.s@imboni.rw',  'MTH', 20, 74, 'Top of the class.'),
-            ('e.ndagijimana@imboni.rw',   'ENG', 11, 37, 'Needs significant support.'),
-            ('c.uwimana@imboni.rw',       'HIS', 17, 65, 'Good understanding of events.'),
-            ('d.nkurunziza@imboni.rw',    'GEO', 15, 58, 'Average performance.'),
+            # ── APPROVED — DOS already reviewed these ──────────────────────────
+            ('a.uwase@imboni.rw',        'MTH', 18, 67, 'Good performance. Keep it up.',        'approved', ''),
+            ('a.uwase@imboni.rw',        'ENG', 17, 64, 'Strong written work.',                 'approved', ''),
+            ('m.ingabire@imboni.rw',     'BIO', 20, 75, 'Outstanding lab work.',                'approved', ''),
+            ('d.umutoni@imboni.rw',      'PHY', 18, 66, 'Shows great understanding.',           'approved', ''),
+            ('g.hakizimana.s@imboni.rw', 'MTH', 20, 74, 'Top of the class.',                   'approved', ''),
+            ('c.uwimana@imboni.rw',      'HIS', 17, 65, 'Good understanding of events.',        'approved', ''),
+
+            # ── SUBMITTED (PENDING) — teacher sent, DOS has not reviewed yet ───
+            ('m.ingabire@imboni.rw',     'MTH', 19, 72, 'Excellent analytical skills.',         'submitted', ''),
+            ('k.mutabazi@imboni.rw',     'ENG', 15, 53, 'Needs improvement in grammar.',        'submitted', ''),
+            ('j.bizimana@imboni.rw',     'CHE', 14, 53, 'Satisfactory performance.',            'submitted', ''),
+            ('l.uwineza@imboni.rw',      'BIO', 16, 61, 'Good effort in lab sessions.',         'submitted', ''),
+            ('m.habimana@imboni.rw',     'MTH', 13, 48, 'Struggling with algebra concepts.',    'submitted', ''),
+
+            # ── REJECTED — DOS found issues and sent back for correction ────────
+            ('p.nkurunziza@imboni.rw',   'MTH', 12, 40, 'Requires extra support.',              'rejected', 'Marks do not match the class register. Please recheck and resubmit.'),
+            ('e.ndagijimana@imboni.rw',  'ENG', 11, 37, 'Needs significant support.',           'rejected', 'Several student scores are missing. Complete the marksheet and resubmit.'),
+            ('d.nkurunziza@imboni.rw',   'GEO', 15, 58, 'Average performance.',                 'rejected', 'The exam scores exceed the maximum allowed. Please verify and correct.'),
         ]
+
         subject_teacher_map = {v: users.get(k) for k, v in TEACHER_SUBJECTS.items()}
         r_count = 0
-        for s_email, subj_code, ct_marks, exam, comment in result_data:
+        for s_email, subj_code, ct_marks, exam, comment, status, rejection_reason in result_data:
             student = students.get(s_email)
             subject = subjects.get(subj_code)
             teacher = subject_teacher_map.get(subj_code, list(users.values())[2])
             if not student or not subject:
                 continue
+
+            # Build the defaults dict based on status
+            defaults = {
+                'teacher':          teacher,
+                'class_test_marks': ct_marks,
+                'exam_score':       exam,
+                'teacher_comment':  comment,
+                'submitted_at':     timezone.now(),
+            }
+            if status == 'approved':
+                defaults['dos_comment']  = 'Reviewed and approved.'
+                defaults['approved_by']  = dos_user
+                defaults['approved_at']  = timezone.now()
+            if status == 'rejected':
+                defaults['rejection_reason'] = rejection_reason
+                defaults['dos_comment']      = 'Please correct the issues and resubmit.'
+            defaults['status'] = status
+
             _, created = Result.objects.get_or_create(
                 student=student, subject=subject, term=current_term,
-                defaults={
-                    'teacher': teacher,
-                    'class_test_marks': ct_marks,
-                    'exam_score':       exam,
-                    'teacher_comment':  comment,
-                    'dos_comment':      'Reviewed and approved.',
-                    'status':           'approved',
-                    'approved_by':      dos_user,
-                    'approved_at':      timezone.now(),
-                }
+                defaults=defaults
             )
             if created:
                 r_count += 1
-        self.stdout.write(self.style.SUCCESS(f'  {r_count} results created'))
+        self.stdout.write(self.style.SUCCESS(f'  {r_count} results created ({r_count} total — approved, pending and rejected)'))
 
         # ── 11. Assessments ────────────────────────────────────────────────────
         self.stdout.write('Creating assessments...')
