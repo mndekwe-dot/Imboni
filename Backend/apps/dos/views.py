@@ -663,7 +663,7 @@ class StudentListCreateView(APIView):
             initials   = ''.join(p[0].upper() for p in name_parts[:2]) if name_parts else '?'
 
             avg_raw = Result.objects.filter(student=s, term=term).aggregate(avg=Avg('final_score'))['avg'] if term else None
-            att_obj = AttendanceSummary.objects.filter(student=s, term=term).first() if term else None
+            att_obj = AttendanceSummary.objects.filter(student=s, year=term.start_date.year).order_by('-month').first() if term else None
 
             data.append({
                 'student_id':      s.id,

@@ -1,6 +1,8 @@
 ﻿import { useState, useEffect } from 'react'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { dosUser } from './dosNav'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { classesFromConfig, yearsFromConfig } from '../../utils/classes'
+import { yearsFromConfig } from '../../utils/classes'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -186,28 +188,7 @@ export function DosStudents() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Student Management</h1>
-                            <p>Monitor student enrollment and performance</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <button className="notification-btn">
-                                <span className="material-symbols-rounded">notifications</span>
-                                <span className="notification-badge">2</span>
-                            </button>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
-                                    <span className="header-user-role">Director of Studies</span>
-                                </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">JN</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader title="Student Management" subtitle="Monitor student enrollment and performance" {...dosUser} />
 
                     <DashboardContent>
 
@@ -268,7 +249,6 @@ export function DosStudents() {
                                 grade:           gradeNum,
                                 section:         classLetter,
                                 enrollment_date: new Date().toISOString().split('T')[0],
-                                password:        'Imboni@2025',
                             })
                             const list = await getDosStudents()
                             setStudents((list.results ?? list).map(apiToStudent))
