@@ -8,7 +8,8 @@ import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
 import { StatCard } from '../../components/layout/StatCard'
 import { Modal } from '../../components/ui/Modal'
-import { getDosStudents, getDosStudentStats, inviteDosStudent, bulkInviteDosStudents } from '../../api/dos'
+import { getDosStudents, getDosStudentStats, inviteDosStudent, bulkInviteDosStudents,
+         getDosStudentDetail, suspendDosStudent, changeDosStudentClass, appointStudentLeader, removeStudentLeader } from '../../api/dos'
 import { getInvitations, resendInvitation, cancelInvitation } from '../../api/auth'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -34,11 +35,13 @@ const standMap = (p) => p >= 80 ? ['dos-stand-excellent','Excellent'] : p >= 60 
 function apiToStudent(s) {
     const [standClass, standing] = standMap(s.avg_performance ?? 0)
     return {
+        id:          s.student_id,   // UUID for API calls
         initials:    s.initials,
         name:        s.full_name,
         adm:         s.student_code,
         year:        gradeMap[s.grade] || s.grade,
         classLetter: s.section,
+        status:      s.status,
         house:       '—',
         t1:          '—',
         t2:          '—',
@@ -49,13 +52,23 @@ function apiToStudent(s) {
 }
 
 // ── Student Row ───────────────────────────────────────────────────────────────
-function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, standing }) {
+function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, standing, status, onView }) {
     return (
         <tr>
-            <td><div className="tm-teacher-cell"><div className="tm-av">{initials}</div><span>{name}</span></div></td>
+            <td>
+                <div className="tm-teacher-cell">
+                    <div className="tm-av" style={{ opacity: status === 'suspended' ? 0.5 : 1 }}>{initials}</div>
+                    <div>
+                        <span>{name}</span>
+                        {status === 'suspended' && (
+                            <span style={{ marginLeft: '0.4rem', fontSize: '0.68rem', background: 'var(--danger)', color: '#fff', borderRadius: '999px', padding: '0.05rem 0.45rem', fontWeight: 700 }}>Suspended</span>
+                        )}
+                    </div>
+                </div>
+            </td>
             <td>{adm}</td><td>{house}</td><td>{t1}</td><td>{t2}</td><td>{curr}</td>
             <td><span className={standClass}>{standing}</span></td>
-            <td><button className="tm-btn">View</button></td>
+            <td><button className="tm-btn" onClick={onView}>View</button></td>
         </tr>
     )
 }
@@ -337,7 +350,262 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
     )
 }
 
-// ── Pending Student Invitations Card ──────────────────────────────────────────
+// ── Student Detail Modal ──────────────────────────────────────────────────────
+const LEADER_ROLES = [
+    { value: 'head_boy',         label: 'Head Boy'         },
+    { value: 'head_girl',        label: 'Head Girl'        },
+    { value: 'deputy_head_boy',  label: 'Deputy Head Boy'  },
+    { value: 'deputy_head_girl', label: 'Deputy Head Girl' },
+    { value: 'prefect',          label: 'Prefect'          },
+    { value: 'house_captain',    label: 'House Captain'    },
+    { value: 'class_captain',    label: 'Class Captain'    },
+    { value: 'games_captain',    label: 'Games Captain'    },
+]
+
+const gradeFromYear = y => y.toUpperCase().startsWith('S') ? y.slice(1) : y
+
+function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
+    const [student,      setStudent]      = useState(null)
+    const [loading,      setLoading]      = useState(true)
+    const [actionErr,    setActionErr]    = useState('')
+
+    const [changeClassOpen, setChangeClassOpen] = useState(false)
+    const [newYear,   setNewYear]   = useState('')
+    const [newStream, setNewStream] = useState('')
+    const [saving,    setSaving]    = useState(false)
+
+    const [appointOpen, setAppointOpen] = useState(false)
+    const [leaderRole,  setLeaderRole]  = useState('')
+    const [leaderNotes, setLeaderNotes] = useState('')
+    const [appointing,  setAppointing]  = useState(false)
+
+    const [suspending, setSuspending] = useState(false)
+    const [removing,   setRemoving]   = useState(null)
+
+    const availYears   = yearsFromConfig(config)
+    const availStreams  = [...new Set(config.flatMap(s => s.years.flatMap(y => y.streams)))]
+
+    useEffect(() => {
+        setLoading(true); setActionErr(''); setChangeClassOpen(false); setAppointOpen(false)
+        getDosStudentDetail(studentId)
+            .then(d => { setStudent(d); setNewYear(`S${d.grade}`); setNewStream(d.section) })
+            .catch(() => setActionErr('Failed to load student.'))
+            .finally(() => setLoading(false))
+    }, [studentId])
+
+    async function handleSuspend() {
+        setSuspending(true); setActionErr('')
+        try {
+            const res = await suspendDosStudent(studentId, { suspended: student.status !== 'suspended' })
+            setStudent(s => ({ ...s, status: res.status }))
+            onStudentUpdated()
+        } catch { setActionErr('Failed to update status.') }
+        finally  { setSuspending(false) }
+    }
+
+    async function handleChangeClass() {
+        if (!newYear || !newStream) return
+        setSaving(true); setActionErr('')
+        try {
+            const res = await changeDosStudentClass(studentId, { grade: gradeFromYear(newYear), section: newStream })
+            setStudent(s => ({ ...s, grade: gradeFromYear(newYear), section: newStream }))
+            setChangeClassOpen(false)
+            if (res.warning) setActionErr(res.warning)
+            onStudentUpdated()
+        } catch { setActionErr('Failed to change class.') }
+        finally  { setSaving(false) }
+    }
+
+    async function handleAppoint() {
+        if (!leaderRole) return
+        setAppointing(true); setActionErr('')
+        try {
+            const res = await appointStudentLeader(studentId, { role: leaderRole, notes: leaderNotes })
+            setStudent(s => ({ ...s, leadership: [...(s.leadership || []).filter(l => l.role !== leaderRole), res] }))
+            setAppointOpen(false); setLeaderRole(''); setLeaderNotes('')
+        } catch (err) { setActionErr(err?.response?.data?.error || 'Failed to appoint leader.') }
+        finally { setAppointing(false) }
+    }
+
+    async function handleRemoveLeader(role) {
+        setRemoving(role); setActionErr('')
+        try {
+            await removeStudentLeader(studentId, role)
+            setStudent(s => ({ ...s, leadership: s.leadership.filter(l => l.role !== role) }))
+        } catch { setActionErr('Failed to remove role.') }
+        finally  { setRemoving(null) }
+    }
+
+    const isSuspended = student?.status === 'suspended'
+    const classLabel  = student ? `S${student.grade}${student.section}` : '—'
+
+    const standingColor = (p) => p >= 80 ? 'var(--success)' : p >= 60 ? 'var(--warning)' : 'var(--danger)'
+
+    const infoRow = (label, value) => (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.35rem 0', borderBottom: '1px solid var(--border)' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{label}</span>
+            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{value ?? '—'}</span>
+        </div>
+    )
+
+    return (
+        <Modal
+            title="Student Profile"
+            icon="person"
+            onClose={onClose}
+            footer={
+                <div className="modal-confirm-actions" style={{ width: '100%' }}>
+                    <button
+                        className="btn btn-sm"
+                        onClick={handleSuspend}
+                        disabled={suspending || !student}
+                        style={{
+                            background: isSuspended ? 'var(--success)' : '#fef2f2',
+                            color:      isSuspended ? '#fff'           : 'var(--danger)',
+                            border:     isSuspended ? 'none'           : '1px solid #fca5a5',
+                            display: 'flex', alignItems: 'center', gap: '0.35rem',
+                        }}
+                    >
+                        <span className="material-symbols-rounded icon-sm">{isSuspended ? 'check_circle' : 'block'}</span>
+                        {suspending ? '…' : isSuspended ? 'Reinstate' : 'Suspend'}
+                    </button>
+                    <button className="btn btn-primary btn-sm" onClick={onClose}>Close</button>
+                </div>
+            }
+        >
+            {loading && <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '1.5rem 0' }}>Loading…</p>}
+
+            {!loading && student && (
+                <>
+                    {/* ── Profile row ── */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1rem' }}>
+                        <div style={{ width: 46, height: 46, borderRadius: '50%', background: avatarColor(student.full_name), color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', flexShrink: 0 }}>
+                            {initials(student.full_name)}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{student.full_name}</div>
+                            <div style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{student.student_code} · {classLabel}</div>
+                            <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, borderRadius: '999px', padding: '0.05rem 0.5rem', background: isSuspended ? 'var(--danger)' : 'var(--success)', color: '#fff' }}>
+                                    {isSuspended ? 'Suspended' : 'Active'}
+                                </span>
+                                {(student.leadership || []).map(l => (
+                                    <span key={l.role} style={{ fontSize: '0.68rem', fontWeight: 600, borderRadius: '999px', padding: '0.05rem 0.5rem', background: 'var(--primary)', color: '#fff' }}>
+                                        {l.role_display}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        {/* Stat pills */}
+                        <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                            {[
+                                { label: 'Perf', val: student.avg_performance },
+                                { label: 'Att',  val: student.attendance_rate  },
+                            ].map(({ label, val }) => (
+                                <div key={label} style={{ textAlign: 'center', padding: '0.3rem 0.55rem', background: 'var(--surface-2,#f8f9fa)', borderRadius: 6, minWidth: 52, borderTop: `3px solid ${standingColor(val ?? 0)}` }}>
+                                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: standingColor(val ?? 0) }}>{val != null ? `${val}%` : '—'}</div>
+                                    <div style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>{label}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* ── Error ── */}
+                    {actionErr && (
+                        <div style={{ padding: '0.5rem 0.75rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 6, fontSize: '0.8rem', color: 'var(--danger)', marginBottom: '0.75rem' }}>
+                            {actionErr}
+                        </div>
+                    )}
+
+                    {/* ── Info ── */}
+                    <p className="teacher-modal-section-label">Information</p>
+                    <div style={{ marginBottom: '1rem' }}>
+                        {infoRow('Email',       student.email)}
+                        {infoRow('Class',       classLabel)}
+                        {infoRow('Student ID',  student.student_code)}
+                        {infoRow('Enrolled',    student.enrollment_date)}
+                        {infoRow('Status',      student.status.charAt(0).toUpperCase() + student.status.slice(1))}
+                    </div>
+
+                    {/* ── Leadership ── */}
+                    <p className="teacher-modal-section-label">Leadership Roles</p>
+                    {(student.leadership || []).length === 0 && !appointOpen && (
+                        <p style={{ color: 'var(--muted)', fontSize: '0.82rem', marginBottom: '0.5rem' }}>No roles this term.</p>
+                    )}
+                    {(student.leadership || []).map(l => (
+                        <div key={l.role} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.4rem 0.6rem', background: 'var(--surface-2,#f8f9fa)', borderRadius: 6, marginBottom: '0.3rem' }}>
+                            <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{l.role_display} <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '0.75rem' }}>since {l.appointed_date}</span></span>
+                            <button onClick={() => handleRemoveLeader(l.role)} disabled={removing === l.role}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '0.75rem', fontWeight: 600 }}>
+                                {removing === l.role ? '…' : 'Remove'}
+                            </button>
+                        </div>
+                    ))}
+                    {!appointOpen ? (
+                        <button onClick={() => setAppointOpen(true)}
+                            style={{ width: '100%', padding: '0.4rem', fontSize: '0.82rem', color: 'var(--primary)', background: 'none', border: '1px dashed var(--primary)', borderRadius: 6, cursor: 'pointer', marginBottom: '0.75rem' }}>
+                            + Appoint Role
+                        </button>
+                    ) : (
+                        <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '0.75rem', marginBottom: '0.75rem' }}>
+                            <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                                <label className="form-label">Role</label>
+                                <select className="form-control" value={leaderRole} onChange={e => setLeaderRole(e.target.value)}>
+                                    <option value="">— Select a role —</option>
+                                    {LEADER_ROLES.filter(r => !(student.leadership || []).some(l => l.role === r.value)).map(r => (
+                                        <option key={r.value} value={r.value}>{r.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                                <label className="form-label">Notes <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></label>
+                                <input className="form-control" placeholder="e.g. Elected by class vote" value={leaderNotes} onChange={e => setLeaderNotes(e.target.value)} />
+                            </div>
+                            <div className="modal-confirm-actions">
+                                <button className="btn btn-outline btn-sm" onClick={() => { setAppointOpen(false); setLeaderRole(''); setLeaderNotes('') }}>Cancel</button>
+                                <button className="btn btn-primary btn-sm" onClick={handleAppoint} disabled={!leaderRole || appointing}>
+                                    {appointing ? 'Appointing…' : 'Confirm'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── Change Class ── */}
+                    <p className="teacher-modal-section-label">Class Management</p>
+                    {!changeClassOpen ? (
+                        <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setChangeClassOpen(true)}>
+                            <span className="material-symbols-rounded icon-sm">swap_horiz</span> Change Class
+                        </button>
+                    ) : (
+                        <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '0.75rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label className="form-label">Year</label>
+                                    <select className="form-control" value={newYear} onChange={e => setNewYear(e.target.value)}>
+                                        {availYears.map(y => <option key={y} value={y}>{y}</option>)}
+                                    </select>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label className="form-label">Stream</label>
+                                    <select className="form-control" value={newStream} onChange={e => setNewStream(e.target.value)}>
+                                        {availStreams.map(s => <option key={s} value={s}>{s}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="modal-confirm-actions">
+                                <button className="btn btn-outline btn-sm" onClick={() => setChangeClassOpen(false)}>Cancel</button>
+                                <button className="btn btn-primary btn-sm" onClick={handleChangeClass} disabled={saving}>
+                                    {saving ? 'Saving…' : `Move to ${newYear}${newStream}`}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
+        </Modal>
+    )
+}
+
 const INV_TABS = [
     { key: 'all',        label: 'All'        },
     { key: 'pending',    label: 'Pending'    },
@@ -485,27 +753,33 @@ export function DosStudents() {
     const admitYears  = yearsFromConfig(config)
     const admitStreams = [...new Set(config.flatMap(s => s.years.flatMap(y => y.streams)))]
 
-    const [students,    setStudents]    = useState([])
-    const [apiStats,    setApiStats]    = useState(null)
-    const [loading,     setLoading]     = useState(true)
-    const [error,       setError]       = useState(null)
-    const [section,     setSection]     = useState('')
-    const [year,        setYear]        = useState('')
-    const [classVal,    setClassVal]    = useState('')
-    const [search,      setSearch]      = useState('')
-    const [inviteOpen,  setInviteOpen]  = useState(false)
-    const [invitations, setInvitations] = useState([])
+    const [students,          setStudents]          = useState([])
+    const [apiStats,          setApiStats]          = useState(null)
+    const [loading,           setLoading]           = useState(true)
+    const [error,             setError]             = useState(null)
+    const [section,           setSection]           = useState('')
+    const [year,              setYear]              = useState('')
+    const [classVal,          setClassVal]          = useState('')
+    const [search,            setSearch]            = useState('')
+    const [inviteOpen,        setInviteOpen]        = useState(false)
+    const [invitations,       setInvitations]       = useState([])
+    const [selectedStudentId, setSelectedStudentId] = useState(null)
+
+    async function loadData() {
+        const [list, stats, invList] = await Promise.all([getDosStudents(), getDosStudentStats(), getInvitations()])
+        setStudents((list.results ?? list).map(apiToStudent))
+        setApiStats(stats)
+        const arr = Array.isArray(invList) ? invList : (invList?.results ?? [])
+        setInvitations(arr.filter(inv => inv.role === 'student'))
+    }
 
     useEffect(() => {
-        Promise.all([getDosStudents(), getDosStudentStats(), getInvitations()])
-            .then(([list, stats, invList]) => {
-                setStudents((list.results ?? list).map(apiToStudent))
-                setApiStats(stats)
-                const arr = Array.isArray(invList) ? invList : (invList?.results ?? [])
-                setInvitations(arr.filter(inv => inv.role === 'student'))
-            })
-            .catch(err => setError(err.message))
-            .finally(() => setLoading(false))
+        async function init() {
+            try   { await loadData() }
+            catch (err) { setError(err.message) }
+            finally     { setLoading(false) }
+        }
+        init()
     }, [])
 
     const studentStats = apiStats ? [
@@ -622,7 +896,7 @@ export function DosStudents() {
                             title={`${classLabel} — Students`}
                             data={filtered}
                             columns={['Student','Adm No.','Dormitory','Term 1','Term 2','Current','Standing','Actions']}
-                            renderRow={s => <StudentRow key={s.adm} {...s} />}
+                            renderRow={s => <StudentRow key={s.adm} {...s} onView={() => setSelectedStudentId(s.id)} />}
                             emptyIcon="people"
                             emptyTitle="No students found"
                             emptyDesc={search ? `No results for "${search}"` : `No students found for ${classLabel}.`}
@@ -639,6 +913,15 @@ export function DosStudents() {
                     onClose={() => setInviteOpen(false)}
                     onInvite={handleInvite}
                     onBulkInvite={handleBulkInvite}
+                />
+            )}
+
+            {selectedStudentId && (
+                <StudentDetailDrawer
+                    studentId={selectedStudentId}
+                    onClose={() => setSelectedStudentId(null)}
+                    onStudentUpdated={loadData}
+                    config={config}
                 />
             )}
         </>
