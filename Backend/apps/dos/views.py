@@ -1686,7 +1686,16 @@ class StudentInviteView(APIView):
                 {'error':'Parent must have at least one contact: email or phone number.'},
                 status=http_status.HTTP_400_BAD_REQUEST
             )
-        expires_at= timezone.now()+timedelta(days=settings.INVITATION_EXPIRY_DAYS) 
+        # Resolve year + stream to a Class object so the student is assigned on registration
+        year   = student_data.get('year',   '').strip()
+        stream = student_data.get('stream', '').strip()
+        class_obj = None
+        if year and stream:
+            from apps.teacher.models import Class
+            grade = year[1:] if year.upper().startswith('S') else year
+            class_obj = Class.objects.filter(grade=grade, section=stream).first()
+
+        expires_at= timezone.now()+timedelta(days=settings.INVITATION_EXPIRY_DAYS)
         results={}
 
         # Send student invitation
@@ -1694,6 +1703,7 @@ class StudentInviteView(APIView):
             first_name=s_first,last_name=s_last,email=s_email,
             role='student',invited_by=request.user,
             expires_at=expires_at,token='pending',uid='pending',
+            class_obj=class_obj,
         )   
         uid=urlsafe_base64_encode(force_bytes(student_inv.pk))
         token=default_token_generator.make_token(request.user)
@@ -1792,6 +1802,8 @@ class StudentBulkInviteView(APIView):
             p_last  = row.get('parent_last_name',   '').strip()
             p_email = row.get('parent_email',        '').strip()
             p_phone = row.get('parent_phone',        '').strip()
+            year    = row.get('year',                '').strip()
+            stream  = row.get('stream',              '').strip()
 
             if not s_first or not s_last or not s_email:
                 errors.append({'row': row_num, 'error': 'Student first name, last name, and email are required.'})
@@ -1803,11 +1815,19 @@ class StudentBulkInviteView(APIView):
                 errors.append({'row': row_num, 'error': 'Parent must have at least one contact: email or phone.'})
                 continue
 
+            # Resolve year + stream to a Class object
+            row_class_obj = None
+            if year and stream:
+                from apps.teacher.models import Class
+                grade = year[1:] if year.upper().startswith('S') else year
+                row_class_obj = Class.objects.filter(grade=grade, section=stream).first()
+
             try:
                 student_inv = Invitation.objects.create(
                     first_name=s_first, last_name=s_last, email=s_email,
                     role='student', invited_by=request.user,
                     expires_at=expires_at, token='pending', uid='pending',
+                    class_obj=row_class_obj,
                 )
                 uid   = urlsafe_base64_encode(force_bytes(student_inv.pk))
                 token = default_token_generator.make_token(request.user)

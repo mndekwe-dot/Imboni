@@ -753,22 +753,40 @@ class CompleteRegistrationView(APIView):
         # Create user preferences
         UserPreferences.objects.get_or_create(user=user)
 
-        # Auto-assign student to class if invitation had a class
+        # Create Student profile and class assignment when invited with a class
         if invitation.role == 'student' and invitation.class_obj:
             try:
+                from apps.student.models import Student as StudentProfile
                 from apps.teacher.models import ClassAssignment
                 from apps.results.models import AcademicTerm
-                from apps.student.models import Student as StudentProfile
+
+                last = StudentProfile.objects.order_by('-created_at').first()
+                next_num = 1
+                if last and last.student_id.startswith('STU-'):
+                    try:
+                        next_num = int(last.student_id.split('-')[1]) + 1
+                    except ValueError:
+                        next_num = StudentProfile.objects.count() + 1
+                student_id = f"STU-{next_num:03d}"
+
+                student_profile = StudentProfile.objects.create(
+                    user            = user,
+                    student_id      = student_id,
+                    grade           = invitation.class_obj.grade,
+                    section         = invitation.class_obj.section,
+                    enrollment_date = timezone.now().date(),
+                    status          = 'active',
+                )
+
                 current_term = AcademicTerm.objects.filter(is_current=True).first()
-                student_profile = StudentProfile.objects.filter(user=user).first()
-                if current_term and student_profile:
+                if current_term:
                     ClassAssignment.objects.get_or_create(
                         class_obj=invitation.class_obj,
                         student=student_profile,
                         term=current_term,
                     )
             except Exception:
-                pass  # Class assignment failure should not block registration
+                pass  # Profile/assignment failure should not block registration
 
         # Auto-link parent to student when parent registers
         if invitation.role == 'parent' and invitation.linked_email:
@@ -905,24 +923,3 @@ class EmailChangeConfirmView(APIView):
                 'detail':'Email updated successfully.'
             }
         )
-#Auto-link parent to student when parent registers
-if Invitation.role == 'parent' and invitation.linked_email:
-    try:
-        from apps.student.models import Student
-        from app.parents.models import ParentStudentRelationship
-        student_user=User.objects.filter(
-            email__iexact=invitation.linked_email
-        ).first()
-        if student_user:
-            student_profile=Student.objects.filter(user=student_user).first()
-            if student_profile:
-                ParentStudentRelationship.objects.get_or_create(
-                    parent=user,
-                    student=student_profile,
-                    defaults={
-                        'relationship_type':'guardian',
-                        'is_primary_contact': True,
-                    }
-                )
-    except Exception:
-        pass #Never block registration if linking fails
