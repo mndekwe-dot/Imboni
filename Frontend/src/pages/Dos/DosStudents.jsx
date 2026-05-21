@@ -338,9 +338,17 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
 }
 
 // ── Pending Student Invitations Card ──────────────────────────────────────────
-function PendingStudentInvitations({ invitations, onResend, onCancel }) {
+const INV_TABS = [
+    { key: 'all',        label: 'All'        },
+    { key: 'pending',    label: 'Pending'    },
+    { key: 'registered', label: 'Registered' },
+    { key: 'expired',    label: 'Expired'    },
+]
+
+function InvitationHistory({ invitations, onResend, onCancel }) {
     const [resending,  setResending]  = useState(null)
     const [cancelling, setCancelling] = useState(null)
+    const [filter,     setFilter]     = useState('all')
 
     if (invitations.length === 0) return null
 
@@ -353,73 +361,120 @@ function PendingStudentInvitations({ invitations, onResend, onCancel }) {
         try { await onCancel(id) } finally { setCancelling(null) }
     }
 
+    const registered = invitations.filter(inv =>  inv.is_used)
+    const expired    = invitations.filter(inv => !inv.is_used &&  inv.is_expired)
+    const pending    = invitations.filter(inv => !inv.is_used && !inv.is_expired)
+
+    const counts = { all: invitations.length, pending: pending.length, registered: registered.length, expired: expired.length }
+
+    const visible = filter === 'registered' ? registered
+                  : filter === 'expired'    ? expired
+                  : filter === 'pending'    ? pending
+                  : invitations
+
     return (
-        <div className="card" style={{ marginBottom:'1.25rem', overflow:'hidden' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', padding:'0.875rem 1.25rem', borderBottom:'1px solid var(--border)' }}>
-                <span className="material-symbols-rounded" style={{ color:'var(--warning)', fontSize:'1.2rem' }}>schedule_send</span>
-                <span style={{ fontWeight:600, fontSize:'0.95rem' }}>Pending Student Invitations</span>
-                <span style={{ background:'var(--warning)', color:'#fff', borderRadius:'999px', fontSize:'0.72rem', padding:'0.1rem 0.55rem', fontWeight:700 }}>
+        <div className="card" style={{ marginBottom: '1.25rem', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)' }}>
+                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>mark_email_read</span>
+                <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>Student Invitation History</span>
+                <span style={{ background: 'var(--primary)', color: '#fff', borderRadius: '999px', fontSize: '0.72rem', padding: '0.1rem 0.55rem', fontWeight: 700 }}>
                     {invitations.length}
                 </span>
-                <span style={{ color:'var(--muted)', fontSize:'0.8rem', marginLeft:'0.25rem' }}>
-                    — students who have not yet completed registration
-                </span>
             </div>
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
-                <thead>
-                    <tr style={{ fontSize:'0.78rem', color:'var(--muted)', background:'var(--surface-2,#f8f9fa)', textTransform:'uppercase', letterSpacing:'0.04em' }}>
-                        <th style={{ padding:'0.55rem 1.25rem', textAlign:'left', fontWeight:600 }}>Student</th>
-                        <th style={{ padding:'0.55rem 1rem',   textAlign:'left', fontWeight:600 }}>Email</th>
-                        <th style={{ padding:'0.55rem 1rem',   textAlign:'left', fontWeight:600 }}>Status</th>
-                        <th style={{ padding:'0.55rem 1rem',   textAlign:'left', fontWeight:600 }}>Invited</th>
-                        <th style={{ padding:'0.55rem 1rem',   textAlign:'left', fontWeight:600 }}>Expires</th>
-                        <th style={{ padding:'0.55rem 1.25rem', textAlign:'right', fontWeight:600 }}>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {invitations.map(inv => {
-                        const fullName = `${inv.first_name} ${inv.last_name}`
-                        const expired  = inv.is_expired
-                        return (
-                            <tr key={inv.id} style={{ borderTop:'1px solid var(--border)' }}>
-                                <td style={{ padding:'0.75rem 1.25rem' }}>
-                                    <div style={{ display:'flex', alignItems:'center', gap:'0.6rem' }}>
-                                        <div className="dt-avatar" style={{ background:avatarColor(fullName) }}>{initials(fullName)}</div>
-                                        <span style={{ fontWeight:500, fontSize:'0.9rem' }}>{fullName}</span>
-                                    </div>
-                                </td>
-                                <td style={{ padding:'0.75rem 1rem', color:'var(--muted)', fontSize:'0.875rem' }}>{inv.email || '—'}</td>
-                                <td style={{ padding:'0.75rem 1rem' }}>
-                                    {expired
-                                        ? <span style={{ color:'var(--danger)',  fontWeight:600, fontSize:'0.8rem' }}>Expired</span>
-                                        : inv.delivery_status === 'sent'
-                                            ? <span style={{ color:'var(--success)', fontWeight:600, fontSize:'0.8rem' }}>Sent</span>
-                                            : <span style={{ color:'var(--warning)', fontWeight:600, fontSize:'0.8rem' }}>Failed</span>
-                                    }
-                                </td>
-                                <td style={{ padding:'0.75rem 1rem', color:'var(--muted)', fontSize:'0.8rem' }}>{daysAgo(inv.created_at)}</td>
-                                <td style={{ padding:'0.75rem 1rem', color: expired ? 'var(--danger)' : 'var(--muted)', fontSize:'0.8rem' }}>
-                                    {new Date(inv.expires_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}
-                                </td>
-                                <td style={{ padding:'0.75rem 1.25rem' }}>
-                                    <div style={{ display:'flex', gap:'0.4rem', justifyContent:'flex-end' }}>
-                                        <button className="btn btn-outline btn-sm" disabled={resending === inv.id} onClick={() => doResend(inv.id)}>
-                                            <span className="material-symbols-rounded icon-sm">send</span>
-                                            {resending === inv.id ? 'Sending…' : 'Resend'}
-                                        </button>
-                                        <button className="btn btn-sm"
-                                            style={{ color:'var(--danger)', border:'1px solid var(--danger)', background:'transparent' }}
-                                            disabled={cancelling === inv.id} onClick={() => doCancel(inv.id)}>
-                                            <span className="material-symbols-rounded icon-sm">cancel</span>
-                                            {cancelling === inv.id ? '…' : 'Cancel'}
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
+
+            <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', background: 'var(--surface-2,#f8f9fa)' }}>
+                {INV_TABS.map(tab => (
+                    <button key={tab.key} onClick={() => setFilter(tab.key)} style={{
+                        padding: '0.5rem 1.1rem', fontSize: '0.82rem', background: 'none', border: 'none',
+                        borderBottom: filter === tab.key ? '2px solid var(--primary)' : '2px solid transparent',
+                        fontWeight: filter === tab.key ? 700 : 400,
+                        color: filter === tab.key ? 'var(--primary)' : 'var(--muted)',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem',
+                    }}>
+                        {tab.label}
+                        {counts[tab.key] > 0 && (
+                            <span style={{
+                                background: filter === tab.key ? 'var(--primary)' : 'var(--border)',
+                                color: filter === tab.key ? '#fff' : 'var(--muted)',
+                                borderRadius: '999px', fontSize: '0.68rem', padding: '0.05rem 0.45rem', fontWeight: 700,
+                            }}>{counts[tab.key]}</span>
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {visible.length === 0 ? (
+                <div style={{ padding: '1.5rem', color: 'var(--muted)', fontSize: '0.875rem', textAlign: 'center' }}>
+                    No {filter === 'all' ? '' : filter} invitations
+                </div>
+            ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                        <tr style={{ fontSize: '0.78rem', color: 'var(--muted)', background: 'var(--surface-2,#f8f9fa)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                            <th style={{ padding: '0.55rem 1.25rem', textAlign: 'left', fontWeight: 600 }}>Student</th>
+                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Email</th>
+                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Class</th>
+                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Status</th>
+                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Invited</th>
+                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Expires</th>
+                            <th style={{ padding: '0.55rem 1.25rem', textAlign: 'right', fontWeight: 600 }}>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {visible.map(inv => {
+                            const fullName = `${inv.first_name} ${inv.last_name}`
+                            let statusEl
+                            if (inv.is_used) {
+                                statusEl = (
+                                    <span style={{ color: 'var(--success)', fontWeight: 600, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>check_circle</span>Registered
+                                    </span>
+                                )
+                            } else if (inv.is_expired) {
+                                statusEl = <span style={{ color: 'var(--danger)',  fontWeight: 600, fontSize: '0.8rem' }}>Expired</span>
+                            } else if (inv.delivery_status === 'sent') {
+                                statusEl = <span style={{ color: 'var(--warning)', fontWeight: 600, fontSize: '0.8rem' }}>Pending</span>
+                            } else {
+                                statusEl = <span style={{ color: 'var(--danger)',  fontWeight: 600, fontSize: '0.8rem' }}>Failed</span>
+                            }
+
+                            return (
+                                <tr key={inv.id} style={{ borderTop: '1px solid var(--border)' }}>
+                                    <td style={{ padding: '0.75rem 1.25rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                            <div className="dt-avatar" style={{ background: avatarColor(fullName) }}>{initials(fullName)}</div>
+                                            <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{fullName}</span>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.875rem' }}>{inv.email || '—'}</td>
+                                    <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.875rem' }}>{inv.class_obj_name || '—'}</td>
+                                    <td style={{ padding: '0.75rem 1rem' }}>{statusEl}</td>
+                                    <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.8rem' }}>{daysAgo(inv.created_at)}</td>
+                                    <td style={{ padding: '0.75rem 1rem', color: inv.is_expired && !inv.is_used ? 'var(--danger)' : 'var(--muted)', fontSize: '0.8rem' }}>
+                                        {inv.is_used ? '—' : new Date(inv.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                    </td>
+                                    <td style={{ padding: '0.75rem 1.25rem' }}>
+                                        {!inv.is_used && (
+                                            <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                                                <button className="btn btn-outline btn-sm" disabled={resending === inv.id} onClick={() => doResend(inv.id)}>
+                                                    <span className="material-symbols-rounded icon-sm">send</span>
+                                                    {resending === inv.id ? 'Sending…' : 'Resend'}
+                                                </button>
+                                                <button className="btn btn-sm"
+                                                    style={{ color: 'var(--danger)', border: '1px solid var(--danger)', background: 'transparent' }}
+                                                    disabled={cancelling === inv.id} onClick={() => doCancel(inv.id)}>
+                                                    <span className="material-symbols-rounded icon-sm">cancel</span>
+                                                    {cancelling === inv.id ? '…' : 'Cancel'}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            )}
         </div>
     )
 }
@@ -447,7 +502,7 @@ export function DosStudents() {
                 setStudents((list.results ?? list).map(apiToStudent))
                 setApiStats(stats)
                 const arr = Array.isArray(invList) ? invList : (invList?.results ?? [])
-                setInvitations(arr.filter(inv => inv.role === 'student' && !inv.is_used))
+                setInvitations(arr.filter(inv => inv.role === 'student'))
             })
             .catch(err => setError(err.message))
             .finally(() => setLoading(false))
@@ -464,7 +519,7 @@ export function DosStudents() {
         await inviteDosStudent(data)
         const invList = await getInvitations()
         const arr = Array.isArray(invList) ? invList : (invList?.results ?? [])
-        setInvitations(arr.filter(inv => inv.role === 'student' && !inv.is_used))
+        setInvitations(arr.filter(inv => inv.role === 'student'))
     }
 
     async function handleBulkInvite(file) {
@@ -472,7 +527,7 @@ export function DosStudents() {
         if (result.created > 0) {
             const invList = await getInvitations()
             const arr = Array.isArray(invList) ? invList : (invList?.results ?? [])
-            setInvitations(arr.filter(inv => inv.role === 'student' && !inv.is_used))
+            setInvitations(arr.filter(inv => inv.role === 'student'))
         }
         return result
     }
@@ -481,12 +536,14 @@ export function DosStudents() {
         await resendInvitation(id)
         const invList = await getInvitations()
         const arr = Array.isArray(invList) ? invList : (invList?.results ?? [])
-        setInvitations(arr.filter(inv => inv.role === 'student' && !inv.is_used))
+        setInvitations(arr.filter(inv => inv.role === 'student'))
     }
 
     async function handleCancelInvite(id) {
         await cancelInvitation(id)
-        setInvitations(prev => prev.filter(inv => inv.id !== id))
+        const invList = await getInvitations()
+        const arr = Array.isArray(invList) ? invList : (invList?.results ?? [])
+        setInvitations(arr.filter(inv => inv.role === 'student'))
     }
 
     if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
@@ -555,7 +612,7 @@ export function DosStudents() {
                             </button>
                         </div>
 
-                        <PendingStudentInvitations
+                        <InvitationHistory
                             invitations={invitations}
                             onResend={handleResend}
                             onCancel={handleCancelInvite}

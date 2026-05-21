@@ -124,7 +124,9 @@ class InvitationSerializer(serializers.ModelSerializer):
         ]
 
     def get_class_obj_name(self, obj):
-        return obj.class_obj.name if obj.class_obj else None
+        if not obj.class_obj:
+            return None
+        return f"S{obj.class_obj.grade}{obj.class_obj.section}"
 
     def validate(self, data):
         # At least one of email or phone must be provided
