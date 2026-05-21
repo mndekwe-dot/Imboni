@@ -126,7 +126,11 @@ class Invitation(models.Model):
         related_name='invitations',
         help_text='Class to assign the student to upon registration (students only).',
     )
+    
     created_at=models.DateTimeField(auto_now_add=True)
+    
+    linked_email = models.EmailField(blank=True,default='', help_text='For parent invitations: stores the student email to auto-link on registration.')
+    
     class Meta:
         db_table = 'invitations'
         ordering =['-created_at']

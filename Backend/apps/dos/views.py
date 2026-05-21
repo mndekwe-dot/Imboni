@@ -178,7 +178,7 @@ class DOSRecentActivityView(APIView):
 
         # Sort newest first; None timestamps go last
         activities.sort(
-            key=lambda x: x['timestamp'] or timezone.datetime.min.replace(tzinfo=timezone.utc),
+            key=lambda x: x['timestamp'] or timezone.datetime.min.replace(tzinfo=timezone.UTC),
             reverse=True,
         )
 
@@ -1647,6 +1647,205 @@ class SubjectCategoryRenameView(APIView):
         deleted, _ = Subject.objects.filter(category=name).delete()
         return Response({'deleted': deleted})
     
+class StudentInviteView(APIView):
+    permission_classes=[IsDOSOrAdmin]
+    
+    def post(self,request):
+        from django.conf import settings
+        from django.contrib.auth.tokens import default_token_generator
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+        from apps.authentication.models import Invitation
+        from apps.authentication.service import dispatch_invitation
+
+        student_data=request.data.get('student',{})
+        parent_data =request.data.get('parent',{})
+
+        # Validate Student
+        s_first =student_data.get('first_name','').strip()
+        s_last = student_data.get('last_name','').strip()
+        s_email=student_data.get('email','').strip()
+        if not s_first or not s_last or not s_email:
+            return Response(
+                {'error':'Student first name,last name and email are required'},
+                status=http_status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate Parent
+        p_first =parent_data.get('first_name','').strip()
+        p_last = parent_data.get('last_name','').strip()
+        p_email=parent_data.get('email','').strip()
+        p_phone=parent_data.get('phone_number','').strip()
+        if not p_first or not p_last:
+            return Response(
+                {'error':'Parent first name and last name are required'},
+                status=http_status.HTTP_400_BAD_REQUEST
+            )
+        if not p_email and not p_phone:
+            return Response(
+                {'error':'Parent must have at least one contact: email or phone number.'},
+                status=http_status.HTTP_400_BAD_REQUEST
+            )
+        expires_at= timezone.now()+timedelta(days=settings.INVITATION_EXPIRY_DAYS) 
+        results={}
+
+        # Send student invitation
+        student_inv = Invitation.objects.create(
+            first_name=s_first,last_name=s_last,email=s_email,
+            role='student',invited_by=request.user,
+            expires_at=expires_at,token='pending',uid='pending',
+        )   
+        uid=urlsafe_base64_encode(force_bytes(student_inv.pk))
+        token=default_token_generator.make_token(request.user)
+        student_inv.uid=uid
+        student_inv.token=token
+        student_inv.save()
+        link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+        channels =dispatch_invitation(student_inv,link)
+        student_inv.channels_sent=channels
+        student_inv.delivery_status='sent' if channels else 'failed'
+        student_inv.save()
+        results['student']={'email':s_email,'channels':channels}
+
+        # Send parent invitation
+        # linked_email stores the student's email so we can auto-link them
+        # when the parent completes registration
+        parent_inv = Invitation.objects.create(
+            first_name=p_first,last_name=p_last,
+            email=p_email,phone_number=p_phone,
+            role='parent',invited_by=request.user,
+            expires_at=expires_at,token='pending',uid='pending',
+            linked_email=s_email,
+        )
+        uid=urlsafe_base64_encode(force_bytes(parent_inv.pk))
+        token=default_token_generator.make_token(request.user)
+        parent_inv.uid=uid
+        parent_inv.token=token
+        parent_inv.save()
+        link=f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+        channels=dispatch_invitation(parent_inv,link)
+        parent_inv.channels_sent=channels
+        parent_inv.delivery_status='sent' if channels else 'failed'
+        parent_inv.save()
+        results['parent']={'contact':p_email or p_phone, 'channels':channels}
+
+        return Response(
+            {'detail':'Invitation sent to student and parent.','results': results},
+            status=http_status.HTTP_201_CREATED
+        )
+
+
+class StudentBulkInviteView(APIView):
+    """
+    POST /imboni/dos/students/invite/bulk/   (multipart/form-data, field: file)
+
+    CSV columns (header row required):
+        student_first_name, student_last_name, student_email,
+        year, stream,
+        parent_first_name, parent_last_name, parent_email, parent_phone
+
+    For every valid row: creates one student invitation + one parent invitation.
+    parent_email and parent_phone are both optional but at least one is required.
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def post(self, request):
+        import csv, io
+        from django.conf import settings
+        from django.contrib.auth.tokens import default_token_generator
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+        from apps.authentication.models import Invitation
+        from apps.authentication.service import dispatch_invitation
+
+        file = request.FILES.get('file')
+        if not file:
+            return Response({'error': 'CSV file is required.'}, status=http_status.HTTP_400_BAD_REQUEST)
+
+        try:
+            text = file.read().decode('utf-8-sig')
+        except Exception:
+            return Response(
+                {'error': 'Could not read file. Make sure it is a UTF-8 encoded CSV.'},
+                status=http_status.HTTP_400_BAD_REQUEST
+            )
+
+        reader = csv.DictReader(io.StringIO(text))
+        required = {'student_first_name', 'student_last_name', 'student_email',
+                    'parent_first_name', 'parent_last_name'}
+        missing = required - set(reader.fieldnames or [])
+        if missing:
+            return Response(
+                {'error': f'CSV is missing required columns: {", ".join(sorted(missing))}'},
+                status=http_status.HTTP_400_BAD_REQUEST
+            )
+
+        expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+        created = 0
+        errors  = []
+
+        for row_num, row in enumerate(reader, start=2):
+            s_first = row.get('student_first_name', '').strip()
+            s_last  = row.get('student_last_name',  '').strip()
+            s_email = row.get('student_email',       '').strip()
+            p_first = row.get('parent_first_name',  '').strip()
+            p_last  = row.get('parent_last_name',   '').strip()
+            p_email = row.get('parent_email',        '').strip()
+            p_phone = row.get('parent_phone',        '').strip()
+
+            if not s_first or not s_last or not s_email:
+                errors.append({'row': row_num, 'error': 'Student first name, last name, and email are required.'})
+                continue
+            if not p_first or not p_last:
+                errors.append({'row': row_num, 'error': 'Parent first name and last name are required.'})
+                continue
+            if not p_email and not p_phone:
+                errors.append({'row': row_num, 'error': 'Parent must have at least one contact: email or phone.'})
+                continue
+
+            try:
+                student_inv = Invitation.objects.create(
+                    first_name=s_first, last_name=s_last, email=s_email,
+                    role='student', invited_by=request.user,
+                    expires_at=expires_at, token='pending', uid='pending',
+                )
+                uid   = urlsafe_base64_encode(force_bytes(student_inv.pk))
+                token = default_token_generator.make_token(request.user)
+                student_inv.uid   = uid
+                student_inv.token = token
+                student_inv.save()
+                link     = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+                channels = dispatch_invitation(student_inv, link)
+                student_inv.channels_sent   = channels
+                student_inv.delivery_status = 'sent' if channels else 'failed'
+                student_inv.save()
+
+                parent_inv = Invitation.objects.create(
+                    first_name=p_first, last_name=p_last,
+                    email=p_email, phone_number=p_phone,
+                    role='parent', invited_by=request.user,
+                    expires_at=expires_at, token='pending', uid='pending',
+                    linked_email=s_email,
+                )
+                uid   = urlsafe_base64_encode(force_bytes(parent_inv.pk))
+                token = default_token_generator.make_token(request.user)
+                parent_inv.uid   = uid
+                parent_inv.token = token
+                parent_inv.save()
+                link     = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+                channels = dispatch_invitation(parent_inv, link)
+                parent_inv.channels_sent   = channels
+                parent_inv.delivery_status = 'sent' if channels else 'failed'
+                parent_inv.save()
+
+                created += 1
+            except Exception as e:
+                errors.append({'row': row_num, 'error': str(e)})
+
+        code = http_status.HTTP_201_CREATED if created else http_status.HTTP_400_BAD_REQUEST
+        return Response({'created': created, 'failed': len(errors), 'errors': errors}, status=code)
+
+
 class TeacherClassesView(APIView):
     permission_classes = [IsDOSOrAdmin]
 

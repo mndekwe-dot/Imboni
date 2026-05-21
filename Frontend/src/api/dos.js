@@ -13,7 +13,6 @@ export const createDosStudent = (data) => client.post("/imboni/dos/students/", d
 //  Teachers 
 export const getDosTeachers = (params) => client.get("/imboni/dos/teachers/", { params });
 export const getDosTeacherStats = () => client.get("/imboni/dos/teachers/stats/");
-export const createDosTeacher = (data) => client.post("/imboni/dos/teachers/", data);
 export const updateDosTeacher = (id, data) => client.patch(`/imboni/dos/teachers/${id}/`, data);
 export const getDosTeacherClasses = (id) => client.get(`/imboni/dos/teachers/${id}/classes/`)
 export const assignDosTeacherClasses = (id, classes) => client.patch(`/imboni/dos/teachers/${id}/classes/`, { classes })
@@ -50,3 +49,11 @@ export const updateSubject          = (id, data) => client.patch(`/imboni/dos/su
 export const deleteSubject          = (id) => client.delete(`/imboni/dos/subjects/${id}/`)
 export const renameSubjectCategory  = (old_name, new_name) => client.post('/imboni/dos/subject-categories/rename/', { old_name, new_name })
 export const deleteSubjectCategory  = (name) => client.delete('/imboni/dos/subject-categories/delete/', { data: { name } })
+
+// Student Invites
+export const inviteDosStudent     = (data) => client.post('/imboni/dos/students/invite/', data)
+export const bulkInviteDosStudents = (file) => {
+    const form = new FormData()
+    form.append('file', file)
+    return client.post('/imboni/dos/students/invite/bulk/', form)
+}

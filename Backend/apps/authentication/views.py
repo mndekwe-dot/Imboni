@@ -770,6 +770,28 @@ class CompleteRegistrationView(APIView):
             except Exception:
                 pass  # Class assignment failure should not block registration
 
+        # Auto-link parent to student when parent registers
+        if invitation.role == 'parent' and invitation.linked_email:
+            try:
+                from apps.student.models import Student
+                from apps.parents.models import ParentStudentRelationship
+                student_user = User.objects.filter(
+                    email__iexact=invitation.linked_email
+                ).first()
+                if student_user:
+                    student_profile = Student.objects.filter(user=student_user).first()
+                    if student_profile:
+                        ParentStudentRelationship.objects.get_or_create(
+                            parent=user,
+                            student=student_profile,
+                            defaults={
+                                'relationship_type':  'guardian',
+                                'is_primary_contact': True,
+                            }
+                        )
+            except Exception:
+                pass
+
         # Mark invitation as used
         invitation.is_used = True
         invitation.save()
@@ -883,3 +905,24 @@ class EmailChangeConfirmView(APIView):
                 'detail':'Email updated successfully.'
             }
         )
+#Auto-link parent to student when parent registers
+if Invitation.role == 'parent' and invitation.linked_email:
+    try:
+        from apps.student.models import Student
+        from app.parents.models import ParentStudentRelationship
+        student_user=User.objects.filter(
+            email__iexact=invitation.linked_email
+        ).first()
+        if student_user:
+            student_profile=Student.objects.filter(user=student_user).first()
+            if student_profile:
+                ParentStudentRelationship.objects.get_or_create(
+                    parent=user,
+                    student=student_profile,
+                    defaults={
+                        'relationship_type':'guardian',
+                        'is_primary_contact': True,
+                    }
+                )
+    except Exception:
+        pass #Never block registration if linking fails
