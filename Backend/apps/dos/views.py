@@ -1437,6 +1437,180 @@ class DOSAnnouncementsView(APIView):
 
 
 # ---------------------------------------------------------------------------
+# Student Detail, Suspend, Change Class, Leadership
+# ---------------------------------------------------------------------------
+
+class StudentDetailView(APIView):
+    """GET /imboni/dos/students/<uuid:pk>/"""
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self, request, pk):
+        from apps.attendance.models import AttendanceSummary
+        from apps.discipline.models import StudentLeader
+
+        try:
+            student = Student.objects.select_related('user').get(pk=pk)
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        term    = _current_term()
+        avg_raw = Result.objects.filter(student=student, term=term).aggregate(avg=Avg('final_score'))['avg'] if term else None
+        att_obj = AttendanceSummary.objects.filter(student=student, year=term.start_date.year).order_by('-month').first() if term else None
+
+        leadership = [
+            {
+                'id':             str(sl.id),
+                'role':           sl.role,
+                'role_display':   sl.get_role_display(),
+                'appointed_date': str(sl.appointed_date),
+            }
+            for sl in StudentLeader.objects.filter(student=student, term=term, is_active=True)
+        ] if term else []
+
+        return Response({
+            'id':              str(student.id),
+            'student_code':    student.student_id,
+            'full_name':       student.full_name,
+            'email':           student.user.email,
+            'grade':           student.grade,
+            'section':         student.section,
+            'status':          student.status,
+            'enrollment_date': str(student.enrollment_date),
+            'avg_performance': round(float(avg_raw), 1) if avg_raw else None,
+            'attendance_rate': round(float(att_obj.attendance_percentage), 1) if att_obj else None,
+            'leadership':      leadership,
+        })
+
+
+class SuspendStudentView(APIView):
+    """PATCH /imboni/dos/students/<uuid:pk>/suspend/"""
+    permission_classes = [IsDOSOrAdmin]
+
+    def patch(self, request, pk):
+        try:
+            student = Student.objects.get(pk=pk)
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        suspend = request.data.get('suspended', True)
+        student.status = 'suspended' if suspend else 'active'
+        student.save(update_fields=['status'])
+        return Response({'status': student.status})
+
+
+class ChangeStudentClassView(APIView):
+    """PATCH /imboni/dos/students/<uuid:pk>/change-class/"""
+    permission_classes = [IsDOSOrAdmin]
+
+    def patch(self, request, pk):
+        from apps.teacher.models import Class, ClassAssignment
+
+        try:
+            student = Student.objects.get(pk=pk)
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        grade   = request.data.get('grade', '').strip()
+        section = request.data.get('section', '').strip()
+        if not grade or not section:
+            return Response({'error': 'grade and section are required.'}, status=400)
+
+        student.grade   = grade
+        student.section = section
+        student.save(update_fields=['grade', 'section'])
+
+        roster_updated = False
+        class_obj = Class.objects.filter(grade=grade, section=section).first()
+        if class_obj:
+            term = _current_term()
+            if term:
+                ClassAssignment.objects.filter(student=student, term=term).delete()
+                ClassAssignment.objects.get_or_create(
+                    class_obj=class_obj, student=student, term=term
+                )
+                roster_updated = True
+
+        return Response({
+            'grade':          student.grade,
+            'section':        student.section,
+            'roster_updated': roster_updated,
+            'warning':        None if roster_updated else f'S{grade}{section} class record not found — student profile updated but not added to the class roster.',
+        })
+
+
+class AppointLeaderView(APIView):
+    """POST /imboni/dos/students/<uuid:pk>/appoint-leader/"""
+    permission_classes = [IsDOSOrAdmin]
+
+    def post(self, request, pk):
+        from apps.discipline.models import StudentLeader
+
+        try:
+            student = Student.objects.get(pk=pk)
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        role  = request.data.get('role', '').strip()
+        notes = request.data.get('notes', '').strip()
+        valid_roles = [r[0] for r in StudentLeader.ROLE_CHOICES]
+        if role not in valid_roles:
+            return Response({'error': f'Invalid role. Valid options: {", ".join(valid_roles)}'}, status=400)
+
+        term = _current_term()
+        if not term:
+            return Response({'error': 'No active academic term found.'}, status=400)
+
+        existing = (
+            StudentLeader.objects
+            .filter(role=role, term=term, is_active=True)
+            .exclude(student=student)
+            .select_related('student__user')
+            .first()
+        )
+        if existing:
+            return Response({
+                'error': f'"{existing.get_role_display()}" is already held by {existing.student.full_name} this term.',
+                'current_holder': existing.student.full_name,
+            }, status=409)
+
+        sl, created = StudentLeader.objects.get_or_create(
+            student=student, role=role, term=term,
+            defaults={'appointed_date': timezone.now().date(), 'is_active': True, 'notes': notes},
+        )
+        if not created:
+            sl.is_active      = True
+            sl.notes          = notes
+            sl.appointed_date = timezone.now().date()
+            sl.save()
+
+        return Response({
+            'id':             str(sl.id),
+            'role':           sl.role,
+            'role_display':   sl.get_role_display(),
+            'appointed_date': str(sl.appointed_date),
+        }, status=201 if created else 200)
+
+
+class RemoveLeaderView(APIView):
+    """DELETE /imboni/dos/students/<uuid:pk>/remove-leader/<str:role>/"""
+    permission_classes = [IsDOSOrAdmin]
+
+    def delete(self, request, pk, role):
+        from apps.discipline.models import StudentLeader
+
+        try:
+            student = Student.objects.get(pk=pk)
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        term    = _current_term()
+        updated = StudentLeader.objects.filter(student=student, role=role, term=term, is_active=True).update(is_active=False)
+        if not updated:
+            return Response({'error': 'Leadership role not found.'}, status=404)
+        return Response(status=204)
+
+
+# ---------------------------------------------------------------------------
 # Student Leaders
 # ---------------------------------------------------------------------------
 
@@ -1670,6 +1844,21 @@ class StudentInviteView(APIView):
                 {'error':'Student first name,last name and email are required'},
                 status=http_status.HTTP_400_BAD_REQUEST
             )
+
+        # Block if a student account already exists with this email
+        if User.objects.filter(email__iexact=s_email, role='student').exists():
+            return Response(
+                {'error': f'A student account for {s_email} is already registered. No invitation needed.'},
+                status=http_status.HTTP_400_BAD_REQUEST
+            )
+
+        # Block if an active unused invitation already exists for this email
+        from apps.authentication.models import Invitation
+        if Invitation.objects.filter(email__iexact=s_email, role='student', is_used=False).exists():
+            return Response(
+                {'error': f'A pending invitation already exists for {s_email}. Use Resend from Invitation History instead.'},
+                status=http_status.HTTP_400_BAD_REQUEST
+            )
         
         # Validate Parent
         p_first =parent_data.get('first_name','').strip()
@@ -1813,6 +2002,15 @@ class StudentBulkInviteView(APIView):
                 continue
             if not p_email and not p_phone:
                 errors.append({'row': row_num, 'error': 'Parent must have at least one contact: email or phone.'})
+                continue
+
+            if User.objects.filter(email__iexact=s_email, role='student').exists():
+                errors.append({'row': row_num, 'error': f'{s_email} is already registered — skipped.'})
+                continue
+
+            from apps.authentication.models import Invitation as _Inv
+            if _Inv.objects.filter(email__iexact=s_email, role='student', is_used=False).exists():
+                errors.append({'row': row_num, 'error': f'{s_email} already has a pending invitation — skipped.'})
                 continue
 
             # Resolve year + stream to a Class object

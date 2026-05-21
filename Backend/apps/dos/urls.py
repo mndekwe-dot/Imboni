@@ -89,5 +89,12 @@ urlpatterns = [
     path('dos/students/invite/',      views.StudentInviteView.as_view(),     name='dos-student-invite'),
     path('dos/students/invite/bulk/', views.StudentBulkInviteView.as_view(), name='dos-student-invite-bulk'),
 
+    # Student Detail & Actions
+    path('dos/students/<uuid:pk>/',                          views.StudentDetailView.as_view(),      name='dos-student-detail'),
+    path('dos/students/<uuid:pk>/suspend/',                  views.SuspendStudentView.as_view(),     name='dos-student-suspend'),
+    path('dos/students/<uuid:pk>/change-class/',             views.ChangeStudentClassView.as_view(), name='dos-student-change-class'),
+    path('dos/students/<uuid:pk>/appoint-leader/',           views.AppointLeaderView.as_view(),      name='dos-student-appoint-leader'),
+    path('dos/students/<uuid:pk>/remove-leader/<str:role>/', views.RemoveLeaderView.as_view(),       name='dos-student-remove-leader'),
+
 ]
 
