@@ -84,7 +84,10 @@ urlpatterns = [
     # ClassLists
     path('dos/teachers/<uuid:pk>/classes/', views.TeacherClassesView.as_view(), name='dos-teacher-classes'),
     path('dos/teachers/<uuid:pk>/', views.TeacherDetailView.as_view(), name='dos-teacher-detail'),
-
+    
+    # Student Invites
+    path('dos/students/invite/',      views.StudentInviteView.as_view(),     name='dos-student-invite'),
+    path('dos/students/invite/bulk/', views.StudentBulkInviteView.as_view(), name='dos-student-invite-bulk'),
 
 ]
 
