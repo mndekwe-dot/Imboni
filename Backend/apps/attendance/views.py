@@ -1,11 +1,11 @@
-from datetime import date
+from datetime import date, timedelta
 from django.db.models import Sum
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from apps.authentication.permissions import IsTeacherOrDOS, IsDOSOrAdmin
 
-from .models import AttendanceRecord, AttendanceSummary
+from .models import AttendanceRecord, AttendanceSummary, TeacherAttendanceRecord
 from .serializers import (
     AttendanceRecordSerializer, AttendanceSummarySerializer,
     BulkMarkAttendanceSerializer,
@@ -164,6 +164,135 @@ class BulkMarkAttendanceView(APIView):
         return Response({'date': str(mark_date), 'created': created, 'updated': updated})
 
 
+class DosClassWeeklyAttendanceView(APIView):
+    """
+    Weekly attendance grid for the DOS attendance page.
+
+    GET /imboni/attendance/class/weekly/?grade=1&section=A&week_of=2026-03-09
+
+    grade   — numeric grade (1-6)
+    section — stream letter (A, B, C …)
+    week_of — any ISO date in the target week; view snaps to Monday
+
+    Response:
+        class_name    — e.g. "S1A"
+        class_teacher — teacher full name or null
+        week_start    — ISO date of Monday
+        week_end      — ISO date of Friday
+        students      — list of student rows with per-day status and weekly rate
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self, request):
+        from apps.results.models import AcademicTerm
+        from apps.teacher.models import ClassAssignment
+
+        grade     = request.query_params.get('grade', '').strip()
+        section   = request.query_params.get('section', '').strip()
+        week_of   = request.query_params.get('week_of', '').strip()
+        try:
+            page      = max(1, int(request.query_params.get('page', 1)))
+            page_size = min(100, max(1, int(request.query_params.get('page_size', 25))))
+        except (ValueError, TypeError):
+            page, page_size = 1, 25
+
+        try:
+            week_date = date.fromisoformat(week_of) if week_of else date.today()
+        except ValueError:
+            week_date = date.today()
+
+        monday = week_date - timedelta(days=week_date.weekday())
+        weekdays = {
+            'mon': monday,
+            'tue': monday + timedelta(days=1),
+            'wed': monday + timedelta(days=2),
+            'thu': monday + timedelta(days=3),
+            'fri': monday + timedelta(days=4),
+        }
+        friday = monday + timedelta(days=4)
+
+        term = AcademicTerm.objects.filter(is_current=True).first()
+        if not term:
+            return Response({'class_name': '', 'week_start': str(monday), 'week_end': str(friday),
+                             'count': 0, 'total_pages': 1, 'page': 1, 'page_size': page_size, 'students': []})
+
+        filters = {'term': term}
+        if grade:
+            filters['class_obj__grade'] = grade
+        if section:
+            filters['class_obj__section'] = section
+
+        enrollments = (
+            ClassAssignment.objects
+            .filter(**filters)
+            .select_related('student__user', 'class_obj')
+            .order_by('class_obj__grade', 'class_obj__section', 'student__user__last_name', 'student__user__first_name')
+        )
+
+        total_count = enrollments.count()
+        total_pages = max(1, -(-total_count // page_size))  # ceiling division
+        page        = min(page, total_pages)
+        offset      = (page - 1) * page_size
+        page_enrollments = enrollments[offset: offset + page_size]
+
+        student_ids = [e.student_id for e in page_enrollments]
+
+        week_records = AttendanceRecord.objects.filter(
+            student_id__in=student_ids,
+            date__gte=monday,
+            date__lte=friday,
+        )
+        record_map = {(str(r.student_id), r.date): r.status for r in week_records}
+
+        students = []
+        for enr in page_enrollments:
+            s = enr.student
+            name_parts = s.full_name.split()
+            initials = ''.join(p[0].upper() for p in name_parts[:2]) if name_parts else '?'
+            day_statuses = {day: record_map.get((str(s.id), d)) for day, d in weekdays.items()}
+            present_count = sum(1 for v in day_statuses.values() if v == 'present')
+            rate = round(present_count / 5 * 100)
+            students.append({
+                'student_id':    s.id,
+                'full_name':     s.full_name,
+                'initials':      initials,
+                'student_code':  s.student_id,
+                'class_name':    f'S{enr.class_obj.grade}{enr.class_obj.section}',
+                'days':          day_statuses,
+                'present_count': present_count,
+                'rate':          rate,
+            })
+
+        # Class teacher only meaningful when viewing a single class
+        class_teacher = None
+        if grade and section and enrollments.exists():
+            class_obj = enrollments.first().class_obj
+            if class_obj.class_teacher:
+                u = class_obj.class_teacher
+                class_teacher = u.get_full_name() or u.email
+
+        if grade and section:
+            class_name = f'S{grade}{section}'
+        elif grade:
+            class_name = f'S{grade} — All Classes'
+        elif section:
+            class_name = f'All Years — Class {section}'
+        else:
+            class_name = 'All Classes'
+
+        return Response({
+            'class_name':    class_name,
+            'class_teacher': class_teacher,
+            'week_start':    str(monday),
+            'week_end':      str(friday),
+            'count':         total_count,
+            'total_pages':   total_pages,
+            'page':          page,
+            'page_size':     page_size,
+            'students':      students,
+        })
+
+
 class StudentAttendanceSummaryListView(generics.ListAPIView):
     """
     Monthly attendance summaries for all students, filterable by grade/month/year.
@@ -184,3 +313,132 @@ class StudentAttendanceSummaryListView(generics.ListAPIView):
         if grade:
             qs = qs.filter(student__grade=grade)
         return qs.order_by('student__grade', 'student__section', 'student__user__last_name')
+
+
+class DosTeacherWeeklyAttendanceView(APIView):
+    """
+    Weekly attendance grid for all teachers (DOS view).
+
+    GET /imboni/attendance/teacher/weekly/?week_of=2026-03-09&page=1&page_size=25
+
+    Response:
+        week_start, week_end, count, total_pages, page, page_size,
+        teachers — list of { teacher_id, full_name, initials, email,
+                              days: {mon…fri: status|null},
+                              present_count, rate }
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self, request):
+        from apps.authentication.models import User
+
+        week_of = request.query_params.get('week_of', '').strip()
+        try:
+            page      = max(1, int(request.query_params.get('page', 1)))
+            page_size = min(100, max(1, int(request.query_params.get('page_size', 25))))
+        except (ValueError, TypeError):
+            page, page_size = 1, 25
+
+        try:
+            week_date = date.fromisoformat(week_of) if week_of else date.today()
+        except ValueError:
+            week_date = date.today()
+
+        monday = week_date - timedelta(days=week_date.weekday())
+        weekdays = {
+            'mon': monday,
+            'tue': monday + timedelta(days=1),
+            'wed': monday + timedelta(days=2),
+            'thu': monday + timedelta(days=3),
+            'fri': monday + timedelta(days=4),
+        }
+        friday = monday + timedelta(days=4)
+
+        teachers_qs = (
+            User.objects
+            .filter(role='teacher')
+            .order_by('last_name', 'first_name')
+        )
+
+        total_count = teachers_qs.count()
+        total_pages = max(1, -(-total_count // page_size))
+        page        = min(page, total_pages)
+        offset      = (page - 1) * page_size
+        page_teachers = teachers_qs[offset: offset + page_size]
+
+        teacher_ids = [t.id for t in page_teachers]
+        week_records = TeacherAttendanceRecord.objects.filter(
+            teacher_id__in=teacher_ids,
+            date__gte=monday,
+            date__lte=friday,
+        )
+        record_map = {(str(r.teacher_id), r.date): r.status for r in week_records}
+
+        teachers = []
+        for t in page_teachers:
+            name = t.get_full_name() or t.email
+            parts = name.split()
+            initials = ''.join(p[0].upper() for p in parts[:2]) if parts else '?'
+            day_statuses = {day: record_map.get((str(t.id), d)) for day, d in weekdays.items()}
+            present_count = sum(1 for v in day_statuses.values() if v == 'present')
+            rate = round(present_count / 5 * 100)
+            teachers.append({
+                'teacher_id':    str(t.id),
+                'full_name':     name,
+                'initials':      initials,
+                'email':         t.email,
+                'days':          day_statuses,
+                'present_count': present_count,
+                'rate':          rate,
+            })
+
+        return Response({
+            'week_start':  str(monday),
+            'week_end':    str(friday),
+            'count':       total_count,
+            'total_pages': total_pages,
+            'page':        page,
+            'page_size':   page_size,
+            'teachers':    teachers,
+        })
+
+
+class MarkTeacherAttendanceView(APIView):
+    """
+    POST /imboni/attendance/teacher/mark/
+
+    Body: { date: "2026-03-10", records: [{ teacher_id, status, notes? }, ...] }
+    Creates or updates TeacherAttendanceRecord rows.
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def post(self, request):
+        mark_date_str = request.data.get('date', '')
+        records       = request.data.get('records', [])
+
+        try:
+            mark_date = date.fromisoformat(mark_date_str)
+        except (ValueError, TypeError):
+            return Response({'error': 'Invalid date.'}, status=400)
+
+        if not isinstance(records, list) or not records:
+            return Response({'error': 'records must be a non-empty list.'}, status=400)
+
+        saved = 0
+        for rec in records:
+            teacher_id = rec.get('teacher_id')
+            att_status = rec.get('status')
+            if not teacher_id or att_status not in ('present', 'absent', 'late', 'excused'):
+                continue
+            TeacherAttendanceRecord.objects.update_or_create(
+                teacher_id=teacher_id,
+                date=mark_date,
+                defaults={
+                    'status':    att_status,
+                    'notes':     rec.get('notes', ''),
+                    'marked_by': request.user if request.user.is_authenticated else None,
+                },
+            )
+            saved += 1
+
+        return Response({'saved': saved})

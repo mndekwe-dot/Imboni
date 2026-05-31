@@ -52,6 +52,9 @@ urlpatterns = [
     path('dos/exam-schedule/',             views.ExamScheduleListView.as_view(),   name='dos-exam-schedule-list'),
     path('dos/exam-schedule/<uuid:pk>/',   views.ExamScheduleDetailView.as_view(), name='dos-exam-schedule-detail'),
 
+    # ── Class List (for pickers) ────────────────────────────────────────────
+    path('dos/classes/',                  views.DosClassListView.as_view(),          name='dos-classes'),
+
     # ── Attendance Overview ─────────────────────────────────────────────────
     path('dos/attendance/overview/',       views.DOSAttendanceOverviewView.as_view(), name='dos-attendance-overview'),
 

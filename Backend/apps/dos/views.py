@@ -1363,6 +1363,27 @@ class ExamScheduleDetailView(APIView):
 
 
 # ---------------------------------------------------------------------------
+# Class List
+# ---------------------------------------------------------------------------
+
+class DosClassListView(APIView):
+    """
+    GET /imboni/dos/classes/
+    Returns all Class objects ordered by grade and section.
+    Used to populate the class picker on the DOS attendance page.
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self, request):
+        from apps.teacher.models import Class
+        classes = Class.objects.all().order_by('grade', 'section')
+        return Response([
+            {'id': str(c.id), 'grade': c.grade, 'section': c.section}
+            for c in classes
+        ])
+
+
+# ---------------------------------------------------------------------------
 # Attendance Overview
 # ---------------------------------------------------------------------------
 

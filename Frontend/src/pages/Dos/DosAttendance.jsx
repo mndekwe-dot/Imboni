@@ -1,62 +1,440 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
+import { Sidebar } from '../../components/layout/Sidebar'
 import { StatCard } from '../../components/layout/StatCard'
-import '../../styles/layout.css'
-import '../../styles/components.css'
-import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
+import {
+    getDosClasses,
+    getDosWeeklyAttendance,
+    getDosTeacherWeeklyAttendance,
+    markDosTeacherAttendance,
+} from '../../api/dos'
+import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { ClassPicker } from '../../components/ui/ClassPicker'
+import '../../styles/layout.css'
+import '../../styles/components.css'
+import '../../styles/dos.css'
+import '../../styles/discipline.css'
 
+// ─── Constants ───────────────────────────────────────────────────────────────
 
-const attendanceStats = [
+const STAT_CARDS = [
     { icon: 'how_to_reg',         value: '94%', label: 'Student Attendance',  trend: 'This week',       trendClass: 'positive', colorClass: 'success' },
     { icon: 'person_off',         value: '73',  label: 'Absent Today',        trend: 'Needs follow-up', trendClass: 'negative', colorClass: 'warning' },
     { icon: 'schedule',           value: '18',  label: 'Late Arrivals',       trend: 'This week',       trendClass: '',         colorClass: 'info'    },
     { icon: 'supervisor_account', value: '98%', label: 'Teacher Attendance',  trend: 'Today',           trendClass: 'positive', colorClass: 'success' },
 ]
 
-const attendanceRows = [
-    { initials: 'UA', name: 'Uwase Amina',      mon: 'present', tue: 'present', wed: 'present', thu: 'present', fri: 'present', present: 5, rate: '100%' },
-    { initials: 'KM', name: 'Mutabazi Kevin',   mon: 'present', tue: 'absent',  wed: 'present', thu: 'present', fri: 'present', present: 4, rate: '80%'  },
-    { initials: 'IM', name: 'Ingabire Marie',   mon: 'present', tue: 'present', wed: 'present', thu: 'present', fri: 'present', present: 5, rate: '100%' },
-    { initials: 'PN', name: 'Nkurunziza Peter', mon: 'absent',  tue: 'absent',  wed: 'present', thu: 'late',    fri: 'present', present: 2, rate: '40%'  },
-    { initials: 'UD', name: 'Umutoni Diane',    mon: 'present', tue: 'present', wed: 'present', thu: 'present', fri: 'present', present: 5, rate: '100%' },
-    { initials: 'JB', name: 'Bizimana James',   mon: 'present', tue: 'present', wed: 'late',    thu: 'present', fri: 'present', present: 4, rate: '80%'  },
-    { initials: 'HG', name: 'Hakizimana Grace', mon: 'present', tue: 'present', wed: 'present', thu: 'present', fri: 'present', present: 5, rate: '100%' },
-    { initials: 'EN', name: 'Ndagijimana Eric', mon: 'excused', tue: 'present', wed: 'present', thu: 'present', fri: 'absent',  present: 3, rate: '60%'  },
-]
+const DAY_KEYS   = ['mon', 'tue', 'wed', 'thu', 'fri']
+const STATUS_MAP = { present: 'P', absent: 'A', late: 'L', excused: 'E' }
+const STATUS_OPTS = ['present', 'absent', 'late', 'excused']
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function AttendancePip({ status }) {
-    const letter = { present: 'P', absent: 'A', late: 'L', excused: 'E' }[status] || status[0].toUpperCase()
-    return <span className={`att-pip ${status}`}>{letter}</span>
+function todayISO() {
+    return new Date().toISOString().split('T')[0]
 }
 
-function AttendanceRow({ initials, name, mon, tue, wed, thu, fri, present, rate }) {
+function fmtWeek(start, end) {
+    if (!start || !end) return ''
+    const f = d => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    return `Week: ${f(start)} — ${f(end)}`
+}
+
+function buildSections(classes) {
+    const map = {}
+    for (const cls of classes) {
+        const grade   = parseInt(cls.grade)
+        const secName = grade <= 3 ? 'O-Level' : 'A-Level'
+        const yearName = `S${cls.grade}`
+        if (!map[secName]) map[secName] = {}
+        if (!map[secName][yearName]) map[secName][yearName] = []
+        if (!map[secName][yearName].includes(cls.section)) map[secName][yearName].push(cls.section)
+    }
+    return Object.entries(map).map(([name, years]) => ({
+        name,
+        years: Object.entries(years)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([yName, streams]) => ({ name: yName, streams: streams.sort() })),
+    }))
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function AttendancePip({ status }) {
+    if (!status) return <span className="att-pip unmarked">—</span>
+    return <span className={`att-pip ${status}`}>{STATUS_MAP[status] ?? status[0].toUpperCase()}</span>
+}
+
+function PaginationBar({ page, totalPages, totalCount, label, onPage }) {
+    if (totalPages <= 1) return null
     return (
-        <tr>
-            <td><div className="tm-teacher-cell"><div className="tm-av">{initials}</div><span>{name}</span></div></td>
-            <td><AttendancePip status={mon} /></td>
-            <td><AttendancePip status={tue} /></td>
-            <td><AttendancePip status={wed} /></td>
-            <td><AttendancePip status={thu} /></td>
-            <td><AttendancePip status={fri} /></td>
-            <td>{present}</td>
-            <td>{rate}</td>
-        </tr>
+        <div className="pagination-bar">
+            <span className="pagination-info">{totalCount} {label} — Page {page} of {totalPages}</span>
+            <div className="pagination-controls">
+                <button className="pagination-btn" disabled={page === 1} onClick={() => onPage(1)}>
+                    <span className="material-symbols-rounded">first_page</span>
+                </button>
+                <button className="pagination-btn" disabled={page === 1} onClick={() => onPage(page - 1)}>
+                    <span className="material-symbols-rounded">chevron_left</span>
+                </button>
+                <button className="pagination-btn" disabled={page === totalPages} onClick={() => onPage(page + 1)}>
+                    <span className="material-symbols-rounded">chevron_right</span>
+                </button>
+                <button className="pagination-btn" disabled={page === totalPages} onClick={() => onPage(totalPages)}>
+                    <span className="material-symbols-rounded">last_page</span>
+                </button>
+            </div>
+        </div>
     )
 }
 
+// ─── Student Attendance Tab ───────────────────────────────────────────────────
+
+function StudentAttendanceTab({ sections }) {
+    const [section,  setSection]  = useState('')
+    const [year,     setYear]     = useState('')
+    const [classVal, setClassVal] = useState('')
+    const [weekOf,   setWeekOf]   = useState(todayISO)
+    const [page,     setPage]     = useState(1)
+
+    const grade  = year     ? year.slice(1) : ''
+    const stream = classVal
+
+    const [weekData, setWeekData] = useState(null)
+    const [loading,  setLoading]  = useState(false)
+    const [error,    setError]    = useState(null)
+
+    useEffect(() => { setPage(1) }, [grade, stream, weekOf])
+
+    useEffect(() => {
+        let cancelled = false
+        setLoading(true)
+        setError(null)
+        getDosWeeklyAttendance({ grade, section: stream, week_of: weekOf, page, page_size: 25 })
+            .then(res => { if (!cancelled) setWeekData(res) })
+            .catch(() => { if (!cancelled) setError('Failed to load attendance data.') })
+            .finally(() => { if (!cancelled) setLoading(false) })
+        return () => { cancelled = true }
+    }, [grade, stream, weekOf, page])
+
+    const students     = weekData?.students      ?? []
+    const classTeacher = weekData?.class_teacher ?? null
+    const showClassCol = !grade || !stream
+    const totalPages   = weekData?.total_pages   ?? 1
+    const totalCount   = weekData?.count         ?? 0
+
+    return (
+        <>
+            <ClassPicker
+                sections={sections}
+                section={section}
+                onSectionChange={val => { setSection(val); setYear(''); setClassVal('') }}
+                year={year}
+                onYearChange={val => { setYear(val); setClassVal('') }}
+                classVal={classVal}
+                onClassChange={setClassVal}
+            />
+
+            <div className="toolbar-card" style={{ marginTop: '0.75rem' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Week of
+                </label>
+                <input
+                    type="date"
+                    className="input input-auto select-xs"
+                    value={weekOf}
+                    max={todayISO()}
+                    onChange={e => setWeekOf(e.target.value)}
+                />
+            </div>
+
+            <div className="card mt-1-5">
+                <div className="card-header">
+                    <div>
+                        <h2 className="card-title">
+                            {weekData?.class_name || 'All Classes'} — Weekly Attendance
+                        </h2>
+                        <p className="dos-class-meta">
+                            {fmtWeek(weekData?.week_start, weekData?.week_end)}
+                            {classTeacher ? ` • Class Teacher: ${classTeacher}` : ''}
+                        </p>
+                    </div>
+                    <div className="att-legend">
+                        <span className="att-pip present">P</span> Present&nbsp;
+                        <span className="att-pip absent">A</span> Absent&nbsp;
+                        <span className="att-pip late">L</span> Late&nbsp;
+                        <span className="att-pip excused">E</span> Excused
+                    </div>
+                </div>
+
+                <div className="card-content">
+                    {error   && <p style={{ padding: '1rem', color: 'var(--danger)' }}>{error}</p>}
+                    {!error && loading && <p style={{ padding: '1rem', color: 'var(--text-muted)' }}>Loading…</p>}
+                    {!error && !loading && students.length === 0 && (
+                        <p style={{ padding: '1rem', color: 'var(--text-muted)' }}>
+                            No students enrolled for the selected class and term.
+                        </p>
+                    )}
+                    {!error && !loading && students.length > 0 && (
+                        <>
+                            <div className="tm-table-wrap">
+                                <table className="tm-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            {showClassCol && <th>Class</th>}
+                                            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th>
+                                            <th>Present</th><th>Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {students.map(student => (
+                                            <tr key={student.student_id}>
+                                                <td>
+                                                    <div className="tm-teacher-cell">
+                                                        <div className="tm-av">{student.initials}</div>
+                                                        <span>{student.full_name}</span>
+                                                    </div>
+                                                </td>
+                                                {showClassCol && (
+                                                    <td style={{ fontWeight: 500, color: 'var(--primary)' }}>
+                                                        {student.class_name}
+                                                    </td>
+                                                )}
+                                                {DAY_KEYS.map(day => (
+                                                    <td key={day}><AttendancePip status={student.days[day]} /></td>
+                                                ))}
+                                                <td>{student.present_count}</td>
+                                                <td>{student.rate}%</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <PaginationBar page={page} totalPages={totalPages} totalCount={totalCount} label="students" onPage={setPage} />
+                        </>
+                    )}
+                </div>
+            </div>
+        </>
+    )
+}
+
+// ─── Teacher Attendance Tab ───────────────────────────────────────────────────
+
+function TeacherAttendanceTab() {
+    const [weekOf,  setWeekOf]  = useState(todayISO)
+    const [page,    setPage]    = useState(1)
+    const [weekData, setWeekData] = useState(null)
+    const [loading,  setLoading]  = useState(false)
+    const [error,    setError]    = useState(null)
+
+    // Editable status map: { teacher_id: { mon: 'present', ... } }
+    const [edits,   setEdits]   = useState({})
+    const [saving,  setSaving]  = useState(false)
+    const [saved,   setSaved]   = useState(false)
+
+    useEffect(() => { setPage(1) }, [weekOf])
+
+    useEffect(() => {
+        let cancelled = false
+        setLoading(true)
+        setError(null)
+        setSaved(false)
+        getDosTeacherWeeklyAttendance({ week_of: weekOf, page, page_size: 25 })
+            .then(res => {
+                if (cancelled) return
+                setWeekData(res)
+                // Seed edits from returned data
+                const map = {}
+                for (const t of (res.teachers ?? [])) {
+                    map[t.teacher_id] = { ...t.days }
+                }
+                setEdits(map)
+            })
+            .catch(() => { if (!cancelled) setError('Failed to load teacher attendance.') })
+            .finally(() => { if (!cancelled) setLoading(false) })
+        return () => { cancelled = true }
+    }, [weekOf, page])
+
+    const teachers   = weekData?.teachers    ?? []
+    const totalPages = weekData?.total_pages ?? 1
+    const totalCount = weekData?.count       ?? 0
+
+    // monday ISO string for save
+    function mondayOf(iso) {
+        const d = new Date(iso + 'T00:00:00')
+        d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1))
+        return d.toISOString().split('T')[0]
+    }
+
+    const dayDates = (() => {
+        if (!weekData?.week_start) return {}
+        const start = new Date(weekData.week_start + 'T00:00:00')
+        const out = {}
+        DAY_KEYS.forEach((k, i) => {
+            const d = new Date(start); d.setDate(start.getDate() + i)
+            out[k] = d.toISOString().split('T')[0]
+        })
+        return out
+    })()
+
+    function setStatus(teacherId, day, status) {
+        setEdits(prev => ({
+            ...prev,
+            [teacherId]: { ...prev[teacherId], [day]: status },
+        }))
+    }
+
+    async function handleSave() {
+        if (saving || !weekData?.week_start) return
+        setSaving(true)
+        setError(null)
+        setSaved(false)
+        try {
+            // Save one POST per day that has records
+            const byDay = {}
+            for (const [tid, days] of Object.entries(edits)) {
+                for (const [day, status] of Object.entries(days)) {
+                    if (!status) continue
+                    if (!byDay[day]) byDay[day] = []
+                    byDay[day].push({ teacher_id: tid, status })
+                }
+            }
+            await Promise.all(
+                Object.entries(byDay).map(([day, records]) =>
+                    markDosTeacherAttendance({ date: dayDates[day], records })
+                )
+            )
+            setSaved(true)
+        } catch {
+            setError('Failed to save attendance.')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    return (
+        <>
+            <div className="toolbar-card" style={{ marginTop: '0.75rem' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Week of
+                </label>
+                <input
+                    type="date"
+                    className="input input-auto select-xs"
+                    value={weekOf}
+                    max={todayISO()}
+                    onChange={e => setWeekOf(e.target.value)}
+                />
+                <div style={{ flex: 1 }} />
+                <button className="btn btn-primary select-xs" onClick={handleSave} disabled={saving || loading || teachers.length === 0}>
+                    <span className="material-symbols-rounded icon-sm">save</span>
+                    {saving ? 'Saving…' : 'Save'}
+                </button>
+            </div>
+
+            {saved  && <div className="alert alert-success" style={{ marginTop: '0.5rem' }}>Attendance saved.</div>}
+            {error  && <div className="alert alert-danger"  style={{ marginTop: '0.5rem' }}>{error}</div>}
+
+            <div className="card mt-1-5">
+                <div className="card-header">
+                    <div>
+                        <h2 className="card-title">Teacher Attendance — Weekly</h2>
+                        <p className="dos-class-meta">{fmtWeek(weekData?.week_start, weekData?.week_end)}</p>
+                    </div>
+                    <div className="att-legend">
+                        <span className="att-pip present">P</span> Present&nbsp;
+                        <span className="att-pip absent">A</span> Absent&nbsp;
+                        <span className="att-pip late">L</span> Late&nbsp;
+                        <span className="att-pip excused">E</span> Excused
+                    </div>
+                </div>
+
+                <div className="card-content">
+                    {!error && loading && <p style={{ padding: '1rem', color: 'var(--text-muted)' }}>Loading…</p>}
+                    {!error && !loading && teachers.length === 0 && (
+                        <p style={{ padding: '1rem', color: 'var(--text-muted)' }}>No teachers found.</p>
+                    )}
+                    {!error && !loading && teachers.length > 0 && (
+                        <>
+                            <div className="tm-table-wrap">
+                                <table className="tm-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Teacher</th>
+                                            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th>
+                                            <th>Present</th><th>Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {teachers.map(t => {
+                                            const tEdits = edits[t.teacher_id] ?? t.days
+                                            const presentCnt = DAY_KEYS.filter(d => tEdits[d] === 'present').length
+                                            const rate = Math.round(presentCnt / 5 * 100)
+                                            return (
+                                                <tr key={t.teacher_id}>
+                                                    <td>
+                                                        <div className="tm-teacher-cell">
+                                                            <div className="tm-av">{t.initials}</div>
+                                                            <span>{t.full_name}</span>
+                                                        </div>
+                                                    </td>
+                                                    {DAY_KEYS.map(day => (
+                                                        <td key={day}>
+                                                            <select
+                                                                className={`att-status-select att-${tEdits[day] ?? 'unmarked'}`}
+                                                                value={tEdits[day] ?? ''}
+                                                                onChange={e => setStatus(t.teacher_id, day, e.target.value || null)}
+                                                            >
+                                                                <option value="">—</option>
+                                                                {STATUS_OPTS.map(s => (
+                                                                    <option key={s} value={s}>{STATUS_MAP[s]}</option>
+                                                                ))}
+                                                            </select>
+                                                        </td>
+                                                    ))}
+                                                    <td>{presentCnt}</td>
+                                                    <td>{rate}%</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <PaginationBar page={page} totalPages={totalPages} totalCount={totalCount} label="teachers" onPage={setPage} />
+                        </>
+                    )}
+                </div>
+            </div>
+        </>
+    )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export function DosAttendance() {
     const { setting } = useSchoolSettings()
+    const [mode,     setMode]     = useState('student')   // 'student' | 'teacher'
+    const [sections, setSections] = useState([])
+
+    useEffect(() => {
+        getDosClasses()
+            .then(res => setSections(buildSections(res)))
+            .catch(() => {})
+    }, [])
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
-            <div className="sidebar-overlay"></div>
+            <div className="sidebar-overlay" />
+
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
+
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
                         <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
@@ -67,109 +445,48 @@ export function DosAttendance() {
                             <p>Track student and teacher attendance by class</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
+                            <span className="date-display">{formatSchoolDate(setting?.timezone)}</span>
                             <button className="notification-btn">
                                 <span className="material-symbols-rounded">notifications</span>
                                 <span className="notification-badge">2</span>
                             </button>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
+                                    <span className="header-user-name">{dosUser?.name}</span>
                                     <span className="header-user-role">Director of Studies</span>
                                 </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">JN</Link>
+                                <Link to="/profile?role=dos" className="header-user-av dos-av">{dosUser?.initials}</Link>
                             </div>
                         </div>
                     </header>
 
                     <DashboardContent>
+
                         <div className="portal-stat-grid">
-                            {attendanceStats.map((s, i) => (
-                                <StatCard key={i} {...s} />
-                            ))}
+                            {STAT_CARDS.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
-                        {/* View Mode Toggle */}
+                        {/* Mode toggle */}
                         <div className="att-mode-bar">
-                            <button className="att-mode-btn active">
+                            <button
+                                className={`att-mode-btn${mode === 'student' ? ' active' : ''}`}
+                                onClick={() => setMode('student')}
+                            >
                                 <span className="material-symbols-rounded">groups</span> Student Attendance
                             </button>
-                            <button className="att-mode-btn">
+                            <button
+                                className={`att-mode-btn${mode === 'teacher' ? ' active' : ''}`}
+                                onClick={() => setMode('teacher')}
+                            >
                                 <span className="material-symbols-rounded">person</span> Teacher Attendance
                             </button>
                         </div>
 
-                        {/* Class Picker */}
-                        <div className="dos-picker mt-1-5">
-                            <div className="dos-picker-group">
-                                <label className="dos-picker-label" htmlFor="att-section">Section</label>
-                                <select className="dos-picker-select" id="att-section">
-                                    <option value="ordinary">Ordinary Level</option>
-                                    <option value="advanced">Advanced Level</option>
-                                </select>
-                            </div>
-                            <span className="dos-picker-arrow material-symbols-rounded">chevron_right</span>
-                            <div className="dos-picker-group">
-                                <label className="dos-picker-label" htmlFor="att-year">Year</label>
-                                <select className="dos-picker-select" id="att-year">
-                                    <option value="S1">S1</option>
-                                    <option value="S2">S2</option>
-                                    <option value="S3">S3</option>
-                                </select>
-                            </div>
-                            <span className="dos-picker-arrow material-symbols-rounded">chevron_right</span>
-                            <div className="dos-picker-group">
-                                <label className="dos-picker-label" htmlFor="att-class">Class</label>
-                                <select className="dos-picker-select" id="att-class">
-                                    <option value="A">A</option>
-                                    <option value="B">B</option>
-                                    <option value="C">C</option>
-                                </select>
-                            </div>
-                            <div className="dos-picker-group">
-                                <label className="dos-picker-label" htmlFor="att-week">Week of</label>
-                                <input type="date" className="dos-picker-select" id="att-week" defaultValue="2026-03-09" />
-                            </div>
-                            <div className="dos-picker-badge">
-                                <span className="material-symbols-rounded">fact_check</span>
-                                <span>S1A &bull; Ordinary</span>
-                            </div>
-                        </div>
+                        {mode === 'student'
+                            ? <StudentAttendanceTab sections={sections} />
+                            : <TeacherAttendanceTab />
+                        }
 
-                        {/* Student Attendance Table */}
-                        <div className="card mt-1-5">
-                            <div className="card-header">
-                                <div>
-                                    <h2 className="card-title">S1A â€” Weekly Attendance</h2>
-                                    <p className="dos-class-meta">Week: 09 Mar â€“ 13 Mar 2026 &bull; Class Teacher: Ms. Claudine Umutoni</p>
-                                </div>
-                                <div className="att-legend">
-                                    <span className="att-pip present">P</span> Present
-                                    <span className="att-pip absent">A</span> Absent
-                                    <span className="att-pip late">L</span> Late
-                                    <span className="att-pip excused">E</span> Excused
-                                </div>
-                            </div>
-                            <div className="card-content">
-                                <div className="tm-table-wrap">
-                                    <table className="tm-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Student</th>
-                                                <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th>
-                                                <th>Present</th>
-                                                <th>Rate</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {attendanceRows.map((row, index) => (
-                                                <AttendanceRow key={index} {...row} />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
                     </DashboardContent>
                 </main>
             </div>

@@ -4,15 +4,15 @@ import client from './client'
 export const getTeacherDashboard = () => client.get('/imboni/teacher/dashboard/')
 
 // Classes
-export const getTeacherClasses = () => client.get('/imboni/teacher/classes/')
-export const getTeacherClass   = (id) => client.get(`/imboni/teacher/classes/${id}/`)
+export const getTeacherMyClasses = (params) => client.get('/imboni/teacher/my-classes/', { params })
 
 // Students
 export const getTeacherStudents = (params) => client.get('/imboni/teacher/students/', { params })
 
 // Attendance
-export const getTeacherAttendance  = (params) => client.get('/imboni/teacher/attendance/', { params })
-export const submitAttendance      = (data) => client.post('/imboni/teacher/attendance/', data)
+export const getTeacherAttendanceStats    = (params) => client.get('/imboni/teacher/attendance/stats/', { params })
+export const getTeacherAttendanceStudents = (params) => client.get('/imboni/teacher/attendance/students/', { params })
+export const markTeacherAttendance        = (data)   => client.post('/imboni/teacher/attendance/mark/', data)
 
 // Results
 export const getTeacherResults  = (params) => client.get('/imboni/teacher/results/', { params })

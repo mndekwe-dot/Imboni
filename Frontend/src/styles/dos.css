@@ -2621,3 +2621,65 @@ body.tm-panel-open { overflow: hidden; }
 .analytics-chart-grid    { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }
 .analytics-chart-card    { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
 .analytics-chart-title   { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; }
+
+
+/* ── Attendance pagination ── */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+.pagination-info {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.pagination-btn:hover:not(:disabled) {
+  background: var(--bg-muted);
+  border-color: var(--border-hover, var(--border));
+}
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.pagination-btn .material-symbols-rounded {
+  font-size: 18px;
+}
+
+/* ── Teacher attendance status select ── */
+.att-status-select {
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.35rem;
+  cursor: pointer;
+  background: var(--card);
+  color: var(--text);
+  min-width: 42px;
+}
+.att-status-select.att-present  { background: rgba(22,163,74,0.12);  color: #16a34a; border-color: #16a34a; }
+.att-status-select.att-absent   { background: rgba(220,38,38,0.12);  color: #dc2626; border-color: #dc2626; }
+.att-status-select.att-late     { background: rgba(217,119,6,0.12);  color: #d97706; border-color: #d97706; }
+.att-status-select.att-excused  { background: rgba(37,99,235,0.12);  color: #2563eb; border-color: #2563eb; }
+.att-status-select.att-unmarked { opacity: 0.6; }

@@ -44,6 +44,35 @@ class AttendanceRecord(models.Model):
         return f"{self.student.full_name} - {self.date} - {self.status}"
 
 
+class TeacherAttendanceRecord(models.Model):
+    STATUS_CHOICES = [
+        ('present', 'Present'),
+        ('absent',  'Absent'),
+        ('late',    'Late'),
+        ('excused', 'Excused'),
+    ]
+
+    id         = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    teacher    = models.ForeignKey(User, on_delete=models.CASCADE, related_name='teacher_attendance_records',
+                                   limit_choices_to={'role': 'teacher'})
+    date       = models.DateField()
+    status     = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    notes      = models.TextField(blank=True)
+    marked_by  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                   related_name='marked_teacher_attendance')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table       = 'teacher_attendance_records'
+        unique_together = ['teacher', 'date']
+        ordering        = ['-date']
+        indexes         = [models.Index(fields=['teacher', 'date'])]
+
+    def __str__(self):
+        return f"{self.teacher.get_full_name()} - {self.date} - {self.status}"
+
+
 class AttendanceSummary(models.Model):
     """
     Monthly attendance summary for quick statistics
