@@ -58,6 +58,8 @@ class MyClassSerializer(serializers.Serializer):
     """
     class_id       = serializers.UUIDField()
     class_name     = serializers.CharField()
+    grade          = serializers.CharField()
+    section        = serializers.CharField()
     subject_name   = serializers.CharField()
     student_count  = serializers.IntegerField()
     avg_score      = serializers.FloatField(allow_null=True)

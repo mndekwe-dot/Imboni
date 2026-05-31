@@ -58,6 +58,16 @@ export const bulkInviteDosStudents = (file) => {
     return client.post('/imboni/dos/students/invite/bulk/', form)
 }
 
+// Classes
+export const getDosClasses = () => client.get('/imboni/dos/classes/')
+
+// Attendance — students
+export const getDosWeeklyAttendance = (params) => client.get('/imboni/attendance/class/weekly/', { params })
+
+// Attendance — teachers
+export const getDosTeacherWeeklyAttendance = (params) => client.get('/imboni/attendance/teacher/weekly/', { params })
+export const markDosTeacherAttendance      = (data)   => client.post('/imboni/attendance/teacher/mark/', data)
+
 // Student Detail & Actions
 export const getDosStudentDetail    = (id)        => client.get(`/imboni/dos/students/${id}/`)
 export const suspendDosStudent      = (id, data)  => client.patch(`/imboni/dos/students/${id}/suspend/`, data)

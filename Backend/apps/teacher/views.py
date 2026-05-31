@@ -310,6 +310,8 @@ class MyClassesView(APIView):
             results.append({
                 'class_id':      class_obj.id,
                 'class_name':    class_obj.name,
+                'grade':         class_obj.grade,
+                'section':       class_obj.section,
                 'subject_name':  sta.subject.name,
                 'student_count': student_count,
                 'avg_score':     avg_score,

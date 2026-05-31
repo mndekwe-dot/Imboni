@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -11,78 +11,161 @@ import '../../styles/pages.css'
 import '../../styles/tables.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-
-const SECTIONS = [
-    { name: 'O-Level', years: ['S1', 'S2', 'S3'], classes: ['A', 'B', 'C'] },
-    { name: 'A-Level', years: ['S4', 'S5', 'S6'], classes: ['A', 'B', 'C'] },
-]
-
-const MOCK_STUDENTS = {
-    S3A: [
-        { id: 'STU-001', initials: 'UA', name: 'Uwase Amina',      status: 'Present', note: '' },
-        { id: 'STU-002', initials: 'KM', name: 'Mutabazi Kevin',   status: 'Present', note: '' },
-        { id: 'STU-003', initials: 'HG', name: 'Hakizimana Grace', status: 'Present', note: '' },
-        { id: 'STU-004', initials: 'IM', name: 'Ingabire Marie',   status: 'Absent',  note: 'Sick leave' },
-        { id: 'STU-005', initials: 'UD', name: 'Umutoni Diane',    status: 'Late',    note: 'Arrived 10 min late' },
-    ],
-    S3B: [
-        { id: 'STU-011', initials: 'BN', name: 'Bizimana Norbert', status: 'Present', note: '' },
-        { id: 'STU-012', initials: 'RP', name: 'Rugamba Patrick',  status: 'Present', note: '' },
-        { id: 'STU-013', initials: 'NK', name: 'Niyonzima Kevin',  status: 'Present', note: '' },
-    ],
-    S1B: [
-        { id: 'STU-021', initials: 'MJ', name: 'Mugisha Jean',     status: 'Present', note: '' },
-        { id: 'STU-022', initials: 'KA', name: 'Kayitesi Alice',   status: 'Late',    note: '' },
-    ],
-    S2A: [
-        { id: 'STU-031', initials: 'TN', name: 'Tuyisenge Nina',   status: 'Present', note: '' },
-        { id: 'STU-032', initials: 'RM', name: 'Rukundo Marc',     status: 'Absent',  note: 'Family emergency' },
-    ],
-    S4A: [
-        { id: 'STU-041', initials: 'NE', name: 'Nzeyimana Eric',   status: 'Present', note: '' },
-        { id: 'STU-042', initials: 'AC', name: 'Akimana Claire',   status: 'Present', note: '' },
-        { id: 'STU-043', initials: 'BH', name: 'Bagirishya Henri', status: 'Present', note: '' },
-    ],
-}
-
-const VIEW_TABS = ['Daily', 'Weekly', 'Monthly', 'Reports']
+import {
+    getTeacherMyClasses,
+    getTeacherAttendanceStats,
+    getTeacherAttendanceStudents,
+    markTeacherAttendance,
+} from '../../api/teacher'
 
 const STATUS_COLORS = {
-    Present: 'var(--success, #16a34a)',
-    Absent:  'var(--danger, #dc2626)',
-    Late:    'var(--warning, #d97706)',
+    present: 'var(--success, #16a34a)',
+    absent:  'var(--danger,  #dc2626)',
+    late:    'var(--warning, #d97706)',
+    excused: 'var(--primary, #2563eb)',
+}
+
+const STATUS_LABELS = { present: 'Present', absent: 'Absent', late: 'Late', excused: 'Excused' }
+
+function todayISO() {
+    return new Date().toISOString().split('T')[0]
+}
+
+function buildSections(classes) {
+    const oLevel = { name: 'O-Level', years: [] }
+    const aLevel = { name: 'A-Level', years: [] }
+    for (const cls of classes) {
+        const grade = parseInt(cls.grade)
+        const group = grade <= 3 ? oLevel : aLevel
+        const yearName = `S${cls.grade}`
+        let yearObj = group.years.find(y => y.name === yearName)
+        if (!yearObj) {
+            yearObj = { name: yearName, streams: [] }
+            group.years.push(yearObj)
+        }
+        if (!yearObj.streams.includes(cls.section)) yearObj.streams.push(cls.section)
+    }
+    return [oLevel, aLevel].filter(s => s.years.length > 0)
 }
 
 export function TeacherAttendance() {
     const [section, setSection]   = useState('')
     const [year, setYear]         = useState('')
     const [classVal, setClassVal] = useState('')
-    const [viewMode, setViewMode] = useState('Daily')
+    const [selectedDate, setSelectedDate] = useState(todayISO())
+
+    const [sections, setSections]     = useState([])
+    const [classIdMap, setClassIdMap] = useState({})
+
+    const [students, setStudents] = useState([])
+    const [stats, setStats]       = useState(null)
     const [attendance, setAttendance] = useState({})
 
-    const classKey = year && classVal ? `${year}${classVal}` : ''
-    const students  = classKey ? (MOCK_STUDENTS[classKey] ?? []) : []
+    const [loadingClasses,  setLoadingClasses]  = useState(true)
+    const [loadingStudents, setLoadingStudents] = useState(false)
+    const [saving, setSaving] = useState(false)
+    const [error, setError]   = useState(null)
+    const [saved, setSaved]   = useState(false)
 
-    function getStatus(id, fallback) { return attendance[id]?.status ?? fallback }
-    function getNote(id, fallback)   { return attendance[id]?.note   ?? fallback }
+    const classKey        = year && classVal ? `${year}${classVal}` : ''
+    const selectedClassId = classIdMap[classKey] ?? null
+
+    useEffect(() => {
+        async function init() {
+            try {
+                const res = await getTeacherMyClasses()
+                const seen = new Set()
+                const unique = []
+                for (const cls of res) {
+                    const key = String(cls.class_id)
+                    if (!seen.has(key)) { seen.add(key); unique.push(cls) }
+                }
+                setSections(buildSections(unique))
+                const map = {}
+                unique.forEach(c => { map[`S${c.grade}${c.section}`] = c.class_id })
+                setClassIdMap(map)
+            } catch {
+                setError('Failed to load your classes.')
+            } finally {
+                setLoadingClasses(false)
+            }
+        }
+        init()
+    }, [])
+
+    useEffect(() => {
+        if (!selectedClassId) {
+            setStudents([])
+            setStats(null)
+            setAttendance({})
+            return
+        }
+        async function loadAttendance() {
+            setLoadingStudents(true)
+            setError(null)
+            setSaved(false)
+            try {
+                const params = { class_id: selectedClassId, date: selectedDate }
+                const [stuRes, statsRes] = await Promise.all([
+                    getTeacherAttendanceStudents(params),
+                    getTeacherAttendanceStats(params),
+                ])
+                setStudents(stuRes)
+                setStats(statsRes)
+                const init = {}
+                stuRes.forEach(s => {
+                    init[s.student_id] = { status: s.status ?? 'present', notes: s.notes ?? '' }
+                })
+                setAttendance(init)
+            } catch {
+                setError('Failed to load attendance data.')
+            } finally {
+                setLoadingStudents(false)
+            }
+        }
+        loadAttendance()
+    }, [selectedClassId, selectedDate])
+
+    function getStatus(id) { return attendance[id]?.status ?? 'present' }
+    function getNotes(id)  { return attendance[id]?.notes  ?? '' }
 
     function setStudentStatus(id, status) {
-        setAttendance(prev => ({ ...prev, [id]: { status, note: prev[id]?.note ?? '' } }))
+        setAttendance(prev => ({ ...prev, [id]: { ...prev[id], status } }))
     }
-    function setStudentNote(id, note) {
-        setAttendance(prev => ({ ...prev, [id]: { note, status: prev[id]?.status ?? 'Present' } }))
+    function setStudentNotes(id, notes) {
+        setAttendance(prev => ({ ...prev, [id]: { ...prev[id], notes } }))
     }
     function markAllPresent() {
         const next = {}
-        students.forEach(s => { next[s.id] = { status: 'Present', note: '' } })
+        students.forEach(s => { next[s.student_id] = { status: 'present', notes: getNotes(s.student_id) } })
         setAttendance(next)
     }
 
-    const presentCount = students.filter(s => getStatus(s.id, s.status) === 'Present').length
-    const absentCount  = students.filter(s => getStatus(s.id, s.status) === 'Absent').length
-    const lateCount    = students.filter(s => getStatus(s.id, s.status) === 'Late').length
+    async function handleSave() {
+        if (!selectedClassId || !students.length || saving) return
+        setSaving(true)
+        setError(null)
+        setSaved(false)
+        try {
+            const records = students.map(s => ({
+                student_id: s.student_id,
+                status: getStatus(s.student_id),
+                notes:  getNotes(s.student_id),
+            }))
+            await markTeacherAttendance({ class_id: selectedClassId, date: selectedDate, records })
+            const statsRes = await getTeacherAttendanceStats({ class_id: selectedClassId, date: selectedDate })
+            setStats(statsRes)
+            setSaved(true)
+        } catch {
+            setError('Failed to save attendance. Please try again.')
+        } finally {
+            setSaving(false)
+        }
+    }
 
-    const todayLabel = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })
+    const presentCount = students.filter(s => getStatus(s.student_id) === 'present').length
+    const absentCount  = students.filter(s => getStatus(s.student_id) === 'absent').length
+    const lateCount    = students.filter(s => getStatus(s.student_id) === 'late').length
 
     return (
         <>
@@ -104,109 +187,131 @@ export function TeacherAttendance() {
                         <div className="dashboard-header-actions">
                             <button className="notification-btn">
                                 <span className="material-symbols-rounded">notifications</span>
-                                <span className="notification-badge">5</span>
                             </button>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Pacifique Rurangwa</span>
+                                    <span className="header-user-name">Teacher</span>
                                     <span className="header-user-role">Teacher</span>
                                 </div>
-                                <Link to="/profile?role=teacher" className="header-user-av teacher-av">PR</Link>
+                                <Link to="/profile?role=teacher" className="header-user-av teacher-av">T</Link>
                             </div>
                         </div>
                     </header>
 
                     <DashboardContent>
-                        <ClassPicker
-                            sections={SECTIONS}
-                            section={section}
-                            onSectionChange={s => { setSection(s); setYear(''); setClassVal('') }}
-                            year={year}
-                            onYearChange={y => { setYear(y); setClassVal('') }}
-                            classVal={classVal}
-                            onClassChange={setClassVal}
-                        />
-
-                        {/* Toolbar container */}
-                        <div className="toolbar-card">
-                            {VIEW_TABS.map(tab => (
-                                <button
-                                    key={tab}
-                                    className={`btn ${viewMode === tab ? 'btn-primary' : 'btn-outline'}`}
-                                    style={{ fontSize: '0.82rem', padding: '0.35rem 0.85rem' }}
-                                    onClick={() => setViewMode(tab)}
-                                >
-                                    {tab}
-                                </button>
-                            ))}
-                            <div className="toolbar-spacer" />
-                            <button className="btn btn-outline select-xs" onClick={markAllPresent}>
-                                <span className="material-symbols-rounded icon-sm">done_all</span>
-                                Mark All Present
-                            </button>
-                            <button className="btn btn-outline select-xs">
-                                <span className="material-symbols-rounded icon-sm">download</span>
-                                Export
-                            </button>
-                        </div>
-
-                        {/* Content area */}
-                        {!classKey ? (
-                            <EmptyState icon="fact_check" title="No class selected" description="Use the picker above to select a section, year, and class to mark attendance." />
+                        {loadingClasses ? (
+                            <EmptyState icon="sync" title="Loading classes…" description="Fetching your assigned classes." />
                         ) : (
                             <>
-                                {/* Quick stats */}
-                                <div className="mini-stats-row">
-                                    {[
-                                        { label:'Present', value: presentCount, color: STATUS_COLORS.Present },
-                                        { label:'Absent',  value: absentCount,  color: STATUS_COLORS.Absent  },
-                                        { label:'Late',    value: lateCount,    color: STATUS_COLORS.Late    },
-                                        { label:'Total',   value: students.length, color:'var(--primary)'   },
-                                    ].map(s => (
-                                        <div key={s.label} className="mini-stat">
-                                            <div className="mini-stat-value" style={{ color:s.color }}>{s.value}</div>
-                                            <div className="mini-stat-label">{s.label}</div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <DataTable
-                                    title={`${classKey} — Attendance`}
-                                    data={students}
-                                    columns={['Student','Status','Notes']}
-                                    renderRow={s => (
-                                        <tr key={s.id}>
-                                            <td>
-                                                <div className="dt-cell-user">
-                                                    <div className="dt-avatar">{s.initials}</div>
-                                                    <div><div className="dt-name">{s.name}</div><div className="dt-sub">{s.id}</div></div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <select className="input input-auto" value={getStatus(s.id, s.status)} onChange={e => setStudentStatus(s.id, e.target.value)} style={{ color: STATUS_COLORS[getStatus(s.id, s.status)] }}>
-                                                    <option>Present</option><option>Absent</option><option>Late</option>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <input type="text" className="input" placeholder="Optional notes..." value={getNote(s.id, s.note)} onChange={e => setStudentNote(s.id, e.target.value)} />
-                                            </td>
-                                        </tr>
-                                    )}
-                                    emptyIcon="people"
-                                    emptyTitle="No students found"
-                                    emptyDesc={`No student records are available for ${classKey}.`}
-                                    headerRight={
-                                        <select className="input input-auto select-xs">
-                                            <option>Today — {todayLabel}</option>
-                                            <option>Yesterday</option>
-                                        </select>
-                                    }
+                                <ClassPicker
+                                    sections={sections}
+                                    section={section}
+                                    onSectionChange={s => { setSection(s); setYear(''); setClassVal('') }}
+                                    year={year}
+                                    onYearChange={y => { setYear(y); setClassVal('') }}
+                                    classVal={classVal}
+                                    onClassChange={setClassVal}
                                 />
 
-                                <div className="modal-confirm-actions">
-                                    <button className="btn btn-outline" onClick={() => setAttendance({})}>Reset</button>
-                                    <button className="btn btn-primary"><span className="material-symbols-rounded icon-sm">save</span> Save Attendance</button>
+                                <div className="toolbar-card">
+                                    <button className="btn btn-outline select-xs" onClick={markAllPresent} disabled={!classKey || loadingStudents}>
+                                        <span className="material-symbols-rounded icon-sm">done_all</span>
+                                        Mark All Present
+                                    </button>
+                                    <div className="toolbar-spacer" />
+                                    <input
+                                        type="date"
+                                        className="input input-auto select-xs"
+                                        value={selectedDate}
+                                        max={todayISO()}
+                                        onChange={e => setSelectedDate(e.target.value)}
+                                    />
                                 </div>
+
+                                {error && (
+                                    <div className="alert alert-danger">{error}</div>
+                                )}
+                                {saved && (
+                                    <div className="alert alert-success">Attendance saved successfully.</div>
+                                )}
+
+                                {!classKey ? (
+                                    <EmptyState icon="fact_check" title="No class selected" description="Use the picker above to select a section, year, and class to mark attendance." />
+                                ) : loadingStudents ? (
+                                    <EmptyState icon="sync" title="Loading…" description={`Fetching students for ${classKey}.`} />
+                                ) : (
+                                    <>
+                                        <div className="mini-stats-row">
+                                            {[
+                                                { label: 'Present',     value: presentCount,         color: STATUS_COLORS.present },
+                                                { label: 'Absent',      value: absentCount,          color: STATUS_COLORS.absent  },
+                                                { label: 'Late',        value: lateCount,            color: STATUS_COLORS.late    },
+                                                { label: 'Total',       value: students.length,      color: 'var(--primary)'     },
+                                                { label: 'Weekly Rate', value: stats ? `${stats.weekly_rate}%` : '—', color: 'var(--primary)' },
+                                            ].map(s => (
+                                                <div key={s.label} className="mini-stat">
+                                                    <div className="mini-stat-value" style={{ color: s.color }}>{s.value}</div>
+                                                    <div className="mini-stat-label">{s.label}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <DataTable
+                                            title={`${classKey} — Attendance`}
+                                            data={students}
+                                            columns={['Student', 'Status', 'Notes']}
+                                            renderRow={s => (
+                                                <tr key={s.student_id}>
+                                                    <td>
+                                                        <div className="dt-cell-user">
+                                                            <div className="dt-avatar">{s.initials}</div>
+                                                            <div>
+                                                                <div className="dt-name">{s.full_name}</div>
+                                                                <div className="dt-sub">{s.student_code}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <select
+                                                            className="input input-auto"
+                                                            value={getStatus(s.student_id)}
+                                                            onChange={e => setStudentStatus(s.student_id, e.target.value)}
+                                                            style={{ color: STATUS_COLORS[getStatus(s.student_id)] }}
+                                                        >
+                                                            {Object.entries(STATUS_LABELS).map(([val, label]) => (
+                                                                <option key={val} value={val}>{label}</option>
+                                                            ))}
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input
+                                                            type="text"
+                                                            className="input"
+                                                            placeholder="Optional notes…"
+                                                            value={getNotes(s.student_id)}
+                                                            onChange={e => setStudentNotes(s.student_id, e.target.value)}
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            )}
+                                            emptyIcon="people"
+                                            emptyTitle="No students enrolled"
+                                            emptyDesc={`No students are enrolled in ${classKey} this term.`}
+                                        />
+
+                                        <div className="modal-confirm-actions">
+                                            <button className="btn btn-outline" onClick={() => {
+                                                const reset = {}
+                                                students.forEach(s => { reset[s.student_id] = { status: s.status ?? 'present', notes: s.notes ?? '' } })
+                                                setAttendance(reset)
+                                            }}>Reset</button>
+                                            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                                                <span className="material-symbols-rounded icon-sm">save</span>
+                                                {saving ? 'Saving…' : 'Save Attendance'}
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </>
                         )}
                     </DashboardContent>
