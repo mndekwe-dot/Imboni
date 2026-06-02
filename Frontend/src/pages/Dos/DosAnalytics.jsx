@@ -1,5 +1,7 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
-import { Link } from 'react-router'
+import { useState, useEffect } from 'react'
+import { getDosAnalytics } from '../../api/dos'
+import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -7,52 +9,73 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
-
-const analyticsStats = [
-    { icon: 'trending_up',  value: '78%',  label: 'Overall Performance',   trend: '+3% from last term', trendClass: 'positive', colorClass: ''        },
-    { icon: 'check_circle', value: '94%',  label: 'Attendance Rate',       trend: 'Above target',       trendClass: 'positive', colorClass: 'success' },
-    { icon: 'groups',       value: '1:15', label: 'Teacher-Student Ratio', trend: 'Optimal range',      trendClass: '',         colorClass: 'warning' },
-    { icon: 'emoji_events', value: '342',  label: 'Top Performers',        trend: 'Above 80%',          trendClass: 'positive', colorClass: 'info'    },
-]
-
-const gradePerformance = [
-    { grade: 'Grade 12', value: '82%', width: '82%' },
-    { grade: 'Grade 11', value: '78%', width: '78%' },
-    { grade: 'Grade 10', value: '75%', width: '75%' },
-    { grade: 'Grade 9',  value: '72%', width: '72%' },
-    { grade: 'Grade 8',  value: '69%', width: '69%' },
-    { grade: 'Grade 7',  value: '71%', width: '71%' },
-]
-
-const subjectPerformance = [
-    { subject: 'Mathematics', value: '76%', width: '76%', barColor: 'var(--success)' },
-    { subject: 'English',     value: '81%', width: '81%', barColor: 'var(--success)' },
-    { subject: 'Science',     value: '73%', width: '73%', barColor: 'var(--warning)' },
-    { subject: 'History',     value: '79%', width: '79%', barColor: 'var(--success)' },
-    { subject: 'Geography',   value: '74%', width: '74%', barColor: 'var(--success)' },
-    { subject: 'Kiswahili',   value: '68%', width: '68%', barColor: 'var(--warning)' },
-]
-
-
-function GradeRow({ grade, value, width }) {
+function GradeRow({ grade, score }) {
+    const pct = `${score}%`
     return (
         <div className="perf-row">
-            <div className="perf-row-header"><span>{grade}</span><strong>{value}</strong></div>
-            <div className="progress"><div className="progress-bar" style={{ width }}></div></div>
+            <div className="perf-row-header"><span>{grade}</span><strong>{pct}</strong></div>
+            <div className="progress"><div className="progress-bar" style={{ width: pct }} /></div>
         </div>
     )
 }
 
-function SubjectRow({ subject, value, width, barColor }) {
+function SubjectRow({ subject, avg_score }) {
+    const pct = `${avg_score}%`
+    const barColor = avg_score >= 75 ? 'var(--success)' : 'var(--warning)'
     return (
         <div className="perf-row">
-            <div className="perf-row-header"><span>{subject}</span><strong>{value}</strong></div>
-            <div className="progress"><div className="progress-bar" style={{ width, background: barColor }}></div></div>
+            <div className="perf-row-header"><span>{subject}</span><strong>{pct}</strong></div>
+            <div className="progress"><div className="progress-bar" style={{ width: pct, background: barColor }} /></div>
         </div>
     )
 }
 
 export function DosAnalytics() {
+    const [data,    setData]    = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error,   setError]   = useState(null)
+
+    useEffect(() => {
+        getDosAnalytics()
+            .then(d => setData(d))
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    const stats = data ? [
+        {
+            icon: 'trending_up', colorClass: '',
+            value: `${data.stats.overall_avg}%`,
+            label: 'Overall Performance',
+            trend: data.stats.overall_avg > 0 ? 'Current term avg' : 'No data yet',
+            trendClass: data.stats.overall_avg >= 70 ? 'positive' : 'negative',
+        },
+        {
+            icon: 'check_circle', colorClass: 'success',
+            value: `${data.stats.attendance_rate}%`,
+            label: 'Attendance Rate',
+            trend: data.stats.attendance_rate >= 90 ? 'Above target' : 'Below target',
+            trendClass: data.stats.attendance_rate >= 90 ? 'positive' : 'negative',
+        },
+        {
+            icon: 'groups', colorClass: 'warning',
+            value: data.stats.ratio,
+            label: 'Teacher-Student Ratio',
+            trend: 'Current enrolment',
+            trendClass: '',
+        },
+        {
+            icon: 'emoji_events', colorClass: 'info',
+            value: data.stats.top_performers,
+            label: 'Top Performers',
+            trend: 'Score ≥ 80%',
+            trendClass: 'positive',
+        },
+    ] : []
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading analytics…</p>
+    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -60,35 +83,15 @@ export function DosAnalytics() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>School Analytics</h1>
-                            <p>Comprehensive school performance insights</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">Monday, March 23, 2026</span>
-                            <button className="notification-btn">
-                                <span className="material-symbols-rounded">notifications</span>
-                                <span className="notification-badge">3</span>
-                            </button>
-                            <button className="btn btn-secondary btn-sm">This Term</button>
-                            <button className="btn btn-primary btn-sm">Export Report</button>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
-                                    <span className="header-user-role">Director of Studies</span>
-                                </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">JN</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="School Analytics"
+                        subtitle="Comprehensive school performance insights"
+                        {...dosUser}
+                    />
 
                     <DashboardContent>
                         <div className="portal-stat-grid">
-                            {analyticsStats.map((s, i) => <StatCard key={i} {...s} />)}
+                            {stats.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
                         <div className="analytics-grid">
@@ -97,11 +100,16 @@ export function DosAnalytics() {
                                     <h3 className="card-title">Performance by Grade</h3>
                                 </div>
                                 <div className="card-content">
-                                    <div className="perf-list">
-                                        {gradePerformance.map((row, index) => (
-                                            <GradeRow key={index} {...row} />
-                                        ))}
-                                    </div>
+                                    {data.grade_performance.length === 0
+                                        ? <p style={{ color: 'var(--muted-foreground)', fontSize: '.85rem' }}>No approved results yet.</p>
+                                        : (
+                                            <div className="perf-list">
+                                                {data.grade_performance.map((row, i) => (
+                                                    <GradeRow key={i} {...row} />
+                                                ))}
+                                            </div>
+                                        )
+                                    }
                                 </div>
                             </div>
 
@@ -110,11 +118,16 @@ export function DosAnalytics() {
                                     <h3 className="card-title">Subject Performance</h3>
                                 </div>
                                 <div className="card-content">
-                                    <div className="perf-list">
-                                        {subjectPerformance.map((row, index) => (
-                                            <SubjectRow key={index} {...row} />
-                                        ))}
-                                    </div>
+                                    {data.subject_averages.length === 0
+                                        ? <p style={{ color: 'var(--muted-foreground)', fontSize: '.85rem' }}>No approved results yet.</p>
+                                        : (
+                                            <div className="perf-list">
+                                                {data.subject_averages.map((row, i) => (
+                                                    <SubjectRow key={i} {...row} />
+                                                ))}
+                                            </div>
+                                        )
+                                    }
                                 </div>
                             </div>
                         </div>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { classesFromConfig } from '../../utils/classes'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -122,10 +123,12 @@ function yearPfx(className) {
 
 // ── Exam detail modal ─────────────────────────────────────────────────────────
 
-function ExamDetailModal({ exam, onClose, onEdit, onDelete }) {
+function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
     const { label, cls } = examStatus(exam.exam_date)
     const duration = calcDuration(exam.start_time, exam.end_time)
     const typLabel = EXAM_TYPES.find(t => t.value === exam.exam_type)?.label || exam.exam_type
+    const [rescheduling, setRescheduling] = useState(false)
+    const [moveDate,     setMoveDate]     = useState(exam.exam_date || '')
 
     return (
         <Modal title="Exam Details" icon="info" onClose={onClose}>
@@ -187,14 +190,32 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete }) {
                 </div>
 
                 <div className="es-detail-actions">
-                    <button className="btn btn-outline" style={{color:'#ef4444',borderColor:'#ef4444'}}
-                        onClick={() => { if (window.confirm('Delete this exam?')) { onDelete(exam.id); onClose() } }}>
-                        <span className="material-symbols-rounded icon-sm">delete</span> Delete
-                    </button>
-                    <button className="btn btn-outline" onClick={onClose}>Close</button>
-                    <button className="btn btn-primary" onClick={onEdit}>
-                        <span className="material-symbols-rounded icon-sm">edit</span> Edit
-                    </button>
+                    {rescheduling ? (
+                        <div style={{display:'flex',alignItems:'center',gap:'.5rem',flex:1,flexWrap:'wrap'}}>
+                            <span style={{fontSize:'.8rem',color:'var(--muted-foreground)',whiteSpace:'nowrap'}}>Move to:</span>
+                            <input type="date" className="form-input" style={{height:'2rem',fontSize:'.85rem',flex:1,minWidth:'120px'}}
+                                value={moveDate} onChange={e => setMoveDate(e.target.value)}/>
+                            <button className="btn btn-primary btn-sm" style={{whiteSpace:'nowrap'}}
+                                onClick={() => { if(moveDate){ onReschedule(exam.id, moveDate); onClose() } }}>
+                                Confirm
+                            </button>
+                            <button className="btn btn-outline btn-sm" onClick={() => setRescheduling(false)}>Cancel</button>
+                        </div>
+                    ) : (
+                        <>
+                            <button className="btn btn-outline" style={{color:'#ef4444',borderColor:'#ef4444'}}
+                                onClick={() => { if(window.confirm('Delete this exam?')){ onDelete(exam.id); onClose() } }}>
+                                <span className="material-symbols-rounded icon-sm">delete</span> Delete
+                            </button>
+                            <button className="btn btn-outline" onClick={() => setRescheduling(true)}>
+                                <span className="material-symbols-rounded icon-sm">event_repeat</span> Reschedule
+                            </button>
+                            <button className="btn btn-outline" onClick={onClose}>Close</button>
+                            <button className="btn btn-primary" onClick={onEdit}>
+                                <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
         </Modal>
@@ -203,12 +224,12 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete }) {
 
 // ── Exam add / edit form ──────────────────────────────────────────────────────
 
-function ExamForm({ editing, defaultSession, sessions, subjects, classes, rooms, teachers, termId, onSave, onCancel }) {
+function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, classes, rooms, teachers, termId, onSave, onCancel }) {
     const [form, setForm] = useState({
         session:        editing?.title           || defaultSession || '',
         subject_id:     editing?.subject_id      || '',
         class_id:       editing?.class_id        || '',
-        exam_date:      editing?.exam_date        || '',
+        exam_date:      editing?.exam_date        || defaultDate || '',
         start_time:     (editing?.start_time||'').slice(0,5),
         end_time:       (editing?.end_time  ||'').slice(0,5),
         venue:          editing?.venue            || '',
@@ -302,6 +323,7 @@ function ExamForm({ editing, defaultSession, sessions, subjects, classes, rooms,
 
 export function DosScheduling() {
     const { config } = useSchoolConfig()
+    const { setting } = useSchoolSettings()
     const allClasses = classesFromConfig(config)
     const [activeTab, setActiveTab] = useState('timetable')
 
@@ -311,7 +333,8 @@ export function DosScheduling() {
     const [showForm,          setShowForm]          = useState(false)
     const [periods,           setPeriods]           = useState(PERIODS)
     const [showPeriodManager, setShowPeriodManager] = useState(false)
-    const [schedules,         setSchedules]         = useState(academicSchedules)
+
+    const [schedules, setSchedules] = useState(academicSchedules)
 
     // ── Exam state ──
     const [exams,           setExams]           = useState([])
@@ -323,17 +346,25 @@ export function DosScheduling() {
     const [showExamForm,    setShowExamForm]    = useState(false)
     const [editingExam,     setEditingExam]     = useState(null)
     const [defaultSession,  setDefaultSession]  = useState('')
+    const [defaultDate,     setDefaultDate]     = useState('')
     const [viewingExam,     setViewingExam]     = useState(null)
     const [subjects,        setSubjects]        = useState([])
     const [classes,         setClasses]         = useState([])
     const [rooms,           setRooms]           = useState([])
     const [teachers,        setTeachers]        = useState([])
     const [currentTermId,   setCurrentTermId]   = useState(null)
+    const [customSessions,  setCustomSessions]  = useState(() => {
+        try { return JSON.parse(localStorage.getItem('imboni_sessions') || '[]') } catch { return [] }
+    })
+    const [addingSession,   setAddingSession]   = useState(false)
+    const [newSessionName,  setNewSessionName]  = useState('')
 
     // Calendar navigation
     const todayDate = new Date()
     const [calYear,  setCalYear]  = useState(todayDate.getFullYear())
     const [calMonth, setCalMonth] = useState(todayDate.getMonth())
+
+    const printFrameRef = useRef(null)
 
     useEffect(() => {
         if (activeTab !== 'exams' || examsLoaded) return
@@ -350,7 +381,7 @@ export function DosScheduling() {
         try {
             if (editingExam) await updateDosExamSchedule(editingExam.id, formData)
             else             await createDosExamSchedule(formData)
-            setShowExamForm(false); setEditingExam(null); setDefaultSession('')
+            setShowExamForm(false); setEditingExam(null); setDefaultSession(''); setDefaultDate('')
             getDosExamSchedule().then(setExams).catch(console.error)
         } catch(e) { console.error(e) }
     }
@@ -359,6 +390,13 @@ export function DosScheduling() {
         try {
             await deleteDosExamSchedule(id)
             setExams(prev => prev.filter(e => e.id !== id))
+        } catch(e) { console.error(e) }
+    }
+
+    async function handleExamReschedule(id, newDate) {
+        try {
+            await updateDosExamSchedule(id, { exam_date: newDate })
+            getDosExamSchedule().then(setExams).catch(console.error)
         } catch(e) { console.error(e) }
     }
 
@@ -373,7 +411,8 @@ export function DosScheduling() {
 
     // ── Derived ──
 
-    const sessions = [...new Set(exams.map(e => e.title).filter(Boolean))].sort()
+    const examSessionNames = [...new Set(exams.map(e => e.title).filter(Boolean))]
+    const sessions = [...new Set([...customSessions, ...examSessionNames])].sort()
 
     // sec.years = [{name:"S1", streams:["A","B","C"]}, ...]
     const sectionYearSets = (config||[]).reduce((acc, sec) => {
@@ -393,12 +432,172 @@ export function DosScheduling() {
     const filteredExams = exams.filter(e => {
         if (selectedSession !== 'all' && e.title !== selectedSession) return false
         if (sectionFilter !== 'all') {
-            const ys = sectionYearSets[sectionFilter]
-            if (ys && ys.size > 0 && !ys.has(yearPfx(e.class_name))) return false
+            // exams with no class are school-wide — they pass all section filters
+            if (e.class_name) {
+                const ys = sectionYearSets[sectionFilter]
+                if (ys && ys.size > 0 && !ys.has(yearPfx(e.class_name))) return false
+            }
         }
         if (classFilter !== 'all' && e.class_name !== classFilter) return false
         return true
     })
+
+    // ── Session helpers ──
+    function handleAddSession() {
+        const name = newSessionName.trim()
+        if (!name) return
+        const updated = [...new Set([...customSessions, name])]
+        setCustomSessions(updated)
+        localStorage.setItem('imboni_sessions', JSON.stringify(updated))
+        setNewSessionName(''); setAddingSession(false)
+        setSelectedSession(name)
+    }
+
+    async function handleDeleteSession(name) {
+        if (!window.confirm(`Delete session "${name}"? This will delete all ${exams.filter(e=>e.title===name).length} exam(s) in it.`)) return
+        const toDelete = exams.filter(e => e.title === name)
+        await Promise.all(toDelete.map(e => deleteDosExamSchedule(e.id).catch(console.error)))
+        const updated = customSessions.filter(s => s !== name)
+        setCustomSessions(updated)
+        localStorage.setItem('imboni_sessions', JSON.stringify(updated))
+        if (selectedSession === name) setSelectedSession('all')
+        getDosExamSchedule().then(setExams).catch(console.error)
+    }
+
+    // ── Print ──
+    function handlePrint() {
+        // Columns = unique classes that have exams (sorted), plus GENERAL for unclassed
+        const classSet = new Set(filteredExams.map(e => e.class_name).filter(Boolean))
+        const hasGeneral = filteredExams.some(e => !e.class_name)
+        const columns = [...classSet].sort()
+        if (hasGeneral) columns.unshift('GENERAL')
+        if (columns.length === 0) { alert('No exams to print.'); return }
+
+        // Rows = unique dates sorted
+        const dates = [...new Set(filteredExams.map(e => e.exam_date))].sort()
+
+        // Lookup: "date__class" → exams[]
+        const lookup = {}
+        filteredExams.forEach(e => {
+            const key = `${e.exam_date}__${e.class_name || 'GENERAL'}`
+            if (!lookup[key]) lookup[key] = []
+            lookup[key].push(e)
+        })
+
+        const sessionTitle = selectedSession !== 'all' ? selectedSession.toUpperCase() : 'ALL SESSIONS'
+        const filterNote   = [
+            sectionFilter !== 'all' ? sectionFilter : '',
+            classFilter   !== 'all' ? classFilter   : '',
+        ].filter(Boolean).join(' · ')
+
+        const colWidth = Math.max(60, Math.floor(600 / columns.length))
+
+        const headerCells = columns.map(c =>
+            `<th style="width:${colWidth}pt">${c}</th>`
+        ).join('')
+
+        const bodyRows = dates.map(date => {
+            const cells = columns.map(col => {
+                const exs = (lookup[`${date}__${col}`] || [])
+                    .sort((a,b) => a.start_time.localeCompare(b.start_time))
+                if (!exs.length) return '<td></td>'
+                const content = exs.map(e => `
+                    <div class="cs">${e.subject}</div>
+                    <div class="ct">${fmtTime(e.start_time)}&ndash;${fmtTime(e.end_time)}</div>
+                    ${e.venue      ? `<div class="cv">${e.venue}</div>`      : ''}
+                    ${e.invigilator? `<div class="ci">${e.invigilator}</div>`:''}
+                `).join('<div class="sep"></div>')
+                return `<td>${content}</td>`
+            }).join('')
+            return `<tr>
+                <td class="date-cell">${fmtDate(date).replace(', ', ',<br>')}</td>
+                ${cells}
+            </tr>`
+        }).join('')
+
+        const html = `<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<title>Examination Timetable</title>
+<style>
+@page { size: A4 landscape; margin: 10mm 12mm; }
+*     { box-sizing:border-box; margin:0; padding:0; }
+body  { font-family:Arial,Helvetica,sans-serif; font-size:9pt; color:#000; }
+
+/* header */
+.hdr  { text-align:center; margin-bottom:10pt; padding-bottom:8pt; border-bottom:1.5pt solid #000; }
+.h-school { font-size:12pt; font-weight:900; text-transform:uppercase; letter-spacing:.12em; }
+.h-title  { font-size:10pt; font-weight:700; text-transform:uppercase; margin:3pt 0; letter-spacing:.06em; }
+.h-session{ font-size:10pt; font-weight:700; text-decoration:underline; }
+.h-note   { font-size:8pt; color:#555; margin-top:2pt; }
+
+/* table */
+table { width:100%; border-collapse:collapse; table-layout:fixed; }
+thead th {
+    background:#1a1a1a; color:#fff; padding:5pt 4pt;
+    text-align:center; font-size:8pt; font-weight:700;
+    border:1pt solid #000; letter-spacing:.04em; text-transform:uppercase;
+}
+th.date-th { width:55pt; background:#444; }
+td {
+    padding:4pt 4pt; border:1pt solid #bbb;
+    vertical-align:top; font-size:8pt;
+}
+td.date-cell {
+    background:#e8e8e8; font-weight:700; font-size:7.5pt;
+    text-align:center; vertical-align:middle; line-height:1.3;
+}
+tr:nth-child(even) td:not(.date-cell) { background:#f7f7f7; }
+tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
+
+/* cell content */
+.cs  { font-weight:700; font-size:8.5pt; color:#000; }
+.ct  { font-size:7.5pt; color:#444; margin-top:1.5pt; font-weight:600; }
+.cv  { font-size:7pt; color:#777; font-style:italic; margin-top:1pt; }
+.ci  { font-size:7pt; color:#333; margin-top:1pt; }
+.sep { border-top:.5pt solid #ccc; margin:3pt 0; }
+
+/* footer */
+.ftr {
+    margin-top:8pt; display:flex; justify-content:space-between;
+    font-size:7pt; color:#888;
+    border-top:.5pt solid #ccc; padding-top:4pt;
+}
+</style>
+</head><body>
+
+<div class="hdr">
+    <div class="h-school">${setting?.school_name || 'IMBONI SCHOOL'}</div>
+    <div class="h-title">EXAMINATION TIMETABLE</div>
+    <div class="h-session">${sessionTitle}</div>
+    ${filterNote ? `<div class="h-note">${filterNote}</div>` : ''}
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th class="date-th">DATES</th>
+            ${headerCells}
+        </tr>
+    </thead>
+    <tbody>
+        ${bodyRows}
+    </tbody>
+</table>
+
+<div class="ftr">
+    <span>Total: ${filteredExams.length} exam(s) across ${dates.length} day(s)</span>
+    <span>Generated: ${new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
+</div>
+
+<script>window.onload = function(){ window.focus(); window.print(); }<\/script>
+</body></html>`
+
+        const iframe = printFrameRef.current
+        const doc = iframe.contentDocument || iframe.contentWindow.document
+        doc.open(); doc.write(html); doc.close()
+        // Fallback timer in case onload already fired
+        setTimeout(() => { try { iframe.contentWindow.focus(); iframe.contentWindow.print() } catch(_){} }, 600)
+    }
 
     // Map date → sorted exams list
     const examsByDate = filteredExams.reduce((acc, e) => {
@@ -420,7 +619,7 @@ export function DosScheduling() {
         setSchedules(prev => {
             const cd = {...(prev[classId]||{})}
             const da = [...(cd[day]||Array(periods.length).fill(null))]
-            da[pi] = subject ? {subject,teacher,room,teacherId:editingSlot?.cell?.teacherId||''} : null
+            da[pi]   = subject ? {subject,teacher,room,teacherId:editingSlot?.cell?.teacherId||''} : null
             return {...prev,[classId]:{...cd,[day]:da}}
         })
         setShowForm(false); setEditingSlot(null)
@@ -432,7 +631,7 @@ export function DosScheduling() {
         setSchedules(prev => {
             const cd = {...(prev[classId]||{})}
             const da = [...(cd[day]||[])]
-            da[pi] = null
+            da[pi]   = null
             return {...prev,[classId]:{...cd,[day]:da}}
         })
         setShowForm(false); setEditingSlot(null)
@@ -463,9 +662,10 @@ export function DosScheduling() {
                                 <div className="portal-stat-grid mb-5">
                                     {timetableStats.map((s,i) => <StatCard key={i} {...s}/>)}
                                 </div>
+
                                 <div className="card">
                                     <div className="card-header">
-                                        <h2 className="card-title">Class {classId} — Weekly Timetable</h2>
+                                        <h2 className="card-title">Class {classId}</h2>
                                         <div className="flex-row-gap">
                                             <div className="flex-row-gap-sm">
                                                 <label className="form-label mb-0">Class:</label>
@@ -497,9 +697,8 @@ export function DosScheduling() {
                                     <div className="card-header">
                                         <h2 className="card-title">Exam Schedule</h2>
                                         <div className="es-card-actions">
-                                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded">download</span> Export CSV</button>
-                                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded">print</span> Print / PDF</button>
-                                            <button className="btn btn-primary btn-sm" onClick={() => {setDefaultSession(selectedSession!=='all'?selectedSession:'');setEditingExam(null);setShowExamForm(true)}}>
+                                            <button className="btn btn-outline btn-sm" onClick={handlePrint}><span className="material-symbols-rounded">print</span> Print / PDF</button>
+                                            <button className="btn btn-primary btn-sm" onClick={() => {setDefaultSession(selectedSession!=='all'?selectedSession:'');setDefaultDate('');setEditingExam(null);setShowExamForm(true)}}>
                                                 <span className="material-symbols-rounded">add</span> Add Exam
                                             </button>
                                         </div>
@@ -515,11 +714,31 @@ export function DosScheduling() {
                                                     All <span className="es-chip-count">{exams.length}</span>
                                                 </button>
                                                 {sessions.map(s => (
-                                                    <button key={s} className={`es-session-chip${selectedSession===s?' active':''}`} onClick={() => setSelectedSession(s)}>
-                                                        {s} <span className="es-chip-count">{exams.filter(e=>e.title===s).length}</span>
-                                                    </button>
+                                                    <span key={s} className={`es-session-chip-wrap${selectedSession===s?' active':''}`}>
+                                                        <button className="es-session-chip-label" onClick={() => setSelectedSession(s)}>
+                                                            {s} <span className="es-chip-count">{exams.filter(e=>e.title===s).length}</span>
+                                                        </button>
+                                                        <button className="es-session-chip-del" title="Delete session"
+                                                            onClick={e => {e.stopPropagation();handleDeleteSession(s)}}>
+                                                            <span className="material-symbols-rounded">close</span>
+                                                        </button>
+                                                    </span>
                                                 ))}
-                                                {sessions.length===0 && !examsLoading && <span className="es-no-sessions">No sessions yet</span>}
+                                                {addingSession ? (
+                                                    <span className="es-session-add-input">
+                                                        <input autoFocus className="form-input" style={{height:'1.75rem',fontSize:'.8rem',padding:'0 .4rem',width:'160px'}}
+                                                            placeholder="Session name…" value={newSessionName}
+                                                            onChange={e => setNewSessionName(e.target.value)}
+                                                            onKeyDown={e => { if (e.key==='Enter') handleAddSession(); if (e.key==='Escape') {setAddingSession(false);setNewSessionName('')} }}
+                                                        />
+                                                        <button className="btn btn-primary btn-sm" style={{height:'1.75rem',padding:'0 .6rem'}} onClick={handleAddSession}>Add</button>
+                                                        <button className="btn btn-outline btn-sm" style={{height:'1.75rem',padding:'0 .5rem'}} onClick={() => {setAddingSession(false);setNewSessionName('')}}>✕</button>
+                                                    </span>
+                                                ) : (
+                                                    <button className="es-session-chip es-session-chip-new" onClick={() => setAddingSession(true)}>
+                                                        <span className="material-symbols-rounded" style={{fontSize:'.9rem'}}>add</span> New Session
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
 
@@ -595,12 +814,19 @@ export function DosScheduling() {
                                                     {calDays.map(day => {
                                                         const dayExams = examsByDate[day.date] || []
                                                         return (
-                                                            <div key={day.date} className={[
-                                                                'es-cal-month-cell',
-                                                                !day.isThisMonth ? 'other-month' : '',
-                                                                day.isToday ? 'is-today' : '',
-                                                                day.isSunday ? 'is-sunday' : '',
-                                                            ].filter(Boolean).join(' ')}>
+                                                            <div key={day.date}
+                                                                className={[
+                                                                    'es-cal-month-cell',
+                                                                    !day.isThisMonth ? 'other-month' : '',
+                                                                    day.isToday ? 'is-today' : '',
+                                                                    day.isSunday ? 'is-sunday' : '',
+                                                                ].filter(Boolean).join(' ')}
+                                                                onClick={() => {
+                                                                    setDefaultDate(day.date)
+                                                                    setDefaultSession(selectedSession!=='all'?selectedSession:'')
+                                                                    setEditingExam(null)
+                                                                    setShowExamForm(true)
+                                                                }}>
                                                                 <span className={`es-cal-month-num${day.isToday?' today':''}`}>{day.day}</span>
                                                                 <div className="es-cal-month-events">
                                                                     {dayExams.slice(0,2).map(exam => {
@@ -637,6 +863,7 @@ export function DosScheduling() {
                                         onClose={() => setViewingExam(null)}
                                         onEdit={() => {setEditingExam(viewingExam);setViewingExam(null);setShowExamForm(true)}}
                                         onDelete={id => {handleExamDelete(id);setViewingExam(null)}}
+                                        onReschedule={handleExamReschedule}
                                     />
                                 )}
 
@@ -644,6 +871,7 @@ export function DosScheduling() {
                                     <ExamForm
                                         editing={editingExam}
                                         defaultSession={defaultSession}
+                                        defaultDate={defaultDate}
                                         sessions={sessions}
                                         subjects={subjects}
                                         classes={classes}
@@ -651,7 +879,7 @@ export function DosScheduling() {
                                         teachers={teachers}
                                         termId={currentTermId}
                                         onSave={handleExamSave}
-                                        onCancel={() => {setShowExamForm(false);setEditingExam(null);setDefaultSession('')}}
+                                        onCancel={() => {setShowExamForm(false);setEditingExam(null);setDefaultSession('');setDefaultDate('')}}
                                     />
                                 )}
                             </>
@@ -659,6 +887,11 @@ export function DosScheduling() {
                     </DashboardContent>
                 </main>
             </div>
+
+            {/* Hidden iframe used as print target — avoids popup blockers */}
+            <iframe ref={printFrameRef} title="exam-print"
+                style={{display:'none',width:0,height:0,position:'absolute',left:'-9999px'}}
+                aria-hidden="true"/>
         </>
     )
 }

@@ -10,6 +10,7 @@ import {
     getDosWeeklyAttendance,
     getDosTeacherWeeklyAttendance,
     markDosTeacherAttendance,
+    getDosAttendanceStats,
 } from '../../api/dos'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -19,13 +20,6 @@ import '../../styles/dos.css'
 import '../../styles/discipline.css'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-
-const STAT_CARDS = [
-    { icon: 'how_to_reg',         value: '94%', label: 'Student Attendance',  trend: 'This week',       trendClass: 'positive', colorClass: 'success' },
-    { icon: 'person_off',         value: '73',  label: 'Absent Today',        trend: 'Needs follow-up', trendClass: 'negative', colorClass: 'warning' },
-    { icon: 'schedule',           value: '18',  label: 'Late Arrivals',       trend: 'This week',       trendClass: '',         colorClass: 'info'    },
-    { icon: 'supervisor_account', value: '98%', label: 'Teacher Attendance',  trend: 'Today',           trendClass: 'positive', colorClass: 'success' },
-]
 
 const DAY_KEYS   = ['mon', 'tue', 'wed', 'thu', 'fri']
 const STATUS_MAP = { present: 'P', absent: 'A', late: 'L', excused: 'E' }
@@ -418,12 +412,16 @@ function TeacherAttendanceTab() {
 
 export function DosAttendance() {
     const { setting } = useSchoolSettings()
-    const [mode,     setMode]     = useState('student')   // 'student' | 'teacher'
-    const [sections, setSections] = useState([])
+    const [mode,      setMode]      = useState('student')
+    const [sections,  setSections]  = useState([])
+    const [attStats,  setAttStats]  = useState(null)
 
     useEffect(() => {
         getDosClasses()
             .then(res => setSections(buildSections(res)))
+            .catch(() => {})
+        getDosAttendanceStats()
+            .then(res => setAttStats(res))
             .catch(() => {})
     }, [])
 
@@ -446,10 +444,6 @@ export function DosAttendance() {
                         </div>
                         <div className="dashboard-header-actions">
                             <span className="date-display">{formatSchoolDate(setting?.timezone)}</span>
-                            <button className="notification-btn">
-                                <span className="material-symbols-rounded">notifications</span>
-                                <span className="notification-badge">2</span>
-                            </button>
                             <div className="header-user">
                                 <div className="header-user-info">
                                     <span className="header-user-name">{dosUser?.name}</span>
@@ -463,7 +457,12 @@ export function DosAttendance() {
                     <DashboardContent>
 
                         <div className="portal-stat-grid">
-                            {STAT_CARDS.map((s, i) => <StatCard key={i} {...s} />)}
+                            {[
+                                { icon: 'how_to_reg',         colorClass: 'success', value: attStats ? `${attStats.attendance_rate}%` : '—', label: 'Student Attendance',  trend: 'Current term',    trendClass: attStats?.attendance_rate >= 90 ? 'positive' : 'negative' },
+                                { icon: 'person_off',         colorClass: 'warning', value: attStats ? attStats.absent_today           : '—', label: 'Absent Today',        trend: 'Needs follow-up', trendClass: 'negative' },
+                                { icon: 'schedule',           colorClass: 'info',    value: attStats ? attStats.late_this_week         : '—', label: 'Late Arrivals',       trend: 'This week',       trendClass: '' },
+                                { icon: 'supervisor_account', colorClass: 'success', value: attStats ? `${attStats.teacher_rate}%`     : '—', label: 'Teacher Attendance',  trend: 'Today',           trendClass: attStats?.teacher_rate >= 90 ? 'positive' : 'negative' },
+                            ].map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
                         {/* Mode toggle */}

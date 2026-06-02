@@ -17,6 +17,8 @@ urlpatterns = [
     path('dos/dashboard/performance-overview/', views.DOSPerformanceOverviewView.as_view(), name='dos-performance-overview'),
     # Performance by Grade bar chart
     path('dos/dashboard/performance-by-grade/', views.DOSPerformanceByGradeView.as_view(), name='dos-performance-by-grade'),
+    # Weekly attendance + performance trend (8 buckets)
+    path('dos/dashboard/weekly-trend/', views.DOSDashboardWeeklyTrendView.as_view(), name='dos-weekly-trend'),
 
     # ── Teacher Management ──────────────────────────────────────────────────
     # Stat cards (Total Teachers, Full-Time, Part-Time, Student-Teacher Ratio)
@@ -59,7 +61,8 @@ urlpatterns = [
     path('dos/attendance/overview/',       views.DOSAttendanceOverviewView.as_view(), name='dos-attendance-overview'),
 
     # ── Announcements ───────────────────────────────────────────────────────
-    path('dos/announcements/',             views.DOSAnnouncementsView.as_view(), name='dos-announcements'),
+    path('dos/announcements/',             views.DOSAnnouncementsView.as_view(),       name='dos-announcements'),
+    path('dos/announcements/<uuid:pk>/',   views.DOSAnnouncementDetailView.as_view(),  name='dos-announcement-detail'),
 
     # ── Student Leaders ─────────────────────────────────────────────────────
     path('dos/student-leaders/',           views.DOSStudentLeadersView.as_view(), name='dos-student-leaders'),

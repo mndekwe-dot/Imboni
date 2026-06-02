@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getDosResults, approveResult, rejectResult } from '../../api/dos'
+import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
     PieChart, Pie, Legend, AreaChart, Area,
@@ -71,40 +71,6 @@ function groupResults(raw) {
     }))
 }
 
-const analyticsStats = [
-    { colorClass: '', icon: 'trending_up', value: '78%', label: 'Overall Performance', trend: '+3% from last term' },
-    { colorClass: 'success', icon: 'check_circle', value: '94%', label: 'Attendance Rate', trend: 'Above target' },
-    { colorClass: 'warning', icon: 'groups', value: '1:15', label: 'Teacher-Student Ratio', trend: 'Optimal range' },
-    { colorClass: 'info', icon: 'emoji_events', value: '342', label: 'Top Performers', trend: 'Above 80%' },
-]
-
-// Analytics data per term
-const ANALYTICS_DATA = {
-    'Term 1': {
-        gradePerf: [{ grade: 'S6', score: 79 }, { grade: 'S5', score: 75 }, { grade: 'S4', score: 71 }, { grade: 'S3', score: 69 }, { grade: 'S2', score: 66 }, { grade: 'S1', score: 68 }],
-        subjectPerf: [{ subject: 'Mathematics', score: 73 }, { subject: 'English', score: 78 }, { subject: 'Science', score: 70 }, { subject: 'History', score: 76 }, { subject: 'Geography', score: 71 }, { subject: 'Kinyarwanda', score: 65 }],
-        gradeDist: [{ name: 'A (80–100)', value: 22, color: '#10b981' }, { name: 'B (70–79)', value: 31, color: '#003d7a' }, { name: 'C (60–69)', value: 26, color: '#3b82f6' }, { name: 'D (50–59)', value: 14, color: '#f59e0b' }, { name: 'F (<50)', value: 7, color: '#ef4444' }],
-        attendance: [{ month: 'Jan', rate: 91 }, { month: 'Feb', rate: 88 }, { month: 'Mar', rate: 90 }],
-        passFail: [{ class: 'S1', pass: 78, fail: 22 }, { class: 'S2', pass: 74, fail: 26 }, { class: 'S3', pass: 81, fail: 19 }, { class: 'S4', pass: 83, fail: 17 }, { class: 'S5', pass: 86, fail: 14 }, { class: 'S6', pass: 88, fail: 12 }],
-        submissions: [{ subject: 'Mathematics', submitted: 8, pending: 2 }, { subject: 'English', submitted: 7, pending: 3 }, { subject: 'Science', submitted: 9, pending: 1 }, { subject: 'History', submitted: 6, pending: 4 }, { subject: 'Geography', submitted: 8, pending: 2 }, { subject: 'Kinyarwanda', submitted: 5, pending: 5 }],
-    },
-    'Term 2': {
-        gradePerf: [{ grade: 'S6', score: 82 }, { grade: 'S5', score: 78 }, { grade: 'S4', score: 75 }, { grade: 'S3', score: 72 }, { grade: 'S2', score: 69 }, { grade: 'S1', score: 71 }],
-        subjectPerf: [{ subject: 'Mathematics', score: 76 }, { subject: 'English', score: 81 }, { subject: 'Science', score: 73 }, { subject: 'History', score: 79 }, { subject: 'Geography', score: 74 }, { subject: 'Kinyarwanda', score: 68 }],
-        gradeDist: [{ name: 'A (80–100)', value: 28, color: '#10b981' }, { name: 'B (70–79)', value: 34, color: '#003d7a' }, { name: 'C (60–69)', value: 23, color: '#3b82f6' }, { name: 'D (50–59)', value: 11, color: '#f59e0b' }, { name: 'F (<50)', value: 4, color: '#ef4444' }],
-        attendance: [{ month: 'Apr', rate: 93 }, { month: 'May', rate: 91 }, { month: 'Jun', rate: 89 }, { month: 'Jul', rate: 92 }],
-        passFail: [{ class: 'S1', pass: 82, fail: 18 }, { class: 'S2', pass: 78, fail: 22 }, { class: 'S3', pass: 85, fail: 15 }, { class: 'S4', pass: 87, fail: 13 }, { class: 'S5', pass: 89, fail: 11 }, { class: 'S6', pass: 91, fail: 9 }],
-        submissions: [{ subject: 'Mathematics', submitted: 10, pending: 0 }, { subject: 'English', submitted: 9, pending: 1 }, { subject: 'Science', submitted: 10, pending: 0 }, { subject: 'History', submitted: 8, pending: 2 }, { subject: 'Geography', submitted: 9, pending: 1 }, { subject: 'Kinyarwanda', submitted: 7, pending: 3 }],
-    },
-    'Term 3': {
-        gradePerf: [{ grade: 'S6', score: 85 }, { grade: 'S5', score: 81 }, { grade: 'S4', score: 78 }, { grade: 'S3', score: 75 }, { grade: 'S2', score: 72 }, { grade: 'S1', score: 74 }],
-        subjectPerf: [{ subject: 'Mathematics', score: 79 }, { subject: 'English', score: 84 }, { subject: 'Science', score: 76 }, { subject: 'History', score: 82 }, { subject: 'Geography', score: 77 }, { subject: 'Kinyarwanda', score: 71 }],
-        gradeDist: [{ name: 'A (80–100)', value: 33, color: '#10b981' }, { name: 'B (70–79)', value: 36, color: '#003d7a' }, { name: 'C (60–69)', value: 20, color: '#3b82f6' }, { name: 'D (50–59)', value: 8, color: '#f59e0b' }, { name: 'F (<50)', value: 3, color: '#ef4444' }],
-        attendance: [{ month: 'Aug', rate: 94 }, { month: 'Sep', rate: 93 }, { month: 'Oct', rate: 95 }, { month: 'Nov', rate: 92 }],
-        passFail: [{ class: 'S1', pass: 85, fail: 15 }, { class: 'S2', pass: 81, fail: 19 }, { class: 'S3', pass: 88, fail: 12 }, { class: 'S4', pass: 90, fail: 10 }, { class: 'S5', pass: 92, fail: 8 }, { class: 'S6', pass: 94, fail: 6 }],
-        submissions: [{ subject: 'Mathematics', submitted: 10, pending: 0 }, { subject: 'English', submitted: 10, pending: 0 }, { subject: 'Science', submitted: 10, pending: 0 }, { subject: 'History', submitted: 9, pending: 1 }, { subject: 'Geography', submitted: 10, pending: 0 }, { subject: 'Kinyarwanda', submitted: 8, pending: 2 }],
-    },
-}
 
 const STATUS_TABS = [
     { key: 'all', label: 'All' },
@@ -407,9 +373,26 @@ export function DosResults() {
     const [error, setError] = useState(null)
     // reviewing = the card currently open in the Review modal
     const [reviewing, setReviewing] = useState(null)
-    // viewing = the card currently open in the View Details modal
     const [viewing, setViewing] = useState(null)
-    const [activeTerm, setActiveTerm] = useState('Term 2')
+
+    // Analytics tab state
+    const [analyticsData,    setAnalyticsData]    = useState(null)
+    const [analyticsLoading, setAnalyticsLoading] = useState(false)
+    const [activeTermId,     setActiveTermId]      = useState(null)
+
+    // Fetch analytics when tab is opened or term changes
+    useEffect(() => {
+        if (activeTab !== 'analytics') return
+        setAnalyticsLoading(true)
+        const params = activeTermId ? { term_id: activeTermId } : {}
+        getDosAnalytics(params)
+            .then(data => {
+                setAnalyticsData(data)
+                if (!activeTermId && data.current_term_id) setActiveTermId(data.current_term_id)
+            })
+            .catch(() => {})
+            .finally(() => setAnalyticsLoading(false))
+    }, [activeTab, activeTermId])
 
     // Fetch all results from the API when the page loads
     useEffect(() => {
@@ -493,7 +476,7 @@ export function DosResults() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Results" subtitle="Approval queue and school performance analytics — Term 2, 2026" {...dosUser} />
+                    <DashboardHeader title="Results" subtitle="Approval queue and school performance analytics" {...dosUser} />
 
                     <DashboardContent>
 
@@ -565,22 +548,31 @@ export function DosResults() {
 
                         {/* ── ANALYTICS TAB ── */}
                         {activeTab === 'analytics' && (() => {
-                            const d = ANALYTICS_DATA[activeTerm]
+                            if (analyticsLoading || !analyticsData) {
+                                return <p style={{ padding: '1.5rem', color: 'var(--muted-foreground)' }}>Loading analytics…</p>
+                            }
+                            const d = analyticsData
                             const tooltipStyle = { background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: '0.82rem' }
+                            const analyticsStats = [
+                                { colorClass: '',        icon: 'trending_up',  value: `${d.stats.overall_avg}%`,     label: 'Overall Performance',   trend: 'Current term avg',   trendClass: d.stats.overall_avg >= 70 ? 'positive' : 'negative' },
+                                { colorClass: 'success', icon: 'check_circle', value: `${d.stats.attendance_rate}%`, label: 'Attendance Rate',        trend: d.stats.attendance_rate >= 90 ? 'Above target' : 'Below target', trendClass: d.stats.attendance_rate >= 90 ? 'positive' : 'negative' },
+                                { colorClass: 'warning', icon: 'groups',       value: d.stats.ratio,                 label: 'Teacher-Student Ratio',  trend: 'Current enrolment',  trendClass: '' },
+                                { colorClass: 'info',    icon: 'emoji_events', value: d.stats.top_performers,        label: 'Top Performers',         trend: 'Score ≥ 80%',        trendClass: 'positive' },
+                            ]
                             return (
                                 <>
                                     <div className="portal-stat-grid">
                                         {analyticsStats.map((s, i) => <StatCard key={i} {...s} />)}
                                     </div>
 
-                                    {/* Term selector */}
+                                    {/* Term selector from API */}
                                     <div className="flex-row-gap-sm" style={{ flexWrap: 'wrap' }}>
                                         <span className="settings-info-text fw-600">Viewing:</span>
-                                        {['Term 1', 'Term 2', 'Term 3'].map(t => (
-                                            <button key={t}
-                                                className={`btn btn-sm ${activeTerm === t ? 'btn-primary' : 'btn-outline'}`}
-                                                onClick={() => setActiveTerm(t)}
-                                            >{t}</button>
+                                        {(d.terms || []).map(t => (
+                                            <button key={t.id}
+                                                className={`btn btn-sm ${activeTermId === t.id ? 'btn-primary' : 'btn-outline'}`}
+                                                onClick={() => setActiveTermId(t.id)}
+                                            >{t.name}</button>
                                         ))}
                                     </div>
 
@@ -591,15 +583,15 @@ export function DosResults() {
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">Grade Distribution</h3>
-                                                <span className="settings-info-text">{activeTerm}</span>
+                                                <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''}</span>
                                             </div>
                                             <div className="card-content">
                                                 <ResponsiveContainer width="100%" height={240}>
                                                     <PieChart>
-                                                        <Pie data={d.gradeDist} cx="50%" cy="50%" innerRadius={60} outerRadius={95}
+                                                        <Pie data={d.grade_distribution} cx="50%" cy="50%" innerRadius={60} outerRadius={95}
                                                             dataKey="value" paddingAngle={3}
                                                         >
-                                                            {d.gradeDist.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                                                            {(d.grade_distribution || []).map((entry, i) => <Cell key={i} fill={entry.color} />)}
                                                         </Pie>
                                                         <Tooltip formatter={(v, n) => [`${v}%`, n]} contentStyle={tooltipStyle} />
                                                         <Legend iconType="circle" iconSize={9} wrapperStyle={{ fontSize: '0.75rem' }} />
@@ -612,11 +604,11 @@ export function DosResults() {
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">Attendance Trend</h3>
-                                                <span className="settings-info-text">{activeTerm}</span>
+                                                <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''}</span>
                                             </div>
                                             <div className="card-content">
                                                 <ResponsiveContainer width="100%" height={240}>
-                                                    <AreaChart data={d.attendance} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                                                    <AreaChart data={d.attendance_monthly} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                                                         <defs>
                                                             <linearGradient id="attGrad2" x1="0" y1="0" x2="0" y2="1">
                                                                 <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
@@ -638,11 +630,11 @@ export function DosResults() {
                                     <div className="card">
                                         <div className="card-header">
                                             <h3 className="card-title">Pass / Fail Rate by Class</h3>
-                                            <span className="settings-info-text">{activeTerm} · % of students</span>
+                                            <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''} · % of students</span>
                                         </div>
                                         <div className="card-content">
                                             <ResponsiveContainer width="100%" height={220}>
-                                                <BarChart data={d.passFail} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} barCategoryGap="30%">
+                                                <BarChart data={d.pass_fail} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} barCategoryGap="30%">
                                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                                                     <XAxis dataKey="class" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
                                                     <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
@@ -683,17 +675,17 @@ export function DosResults() {
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">Performance by Grade</h3>
-                                                <span className="settings-info-text">{activeTerm}</span>
+                                                <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''}</span>
                                             </div>
                                             <div className="card-content">
                                                 <ResponsiveContainer width="100%" height={240}>
-                                                    <BarChart data={d.gradePerf} layout="vertical" margin={{ top: 4, right: 40, left: 0, bottom: 4 }}>
+                                                    <BarChart data={d.grade_performance} layout="vertical" margin={{ top: 4, right: 40, left: 0, bottom: 4 }}>
                                                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                                                         <XAxis type="number" domain={[50, 100]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                                                         <YAxis type="category" dataKey="grade" tick={{ fontSize: 12, fontWeight: 600, fill: 'var(--foreground)' }} axisLine={false} tickLine={false} width={28} />
                                                         <Tooltip formatter={v => [`${v}%`, 'Average']} contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                                                         <Bar dataKey="score" radius={[0, 6, 6, 0]} maxBarSize={20}>
-                                                            {d.gradePerf.map((e, i) => <Cell key={i} fill={e.score >= 80 ? '#10b981' : e.score >= 70 ? '#003d7a' : '#f59e0b'} />)}
+                                                            {(d.grade_performance || []).map((e, i) => <Cell key={i} fill={e.score >= 80 ? '#10b981' : e.score >= 70 ? '#003d7a' : '#f59e0b'} />)}
                                                         </Bar>
                                                     </BarChart>
                                                 </ResponsiveContainer>
@@ -705,17 +697,17 @@ export function DosResults() {
                                     <div className="card">
                                         <div className="card-header">
                                             <h3 className="card-title">Subject Performance</h3>
-                                            <span className="settings-info-text">{activeTerm}</span>
+                                            <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''}</span>
                                         </div>
                                         <div className="card-content">
                                             <ResponsiveContainer width="100%" height={240}>
-                                                <BarChart data={d.subjectPerf} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 4 }}>
+                                                <BarChart data={d.subject_averages} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 4 }}>
                                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                                                     <XAxis type="number" domain={[50, 100]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                                                     <YAxis type="category" dataKey="subject" tick={{ fontSize: 11, fontWeight: 600, fill: 'var(--foreground)' }} axisLine={false} tickLine={false} width={78} />
                                                     <Tooltip formatter={v => [`${v}%`, 'Average']} contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-                                                    <Bar dataKey="score" radius={[0, 6, 6, 0]} maxBarSize={20}>
-                                                        {d.subjectPerf.map((e, i) => <Cell key={i} fill={e.score >= 78 ? '#10b981' : '#f59e0b'} />)}
+                                                    <Bar dataKey="avg_score" radius={[0, 6, 6, 0]} maxBarSize={20}>
+                                                        {(d.subject_averages || []).map((e, i) => <Cell key={i} fill={e.avg_score >= 78 ? '#10b981' : '#f59e0b'} />)}
                                                     </Bar>
                                                 </BarChart>
                                             </ResponsiveContainer>

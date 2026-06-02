@@ -14,8 +14,8 @@ import '../../styles/timetable.css'
    todayDayIndex — DAYS index of today (0=Mon…6=Sun), or -1 if not current week
 ─────────────────────────────────────────────────────────────────────────── */
 function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, schedules, todayDayIndex }) {
-    const data = schedules || extraSchedules
-    const schedule = data[weekKey] || data['default']
+    const data     = schedules || extraSchedules
+    const schedule = data[weekKey] ?? data['default'] ?? {}
     return (
         <div className="tt-wrap">
             <table className="tt-table" data-day={selectedDay}>
@@ -145,24 +145,29 @@ export function Timetable({
     classId,
     editable = false,
     onEditCell,
-    periods  = PERIODS,
-    slots    = EXTRA_SLOTS,
-    schedules = null,
+    periods      = PERIODS,
+    slots        = EXTRA_SLOTS,
+    schedules    = null,
+    weekKey      = 'default',
+    onWeekChange = null,
+    currentMonday: controlledMonday = null,
 }) {
-    const [currentMonday, setCurrentMonday] = useState(() => getThisMonday())
-    const [selectedDay,   setSelectedDay]   = useState(0)
+    const [internalMonday, setInternalMonday] = useState(() => getThisMonday())
+    const currentMonday = controlledMonday ?? internalMonday
+    const [selectedDay, setSelectedDay] = useState(0)
 
     /* -1 when not on the current week — disables today highlight */
     const todayDayIndex = getTodayDayIndex(currentMonday)
 
-    /* weekKey: 'default' for now; swap for format(currentMonday, "yyyy-'W'II") when
-       you add week-specific schedule data to extraSchedules */
-    const weekKey = 'default'
+    function handleWeekChange(monday) {
+        if (!controlledMonday) setInternalMonday(monday)
+        if (onWeekChange) onWeekChange(monday)
+    }
 
     return (
         <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <WeekPicker currentMonday={currentMonday} onChange={setCurrentMonday} />
+                <WeekPicker currentMonday={currentMonday} onChange={handleWeekChange} />
                 <TimetableLegend type={type} />
             </div>
 

@@ -1284,3 +1284,32 @@ td .class-chip { margin-left: 4px; }
   .disc-stat-grid { grid-template-columns: repeat(2, 1fr); }
   .disc-picker-group { min-width: unset; flex: 1; }
 }
+
+/* ── Session chips (extracurricular timetable) ── */
+.es-filter-section { display:flex; align-items:flex-start; gap:.75rem; padding:.65rem 0; }
+.es-filter-section-label { display:flex; align-items:center; gap:.3rem; font-size:.75rem;
+    font-weight:600; color:var(--muted-foreground); white-space:nowrap; padding-top:.25rem; min-width:120px; }
+.es-filter-section-label .material-symbols-rounded { font-size:.9rem; }
+.es-session-chips { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
+.es-session-chip  { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem;
+    border-radius:99px; border:1.5px solid var(--border); background:transparent;
+    font-size:.8rem; font-weight:500; cursor:pointer; transition:all .15s; color:var(--foreground); }
+.es-session-chip:hover  { border-color:var(--primary); color:var(--primary); }
+.es-session-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+.es-session-chip-wrap { display:inline-flex; align-items:center; border-radius:99px;
+    border:1.5px solid var(--border); overflow:hidden; transition:border-color .15s; }
+.es-session-chip-wrap.active { border-color:var(--primary); background:var(--primary); }
+.es-session-chip-label { display:inline-flex; align-items:center; gap:.4rem;
+    padding:.3rem .7rem; font-size:.8rem; font-weight:500; cursor:pointer;
+    background:transparent; border:none; color:var(--foreground); }
+.es-session-chip-wrap.active .es-session-chip-label { color:#fff; }
+.es-session-chip-del  { display:inline-flex; align-items:center; justify-content:center;
+    width:1.5rem; height:100%; border:none; border-left:1px solid var(--border);
+    background:transparent; cursor:pointer; color:var(--muted-foreground); }
+.es-session-chip-del:hover { background:rgba(239,68,68,.12); color:#ef4444; }
+.es-session-chip-del .material-symbols-rounded { font-size:.8rem; }
+.es-session-chip-wrap.active .es-session-chip-del { border-left-color:rgba(255,255,255,.3); color:rgba(255,255,255,.7); }
+.es-session-chip-wrap.active .es-session-chip-del:hover { background:rgba(255,255,255,.2); color:#fff; }
+.es-session-chip-new { border-style:dashed; color:var(--muted-foreground); }
+.es-session-chip-new:hover { border-color:var(--primary); color:var(--primary); border-style:solid; }
+.es-session-add-input { display:inline-flex; align-items:center; gap:.35rem; }
