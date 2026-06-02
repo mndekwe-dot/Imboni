@@ -756,3 +756,105 @@ class DisciplineTimetableView(APIView):
             for p in qs
         ]
         return Response({'date': str(target_date), 'day': day_name, 'periods': data})
+
+
+# ---------------------------------------------------------------------------
+# Extracurricular Timetable CRUD
+# ---------------------------------------------------------------------------
+
+class ExtracurricularEntryListView(APIView):
+    """GET  /imboni/discipline/extracurricular/?week=default
+       POST /imboni/discipline/extracurricular/
+    """
+    permission_classes = [IsDiscipline]
+
+    def get(self, request):
+        from .models import ExtracurricularEntry
+        week    = request.query_params.get('week', 'default')
+        entries = ExtracurricularEntry.objects.filter(week=week).order_by('slot_id', 'day')
+        data    = [
+            {
+                'id':            str(e.id),
+                'week':          e.week,
+                'slot_id':       e.slot_id,
+                'day':           e.day,
+                'activity_type': e.activity_type,
+                'subject':       e.subject,
+                'teacher':       e.teacher,
+                'room':          e.room,
+                'label':         e.label,
+            }
+            for e in entries
+        ]
+        return Response(data)
+
+    def post(self, request):
+        from .models import ExtracurricularEntry
+        d = request.data
+        try:
+            entry, created = ExtracurricularEntry.objects.update_or_create(
+                week    = d.get('week', 'default'),
+                slot_id = d.get('slot_id', ''),
+                day     = d.get('day', ''),
+                defaults={
+                    'activity_type': d.get('activity_type', 'social'),
+                    'subject':       d.get('subject', ''),
+                    'teacher':       d.get('teacher', ''),
+                    'room':          d.get('room', ''),
+                    'label':         d.get('label', ''),
+                },
+            )
+            return Response({
+                'id':            str(entry.id),
+                'week':          entry.week,
+                'slot_id':       entry.slot_id,
+                'day':           entry.day,
+                'activity_type': entry.activity_type,
+                'subject':       entry.subject,
+                'teacher':       entry.teacher,
+                'room':          entry.room,
+                'label':         entry.label,
+            }, status=201 if created else 200)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+
+class ExtracurricularEntryDetailView(APIView):
+    """PATCH  /imboni/discipline/extracurricular/<pk>/
+       DELETE /imboni/discipline/extracurricular/<pk>/
+    """
+    permission_classes = [IsDiscipline]
+
+    def _get(self, pk):
+        from .models import ExtracurricularEntry
+        try:
+            return ExtracurricularEntry.objects.get(pk=pk)
+        except ExtracurricularEntry.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        entry = self._get(pk)
+        if not entry:
+            return Response({'error': 'Not found'}, status=404)
+        for field in ('activity_type', 'subject', 'teacher', 'room', 'label'):
+            if field in request.data:
+                setattr(entry, field, request.data[field])
+        entry.save()
+        return Response({
+            'id':            str(entry.id),
+            'week':          entry.week,
+            'slot_id':       entry.slot_id,
+            'day':           entry.day,
+            'activity_type': entry.activity_type,
+            'subject':       entry.subject,
+            'teacher':       entry.teacher,
+            'room':          entry.room,
+            'label':         entry.label,
+        })
+
+    def delete(self, request, pk):
+        entry = self._get(pk)
+        if not entry:
+            return Response({'error': 'Not found'}, status=404)
+        entry.delete()
+        return Response(status=204)

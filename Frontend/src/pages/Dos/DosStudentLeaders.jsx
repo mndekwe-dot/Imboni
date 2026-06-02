@@ -14,28 +14,19 @@ import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { classesFromConfig } from '../../utils/classes'
 
 
-const leaderStats = [
-    { icon: 'military_tech', value: '6',  label: 'Prefects',          trend: 'School-wide',  trendClass: '',         colorClass: 'info'    },
-    { icon: 'home',          value: '8',  label: 'Dormitory Captains',trend: '4 houses',     trendClass: '',         colorClass: 'success' },
-    { icon: 'groups',        value: '12', label: 'Club Leaders',      trend: 'Active clubs', trendClass: '',         colorClass: 'warning' },
-    { icon: 'person',        value: '26', label: 'Total Leaders',     trend: '+2 this term', trendClass: 'positive', colorClass: 'info'    },
-]
+function isCaptain(role) {
+    return /captain/i.test(role)
+}
 
-const prefects = [
-    { initials: 'UC', name: 'Uwimana Clarisse',   roleTag: 'prefect', role: 'Head Girl',         form: 'S4A', since: 'Jan 2026' },
-    { initials: 'HK', name: 'Habimana Kevin',     roleTag: 'prefect', role: 'Head Boy',          form: 'S4B', since: 'Jan 2026' },
-    { initials: 'HG', name: 'Hakizimana Grace',   roleTag: 'deputy',  role: 'Deputy Head Girl',  form: 'S4C', since: 'Jan 2026' },
-    { initials: 'ND', name: 'Nkurunziza David',   roleTag: 'deputy',  role: 'Deputy Head Boy',   form: 'S4A', since: 'Jan 2026' },
-    { initials: 'MJ', name: 'Mukamazimpaka Joy',  roleTag: 'prefect', role: 'Academics Prefect', form: 'S4B', since: 'Jan 2026' },
-    { initials: 'NF', name: 'Ndayishimiye Felix', roleTag: 'prefect', role: 'Games Prefect',     form: 'S4A', since: 'Jan 2026' },
-]
-
-const houseCaptains = [
-    { initials: 'UL', name: 'Uwineza Lydia',    house: 'Karisimbi', form: 'S3A', since: 'Jan 2026' },
-    { initials: 'NP', name: 'Nkurunziza Peter', house: 'Muhabura',  form: 'S3B', since: 'Jan 2026' },
-    { initials: 'NM', name: 'Nyirabeza Mercy',  house: 'Bisoke',    form: 'S3A', since: 'Jan 2026' },
-    { initials: 'HM', name: 'Habimana Moses',   house: 'Sabyinyo',  form: 'S3C', since: 'Jan 2026' },
-]
+function toLeaderCard(sl) {
+    const words    = (sl.full_name || '').trim().split(/\s+/)
+    const initials = words.slice(0, 2).map(w => w[0] || '').join('').toUpperCase()
+    const form     = sl.grade && sl.section ? `S${sl.grade}${sl.section}` : '—'
+    const since    = sl.appointed_date
+        ? new Date(sl.appointed_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+        : '—'
+    return { initials, name: sl.full_name, role: sl.role, roleTag: /deputy/i.test(sl.role) ? 'deputy' : 'prefect', form, since, house: sl.role }
+}
 
 
 const PREFECT_ROLES  = ['Head Girl','Head Boy','Deputy Head Girl','Deputy Head Boy','Academics Prefect','Games Prefect','Discipline Prefect','Health Prefect']
@@ -181,13 +172,30 @@ export function DosStudentLeaders() {
     const { setting } = useSchoolSettings()
     const { config }  = useSchoolConfig()
     const allClasses  = classesFromConfig(config)
-    const [apiLeaders,     setApiLeaders]     = useState([])
-    const [prefectList,    setPrefectList]    = useState(prefects)
-    const [captainList,    setCaptainList]    = useState(houseCaptains)
+    const [prefectList,    setPrefectList]    = useState([])
+    const [captainList,    setCaptainList]    = useState([])
+    const [leaderStats,    setLeaderStats]    = useState([
+        { icon: 'military_tech', value: '—', label: 'Prefects',          trend: 'School-wide',  trendClass: '',         colorClass: 'info'    },
+        { icon: 'home',          value: '—', label: 'Dormitory Captains',trend: 'By house',     trendClass: '',         colorClass: 'success' },
+        { icon: 'groups',        value: '—', label: 'Other Leaders',     trend: 'Active',       trendClass: '',         colorClass: 'warning' },
+        { icon: 'person',        value: '—', label: 'Total Leaders',     trend: 'This term',    trendClass: 'positive', colorClass: 'info'    },
+    ])
 
     useEffect(() => {
         getDosStudentLeaders()
-            .then(data => setApiLeaders(data))
+            .then(data => {
+                const prefects = data.filter(sl => !isCaptain(sl.role)).map(toLeaderCard)
+                const captains = data.filter(sl =>  isCaptain(sl.role)).map(toLeaderCard)
+                const others   = 0
+                setPrefectList(prefects)
+                setCaptainList(captains)
+                setLeaderStats([
+                    { icon: 'military_tech', value: prefects.length, label: 'Prefects',          trend: 'School-wide',  trendClass: '',         colorClass: 'info'    },
+                    { icon: 'home',          value: captains.length, label: 'Dormitory Captains',trend: 'By house',     trendClass: '',         colorClass: 'success' },
+                    { icon: 'groups',        value: others,          label: 'Other Leaders',     trend: 'Active',       trendClass: '',         colorClass: 'warning' },
+                    { icon: 'person',        value: data.length,     label: 'Total Leaders',     trend: 'This term',    trendClass: 'positive', colorClass: 'info'    },
+                ])
+            })
             .catch(err => console.error(err))
     }, [])
     const [showAppoint,    setShowAppoint]    = useState(false)

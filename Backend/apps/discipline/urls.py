@@ -35,4 +35,8 @@ urlpatterns = [
 
     # Timetable
     path('discipline/timetable/',                           views.DisciplineTimetableView.as_view(),         name='discipline-timetable'),
+
+    # Extracurricular schedule CRUD
+    path('discipline/extracurricular/',                     views.ExtracurricularEntryListView.as_view(),    name='discipline-extracurricular'),
+    path('discipline/extracurricular/<uuid:pk>/',           views.ExtracurricularEntryDetailView.as_view(),  name='discipline-extracurricular-detail'),
 ]

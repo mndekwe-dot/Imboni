@@ -2269,6 +2269,31 @@ body.tm-panel-open { overflow: hidden; }
 .es-session-chip.active .es-chip-count { background:rgba(255,255,255,.25); }
 .es-no-sessions          { font-size:.8rem; color:var(--muted-foreground); font-style:italic; }
 
+/* session chip with inline delete button */
+.es-session-chip-wrap { display:inline-flex; align-items:center; border-radius:99px;
+                          border:1.5px solid var(--border); background:var(--card);
+                          overflow:hidden; transition:border-color .15s; }
+.es-session-chip-wrap.active { border-color:var(--primary); background:var(--primary); }
+.es-session-chip-label { display:inline-flex; align-items:center; gap:.4rem;
+                           padding:.35rem .5rem .35rem .85rem; font-size:.83rem; font-weight:500;
+                           cursor:pointer; color:var(--foreground); background:transparent; border:none; }
+.es-session-chip-wrap.active .es-session-chip-label { color:#fff; }
+.es-session-chip-del  { display:inline-flex; align-items:center; justify-content:center;
+                          padding:.2rem .4rem; border:none; background:transparent;
+                          cursor:pointer; color:var(--muted-foreground); border-left:1px solid var(--border);
+                          transition:background .15s; }
+.es-session-chip-del:hover { background:rgba(239,68,68,.12); color:#ef4444; }
+.es-session-chip-del .material-symbols-rounded { font-size:.8rem; }
+.es-session-chip-wrap.active .es-session-chip-del { border-left-color:rgba(255,255,255,.3); color:rgba(255,255,255,.7); }
+.es-session-chip-wrap.active .es-session-chip-del:hover { background:rgba(255,255,255,.2); color:#fff; }
+
+/* "New Session" add chip */
+.es-session-chip-new { border-style:dashed; color:var(--muted-foreground); }
+.es-session-chip-new:hover { border-color:var(--primary); color:var(--primary); border-style:solid; }
+
+/* inline session name input */
+.es-session-add-input { display:inline-flex; align-items:center; gap:.35rem; }
+
 /* ── Class chips row ────────────────────────────────────────────────── */
 .es-class-chips     { display:flex; gap:.35rem; flex-wrap:wrap; }
 .es-class-chip-btn  { padding:.25rem .65rem; border-radius:99px; border:1px solid var(--border);
@@ -2306,7 +2331,8 @@ body.tm-panel-open { overflow: hidden; }
 /* Day cells */
 .es-cal-month-cell { min-height:90px; padding:.35rem .4rem; border-right:1px solid var(--border);
                       border-bottom:1px solid var(--border); overflow:hidden;
-                      background:var(--card); vertical-align:top; }
+                      background:var(--card); vertical-align:top; cursor:pointer; }
+.es-cal-month-cell:hover:not(.other-month) { background:rgba(59,130,246,.03); }
 .es-cal-month-cell:nth-child(7n) { border-right:none; }
 .es-cal-month-cell.other-month { background:var(--muted); }
 .es-cal-month-cell.is-today { background:rgba(59,130,246,.04); }
@@ -2405,6 +2431,7 @@ body.tm-panel-open { overflow: hidden; }
 
 /* Divider */
 .es-hr { border:none; border-top:1px solid var(--border); margin:0 0 1rem; }
+
 
 /* Plan form */
 .es-form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:1rem; }
@@ -2807,3 +2834,4 @@ body.tm-panel-open { overflow: hidden; }
 .att-status-select.att-late     { background: rgba(217,119,6,0.12);  color: #d97706; border-color: #d97706; }
 .att-status-select.att-excused  { background: rgba(37,99,235,0.12);  color: #2563eb; border-color: #2563eb; }
 .att-status-select.att-unmarked { opacity: 0.6; }
+

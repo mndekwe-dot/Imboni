@@ -2,7 +2,8 @@ import client from "./client";
 
 //  Dashboard 
 export const getDosDashboardStats = () => client.get("/imboni/dos/dashboard/stats/");
-export const getDosRecentActivity = () => client.get("/imboni/dos/dashboard/recent-activity/");
+export const getDosRecentActivity  = (params) => client.get('/imboni/dos/dashboard/recent-activity/', { params })
+export const getDosWeeklyTrend     = ()       => client.get('/imboni/dos/dashboard/weekly-trend/')
 export const getDosPerformanceByGrade = () => client.get("/imboni/dos/dashboard/performance-by-grade/");
 
 //  Students 
@@ -85,3 +86,13 @@ export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
 export const updateDosSlot = (id,data) => client.patch(`/imboni/dos/timetable/${id}/`,data)
 export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}`)
 export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('/imboni/dos/teachers/',{params:{subject_id:subjectId,class_id:classId}})
+
+// Analytics
+export const getDosAnalytics        = (params)     => client.get('/imboni/dos/analytics/', { params })
+export const getDosAttendanceStats  = ()           => client.get('/imboni/dos/attendance/overview/')
+
+// Announcements
+export const getDosAnnouncements    = (params)     => client.get('/imboni/dos/announcements/', { params })
+export const createDosAnnouncement  = (data)       => client.post('/imboni/dos/announcements/', data)
+export const updateDosAnnouncement  = (id, data)   => client.patch(`/imboni/dos/announcements/${id}/`, data)
+export const deleteDosAnnouncement  = (id)         => client.delete(`/imboni/dos/announcements/${id}/`)

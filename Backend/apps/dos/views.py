@@ -141,14 +141,16 @@ class DOSRecentActivityView(APIView):
     permission_classes = [IsDOS]
 
     def get(self, request):
+        limit  = min(int(request.query_params.get('limit', 10)), 50)
+        offset = int(request.query_params.get('offset', 0))
+
         activities = []
 
-        # Recently approved results
         for r in (
             Result.objects
             .filter(status='approved', approved_at__isnull=False)
             .select_related('student')
-            .order_by('-approved_at')[:5]
+            .order_by('-approved_at')
         ):
             activities.append({
                 'activity_type': 'approval',
@@ -157,8 +159,7 @@ class DOSRecentActivityView(APIView):
                 'time_ago':      _time_ago(r.approved_at),
             })
 
-        # Recently added teachers
-        for t in User.objects.filter(role='teacher').order_by('-created_at')[:5]:
+        for t in User.objects.filter(role='teacher').order_by('-created_at'):
             activities.append({
                 'activity_type': 'staff',
                 'description':   f"New Teacher Added — {t.get_full_name() or t.username}",
@@ -166,7 +167,6 @@ class DOSRecentActivityView(APIView):
                 'time_ago':      _time_ago(t.created_at),
             })
 
-        # Pending results — single summary entry
         pending_count = Result.objects.filter(status='submitted').count()
         if pending_count > 0:
             activities.append({
@@ -176,13 +176,21 @@ class DOSRecentActivityView(APIView):
                 'time_ago':      '',
             })
 
-        # Sort newest first; None timestamps go last
         activities.sort(
             key=lambda x: x['timestamp'] or timezone.datetime.min.replace(tzinfo=timezone.UTC),
             reverse=True,
         )
 
-        return Response(DOSActivitySerializer(activities[:10], many=True).data)
+        total = len(activities)
+        page  = activities[offset: offset + limit]
+
+        return Response({
+            'total':    total,
+            'offset':   offset,
+            'limit':    limit,
+            'has_more': (offset + limit) < total,
+            'results':  DOSActivitySerializer(page, many=True).data,
+        })
 
 
 # ---------------------------------------------------------------------------
@@ -1269,7 +1277,7 @@ class ExamScheduleListView(APIView):
                 'title':          e.title,
                 'subject':        e.subject.name,
                 'subject_id':     str(e.subject.id),
-                'class_name':     str(e.class_obj) if e.class_obj else None,
+                'class_name':     (f"S{e.class_obj.grade}{e.class_obj.section}" if e.class_obj else None),
                 'class_id':       str(e.class_obj.id) if e.class_obj else None,
                 'term':           str(e.term),
                 'exam_date':      str(e.exam_date),
@@ -1336,7 +1344,7 @@ class ExamScheduleDetailView(APIView):
             'id':          str(exam.id),
             'title':       exam.title,
             'subject':     exam.subject.name,
-            'class_name':  str(exam.class_obj) if exam.class_obj else None,
+            'class_name':  (f"S{exam.class_obj.grade}{exam.class_obj.section}" if exam.class_obj else None),
             'term':        str(exam.term),
             'exam_date':   str(exam.exam_date),
             'start_time':  str(exam.start_time),
@@ -1408,9 +1416,19 @@ class DOSAttendanceOverviewView(APIView):
     """GET /imboni/dos/attendance/overview/"""
 
     def get(self, request):
-        from apps.attendance.models import Attendance
-        term = _current_term()
-        qs = Attendance.objects.filter(term=term) if term else Attendance.objects.none()
+        from apps.attendance.models import AttendanceRecord, TeacherAttendanceRecord
+        from django.utils import timezone
+        from datetime import timedelta
+
+        term      = _current_term()
+        today     = timezone.now().date()
+        week_start = today - timedelta(days=today.weekday())  # Monday
+
+        base = AttendanceRecord.objects
+        if term and hasattr(term, 'start_date') and term.start_date:
+            qs = base.filter(date__gte=term.start_date, date__lte=term.end_date)
+        else:
+            qs = base.filter(date__year=today.year)
 
         total   = qs.count()
         present = qs.filter(status='present').count()
@@ -1418,24 +1436,33 @@ class DOSAttendanceOverviewView(APIView):
         late    = qs.filter(status='late').count()
         rate    = round(present / total * 100, 1) if total else 0.0
 
+        absent_today   = base.filter(date=today, status='absent').count()
+        late_this_week = base.filter(date__gte=week_start, date__lte=today, status='late').count()
+
+        teacher_total   = TeacherAttendanceRecord.objects.filter(date=today).count()
+        teacher_present = TeacherAttendanceRecord.objects.filter(date=today, status='present').count()
+        teacher_rate    = round(teacher_present / teacher_total * 100, 1) if teacher_total else 0.0
+
         by_grade = []
         for grade in ['1', '2', '3', '4', '5', '6']:
-            g_qs    = qs.filter(student__grade=grade)
-            g_total = g_qs.count()
-            g_pres  = g_qs.filter(status='present').count()
+            g_total = qs.filter(student__grade=grade).count()
+            g_pres  = qs.filter(student__grade=grade, status='present').count()
             by_grade.append({
-                'grade':           'Grade %s' % grade,
+                'grade':           f'Grade {grade}',
                 'attendance_rate': round(g_pres / g_total * 100, 1) if g_total else 0.0,
             })
 
         return Response({
-            'term':            str(term) if term else None,
-            'total_records':   total,
-            'present':         present,
-            'absent':          absent,
-            'late':            late,
-            'attendance_rate': rate,
-            'by_grade':        by_grade,
+            'term':             str(term) if term else None,
+            'total_records':    total,
+            'present':          present,
+            'absent':           absent,
+            'late':             late,
+            'attendance_rate':  rate,
+            'absent_today':     absent_today,
+            'late_this_week':   late_this_week,
+            'teacher_rate':     teacher_rate,
+            'by_grade':         by_grade,
         })
 
 
@@ -1443,35 +1470,103 @@ class DOSAttendanceOverviewView(APIView):
 # DOS Announcements
 # ---------------------------------------------------------------------------
 
+def _ann_dict(a):
+    return {
+        'id':               str(a.id),
+        'title':            a.title,
+        'content':          a.content,
+        'category':         a.category,
+        'target_audience':  a.target_audience,
+        'target_grade':     a.target_grade,
+        'status':           a.status,
+        'author':           ('%s %s' % (a.author.first_name, a.author.last_name)) if a.author else '',
+        'published_at':     a.published_at.isoformat() if a.published_at else None,
+        'expires_at':       a.expires_at.isoformat()   if a.expires_at   else None,
+        'created_at':       a.created_at.isoformat(),
+        'updated_at':       a.updated_at.isoformat(),
+        'attachment':       a.attachment.url if a.attachment else None,
+    }
+
+
 class DOSAnnouncementsView(APIView):
     """GET /imboni/dos/announcements/  |  POST /imboni/dos/announcements/"""
 
     def get(self, request):
         from apps.announcements.models import Announcement
-        qs = Announcement.objects.select_related('author').order_by('-created_at')[:50]
-        data = [
-            {
-                'id':          str(a.id),
-                'title':       a.title,
-                'content':     a.content,
-                'target_role': a.target_role,
-                'created_at':  a.created_at.isoformat(),
-                'author':      ('%s %s' % (a.author.first_name, a.author.last_name)) if a.author else '',
-            }
-            for a in qs
-        ]
-        return Response(data)
+        status_filter = request.query_params.get('status')
+        limit  = min(int(request.query_params.get('limit', 50)), 100)
+        offset = int(request.query_params.get('offset', 0))
+
+        qs = Announcement.objects.select_related('author').order_by('-created_at')
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+
+        total   = qs.count()
+        results = qs[offset: offset + limit]
+        return Response({
+            'total':    total,
+            'offset':   offset,
+            'limit':    limit,
+            'has_more': (offset + limit) < total,
+            'results':  [_ann_dict(a) for a in results],
+        })
 
     def post(self, request):
         from apps.announcements.models import Announcement
-        d = request.data
+        from django.utils import timezone as tz
+        d      = request.data
+        status = d.get('status', 'draft')
         ann = Announcement.objects.create(
-            title       = d.get('title', ''),
-            content     = d.get('content', ''),
-            target_role = d.get('target_role', 'all'),
-            author      = request.user if request.user.is_authenticated else None,
+            title            = d.get('title', ''),
+            content          = d.get('content', ''),
+            category         = d.get('category', 'general'),
+            target_audience  = d.get('target_audience', 'all'),
+            target_grade     = d.get('target_grade', ''),
+            status           = status,
+            published_at     = tz.now() if status == 'published' else None,
+            author           = request.user if request.user.is_authenticated else None,
         )
-        return Response({'id': str(ann.id), 'detail': 'Announcement created.'}, status=http_status.HTTP_201_CREATED)
+        return Response(_ann_dict(ann), status=http_status.HTTP_201_CREATED)
+
+
+class DOSAnnouncementDetailView(APIView):
+    """GET | PATCH | DELETE /imboni/dos/announcements/<uuid:pk>/"""
+
+    def _get(self, pk):
+        from apps.announcements.models import Announcement
+        try:
+            return Announcement.objects.select_related('author').get(pk=pk)
+        except Announcement.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        ann = self._get(pk)
+        if not ann:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        return Response(_ann_dict(ann))
+
+    def patch(self, request, pk):
+        from django.utils import timezone as tz
+        ann = self._get(pk)
+        if not ann:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        d = request.data
+        for field in ('title', 'content', 'category', 'target_audience', 'target_grade'):
+            if field in d:
+                setattr(ann, field, d[field])
+        if 'status' in d:
+            ann.status = d['status']
+            if d['status'] == 'published' and not ann.published_at:
+                ann.published_at = tz.now()
+        ann.save()
+        return Response(_ann_dict(ann))
+
+    def delete(self, request, pk):
+        ann = self._get(pk)
+        if not ann:
+            return Response({'detail': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        ann.delete()
+        return Response(status=http_status.HTTP_204_NO_CONTENT)
 
 
 # ---------------------------------------------------------------------------
@@ -1683,36 +1778,207 @@ class DOSStudentLeadersView(APIView):
 # ---------------------------------------------------------------------------
 
 class DOSAnalyticsView(APIView):
-    """GET /imboni/dos/analytics/"""
+    """GET /imboni/dos/analytics/?term_id=<uuid>"""
 
     def get(self, request):
-        from apps.results.models import Result, AcademicTerm, Subject
-        from django.db.models import Avg
+        from apps.results.models import Result, AcademicTerm
+        from apps.attendance.models import AttendanceRecord
+        from django.db.models import Avg, Count, Q
+        from django.db.models.functions import TruncMonth
 
-        term = _current_term()
+        terms   = list(AcademicTerm.objects.order_by('-start_date')[:6])
+        current = _current_term()
 
-        terms = AcademicTerm.objects.order_by('-start_date')[:4]
+        term_id = request.query_params.get('term_id')
+        if term_id:
+            try:
+                term = AcademicTerm.objects.get(pk=term_id)
+            except AcademicTerm.DoesNotExist:
+                term = current
+        else:
+            term = current
+
+        # Performance trend (last 4 terms)
         perf_trend = []
-        for t in reversed(list(terms)):
-            avg = Result.objects.filter(term=t, status='approved').aggregate(
-                a=Avg('final_score')
-            )['a']
-            perf_trend.append({'term': str(t), 'avg_score': round(avg or 0, 1)})
+        for t in reversed(terms[:4]):
+            avg = Result.objects.filter(term=t, status='approved').aggregate(a=Avg('final_score'))['a']
+            perf_trend.append({'term': str(t), 'avg_score': round(float(avg or 0), 1)})
 
-        # Single query grouped by subject — avoids 1 query per subject
+        terms_list = [{'id': str(t.id), 'name': str(t)} for t in terms]
+
+        if not term:
+            return Response({
+                'terms': terms_list, 'current_term_id': None,
+                'performance_trend': perf_trend,
+                'stats': {'overall_avg': 0, 'attendance_rate': 0, 'ratio': 'N/A', 'top_performers': 0},
+                'subject_averages': [], 'grade_performance': [],
+                'grade_distribution': [], 'pass_fail': [],
+                'submissions': [], 'attendance_monthly': [],
+            })
+
+        # Subject averages for selected term
         subj_avgs = [
-            {'subject': row['subject__name'], 'avg_score': round(row['avg'] or 0, 1)}
-            for row in Result.objects.filter(term=term, status='approved')
-            .values('subject__name')
-            .annotate(avg=Avg('final_score'))
-            .order_by('subject__name')
+            {'subject': row['subject__name'], 'avg_score': round(float(row['avg'] or 0), 1)}
+            for row in (
+                Result.objects.filter(term=term, status='approved')
+                .values('subject__name').annotate(avg=Avg('final_score')).order_by('subject__name')
+            )
+            if row['avg'] is not None and row['subject__name']
+        ]
+
+        # Grade performance
+        grade_perf = [
+            {'grade': f"S{row['student__grade']}", 'score': round(float(row['avg']), 1)}
+            for row in (
+                Result.objects.filter(term=term, status='approved')
+                .values('student__grade').annotate(avg=Avg('final_score')).order_by('student__grade')
+            )
             if row['avg'] is not None
         ]
 
+        # Grade distribution bands
+        BANDS = [
+            ('A (80–100)', 80, 101, '#10b981'),
+            ('B (70–79)',  70,  80, '#003d7a'),
+            ('C (60–69)',  60,  70, '#3b82f6'),
+            ('D (50–59)',  50,  60, '#f59e0b'),
+            ('F (<50)',     0,  50, '#ef4444'),
+        ]
+        total_r = Result.objects.filter(term=term, status='approved', final_score__isnull=False).count()
+        grade_dist = [
+            {
+                'name': name, 'color': color,
+                'value': round(
+                    Result.objects.filter(
+                        term=term, status='approved',
+                        final_score__gte=low, final_score__lt=high,
+                    ).count() / total_r * 100
+                ) if total_r else 0,
+            }
+            for name, low, high, color in BANDS
+        ]
+
+        # Pass/fail by grade year (pass threshold = 50)
+        pass_fail = [
+            {
+                'class': f"S{row['student__grade']}",
+                'pass':  round(row['passed'] / (row['total'] or 1) * 100),
+                'fail':  100 - round(row['passed'] / (row['total'] or 1) * 100),
+            }
+            for row in (
+                Result.objects.filter(term=term, status='approved', final_score__isnull=False)
+                .values('student__grade')
+                .annotate(total=Count('id'), passed=Count('id', filter=Q(final_score__gte=50)))
+                .order_by('student__grade')
+            )
+        ]
+
+        # Submissions by subject
+        submissions = [
+            {'subject': row['subject__name'], 'submitted': row['approved'], 'pending': row['pending']}
+            for row in (
+                Result.objects.filter(term=term)
+                .values('subject__name')
+                .annotate(
+                    approved=Count('id', filter=Q(status='approved')),
+                    pending=Count('id', filter=Q(status='submitted')),
+                )
+                .order_by('subject__name')
+            )
+            if row['subject__name']
+        ]
+
+        # Monthly attendance for the term (from individual records)
+        attendance_monthly = [
+            {
+                'month': row['month'].strftime('%b'),
+                'rate':  round(row['present'] / row['total'] * 100, 1) if row['total'] else 0,
+            }
+            for row in (
+                AttendanceRecord.objects.filter(date__gte=term.start_date, date__lte=term.end_date)
+                .annotate(month=TruncMonth('date'))
+                .values('month')
+                .annotate(total=Count('id'), present=Count('id', filter=Q(status='present')))
+                .order_by('month')
+            )
+            if row['month']
+        ]
+
+        # Stat card values
+        overall_avg  = Result.objects.filter(term=term, status='approved').aggregate(a=Avg('final_score'))['a']
+        att_total    = AttendanceRecord.objects.filter(date__gte=term.start_date, date__lte=term.end_date).count()
+        att_present  = AttendanceRecord.objects.filter(date__gte=term.start_date, date__lte=term.end_date, status='present').count()
+        att_rate     = round(att_present / att_total * 100, 1) if att_total else 0.0
+        total_stu    = Student.objects.filter(status='active').count()
+        total_tea    = User.objects.filter(role='teacher', is_active=True).count()
+        ratio        = f"1:{round(total_stu / total_tea)}" if total_tea else 'N/A'
+        top_performers = (
+            Result.objects.filter(term=term, status='approved', final_score__gte=80)
+            .values('student').distinct().count()
+        )
+
         return Response({
-            'performance_trend': perf_trend,
-            'subject_averages':  subj_avgs,
+            'terms':              terms_list,
+            'current_term_id':    str(term.id),
+            'performance_trend':  perf_trend,
+            'subject_averages':   subj_avgs,
+            'grade_performance':  grade_perf,
+            'grade_distribution': grade_dist,
+            'pass_fail':          pass_fail,
+            'submissions':        submissions,
+            'attendance_monthly': attendance_monthly,
+            'stats': {
+                'overall_avg':     round(float(overall_avg or 0), 1),
+                'attendance_rate': att_rate,
+                'ratio':           ratio,
+                'top_performers':  top_performers,
+            },
         })
+
+
+# ---------------------------------------------------------------------------
+# Dashboard — Weekly Trend
+# ---------------------------------------------------------------------------
+
+class DOSDashboardWeeklyTrendView(APIView):
+    """GET /imboni/dos/dashboard/weekly-trend/"""
+
+    def get(self, request):
+        from apps.attendance.models import AttendanceRecord
+        from apps.results.models import Result
+        from datetime import timedelta
+        from django.utils import timezone
+        from django.db.models import Avg
+
+        term  = _current_term()
+        today = timezone.now().date()
+        start = term.start_date if term and term.start_date else today - timedelta(weeks=8)
+
+        buckets = []
+        wk_start = start
+        for i in range(8):
+            wk_end = min(wk_start + timedelta(days=6), today)
+            label  = f"Wk {i + 1}"
+
+            att_total   = AttendanceRecord.objects.filter(date__gte=wk_start, date__lte=wk_end).count()
+            att_present = AttendanceRecord.objects.filter(date__gte=wk_start, date__lte=wk_end, status='present').count()
+            att_rate    = round(att_present / att_total * 100, 1) if att_total else 0
+
+            perf_avg = None
+            if term:
+                perf_avg = Result.objects.filter(
+                    term=term, status='approved',
+                    approved_at__date__gte=wk_start,
+                    approved_at__date__lte=wk_end,
+                ).aggregate(a=Avg('final_score'))['a']
+            perf_val = round(float(perf_avg), 1) if perf_avg else 0
+
+            buckets.append({'week': label, 'attendance': att_rate, 'performance': perf_val})
+            wk_start = wk_end + timedelta(days=1)
+            if wk_start > today:
+                break
+
+        return Response(buckets)
 
 # ---------------------------------------------------------------------------
 # School Config

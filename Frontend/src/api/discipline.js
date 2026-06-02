@@ -32,3 +32,9 @@ export const createDisAnnouncement = (data) => client.post('/imboni/discipline/a
 // Messages
 export const getDisMessages = () => client.get('/imboni/discipline/messages/')
 export const sendDisMessage = (data) => client.post('/imboni/discipline/messages/', data)
+
+// Extracurricular timetable
+export const getDisExtracurricular    = (week = 'default') => client.get('/imboni/discipline/extracurricular/', { params: { week } })
+export const createDisExtracurricular = (data) => client.post('/imboni/discipline/extracurricular/', data)
+export const patchDisExtracurricular  = (id, data) => client.patch(`/imboni/discipline/extracurricular/${id}/`, data)
+export const deleteDisExtracurricular = (id) => client.delete(`/imboni/discipline/extracurricular/${id}/`)

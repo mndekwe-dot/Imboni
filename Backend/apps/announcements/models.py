@@ -33,7 +33,7 @@ class Announcement(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     
     target_audience = models.CharField(max_length=20, choices=TARGET_AUDIENCE_CHOICES)
-    target_grade = models.CharField(max_length=2, blank=True)  # If grade_specific
+    target_grade = models.CharField(max_length=10, blank=True)  # year (S1) or class (S1A)
     
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='announcements')
     

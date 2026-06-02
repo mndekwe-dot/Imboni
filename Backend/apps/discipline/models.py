@@ -156,3 +156,34 @@ class NightAttendance(models.Model):
     def __str__(self):
         status = 'Present' if self.is_present else 'Absent'
         return f"{self.student} — {self.date} — {status}"
+
+
+class ExtracurricularEntry(models.Model):
+    ACTIVITY_TYPES = [
+        ('sports',   'Sports'),
+        ('academic', 'Academic'),
+        ('arts',     'Arts'),
+        ('boarding', 'Boarding'),
+        ('dining',   'Dining'),
+        ('social',   'Social'),
+        ('empty',    'Empty'),
+    ]
+
+    id            = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    week          = models.CharField(max_length=20, default='default')
+    slot_id       = models.CharField(max_length=50)
+    day           = models.CharField(max_length=20)
+    activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES, default='social')
+    subject       = models.CharField(max_length=200, blank=True)
+    teacher       = models.CharField(max_length=200, blank=True)
+    room          = models.CharField(max_length=200, blank=True)
+    label         = models.CharField(max_length=100, blank=True)
+    created_at    = models.DateTimeField(auto_now_add=True)
+    updated_at    = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'extracurricular_entries'
+        unique_together = ('week', 'slot_id', 'day')
+
+    def __str__(self):
+        return f"{self.slot_id}/{self.day} — {self.subject or self.label}"

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
-import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade } from '../../api/dos'
+import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade, getDosWeeklyTrend } from '../../api/dos'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -12,16 +12,6 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
-const weeklyTrend = [
-    { week: 'Wk 1', attendance: 92, performance: 74 },
-    { week: 'Wk 2', attendance: 94, performance: 76 },
-    { week: 'Wk 3', attendance: 91, performance: 75 },
-    { week: 'Wk 4', attendance: 96, performance: 78 },
-    { week: 'Wk 5', attendance: 93, performance: 79 },
-    { week: 'Wk 6', attendance: 95, performance: 80 },
-    { week: 'Wk 7', attendance: 94, performance: 82 },
-    { week: 'Wk 8', attendance: 97, performance: 83 },
-]
 
 function TrendTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null
@@ -92,26 +82,54 @@ function ProgressItem({ label, value, width }) {
 export function DosDashboard() {
     const navigate = useNavigate()
 
+    const PAGE = 10
+    const activityListRef = useRef(null)
+
     const [stats, setStats] = useState(null)
     const [activities, setActivities] = useState([])
+    const [activityTotal, setActivityTotal] = useState(0)
+    const [activityHasMore, setActivityHasMore] = useState(false)
+    const [activityLoadingMore, setActivityLoadingMore] = useState(false)
     const [gradeData, setGradeData] = useState([])
+    const [weeklyTrend, setWeeklyTrend] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+
+    function fetchActivityPage(offset, append) {
+        const setter = append ? setActivityLoadingMore : () => {}
+        setter(true)
+        getDosRecentActivity({ limit: PAGE, offset })
+            .then(data => {
+                setActivityTotal(data.total)
+                setActivityHasMore(data.has_more)
+                setActivities(prev => append ? [...prev, ...data.results] : data.results)
+                if (append) {
+                    setTimeout(() => {
+                        activityListRef.current?.scrollTo({
+                            top: activityListRef.current.scrollHeight,
+                            behavior: 'smooth',
+                        })
+                    }, 50)
+                }
+            })
+            .finally(() => setter(false))
+    }
 
     useEffect(() => {
         Promise.all([
             getDosDashboardStats(),
-            getDosRecentActivity(),
             getDosPerformanceByGrade(),
+            getDosWeeklyTrend(),
         ])
-            .then(([s, a, g]) => {
+            .then(([s, g, w]) => {
                 setStats(s)
-                setActivities(a)
                 setGradeData(g)
+                setWeeklyTrend(w)
             })
             .catch(err => setError(err.message))
             .finally(() => setLoading(false))
 
+        fetchActivityPage(0, false)
     }, [])
 
     const dosStats = stats ? [
@@ -199,13 +217,37 @@ export function DosDashboard() {
                                 <div className="card">
                                     <div className="card-header">
                                         <h2 className="card-title">Recent Activity</h2>
+                                        <span style={{ fontSize: '.78rem', color: 'var(--muted-foreground)' }}>
+                                            {activities.length} of {activityTotal}
+                                        </span>
                                     </div>
                                     <div className="card-content">
-                                        <div className="activity-list">
-                                            {recentActivities.map((item) => (
-                                                <ActivityItem key={item.title} {...item} />
+                                        <div
+                                            className="activity-list"
+                                            ref={activityListRef}
+                                            style={{ maxHeight: '320px', overflowY: 'auto' }}
+                                        >
+                                            {recentActivities.map((item, i) => (
+                                                <ActivityItem key={i} {...item} />
                                             ))}
                                         </div>
+                                        {activityHasMore && (
+                                            <button
+                                                className="btn btn-secondary"
+                                                style={{ width: '100%', marginTop: '.75rem', fontSize: '.8rem' }}
+                                                onClick={() => fetchActivityPage(activities.length, true)}
+                                                disabled={activityLoadingMore}
+                                            >
+                                                {activityLoadingMore
+                                                    ? 'Loading...'
+                                                    : `Load more (${activityTotal - activities.length} remaining)`}
+                                            </button>
+                                        )}
+                                        {!activityHasMore && activities.length > 0 && (
+                                            <p style={{ textAlign: 'center', fontSize: '.75rem', color: 'var(--muted-foreground)', marginTop: '.75rem' }}>
+                                                All {activityTotal} activities loaded
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
