@@ -60,6 +60,25 @@ class SchoolSection(models.Model):
     def __str__(self):
         return self.name
     
+class Room(models.Model):
+    """
+    Physical rooms and venues in the school.
+    DOS manages these from School Config.
+    Used as dropdown options when building the timetable.
+    """
+    id         = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name       = models.CharField(max_length=100, unique=True)
+    is_active  = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'rooms'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class SchoolSetting(models.Model):
     timezone = models.CharField(max_length=50 ,default='Africa/Kigali')
     school_name = models.CharField(max_length=100,blank=True,default='')

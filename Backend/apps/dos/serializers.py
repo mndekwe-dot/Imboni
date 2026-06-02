@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
-from .models import SchoolSection, SchoolSetting
+from .models import SchoolSection, SchoolSetting, Room
 from apps.results.models import Subject
 
 
@@ -239,18 +239,21 @@ class DOSResultSerializer(serializers.Serializer):
 # ---------------------------------------------------------------------------
 
 class ExamScheduleSerializer(serializers.Serializer):
-    id          = serializers.UUIDField()
-    title       = serializers.CharField()
-    subject     = serializers.CharField()
-    class_name  = serializers.CharField(allow_null=True)
-    term        = serializers.CharField()
-    exam_date   = serializers.DateField()
-    start_time  = serializers.TimeField()
-    end_time    = serializers.TimeField()
-    venue       = serializers.CharField()
-    exam_type   = serializers.CharField()
-    invigilator = serializers.CharField(allow_null=True)
-    notes       = serializers.CharField()
+    id             = serializers.UUIDField()
+    title          = serializers.CharField()
+    subject        = serializers.CharField()
+    subject_id     = serializers.UUIDField()
+    class_name     = serializers.CharField(allow_null=True)
+    class_id       = serializers.UUIDField(allow_null=True)
+    term           = serializers.CharField()
+    exam_date      = serializers.DateField()
+    start_time     = serializers.TimeField()
+    end_time       = serializers.TimeField()
+    venue          = serializers.CharField()
+    exam_type      = serializers.CharField()
+    invigilator    = serializers.CharField(allow_null=True)
+    invigilator_id = serializers.UUIDField(allow_null=True)
+    notes          = serializers.CharField()
 
 class SchoolSectionSerializer(serializers.ModelSerializer):
     """
@@ -266,6 +269,11 @@ class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Subject
         fields = ['id', 'name', 'code', 'category']
+
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = Room
+        fields = ['id', 'name', 'is_active']
 
 class SchoolSettingSerializer(serializers.ModelSerializer):
     class Meta:

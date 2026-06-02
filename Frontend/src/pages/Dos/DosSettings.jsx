@@ -3,7 +3,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { updateSchoolSettings, getSubjects, createSubject, updateSubject, deleteSubject, renameSubjectCategory, deleteSubjectCategory } from '../../api/dos'
+import { updateSchoolSettings, getSubjects, createSubject, updateSubject, deleteSubject, renameSubjectCategory, deleteSubjectCategory, getDosRooms, createDosRoom, deleteDosRoom } from '../../api/dos'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -298,6 +298,9 @@ export function DosSettings() {
     const { config, saveConfig, loading, error } = useSchoolConfig()
     const { setting, loading: settingsLoading } = useSchoolSettings()
     const [subjects,  setSubjects]  = useState([])
+    const [rooms,     setRooms]     = useState([])
+    const [roomInput, setRoomInput] = useState('')
+    const [roomErr,   setRoomErr]   = useState('')
     const [timezone,  setTimezone]  = useState('Africa/Kigali')
     const [tzSaving,  setTzSaving]  = useState(false)
     const [tzSaved,   setTzSaved]   = useState(false)
@@ -310,7 +313,33 @@ export function DosSettings() {
 
     useEffect(() => {
         getSubjects().then(setSubjects).catch(console.error)
+        getDosRooms().then(data => setRooms(data)).catch(console.error)
     }, [])
+
+    async function handleAddRoom() {
+        const name = roomInput.trim()
+        if (!name) return
+        if (rooms.some(r => r.name.toLowerCase() === name.toLowerCase())) {
+            setRoomErr('Room already exists'); return
+        }
+        try {
+            const newRoom = await createDosRoom(name)
+            setRooms(prev => [...prev, newRoom].sort((a, b) => a.name.localeCompare(b.name)))
+            setRoomInput('')
+            setRoomErr('')
+        } catch (e) {
+            setRoomErr(e.message || 'Could not add room')
+        }
+    }
+
+    async function handleDeleteRoom(id) {
+        try {
+            await deleteDosRoom(id)
+            setRooms(prev => prev.filter(r => r.id !== id))
+        } catch (e) {
+            console.error(e)
+        }
+    }
 
     // ── Subject / Type handlers ───────────────────────────────────────────────
     const [newTypeName, setNewTypeName] = useState('')
@@ -621,6 +650,50 @@ export function DosSettings() {
                                         No subject types yet — add one above
                                     </p>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* Rooms card */}
+                        <div className="card" style={{ marginTop: '1.5rem' }}>
+                            <div className="card-header">
+                                <h2 className="card-title">Rooms &amp; Venues</h2>
+                                <span className="settings-info-text">{rooms.length} room{rooms.length !== 1 ? 's' : ''} configured</span>
+                            </div>
+                            <div className="card-content">
+                                <div className="settings-block">
+                                    <div className="settings-block-label">
+                                        <p className="settings-block-title">Add Room</p>
+                                        <p className="settings-block-desc">Classrooms, labs, halls — used when scheduling timetable slots</p>
+                                    </div>
+                                    <div className="settings-block-input-row" style={{ marginTop: '0.5rem' }}>
+                                        <input
+                                            className="form-input flex-1"
+                                            value={roomInput}
+                                            onChange={e => { setRoomInput(e.target.value); setRoomErr('') }}
+                                            onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
+                                            placeholder="e.g. Lab 1, Room 12, Hall A"
+                                        />
+                                        <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
+                                            <span className="material-symbols-rounded icon-sm">add</span> Add
+                                        </button>
+                                    </div>
+                                    {roomErr && <p style={{ color: 'var(--danger)', fontSize: '0.8rem', marginTop: '0.25rem' }}>{roomErr}</p>}
+                                </div>
+
+                                <div className="tag-list" style={{ marginTop: '0.75rem' }}>
+                                    {rooms.map(r => (
+                                        <span key={r.id} className="tag-chip">
+                                            <span className="material-symbols-rounded" style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>meeting_room</span>
+                                            {r.name}
+                                            <button className="tag-chip-remove" onClick={() => handleDeleteRoom(r.id)}>
+                                                <span className="material-symbols-rounded">close</span>
+                                            </button>
+                                        </span>
+                                    ))}
+                                    {rooms.length === 0 && (
+                                        <span className="tag-chip-empty">No rooms yet — add one above</span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
