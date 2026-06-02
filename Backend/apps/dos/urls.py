@@ -98,6 +98,13 @@ urlpatterns = [
     path('dos/students/<uuid:pk>/change-class/',             views.ChangeStudentClassView.as_view(), name='dos-student-change-class'),
     path('dos/students/<uuid:pk>/appoint-leader/',           views.AppointLeaderView.as_view(),      name='dos-student-appoint-leader'),
     path('dos/students/<uuid:pk>/remove-leader/<str:role>/', views.RemoveLeaderView.as_view(),       name='dos-student-remove-leader'),
+    
+    # ── Timetable ─────────────────────────────────────────────────────────────
+    path('dos/timetable/',           views.DosTimetableView.as_view(),     name='dos-timetable'),
+    path('dos/timetable/<uuid:pk>/', views.DosTimetableSlotView.as_view(), name='dos-timetable-slot'),
+    path('dos/rooms/',               views.DosRoomListView.as_view(),      name='dos-rooms'),
+    path('dos/rooms/<uuid:pk>/',     views.DosRoomDetailView.as_view(),    name='dos-room-detail'),
+
 
 ]
 

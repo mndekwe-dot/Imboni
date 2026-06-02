@@ -23,9 +23,10 @@ export const approveResult = (id) => client.patch(`/imboni/dos/results/${id}/app
 export const rejectResult = (id, reason) => client.patch(`/imboni/dos/results/${id}/reject/`, { reason });
 
 //  Exam Schedule 
-export const getDosExamSchedule = () => client.get("/imboni/dos/exam-schedule/");
-export const createDosExamSchedule = (data) => client.post("/imboni/dos/exam-schedule/", data);
-export const deleteDosExamSchedule = (id) =>  client.delete(`/imboni/dos/exam-schedule/${id}/`);
+export const getDosExamSchedule    = ()         => client.get('/imboni/dos/exam-schedule/')
+export const createDosExamSchedule = (data)     => client.post('/imboni/dos/exam-schedule/', data)
+export const updateDosExamSchedule = (id, data) => client.patch(`/imboni/dos/exam-schedule/${id}/`, data)
+export const deleteDosExamSchedule = (id)       => client.delete(`/imboni/dos/exam-schedule/${id}/`)
 
 //  Student Leaders 
 export const getDosStudentLeaders = () => client.get("/imboni/dos/student-leaders/");
@@ -74,3 +75,13 @@ export const suspendDosStudent      = (id, data)  => client.patch(`/imboni/dos/s
 export const changeDosStudentClass  = (id, data)  => client.patch(`/imboni/dos/students/${id}/change-class/`, data)
 export const appointStudentLeader   = (id, data)  => client.post(`/imboni/dos/students/${id}/appoint-leader/`, data)
 export const removeStudentLeader    = (id, role)  => client.delete(`/imboni/dos/students/${id}/remove-leader/${role}/`)
+
+// Timetable
+export const getDosRooms     = ()           => client.get('/imboni/dos/rooms/')
+export const createDosRoom   = (name)       => client.post('/imboni/dos/rooms/', { name })
+export const deleteDosRoom   = (id)         => client.delete(`/imboni/dos/rooms/${id}/`)
+export const getDosTimetable = (classId) => client.get('/imboni/dos/timetable/',{params :{class_id : classId}})
+export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
+export const updateDosSlot = (id,data) => client.patch(`/imboni/dos/timetable/${id}/`,data)
+export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}`)
+export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('/imboni/dos/teachers/',{params:{subject_id:subjectId,class_id:classId}})

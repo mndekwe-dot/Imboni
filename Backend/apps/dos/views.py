@@ -341,6 +341,7 @@ class TeacherListCreateView(APIView):
         search = request.query_params.get('search', '').strip()
         emp    = request.query_params.get('employment_type', '').strip()
         subj   = request.query_params.get('subject_id', '').strip()
+        class_id = request.query_params.get('class_id','').strip()
 
         teachers = User.objects.filter(role='teacher', is_active=True).order_by('last_name', 'first_name')
 
@@ -355,6 +356,10 @@ class TeacherListCreateView(APIView):
         if subj:
             teachers = teachers.filter(
                 subjectteacherassignment__subject_id=subj
+            ).distinct()
+        if class_id:
+            teachers = teachers.filter(
+                subjectteacherassignment__class_obj_id=class_id
             ).distinct()
 
         data = []
@@ -1260,21 +1265,24 @@ class ExamScheduleListView(APIView):
         data = []
         for e in qs:
             data.append({
-                'id':          str(e.id),
-                'title':       e.title,
-                'subject':     e.subject.name,
-                'class_name':  str(e.class_obj) if e.class_obj else None,
-                'term':        str(e.term),
-                'exam_date':   str(e.exam_date),
-                'start_time':  str(e.start_time),
-                'end_time':    str(e.end_time),
-                'venue':       e.venue,
-                'exam_type':   e.exam_type,
-                'invigilator': (
+                'id':             str(e.id),
+                'title':          e.title,
+                'subject':        e.subject.name,
+                'subject_id':     str(e.subject.id),
+                'class_name':     str(e.class_obj) if e.class_obj else None,
+                'class_id':       str(e.class_obj.id) if e.class_obj else None,
+                'term':           str(e.term),
+                'exam_date':      str(e.exam_date),
+                'start_time':     str(e.start_time),
+                'end_time':       str(e.end_time),
+                'venue':          e.venue,
+                'exam_type':      e.exam_type,
+                'invigilator':    (
                     '%s %s' % (e.invigilator.first_name, e.invigilator.last_name)
                     if e.invigilator else None
                 ),
-                'notes':       e.notes,
+                'invigilator_id': str(e.invigilator.id) if e.invigilator else None,
+                'notes':          e.notes,
             })
         return Response(ExamScheduleSerializer(data, many=True).data)
 
@@ -1351,6 +1359,15 @@ class ExamScheduleDetailView(APIView):
         for field in ('title', 'exam_date', 'start_time', 'end_time', 'venue', 'exam_type', 'notes'):
             if field in d:
                 setattr(exam, field, d[field])
+        if 'subject_id' in d:
+            from apps.results.models import Subject
+            subj = Subject.objects.filter(id=d['subject_id']).first()
+            if subj:
+                exam.subject = subj
+        if 'class_id' in d:
+            setattr(exam, 'class_obj_id', d['class_id'] or None)
+        if 'invigilator_id' in d:
+            setattr(exam, 'invigilator_id', d['invigilator_id'] or None)
         exam.save()
         return Response({'detail': 'Updated.'})
 
@@ -2118,3 +2135,153 @@ class TeacherDetailView(APIView):
                 setattr(teacher, field, request.data[field])
         teacher.save()
         return Response({'detail': 'Updated.'})
+
+# ── DOS Timetable ─────────────────────────────────────────────────────────────
+class DosTimetableView(APIView):
+    permission_classes =[IsDOSOrAdmin]
+
+    def get(self,request):
+        from apps.teacher.models import Timetable,Class
+        from apps.results.models import AcademicTerm
+
+
+        class_id = request.query_params.get('class_id','').strip()
+        term = AcademicTerm.objects.filter(is_current=True).first()
+
+        if not class_id or not term:
+            return Response({'slots': [], 'class_name': '', 'term_name': ''})
+
+        try:
+            class_obj = Class.objects.get(id=class_id)
+        except Class.DoesNotExist:
+            return Response({'slots':[],'class_name':'','term_name':''})
+
+        slots =(
+            Timetable.objects
+            .filter(class_obj=class_obj,term=term)
+            .select_related('subject','teacher')
+            .order_by('day','start_time')
+        )
+
+        result =[]
+        for slot in slots:
+            result.append({
+                'id':str(slot.id),
+                'day':slot.day,
+                'start_time':slot.start_time.strftime('%H:%M'),
+                'end_time':slot.end_time.strftime('%H:%M'),
+                'subject_id':str(slot.subject.id),
+                'subject_name': slot.subject.name,
+                'teacher_id':str(slot.teacher.id) if slot.teacher else None,
+                'teacher_name': slot.teacher.get_full_name() if slot.teacher else '',
+                'room': slot.room_number,
+            })
+
+        return Response({
+            'class_name':class_obj.name,
+            'term_name': term.name,
+            'slots': result,
+        })
+    def post(self,request):
+        from apps.teacher.models import Timetable,Class
+        from apps.results.models import AcademicTerm ,Subject
+
+        term = AcademicTerm.objects.filter(is_current=True).first()
+        if not term:
+            return Response({'error':'No active term.'},status=400)
+
+        class_id = request.data.get('class_id')
+        subject_id = request.data.get('subject_id')    
+        teacher_id = request.data.get('teacher_id')    
+        day = request.data.get('day','').lower()    
+        start_time = request.data.get('start_time')    
+        end_time = request.data.get('end_time')    
+        room  = request.data.get('room','')   
+
+        if not all([class_id,subject_id,day,start_time,end_time]):
+            return Response({'error':'class_id,subject_id,day,start_time,end_time are required'}) 
+        
+        slot ,created = Timetable.objects.update_or_create(
+            class_obj_id=class_id,
+            day=day,
+            start_time=start_time,
+            term=term,
+            defaults={
+                'subject_id':subject_id,
+                'teacher_id': teacher_id or None,
+                'end_time': end_time,
+                'room_number':room,
+            },
+        )
+        return Response({'id':str(slot.id),'created':created},status=201 if created else 200)
+    
+class DosTimetableSlotView(APIView):
+    permission_classes = [IsDOSOrAdmin]
+
+    def patch(self,request,pk):
+        from apps.teacher.models import Timetable
+
+        try:
+            slot = Timetable.objects.get(id=pk)
+        except Timetable.DoesNotExist:
+            return Response({'error':'Slot not found.'},status=404)
+        
+        for field in('day','start_time','end_time','room_number'):
+            if field in request.data:
+                setattr(slot,field,request.data[field])
+        if 'subject_id' in request.data:
+            slot.subject_id = request.data['subject_id']
+        if 'teacher_id' in request.data:
+            slot.teacher_id = request.data['teacher_id'] or None
+        slot.save()
+        return Response({'id':str(slot.id),'detail':'Updated.'})
+    
+    def delete(self,request,pk):
+        from apps.teacher.models import Timetable
+        
+        try:
+            slot = Timetable.objects.get(id=pk)
+        except Timetable.DoesNotExist:
+            return Response({'error':'Slot not Found'},status=404)
+        
+        slot.delete()
+        return Response(status=204)
+
+
+class DosRoomListView(APIView):
+    """
+    GET  /imboni/dos/rooms/ — list all active rooms
+    POST /imboni/dos/rooms/ — create a new room
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def get(self, request):
+        from .models import Room
+        from .serializers import RoomSerializer
+        rooms = Room.objects.filter(is_active=True)
+        return Response(RoomSerializer(rooms, many=True).data)
+
+    def post(self, request):
+        from .models import Room
+        from .serializers import RoomSerializer
+        serializer = RoomSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=http_status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+
+class DosRoomDetailView(APIView):
+    """
+    DELETE /imboni/dos/rooms/<uuid:pk>/ — remove a room
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def delete(self, request, pk):
+        from .models import Room
+        try:
+            room = Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            return Response({'error': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        room.delete()
+        return Response(status=http_status.HTTP_204_NO_CONTENT)
