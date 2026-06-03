@@ -1,17 +1,34 @@
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { Timetable } from '../../components/timetable/Timetable'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { studentNavItems, studentSecondaryItems } from './studentNav'
+import { getStudentProfile } from '../../api/student'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
-import { studentNavItems, studentSecondaryItems, studentUser } from './studentNav'
-import { DashboardContent } from '../../components/layout/DashboardContent'
-
-
-// Student's assigned class — replace with auth profile data later
-const MY_CLASS = 'S4A'
 
 export function StudentTimetable() {
+    const [profile, setProfile] = useState(null)
+    const [loading, setLoading] = useState(true)
+
+    const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
+    const firstName  = storedUser.first_name || ''
+    const lastName   = storedUser.last_name  || ''
+    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim()
+    const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase()
+
+    useEffect(() => {
+        getStudentProfile()
+            .then(setProfile)
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
+
+    const gradeSection = profile ? `${profile.grade}${profile.section}` : null
+    const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -21,22 +38,27 @@ export function StudentTimetable() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="My Timetable"
-                        subtitle={`Class ${MY_CLASS} — Term 2, 2026`}
-                        userName="Uwase Amina"
-                        userRole={`Student · ${MY_CLASS}`}
-                        userInitials="UA"
+                        subtitle={gradeSection ? `Class ${gradeSection} — Weekly Schedule` : 'Weekly Schedule'}
+                        userName={fullName}
+                        userRole={userRole}
+                        userInitials={initials}
                         avatarClass="student-av"
                     />
                     <DashboardContent>
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">Class {MY_CLASS} — Weekly Schedule</h2>
+                        {loading ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                        ) : !gradeSection ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Could not load class information.</p>
+                        ) : (
+                            <div className="card">
+                                <div className="card-header">
+                                    <h2 className="card-title">Class {gradeSection} — Weekly Schedule</h2>
+                                </div>
+                                <div className="card-content">
+                                    <Timetable type="academic" classId={gradeSection} />
+                                </div>
                             </div>
-                            <div className="card-content">
-                                {/* editable not passed → defaults to false — students cannot edit */}
-                                <Timetable type="academic" classId={MY_CLASS} />
-                            </div>
-                        </div>
+                        )}
                     </DashboardContent>
                 </main>
             </div>

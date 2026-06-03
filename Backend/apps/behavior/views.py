@@ -1,6 +1,7 @@
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from apps.authentication.permissions import IsDisciplineOrMatron
 
 from .models import BehaviorReport, ConductGrade
 from .serializers import BehaviorReportSerializer
@@ -22,7 +23,7 @@ class StudentBehaviorStatsView(APIView):
         conduct_label     — human label, e.g. "Excellent"
         achievements      — count of achievement report_type entries this term
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDisciplineOrMatron]
 
     def get(self, request, pk):
         # Scope counts to the current term's date range
@@ -74,7 +75,7 @@ class StudentBehaviorReportsView(generics.ListAPIView):
     Optional query param:  ?type=positive|warning|incident|achievement
     """
     serializer_class = BehaviorReportSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDisciplineOrMatron]
 
     def get_queryset(self):
         qs = (

@@ -1,23 +1,33 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { useState, useEffect } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { parentNavItems, parentSecondaryItems } from './parentNav'
+import {
+    getMyChildren, getChildCard, getChildFees, getChildDocuments,
+} from '../../api/parent'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import '../../styles/my-children.css'
-import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
-import { DashboardContent } from '../../components/layout/DashboardContent'
 
+const FEE_LABEL  = { cleared: 'Cleared', due: 'Due', overdue: 'Overdue', partial: 'Partial' }
+const FEE_CLASS  = { cleared: 'status-paid', due: 'status-pending', overdue: 'status-pending', partial: 'status-pending' }
 
-const children = [
-    {
-        initials: 'UA', name: 'Uwase Amina', gradeId: 'S4A | Bisoke House | ID: 2024-001', status: 'In School', statusDot: 'online',
-        subjects: ['Mathematics', 'Physics', 'English', 'Chemistry', 'Biology'],
-        currentLesson: 'Mathematics', currentRoom: 'Room 204 \u2022 Until 02:30 PM', nextLesson: 'English (02:45 PM)',
-        fees: [{ label: 'Tuition Fees', value: 'Cleared', valueClass: 'status-paid' }, { label: 'Boarding Fees', value: 'Cleared', valueClass: 'status-paid' }],
-        docName: 'Term2_Report_Card.pdf', messageTeacher: 'Message Ms. Claudine Umutoni',
-    },
-]
+function feeStatus(fees = []) {
+    return fees.map(f => ({
+        label:      (f.category || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        value:      FEE_LABEL[f.status]  || f.status,
+        valueClass: FEE_CLASS[f.status]  || 'status-pending',
+    }))
+}
 
-function ChildCard({ initials, name, gradeId, status, statusDot, subjects, currentLesson, currentRoom, nextLesson, fees, docName, messageTeacher }) {
+function ChildCard({ card, fees, docs }) {
+    const { name, initials, grade, section, student_code, is_in_school, academic_focus, class_teacher } = card
+    const gradeId = `${grade}${section} | ID: ${student_code}`
+    const status    = is_in_school ? 'In School' : 'Out of School'
+    const statusDot = is_in_school ? 'online' : 'offline'
+    const feeRows   = feeStatus(fees)
+
     return (
         <div className="card student-card">
             <div className="student-card-header">
@@ -27,58 +37,63 @@ function ChildCard({ initials, name, gradeId, status, statusDot, subjects, curre
                     <p className="student-id-tag">{gradeId}</p>
                 </div>
                 <div className="status-indicator">
-                    <span className={`dot ${statusDot}`}></span> <span className="status-text">{status}</span>
+                    <span className={`dot ${statusDot}`}></span>
+                    <span className="status-text">{status}</span>
                 </div>
             </div>
 
             <div className="card-content">
-                <section className="detail-section">
-                    <h4 className="section-title"><span className="material-symbols-rounded">menu_book</span> Academic Focus</h4>
-                    <div className="subject-tags">
-                        {subjects.map((s, i) => <span key={i} className="tag">{s}</span>)}
-                    </div>
-                </section>
-
-                <section className="detail-section">
-                    <h4 className="section-title"><span className="material-symbols-rounded">schedule</span> Live Schedule</h4>
-                    <div className="current-lesson-card">
-                        <div className="lesson-status">NOW</div>
-                        <div className="lesson-info">
-                            <p className="lesson-name">{currentLesson}</p>
-                            <p className="lesson-time">{currentRoom}</p>
+                {academic_focus?.length > 0 && (
+                    <section className="detail-section">
+                        <h4 className="section-title">
+                            <span className="material-symbols-rounded">menu_book</span> Academic Focus
+                        </h4>
+                        <div className="subject-tags">
+                            {academic_focus.map((s, i) => <span key={i} className="tag">{s}</span>)}
                         </div>
-                    </div>
-                    <p className="next-up"><strong>Next:</strong> {nextLesson}</p>
-                </section>
+                    </section>
+                )}
 
-                <section className="detail-section financial-brief">
-                    {fees.map((fee, i) => (
-                        <div key={i} className="financial-row">
-                            <span className="label">{fee.label}:</span>
-                            <span className={`value ${fee.valueClass}`}>{fee.value}</span>
+                {feeRows.length > 0 && (
+                    <section className="detail-section financial-brief">
+                        {feeRows.map((fee, i) => (
+                            <div key={i} className="financial-row">
+                                <span className="label">{fee.label}:</span>
+                                <span className={`value ${fee.valueClass}`}>{fee.value}</span>
+                            </div>
+                        ))}
+                    </section>
+                )}
+
+                {docs?.length > 0 && (
+                    <section className="detail-section">
+                        <h4 className="section-title">
+                            <span className="material-symbols-rounded">folder_open</span> Documents
+                        </h4>
+                        <div className="document-list">
+                            {docs.map(doc => (
+                                <a key={doc.id} href={doc.file || '#'} target="_blank" rel="noreferrer" className="doc-item">
+                                    <span className="material-symbols-rounded">picture_as_pdf</span>
+                                    <span>{doc.title}</span>
+                                </a>
+                            ))}
                         </div>
-                    ))}
-                </section>
-
-                <section className="detail-section">
-                    <h4 className="section-title"><span className="material-symbols-rounded">folder_open</span> Documents</h4>
-                    <div className="document-list">
-                        <a href="#" className="doc-item">
-                            <span className="material-symbols-rounded">picture_as_pdf</span>
-                            <span>{docName}</span>
-                        </a>
-                    </div>
-                </section>
+                    </section>
+                )}
 
                 <hr className="divider" />
 
                 <div className="student-card-footer">
-                    <button className="btn btn-primary w-full">
-                        <span className="material-symbols-rounded">chat</span> {messageTeacher}
-                    </button>
+                    {class_teacher && (
+                        <button className="btn btn-primary w-full">
+                            <span className="material-symbols-rounded">chat</span>
+                            Message {class_teacher.name}
+                        </button>
+                    )}
                     <div className="footer-secondary-btns">
-                        <button className="btn btn-outline btn-icon"><span className="material-symbols-rounded">visibility</span></button>
-                        <button className="btn btn-outline btn-icon"><span className="material-symbols-rounded">edit</span></button>
+                        <button className="btn btn-outline btn-icon">
+                            <span className="material-symbols-rounded">visibility</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -86,12 +101,45 @@ function ChildCard({ initials, name, gradeId, status, statusDot, subjects, curre
     )
 }
 
+function LoadingCard() {
+    return (
+        <div className="card student-card" style={{ minHeight: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+        </div>
+    )
+}
+
 export function ParentChildren() {
+    const [children, setChildren] = useState([])
+    const [cards,    setCards]    = useState({})
+    const [fees,     setFees]     = useState({})
+    const [docs,     setDocs]     = useState({})
+    const [loading,  setLoading]  = useState(true)
+
+    useEffect(() => {
+        getMyChildren()
+            .then(list => {
+                setChildren(list)
+                list.forEach(c => {
+                    Promise.all([
+                        getChildCard(c.id).catch(() => null),
+                        getChildFees(c.id).catch(() => []),
+                        getChildDocuments(c.id).catch(() => []),
+                    ]).then(([card, feeData, docData]) => {
+                        if (card) setCards(prev => ({ ...prev, [c.id]: card }))
+                        setFees(prev => ({ ...prev, [c.id]: feeData || [] }))
+                        setDocs(prev => ({ ...prev, [c.id]: docData || [] }))
+                    })
+                })
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
+
     return (
         <>
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
-
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
                         <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
@@ -100,26 +148,22 @@ export function ParentChildren() {
                         <div className="dashboard-header-title">
                             <h1>My Children</h1>
                         </div>
-                        <div className="dashboard-header-actions">
-                            <button className="btn btn-primary">
-                                <span className="material-symbols-rounded">person_add</span>
-                                Add Child
-                            </button>
-                        </div>
                     </header>
 
                     <DashboardContent>
-                        <div className="add-child-mobile-bar">
-                            <button className="btn btn-primary">
-                                <span className="material-symbols-rounded">person_add</span>
-                                Add Child
-                            </button>
-                        </div>
-                        <div className="student-grid">
-                            {children.map((child, index) => (
-                                <ChildCard key={index} {...child} />
-                            ))}
-                        </div>
+                        {loading ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading children…</p>
+                        ) : children.length === 0 ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked to your account.</p>
+                        ) : (
+                            <div className="student-grid">
+                                {children.map(c => (
+                                    cards[c.id]
+                                        ? <ChildCard key={c.id} card={cards[c.id]} fees={fees[c.id] || []} docs={docs[c.id] || []} />
+                                        : <LoadingCard key={c.id} />
+                                ))}
+                            </div>
+                        )}
                     </DashboardContent>
                 </main>
             </div>

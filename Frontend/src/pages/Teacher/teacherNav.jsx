@@ -14,13 +14,3 @@ export const teacherSecondaryItems = [
     { to: '/profile?role=teacher', icon: 'account_circle', label: 'Profile' },
     { to: '/login',                icon: 'logout',         label: 'Logout'  },
 ]
-
-import { notifications } from '../../data/notifications'
-
-export const teacherUser = {
-    userName:      'Mr. Pacifique Rurangwa',
-    userRole:      'Mathematics Teacher',
-    userInitials:  'PR',
-    avatarClass:   'teacher-av',
-    notifications: notifications.teacher,
-}

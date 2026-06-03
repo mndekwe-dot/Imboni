@@ -1,50 +1,51 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
+import { useState, useEffect } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { parentNavItems, parentSecondaryItems } from './parentNav'
+import {
+    getMyChildren, getChildAttendanceStats, getChildAttendanceCalendar,
+} from '../../api/parent'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
-import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
-import { DashboardContent } from '../../components/layout/DashboardContent'
 
-
-const sarahAttendanceStats = [
-    { title: 'Overall Rate',  value: '96%', change: 'Excellent attendance', changeClass: 'positive', iconClass: 'icon-success',     icon: 'check_circle'    },
-    { title: 'Days Present',  value: '92',  change: 'This term',            changeClass: 'neutral',  iconClass: 'icon-primary',     icon: 'event_available' },
-    { title: 'Days Absent',   value: '3',   change: 'All excused',          changeClass: 'neutral',  iconClass: 'icon-destructive', icon: 'event_busy'      },
-    { title: 'Late Arrivals', value: '1',   change: 'Below average',        changeClass: 'positive', iconClass: 'icon-accent',      icon: 'schedule'        },
+const MONTH_NAMES = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December',
 ]
 
-const michaelAttendanceStats = [
-    { title: 'Overall Rate',  value: '88%', change: 'Needs improvement', changeClass: 'neutral',  iconClass: 'icon-warning',     icon: 'check_circle'    },
-    { title: 'Days Present',  value: '84',  change: 'This term',         changeClass: 'neutral',  iconClass: 'icon-primary',     icon: 'event_available' },
-    { title: 'Days Absent',   value: '10',  change: '3 unexcused',       changeClass: 'neutral',  iconClass: 'icon-destructive', icon: 'event_busy'      },
-    { title: 'Late Arrivals', value: '4',   change: 'Above average',     changeClass: 'neutral',  iconClass: 'icon-accent',      icon: 'schedule'        },
-]
+function initials(name = '') {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+}
 
-const sarahCalendarDays = [
-    { day: 1,  status: 'weekend' }, { day: 2,  status: 'present' }, { day: 3,  status: 'present' },
-    { day: 4,  status: 'present' }, { day: 5,  status: 'present' }, { day: 6,  status: 'present' },
-    { day: 7,  status: 'weekend' }, { day: 8,  status: 'weekend' }, { day: 9,  status: 'present' },
-    { day: 10, status: 'present' }, { day: 11, status: 'present' }, { day: 12, status: 'present today' },
-    { day: 13, status: 'absent'  }, { day: 14, status: 'weekend' }, { day: 15, status: 'weekend' },
-    { day: 16, status: 'present' }, { day: 17, status: 'present' }, { day: 18, status: 'present' },
-    { day: 19, status: 'late'    }, { day: 20, status: 'present' }, { day: 21, status: 'weekend' },
-    { day: 22, status: 'weekend' }, { day: 23, status: 'present' }, { day: 24, status: 'present' },
-    { day: 25, status: 'present' }, { day: 26, status: 'present' }, { day: 27, status: 'present' },
-    { day: 28, status: 'weekend' },
-]
+function buildCalendarGrid(year, month, records) {
+    const recordMap = {}
+    records.forEach(r => {
+        const day = new Date(r.date).getDate()
+        recordMap[day] = r.status
+    })
 
-const michaelCalendarDays = [
-    { day: 1,  status: 'weekend' }, { day: 2,  status: 'present' }, { day: 3,  status: 'present' },
-    { day: 4,  status: 'present' }, { day: 5,  status: 'present' }, { day: 6,  status: 'present' },
-    { day: 7,  status: 'weekend' }, { day: 8,  status: 'weekend' }, { day: 9,  status: 'present' },
-    { day: 10, status: 'present' }, { day: 11, status: 'late'    }, { day: 12, status: 'absent'  },
-    { day: 13, status: 'absent'  }, { day: 14, status: 'weekend' }, { day: 15, status: 'weekend' },
-    { day: 16, status: 'present' }, { day: 17, status: 'present' }, { day: 18, status: 'present' },
-    { day: 19, status: 'present' }, { day: 20, status: 'present' }, { day: 21, status: 'weekend' },
-    { day: 22, status: 'weekend' }, { day: 23, status: 'absent'  }, { day: 24, status: 'present' },
-    { day: 25, status: 'present' }, { day: 26, status: 'late'    }, { day: 27, status: 'present' },
-    { day: 28, status: 'weekend' },
-]
+    const daysInMonth = new Date(year, month, 0).getDate()
+    const firstDayOfWeek = new Date(year, month - 1, 1).getDay()
+    const today = new Date()
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() + 1 === month
+    const todayDay = today.getDate()
+
+    const cells = []
+    for (let i = 0; i < firstDayOfWeek; i++) {
+        cells.push({ day: null, status: 'empty' })
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month - 1, day)
+        const dow  = date.getDay()
+        const isWeekend = dow === 0 || dow === 6
+        const isToday   = isCurrentMonth && day === todayDay
+        let status = isWeekend ? 'weekend' : (recordMap[day] || 'weekend')
+        if (isToday && !isWeekend) status = (recordMap[day] || 'present') + (isToday ? ' today' : '')
+        cells.push({ day, status })
+    }
+    return cells
+}
 
 function AttendanceStat({ title, value, change, changeClass, iconClass, icon }) {
     return (
@@ -63,23 +64,62 @@ function AttendanceStat({ title, value, change, changeClass, iconClass, icon }) 
     )
 }
 
-function CalendarDay({ day, status }) {
-    return <div className={`calendar-day ${status}`}>{day}</div>
-}
+function AttendancePanel({ childId, childName, loading }) {
+    const [stats,         setStats]         = useState(null)
+    const [calendarDays,  setCalendarDays]  = useState([])
+    const [loadingPanel,  setLoadingPanel]  = useState(true)
 
-function AttendancePanel({ stats, calendarDays, title }) {
+    const now    = new Date()
+    const [month, setMonth] = useState(now.getMonth() + 1)
+    const [year,  setYear]  = useState(now.getFullYear())
+
+    useEffect(() => {
+        if (!childId) return
+        setLoadingPanel(true)
+        Promise.all([
+            getChildAttendanceStats(childId).catch(() => null),
+            getChildAttendanceCalendar(childId, month, year).catch(() => []),
+        ]).then(([s, records]) => {
+            setStats(s)
+            setCalendarDays(buildCalendarGrid(year, month, records || []))
+        }).finally(() => setLoadingPanel(false))
+    }, [childId, month, year])
+
+    const statCards = stats ? [
+        { title: 'Overall Rate',  value: `${stats.overall_rate}%`, change: stats.attendance_label,    changeClass: 'positive', iconClass: 'icon-success',     icon: 'check_circle'    },
+        { title: 'Days Present',  value: stats.days_present,       change: 'This term',                changeClass: 'neutral',  iconClass: 'icon-primary',     icon: 'event_available' },
+        { title: 'Days Absent',   value: stats.days_absent,        change: `${stats.excused_absences} excused`, changeClass: 'neutral', iconClass: 'icon-destructive', icon: 'event_busy' },
+        { title: 'Late Arrivals', value: stats.late_arrivals,      change: stats.late_label,           changeClass: 'positive', iconClass: 'icon-accent',      icon: 'schedule'        },
+    ] : []
+
+    function prevMonth() {
+        if (month === 1) { setMonth(12); setYear(y => y - 1) }
+        else setMonth(m => m - 1)
+    }
+    function nextMonth() {
+        if (month === 12) { setMonth(1); setYear(y => y + 1) }
+        else setMonth(m => m + 1)
+    }
+
+    if (loadingPanel) return <p style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>Loading attendance…</p>
+
     return (
         <>
             <div className="stats-grid">
-                {stats.map((stat, index) => (
-                    <AttendanceStat key={index} {...stat} />
-                ))}
+                {statCards.map((s, i) => <AttendanceStat key={i} {...s} />)}
             </div>
 
             <div className="card">
                 <div className="card-header">
-                    <h3 className="card-title">{title}</h3>
-                    <button className="btn btn-outline btn-sm">Download Report</button>
+                    <h3 className="card-title">{childName} — {MONTH_NAMES[month - 1]} {year}</h3>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="btn btn-outline btn-sm" onClick={prevMonth}>
+                            <span className="material-symbols-rounded">chevron_left</span>
+                        </button>
+                        <button className="btn btn-outline btn-sm" onClick={nextMonth}>
+                            <span className="material-symbols-rounded">chevron_right</span>
+                        </button>
+                    </div>
                 </div>
                 <div className="card-content">
                     <div className="calendar-wrapper">
@@ -88,8 +128,10 @@ function AttendancePanel({ stats, calendarDays, title }) {
                             <div>Thu</div><div>Fri</div><div>Sat</div>
                         </div>
                         <div className="calendar-grid">
-                            {calendarDays.map((d, index) => (
-                                <CalendarDay key={index} {...d} />
+                            {calendarDays.map((d, i) => (
+                                <div key={i} className={`calendar-day ${d.status}`}>
+                                    {d.day}
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -97,7 +139,7 @@ function AttendancePanel({ stats, calendarDays, title }) {
                         <div className="legend-item"><div className="legend-color present"></div><span>Present</span></div>
                         <div className="legend-item"><div className="legend-color absent"></div><span>Absent</span></div>
                         <div className="legend-item"><div className="legend-color late"></div><span>Late</span></div>
-                        <div className="legend-item"><div className="legend-color holiday"></div><span>Weekend/Holiday</span></div>
+                        <div className="legend-item"><div className="legend-color holiday"></div><span>Weekend / Holiday</span></div>
                     </div>
                 </div>
             </div>
@@ -106,11 +148,23 @@ function AttendancePanel({ stats, calendarDays, title }) {
 }
 
 export function ParentAttendance() {
+    const [children,  setChildren]  = useState([])
+    const [activeIdx, setActiveIdx] = useState(0)
+    const [loading,   setLoading]   = useState(true)
+
+    useEffect(() => {
+        getMyChildren()
+            .then(setChildren)
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
+
+    const child = children[activeIdx]
+
     return (
         <>
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
-
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
                         <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
@@ -121,27 +175,33 @@ export function ParentAttendance() {
                         </div>
                     </header>
 
-                    {/* Child Switcher Bar */}
-                    <div className="child-switcher-bar">
-                        <span className="child-switcher-label">Child:</span>
-                        <button className="child-tab active" data-target="amina">
-                            <div className="child-tab-avatar amina">UA</div>
-                            <span className="child-tab-name">Uwase Amina</span>
-                            <span className="child-tab-grade">&middot; S4A</span>
-                        </button>
-                    </div>
+                    {!loading && children.length > 0 && (
+                        <div className="child-switcher-bar">
+                            <span className="child-switcher-label">Child:</span>
+                            {children.map((c, i) => (
+                                <button key={c.id}
+                                    className={`child-tab${i === activeIdx ? ' active' : ''}`}
+                                    onClick={() => setActiveIdx(i)}>
+                                    <div className="child-tab-avatar amina">{initials(c.student_name)}</div>
+                                    <span className="child-tab-name">{c.student_name}</span>
+                                    <span className="child-tab-grade">&middot; {c.grade}{c.section}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     <DashboardContent>
-
-                        {/* Amina's Panel */}
-                        <div className="child-panel active" id="panel-amina">
+                        {loading ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                        ) : !child ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked.</p>
+                        ) : (
                             <AttendancePanel
-                                stats={sarahAttendanceStats}
-                                calendarDays={sarahCalendarDays}
-                                title="Term 2, 2026 â€” Uwase Amina's Attendance"
+                                key={child.id}
+                                childId={child.id}
+                                childName={child.student_name}
                             />
-                        </div>
-
+                        )}
                     </DashboardContent>
                 </main>
             </div>

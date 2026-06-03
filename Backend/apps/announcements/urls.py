@@ -11,6 +11,8 @@ urlpatterns = [
     # Target audience options (teacher's classes + All + Parents Only)
     path('announcements/teacher/audience-options/', views.AnnouncementAudienceOptionsView.as_view(), name='teacher-announcement-audience'),
 
+    # Published list (parent/student portal)
+    path('announcements/', views.PublishedAnnouncementListView.as_view(), name='announcements-published'),
     # Mark-read
     path('announcements/mark-read/<uuid:pk>/',  views.AnnouncementMarkReadView.as_view(),    name='announcement-mark-read'),
     path('announcements/mark-all-read/',         views.AnnouncementMarkAllReadView.as_view(), name='announcement-mark-all-read'),

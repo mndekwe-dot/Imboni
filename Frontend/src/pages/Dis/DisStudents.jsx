@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -6,23 +7,40 @@ import { DataTable } from '../../components/ui/DataTable'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { useState } from 'react'
+import { getDisStudents, getDisReports, updateDisReport } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-// ── Students tab data ──
-const students = [
-    { avClass: 'matron', initials: 'MK', name: 'Mukamazimpaka Sandra', classChip: 'S1B',   section: 'O-Level', year: 'S1', class: 'B',   adm: '2024-S1-001', house: 'Sabyinyo',  houseClass: 'sabyinyo', score: 92, pos: '+18', neg: '-2',  conductClass: 'excellent', conduct: 'Excellent' },
-    { avClass: 'patron', initials: 'NP', name: 'Nsabimana Patrick',    classChip: 'S2B',   section: 'O-Level', year: 'S2', class: 'B',   adm: '2024-S2-002', house: 'Karisimbi', houseClass: 'karisimbi',    score: 68, pos: '+5',  neg: '-12', conductClass: 'fair',      conduct: 'Fair'      },
-    { avClass: 'matron', initials: 'IM', name: 'Ingabire Marie',        classChip: 'S3B',   section: 'O-Level', year: 'S3', class: 'B',   adm: '2024-S3-003', house: 'Bisoke',    houseClass: 'bisoke',    score: 85, pos: '+14', neg: '-3',  conductClass: 'good',      conduct: 'Good'      },
-    { avClass: 'patron', initials: 'ND', name: 'Ndagijimana Eric',      classChip: 'S6A',   section: 'A-Level', year: 'S6', class: 'A',   adm: '2024-S6-004', house: 'Muhabura',  houseClass: 'muhabura',     score: 45, pos: '+2',  neg: '-25', conductClass: 'poor',      conduct: 'Poor'      },
-    { avClass: 'matron', initials: 'UA', name: 'Uwase Amina',           classChip: 'S4A',   section: 'A-Level', year: 'S4', class: 'A',   adm: '2024-S4-005', house: 'Bisoke',    houseClass: 'bisoke',    score: 95, pos: '+22', neg: '0',   conductClass: 'excellent', conduct: 'Excellent' },
-    { avClass: 'patron', initials: 'BJ', name: 'Bizimana James',        classChip: 'S5A',   section: 'A-Level', year: 'S5', class: 'A',   adm: '2024-S5-006', house: 'Karisimbi', houseClass: 'karisimbi',    score: 74, pos: '+10', neg: '-6',  conductClass: 'good',      conduct: 'Good'      },
-    { avClass: 'matron', initials: 'UL', name: 'Uwineza Lydia',         classChip: 'S5B',   section: 'A-Level', year: 'S5', class: 'B',   adm: '2024-S5-007', house: 'Bisoke',    houseClass: 'bisoke',    score: 88, pos: '+16', neg: '-1',  conductClass: 'excellent', conduct: 'Excellent' },
-]
+function initials(name = '') {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+}
+
+function conductInfo(grade) {
+    if (!grade) return { label: 'Not Rated', cls: '' }
+    const g = String(grade).toLowerCase()
+    if (g === 'a' || g === 'excellent') return { label: 'Excellent', cls: 'excellent' }
+    if (g === 'b' || g === 'good')      return { label: 'Good',      cls: 'good'      }
+    if (g === 'c' || g === 'fair')      return { label: 'Fair',      cls: 'fair'      }
+    if (g === 'd' || g === 'poor')      return { label: 'Poor',      cls: 'poor'      }
+    return { label: grade, cls: '' }
+}
+
+function followUpStatus(report) {
+    if (!report.follow_up_required) return { label: '—',         cls: '' }
+    if (report.follow_up_completed)  return { label: 'Completed', cls: 'badge-success' }
+    return                                  { label: 'Pending',   cls: 'badge-upcoming' }
+}
+
+const REPORT_TYPE_LABELS = {
+    incident:    { label: 'Incident',    cls: 'negative' },
+    warning:     { label: 'Warning',     cls: 'warning'  },
+    positive:    { label: 'Positive',    cls: 'positive' },
+    achievement: { label: 'Achievement', cls: 'positive' },
+}
 
 const conductFilterOptions = [
     { key: 'all',       label: 'All'       },
@@ -30,116 +48,156 @@ const conductFilterOptions = [
     { key: 'good',      label: 'Good'      },
     { key: 'fair',      label: 'Fair'      },
     { key: 'poor',      label: 'Poor'      },
+    { key: 'none',      label: 'Not Rated' },
 ]
 
-function StudentRow({ avClass, initials, name, classChip, adm, house, houseClass, score, pos, neg, conductClass, conduct, onView }) {
+const reportFilterOptions = [
+    { key: 'all',         label: 'All'               },
+    { key: 'incident',    label: 'Incidents'          },
+    { key: 'warning',     label: 'Warnings'           },
+    { key: 'positive',    label: 'Positive'           },
+    { key: 'achievement', label: 'Achievements'       },
+    { key: 'pending',     label: 'Pending Follow-ups' },
+]
+
+// ── Row components ────────────────────────────────────────────────────────────
+
+function StudentRow({ student, onView }) {
+    const ini  = initials(student.name)
+    const cls  = `${student.grade}${student.section}`
+    const { label, cls: conductCls } = conductInfo(student.conduct_grade)
     return (
         <tr>
-            <td><div className="student-inline"><div className={`student-av-sm ${avClass}`}>{initials}</div>{name}</div></td>
-            <td><span className="class-chip">{classChip}</span></td>
-            <td className="text-muted">{adm}</td>
-            <td><span className={`disc-badge ${houseClass}`}>{house}</span></td>
-            <td><strong>{score}</strong></td>
-            <td><span className="disc-points-pos">{pos}</span></td>
-            <td><span className="disc-points-neg">{neg}</span></td>
-            <td><span className={`conduct-badge ${conductClass}`}>{conduct}</span></td>
+            <td>
+                <div className="student-inline">
+                    <div className="student-av-sm">{ini}</div>
+                    {student.name}
+                </div>
+            </td>
+            <td><span className="class-chip">{cls}</span></td>
+            <td className="text-muted">{student.student_id}</td>
+            <td>
+                {student.conduct_grade
+                    ? <span className={`conduct-badge ${conductCls}`}>{label}</span>
+                    : <span style={{ color: 'var(--muted-foreground)', fontSize: '.8rem' }}>—</span>
+                }
+            </td>
+            <td>
+                <span style={{ fontWeight: student.incident_count > 0 ? 600 : 400,
+                    color: student.incident_count > 3 ? '#ef4444' : 'inherit' }}>
+                    {student.incident_count}
+                </span>
+            </td>
             <td className="action-cell">
-                <button className="btn btn-primary btn-sm" onClick={onView}>View</button>
+                <button className="btn btn-primary btn-sm" onClick={() => onView(student)}>View</button>
             </td>
         </tr>
     )
 }
 
-// ── Reports tab data ──
-const allRecords = [
-    { date: 'Mar 7, 2026',  initials: 'HG', name: 'Hakizimana Grace',   classChip: 'S3A', house: 'Bisoke',    houseClass: 'bisoke',    typeClass: 'negative', type: 'Dormitory',  desc: 'Lights-out violation — phone use after 10 PM',               reportedBy: 'Mrs. Mukamana Esperance', points: '-2', pointsClass: 'disc-points-neg', status: 'pending'   },
-    { date: 'Mar 7, 2026',  initials: 'NE', name: 'Ndagijimana Eric',   classChip: 'S6A', house: 'Muhabura',  houseClass: 'muhabura',     typeClass: 'negative', type: 'Dormitory',  desc: 'Fighting in dormitory — altercation with roommate',          reportedBy: 'Mr. Rugamba Patrick',    points: '-4', pointsClass: 'disc-points-neg', status: 'pending'   },
-    { date: 'Mar 6, 2026',  initials: 'IM', name: 'Ingabire Marie',     classChip: 'S3B', house: 'Bisoke',    houseClass: 'bisoke',    typeClass: 'negative', type: 'Dormitory',  desc: 'Food smuggled into dormitory — snacks found under bed',       reportedBy: 'Mrs. Mukamana Esperance', points: '-2', pointsClass: 'disc-points-neg', status: 'pending'   },
-    { date: 'Mar 5, 2026',  initials: 'MK', name: 'Mutabazi Kevin',     classChip: 'S4A', house: 'Karisimbi', houseClass: 'karisimbi',    typeClass: 'negative', type: 'Dormitory',  desc: 'Absent from dorm during evening prep without permission',     reportedBy: 'Mr. Mutabazi',           points: '-3', pointsClass: 'disc-points-neg', status: 'pending'   },
-    { date: 'Mar 5, 2026',  initials: 'UL', name: 'Uwineza Lydia',      classChip: 'S5B', house: 'Bisoke',    houseClass: 'bisoke',    typeClass: 'negative', type: 'Dormitory',  desc: 'Noise disturbance after lights out — repeated warning',       reportedBy: 'Mrs. Mukamana Esperance', points: '-2', pointsClass: 'disc-points-neg', status: 'pending'   },
-    { date: 'Mar 5, 2026',  initials: 'HG', name: 'Hakizimana Grace',   classChip: 'S3A', house: 'Bisoke',    houseClass: 'bisoke',    typeClass: 'positive', type: 'Positive',   desc: 'Represented school at Inter-school Debate — 2nd place',      reportedBy: 'Mr. Mutabazi',           points: '+5', pointsClass: 'disc-points-pos', status: 'recorded'  },
-    { date: 'Mar 4, 2026',  initials: 'BJ', name: 'Bizimana James',     classChip: 'S5A', house: 'Karisimbi', houseClass: 'karisimbi',    typeClass: 'negative', type: 'Misconduct', desc: 'Disruptive behavior in Mathematics class',                    reportedBy: 'Mr. Rurangwa Pacifique', points: '-3', pointsClass: 'disc-points-neg', status: 'pending'   },
-    { date: 'Mar 3, 2026',  initials: 'UA', name: 'Uwase Amina',        classChip: 'S4A', house: 'Bisoke',    houseClass: 'bisoke',    typeClass: 'warning',  type: 'Late',       desc: 'Late to school without valid reason — 2nd occurrence',       reportedBy: 'Gate Prefect',           points: '-2', pointsClass: 'disc-points-neg', status: 'recorded'  },
-    { date: 'Mar 1, 2026',  initials: 'NP', name: 'Nsabimana Patrick',  classChip: 'S2B', house: 'Karisimbi', houseClass: 'karisimbi',    typeClass: 'negative', type: 'Dormitory',  desc: 'Noise in dormitory after curfew (10:30 PM)',                  reportedBy: 'Mrs. Hakizimana Gloriose', points: '-2', pointsClass: 'disc-points-neg', status: 'recorded'  },
-    { date: 'Feb 28, 2026', initials: 'HS', name: 'Habimana Samuel',    classChip: 'S6B', house: 'Muhabura',  houseClass: 'muhabura',     typeClass: 'warning',  type: 'Uniform',    desc: 'Incorrect uniform — claims uniform was at laundry',          reportedBy: 'Mr. Mutabazi',           points: '-2', pointsClass: 'disc-points-neg', status: 'appeal'    },
-    { date: 'Feb 24, 2026', initials: 'UL', name: 'Uwineza Lydia',      classChip: 'S5B', house: 'Bisoke',    houseClass: 'bisoke',    typeClass: 'positive', type: 'Leadership', desc: 'Selected as Dormitory Prefect of Bisoke House',              reportedBy: 'Mr. Mutabazi',           points: '+8', pointsClass: 'disc-points-pos', status: 'recorded'  },
-    { date: 'Feb 20, 2026', initials: 'NP', name: 'Nkurunziza Peter',   classChip: 'S4B', house: 'Muhabura',  houseClass: 'muhabura',     typeClass: 'negative', type: 'Missing',    desc: 'Not in dormitory at curfew check — found in common room',    reportedBy: 'Mr. Rugamba Patrick',    points: '-4', pointsClass: 'disc-points-neg', status: 'escalated' },
-]
-
-const reportFilterOptions = [
-    { key: 'all',       label: 'All Records'                                                             },
-    { key: 'pending',   label: 'Pending',      count: allRecords.filter(r => r.status === 'pending').length },
-    { key: 'recorded',  label: 'Approved'                                                                },
-    { key: 'escalated', label: 'Escalated'                                                               },
-    { key: 'appeal',    label: 'Under Appeal'                                                            },
-]
-
-const statusStyles = {
-    pending:   { background: 'rgba(245,158,11,0.12)',    color: '#b45309'              },
-    recorded:  { background: 'var(--success-light)',     color: 'var(--success)'       },
-    escalated: { background: 'var(--destructive-light)', color: 'var(--destructive)'   },
-    appeal:    { background: 'rgba(79,70,229,0.1)',      color: '#4f46e5'              },
-}
-
-function RecordRow({ initials, name, classChip, house, houseClass, typeClass, type, desc, reportedBy, points, pointsClass, status, onApprove, onReject }) {
+function ReportRow({ report, onMarkComplete }) {
+    const typeInfo = REPORT_TYPE_LABELS[report.report_type] || { label: report.report_type, cls: '' }
+    const fuStatus = followUpStatus(report)
+    const cls      = `${report.grade || ''}${report.section || ''}`
     return (
         <tr>
-            <td><div className="student-inline"><div className={`student-av-sm ${houseClass}`}>{initials}</div>{name}</div></td>
-            <td><span className="class-chip">{classChip}</span></td>
-            <td><span className={`disc-badge ${houseClass}`}>{house}</span></td>
-            <td><span className={`incident-type-tag ${typeClass}`}>{type}</span></td>
-            <td>{desc}</td>
-            <td>{reportedBy}</td>
-            <td><span className={pointsClass}>{points}</span></td>
-            <td><span className="badge" style={statusStyles[status]}>{status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
-            {(onApprove || onReject) && (
-                <td className="action-cell">
-                    <button className="btn btn-primary btn-sm" onClick={onApprove}>Approve</button>
-                    <button className="btn btn-outline btn-sm" onClick={onReject}>Reject</button>
-                </td>
-            )}
+            <td>
+                <div className="student-inline">
+                    <div className="student-av-sm">{initials(report.student)}</div>
+                    {report.student}
+                </div>
+            </td>
+            <td><span className="class-chip">{cls}</span></td>
+            <td><span className={`incident-type-tag ${typeInfo.cls}`}>{typeInfo.label}</span></td>
+            <td>
+                <div style={{ fontWeight: 500, fontSize: '.85rem' }}>{report.title}</div>
+                {report.description && (
+                    <div style={{ color: 'var(--muted-foreground)', fontSize: '.78rem', marginTop: '.1rem' }}>
+                        {report.description}
+                    </div>
+                )}
+            </td>
+            <td className="text-muted" style={{ whiteSpace: 'nowrap' }}>{report.date}</td>
+            <td className="text-muted">{report.reported_by || '—'}</td>
+            <td>
+                {fuStatus.label === '—'
+                    ? <span style={{ color: 'var(--muted-foreground)' }}>—</span>
+                    : <span className={`badge ${fuStatus.cls}`}>{fuStatus.label}</span>
+                }
+            </td>
+            <td className="action-cell">
+                {report.follow_up_required && !report.follow_up_completed && (
+                    <button className="btn btn-primary btn-sm" onClick={() => onMarkComplete(report.id)}>
+                        Mark Done
+                    </button>
+                )}
+            </td>
         </tr>
     )
 }
 
-// ── Main page ──
+// ── Main page ─────────────────────────────────────────────────────────────────
+
 export function DisStudents() {
     const { config } = useSchoolConfig()
     const [activeTab, setActiveTab] = useState('students')
 
-    // Students tab state
+    // ── Students tab ──
+    const [students,      setStudents]      = useState([])
+    const [studLoading,   setStudLoading]   = useState(false)
+    const [studLoaded,    setStudLoaded]    = useState(false)
     const [conductFilter, setConductFilter] = useState('all')
-    const [section, setSection] = useState('')
-    const [year, setYear] = useState('')
-    const [classVal, setClassVal] = useState('')
-    const [modal, setModal] = useState(null)
+    const [section,       setSection]       = useState('')
+    const [year,          setYear]          = useState('')
+    const [classVal,      setClassVal]      = useState('')
+    const [modal,         setModal]         = useState(null)
 
+    // ── Reports tab ──
+    const [reports,       setReports]       = useState([])
+    const [repLoading,    setRepLoading]    = useState(false)
+    const [repLoaded,     setRepLoaded]     = useState(false)
+    const [reportFilter,  setReportFilter]  = useState('all')
+
+    // Lazy load on tab switch
+    useEffect(() => {
+        if (activeTab !== 'students' || studLoaded) return
+        setStudLoaded(true); setStudLoading(true)
+        getDisStudents().then(setStudents).catch(console.error).finally(() => setStudLoading(false))
+    }, [activeTab, studLoaded])
+
+    useEffect(() => {
+        if (activeTab !== 'reports' || repLoaded) return
+        setRepLoaded(true); setRepLoading(true)
+        getDisReports().then(setReports).catch(console.error).finally(() => setRepLoading(false))
+    }, [activeTab, repLoaded])
+
+    async function handleMarkComplete(id) {
+        try {
+            await updateDisReport(id, { follow_up_completed: true })
+            setReports(prev => prev.map(r => r.id === id ? { ...r, follow_up_completed: true } : r))
+        } catch(e) { console.error(e) }
+    }
+
+    // ── Filters ──
     const visibleStudents = students.filter(s => {
-        if (conductFilter !== 'all' && s.conductClass !== conductFilter) return false
-        if (section && s.section !== section) return false
-        if (year && s.year !== year) return false
-        if (classVal && s.class !== classVal) return false
+        const { cls: cCls } = conductInfo(s.conduct_grade)
+        if (conductFilter === 'none'  && s.conduct_grade) return false
+        if (conductFilter !== 'all' && conductFilter !== 'none' && cCls !== conductFilter) return false
+        if (year     && s.grade   !== year)     return false
+        if (classVal && s.section !== classVal) return false
         return true
     })
 
-    // Reports tab state
-    const [reportFilter, setReportFilter] = useState('all')
-    const [records, setRecords] = useState(allRecords)
-
-    const visibleRecords = reportFilter === 'all'
-        ? records
-        : records.filter(r => r.status === reportFilter)
-
-    function approveRecord(idx) {
-        setRecords(prev => prev.map((r, i) => i === idx ? { ...r, status: 'recorded' } : r))
-    }
-    function rejectRecord(idx) {
-        setRecords(prev => prev.map((r, i) => i === idx ? { ...r, status: 'escalated' } : r))
-    }
+    const pendingCount  = reports.filter(r => r.follow_up_required && !r.follow_up_completed).length
+    const visibleReports = reports.filter(r => {
+        if (reportFilter === 'pending') return r.follow_up_required && !r.follow_up_completed
+        if (reportFilter !== 'all')     return r.report_type === reportFilter
+        return true
+    })
 
     return (
         <>
-            <StudentConductModal student={modal?.student} onClose={() => setModal(null)} />
+            <StudentConductModal student={modal} onClose={() => setModal(null)} />
             <a href="#main-content" className="skip-link">Skip to content</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
@@ -147,29 +205,22 @@ export function DisStudents() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Students"
-                        subtitle="Conduct records, incident reports and disciplinary queue — Term 2, 2026"
+                        subtitle="Conduct records and incident reports"
                         {...disUser}
                     />
 
                     <DashboardContent>
 
-                        {/* Tab switcher */}
                         <div className="filter-tabs-bar mb-5">
-                            <button
-                                className={`filter-tab${activeTab === 'students' ? ' active' : ''}`}
-                                onClick={() => setActiveTab('students')}
-                            >
+                            <button className={`filter-tab${activeTab === 'students' ? ' active' : ''}`}
+                                onClick={() => setActiveTab('students')}>
                                 <span className="material-symbols-rounded">people</span> Conduct Records
                             </button>
-                            <button
-                                className={`filter-tab${activeTab === 'reports' ? ' active' : ''}`}
-                                onClick={() => setActiveTab('reports')}
-                            >
-                                <span className="material-symbols-rounded">report</span> Incident Reports
-                                {records.filter(r => r.status === 'pending').length > 0 && (
-                                    <span className="approval-count-badge">
-                                        {records.filter(r => r.status === 'pending').length}
-                                    </span>
+                            <button className={`filter-tab${activeTab === 'reports' ? ' active' : ''}`}
+                                onClick={() => setActiveTab('reports')}>
+                                <span className="material-symbols-rounded">report</span> Behavior Reports
+                                {pendingCount > 0 && (
+                                    <span className="approval-count-badge">{pendingCount}</span>
                                 )}
                             </button>
                         </div>
@@ -180,26 +231,9 @@ export function DisStudents() {
                                 <ClassPicker
                                     sections={config}
                                     section={section} onSectionChange={setSection}
-                                    year={year} onYearChange={setYear}
+                                    year={year}       onYearChange={setYear}
                                     classVal={classVal} onClassChange={setClassVal}
                                 />
-
-                                <div className="disc-stat-grid">
-                                    {[
-                                        { iconClass: 'info',    icon: 'groups',   value: visibleStudents.length,                                        label: 'Students Shown'     },
-                                        { iconClass: 'success', icon: 'star',     value: visibleStudents.filter(s => s.conductClass === 'excellent').length, label: 'Excellent Standing' },
-                                        { iconClass: 'warning', icon: 'warning',  value: visibleStudents.filter(s => s.conductClass === 'fair').length,  label: 'Fair / At Risk'     },
-                                        { iconClass: 'red',     icon: 'cancel',   value: visibleStudents.filter(s => s.conductClass === 'poor').length,  label: 'Poor Conduct'       },
-                                    ].map((stat, i) => (
-                                        <div key={i} className="disc-stat-card">
-                                            <div className={`disc-stat-icon ${stat.iconClass}`}><span className="material-symbols-rounded">{stat.icon}</span></div>
-                                            <div>
-                                                <div className="disc-stat-value">{stat.value}</div>
-                                                <div className="disc-stat-label">{stat.label}</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
 
                                 <div className="card mb-1-5">
                                     <div className="card-content">
@@ -209,43 +243,59 @@ export function DisStudents() {
                                     </div>
                                 </div>
 
-                                <DataTable
-                                    title="Student Conduct Records"
-                                    data={visibleStudents}
-                                    columns={['Student','Class','Adm #','Dormitory','Score','Pos','Neg','Standing','Actions']}
-                                    renderRow={(student, index) => <StudentRow key={index} {...student} onView={() => setModal({ student })} />}
-                                    emptyIcon="people"
-                                    emptyTitle="No students found"
-                                    emptyDesc="No students match the selected conduct filter and class."
-                                    onClearFilters={() => { setConductFilter('all'); setSection(''); setYear(''); setClassVal('') }}
-                                />
+                                <div className="disc-stat-grid">
+                                    {[
+                                        { iconClass: 'info',    icon: 'groups',  value: visibleStudents.length,                                                        label: 'Students Shown'     },
+                                        { iconClass: 'success', icon: 'star',    value: visibleStudents.filter(s => conductInfo(s.conduct_grade).cls === 'excellent').length, label: 'Excellent Standing' },
+                                        { iconClass: 'warning', icon: 'warning', value: visibleStudents.filter(s => conductInfo(s.conduct_grade).cls === 'fair').length,      label: 'Fair / At Risk'     },
+                                        { iconClass: 'red',     icon: 'cancel',  value: visibleStudents.filter(s => conductInfo(s.conduct_grade).cls === 'poor').length,      label: 'Poor Conduct'       },
+                                    ].map((s, i) => (
+                                        <div key={i} className="disc-stat-card">
+                                            <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
+                                            <div>
+                                                <div className="disc-stat-value">{s.value}</div>
+                                                <div className="disc-stat-label">{s.label}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {studLoading ? (
+                                    <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading students…</p>
+                                ) : (
+                                    <DataTable
+                                        title="Student Conduct Records"
+                                        data={visibleStudents}
+                                        columns={['Student', 'Class', 'Student ID', 'Conduct', 'Incidents', 'Actions']}
+                                        renderRow={(s, i) => <StudentRow key={s.id || i} student={s} onView={setModal} />}
+                                        emptyIcon="people"
+                                        emptyTitle="No students found"
+                                        emptyDesc="No students match the selected filters."
+                                        onClearFilters={() => { setConductFilter('all'); setSection(''); setYear(''); setClassVal('') }}
+                                    />
+                                )}
                             </>
                         )}
 
                         {/* ── REPORTS TAB ── */}
                         {activeTab === 'reports' && (
                             <>
-                                <FilterBar
-                                    options={reportFilterOptions}
-                                    active={reportFilter}
-                                    onChange={setReportFilter}
-                                />
+                                <FilterBar options={reportFilterOptions} active={reportFilter} onChange={setReportFilter} />
 
-                                <DataTable
-                                    title="Incident Approval Queue"
-                                    data={visibleRecords}
-                                    columns={['Student','Class','Dormitory','Type','Description','Reported By','Points','Status',...(reportFilter==='pending'?['Actions']:[])]}
-                                    renderRow={(row, i) => (
-                                        <RecordRow key={i} {...row}
-                                            onApprove={reportFilter==='pending' ? () => approveRecord(records.indexOf(row)) : undefined}
-                                            onReject={reportFilter==='pending'  ? () => rejectRecord(records.indexOf(row))  : undefined}
-                                        />
-                                    )}
-                                    emptyIcon="report"
-                                    emptyTitle="No incident records"
-                                    emptyDesc={reportFilter==='all' ? 'No incidents have been reported.' : `No ${reportFilter} incidents found.`}
-                                    onClearFilters={reportFilter!=='all' ? () => setReportFilter('all') : undefined}
-                                />
+                                {repLoading ? (
+                                    <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading reports…</p>
+                                ) : (
+                                    <DataTable
+                                        title="Behavior Reports"
+                                        data={visibleReports}
+                                        columns={['Student', 'Class', 'Type', 'Description', 'Date', 'Reported By', 'Follow-up', 'Actions']}
+                                        renderRow={(r, i) => <ReportRow key={r.id || i} report={r} onMarkComplete={handleMarkComplete} />}
+                                        emptyIcon="report"
+                                        emptyTitle="No reports found"
+                                        emptyDesc={reportFilter === 'all' ? 'No behavior reports on record.' : `No ${reportFilter} reports found.`}
+                                        onClearFilters={reportFilter !== 'all' ? () => setReportFilter('all') : undefined}
+                                    />
+                                )}
                             </>
                         )}
 

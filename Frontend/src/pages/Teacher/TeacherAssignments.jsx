@@ -8,12 +8,11 @@ import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
-import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { getTeacherMyClasses } from '../../api/teacher'
 
-// ── Teacher's own classes only ────────────────────────────────────────────────
-const TEACHER_CLASSES = ['S1B', 'S2A', 'S3A', 'S3B', 'S4A']
-const SUBJECTS        = ['Mathematics', 'Physics', 'Chemistry', 'English', 'History', 'Biology']
+const SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'English', 'History', 'Biology']
 
 const STATUS_TABS = [
     { key: 'all',    label: 'All'    },
@@ -276,7 +275,7 @@ function QuizBuilder({ questions, onChange }) {
 }
 
 // ── Create / Edit Modal ───────────────────────────────────────────────────────
-function AssignmentModal({ initial, onClose, onSave }) {
+function AssignmentModal({ initial, onClose, onSave, teacherClasses = [] }) {
     const [form,      setForm]      = useState(initial ? { ...initial } : { ...EMPTY_FORM })
     const [questions, setQuestions] = useState(initial?.questions || [])
     const [file,      setFile]      = useState(initial?.file || null)
@@ -363,7 +362,7 @@ function AssignmentModal({ initial, onClose, onSave }) {
                         value={form.classId}
                         onChange={v => setForm(p => ({ ...p, classId: v }))}
                         placeholder="— Select class —"
-                        options={TEACHER_CLASSES.map(c => ({ value: c, label: c }))}
+                        options={teacherClasses.map(c => ({ value: c, label: c }))}
                     />
                 </div>
                 <div className="form-group">
@@ -480,11 +479,24 @@ function ClassDropdown({ value, onChange, options }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherAssignments() {
-    const [assignments, setAssignments] = useState(INITIAL_ASSIGNMENTS)
+    const [myClasses,    setMyClasses]    = useState([])
+    const [assignments,  setAssignments]  = useState(INITIAL_ASSIGNMENTS)
     const [statusFilter, setStatusFilter] = useState('all')
     const [classFilter,  setClassFilter]  = useState('all')
     const [isOpen,   setIsOpen]   = useState(false)
     const [editing,  setEditing]  = useState(null)
+
+    const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
+    const firstName  = storedUser.first_name || ''
+    const lastName   = storedUser.last_name  || ''
+    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Teacher'
+    const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'T'
+
+    useEffect(() => {
+        getTeacherMyClasses()
+            .then(data => setMyClasses(Array.isArray(data) ? data.map(c => c.class_name) : []))
+            .catch(() => {})
+    }, [])
 
     const statusTabs = STATUS_TABS.map(t => ({
         ...t,
@@ -517,7 +529,7 @@ export function TeacherAssignments() {
             <a href="#main-content" className="skip-link">Skip to content</a>
 
             {isOpen && (
-                <AssignmentModal initial={editing} onClose={handleClose} onSave={handleSave} />
+                <AssignmentModal initial={editing} onClose={handleClose} onSave={handleSave} teacherClasses={myClasses} />
             )}
 
             <div className="dashboard-layout">
@@ -527,7 +539,10 @@ export function TeacherAssignments() {
                     <DashboardHeader
                         title="Assignments"
                         subtitle="Create, manage and track student submissions"
-                        {...teacherUser}
+                        userName={fullName}
+                        userRole="Teacher"
+                        userInitials={initials}
+                        avatarClass="teacher-av"
                     />
 
                     <DashboardContent>
@@ -546,7 +561,7 @@ export function TeacherAssignments() {
                         <div className="asgn-toolbar">
                             <FilterBar options={statusTabs} active={statusFilter} onChange={setStatusFilter} />
                             <div className="asgn-toolbar-right">
-                                <ClassDropdown value={classFilter} onChange={setClassFilter} options={TEACHER_CLASSES} />
+                                <ClassDropdown value={classFilter} onChange={setClassFilter} options={myClasses} />
                                 <button className="btn btn-primary whitespace-nowrap" onClick={() => { setEditing(null); setIsOpen(true) }}>
                                     <span className="material-symbols-rounded icon-sm">add</span>
                                     New Assignment

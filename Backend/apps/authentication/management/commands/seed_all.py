@@ -16,7 +16,7 @@ User = get_user_model()
 # ── Lazy model imports (avoid circular import issues) ──────────────────────────
 def get_models():
     from apps.results.models     import Subject, AcademicTerm, Result, Assessment
-    from apps.student.models     import Student, Activity, ActivityEnrollment, Assignment, AssignmentSubmission
+    from apps.student.models     import Student, Activity, ActivityEnrollment, ActivityEvent, Assignment, AssignmentSubmission
     from apps.teacher.models     import Class, ClassAssignment, SubjectTeacherAssignment, Timetable, Task, TeacherClassList
     from apps.attendance.models  import AttendanceRecord, AttendanceSummary
     from apps.behavior.models    import BehaviorReport, ConductGrade
@@ -27,7 +27,8 @@ def get_models():
     return {
         'Subject': Subject, 'AcademicTerm': AcademicTerm, 'Result': Result,
         'Assessment': Assessment, 'Student': Student, 'Activity': Activity,
-        'ActivityEnrollment': ActivityEnrollment, 'Assignment': Assignment,
+        'ActivityEnrollment': ActivityEnrollment, 'ActivityEvent': ActivityEvent,
+        'Assignment': Assignment,
         'AssignmentSubmission': AssignmentSubmission, 'Class': Class,
         'ClassAssignment': ClassAssignment,
         'SubjectTeacherAssignment': SubjectTeacherAssignment,
@@ -239,6 +240,7 @@ class Command(BaseCommand):
             m['AssignmentSubmission'].objects.all().delete()
             m['Assignment'].objects.all().delete()
             m['ActivityEnrollment'].objects.all().delete()
+            m['ActivityEvent'].objects.all().delete()
             m['Activity'].objects.all().delete()
             m['DiningPlan'].objects.all().delete()
             m['BoardingStudent'].objects.all().delete()
@@ -517,25 +519,68 @@ class Command(BaseCommand):
                 a_count += 1
         self.stdout.write(self.style.SUCCESS(f'  {a_count} assessments created'))
 
-        # ── 12. Attendance Records ─────────────────────────────────────────────
+        # ── 12. Attendance Records + Summaries ────────────────────────────────
         self.stdout.write('Creating attendance records...')
         AttendanceRecord = m['AttendanceRecord']
+        AttendanceSummary = m['AttendanceSummary']
         dos_user = users.get('dos@imboni.rw')
         statuses = ['present', 'present', 'present', 'present', 'absent', 'present', 'late', 'present', 'present', 'excused']
+
         att_count = 0
-        base_date = date(2026, 5, 5)
         for s_email, student in list(students.items())[:10]:
-            for i in range(10):
-                att_date = base_date + timedelta(days=i if i < 5 else i + 2)
-                status   = statuses[(list(students.keys()).index(s_email) + i) % len(statuses)]
-                _, created = AttendanceRecord.objects.get_or_create(
-                    student=student, date=att_date,
-                    defaults={'status': status, 'marked_by': dos_user,
-                              'minutes_late': 15 if status == 'late' else 0}
+            s_idx = list(students.keys()).index(s_email)
+            # Seed May 2026 (10 school days: May 5–9 and May 12–16)
+            may_dates = [date(2026, 5, 5), date(2026, 5, 6), date(2026, 5, 7),
+                         date(2026, 5, 8), date(2026, 5, 9), date(2026, 5, 12),
+                         date(2026, 5, 13), date(2026, 5, 14), date(2026, 5, 15), date(2026, 5, 16)]
+            # Seed June 2026 (10 school days: June 2–6 and June 9–13)
+            jun_dates = [date(2026, 6, 2), date(2026, 6, 3), date(2026, 6, 4),
+                         date(2026, 6, 5), date(2026, 6, 6), date(2026, 6, 9),
+                         date(2026, 6, 10), date(2026, 6, 11), date(2026, 6, 12), date(2026, 6, 13)]
+
+            for all_dates in [may_dates, jun_dates]:
+                for i, att_date in enumerate(all_dates):
+                    status = statuses[(s_idx + i) % len(statuses)]
+                    _, created = AttendanceRecord.objects.get_or_create(
+                        student=student, date=att_date,
+                        defaults={'status': status, 'marked_by': dos_user,
+                                  'minutes_late': 15 if status == 'late' else 0}
+                    )
+                    if created:
+                        att_count += 1
+
+        self.stdout.write(self.style.SUCCESS(f'  {att_count} attendance records created'))
+
+        # Build AttendanceSummary for each student+month
+        self.stdout.write('Building attendance summaries...')
+        sum_count = 0
+        for s_email, student in list(students.items())[:10]:
+            for (yr, mo) in [(2026, 5), (2026, 6)]:
+                recs = AttendanceRecord.objects.filter(
+                    student=student, date__year=yr, date__month=mo
+                )
+                total   = recs.count()
+                present = recs.filter(status='present').count()
+                absent  = recs.filter(status='absent').count()
+                late    = recs.filter(status='late').count()
+                excused = recs.filter(status='excused').count()
+                if total == 0:
+                    continue
+                pct = round((present / total) * 100, 1)
+                _, created = AttendanceSummary.objects.get_or_create(
+                    student=student, month=mo, year=yr,
+                    defaults={
+                        'total_days': total,
+                        'present_days': present,
+                        'absent_days': absent,
+                        'late_days': late,
+                        'excused_days': excused,
+                        'attendance_percentage': pct,
+                    }
                 )
                 if created:
-                    att_count += 1
-        self.stdout.write(self.style.SUCCESS(f'  {att_count} attendance records created'))
+                    sum_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {sum_count} attendance summaries created'))
 
         # ── 13. Behavior Reports ───────────────────────────────────────────────
         self.stdout.write('Creating behavior reports...')
@@ -572,6 +617,37 @@ class Command(BaseCommand):
             if created:
                 b_count += 1
         self.stdout.write(self.style.SUCCESS(f'  {b_count} behavior reports created'))
+
+        # ── 13b. Conduct Grades ────────────────────────────────────────────────
+        self.stdout.write('Creating conduct grades...')
+        ConductGrade = m['ConductGrade']
+        conduct_data = [
+            # student_email, grade, positive, warnings, incidents, achievements
+            ('a.uwase@imboni.rw',       'A', 3, 0, 0, 1),
+            ('m.ingabire@imboni.rw',    'A', 2, 0, 0, 0),
+            ('k.mutabazi@imboni.rw',    'B', 2, 0, 0, 0),
+            ('p.nkurunziza@imboni.rw',  'C', 0, 1, 0, 0),
+            ('e.ndagijimana@imboni.rw', 'C', 0, 0, 1, 0),
+            ('g.hakizimana.s@imboni.rw','A', 1, 0, 0, 1),
+            ('d.umutoni@imboni.rw',     'A', 2, 0, 0, 0),
+        ]
+        cg_count = 0
+        for s_email, grade, pos, warn, inc, ach in conduct_data:
+            student = students.get(s_email)
+            if student:
+                _, created = ConductGrade.objects.get_or_create(
+                    student=student, term=current_term,
+                    defaults={
+                        'grade': grade,
+                        'positive_count': pos,
+                        'warning_count': warn,
+                        'incident_count': inc,
+                        'achievement_count': ach,
+                    }
+                )
+                if created:
+                    cg_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {cg_count} conduct grades created'))
 
         # ── 14. Announcements ──────────────────────────────────────────────────
         self.stdout.write('Creating announcements...')
@@ -705,6 +781,153 @@ class Command(BaseCommand):
                     class_name=class_name,
                 )
         self.stdout.write(self.style.SUCCESS('  Teacher class lists seeded'))
+
+        # ── 20. Activities ────────────────────────────────────────────────────
+        self.stdout.write('Creating extracurricular activities...')
+        Activity     = m['Activity']
+        ActivityEvent = m['ActivityEvent']
+        ActivityEnrollment = m['ActivityEnrollment']
+        activities_data = [
+            ('Chess Club',          'debate',    'Mon & Wed 4:30–5:30 PM', 'Library Room 1', 20, 'c.umutoni@imboni.rw'),
+            ('Basketball Team',     'sport',     'Tue & Thu 4:30–6:00 PM', 'Sports Ground',  15, 'p.rurangwa@imboni.rw'),
+            ('Science Club',        'science',   'Friday 3:00–5:00 PM',    'Science Lab 1',  25, 's.uwera@imboni.rw'),
+            ('Debate Club',         'debate',    'Monday 3:00–4:30 PM',    'Room 201',       20, 'c.umutoni@imboni.rw'),
+            ('Drama & Arts Club',   'art',       'Wednesday 3:00–5:00 PM', 'School Hall',    30, 'i.nsabimana@imboni.rw'),
+            ('Community Service',   'community', 'Saturday 8:00 AM–12:00', 'School Campus',  30, 'dos@imboni.rw'),
+        ]
+        activity_objs = {}
+        act_count = 0
+        for name, category, schedule, venue, max_m, teacher_email in activities_data:
+            teacher = users.get(teacher_email)
+            obj, created = Activity.objects.get_or_create(
+                name=name,
+                defaults={
+                    'description': f'{name} — open to all students.',
+                    'category': category,
+                    'schedule': schedule,
+                    'venue': venue,
+                    'max_members': max_m,
+                    'teacher_in_charge': teacher,
+                    'is_active': True,
+                }
+            )
+            activity_objs[name] = obj
+            if created:
+                act_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {act_count} activities created'))
+
+        # ── 21. Activity Events ────────────────────────────────────────────────
+        self.stdout.write('Creating activity events...')
+        events_data = [
+            ('Chess Club',        'Inter-School Chess Tournament',    date(2026, 6, 14), time(9, 0),  time(12, 0), 'Library Room 1'),
+            ('Science Club',      'Science Fair Preparation Session', date(2026, 6, 17), time(15, 0), time(17, 0), 'Science Lab 1'),
+            ('Debate Club',       'Inter-School Debate Competition',  date(2026, 6, 20), time(8, 0),  time(16, 0), 'Room 201'),
+            ('Basketball Team',   'Basketball Match vs. GSO',         date(2026, 6, 21), time(10, 0), time(12, 0), 'Sports Ground'),
+            ('Drama & Arts Club', 'End-of-Term Drama Showcase',       date(2026, 7, 5),  time(17, 0), time(19, 0), 'School Hall'),
+        ]
+        ev_count = 0
+        for act_name, title, ev_date, start, end, venue in events_data:
+            act = activity_objs.get(act_name)
+            if not act:
+                continue
+            _, created = ActivityEvent.objects.get_or_create(
+                activity=act, title=title,
+                defaults={'date': ev_date, 'start_time': start, 'end_time': end, 'venue': venue}
+            )
+            if created:
+                ev_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {ev_count} activity events created'))
+
+        # ── 22. Activity Enrollments ───────────────────────────────────────────
+        self.stdout.write('Enrolling students in activities...')
+        enroll_data = [
+            # student_email, activity_name
+            ('a.uwase@imboni.rw',       'Chess Club'),
+            ('a.uwase@imboni.rw',       'Science Club'),
+            ('a.uwase@imboni.rw',       'Debate Club'),
+            ('m.ingabire@imboni.rw',    'Science Club'),
+            ('m.ingabire@imboni.rw',    'Drama & Arts Club'),
+            ('k.mutabazi@imboni.rw',    'Basketball Team'),
+            ('k.mutabazi@imboni.rw',    'Community Service'),
+            ('d.umutoni@imboni.rw',     'Drama & Arts Club'),
+            ('g.hakizimana.s@imboni.rw','Chess Club'),
+            ('c.uwimana@imboni.rw',     'Debate Club'),
+            ('l.uwineza@imboni.rw',     'Science Club'),
+        ]
+        en_count = 0
+        for s_email, act_name in enroll_data:
+            student = students.get(s_email)
+            act     = activity_objs.get(act_name)
+            if student and act:
+                _, created = ActivityEnrollment.objects.get_or_create(
+                    student=student, activity=act,
+                    defaults={'status': 'active'}
+                )
+                if created:
+                    en_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {en_count} enrollments created'))
+
+        # ── 23. Assignments + Submissions ─────────────────────────────────────
+        self.stdout.write('Creating assignments...')
+        Assignment         = m['Assignment']
+        AssignmentSubmission = m['AssignmentSubmission']
+
+        s4a_class = classes.get('S4A')
+        if s4a_class:
+            # Assignments for S4A — mix of pending, upcoming, and past
+            assignments_data = [
+                # title, subject_code, teacher_email, due_date, description
+                ('Term 2 Mathematics Problem Set',      'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 15), 'Complete exercises 5.1 to 5.4 from the textbook.'),
+                ('English Persuasive Essay',            'ENG', 'c.umutoni@imboni.rw',       date(2026, 6, 12), 'Write a 600-word persuasive essay on the effects of social media on youth.'),
+                ('Physics Lab Report — Projectile',    'PHY', 's.uwera@imboni.rw',         date(2026, 6, 10), 'Write up your lab report from the projectile motion experiment.'),
+                ('Chemistry Worksheet — Reaction Rates','CHE', 't.bizimana@imboni.rw',      date(2026, 6, 20), 'Answer all questions on reaction rates and equilibrium.'),
+                ('History Essay — Colonial Rwanda',    'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 25), 'Discuss the impact of colonialism on Rwandan society and culture (800 words).'),
+                ('Mathematics CAT 2 Preparation Notes','MTH', 'p.rurangwa@imboni.rw',      date(2026, 5, 28), 'Summarise your revision notes for CAT 2 — Algebra & Functions.'),
+                ('Computer Science Design Brief',      'ICT', 'i.nsabimana@imboni.rw',     date(2026, 5, 30), 'Create a design brief for your Term 2 website project.'),
+                ('Biology — Ecosystems Report',        'BIO', 'i.nsabimana@imboni.rw',     date(2026, 5, 20), 'Write a report on the ecosystem you studied in the field trip.'),
+            ]
+            ass_objs = {}
+            ass_count = 0
+            for title, subj_code, teacher_email, due_d, desc in assignments_data:
+                subj    = subjects.get(subj_code)
+                teacher = users.get(teacher_email)
+                if not subj or not teacher:
+                    continue
+                obj, created = Assignment.objects.get_or_create(
+                    title=title, class_obj=s4a_class, term=current_term,
+                    defaults={
+                        'subject': subj,
+                        'teacher': teacher,
+                        'due_date': due_d,
+                        'description': desc,
+                    }
+                )
+                ass_objs[title] = obj
+                if created:
+                    ass_count += 1
+            self.stdout.write(self.style.SUCCESS(f'  {ass_count} assignments created'))
+
+            # Submissions for Amina (a.uwase@imboni.rw)
+            amina = students.get('a.uwase@imboni.rw')
+            if amina:
+                sub_data = [
+                    # assignment_title, status, grade, feedback
+                    ('Mathematics CAT 2 Preparation Notes', 'graded',    85.0, 'Well-structured notes. Excellent coverage of all topics.'),
+                    ('Computer Science Design Brief',       'submitted',  None, ''),
+                ]
+                sub_count = 0
+                for title, sub_status, grade, feedback in sub_data:
+                    ass = ass_objs.get(title)
+                    if ass:
+                        _, created = AssignmentSubmission.objects.get_or_create(
+                            assignment=ass, student=amina,
+                            defaults={'status': sub_status, 'grade': grade, 'feedback': feedback, 'notes': ''}
+                        )
+                        if created:
+                            sub_count += 1
+                self.stdout.write(self.style.SUCCESS(f'  {sub_count} assignment submissions created for Amina'))
+        else:
+            self.stdout.write(self.style.WARNING('  S4A class not found — skipping assignments'))
 
         # ── Done ───────────────────────────────────────────────────────────────
         self.stdout.write('')

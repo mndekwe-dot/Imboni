@@ -1,283 +1,168 @@
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
-import { useState } from 'react'
-import { LeaderModal } from '../../components/modals/LeaderModal'
-import { DormitoryCaptainModal } from '../../components/modals/DormitoryCaptainModal'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { getDisStudentLeaders } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
-
-
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
-const leaderStats = [
-    { iconClass: 'info', icon: 'military_tech', value: '12', label: 'Total Prefects', trend: 'Head Boy & Girl included', trendClass: 'positive' },
-    { iconClass: 'success', icon: 'home', value: '8', label: 'Dormitory Captains', trend: '4 Dormitories, 2 per dormitory', trendClass: 'positive' },
-    { iconClass: 'warning', icon: 'groups', value: '18', label: 'Club Leaders', trend: 'All active clubs', trendClass: 'positive' },
-    { iconClass: 'positive', icon: 'report', value: '1', label: 'Conduct Issues', trend: 'Needs review', trendClass: 'negative' },
-]
-
-const prefects = [
-    { avClass: 'patron', initials: 'UC', name: 'Uwimana Clarisse', role: 'Head Girl', form: 'S4A', badge: 'Head Prefect', badgeClass: 'active', house: 'Karisimbi', appointed: 'Jan 20, 2026', issues: '0 conduct issues', issueClass: 'disc-points-pos' ,adm:234},
-    { avClass: 'patron', initials: 'HK', name: 'Habimana Kevin', role: 'Head Boy', form: 'S4B', badge: 'Head Prefect', badgeClass: 'active', house: 'Muhabura', appointed: 'Jan 20, 2026', issues: '0 conduct issues', issueClass: 'disc-points-pos' ,adm:235},
-    { avClass: 'matron', initials: 'HG', name: 'Hakizimana Grace', role: 'Deputy Head Girl', form: 'S4A', badge: 'Dep. Prefect', badgeClass: 'active', house: 'Bisoke', appointed: 'Jan 20, 2026', issues: '0 conduct issues', issueClass: 'disc-points-pos' ,adm:236},
-    { avClass: 'patron', initials: 'ND', name: 'Nkurunziza David', role: 'Deputy Head Boy', form: 'S4C', badge: 'Dep. Prefect', badgeClass: 'draft', house: 'Sabyinyo', appointed: 'Jan 20, 2026', issues: '1 conduct issue', issueClass: 'disc-points-neg' ,adm:237},
-    { avClass: 'matron', initials: 'MJ', name: 'Mukamazimpaka Joy', role: 'Games Prefect', form: 'S3A', badge: 'Prefect', badgeClass: 'active', house: 'Karisimbi', appointed: 'Jan 20, 2026', issues: '0 conduct issues', issueClass: 'disc-points-pos' ,adm:238},
-    { avClass: 'patron', initials: 'NF', name: 'Ndayishimiye Felix', role: 'Discipline Prefect', form: 'S3B', badge: 'Prefect', badgeClass: 'active', house: 'Muhabura', appointed: 'Jan 20, 2026', issues: '0 conduct issues', issueClass: 'disc-points-pos' ,adm:239},
-]
-
-const initialCaptains = [
-    { id: 1, dormKey: 'karisimbi', name: 'Uwineza Lydia',    adm: '2023-S3-011', form: 'S3A', gender: 'Girls', since: 'Jan 20, 2026', conduct: 'Clean record', conductClass: 'disc-points-pos' },
-    { id: 2, dormKey: 'bisoke',    name: 'Nyirabeza Mercy',  adm: '2023-S3-042', form: 'S3B', gender: 'Girls', since: 'Jan 20, 2026', conduct: 'Clean record', conductClass: 'disc-points-pos' },
-    { id: 3, dormKey: 'muhabura',  name: 'Nkurunziza Peter', adm: '2023-S3-055', form: 'S3C', gender: 'Boys',  since: 'Jan 20, 2026', conduct: 'Clean record', conductClass: 'disc-points-pos' },
-    { id: 4, dormKey: 'sabyinyo',  name: 'Habimana Moses',   adm: '2023-S3-078', form: 'S3B', gender: 'Boys',  since: 'Jan 20, 2026', conduct: 'Clean record', conductClass: 'disc-points-pos' },
-]
-
-const DORM_LABEL = { karisimbi: 'Karisimbi', bisoke: 'Bisoke', muhabura: 'Muhabura', sabyinyo: 'Sabyinyo' }
-
-function LeaderStat({ iconClass, icon, value, label, trend, trendClass }) {
-    return (
-        <div className="disc-stat-card">
-            <div className={`disc-stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-            <div>
-                <div className="disc-stat-value">{value}</div>
-                <div className="disc-stat-label">{label}</div>
-                <div className={`disc-stat-trend ${trendClass}`}>{trend}</div>
-            </div>
-        </div>
-    )
+const ROLE_DISPLAY = {
+    head_boy:          'Head Boy',
+    head_girl:         'Head Girl',
+    deputy_head_boy:   'Deputy Head Boy',
+    deputy_head_girl:  'Deputy Head Girl',
+    prefect:           'Prefect',
+    house_captain:     'House Captain',
+    class_captain:     'Class Captain',
+    games_captain:     'Games Captain',
 }
 
-function PrefectCard({ avClass, initials, name, role, form, badge, badgeClass, house, appointed, issues, issueClass, onEdit, adm }) {
+const PREFECT_ROLES = new Set(['head_boy','head_girl','deputy_head_boy','deputy_head_girl','prefect','class_captain','games_captain'])
+
+function initials(name = '') {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+}
+
+function isHeadRole(role) {
+    return ['head_boy','head_girl','deputy_head_boy','deputy_head_girl'].includes(role)
+}
+
+function PrefectCard({ leader }) {
+    const { student_name, student_id, grade, section, role, appointed_date, notes } = leader
+    const cls       = `${grade || ''}${section || ''}`
+    const roleLabel = ROLE_DISPLAY[role] || role
+    const badgeCls  = isHeadRole(role) ? 'active' : 'draft'
+    const badgeText = isHeadRole(role) ? 'Head Prefect' : 'Prefect'
     return (
         <div className="staff-card">
             <div className="staff-card-top">
-                <div className={`staff-card-avatar ${avClass}`}>{initials}</div>
+                <div className="staff-card-avatar patron">{initials(student_name)}</div>
                 <div>
-                    <div className="staff-card-name">{name}</div>
-                    <div className="staff-card-role">{role} &bull; {form}</div>
+                    <div className="staff-card-name">{student_name}</div>
+                    <div className="staff-card-role">{roleLabel} &bull; {cls}</div>
                 </div>
-                <span className={`pub-badge ${badgeClass} ml-auto`}>{badge}</span>
+                <span className={`pub-badge ${badgeCls} ml-auto`}>{badgeText}</span>
             </div>
             <div className="staff-card-meta">
-                <span><span className="material-symbols-rounded">military_tech</span>{role}</span>
-                <span><span className="material-symbols-rounded">home</span>{house} Dormitory</span>
-                <span><span className="material-symbols-rounded">calendar_today</span>Appointed: {appointed}</span>
-                <span><span className="material-symbols-rounded">report</span><span className={issueClass}>{issues}</span></span>
+                <span><span className="material-symbols-rounded">badge</span>{student_id}</span>
+                <span><span className="material-symbols-rounded">military_tech</span>{roleLabel}</span>
+                {appointed_date && <span><span className="material-symbols-rounded">calendar_today</span>Appointed: {appointed_date}</span>}
+                {notes && <span><span className="material-symbols-rounded">notes</span>{notes}</span>}
             </div>
             <div className="staff-card-actions">
                 <button className="btn btn-secondary btn-sm">View Profile</button>
-                <button className="btn btn-primary btn-sm" onClick={() => onEdit({ adm, name, role, form, badge, house, appointed })}><span className="material-symbols-rounded">edit</span> Edit</button>
             </div>
         </div>
     )
 }
 
-function CaptainRow({ captain, onEdit, onRemove, confirmId, onConfirmRemove, onCancelRemove }) {
-    const isConfirming = confirmId === captain.id
+function CaptainRow({ leader }) {
+    const { student_name, student_id, grade, section, role, notes, appointed_date } = leader
+    const cls = `${grade || ''}${section || ''}`
     return (
         <tr>
-            <td><span className={`disc-badge ${captain.dormKey}`}>{DORM_LABEL[captain.dormKey]}</span></td>
-            <td><strong>{captain.name}</strong> <span className="class-chip">{captain.form}</span></td>
-            <td><span className="text-muted text-sm-muted">{captain.adm}</span></td>
-            <td>{captain.since}</td>
-            <td><span className={captain.conductClass}>{captain.conduct}</span></td>
-            <td className="action-cell">
-                {isConfirming ? (
-                    <>
-                        <span className="remove-confirm-text">Remove captain?</span>
-                        <button className="btn btn-primary btn-sm" onClick={() => onConfirmRemove(captain.id)}>Yes</button>
-                        <button className="btn btn-outline btn-sm" onClick={onCancelRemove}>No</button>
-                    </>
-                ) : (
-                    <>
-                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(captain)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> Edit
-                        </button>
-                        <button className="btn btn-outline btn-sm" onClick={() => onRemove(captain.id)}>
-                            <span className="material-symbols-rounded icon-sm">delete</span> Remove
-                        </button>
-                    </>
-                )}
-            </td>
+            <td><strong>{student_name}</strong> <span className="class-chip">{cls}</span></td>
+            <td><span className="text-muted text-sm-muted">{student_id}</span></td>
+            <td>{ROLE_DISPLAY[role] || role}</td>
+            <td className="text-muted">{appointed_date || '—'}</td>
+            <td>{notes || <span style={{ color: 'var(--muted-foreground)' }}>—</span>}</td>
         </tr>
     )
 }
 
 export function DisStudentLeaders() {
-    const [showAddModal, setShowAddModal] = useState(false)
-    const [editingLeader, setEditingLeader] = useState(null)
+    const [leaders,  setLeaders]  = useState([])
+    const [loading,  setLoading]  = useState(true)
 
-    // Dormitory captains state
-    const [captains, setCaptains] = useState(initialCaptains)
-    const [captainModal, setCaptainModal] = useState(null) // null | 'add' | captain-object
-    const [confirmRemoveId, setConfirmRemoveId] = useState(null)
-    let nextId = captains.length + 1
+    useEffect(() => {
+        getDisStudentLeaders()
+            .then(setLeaders)
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
 
-    function handleAddCaptain(data) {
-        setCaptains(prev => [...prev, { ...data, id: nextId++, conductClass: 'disc-points-pos' }])
-    }
-    function handleEditCaptain(data) {
-        setCaptains(prev => prev.map(c => c.id === captainModal.id ? { ...c, ...data } : c))
-    }
-    function handleRemoveCaptain(id) {
-        setCaptains(prev => prev.filter(c => c.id !== id))
-        setConfirmRemoveId(null)
-    }
+    const prefects  = leaders.filter(l => PREFECT_ROLES.has(l.role))
+    const captains  = leaders.filter(l => l.role === 'house_captain')
 
-    const girlsCaptains = captains.filter(c => c.gender === 'Girls')
-    const boysCaptains  = captains.filter(c => c.gender === 'Boys')
+    const stats = [
+        { iconClass: 'info',    icon: 'military_tech',     value: prefects.length,  label: 'Total Prefects'     },
+        { iconClass: 'success', icon: 'home',              value: captains.length,  label: 'House Captains'     },
+        { iconClass: 'warning', icon: 'groups',            value: leaders.length,   label: 'Total Leaders'      },
+    ]
 
     return (
         <>
-            {showAddModal && (
-                <LeaderModal
-                    onSave={(leader) => { console.log('Leader added:', leader) }}
-                    onClose={() => setShowAddModal(false)}
-                />
-            )}
-            {editingLeader && (
-                <LeaderModal
-                    leader={editingLeader}
-                    onSave={(updatedLeader) => { console.log('Leader updated:', updatedLeader) }}
-                    onClose={() => setEditingLeader(null)}
-                />
-            )}
-            {captainModal === 'add' && (
-                <DormitoryCaptainModal
-                    onSave={handleAddCaptain}
-                    onClose={() => setCaptainModal(null)}
-                />
-            )}
-            {captainModal && captainModal !== 'add' && (
-                <DormitoryCaptainModal
-                    captain={captainModal}
-                    onSave={handleEditCaptain}
-                    onClose={() => setCaptainModal(null)}
-                />
-            )}
             <a href="#main-content" className="skip-link">Skip to content</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Student Leaders" subtitle="Manage prefects, dormitory captains and club leaders" {...disUser} />
+                    <DashboardHeader title="Student Leaders" subtitle="Prefects, house captains and club leaders" {...disUser} />
 
                     <DashboardContent>
 
                         <div className="disc-stat-grid">
-                            {leaderStats.map((stat, index) => (
-                                <LeaderStat key={index} {...stat} />
+                            {stats.map((s, i) => (
+                                <div key={i} className="disc-stat-card">
+                                    <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
+                                    <div>
+                                        <div className="disc-stat-value">{loading ? '—' : s.value}</div>
+                                        <div className="disc-stat-label">{s.label}</div>
+                                    </div>
+                                </div>
                             ))}
                         </div>
 
-                        <div className="section-toolbar-row">
-                            <div className="filter-tabs-bar mb-0">
-                                <button className="filter-tab active">All Leaders</button>
-                                <button className="filter-tab">Prefects</button>
-                                <button className="filter-tab">Dormitory Captains</button>
-                                <button className="filter-tab">Club Leaders</button>
-                                <button className="filter-tab">Class Reps</button>
-                            </div>
-                            <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
-                                <span className="material-symbols-rounded">add</span> Add Leader
-                            </button>
-                        </div>
-
-                        <div className="staff-cards-grid">
-                            {prefects.map((prefect, index) => (
-                                <PrefectCard key={index} {...prefect} onEdit={(leader) => setEditingLeader(leader)} />
-                            ))}
-                        </div>
-
-                        <div className="card mt-1-5">
-                            <div className="card-header">
-                                <h2 className="card-title">
-                                    <span className="material-symbols-rounded">home</span> Dormitory Captains
-                                </h2>
-                                <button className="btn btn-primary btn-sm" onClick={() => setCaptainModal('add')}>
-                                    <span className="material-symbols-rounded">add</span> Add Captain
-                                </button>
-                            </div>
-                            <div className="card-content">
-
-                                {/* Girls dormitories */}
-                                <div className="mb-5">
-                                    <div className="dorm-section-header female">
-                                        <span className="material-symbols-rounded">female</span>
-                                        Girls Dormitories
+                        {loading ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading leaders…</p>
+                        ) : (
+                            <>
+                                {/* Prefects */}
+                                <div className="disc-section-header mb-5">
+                                    <div className="disc-section-title"><span className="material-symbols-rounded">military_tech</span> Prefects</div>
+                                    <span className="badge">{prefects.length}</span>
+                                </div>
+                                {prefects.length === 0 ? (
+                                    <p style={{ color: 'var(--muted-foreground)', marginBottom: '1.5rem' }}>No prefects appointed this term.</p>
+                                ) : (
+                                    <div className="staff-cards-grid mb-1-5">
+                                        {prefects.map(l => <PrefectCard key={l.id} leader={l} />)}
                                     </div>
-                                    <div className="disc-table-wrap">
-                                        <table className="disc-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Dormitory</th>
-                                                    <th>Captain</th>
-                                                    <th>ADM</th>
-                                                    <th>Since</th>
-                                                    <th>Conduct</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {girlsCaptains.length === 0 ? (
-                                                    <tr><td colSpan={6} className="td-italic-muted">No captains assigned</td></tr>
-                                                ) : girlsCaptains.map(c => (
-                                                    <CaptainRow
-                                                        key={c.id}
-                                                        captain={c}
-                                                        confirmId={confirmRemoveId}
-                                                        onEdit={setCaptainModal}
-                                                        onRemove={setConfirmRemoveId}
-                                                        onConfirmRemove={handleRemoveCaptain}
-                                                        onCancelRemove={() => setConfirmRemoveId(null)}
-                                                    />
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                )}
+
+                                {/* House Captains */}
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h2 className="card-title"><span className="material-symbols-rounded">home</span> House Captains</h2>
+                                        <span className="badge">{captains.length}</span>
+                                    </div>
+                                    <div className="card-content">
+                                        {captains.length === 0 ? (
+                                            <p style={{ color: 'var(--muted-foreground)' }}>No house captains appointed this term.</p>
+                                        ) : (
+                                            <div className="disc-table-wrap">
+                                                <table className="disc-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Student</th>
+                                                            <th>Student ID</th>
+                                                            <th>Role</th>
+                                                            <th>Appointed</th>
+                                                            <th>Notes</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {captains.map(l => <CaptainRow key={l.id} leader={l} />)}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-
-                                {/* Boys dormitories */}
-                                <div>
-                                    <div className="dorm-section-header male">
-                                        <span className="material-symbols-rounded">male</span>
-                                        Boys Dormitories
-                                    </div>
-                                    <div className="disc-table-wrap">
-                                        <table className="disc-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Dormitory</th>
-                                                    <th>Captain</th>
-                                                    <th>ADM</th>
-                                                    <th>Since</th>
-                                                    <th>Conduct</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {boysCaptains.length === 0 ? (
-                                                    <tr><td colSpan={6} className="td-italic-muted">No captains assigned</td></tr>
-                                                ) : boysCaptains.map(c => (
-                                                    <CaptainRow
-                                                        key={c.id}
-                                                        captain={c}
-                                                        confirmId={confirmRemoveId}
-                                                        onEdit={setCaptainModal}
-                                                        onRemove={setConfirmRemoveId}
-                                                        onConfirmRemove={handleRemoveCaptain}
-                                                        onCancelRemove={() => setConfirmRemoveId(null)}
-                                                    />
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
+                            </>
+                        )}
 
                     </DashboardContent>
                 </main>

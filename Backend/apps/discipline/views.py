@@ -11,7 +11,53 @@ from .serializers import (
 )
 from apps.behavior.models import BehaviorReport, ConductGrade
 from apps.behavior.serializers import BehaviorReportSerializer
-from apps.authentication.permissions import IsDiscipline,IsMatron
+from django.utils import timezone
+from apps.authentication.permissions import IsDiscipline, IsMatron, IsDisciplineOrMatron
+
+
+def _get_or_create_conversation(user_a, user_b, subject=''):
+    """Find a 1-to-1 conversation between two users, or create one."""
+    from apps.messages.models import Conversation
+    conv = (
+        Conversation.objects
+        .filter(participants=user_a, is_group=False)
+        .filter(participants=user_b)
+        .first()
+    )
+    if not conv:
+        conv = Conversation.objects.create(subject=subject, is_group=False)
+        conv.participants.add(user_a, user_b)
+    return conv
+
+
+def _send_review_message(dis_user, matron_user, report, action, notes=''):
+    """Send an automatic message from DIS to the matron after reviewing a report."""
+    from apps.messages.models import Message
+    student_name = report.student.user.get_full_name()
+    if action == 'approved':
+        content = (
+            f"✅ Report Approved\n\n"
+            f"Your conduct report \"{report.title}\" for {student_name} has been reviewed and approved.\n"
+            f"It is now active in the student's conduct record."
+        )
+        if notes:
+            content += f"\n\nNote: {notes}"
+    else:
+        content = (
+            f"❌ Report Not Approved\n\n"
+            f"Your conduct report \"{report.title}\" for {student_name} was not approved."
+        )
+        if notes:
+            content += f"\n\nReason: {notes}"
+        else:
+            content += "\n\nPlease review and resubmit if needed."
+    conv = _get_or_create_conversation(
+        dis_user, matron_user,
+        subject=f"Conduct Report Review — {student_name}",
+    )
+    Message.objects.create(conversation=conv, sender=dis_user, content=content)
+    conv.updated_at = timezone.now()
+    conv.save(update_fields=['updated_at'])
 
 
 # Dashboard
@@ -62,6 +108,8 @@ class DisciplineDashboardView(APIView):
                 'id': str(r.id),
                 'student': r.student.user.get_full_name(),
                 'student_id': r.student.student_id,
+                'grade': r.student.grade,
+                'section': r.student.section,
                 'title': r.title,
                 'report_type': r.report_type,
                 'severity': r.severity,
@@ -92,12 +140,21 @@ class DisciplineDashboardView(APIView):
 
 class DisciplineReportListView(APIView):
     """
-    All behavior reports with filtering. Also exposes pending follow-up queue.
+    GET  — list all behavior reports (Discipline only)
+    POST — create a new behavior report (Discipline or Matron)
 
     GET /imboni/discipline/reports/
     Optional: ?type=incident|warning|positive|achievement  ?student=<name>  ?pending=true
+
+    POST body: { student_id, report_type, title, description, date,
+                 severity?, location?, action_taken?, follow_up_required?, follow_up_date? }
+    reported_by is set automatically from the authenticated user.
     """
-    permission_classes = [IsDiscipline]
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsDisciplineOrMatron()]
+        return [IsDiscipline()]
+
     def get(self, request):
         qs = (
             BehaviorReport.objects
@@ -122,8 +179,12 @@ class DisciplineReportListView(APIView):
         if request.query_params.get('pending') == 'true':
             qs = qs.filter(follow_up_required=True, follow_up_completed=False)
 
+        status_filter = request.query_params.get('status')
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+
         data = []
-        for r in qs[:100]:
+        for r in qs.select_related('reviewed_by')[:100]:
             data.append({
                 'id': str(r.id),
                 'student': r.student.user.get_full_name(),
@@ -141,9 +202,67 @@ class DisciplineReportListView(APIView):
                 'parents_notified': r.parents_notified,
                 'follow_up_required': r.follow_up_required,
                 'follow_up_completed': r.follow_up_completed,
+                'status': r.status,
+                'reviewed_by': r.reviewed_by.get_full_name() if r.reviewed_by else None,
+                'reviewed_at': r.reviewed_at.isoformat() if r.reviewed_at else None,
+                'review_notes': r.review_notes,
             })
 
         return Response(data)
+
+    def post(self, request):
+        from apps.student.models import Student
+
+        try:
+            student = Student.objects.get(pk=request.data.get('student_id'))
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        required = ['report_type', 'title', 'description', 'date']
+        for field in required:
+            if not request.data.get(field):
+                return Response({'error': f'{field} is required.'}, status=400)
+
+        # Matron reports go to pending review; discipline reports are auto-approved
+        report_status = 'pending_review' if request.user.role == 'matron' else 'approved'
+
+        report = BehaviorReport.objects.create(
+            student=student,
+            report_type=request.data['report_type'],
+            severity=request.data.get('severity') or None,
+            title=request.data['title'],
+            description=request.data['description'],
+            date=request.data['date'],
+            location=request.data.get('location', ''),
+            action_taken=request.data.get('action_taken', ''),
+            follow_up_required=bool(request.data.get('follow_up_required', False)),
+            follow_up_date=request.data.get('follow_up_date') or None,
+            reported_by=request.user,
+            status=report_status,
+        )
+
+        return Response({
+            'id': str(report.id),
+            'student': student.user.get_full_name(),
+            'student_id': student.student_id,
+            'grade': student.grade,
+            'section': student.section,
+            'title': report.title,
+            'report_type': report.report_type,
+            'severity': report.severity,
+            'description': report.description,
+            'date': str(report.date),
+            'location': report.location,
+            'action_taken': report.action_taken,
+            'reported_by': request.user.get_full_name(),
+            'follow_up_required': report.follow_up_required,
+            'follow_up_date': str(report.follow_up_date) if report.follow_up_date else None,
+            'follow_up_completed': report.follow_up_completed,
+            'status': report.status,
+            'reviewed_by': None,
+            'reviewed_at': None,
+            'review_notes': '',
+        }, status=201)
 
 
 class DisciplineReportDetailView(APIView):
@@ -195,6 +314,55 @@ class DisciplineReportDetailView(APIView):
                 setattr(r, field, request.data[field])
         r.save()
         return Response({'message': 'Report updated.'})
+
+
+class DisciplineReportReviewView(APIView):
+    """
+    Approve or reject a matron-submitted behavior report.
+
+    POST /imboni/discipline/reports/<pk>/review/
+    Body: { action: 'approve' | 'reject', notes?: string }
+
+    Only the Director of Discipline can call this.
+    On approval a message is automatically sent to the matron who filed the report.
+    """
+    permission_classes = [IsDiscipline]
+
+    def post(self, request, pk):
+        try:
+            report = BehaviorReport.objects.select_related(
+                'student__user', 'reported_by'
+            ).get(pk=pk)
+        except BehaviorReport.DoesNotExist:
+            return Response({'error': 'Report not found.'}, status=404)
+
+        if report.status != 'pending_review':
+            return Response({'error': 'This report has already been reviewed.'}, status=400)
+
+        action = request.data.get('action')
+        if action not in ('approve', 'reject'):
+            return Response({'error': 'action must be "approve" or "reject".'}, status=400)
+
+        notes = request.data.get('notes', '')
+
+        report.status      = 'approved' if action == 'approve' else 'rejected'
+        report.reviewed_by = request.user
+        report.reviewed_at = timezone.now()
+        report.review_notes = notes
+        report.save(update_fields=['status', 'reviewed_by', 'reviewed_at', 'review_notes'])
+
+        # Send automatic message to the matron who filed the report
+        if report.reported_by and report.reported_by.role == 'matron':
+            _send_review_message(request.user, report.reported_by, report, action, notes)
+
+        return Response({
+            'id': str(report.id),
+            'status': report.status,
+            'reviewed_by': request.user.get_full_name(),
+            'reviewed_at': report.reviewed_at.isoformat(),
+            'review_notes': notes,
+            'message_sent': bool(report.reported_by and report.reported_by.role == 'matron'),
+        })
 
 
 # Student Conduct
@@ -858,3 +1026,67 @@ class ExtracurricularEntryDetailView(APIView):
             return Response({'error': 'Not found'}, status=404)
         entry.delete()
         return Response(status=204)
+
+
+# ---------------------------------------------------------------------------
+# Announcements (discipline director view)
+# ---------------------------------------------------------------------------
+
+class DisciplineAnnouncementView(APIView):
+    """
+    GET  /imboni/discipline/announcements/  — list all announcements
+    POST /imboni/discipline/announcements/  — create a new announcement
+    """
+    permission_classes = [IsDiscipline]
+
+    def get(self, request):
+        from apps.announcements.models import Announcement
+        qs = Announcement.objects.select_related('author').order_by('-created_at')[:100]
+        data = []
+        for a in qs:
+            data.append({
+                'id':              str(a.id),
+                'title':           a.title,
+                'content':         a.content,
+                'category':        a.category,
+                'target_audience': a.target_audience,
+                'status':          a.status,
+                'author':          a.author.get_full_name() if a.author else '',
+                'published_at':    str(a.published_at) if a.published_at else None,
+                'created_at':      str(a.created_at),
+            })
+        return Response(data)
+
+    def post(self, request):
+        from apps.announcements.models import Announcement
+        from django.utils import timezone
+
+        title    = request.data.get('title', '').strip()
+        content  = request.data.get('content', '').strip()
+        category = request.data.get('category', 'general')
+        audience = request.data.get('target_audience', 'all')
+        status   = request.data.get('status', 'published')
+
+        if not title or not content:
+            return Response({'error': 'Title and content are required.'}, status=400)
+
+        announcement = Announcement.objects.create(
+            title=title,
+            content=content,
+            category=category,
+            target_audience=audience,
+            author=request.user,
+            status=status,
+            published_at=timezone.now() if status == 'published' else None,
+        )
+        return Response({
+            'id':              str(announcement.id),
+            'title':           announcement.title,
+            'content':         announcement.content,
+            'category':        announcement.category,
+            'target_audience': announcement.target_audience,
+            'status':          announcement.status,
+            'author':          request.user.get_full_name(),
+            'published_at':    str(announcement.published_at) if announcement.published_at else None,
+            'created_at':      str(announcement.created_at),
+        }, status=201)

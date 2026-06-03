@@ -1,6 +1,43 @@
 import '../../styles/discipline.css'
 
-export function ClassPicker({ sections, section, onSectionChange, year, onYearChange, classVal, onClassChange }) {
+export function ClassPicker({
+    sections = [],
+    // dropdown mode props
+    section, onSectionChange, year, onYearChange, classVal, onClassChange,
+    // chip mode props — pass either `classes` (flat string[]) or let it derive from `sections`
+    variant, classes, value, onChange,
+}) {
+    // ── Chip variant ──────────────────────────────────────────────────────────
+    if (variant === 'chips') {
+        // sections[].years = [{name:"S1", streams:["A","B"]}, ...]
+        const allClasses = classes ?? sections.flatMap(sec =>
+            (sec.years || []).flatMap(y =>
+                (y.streams || []).map(stream => `${y.name}${stream}`)
+            )
+        )
+
+        return (
+            <div className="disc-chip-picker">
+                <span className="disc-chip-picker-label">Class</span>
+                <div className="disc-chip-list">
+                    <button
+                        className={`disc-class-chip${!value ? ' active' : ''}`}
+                        onClick={() => onChange('')}
+                    >All</button>
+                    {allClasses.map(key => (
+                        <button
+                            key={key}
+                            className={`disc-class-chip${value === key ? ' active' : ''}`}
+                            onClick={() => onChange(value === key ? '' : key)}
+                        >{key}</button>
+                    ))}
+                </div>
+            </div>
+        )
+    }
+
+    // ── Dropdown variant (default — used by Teacher, Matron, DOS pages) ───────
+    // sections[].years = [{name:"S1", streams:["A","B"]}, ...]
     const activeSection = sections.find(s => s.name === section)
 
     const yearOptions = activeSection

@@ -8,6 +8,7 @@ urlpatterns = [
     # Behavior Reports
     path('discipline/reports/',                             views.DisciplineReportListView.as_view(),        name='discipline-reports'),
     path('discipline/reports/<uuid:pk>/',                   views.DisciplineReportDetailView.as_view(),      name='discipline-report-detail'),
+    path('discipline/reports/<uuid:pk>/review/',            views.DisciplineReportReviewView.as_view(),      name='discipline-report-review'),
 
     # Student Conduct
     path('discipline/students/',                            views.DisciplineStudentListView.as_view(),       name='discipline-students'),
@@ -39,4 +40,7 @@ urlpatterns = [
     # Extracurricular schedule CRUD
     path('discipline/extracurricular/',                     views.ExtracurricularEntryListView.as_view(),    name='discipline-extracurricular'),
     path('discipline/extracurricular/<uuid:pk>/',           views.ExtracurricularEntryDetailView.as_view(),  name='discipline-extracurricular-detail'),
+
+    # Announcements
+    path('discipline/announcements/',                       views.DisciplineAnnouncementView.as_view(),      name='discipline-announcements'),
 ]

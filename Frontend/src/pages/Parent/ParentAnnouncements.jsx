@@ -1,42 +1,133 @@
-import { AnnouncementFeed } from '../../components/announcements/AnnouncementFeed'
+import { useState, useEffect } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { StatCard } from '../../components/layout/StatCard'
-import '../../styles/parent.css'
+import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { getPublishedAnnouncements, getAnnouncementStats } from '../../api/parent'
+import '../../styles/layout.css'
+import '../../styles/components.css'
+import '../../styles/parent.css'
 
+const CATEGORY_ICON = {
+    urgent:   'priority_high',
+    academic: 'school',
+    event:    'emoji_events',
+    general:  'campaign',
+}
 
-const announcements = [
-    { type: 'urgent',  icon: 'priority_high',  title: 'National Exam Preparation — Important Notice',  date: 'April 15, 2026',    author: 'School Administration', audience: 'School-wide',    body: 'S4 and S6 students will begin intensive national exam preparation from May 10, 2026. Additional evening study sessions will be organised. Parents are urged to ensure students are well-rested and prepared.',                                  isUnread: true  },
-    { type: 'school',  icon: 'campaign',        title: 'Term 2 Exam Schedule Released',                 date: 'April 10, 2026',    author: 'Dr. Jean-Claude Ndagijimana — Director of Studies', audience: 'School-wide', body: "The Term 2 exam schedule has been published. Exams run May 4\u20138, 2026. Please check your child\u2019s specific timetable in the Results section.",                                                            isUnread: true  },
-    { type: 'event',   icon: 'groups',          title: 'Parent-Teacher Conference \u2014 April 25',     date: 'April 5, 2026',     author: 'Administration',        audience: 'School-wide',    body: 'We invite all parents for a one-on-one progress discussion on Saturday, April 25. Meetings will be held in the main hall from 2:00 PM. Booking is required — please confirm via the parent portal.',                                         isUnread: false },
-    { type: 'event',   icon: 'brand_awareness', title: 'Umuco Fest \u2014 Cultural Festival',            date: 'April 2, 2026',     author: 'Dr. Alphonse Nkurunziza — Principal',  audience: 'School-wide',    body: 'Imboni Academy will host the annual Umuco Fest cultural festival on Saturday, May 2, 2026. All students and parents are invited. S4A students are leading the event committee.',                                isUnread: false },
-    { type: 'class',   icon: 'calculate',       title: 'S4 Mathematics Competition Registration',        date: 'March 28, 2026',    author: 'Mr. Pacifique Rurangwa', audience: 'Class-specific', body: 'Registration for the inter-school mathematics competition is open for S4 students. Interested students should register at the DOS office by April 10.',                                                                              isUnread: false },
-    { type: 'general', icon: 'info',            title: 'Boarding Fees \u2014 Term 2 Reminder',           date: 'March 20, 2026',    author: 'Mr. Olivier Habimana — Finance',      audience: 'School-wide',    body: 'Term 2 boarding and tuition fees are due by April 30, 2026. Parents who have not yet cleared their balance are urged to contact the finance office at their earliest convenience.',                                isUnread: false },
-]
+const AUDIENCE_LABEL = {
+    all:             'School-wide',
+    students:        'Students',
+    teachers:        'Teachers',
+    parents:         'Parents',
+    grade_specific:  'Grade-specific',
+}
 
-const topPanel = (
-    <div className="portal-stat-grid mb-5">
-        <StatCard colorClass="info"    icon="inbox"             value="6" label="Total Messages"  trend="Inbox"   />
-        <StatCard colorClass="warning" icon="mark_email_unread" value="2" label="Unread"           trend="New"     />
-        <StatCard colorClass="danger"  icon="priority_high"     value="1" label="Urgent"           trend="Action needed" />
-        <StatCard colorClass="success" icon="event"             value="2" label="Upcoming Events"  trend="This month" />
-    </div>
-)
+const CHIPS = ['All', 'Urgent', 'Academic', 'Events', 'General']
+
+function AnnouncementItem({ ann }) {
+    const icon    = CATEGORY_ICON[ann.category] || 'campaign'
+    const audience = AUDIENCE_LABEL[ann.target_audience] || ann.target_audience
+    const date     = ann.published_at || ann.created_at
+    const dateStr  = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+
+    return (
+        <div className={`announcement-item type-${ann.category || 'general'}`}>
+            <div className="ann-icon-wrap">
+                <span className="material-symbols-rounded">{icon}</span>
+            </div>
+            <div className="ann-content">
+                <div className="ann-meta">
+                    <span className={`ann-chip type-${ann.category}`}>{(ann.category || 'general').toUpperCase()}</span>
+                    <span className="ann-audience">{audience}</span>
+                    <span className="ann-date">{dateStr}</span>
+                </div>
+                <h4 className="ann-title">{ann.title}</h4>
+                <p className="ann-body">{ann.content}</p>
+                <p className="ann-author">— {ann.author_name || 'Administration'}</p>
+            </div>
+        </div>
+    )
+}
 
 export function ParentAnnouncements() {
+    const [announcements, setAnnouncements] = useState([])
+    const [stats,         setStats]         = useState(null)
+    const [loading,       setLoading]       = useState(true)
+    const [chip,          setChip]          = useState('All')
+
+    useEffect(() => {
+        Promise.all([
+            getPublishedAnnouncements().catch(() => []),
+            getAnnouncementStats().catch(() => null),
+        ]).then(([anns, s]) => {
+            setAnnouncements(anns)
+            setStats(s)
+        }).finally(() => setLoading(false))
+    }, [])
+
+    const urgentCount = announcements.filter(a => a.category === 'urgent').length
+    const eventCount  = announcements.filter(a => a.category === 'event').length
+
+    const statCards = [
+        { colorClass: 'info',    icon: 'inbox',             value: loading ? '—' : announcements.length, label: 'Total',           trend: 'Published'       },
+        { colorClass: 'warning', icon: 'mark_email_unread', value: loading ? '—' : (stats?.unread ?? '—'), label: 'Unread',         trend: 'New'             },
+        { colorClass: 'danger',  icon: 'priority_high',     value: loading ? '—' : urgentCount,           label: 'Urgent',          trend: 'Action needed'   },
+        { colorClass: 'success', icon: 'event',             value: loading ? '—' : eventCount,            label: 'Upcoming Events', trend: 'This month'      },
+    ]
+
+    const visible = chip === 'All'
+        ? announcements
+        : announcements.filter(a => {
+            if (chip === 'Urgent')   return a.category === 'urgent'
+            if (chip === 'Academic') return a.category === 'academic'
+            if (chip === 'Events')   return a.category === 'event'
+            if (chip === 'General')  return a.category === 'general'
+            return true
+        })
+
     return (
-        <AnnouncementFeed
-            navItems={parentNavItems}
-            secondaryItems={parentSecondaryItems}
-            title="Announcements"
-            subtitle="Stay updated with school news and notifications"
-            userName="Mrs. Chantal Uwase"
-            userRole="Parent"
-            userInitials="CU"
-            avatarClass="parent-av"
-            notifications={parentUser.notifications}
-            announcements={announcements}
-            chips={['All', 'School-wide', 'Class', 'Urgent', 'Events']}
-            topPanel={topPanel}
-        />
+        <>
+            <a href="#main-content" className="skip-link">Skip to content</a>
+            <div className="sidebar-overlay"></div>
+            <div className="dashboard-layout">
+                <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
+                <main className="dashboard-main" id="main-content">
+                    <DashboardHeader
+                        title="Announcements"
+                        subtitle="Stay updated with school news and notifications"
+                        {...parentUser}
+                    />
+
+                    <DashboardContent>
+                        <div className="portal-stat-grid mb-5">
+                            {statCards.map((s, i) => <StatCard key={i} {...s} />)}
+                        </div>
+
+                        {/* Filter chips */}
+                        <div className="ann-chips-row" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                            {CHIPS.map(c => (
+                                <button key={c}
+                                    className={`chip${chip === c ? ' chip-active' : ''}`}
+                                    onClick={() => setChip(c)}>
+                                    {c}
+                                </button>
+                            ))}
+                        </div>
+
+                        {loading ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading announcements…</p>
+                        ) : visible.length === 0 ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No announcements found.</p>
+                        ) : (
+                            <div className="ann-feed">
+                                {visible.map(a => <AnnouncementItem key={a.id} ann={a} />)}
+                            </div>
+                        )}
+                    </DashboardContent>
+                </main>
+            </div>
+        </>
     )
 }

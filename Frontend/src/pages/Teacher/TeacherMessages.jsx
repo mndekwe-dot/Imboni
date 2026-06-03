@@ -1,6 +1,6 @@
 import { MessagesPage } from '../../components/messaging/MessagesPage'
 import '../../styles/teacher.css'
-import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 
 
 const conversations = [
@@ -39,15 +39,21 @@ const quickReplies = (
 )
 
 export function TeacherMessages() {
+    const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
+    const firstName  = storedUser.first_name || ''
+    const lastName   = storedUser.last_name  || ''
+    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Teacher'
+    const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'T'
+
     return (
         <MessagesPage
             navItems={teacherNavItems}
             secondaryItems={teacherSecondaryItems}
             title="Messages"
             subtitle="Communicate with parents and staff"
-            userName="Pacifique Rurangwa"
-            userRole="Teacher · Mathematics"
-            userInitials="PR"
+            userName={fullName}
+            userRole="Teacher"
+            userInitials={initials}
             avatarClass="teacher-av"
             conversations={conversations}
             tabs={['All', 'Unread', 'Parents', 'Staff', 'Admin']}
