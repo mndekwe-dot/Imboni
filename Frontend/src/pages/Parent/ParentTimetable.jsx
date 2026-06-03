@@ -1,24 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { Timetable } from '../../components/timetable/Timetable'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { getMyChildren } from '../../api/parent'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
-import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
-import { DashboardContent } from '../../components/layout/DashboardContent'
-
-
-// Parent's children and their classes — replace with profile/API data later
-const CHILDREN = [
-    { name: 'Uwase Amina',   classId: 'S4A' },
-    { name: 'Uwase Patrick', classId: 'S2B' },
-]
 
 export function ParentTimetable() {
-    // Parent selects which child's timetable to view
+    const [children,      setChildren]      = useState([])
     const [selectedIndex, setSelectedIndex] = useState(0)
-    const child = CHILDREN[selectedIndex]
+    const [loading,       setLoading]       = useState(true)
+
+    useEffect(() => {
+        getMyChildren()
+            .then(setChildren)
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
+
+    const child = children[selectedIndex]
 
     return (
         <>
@@ -30,37 +33,42 @@ export function ParentTimetable() {
                     <DashboardHeader
                         title="Class Timetable"
                         subtitle="View your child's weekly academic schedule"
-                        name="Mrs. Chantal Uwase"
-                        role="Parent"
-                        initials="CU"
-                        avatarClass="parent-av"
+                        {...parentUser}
                     />
                     <DashboardContent>
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">{child.name} — Class {child.classId}</h2>
-                                {/* Child selector — only shown when parent has more than one child */}
-                                {CHILDREN.length > 1 && (
-                                    <div className="flex-row-gap-sm">
-                                        <label className="form-label mb-0">Child:</label>
-                                        <select
-                                            className="form-input"
-                                            style={{ width: 'auto' }}
-                                            value={selectedIndex}
-                                            onChange={e => setSelectedIndex(Number(e.target.value))}
-                                        >
-                                            {CHILDREN.map((c, i) => (
-                                                <option key={c.name} value={i}>{c.name} — {c.classId}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
+                        {loading ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                        ) : children.length === 0 ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked to your account.</p>
+                        ) : (
+                            <div className="card">
+                                <div className="card-header">
+                                    <h2 className="card-title">
+                                        {child.student_name} — Class {child.grade}{child.section}
+                                    </h2>
+                                    {children.length > 1 && (
+                                        <div className="flex-row-gap-sm">
+                                            <label className="form-label mb-0">Child:</label>
+                                            <select
+                                                className="form-input"
+                                                style={{ width: 'auto' }}
+                                                value={selectedIndex}
+                                                onChange={e => setSelectedIndex(Number(e.target.value))}
+                                            >
+                                                {children.map((c, i) => (
+                                                    <option key={c.id} value={i}>
+                                                        {c.student_name} — {c.grade}{c.section}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="card-content">
+                                    <Timetable type="academic" classId={`${child.grade}${child.section}`} />
+                                </div>
                             </div>
-                            <div className="card-content">
-                                {/* editable not passed → defaults to false — parents cannot edit */}
-                                <Timetable type="academic" classId={child.classId} />
-                            </div>
-                        </div>
+                        )}
                     </DashboardContent>
                 </main>
             </div>

@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from apps.authentication.models import User  # used for teaching_staff count
-from apps.authentication.permissions import IsDOS,IsDOSOrAdmin,IsTeacherOrDOS
+from apps.authentication.permissions import IsDOS,IsDOSOrAdmin,IsTeacherOrDOS,IsDOSOrAdminOrDiscipline
 from apps.results.models import AcademicTerm, Result
 from apps.student.models import Student
 
@@ -1986,10 +1986,13 @@ class DOSDashboardWeeklyTrendView(APIView):
 
 class SchoolConfigView(APIView):
     """
-    GET /imboni/dos/school-config/  — return all school sections
-    PUT /imboni/dos/school-config/  — replace all school sections
+    GET /imboni/dos/school-config/  — return all school sections (DOS, Discipline, Admin)
+    PUT /imboni/dos/school-config/  — replace all school sections (DOS, Admin only)
     """
-    permission_classes = [IsDOSOrAdmin]
+    def get_permissions(self):
+        if getattr(self, 'request', None) and self.request.method == 'GET':
+            return [IsDOSOrAdminOrDiscipline()]
+        return [IsDOSOrAdmin()]
 
     def get(self,request):
         sections = SchoolSection.objects.filter(is_active=True)

@@ -1,219 +1,420 @@
 import { useState, useEffect } from 'react'
 import { TabGroup } from '../ui/TabGroup'
+import { getStudentBehaviorStats, getStudentBehaviorReports, createDisReport } from '../../api/discipline'
 import '../../styles/components.css'
 
-const tabs = [
-    { key: 'profile', label: 'Profile',       icon: 'person'  },
-    { key: 'log',     label: 'Log Incident',  icon: 'report'  },
+const TABS = [
+    { key: 'profile', label: 'Profile',      icon: 'person'  },
+    { key: 'log',     label: 'Log Incident', icon: 'report'  },
 ]
 
-const negativeCategories = [
-    'Misconduct',
-    'Attendance Violation',
-    'Academic Dishonesty',
-    'Bullying / Harassment',
-    'Property Damage',
-    'Defiance of Authority',
-]
-const positiveCategories = [
-    'Leadership',
-    'Academic Excellence',
-    'Good Conduct',
-    'Community Service',
-    'Sportsmanship',
-    'Helping Others',
+const REPORT_TYPE_OPTIONS = [
+    { value: 'incident',    label: 'Incident',    icon: 'warning',       cls: 'negative' },
+    { value: 'warning',     label: 'Warning',     icon: 'error',         cls: 'warning'  },
+    { value: 'positive',    label: 'Positive',    icon: 'thumb_up',      cls: 'positive' },
+    { value: 'achievement', label: 'Achievement', icon: 'emoji_events',  cls: 'positive' },
 ]
 
-const mockHistory = [
-    { type: 'negative', icon: 'report',        category: 'Attendance Violation',  desc: 'Missed 2 morning assemblies without excuse', points: -4,  date: 'Mar 3, 2026'  },
-    { type: 'positive', icon: 'emoji_events',  category: 'Leadership',             desc: 'Led class project and represented school at event', points: +8, date: 'Feb 20, 2026' },
-    { type: 'negative', icon: 'warning',       category: 'Misconduct',             desc: 'Disruptive behaviour during study hour',      points: -3,  date: 'Feb 10, 2026' },
+const SEVERITY_OPTIONS = [
+    { value: 'minor',    label: 'Minor'    },
+    { value: 'moderate', label: 'Moderate' },
+    { value: 'serious',  label: 'Serious'  },
+    { value: 'critical', label: 'Critical' },
 ]
 
-function OverviewTab({ student }) {
+const TYPE_META = {
+    incident:    { icon: 'warning',      cls: 'warning'  },
+    warning:     { icon: 'error',        cls: 'warning'  },
+    positive:    { icon: 'thumb_up',     cls: 'positive' },
+    achievement: { icon: 'emoji_events', cls: 'positive' },
+}
+
+const CONDUCT_COLORS = {
+    A: { bg: '#dcfce7', color: '#15803d', label: 'Excellent'         },
+    B: { bg: '#dbeafe', color: '#1d4ed8', label: 'Good'              },
+    C: { bg: '#fef9c3', color: '#92400e', label: 'Satisfactory'      },
+    D: { bg: '#fee2e2', color: '#b91c1c', label: 'Needs Improvement' },
+    F: { bg: '#fce7f3', color: '#9d174d', label: 'Unsatisfactory'    },
+}
+
+function todayISO() {
+    return new Date().toISOString().split('T')[0]
+}
+
+function fmtDate(d) {
+    if (!d) return ''
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+// ── Profile tab ────────────────────────────────────────────────────────────────
+
+function ProfileTab({ student, stats, history, histLoading }) {
+    const grade     = student.grade || ''
+    const section   = student.section || ''
+    const cls       = grade && section ? `${grade}${section}` : (grade || section || '—')
+    const conductG  = stats?.conduct_grade
+    const conductMeta = conductG ? CONDUCT_COLORS[conductG] : null
+
+    const isNeg = r => r.report_type === 'incident' || r.report_type === 'warning'
+
     return (
-        <div>
-            {/* Score banner */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--muted)', borderRadius: '10px', padding: '1rem 1.25rem', marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--discipline, #7c3aed)', lineHeight: 1 }}>{student.score}</div>
-                <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Conduct Score</div>
-                    <span className={`conduct-badge ${student.conductClass}`}>{student.conduct}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+            {/* Conduct Grade banner */}
+            <div style={{
+                display: 'flex', alignItems: 'center', gap: '1rem',
+                background: conductMeta ? conductMeta.bg : 'var(--muted)',
+                borderRadius: '12px', padding: '1rem 1.25rem',
+            }}>
+                <div style={{
+                    width: '3rem', height: '3rem', borderRadius: '50%',
+                    background: conductMeta ? conductMeta.color : 'var(--muted-foreground)',
+                    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 800, fontSize: '1.4rem',
+                }}>
+                    {conductG || '—'}
                 </div>
-                <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                    <div><span className="disc-points-pos" style={{ fontSize: '1rem' }}>{student.pos}</span> positive</div>
-                    <div><span className="disc-points-neg" style={{ fontSize: '1rem' }}>{student.neg}</span> negative</div>
+                <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
+                        {conductMeta?.label || 'No Conduct Grade'}
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '0.1rem' }}>
+                        Current Term Standing
+                    </div>
+                </div>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '1.25rem' }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 700, color: '#15803d', fontSize: '1.1rem' }}>
+                            {stats ? stats.positive_reports + stats.achievements : '—'}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>Positive</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 700, color: '#dc2626', fontSize: '1.1rem' }}>
+                            {stats ? stats.warnings + (student.incident_count || 0) : '—'}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>Negative</div>
+                    </div>
                 </div>
             </div>
 
-            {/* Details grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            {/* Student details grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
                 {[
-                    { label: 'Full Name',       value: student.name       },
-                    { label: 'Adm Number',      value: student.adm        },
-                    { label: 'Class',           value: student.classChip  },
-                    { label: 'Section',         value: student.section    },
-                    { label: 'Dormitory',           value: student.house      },
-                    { label: 'Standing',        value: student.conduct    },
+                    { label: 'Full Name',   value: student.name       },
+                    { label: 'Adm Number',  value: student.student_id },
+                    { label: 'Class',       value: cls                },
+                    { label: 'Incidents',   value: student.incident_count ?? '—' },
                 ].map(({ label, value }) => (
-                    <div key={label} style={{ background: 'var(--muted)', borderRadius: '8px', padding: '0.625rem 0.875rem' }}>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>{label}</div>
+                    <div key={label} style={{
+                        background: 'var(--muted)', borderRadius: '10px',
+                        padding: '0.625rem 0.875rem',
+                    }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.2rem' }}>
+                            {label}
+                        </div>
                         <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{value}</div>
                     </div>
                 ))}
+            </div>
+
+            {/* Conduct History */}
+            <div>
+                <div style={{
+                    fontWeight: 700, fontSize: '0.875rem', marginBottom: '0.75rem',
+                    display: 'flex', alignItems: 'center', gap: '0.4rem',
+                    color: 'var(--foreground)',
+                }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>history</span>
+                    Conduct History
+                </div>
+
+                {histLoading ? (
+                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', padding: '0.5rem 0' }}>Loading history…</p>
+                ) : history.length === 0 ? (
+                    <div style={{
+                        background: 'var(--muted)', borderRadius: '10px',
+                        padding: '1.25rem', textAlign: 'center',
+                        color: 'var(--muted-foreground)', fontSize: '0.85rem',
+                    }}>
+                        <span className="material-symbols-rounded" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.4rem', opacity: 0.4 }}>
+                            history_toggle_off
+                        </span>
+                        No conduct records yet
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {history.map((item) => {
+                            const meta = TYPE_META[item.report_type] || { icon: 'info', cls: '' }
+                            const neg  = isNeg(item)
+                            return (
+                                <div key={item.id} style={{
+                                    display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                                    background: 'var(--muted)', borderRadius: '10px',
+                                    padding: '0.75rem 1rem',
+                                    borderLeft: `3px solid ${neg ? '#ef4444' : '#16a34a'}`,
+                                }}>
+                                    <div className={`disc-activity-icon ${meta.cls}`} style={{ flexShrink: 0 }}>
+                                        <span className="material-symbols-rounded">{meta.icon}</span>
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.title}</div>
+                                        {item.badge && (
+                                            <span style={{
+                                                display: 'inline-block', marginTop: '0.15rem',
+                                                fontSize: '0.7rem', fontWeight: 600,
+                                                padding: '0.1rem 0.5rem', borderRadius: '9px',
+                                                background: neg ? '#fee2e2' : '#dcfce7',
+                                                color: neg ? '#b91c1c' : '#15803d',
+                                            }}>{item.badge}</span>
+                                        )}
+                                        {item.description && (
+                                            <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '0.2rem' }}>
+                                                {item.description}
+                                            </div>
+                                        )}
+                                        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.3rem', fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
+                                            <span>{fmtDate(item.date)}</span>
+                                            {item.reported_by_display && <span>· {item.reported_by_display}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     )
 }
 
-function ReportTab({ student }) {
-    const [type, setType]         = useState('negative')
-    const [category, setCategory] = useState('')
-    const [desc, setDesc]         = useState('')
-    const [points, setPoints]     = useState('')
-    const [submitted, setSubmitted] = useState(false)
+// ── Log Incident tab ───────────────────────────────────────────────────────────
 
-    const categories = type === 'negative' ? negativeCategories : positiveCategories
+function LogTab({ student, onReportSaved }) {
+    const [reportType, setReportType] = useState('incident')
+    const [form, setForm] = useState({ title: '', description: '', severity: 'minor', location: '', date: todayISO() })
+    const [saving, setSaving]         = useState(false)
+    const [done,   setDone]           = useState(false)
+    const [error,  setError]          = useState(null)
 
-    function handleSubmit() {
-        if (!category || !desc || !points) return
-        // future: send to API
-        console.log('Incident logged:', { student: student.name, type, category, desc, points })
-        setSubmitted(true)
+    const isNeg = reportType === 'incident' || reportType === 'warning'
+
+    function handleChange(e) {
+        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
     }
 
-    function handleReset() {
-        setType('negative')
-        setCategory('')
-        setDesc('')
-        setPoints('')
-        setSubmitted(false)
+    async function handleSubmit() {
+        if (!form.title || !form.description) return
+        setSaving(true)
+        setError(null)
+        try {
+            await createDisReport({
+                student_id:  student.id,
+                report_type: reportType,
+                title:       form.title,
+                description: form.description,
+                date:        form.date,
+                severity:    isNeg ? form.severity : null,
+                location:    form.location || '',
+            })
+            setDone(true)
+            if (onReportSaved) onReportSaved()
+        } catch {
+            setError('Failed to save. Please try again.')
+        } finally {
+            setSaving(false)
+        }
     }
 
-    if (submitted) {
+    function reset() {
+        setForm({ title: '', description: '', severity: 'minor', location: '', date: todayISO() })
+        setReportType('incident')
+        setDone(false)
+        setError(null)
+    }
+
+    if (done) {
         return (
-            <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: 'var(--success, #16a34a)' }}>check_circle</span>
-                <h3 style={{ margin: '0.75rem 0 0.25rem' }}>Incident Logged</h3>
-                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
-                    The conduct record for <strong>{student.name}</strong> has been saved and is immediately approved.
+            <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+                <div style={{
+                    width: '4rem', height: '4rem', borderRadius: '50%',
+                    background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1rem',
+                }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: '2rem', color: '#15803d' }}>check_circle</span>
+                </div>
+                <h3 style={{ margin: '0 0 0.4rem', fontSize: '1rem' }}>Report Saved</h3>
+                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+                    Conduct record for <strong>{student.name}</strong> has been filed.
                 </p>
-                <button className="btn btn-secondary" onClick={handleReset}>Log Another</button>
+                <button className="btn btn-outline btn-sm" onClick={reset}>Log Another</button>
             </div>
         )
     }
 
     return (
-        <div>
-            {/* Type toggle */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                <button
-                    className={`btn btn-sm ${type === 'negative' ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{ flex: 1 }}
-                    onClick={() => { setType('negative'); setCategory('') }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>warning</span> Negative Incident
-                </button>
-                <button
-                    className={`btn btn-sm ${type === 'positive' ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{ flex: 1 }}
-                    onClick={() => { setType('positive'); setCategory('') }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>star</span> Positive Award
-                </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+            {/* Report type selector */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.4rem' }}>
+                {REPORT_TYPE_OPTIONS.map(opt => (
+                    <button
+                        key={opt.value}
+                        onClick={() => setReportType(opt.value)}
+                        style={{
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem',
+                            padding: '0.625rem 0.25rem', borderRadius: '10px', border: '2px solid',
+                            borderColor: reportType === opt.value ? 'var(--primary)' : 'var(--border)',
+                            background: reportType === opt.value ? 'var(--primary)' : 'transparent',
+                            color: reportType === opt.value ? '#fff' : 'var(--foreground)',
+                            cursor: 'pointer', transition: 'all 0.15s',
+                        }}
+                    >
+                        <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>{opt.icon}</span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>{opt.label}</span>
+                    </button>
+                ))}
             </div>
 
             <div className="form-group">
-                <label className="form-label">Category</label>
-                <select className="form-input" value={category} onChange={e => setCategory(e.target.value)}>
-                    <option value="">Select category...</option>
-                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-            </div>
-
-            <div className="form-group">
-                <label className="form-label">Description</label>
-                <textarea
-                    className="form-input form-textarea"
-                    rows="3"
-                    placeholder="Describe what happened..."
-                    value={desc}
-                    onChange={e => setDesc(e.target.value)}
-                />
-            </div>
-
-            <div className="form-group">
-                <label className="form-label">Points {type === 'negative' ? '(enter as negative, e.g. -5)' : '(enter as positive, e.g. +5)'}</label>
+                <label className="form-label">Title *</label>
                 <input
-                    className="form-input"
-                    type="number"
-                    placeholder={type === 'negative' ? 'e.g. -5' : 'e.g. +5'}
-                    value={points}
-                    onChange={e => setPoints(e.target.value)}
+                    className="form-input" name="title" value={form.title}
+                    onChange={handleChange} placeholder="Brief title of the report…"
                 />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+            {isNeg && (
+                <div className="form-group">
+                    <label className="form-label">Severity</label>
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        {SEVERITY_OPTIONS.map(s => (
+                            <button
+                                key={s.value}
+                                onClick={() => setForm(prev => ({ ...prev, severity: s.value }))}
+                                style={{
+                                    padding: '0.3rem 0.75rem', borderRadius: '9px',
+                                    border: '1.5px solid',
+                                    borderColor: form.severity === s.value ? '#dc2626' : 'var(--border)',
+                                    background: form.severity === s.value ? '#fee2e2' : 'transparent',
+                                    color: form.severity === s.value ? '#b91c1c' : 'var(--muted-foreground)',
+                                    fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
+                                }}
+                            >{s.label}</button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="form-group">
+                <label className="form-label">Description *</label>
+                <textarea
+                    className="form-input form-textarea" rows="3"
+                    name="description" value={form.description}
+                    onChange={handleChange} placeholder="Describe what happened in detail…"
+                />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group">
+                    <label className="form-label">Date</label>
+                    <input
+                        className="form-input" type="date"
+                        name="date" value={form.date}
+                        max={todayISO()} onChange={handleChange}
+                    />
+                </div>
+                <div className="form-group">
+                    <label className="form-label">Location (optional)</label>
+                    <input
+                        className="form-input" name="location" value={form.location}
+                        onChange={handleChange} placeholder="e.g. Dormitory Block A"
+                    />
+                </div>
+            </div>
+
+            {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
                 <button
                     className="btn btn-primary"
                     onClick={handleSubmit}
-                    disabled={!category || !desc || !points}>
-                    <span className="material-symbols-rounded">save</span> Submit Record
+                    disabled={saving || !form.title || !form.description}
+                >
+                    <span className="material-symbols-rounded">save</span>
+                    {saving ? 'Saving…' : 'Submit Report'}
                 </button>
             </div>
         </div>
     )
 }
 
-function HistoryTab({ student }) {
-    return (
-        <div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
-                Recent conduct records for <strong>{student.name}</strong>
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                {mockHistory.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', background: 'var(--muted)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
-                        <div className={`disc-activity-icon ${item.type === 'negative' ? 'warning' : 'positive'}`}>
-                            <span className="material-symbols-rounded">{item.icon}</span>
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.category}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', margin: '0.15rem 0' }}>{item.desc}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{item.date}</div>
-                        </div>
-                        <span className={item.points > 0 ? 'disc-points-pos' : 'disc-points-neg'} style={{ fontWeight: 700 }}>
-                            {item.points > 0 ? `+${item.points}` : item.points}
-                        </span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    )
-}
+// ── Modal shell ────────────────────────────────────────────────────────────────
 
 export function StudentConductModal({ student, onClose }) {
-    const [tab, setTab] = useState('profile')
+    const [tab,        setTab]        = useState('profile')
+    const [stats,      setStats]      = useState(null)
+    const [history,    setHistory]    = useState([])
+    const [histLoading,setHistLoading]= useState(false)
 
     useEffect(() => {
-        if (!student) return
+        if (!student?.id) return
         document.body.style.overflow = 'hidden'
+        setTab('profile')
+        setStats(null)
+        setHistory([])
+        setHistLoading(true)
+
+        Promise.all([
+            getStudentBehaviorStats(student.id),
+            getStudentBehaviorReports(student.id),
+        ]).then(([s, h]) => {
+            setStats(s)
+            setHistory(Array.isArray(h) ? h : (h?.results || []))
+        }).catch(console.error)
+          .finally(() => setHistLoading(false))
+
         return () => { document.body.style.overflow = '' }
-    }, [student])
+    }, [student?.id])
 
     if (!student) return null
+
+    const grade   = student.grade || ''
+    const section = student.section || ''
+    const cls     = grade && section ? `${grade}${section}` : (grade || section || '')
+
+    function refreshHistory() {
+        setHistLoading(true)
+        Promise.all([
+            getStudentBehaviorStats(student.id),
+            getStudentBehaviorReports(student.id),
+        ]).then(([s, h]) => {
+            setStats(s)
+            setHistory(Array.isArray(h) ? h : (h?.results || []))
+        }).catch(console.error)
+          .finally(() => setHistLoading(false))
+    }
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-box" onClick={e => e.stopPropagation()}>
 
+                {/* Header */}
                 <div className="modal-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div className={`student-av-sm ${student.avClass}`} style={{ width: '2.5rem', height: '2.5rem', fontSize: '0.9rem' }}>
-                            {student.initials}
+                        <div style={{
+                            width: '2.75rem', height: '2.75rem', borderRadius: '50%',
+                            background: 'var(--primary)', color: '#fff',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontWeight: 700, fontSize: '0.95rem', flexShrink: 0,
+                        }}>
+                            {student.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
                         </div>
                         <div>
                             <div style={{ fontWeight: 700, fontSize: '1rem' }}>{student.name}</div>
-                            <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>
-                                {student.classChip} &bull; Adm: {student.adm} &bull; {student.house}
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                                {cls && <span style={{ background: 'var(--primary)', color: '#fff', borderRadius: '5px', padding: '0.05rem 0.4rem', fontSize: '0.7rem', fontWeight: 600 }}>{cls}</span>}
+                                <span>Adm: {student.student_id || '—'}</span>
                             </div>
                         </div>
                     </div>
@@ -222,23 +423,24 @@ export function StudentConductModal({ student, onClose }) {
                     </button>
                 </div>
 
+                {/* Tabs */}
                 <div className="modal-tabs">
-                    <TabGroup tabs={tabs} value={tab} onChange={setTab} />
+                    <TabGroup tabs={TABS} value={tab} onChange={setTab} />
                 </div>
 
+                {/* Body */}
                 <div className="modal-body">
                     {tab === 'profile' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <OverviewTab student={student} />
-                            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                                <div style={{ fontWeight: 700, fontSize: '0.875rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>history</span> Conduct History
-                                </div>
-                                <HistoryTab student={student} />
-                            </div>
-                        </div>
+                        <ProfileTab
+                            student={student}
+                            stats={stats}
+                            history={history}
+                            histLoading={histLoading}
+                        />
                     )}
-                    {tab === 'log' && <ReportTab student={student} />}
+                    {tab === 'log' && (
+                        <LogTab student={student} onReportSaved={() => { setTab('profile'); refreshHistory() }} />
+                    )}
                 </div>
 
             </div>

@@ -240,6 +240,20 @@ class AnnouncementAudienceOptionsView(APIView):
 # Mark-Read + Stats
 # ---------------------------------------------------------------------------
 
+class PublishedAnnouncementListView(APIView):
+    """
+    GET /imboni/announcements/
+    Returns all published announcements, newest first. Used by parent and student portals.
+    """
+    def get(self, request):
+        qs = (
+            Announcement.objects
+            .filter(status='published')
+            .order_by('-published_at', '-created_at')[:100]
+        )
+        return Response(AnnouncementSerializer(qs, many=True).data)
+
+
 class AnnouncementMarkReadView(APIView):
     """POST /imboni/announcements/mark-read/<pk>/"""
 

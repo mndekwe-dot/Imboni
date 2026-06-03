@@ -107,6 +107,18 @@ class IsDiscipline(BasePermission):
             request.user.is_authenticated and
             request.user.role == 'discipline'
         )
+class IsDisciplineOrMatron(BasePermission):
+    """Allow access to the Director of Discipline or any matron/patron."""
+    message = 'Access restricted to Discipline staff and Matrons.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role in ('discipline', 'matron')
+        )
+
+
 class IsDOSOrAdminOrDiscipline(BasePermission):
     """Allow access to DOS, Admin, or Discipline master."""
     message = 'Access restricted to DOS, Admin, or Discipline staff.'
@@ -117,6 +129,18 @@ class IsDOSOrAdminOrDiscipline(BasePermission):
             request.user.is_authenticated and
             request.user.role in('discipline','dos','admin')
         )
+
+class IsParentOrTeacherOrDOS(BasePermission):
+    """Allow access to parents, students, teachers, DOS, or admin users."""
+    message = 'Access restricted to parents, students, teachers, or the Director of Studies.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role in ('parent', 'student', 'teacher', 'dos', 'admin')
+        )
+
 
 class CanInvite(BasePermission):
     """

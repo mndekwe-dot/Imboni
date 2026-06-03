@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
-import { StatCard } from '../../components/layout/StatCard'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TeacherScheduleGrid } from '../../components/timetable/TeacherScheduleGrid'
 import { WeekPicker } from '../../components/timetable/weekPicker'
@@ -9,24 +8,31 @@ import { getThisMonday } from '../../components/timetable/dateUtils'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
-import { teacherNavItems, teacherSecondaryItems, teacherUser } from './teacherNav'
+import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-
-
-// Classes this teacher is assigned to — T001 Mr. Pacifique Rurangwa teaches Math
-const MY_CLASSES = ['S1A', 'S1B', 'S2A', 'S2B', 'S3A', 'S4A', 'S4B', 'S5B']
-
-const timetableStats = [
-    { colorClass: 'info',    icon: 'school',           value: '28', label: 'Lessons / Week', trend: 'This term'  },
-    { colorClass: 'success', icon: 'menu_book',        value: '8',  label: 'Classes Taught',  trend: 'S1A – S5B' },
-    { colorClass: 'warning', icon: 'self_improvement', value: '6',  label: 'Prep Periods',    trend: 'Per week'  },
-    { colorClass: '',        icon: 'coffee',           value: '6',  label: 'Free Periods',    trend: 'Per week'  },
-]
+import { getTeacherMyClasses } from '../../api/teacher'
 
 export function TeacherTimetable() {
-    const [view, setView]           = useState('schedule')   // 'schedule' | 'class'
-    const [classId, setClassId]     = useState('S3A')
+    const [view,          setView]          = useState('schedule')
+    const [classId,       setClassId]       = useState('')
     const [currentMonday, setCurrentMonday] = useState(() => getThisMonday())
+    const [myClasses,     setMyClasses]     = useState([])
+
+    const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
+    const firstName  = storedUser.first_name || ''
+    const lastName   = storedUser.last_name  || ''
+    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Teacher'
+    const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'T'
+
+    useEffect(() => {
+        getTeacherMyClasses()
+            .then(data => {
+                const list = Array.isArray(data) ? data.map(c => c.class_name) : []
+                setMyClasses(list)
+                if (list.length > 0 && !classId) setClassId(list[0])
+            })
+            .catch(() => {})
+    }, [])
 
     return (
         <>
@@ -37,31 +43,23 @@ export function TeacherTimetable() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="My Timetable"
-                        subtitle="Your weekly teaching schedule — Term 2, 2026"
-                        name="Mr. Pacifique Rurangwa"
-                        role="Teacher · Mathematics"
-                        initials="PR"
+                        subtitle="Your weekly teaching schedule"
+                        userName={fullName}
+                        userRole="Teacher"
+                        userInitials={initials}
                         avatarClass="teacher-av"
                     />
                     <DashboardContent>
 
-                        {/* Read-only notice */}
                         <div className="tt-notice">
                             <span className="material-symbols-rounded">lock</span>
                             <div>
-                                <strong>Read-only timetable</strong> — Issued by Dr. I. Nsabimana (DOS). Contact the Director of Studies to request changes.
+                                <strong>Read-only timetable</strong> — Issued by the Director of Studies. Contact DOS to request changes.
                             </div>
-                        </div>
-
-                        <div className="portal-stat-grid mb-5">
-                            {timetableStats.map((stat, i) => (
-                                <StatCard key={i} {...stat} />
-                            ))}
                         </div>
 
                         <div className="card">
                             <div className="card-header">
-                                {/* View toggle — left */}
                                 <div className="btn-row-sm">
                                     <button
                                         className={`btn btn-sm ${view === 'schedule' ? 'btn-primary' : 'btn-outline'}`}
@@ -79,14 +77,10 @@ export function TeacherTimetable() {
                                     </button>
                                 </div>
 
-                                {/* Right controls — week picker or class selector */}
                                 {view === 'schedule' && (
-                                    <WeekPicker
-                                        currentMonday={currentMonday}
-                                        onChange={setCurrentMonday}
-                                    />
+                                    <WeekPicker currentMonday={currentMonday} onChange={setCurrentMonday} />
                                 )}
-                                {view === 'class' && (
+                                {view === 'class' && myClasses.length > 0 && (
                                     <div className="flex-row-gap-sm">
                                         <label className="form-label mb-0 whitespace-nowrap">Class:</label>
                                         <select
@@ -95,7 +89,7 @@ export function TeacherTimetable() {
                                             value={classId}
                                             onChange={e => setClassId(e.target.value)}
                                         >
-                                            {MY_CLASSES.map(c => (
+                                            {myClasses.map(c => (
                                                 <option key={c} value={c}>{c}</option>
                                             ))}
                                         </select>
@@ -110,11 +104,11 @@ export function TeacherTimetable() {
                                         currentMonday={currentMonday}
                                     />
                                 ) : (
-                                    <Timetable
-                                        type="academic"
-                                        classId={classId}
-                                        editable={false}
-                                    />
+                                    classId ? (
+                                        <Timetable type="academic" classId={classId} editable={false} />
+                                    ) : (
+                                        <p style={{ color: 'var(--muted-foreground)', padding: '2rem' }}>No classes found.</p>
+                                    )
                                 )}
                             </div>
                         </div>

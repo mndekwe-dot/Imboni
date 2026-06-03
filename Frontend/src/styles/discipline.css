@@ -947,6 +947,49 @@
 }
 
 /* ══════════════════════════════════════
+   CLASS CHIP PICKER  (DisStudents chip variant)
+══════════════════════════════════════ */
+.disc-chip-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-bottom: 0;
+}
+.disc-chip-picker-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.disc-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.disc-class-chip {
+  padding: 0.25rem 0.7rem;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+  font-family: inherit;
+}
+.disc-class-chip:hover { border-color: var(--discipline); color: var(--discipline); }
+.disc-class-chip.active { background: var(--discipline); color: #fff; border-color: var(--discipline); }
+.disc-filter-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.75rem 0;
+}
+
+/* ══════════════════════════════════════
    REPORT PAGE TABS
 ══════════════════════════════════════ */
 .rpt-tab-bar {

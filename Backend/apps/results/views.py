@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import generics, viewsets, status, permissions 
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from apps.authentication.permissions import IsTeacher, IsDOSOrAdmin, IsTeacherOrDOS
+from apps.authentication.permissions import IsTeacher, IsDOSOrAdmin, IsTeacherOrDOS, IsParentOrTeacherOrDOS
 from .models import Assessment, Result, AcademicTerm
 from .serializers import (
     AssessmentSerializer, AssessmentCreateSerializer,
@@ -39,7 +39,7 @@ class StudentAssessmentListView(generics.ListAPIView):
     GET /imboni/results/students/<student_pk>/assessments/
     """
     serializer_class = AssessmentSerializer
-    permission_classes = [IsTeacherOrDOS]
+    permission_classes = [IsParentOrTeacherOrDOS]
 
     def get_queryset(self):
         return (
@@ -57,7 +57,7 @@ class StudentResultListView(generics.ListAPIView):
     GET /imboni/results/students/<student_pk>/summative/?term_id=<uuid>
     """
     serializer_class = ResultSerializer
-    permission_classes = [IsTeacherOrDOS]
+    permission_classes = [IsParentOrTeacherOrDOS]
 
     def get_queryset(self):
         qs = (
@@ -78,7 +78,7 @@ class StudentTeacherReviewsView(generics.ListAPIView):
     GET /imboni/results/students/<student_pk>/reviews/
     """
     serializer_class = TeacherReviewSerializer
-    permission_classes = [IsTeacherOrDOS]
+    permission_classes = [IsParentOrTeacherOrDOS]
 
     def get_queryset(self):
         return (

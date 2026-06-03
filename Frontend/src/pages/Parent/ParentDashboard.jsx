@@ -1,47 +1,47 @@
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { StatCard } from '../../components/layout/StatCard'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import {
+    getMyChildren, getChildDashboard,
+    getChildAssessments, getChildSummative,
+} from '../../api/parent'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
-import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
-import { StatCard } from '../../components/layout/StatCard'
-import { DashboardContent } from '../../components/layout/DashboardContent'
 
+const ASSESSMENT_ICON = {
+    quiz:          { iconClass: 'quiz',  icon: 'quiz'        },
+    class_test:    { iconClass: 'quiz',  icon: 'quiz'        },
+    group_project: { iconClass: 'group', icon: 'groups'      },
+    homework:      { iconClass: 'quiz',  icon: 'history_edu' },
+    assignment:    { iconClass: 'quiz',  icon: 'history_edu' },
+    essay:         { iconClass: 'quiz',  icon: 'history_edu' },
+}
 
-const children = [
-    { initial: 'A', name: 'Uwase Amina',   grade: 'S4A' },
-]
+function gradeClass(g) {
+    if (g === 'A') return 'text-success'
+    if (g === 'B') return 'text-primary'
+    if (g === 'C') return 'text-warning'
+    return 'text-danger'
+}
 
-const aminaStats = [
-    { icon: 'trending_up',    value: '85%', label: 'Overall Performance',  trend: '+5% from last term',   trendClass: 'positive', colorClass: 'success' },
-    { icon: 'event_available',value: '96%', label: 'Attendance Rate',       trend: '23 present, 1 absent', trendClass: '',         colorClass: ''        },
-    { icon: 'campaign',       value: '3',   label: 'Unread Announcements',  trend: '2 urgent',             trendClass: 'negative', colorClass: 'warning' },
-    { icon: 'shield_person',  value: '2',   label: 'Behavior Reports',      trend: 'All positive',         trendClass: 'positive', colorClass: 'warning' },
-]
+function gradeBadge(g) {
+    if (g === 'A') return 'badge-success'
+    if (g === 'B') return 'badge-primary'
+    return 'badge-warning'
+}
 
-const recentAssessments = [
-    { iconClass: 'quiz',  icon: 'quiz',        title: 'Algebra Quiz #3',             sub: 'Individual Task • Feb 05',    score: '18/20', scoreClass: 'text-success' },
-    { iconClass: 'group', icon: 'groups',       title: 'Climate Change Presentation', sub: 'Group Project (Lead) • Jan 28', score: '45/50', scoreClass: 'text-success' },
-    { iconClass: 'quiz',  icon: 'history_edu',  title: 'Literature Essay',            sub: 'Weekly Assignment • Jan 15',   score: '12/20', scoreClass: 'text-warning' },
-]
+function initials(name = '') {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+}
 
-const recentResults = [
-    { subject: 'Mathematics', type: 'Mid-Term', score: '85/100', grade: 'A', badgeClass: 'badge-success', date: 'Jan 15, 2026', lastRow: false },
-    { subject: 'English',     type: 'Quiz',     score: '78/100', grade: 'B', badgeClass: 'badge-primary', date: 'Jan 14, 2026', lastRow: false },
-    { subject: 'Physics',     type: 'Test',     score: '92/100', grade: 'A', badgeClass: 'badge-success', date: 'Jan 12, 2026', lastRow: false },
-    { subject: 'Chemistry',   type: 'Lab',      score: '70/100', grade: 'B', badgeClass: 'badge-primary', date: 'Jan 10, 2026', lastRow: false },
-    { subject: 'History',     type: 'Essay',    score: '88/100', grade: 'A', badgeClass: 'badge-success', date: 'Jan 8, 2026',  lastRow: true  },
-]
-
-const upcomingEvents = [
-    { iconClass: 'meeting', icon: 'event',           title: 'Parent-Teacher Meeting',  date: 'Apr 25, 2026', time: '10:00 AM' },
-    { iconClass: 'event',   icon: 'brand_awareness', title: 'Umuco Fest Cultural Festival', date: 'May 2, 2026',  time: '09:00 AM' },
-    { iconClass: 'exam',    icon: 'assignment',      title: 'National Exam Prep Begins', date: 'May 10, 2026', time: '07:30 AM' },
-    { iconClass: 'event',   icon: 'brand_awareness', title: 'Sports Day',              date: 'May 20, 2026', time: '10:00 AM' },
-]
-
-
-function AssessmentItem({ iconClass, icon, title, sub, score, scoreClass }) {
+function AssessmentItem({ title, assessment_type, date, score_display, grade }) {
+    const { iconClass, icon } = ASSESSMENT_ICON[assessment_type] || { iconClass: 'quiz', icon: 'assignment' }
+    const typeLabel = (assessment_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    const dateStr = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
     return (
         <div className="assessment-item">
             <div className={`assessment-icon ${iconClass}`}>
@@ -49,141 +49,204 @@ function AssessmentItem({ iconClass, icon, title, sub, score, scoreClass }) {
             </div>
             <div className="assessment-info">
                 <p className="font-bold">{title}</p>
-                <p className="text-xs text-muted">{sub}</p>
+                <p className="text-xs text-muted">{typeLabel}{dateStr ? ` · ${dateStr}` : ''}</p>
             </div>
-            <div className={`assessment-score ${scoreClass}`}>{score}</div>
+            <div className={`assessment-score ${gradeClass(grade)}`}>{score_display}</div>
         </div>
     )
 }
 
-function ResultRow({ subject, type, score, grade, badgeClass, date }) {
+function ResultRow({ subject_name, grade, final_score, total_maximum }) {
+    const score = total_maximum ? `${Math.round(final_score)}/${total_maximum}` : `${Math.round(final_score)}`
     return (
         <tr>
-            <td className="subject-name">{subject}</td>
-            <td className="type-submission">{type}</td>
+            <td className="subject-name">{subject_name}</td>
+            <td className="type-submission">Term Result</td>
             <td>{score}</td>
-            <td><span className={`badge ${badgeClass}`}>{grade}</span></td>
-            <td className="date-assignment">{date}</td>
+            <td><span className={`badge ${gradeBadge(grade)}`}>{grade}</span></td>
         </tr>
     )
 }
 
-function EventCard({ iconClass, icon, title, date, time }) {
+function ChildStats({ stats, loading }) {
+    const perf   = stats?.overall_performance?.percentage
+    const att    = stats?.attendance
+    const ann    = stats?.announcements
+    const beh    = stats?.behaviour
+
+    const cards = [
+        {
+            icon: 'trending_up',
+            value: loading ? '—' : perf != null ? `${perf}%` : '—',
+            label: 'Overall Performance',
+            trend: perf != null ? (perf >= 70 ? 'Above average' : 'Below average') : 'No data yet',
+            trendClass: perf != null && perf >= 70 ? 'positive' : '',
+            colorClass: 'success',
+        },
+        {
+            icon: 'event_available',
+            value: loading ? '—' : att ? `${att.percentage}%` : '—',
+            label: 'Attendance Rate',
+            trend: att ? `${att.present_days} present, ${att.absent_days} absent` : 'No records yet',
+            trendClass: '',
+            colorClass: '',
+        },
+        {
+            icon: 'campaign',
+            value: loading ? '—' : ann != null ? ann.unread_count : '—',
+            label: 'Unread Announcements',
+            trend: ann ? `${ann.urgent_count} urgent` : '',
+            trendClass: ann?.urgent_count > 0 ? 'negative' : '',
+            colorClass: 'warning',
+        },
+        {
+            icon: 'shield_person',
+            value: loading ? '—' : beh != null ? beh.positive_count : '—',
+            label: 'Positive Reports',
+            trend: 'This term',
+            trendClass: 'positive',
+            colorClass: 'warning',
+        },
+    ]
+
     return (
-        <div className="event-card">
-            <div className={`event-icon ${iconClass}`}>
-                <span className="material-symbols-rounded">{icon}</span>
-            </div>
-            <div className="event-content">
-                <span className="event-title">{title}</span>
-                <span className="event-date">{date}</span>
-                <span className="event-time">
-                    <span className="upcoming_events_icon material-symbols-rounded">timer</span>
-                    {time}
-                </span>
-            </div>
+        <div className="portal-stat-grid">
+            {cards.map((c, i) => <StatCard key={i} {...c} />)}
         </div>
     )
 }
 
 export function ParentDashboard() {
+    const [children,         setChildren]         = useState([])
+    const [activeIdx,        setActiveIdx]        = useState(0)
+    const [loadingChildren,  setLoadingChildren]  = useState(true)
+    const [stats,            setStats]            = useState(null)
+    const [loadingStats,     setLoadingStats]     = useState(false)
+    const [assessments,      setAssessments]      = useState([])
+    const [summative,        setSummative]        = useState([])
+    const [loadingData,      setLoadingData]      = useState(false)
+
+    useEffect(() => {
+        getMyChildren()
+            .then(setChildren)
+            .catch(console.error)
+            .finally(() => setLoadingChildren(false))
+    }, [])
+
+    useEffect(() => {
+        if (!children.length) return
+        const child = children[activeIdx]
+        if (!child) return
+        setLoadingStats(true)
+        setLoadingData(true)
+        setStats(null)
+        setAssessments([])
+        setSummative([])
+
+        getChildDashboard(child.id)
+            .then(setStats)
+            .catch(console.error)
+            .finally(() => setLoadingStats(false))
+
+        Promise.all([
+            getChildAssessments(child.id).catch(() => []),
+            getChildSummative(child.id).catch(() => []),
+        ]).then(([a, s]) => {
+            setAssessments(a)
+            setSummative(s)
+        }).finally(() => setLoadingData(false))
+    }, [children, activeIdx])
+
+    const child = children[activeIdx]
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
             <div className="sidebar-overlay"></div>
-
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
-
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Parent Dashboard" subtitle="Here's what's happening with your children"
-                        userName="Mrs. Chantal Uwase" userRole="Parent"
-                        userInitials="CU" avatarClass="parent-av" notifications={parentUser.notifications}
+                        title="Parent Dashboard"
+                        subtitle="Here's what's happening with your children"
+                        {...parentUser}
                     />
 
                     <DashboardContent>
-                        {/* Tabs */}
-                        <div className="tabs">
-                            <div className="tabs-list">
-                                {children.map((child, i) => (
-                                    <button key={child.name} className={`tabs-trigger${i === 0 ? ' active' : ''}`} onClick={() => {}}>
-                                        <div className="tabs-trigger-avatar">{child.initial}</div>
-                                        <span>{child.name}</span>
-                                        <span className="badge badge-secondary select-xs">{child.grade}</span>
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Amina's Tab Content */}
-                            <div id="amina-tab" className="tabs-content active">
-                                {/* Stats Cards */}
-                                <div className="portal-stat-grid">
-                                    {aminaStats.map((s, i) => (
-                                        <StatCard key={i} {...s} />
+                        {loadingChildren ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                        ) : children.length === 0 ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked to your account yet.</p>
+                        ) : (
+                            <div className="tabs">
+                                <div className="tabs-list">
+                                    {children.map((c, i) => (
+                                        <button key={c.id}
+                                            className={`tabs-trigger${i === activeIdx ? ' active' : ''}`}
+                                            onClick={() => setActiveIdx(i)}>
+                                            <div className="tabs-trigger-avatar">{initials(c.student_name)}</div>
+                                            <span>{c.student_name}</span>
+                                            <span className="badge badge-secondary select-xs">{c.grade}{c.section}</span>
+                                        </button>
                                     ))}
                                 </div>
 
-                                {/* Recent Assessments */}
-                                <div className="card">
-                                    <div className="card-header">
-                                        <h3 className="card-title">Recent Assessments & Projects</h3>
-                                        <span className="badge badge-secondary">This Term</span>
-                                    </div>
-                                    <div className="card-content">
-                                        <div className="assessment-list">
-                                            {recentAssessments.map((a) => (
-                                                <AssessmentItem key={a.title} {...a} />
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
+                                {child && (
+                                    <div className="tabs-content active">
+                                        <ChildStats stats={stats} loading={loadingStats} />
 
-                                {/* Recent Results */}
-                                <div className="dashboard-content-grid">
-                                    <div className="dashboard-content-grid-card">
-                                        <div className="card-header">
-                                            <h3 className="card-title">Recent Results</h3>
-                                            <button className="btn btn-outline btn-sm">
-                                                View All <span className="material-symbols-rounded">arrow_forward</span>
-                                            </button>
+                                        {/* Recent Assessments */}
+                                        <div className="card">
+                                            <div className="card-header">
+                                                <h3 className="card-title">Recent Assessments &amp; Projects</h3>
+                                                <span className="badge badge-secondary">This Term</span>
+                                            </div>
+                                            <div className="card-content">
+                                                {loadingData ? (
+                                                    <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                                                ) : assessments.length === 0 ? (
+                                                    <p style={{ color: 'var(--muted-foreground)' }}>No assessments recorded yet.</p>
+                                                ) : (
+                                                    <div className="assessment-list">
+                                                        {assessments.slice(0, 4).map(a => (
+                                                            <AssessmentItem key={a.id} {...a} />
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="card-content">
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Subject</th><th>Type</th><th>Score</th><th>Grade</th><th>Date</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {recentResults.map((r) => (
-                                                        <ResultRow key={r.subject} {...r} />
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                {/* Upcoming Events */}
-                                <div className="upcoming-events card">
-                                    <div className="card-header">
-                                        <h3 className="card-title">Upcoming Events</h3>
-                                        <button className="btn btn-outline btn-sm">
-                                            View Calendar <span className="material-symbols-rounded">arrow_forward</span>
-                                        </button>
+                                        {/* Recent Results */}
+                                        {summative.length > 0 && (
+                                            <div className="dashboard-content-grid">
+                                                <div className="dashboard-content-grid-card">
+                                                    <div className="card-header">
+                                                        <h3 className="card-title">Recent Results</h3>
+                                                    </div>
+                                                    <div className="card-content">
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Subject</th>
+                                                                    <th>Type</th>
+                                                                    <th>Score</th>
+                                                                    <th>Grade</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {summative.slice(0, 5).map(r => (
+                                                                    <ResultRow key={r.id} {...r} />
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="card-content">
-                                        <div className="grid">
-                                            {upcomingEvents.map((e) => (
-                                                <EventCard key={e.title} {...e} />
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
+                                )}
                             </div>
-
-                        </div>
+                        )}
                     </DashboardContent>
                 </main>
             </div>

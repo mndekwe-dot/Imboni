@@ -1,85 +1,59 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { NewActivityModal } from '../../components/modals/NewActivityModal'
 import { EditActivityModal } from '../../components/modals/EditActivityModal'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { getDisActivities, createDisActivity } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import '../../styles/tables.css'
-
-
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
-const activityStats = [
-    { iconClass: 'info', icon: 'emoji_events', value: '18', label: 'Active Clubs', trend: '+3 this term', trendClass: 'positive' },
-    { iconClass: 'success', icon: 'groups', value: '847', label: 'Enrolled Students', trend: '+42 this term', trendClass: 'positive' },
-    { iconClass: 'warning', icon: 'report', value: '4', label: 'Conduct Incidents', trend: 'During activities', trendClass: 'negative' },
-    { iconClass: 'positive', icon: 'supervisor_account', value: '18', label: 'Patron Teachers', trend: 'All assigned', trendClass: 'positive' },
-]
-
-const activities = [
-    { avClass: 'patron', avText: 'FC', cat: 'sports', name: 'Football Club', patron: 'Mr. Nshimiyimana', schedule: 'Tue & Thu, 4:30 PM', venue: 'Main Sports Field', status: 'active', description: 'Competitive football training and inter-school matches.', badge: 'Active', members: 34, incidents: '0 incidents this term', incidentClass: 'disc-points-pos' },
-    { avClass: 'patron', avText: 'BK', cat: 'sports', name: 'Basketball Team', patron: 'Mr. Nkurunziza', schedule: 'Mon & Wed, 5:00 PM', venue: 'Basketball Court', status: 'active', description: 'School basketball team for all year groups.', badge: 'Active', members: 28, incidents: '1 incident this term', incidentClass: 'disc-points-neg' },
-    { avClass: 'matron', avText: 'DA', cat: 'arts', name: 'Drama & Arts Club', patron: 'Ms. Ingabire', schedule: 'Fridays, 3:30 PM', venue: 'School Hall', status: 'active', description: 'Drama performances, art exhibitions and creative expression.', badge: 'Active', members: 27, incidents: '0 incidents this term', incidentClass: 'disc-points-pos' },
-    { avClass: 'patron', avText: 'DB', cat: 'academic', name: 'Debate Club', patron: 'Ms. Umutoni', schedule: 'Wednesdays, 4:00 PM', venue: 'Library Conference Room', status: 'active', description: 'Debate competitions and public speaking skills development.', badge: 'Active', members: 22, incidents: '0 incidents this term', incidentClass: 'disc-points-pos' },
-    { avClass: 'patron', avText: 'SC', cat: 'science', name: 'Science Club', patron: 'Mr. Bizimana', schedule: 'Thursdays, 4:00 PM', venue: 'Science Laboratory', status: 'active', description: 'Experiments, science fairs and STEM exploration.', badge: 'Active', members: 18, incidents: '0 incidents this term', incidentClass: 'disc-points-pos' },
-    { avClass: 'matron', avText: 'CS', cat: 'social', name: 'Community Service Club', patron: 'Mr. Ntakirutimana', schedule: 'Saturdays, 9:00 AM', venue: 'Community Hall / Grounds', status: 'active', description: 'Community outreach, charity drives and school environment care.', badge: 'Active', members: 45, incidents: '0 incidents this term', incidentClass: 'disc-points-pos' },
-]
-
-
-const recentActivityIncidents = [
-    { iconClass: 'warning', icon: 'sports_basketball', title: 'Unsportsmanlike conduct \u2014 Basketball match vs Groupe Scolaire Officiel', time: 'Mar 5, 2026 \u2022 Student: Mutabazi Kevin (S4A)', typeClass: 'negative', type: 'Negative' },
-    { iconClass: 'positive', icon: 'emoji_events', title: 'Outstanding leadership at inter-school debate competition', time: 'Mar 2, 2026 \u2022 Student: Hakizimana Grace (S3A)', typeClass: 'positive', type: 'Positive' },
-    { iconClass: 'warning', icon: 'theater_comedy', title: 'Missed 3 consecutive Drama Club sessions without excuse', time: 'Feb 28, 2026 \u2022 Student: Nzeyimana Naomie (S1A)', typeClass: 'warning', type: 'Warning' },
-]
 const filterOptions = [
-    { key: 'all', label: 'All Activities' },
-    { key: 'sports', label: 'Sports' },
-    { key: 'arts', label: 'Arts' },
-    { key: 'academic', label: 'Academic' },
-    { key: 'social', label: 'Social' },
-    { key: 'science', label: 'Science' },
+    { key: 'all',      label: 'All Activities' },
+    { key: 'sports',   label: 'Sports'         },
+    { key: 'arts',     label: 'Arts'           },
+    { key: 'academic', label: 'Academic'       },
+    { key: 'social',   label: 'Social'         },
+    { key: 'science',  label: 'Science'        },
+    { key: 'other',    label: 'Other'          },
 ]
 
-function ActivityStat({ iconClass, icon, value, label, trend, trendClass }) {
-    return (
-        <div className="disc-stat-card">
-            <div className={`disc-stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-            <div>
-                <div className="disc-stat-value">{value}</div>
-                <div className="disc-stat-label">{label}</div>
-                <div className={`disc-stat-trend ${trendClass}`}>{trend}</div>
-            </div>
-        </div>
-    )
+function initials(name = '') {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
 }
 
-function ActivityCard({ avClass, avText, cat, name, patron, schedule, venue, incidents, incidentClass, badge, members, onEdit }) {
-    const role = `${cat.charAt(0).toUpperCase() + cat.slice(1)} \u2022 Patron: ${patron}`
+function avClass(category) {
+    return ['arts', 'social'].includes(category) ? 'matron' : 'patron'
+}
+
+function ActivityCard({ activity, onEdit }) {
+    const { name, category, teacher_name, schedule, venue, enrolled_count, max_members, is_full, is_active } = activity
+    const catLabel = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Other'
+    const badge    = is_active ? 'Active' : 'Inactive'
+    const badgeCls = is_active ? 'active' : ''
+    const full     = is_full ? ' (Full)' : ` / ${max_members} max`
+
     return (
-        <div className="staff-card" data-cat={cat}>
+        <div className="staff-card" data-cat={category}>
             <div className="staff-card-top">
-                <div className={`staff-card-avatar ${avClass}`}>{avText}</div>
+                <div className={`staff-card-avatar ${avClass(category)}`}>{initials(name)}</div>
                 <div>
                     <div className="staff-card-name">{name}</div>
-                    <div className="staff-card-role">{role}</div>
+                    <div className="staff-card-role">{catLabel} &bull; Patron: {teacher_name || '—'}</div>
                 </div>
-                <span className="pub-badge active ml-auto">{badge}</span>
+                <span className={`pub-badge ${badgeCls} ml-auto`}>{badge}</span>
             </div>
             <div className="staff-card-meta">
-                <span><span className="material-symbols-rounded">groups</span>{members} members</span>
-                <span><span className="material-symbols-rounded">schedule</span>{schedule}</span>
-                <span><span className="material-symbols-rounded">location_on</span>{venue}</span>
-                <span><span className="material-symbols-rounded">report</span><span className={incidentClass}>{incidents}</span></span>
+                <span><span className="material-symbols-rounded">groups</span>{enrolled_count} enrolled{full}</span>
+                {schedule && <span><span className="material-symbols-rounded">schedule</span>{schedule}</span>}
+                {venue    && <span><span className="material-symbols-rounded">location_on</span>{venue}</span>}
             </div>
             <div className="staff-card-actions">
-                <button className="btn btn-secondary btn-sm" onClick={() => { }}>
-                    <span className="material-symbols-rounded">group</span> Members
-                </button>
                 <button className="btn btn-primary btn-sm" onClick={onEdit}>
                     <span className="material-symbols-rounded">edit</span> Edit
                 </button>
@@ -88,45 +62,55 @@ function ActivityCard({ avClass, avText, cat, name, patron, schedule, venue, inc
     )
 }
 
-function ActivityIncident({ iconClass, icon, title, time, typeClass, type }) {
-    return (
-        <div className="disc-activity-item">
-            <div className={`disc-activity-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-            <div className="disc-activity-details">
-                <p className="disc-activity-title">{title}</p>
-                <p className="disc-activity-time">{time} &bull; <span className={`incident-type-tag ${typeClass}`}>{type}</span></p>
-            </div>
-            <button className="btn btn-secondary btn-sm">View Report</button>
-        </div>
-    )
-}
-
 export function DisActivities() {
-
-    const [isOpen, setIsOpen] = useState(false)
-    const [filter, setFilter] = useState('all')
-    const visible = filter === 'all'
-        ? activities
-        : activities.filter(r => r.cat === filter)
+    const [activities,      setActivities]      = useState([])
+    const [loading,         setLoading]         = useState(true)
+    const [filter,          setFilter]          = useState('all')
+    const [showNew,         setShowNew]         = useState(false)
     const [editingActivity, setEditingActivity] = useState(null)
-    function handleSave(updatedForm) {
-        console.log('Saved', updatedForm)
+
+    useEffect(() => {
+        getDisActivities()
+            .then(setActivities)
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
+
+    async function handleCreate(form) {
+        try {
+            const created = await createDisActivity(form)
+            setActivities(prev => [created, ...prev])
+        } catch (e) { console.error(e) }
+        setShowNew(false)
     }
-    function handleCreate(newForm){
-        console.log('new Club Created:', newForm)
+
+    function handleSaveEdit(updated) {
+        setActivities(prev => prev.map(a => a.id === editingActivity.id ? { ...a, ...updated } : a))
+        setEditingActivity(null)
     }
+
+    const visible = activities.filter(a =>
+        (filter === 'all' || a.category === filter) && a.is_active !== false
+    )
+
+    const stats = [
+        { iconClass: 'info',    icon: 'emoji_events',       value: activities.filter(a => a.is_active).length, label: 'Active Clubs'    },
+        { iconClass: 'success', icon: 'groups',             value: activities.reduce((s, a) => s + (a.enrolled_count || 0), 0), label: 'Enrolled Students' },
+        { iconClass: 'positive',icon: 'supervisor_account', value: new Set(activities.filter(a => a.teacher_name).map(a => a.teacher_name)).size, label: 'Patron Teachers' },
+    ]
+
     return (
         <>
             {editingActivity && (
                 <EditActivityModal
                     activity={editingActivity}
                     onClose={() => setEditingActivity(null)}
-                    onSave={handleSave}
+                    onSave={handleSaveEdit}
                 />
             )}
-            {isOpen &&(
+            {showNew && (
                 <NewActivityModal
-                    onClose={()=>setIsOpen(false)}
+                    onClose={() => setShowNew(false)}
                     onSave={handleCreate}
                 />
             )}
@@ -136,71 +120,56 @@ export function DisActivities() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Extracurricular Activities" subtitle="Manage clubs, events, patron assignments and memberships" {...disUser} />
+                    <DashboardHeader title="Extracurricular Activities" subtitle="Manage clubs, patron assignments and memberships" {...disUser} />
 
                     <DashboardContent>
 
-                        {/* Stats */}
                         <div className="disc-stat-grid">
-                            {activityStats.map((stat, index) => (
-                                <ActivityStat key={index} {...stat} />
+                            {stats.map((s, i) => (
+                                <div key={i} className="disc-stat-card">
+                                    <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
+                                    <div>
+                                        <div className="disc-stat-value">{loading ? '—' : s.value}</div>
+                                        <div className="disc-stat-label">{s.label}</div>
+                                    </div>
+                                </div>
                             ))}
                         </div>
 
-                        {/* Toolbar container */}
                         <div className="toolbar-card">
-                            <FilterBar
-                                options={filterOptions}
-                                active={filter}
-                                onChange={setFilter}
-                            />
+                            <FilterBar options={filterOptions} active={filter} onChange={setFilter} />
                             <div className="toolbar-spacer" />
-                            <button className="btn btn-primary" onClick={() => setIsOpen(true)}>
-                                <span className="material-symbols-rounded">add</span> New Club / Event
+                            <button className="btn btn-primary" onClick={() => setShowNew(true)}>
+                                <span className="material-symbols-rounded">add</span> New Club
                             </button>
                         </div>
 
-                        {/* Content container or EmptyState */}
-                        {visible.length === 0 ? (
+                        {loading ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading activities…</p>
+                        ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="sports_soccer"
                                 title={`No ${filter === 'all' ? '' : filter + ' '}activities found`}
-                                description="No clubs or events match this filter."
+                                description="No clubs match this filter."
                                 action={{ label: 'Show All', icon: 'refresh', onClick: () => setFilter('all') }}
                             />
                         ) : (
                             <div className="act-list-card">
                                 <div className="act-list-header">
                                     <div className="act-list-title">
-                                        {filter === 'all' ? 'All Clubs & Events' : `${filter.charAt(0).toUpperCase() + filter.slice(1)} Activities`}
+                                        {filter === 'all' ? 'All Clubs & Activities' : `${filter.charAt(0).toUpperCase() + filter.slice(1)} Activities`}
                                     </div>
-                                    <span className="act-list-count">
-                                        {visible.length} club{visible.length !== 1 ? 's' : ''}
-                                    </span>
+                                    <span className="act-list-count">{visible.length} club{visible.length !== 1 ? 's' : ''}</span>
                                 </div>
                                 <div className="act-list-body">
                                     <div className="staff-cards-grid">
-                                        {visible.map((activity, index) => (
-                                            <ActivityCard key={index} {...activity} onEdit={() => setEditingActivity(activity)} />
+                                        {visible.map(a => (
+                                            <ActivityCard key={a.id} activity={a} onEdit={() => setEditingActivity(a)} />
                                         ))}
                                     </div>
                                 </div>
                             </div>
                         )}
-
-                        {/* Recent incidents */}
-                        <div className="card mt-1-5">
-                            <div className="card-header">
-                                <h2 className="card-title">Recent Conduct Incidents During Activities</h2>
-                            </div>
-                            <div className="card-content">
-                                <div className="disc-activity-list">
-                                    {recentActivityIncidents.map((incident, index) => (
-                                        <ActivityIncident key={index} {...incident} />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
 
                     </DashboardContent>
                 </main>

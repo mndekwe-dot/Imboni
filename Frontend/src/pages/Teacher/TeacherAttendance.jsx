@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { formatSchoolDate } from '../../utils/date'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -49,6 +51,14 @@ function buildSections(classes) {
 }
 
 export function TeacherAttendance() {
+    const { setting } = useSchoolSettings()
+
+    const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
+    const firstName  = storedUser.first_name || ''
+    const lastName   = storedUser.last_name  || ''
+    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Teacher'
+    const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'T'
+
     const [section, setSection]   = useState('')
     const [year, setYear]         = useState('')
     const [classVal, setClassVal] = useState('')
@@ -185,15 +195,13 @@ export function TeacherAttendance() {
                             <p>Track student attendance for your classes</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <button className="notification-btn">
-                                <span className="material-symbols-rounded">notifications</span>
-                            </button>
+                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Teacher</span>
+                                    <span className="header-user-name">{fullName}</span>
                                     <span className="header-user-role">Teacher</span>
                                 </div>
-                                <Link to="/profile?role=teacher" className="header-user-av teacher-av">T</Link>
+                                <Link to="/profile?role=teacher" className="header-user-av teacher-av">{initials}</Link>
                             </div>
                         </div>
                     </header>

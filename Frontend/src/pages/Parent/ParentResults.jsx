@@ -1,100 +1,140 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
-import { Link } from 'react-router'
+import { useState, useEffect } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import {
+    getMyChildren, getChildAssessments, getChildSummative, getChildReviews,
+} from '../../api/parent'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
-import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
-import { DashboardContent } from '../../components/layout/DashboardContent'
 
+function initials(name = '') {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+}
 
-const recentResults = [
-    { subject: 'Mathematics', type: 'Mid-Term', score: '85/100', grade: 'A', badgeClass: 'badge-success', date: 'Jan 15, 2026' },
-    { subject: 'English',     type: 'Quiz',     score: '78/100', grade: 'B', badgeClass: 'badge-primary', date: 'Jan 14, 2026' },
-    { subject: 'Physics',     type: 'Test',     score: '92/100', grade: 'A', badgeClass: 'badge-success', date: 'Jan 12, 2026' },
-    { subject: 'Chemistry',   type: 'Lab',      score: '70/100', grade: 'B', badgeClass: 'badge-primary', date: 'Jan 10, 2026' },
-    { subject: 'History',     type: 'Essay',    score: '88/100', grade: 'A', badgeClass: 'badge-success', date: 'Jan 8, 2026'  },
-]
+function gradeBadge(g) {
+    if (g === 'A') return 'badge-success'
+    if (g === 'B') return 'badge-primary'
+    return 'badge-warning'
+}
 
-const summativePerformance = [
-    { subject: 'Mathematics', avgQuiz: '85%', groupWork: '92%', exam: '88%', final: '88.5%', gradeClass: 'a', grade: 'A' },
-    { subject: 'English',     avgQuiz: '78%', groupWork: '88%', exam: '82%', final: '82.3%', gradeClass: 'a', grade: 'A' },
-]
+function gradeClass(g) {
+    if (g === 'A') return 'a'
+    if (g === 'B') return 'b'
+    return 'c'
+}
 
-const assessments = [
-    { iconClass: 'quiz',  icon: 'quiz',       title: 'Algebra Quiz #3',             sub: 'Individual Task \u00b7 Feb 05',      score: '18/20', scoreClass: 'text-success' },
-    { iconClass: 'group', icon: 'groups',     title: 'Climate Change Presentation',  sub: 'Group Project (Lead) \u00b7 Jan 28', score: '45/50', scoreClass: 'text-success' },
-    { iconClass: 'quiz',  icon: 'history_edu',title: 'Literature Essay',             sub: 'Weekly Assignment \u00b7 Jan 15',    score: '12/20', scoreClass: 'text-warning' },
-]
+function scoreLabel(obtained, max) {
+    if (obtained == null) return '—'
+    return max ? `${Math.round(obtained)}/${Math.round(max)}` : `${Math.round(obtained)}`
+}
 
-const teacherReviews = [
-    { avatarBg: 'var(--primary)', initials: 'PR', teacher: 'Mr. Pacifique Rurangwa',  role: 'Maths Teacher \u00b7 2 days ago',   text: "Amina's performance in Group Work was exemplary. She took a leadership role and helped her peers understand the complex variables." },
-    { avatarBg: 'var(--accent)',  initials: 'SU', teacher: 'Ms. Sandrine Uwera',       role: 'Physics Teacher \u00b7 1 week ago', text: 'Noticeable improvement in quiz scores. Suggest more practice on the practical lab reports.' },
-]
-
-function ResultRow({ subject, type, score, grade, badgeClass, date }) {
+function AssessmentRow({ title, assessment_type, date, score_display, grade, subject_name }) {
+    const typeLabel = (assessment_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    const dateStr   = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'
     return (
         <tr>
-            <td>{subject}</td>
-            <td>{type}</td>
-            <td>{score}</td>
-            <td><span className={`badge ${badgeClass}`}>{grade}</span></td>
-            <td>{date}</td>
+            <td>{subject_name}</td>
+            <td>{typeLabel}</td>
+            <td>{score_display}</td>
+            <td><span className={`badge ${gradeBadge(grade)}`}>{grade}</span></td>
+            <td>{dateStr}</td>
         </tr>
     )
 }
 
-function SummativeRow({ subject, avgQuiz, groupWork, exam, final, gradeClass, grade }) {
+function SummativeRow({ subject_name, class_test_marks, exam_score, final_score, grade }) {
     return (
         <tr>
-            <td><strong>{subject}</strong></td>
-            <td>{avgQuiz}</td>
-            <td>{groupWork}</td>
-            <td>{exam}</td>
-            <td><strong>{final}</strong></td>
-            <td><span className={`grade-badge ${gradeClass}`}>{grade}</span></td>
+            <td><strong>{subject_name}</strong></td>
+            <td>{scoreLabel(class_test_marks)}</td>
+            <td>{scoreLabel(exam_score)}</td>
+            <td><strong>{scoreLabel(final_score)}</strong></td>
+            <td><span className={`grade-badge ${gradeClass(grade)}`}>{grade}</span></td>
         </tr>
     )
 }
 
-function AssessmentItem({ iconClass, icon, title, sub, score, scoreClass }) {
+function ReviewBubble({ teacher_name, teacher_role, teacher_comment, updated_at }) {
+    const ini    = initials(teacher_name)
+    const timeAgo = updated_at
+        ? new Date(updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        : ''
     return (
-        <div className="assessment-item">
-            <div className={`assessment-icon ${iconClass}`}>
-                <span className="material-symbols-rounded">{icon}</span>
+        <div className="review-bubble">
+            <div className="review-header">
+                <div className="avatar avatar-sm" style={{ background: 'var(--primary)' }}>{ini}</div>
+                <div>
+                    <p className="text-sm"><strong>{teacher_name}</strong></p>
+                    <p className="text-xs text-muted">{teacher_role}{timeAgo ? ` · ${timeAgo}` : ''}</p>
+                </div>
             </div>
-            <div className="assessment-info">
-                <p><strong>{title}</strong></p>
-                <p className="text-xs text-muted">{sub}</p>
-            </div>
-            <div className={`assessment-score ${scoreClass}`}>{score}</div>
+            <p className="review-text text-sm">"{teacher_comment}"</p>
         </div>
     )
 }
 
-function ReviewBubble({ avatarBg, initials, teacher, role, text }) {
+function AssessmentItem({ title, assessment_type, score_display, grade }) {
+    const typeLabel = (assessment_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    const cls = grade === 'A' ? 'text-success' : grade === 'B' ? 'text-primary' : 'text-warning'
     return (
-        <div className="review-bubble">
-            <div className="review-header">
-                <div className="avatar avatar-sm" style={{ background: avatarBg }}>{initials}</div>
-                <div>
-                    <p className="text-sm"><strong>{teacher}</strong></p>
-                    <p className="text-xs text-muted">{role}</p>
-                </div>
+        <div className="assessment-item">
+            <div className="assessment-icon quiz">
+                <span className="material-symbols-rounded">quiz</span>
             </div>
-            <p className="review-text text-sm">"{text}"</p>
+            <div className="assessment-info">
+                <p><strong>{title}</strong></p>
+                <p className="text-xs text-muted">{typeLabel}</p>
+            </div>
+            <div className={`assessment-score ${cls}`}>{score_display}</div>
         </div>
     )
 }
 
 export function ParentResults() {
+    const [children,    setChildren]    = useState([])
+    const [activeIdx,   setActiveIdx]   = useState(0)
+    const [loading,     setLoading]     = useState(true)
+    const [assessments, setAssessments] = useState([])
+    const [summative,   setSummative]   = useState([])
+    const [reviews,     setReviews]     = useState([])
+    const [loadingData, setLoadingData] = useState(false)
+
+    useEffect(() => {
+        getMyChildren()
+            .then(setChildren)
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
+
+    useEffect(() => {
+        if (!children.length) return
+        const child = children[activeIdx]
+        if (!child) return
+        setLoadingData(true)
+        setAssessments([])
+        setSummative([])
+        setReviews([])
+        Promise.all([
+            getChildAssessments(child.id).catch(() => []),
+            getChildSummative(child.id).catch(() => []),
+            getChildReviews(child.id).catch(() => []),
+        ]).then(([a, s, r]) => {
+            setAssessments(a)
+            setSummative(s)
+            setReviews(r)
+        }).finally(() => setLoadingData(false))
+    }, [children, activeIdx])
+
+    const child = children[activeIdx]
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
             <div className="sidebar-overlay"></div>
-
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
-
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
                         <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
@@ -105,121 +145,141 @@ export function ParentResults() {
                             <p>Performance tracking and term reports</p>
                         </div>
                         <div className="dashboard-header-actions">
-                            <button className="btn btn-outline">
-                                <span className="material-symbols-rounded">download</span> Export PDF
-                            </button>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Mrs. Chantal Uwase</span>
-                                    <span className="header-user-role">Parent</span>
+                                    <span className="header-user-name">{parentUser.userName}</span>
+                                    <span className="header-user-role">{parentUser.userRole}</span>
                                 </div>
-                                <Link to="/profile?role=parent" className="header-user-av parent-av">CU</Link>
+                                <div className={`header-user-av ${parentUser.avatarClass}`}>{parentUser.userInitials}</div>
                             </div>
                         </div>
                     </header>
 
-                    {/* Child Switcher */}
-                    <div className="child-switcher-bar">
-                        <span className="child-switcher-label">Viewing:</span>
-                        <button className="child-tab active">
-                            <div className="child-tab-avatar amina">A</div>
-                            <div className="child-tab-info">
-                                <span className="child-tab-name">Uwase Amina</span>
-                                <span className="child-tab-grade">S4A</span>
-                            </div>
-                        </button>
-                    </div>
+                    {!loading && children.length > 0 && (
+                        <div className="child-switcher-bar">
+                            <span className="child-switcher-label">Viewing:</span>
+                            {children.map((c, i) => (
+                                <button key={c.id}
+                                    className={`child-tab${i === activeIdx ? ' active' : ''}`}
+                                    onClick={() => setActiveIdx(i)}>
+                                    <div className="child-tab-avatar amina">{initials(c.student_name)}</div>
+                                    <div className="child-tab-info">
+                                        <span className="child-tab-name">{c.student_name}</span>
+                                        <span className="child-tab-grade">{c.grade}{c.section}</span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     <DashboardContent>
-
-                        {/* Recent Results */}
-                        <div className="card">
-                            <div className="card-header">
-                                <h3 className="card-title">Recent Results â€” Uwase Amina</h3>
-                                <button className="btn btn-outline btn-sm">
-                                    View All <span className="material-symbols-rounded">arrow_forward</span>
-                                </button>
-                            </div>
-                            <div className="card-content">
-                                <div className="table-responsive">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Subject</th>
-                                                <th>Type</th>
-                                                <th>Score</th>
-                                                <th>Grade</th>
-                                                <th>Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {recentResults.map((row, index) => (
-                                                <ResultRow key={index} {...row} />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Summative Performance */}
-                        <div className="card mt-1-5">
-                            <div className="card-header">
-                                <h3 className="card-title">Summative Performance</h3>
-                            </div>
-                            <div className="card-content">
-                                <div className="table-responsive">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Subject</th>
-                                                <th>Avg Quiz</th>
-                                                <th>Group Work</th>
-                                                <th>Exam</th>
-                                                <th>Final</th>
-                                                <th>Grade</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {summativePerformance.map((row, index) => (
-                                                <SummativeRow key={index} {...row} />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Assessments & Teacher Reviews */}
-                        <div className="grid-2 mt-1-5">
-                            <div className="card">
-                                <div className="card-header">
-                                    <h3 className="card-title">Recent Assessments &amp; Projects</h3>
-                                    <span className="badge badge-secondary">This Term</span>
-                                </div>
-                                <div className="card-content">
-                                    <div className="assessment-list">
-                                        {assessments.map((item, index) => (
-                                            <AssessmentItem key={index} {...item} />
-                                        ))}
+                        {loading ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                        ) : !child ? (
+                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked.</p>
+                        ) : (
+                            <>
+                                {/* Recent Assessments table */}
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h3 className="card-title">Recent Results — {child.student_name}</h3>
+                                    </div>
+                                    <div className="card-content">
+                                        {loadingData ? (
+                                            <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                                        ) : assessments.length === 0 ? (
+                                            <p style={{ color: 'var(--muted-foreground)' }}>No assessments recorded yet.</p>
+                                        ) : (
+                                            <div className="table-responsive">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Subject</th>
+                                                            <th>Type</th>
+                                                            <th>Score</th>
+                                                            <th>Grade</th>
+                                                            <th>Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {assessments.map((a, i) => (
+                                                            <AssessmentRow key={a.id || i} {...a} />
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="card">
-                                <div className="card-header">
-                                    <h3 className="card-title">Teacher Reviews</h3>
-                                </div>
-                                <div className="card-content">
-                                    <div className="review-timeline">
-                                        {teacherReviews.map((review, index) => (
-                                            <ReviewBubble key={index} {...review} />
-                                        ))}
+                                {/* Summative Performance */}
+                                {summative.length > 0 && (
+                                    <div className="card mt-1-5">
+                                        <div className="card-header">
+                                            <h3 className="card-title">Summative Performance</h3>
+                                        </div>
+                                        <div className="card-content">
+                                            <div className="table-responsive">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Subject</th>
+                                                            <th>Class Test</th>
+                                                            <th>Exam</th>
+                                                            <th>Final</th>
+                                                            <th>Grade</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {summative.map((r, i) => (
+                                                            <SummativeRow key={r.id || i} {...r} />
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Assessments & Teacher Reviews */}
+                                <div className="grid-2 mt-1-5">
+                                    <div className="card">
+                                        <div className="card-header">
+                                            <h3 className="card-title">Recent Assessments &amp; Projects</h3>
+                                            <span className="badge badge-secondary">This Term</span>
+                                        </div>
+                                        <div className="card-content">
+                                            {assessments.length === 0 ? (
+                                                <p style={{ color: 'var(--muted-foreground)' }}>No assessments yet.</p>
+                                            ) : (
+                                                <div className="assessment-list">
+                                                    {assessments.slice(0, 4).map((a, i) => (
+                                                        <AssessmentItem key={a.id || i} {...a} />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="card">
+                                        <div className="card-header">
+                                            <h3 className="card-title">Teacher Reviews</h3>
+                                        </div>
+                                        <div className="card-content">
+                                            {reviews.length === 0 ? (
+                                                <p style={{ color: 'var(--muted-foreground)' }}>No reviews yet.</p>
+                                            ) : (
+                                                <div className="review-timeline">
+                                                    {reviews.map((r, i) => (
+                                                        <ReviewBubble key={r.id || i} {...r} />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
+                            </>
+                        )}
                     </DashboardContent>
                 </main>
             </div>

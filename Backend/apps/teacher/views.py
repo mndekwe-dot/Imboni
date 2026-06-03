@@ -313,6 +313,7 @@ class MyClassesView(APIView):
                 'grade':         class_obj.grade,
                 'section':       class_obj.section,
                 'subject_name':  sta.subject.name,
+                'subject_id':    sta.subject.id,
                 'student_count': student_count,
                 'avg_score':     avg_score,
                 'schedule_days': schedule_days,

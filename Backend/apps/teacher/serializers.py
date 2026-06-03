@@ -61,6 +61,7 @@ class MyClassSerializer(serializers.Serializer):
     grade          = serializers.CharField()
     section        = serializers.CharField()
     subject_name   = serializers.CharField()
+    subject_id     = serializers.UUIDField(allow_null=True)
     student_count  = serializers.IntegerField()
     avg_score      = serializers.FloatField(allow_null=True)
     schedule_days  = serializers.CharField()         # e.g. "Mon, Wed, Fri"
