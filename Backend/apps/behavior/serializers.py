@@ -22,7 +22,7 @@ class BehaviorReportSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'report_type', 'severity',
             'description', 'date', 'action_taken',
-            'reported_by_display', 'badge',
+            'reported_by_display', 'badge', 'marks_deducted', 'status',
         ]
 
     def get_badge(self, obj):

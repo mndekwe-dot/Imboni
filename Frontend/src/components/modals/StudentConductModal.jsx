@@ -82,20 +82,28 @@ function ProfileTab({ student, stats, history, histLoading }) {
                         Current Term Standing
                     </div>
                 </div>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '1.25rem' }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontWeight: 700, color: '#15803d', fontSize: '1.1rem' }}>
-                            {stats ? stats.positive_reports + stats.achievements : '—'}
+                {stats && (
+                    <div style={{ marginLeft: 'auto', minWidth: '110px' }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--muted-foreground)', marginBottom: '0.25rem', textAlign: 'right' }}>
+                            Discipline Marks
                         </div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>Positive</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontWeight: 700, color: '#dc2626', fontSize: '1.1rem' }}>
-                            {stats ? stats.warnings + (student.incident_count || 0) : '—'}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                            <div style={{ flex: 1, height: '6px', borderRadius: '4px', background: 'rgba(0,0,0,0.12)', overflow: 'hidden' }}>
+                                <div style={{
+                                    height: '100%', borderRadius: '4px',
+                                    width: `${((stats.discipline_marks ?? 40) / 40) * 100}%`,
+                                    background: (stats.discipline_marks ?? 40) >= 30 ? '#16a34a'
+                                              : (stats.discipline_marks ?? 40) >= 20 ? '#f59e0b' : '#dc2626',
+                                    transition: 'width 0.3s',
+                                }} />
+                            </div>
+                            <span style={{ fontWeight: 800, fontSize: '1rem', whiteSpace: 'nowrap' }}>
+                                {stats.discipline_marks ?? 40}
+                                <span style={{ fontWeight: 400, fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>/40</span>
+                            </span>
                         </div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>Negative</div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Student details grid */}
@@ -192,7 +200,7 @@ function ProfileTab({ student, stats, history, histLoading }) {
 
 function LogTab({ student, onReportSaved }) {
     const [reportType, setReportType] = useState('incident')
-    const [form, setForm] = useState({ title: '', description: '', severity: 'minor', location: '', date: todayISO() })
+    const [form, setForm] = useState({ title: '', description: '', severity: 'minor', location: '', date: todayISO(), marks_deducted: '' })
     const [saving, setSaving]         = useState(false)
     const [done,   setDone]           = useState(false)
     const [error,  setError]          = useState(null)
@@ -209,13 +217,14 @@ function LogTab({ student, onReportSaved }) {
         setError(null)
         try {
             await createDisReport({
-                student_id:  student.id,
-                report_type: reportType,
-                title:       form.title,
-                description: form.description,
-                date:        form.date,
-                severity:    isNeg ? form.severity : null,
-                location:    form.location || '',
+                student_id:     student.id,
+                report_type:    reportType,
+                title:          form.title,
+                description:    form.description,
+                date:           form.date,
+                severity:       isNeg ? form.severity : null,
+                location:       form.location || '',
+                marks_deducted: isNeg && form.marks_deducted ? parseInt(form.marks_deducted) : null,
             })
             setDone(true)
             if (onReportSaved) onReportSaved()
@@ -227,7 +236,7 @@ function LogTab({ student, onReportSaved }) {
     }
 
     function reset() {
-        setForm({ title: '', description: '', severity: 'minor', location: '', date: todayISO() })
+        setForm({ title: '', description: '', severity: 'minor', location: '', date: todayISO(), marks_deducted: '' })
         setReportType('incident')
         setDone(false)
         setError(null)
@@ -285,25 +294,47 @@ function LogTab({ student, onReportSaved }) {
             </div>
 
             {isNeg && (
-                <div className="form-group">
-                    <label className="form-label">Severity</label>
-                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                        {SEVERITY_OPTIONS.map(s => (
-                            <button
-                                key={s.value}
-                                onClick={() => setForm(prev => ({ ...prev, severity: s.value }))}
-                                style={{
-                                    padding: '0.3rem 0.75rem', borderRadius: '9px',
-                                    border: '1.5px solid',
-                                    borderColor: form.severity === s.value ? '#dc2626' : 'var(--border)',
-                                    background: form.severity === s.value ? '#fee2e2' : 'transparent',
-                                    color: form.severity === s.value ? '#b91c1c' : 'var(--muted-foreground)',
-                                    fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
-                                }}
-                            >{s.label}</button>
-                        ))}
+                <>
+                    <div className="form-group">
+                        <label className="form-label">Severity</label>
+                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                            {SEVERITY_OPTIONS.map(s => (
+                                <button
+                                    key={s.value}
+                                    onClick={() => setForm(prev => ({ ...prev, severity: s.value }))}
+                                    style={{
+                                        padding: '0.3rem 0.75rem', borderRadius: '9px',
+                                        border: '1.5px solid',
+                                        borderColor: form.severity === s.value ? '#dc2626' : 'var(--border)',
+                                        background: form.severity === s.value ? '#fee2e2' : 'transparent',
+                                        color: form.severity === s.value ? '#b91c1c' : 'var(--muted-foreground)',
+                                        fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
+                                    }}
+                                >{s.label}</button>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                    <div className="form-group">
+                        <label className="form-label">
+                            Marks Deducted
+                            <span style={{ fontWeight: 400, color: 'var(--muted-foreground)', marginLeft: '0.35rem' }}>
+                                (optional · max 40)
+                            </span>
+                        </label>
+                        <input
+                            className="form-input"
+                            type="number" min="0" max="40" step="1"
+                            name="marks_deducted"
+                            value={form.marks_deducted}
+                            onChange={e => {
+                                const v = Math.max(0, Math.min(40, parseInt(e.target.value) || 0))
+                                setForm(prev => ({ ...prev, marks_deducted: e.target.value === '' ? '' : v }))
+                            }}
+                            placeholder="e.g. 5"
+                            style={{ maxWidth: '120px' }}
+                        />
+                    </div>
+                </>
             )}
 
             <div className="form-group">

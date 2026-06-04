@@ -20,6 +20,7 @@ export const disNavItems = [
 ]
 
 export const disSecondaryItems = [
+    { to: '/discipline/settings',      icon: 'settings',       label: 'Settings'},
     { to: '/profile?role=discipline',  icon: 'account_circle', label: 'Profile' },
     { to: '/login',                    icon: 'logout',         label: 'Logout'  },
 ]

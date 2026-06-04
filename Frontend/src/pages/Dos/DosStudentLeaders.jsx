@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react'
-import { getDosStudentLeaders } from '../../api/dos'
+import { getDosStudentLeaders, getDosActivities, patchDosActivity, deleteDosActivity } from '../../api/dos'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { StatCard } from '../../components/layout/StatCard'
@@ -122,6 +122,65 @@ function LeaderFormModal({ leader, onClose, onSave, allClasses }) {
     )
 }
 
+const CLUB_CATEGORY_LABELS = {
+    sport: 'Sports', music: 'Music', art: 'Arts & Crafts',
+    debate: 'Debate', science: 'Science', community: 'Community Service',
+    leadership: 'Leadership', other: 'Other',
+}
+
+function ClubCard({ club, onToggle, onDelete }) {
+    const [confirmDelete, setConfirmDelete] = useState(false)
+    const [toggling,      setToggling]      = useState(false)
+    const catLabel = CLUB_CATEGORY_LABELS[club.category] || club.category
+
+    async function handleToggle() {
+        setToggling(true)
+        await onToggle(club.id, club.is_active)
+        setToggling(false)
+    }
+
+    return (
+        <div className="staff-card" style={{ opacity: club.is_active ? 1 : 0.6 }}>
+            <div className="staff-card-top">
+                <div className="staff-card-avatar dos-av" style={{ fontSize: '0.8rem' }}>
+                    {(club.name || '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()}
+                </div>
+                <div>
+                    <div className="staff-card-name">{club.name}</div>
+                    <div className="staff-card-role">{catLabel}{club.teacher_name ? ` · ${club.teacher_name}` : ''}</div>
+                </div>
+                <span className={`pub-badge ${club.is_active ? 'active' : 'draft'} ml-auto`}>
+                    {club.is_active ? 'Active' : 'Inactive'}
+                </span>
+            </div>
+            <div className="staff-card-meta">
+                <span><span className="material-symbols-rounded">groups</span>{club.enrolled_count ?? 0} / {club.max_members} members</span>
+                {club.schedule && <span><span className="material-symbols-rounded">schedule</span>{club.schedule}</span>}
+                {club.venue    && <span><span className="material-symbols-rounded">location_on</span>{club.venue}</span>}
+            </div>
+            <div className="staff-card-actions">
+                {confirmDelete ? (
+                    <>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Delete permanently?</span>
+                        <button className="btn btn-primary btn-sm" onClick={() => onDelete(club.id)}>Yes, delete</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>Cancel</button>
+                    </>
+                ) : (
+                    <>
+                        <button className="btn btn-outline btn-sm" style={{ color: '#dc2626', borderColor: '#dc2626' }} onClick={() => setConfirmDelete(true)}>
+                            <span className="material-symbols-rounded icon-sm">delete</span>
+                        </button>
+                        <button className="btn btn-outline btn-sm" onClick={handleToggle} disabled={toggling}>
+                            <span className="material-symbols-rounded icon-sm">{club.is_active ? 'visibility_off' : 'visibility'}</span>
+                            {toggling ? '…' : club.is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                    </>
+                )}
+            </div>
+        </div>
+    )
+}
+
 function PrefectCard({ initials, name, roleTag, role, form, since, editMode, onEdit, onRemove }) {
     return (
         <div className="leader-card">
@@ -172,8 +231,12 @@ export function DosStudentLeaders() {
     const { setting } = useSchoolSettings()
     const { config }  = useSchoolConfig()
     const allClasses  = classesFromConfig(config)
+    const [activeTab,      setActiveTab]      = useState('leaders')
     const [prefectList,    setPrefectList]    = useState([])
     const [captainList,    setCaptainList]    = useState([])
+    const [clubs,          setClubs]          = useState([])
+    const [clubsLoaded,    setClubsLoaded]    = useState(false)
+    const [clubLoading,    setClubLoading]    = useState(false)
     const [leaderStats,    setLeaderStats]    = useState([
         { icon: 'military_tech', value: '—', label: 'Prefects',          trend: 'School-wide',  trendClass: '',         colorClass: 'info'    },
         { icon: 'home',          value: '—', label: 'Dormitory Captains',trend: 'By house',     trendClass: '',         colorClass: 'success' },
@@ -198,6 +261,30 @@ export function DosStudentLeaders() {
             })
             .catch(err => console.error(err))
     }, [])
+    useEffect(() => {
+        if (activeTab !== 'clubs' || clubsLoaded) return
+        setClubsLoaded(true)
+        setClubLoading(true)
+        getDosActivities()
+            .then(data => setClubs(Array.isArray(data) ? data : []))
+            .catch(console.error)
+            .finally(() => setClubLoading(false))
+    }, [activeTab, clubsLoaded])
+
+    async function handleToggleClub(id, isActive) {
+        try {
+            const updated = await patchDosActivity(id, { is_active: !isActive })
+            setClubs(prev => prev.map(c => c.id === id ? updated : c))
+        } catch(e) { console.error(e) }
+    }
+
+    async function handleDeleteClub(id) {
+        try {
+            await deleteDosActivity(id)
+            setClubs(prev => prev.filter(c => c.id !== id))
+        } catch(e) { console.error(e) }
+    }
+
     const [showAppoint,    setShowAppoint]    = useState(false)
     const [editLeader,     setEditLeader]     = useState(null)   // { type, index, data }
     const [prefectEditMode, setPrefectEditMode] = useState(false)
@@ -238,9 +325,11 @@ export function DosStudentLeaders() {
                         </div>
                         <div className="dashboard-header-actions">
                             <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
-                            <button className="btn btn-primary" onClick={() => setShowAppoint(true)}>
-                                <span className="material-symbols-rounded">add</span> Appoint Leader
-                            </button>
+                            {activeTab === 'leaders' && (
+                                <button className="btn btn-primary" onClick={() => setShowAppoint(true)}>
+                                    <span className="material-symbols-rounded">add</span> Appoint Leader
+                                </button>
+                            )}
                             <div className="header-user">
                                 <div className="header-user-info">
                                     <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
@@ -268,71 +357,114 @@ export function DosStudentLeaders() {
                             ))}
                         </div>
 
-                        <div className="filter-tabs">
-                            <button className="tab active">All Leaders</button>
-                            <button className="tab">Prefects</button>
-                            <button className="tab">Dormitory Captains</button>
-                            <button className="tab">Club Leaders</button>
-                            <button className="tab">Class Representatives</button>
+                        <div className="filter-tabs-bar mb-5">
+                            <button className={`filter-tab${activeTab === 'leaders' ? ' active' : ''}`} onClick={() => setActiveTab('leaders')}>
+                                <span className="material-symbols-rounded">military_tech</span> Student Leaders
+                            </button>
+                            <button className={`filter-tab${activeTab === 'clubs' ? ' active' : ''}`} onClick={() => setActiveTab('clubs')}>
+                                <span className="material-symbols-rounded">emoji_events</span> Clubs &amp; Activities
+                                {clubs.length > 0 && <span className="badge-count" style={{ marginLeft: '0.4rem' }}>{clubs.length}</span>}
+                            </button>
                         </div>
 
-                        {/* Prefects */}
-                        <div className="card mb-1-5">
-                            <div className="card-header">
-                                <h2 className="card-title">School Prefects</h2>
-                                <button className="btn btn-secondary btn-sm" onClick={() => setPrefectEditMode(m => !m)}>
-                                    {prefectEditMode ? 'Done' : 'Edit Appointments'}
-                                </button>
-                            </div>
-                            <div className="card-content">
-                                <div className="leaders-grid">
-                                    {prefectList.map((p, index) => (
-                                        <PrefectCard
-                                            key={index} {...p}
-                                            editMode={prefectEditMode}
-                                            onEdit={() => setEditLeader({ type: 'prefect', index, data: p })}
-                                            onRemove={() => setPrefectList(prev => prev.filter((_, i) => i !== index))}
-                                        />
-                                    ))}
+                        {/* ── LEADERS TAB ── */}
+                        {activeTab === 'leaders' && (
+                            <>
+                                {/* Prefects */}
+                                <div className="card mb-1-5">
+                                    <div className="card-header">
+                                        <h2 className="card-title">School Prefects</h2>
+                                        <button className="btn btn-secondary btn-sm" onClick={() => setPrefectEditMode(m => !m)}>
+                                            {prefectEditMode ? 'Done' : 'Edit Appointments'}
+                                        </button>
+                                    </div>
+                                    <div className="card-content">
+                                        <div className="leaders-grid">
+                                            {prefectList.length === 0
+                                                ? <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No prefects appointed this term.</p>
+                                                : prefectList.map((p, index) => (
+                                                    <PrefectCard
+                                                        key={index} {...p}
+                                                        editMode={prefectEditMode}
+                                                        onEdit={() => setEditLeader({ type: 'prefect', index, data: p })}
+                                                        onRemove={() => setPrefectList(prev => prev.filter((_, i) => i !== index))}
+                                                    />
+                                                ))
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        {/* Dormitory Captains */}
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">Dormitory Captains</h2>
-                                <button className="btn btn-secondary btn-sm" onClick={() => setCaptainEditMode(m => !m)}>
-                                    {captainEditMode ? 'Done' : 'Edit Appointments'}
-                                </button>
-                            </div>
-                            <div className="card-content">
-                                <div className="leaders-table-wrap">
-                                    <table className="leaders-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Student</th>
-                                                <th>Role</th>
-                                                <th>Dormitory</th>
-                                                <th>Form</th>
-                                                <th>Since</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {captainList.map((hc, index) => (
-                                                <HouseCaptainRow
-                                                    key={index} {...hc}
-                                                    editMode={captainEditMode}
-                                                    onEdit={() => setEditLeader({ type: 'captain', index, data: hc })}
-                                                    onRemove={() => setCaptainList(prev => prev.filter((_, i) => i !== index))}
+                                {/* Dormitory Captains */}
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h2 className="card-title">Dormitory Captains</h2>
+                                        <button className="btn btn-secondary btn-sm" onClick={() => setCaptainEditMode(m => !m)}>
+                                            {captainEditMode ? 'Done' : 'Edit Appointments'}
+                                        </button>
+                                    </div>
+                                    <div className="card-content">
+                                        <div className="leaders-table-wrap">
+                                            <table className="leaders-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Student</th>
+                                                        <th>Role</th>
+                                                        <th>Dormitory</th>
+                                                        <th>Form</th>
+                                                        <th>Since</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {captainList.length === 0
+                                                        ? <tr><td colSpan={6} style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', padding: '1rem' }}>No captains assigned this term.</td></tr>
+                                                        : captainList.map((hc, index) => (
+                                                            <HouseCaptainRow
+                                                                key={index} {...hc}
+                                                                editMode={captainEditMode}
+                                                                onEdit={() => setEditLeader({ type: 'captain', index, data: hc })}
+                                                                onRemove={() => setCaptainList(prev => prev.filter((_, i) => i !== index))}
+                                                            />
+                                                        ))
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {/* ── CLUBS TAB ── */}
+                        {activeTab === 'clubs' && (
+                            <div className="card">
+                                <div className="card-header">
+                                    <h2 className="card-title">Clubs &amp; Activities</h2>
+                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                                        <span>{clubs.filter(c => c.is_active).length} active · {clubs.filter(c => !c.is_active).length} inactive</span>
+                                    </div>
+                                </div>
+                                <div className="card-content">
+                                    {clubLoading ? (
+                                        <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0' }}>Loading clubs…</p>
+                                    ) : clubs.length === 0 ? (
+                                        <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0', textAlign: 'center' }}>No clubs found.</p>
+                                    ) : (
+                                        <div className="staff-cards-grid">
+                                            {clubs.map(club => (
+                                                <ClubCard
+                                                    key={club.id}
+                                                    club={club}
+                                                    onToggle={handleToggleClub}
+                                                    onDelete={handleDeleteClub}
                                                 />
                                             ))}
-                                        </tbody>
-                                    </table>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </DashboardContent>
                 </main>
             </div>

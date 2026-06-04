@@ -7,7 +7,7 @@ router.register(r'teacher',           views.TeacherViewSet,        basename='tea
 router.register(r'teacher/tasks',     views.TeacherTaskViewSet,    basename='teacher-task')
 router.register(r'teacher/reminders', views.TeacherReminderViewSet, basename='teacher-reminder')
 
-urlpatterns = router.urls + [
+urlpatterns = [
     # Weekly timetable
     path('teacher/my-timetable/',         views.MyTimetableView.as_view(),             name='teacher-my-timetable'),
     # Today's schedule with Completed / In Progress / Upcoming status
@@ -49,4 +49,4 @@ urlpatterns = router.urls + [
 
     # Incident Reporting
     path('teacher/incidents/', views.TeacherReportIncidentView.as_view(), name='teacher-report-incident'),
-]
+] + router.urls

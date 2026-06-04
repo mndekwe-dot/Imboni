@@ -19,16 +19,18 @@ class DisciplineStaffSerializer(serializers.ModelSerializer):
 
 class StudentLeaderSerializer(serializers.ModelSerializer):
     student_name = serializers.SerializerMethodField()
-    student_id = serializers.CharField(source='student.student_id', read_only=True)
-    grade = serializers.CharField(source='student.grade', read_only=True)
-    section = serializers.CharField(source='student.section', read_only=True)
-    term_name = serializers.CharField(source='term.name', read_only=True)
+    student_id   = serializers.CharField(source='student.student_id', read_only=True)
+    student_uuid = serializers.UUIDField(source='student.id', read_only=True)
+    grade        = serializers.CharField(source='student.grade', read_only=True)
+    section      = serializers.CharField(source='student.section', read_only=True)
+    term_name    = serializers.CharField(source='term.name', read_only=True)
+    term_id      = serializers.UUIDField(source='term.id', read_only=True)
 
     class Meta:
         model = StudentLeader
         fields = [
-            'id', 'student_name', 'student_id', 'grade', 'section',
-            'role', 'term_name', 'appointed_date', 'is_active', 'notes',
+            'id', 'student_name', 'student_uuid', 'student_id', 'grade', 'section',
+            'role', 'term_name', 'term_id', 'appointed_date', 'is_active', 'notes',
         ]
 
     def get_student_name(self, obj):

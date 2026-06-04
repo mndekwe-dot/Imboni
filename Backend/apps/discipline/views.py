@@ -30,34 +30,43 @@ def _get_or_create_conversation(user_a, user_b, subject=''):
     return conv
 
 
-def _send_review_message(dis_user, matron_user, report, action, notes=''):
-    """Send an automatic message from DIS to the matron after reviewing a report."""
+def _notify_parent(dis_user, parent_user, report):
+    """Send an automatic message from DIS to the parent when a report is approved."""
     from apps.messages.models import Message
     student_name = report.student.user.get_full_name()
-    if action == 'approved':
-        content = (
-            f"✅ Report Approved\n\n"
-            f"Your conduct report \"{report.title}\" for {student_name} has been reviewed and approved.\n"
-            f"It is now active in the student's conduct record."
-        )
-        if notes:
-            content += f"\n\nNote: {notes}"
-    else:
-        content = (
-            f"❌ Report Not Approved\n\n"
-            f"Your conduct report \"{report.title}\" for {student_name} was not approved."
-        )
-        if notes:
-            content += f"\n\nReason: {notes}"
-        else:
-            content += "\n\nPlease review and resubmit if needed."
+    content = (
+        f"Dear Parent/Guardian,\n\n"
+        f"We wish to inform you that your child {student_name} has received a conduct report "
+        f"titled \"{report.title}\".\n\n"
+        f"Type: {report.get_report_type_display()}\n"
+        f"Date: {report.date}\n"
+    )
+    if report.severity:
+        content += f"Severity: {report.severity.capitalize()}\n"
+    if report.action_taken:
+        content += f"\nAction Taken: {report.action_taken}"
+    content += (
+        "\n\nPlease feel free to contact the school for further information.\n\n"
+        "Regards,\nDiscipline Office"
+    )
     conv = _get_or_create_conversation(
-        dis_user, matron_user,
-        subject=f"Conduct Report Review — {student_name}",
+        dis_user, parent_user,
+        subject=f"Conduct Report — {student_name}",
     )
     Message.objects.create(conversation=conv, sender=dis_user, content=content)
     conv.updated_at = timezone.now()
     conv.save(update_fields=['updated_at'])
+
+
+class DisciplineCurrentTermView(APIView):
+    """GET /imboni/discipline/current-term/ — returns the current academic term id + name."""
+    permission_classes = [IsDiscipline]
+    def get(self, request):
+        from apps.results.models import AcademicTerm
+        term = AcademicTerm.objects.filter(is_current=True).first()
+        if not term:
+            return Response({'error': 'No current term configured.'}, status=404)
+        return Response({'id': str(term.id), 'name': term.name, 'year': term.year, 'term': term.term})
 
 
 # Dashboard
@@ -203,6 +212,7 @@ class DisciplineReportListView(APIView):
                 'follow_up_required': r.follow_up_required,
                 'follow_up_completed': r.follow_up_completed,
                 'status': r.status,
+                'marks_deducted': r.marks_deducted,
                 'reviewed_by': r.reviewed_by.get_full_name() if r.reviewed_by else None,
                 'reviewed_at': r.reviewed_at.isoformat() if r.reviewed_at else None,
                 'review_notes': r.review_notes,
@@ -226,6 +236,14 @@ class DisciplineReportListView(APIView):
         # Matron reports go to pending review; discipline reports are auto-approved
         report_status = 'pending_review' if request.user.role == 'matron' else 'approved'
 
+        raw_marks = request.data.get('marks_deducted')
+        marks_deducted = None
+        if raw_marks not in (None, '', 0, '0'):
+            try:
+                marks_deducted = max(0, min(40, int(raw_marks)))
+            except (ValueError, TypeError):
+                marks_deducted = None
+
         report = BehaviorReport.objects.create(
             student=student,
             report_type=request.data['report_type'],
@@ -239,6 +257,7 @@ class DisciplineReportListView(APIView):
             follow_up_date=request.data.get('follow_up_date') or None,
             reported_by=request.user,
             status=report_status,
+            marks_deducted=marks_deducted,
         )
 
         return Response({
@@ -259,6 +278,7 @@ class DisciplineReportListView(APIView):
             'follow_up_date': str(report.follow_up_date) if report.follow_up_date else None,
             'follow_up_completed': report.follow_up_completed,
             'status': report.status,
+            'marks_deducted': report.marks_deducted,
             'reviewed_by': None,
             'reviewed_at': None,
             'review_notes': '',
@@ -351,9 +371,20 @@ class DisciplineReportReviewView(APIView):
         report.review_notes = notes
         report.save(update_fields=['status', 'reviewed_by', 'reviewed_at', 'review_notes'])
 
-        # Send automatic message to the matron who filed the report
-        if report.reported_by and report.reported_by.role == 'matron':
-            _send_review_message(request.user, report.reported_by, report, action, notes)
+        # On approval, notify the student's primary parent
+        parent_notified = False
+        if action == 'approve':
+            from apps.parents.models import ParentStudentRelationship
+            rel = (
+                ParentStudentRelationship.objects
+                .filter(student=report.student)
+                .select_related('parent')
+                .order_by('-is_primary_contact')
+                .first()
+            )
+            if rel:
+                _notify_parent(request.user, rel.parent, report)
+                parent_notified = True
 
         return Response({
             'id': str(report.id),
@@ -361,7 +392,7 @@ class DisciplineReportReviewView(APIView):
             'reviewed_by': request.user.get_full_name(),
             'reviewed_at': report.reviewed_at.isoformat(),
             'review_notes': notes,
-            'message_sent': bool(report.reported_by and report.reported_by.role == 'matron'),
+            'parent_notified': parent_notified,
         })
 
 
@@ -718,6 +749,171 @@ class BoardingStudentDetailView(APIView):
         record.save()
         return Response(BoardingStudentSerializer(record).data)
 
+    def delete(self, request, pk):
+        try:
+            record = BoardingStudent.objects.get(pk=pk)
+        except BoardingStudent.DoesNotExist:
+            return Response({'error': 'Not found.'}, status=404)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------------------
+# Facilities (Dormitories, Dining Halls, Rooms)
+# ---------------------------------------------------------------------------
+
+def _facility_dict(f):
+    sec = f.section if hasattr(f, 'section') else None
+    return {
+        'id':            str(f.id),
+        'name':          f.name,
+        'facility_type': f.facility_type,
+        'gender':        f.gender,
+        'section':       str(sec.id) if sec else None,
+        'section_name':  sec.name    if sec else None,
+        'capacity':      f.capacity,
+        'description':   f.description,
+        'is_active':     f.is_active,
+    }
+
+
+def _section_dict(s):
+    return {
+        'id':          str(s.id),
+        'name':        s.name,
+        'gender':      s.gender,
+        'description': s.description,
+    }
+
+
+class DisFacilityListView(APIView):
+    """
+    GET  /imboni/discipline/facilities/?type=dormitory
+    POST /imboni/discipline/facilities/
+    """
+    permission_classes = [IsDiscipline]
+
+    def get(self, request):
+        from .models import DisFacility
+        qs = DisFacility.objects.select_related('section').filter(is_active=True)
+        ftype = request.query_params.get('type')
+        if ftype:
+            qs = qs.filter(facility_type=ftype)
+        return Response([_facility_dict(f) for f in qs])
+
+    def post(self, request):
+        from .models import DisFacility, DisFacilitySection
+        cap        = request.data.get('capacity')
+        section_id = request.data.get('section')
+        section    = None
+        if section_id:
+            try:
+                section = DisFacilitySection.objects.get(pk=section_id)
+            except DisFacilitySection.DoesNotExist:
+                pass
+        f = DisFacility.objects.create(
+            name=request.data.get('name', '').strip(),
+            facility_type=request.data.get('facility_type', 'other'),
+            gender=request.data.get('gender', 'na'),
+            section=section,
+            capacity=int(cap) if cap else None,
+            description=request.data.get('description', ''),
+        )
+        f.section = section  # ensure hasattr check works
+        return Response(_facility_dict(f), status=status.HTTP_201_CREATED)
+
+
+class DisFacilityDetailView(APIView):
+    """
+    PATCH  /imboni/discipline/facilities/<pk>/
+    DELETE /imboni/discipline/facilities/<pk>/
+    """
+    permission_classes = [IsDiscipline]
+
+    def _get(self, pk):
+        from .models import DisFacility
+        try:
+            return DisFacility.objects.select_related('section').get(pk=pk)
+        except DisFacility.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        from .models import DisFacilitySection
+        f = self._get(pk)
+        if not f:
+            return Response({'error': 'Not found.'}, status=404)
+        for field in ['name', 'facility_type', 'gender', 'description', 'is_active']:
+            if field in request.data:
+                setattr(f, field, request.data[field])
+        if 'capacity' in request.data:
+            cap = request.data['capacity']
+            f.capacity = int(cap) if cap else None
+        if 'section' in request.data:
+            section_id = request.data['section']
+            if section_id:
+                try:
+                    f.section = DisFacilitySection.objects.get(pk=section_id)
+                except DisFacilitySection.DoesNotExist:
+                    pass
+            else:
+                f.section = None
+        f.save()
+        return Response(_facility_dict(f))
+
+    def delete(self, request, pk):
+        f = self._get(pk)
+        if not f:
+            return Response({'error': 'Not found.'}, status=404)
+        f.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DisFacilitySectionListView(APIView):
+    """GET | POST /imboni/discipline/facility-sections/"""
+    permission_classes = [IsDiscipline]
+
+    def get(self, request):
+        from .models import DisFacilitySection
+        return Response([_section_dict(s) for s in DisFacilitySection.objects.all()])
+
+    def post(self, request):
+        from .models import DisFacilitySection
+        s = DisFacilitySection.objects.create(
+            name=request.data.get('name', '').strip(),
+            gender=request.data.get('gender', 'na'),
+            description=request.data.get('description', ''),
+        )
+        return Response(_section_dict(s), status=status.HTTP_201_CREATED)
+
+
+class DisFacilitySectionDetailView(APIView):
+    """PATCH | DELETE /imboni/discipline/facility-sections/<pk>/"""
+    permission_classes = [IsDiscipline]
+
+    def _get(self, pk):
+        from .models import DisFacilitySection
+        try:
+            return DisFacilitySection.objects.get(pk=pk)
+        except DisFacilitySection.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        s = self._get(pk)
+        if not s:
+            return Response({'error': 'Not found.'}, status=404)
+        for field in ['name', 'gender', 'description']:
+            if field in request.data:
+                setattr(s, field, request.data[field])
+        s.save()
+        return Response(_section_dict(s))
+
+    def delete(self, request, pk):
+        s = self._get(pk)
+        if not s:
+            return Response({'error': 'Not found.'}, status=404)
+        s.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 # Dining Plans
 
@@ -751,9 +947,20 @@ class DiningPlanListView(APIView):
 
         try:
             student = Student.objects.get(pk=request.data.get('student_id'))
-            term = AcademicTerm.objects.get(pk=request.data.get('term_id'))
-        except (Student.DoesNotExist, AcademicTerm.DoesNotExist) as e:
-            return Response({'error': str(e)}, status=404)
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        # Use provided term or fall back to current term
+        term_id = request.data.get('term_id')
+        if term_id:
+            try:
+                term = AcademicTerm.objects.get(pk=term_id)
+            except AcademicTerm.DoesNotExist:
+                return Response({'error': 'Term not found.'}, status=404)
+        else:
+            term = AcademicTerm.objects.filter(is_current=True).first()
+            if not term:
+                return Response({'error': 'No current academic term set.'}, status=400)
 
         plan, created = DiningPlan.objects.get_or_create(
             student=student,
@@ -765,6 +972,35 @@ class DiningPlanListView(APIView):
             plan.save()
 
         return Response(DiningPlanSerializer(plan).data, status=201 if created else 200)
+
+
+class DiningPlanDetailView(APIView):
+    """PATCH | DELETE /imboni/discipline/dining/<uuid:pk>/"""
+    permission_classes = [IsDiscipline]
+
+    def _get(self, pk):
+        try:
+            return DiningPlan.objects.select_related('student__user', 'term').get(pk=pk)
+        except DiningPlan.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        plan = self._get(pk)
+        if not plan:
+            return Response({'error': 'Not found.'}, status=404)
+        if 'plan_type' in request.data:
+            plan.plan_type = request.data['plan_type']
+        if 'is_active' in request.data:
+            plan.is_active = bool(request.data['is_active'])
+        plan.save()
+        return Response(DiningPlanSerializer(plan).data)
+
+    def delete(self, request, pk):
+        plan = self._get(pk)
+        if not plan:
+            return Response({'error': 'Not found.'}, status=404)
+        plan.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # Activities (managed by Discipline)
@@ -1032,61 +1268,91 @@ class ExtracurricularEntryDetailView(APIView):
 # Announcements (discipline director view)
 # ---------------------------------------------------------------------------
 
+def _dis_ann_dict(a):
+    return {
+        'id':               str(a.id),
+        'title':            a.title,
+        'content':          a.content,
+        'category':         a.category,
+        'target_audience':  a.target_audience,
+        'status':           a.status,
+        'author':           a.author.get_full_name() if a.author else '',
+        'published_at':     a.published_at.isoformat() if a.published_at else None,
+        'created_at':       a.created_at.isoformat(),
+        'updated_at':       a.updated_at.isoformat(),
+    }
+
+
 class DisciplineAnnouncementView(APIView):
     """
-    GET  /imboni/discipline/announcements/  — list all announcements
-    POST /imboni/discipline/announcements/  — create a new announcement
+    GET  /imboni/discipline/announcements/  — paginated list
+    POST /imboni/discipline/announcements/  — create
     """
     permission_classes = [IsDiscipline]
 
     def get(self, request):
         from apps.announcements.models import Announcement
-        qs = Announcement.objects.select_related('author').order_by('-created_at')[:100]
-        data = []
-        for a in qs:
-            data.append({
-                'id':              str(a.id),
-                'title':           a.title,
-                'content':         a.content,
-                'category':        a.category,
-                'target_audience': a.target_audience,
-                'status':          a.status,
-                'author':          a.author.get_full_name() if a.author else '',
-                'published_at':    str(a.published_at) if a.published_at else None,
-                'created_at':      str(a.created_at),
-            })
-        return Response(data)
+        limit  = min(int(request.query_params.get('limit', 50)), 100)
+        offset = int(request.query_params.get('offset', 0))
+        qs     = Announcement.objects.select_related('author').order_by('-created_at')
+        total  = qs.count()
+        results = qs[offset: offset + limit]
+        return Response({
+            'total':    total,
+            'offset':   offset,
+            'limit':    limit,
+            'has_more': (offset + limit) < total,
+            'results':  [_dis_ann_dict(a) for a in results],
+        })
 
     def post(self, request):
         from apps.announcements.models import Announcement
         from django.utils import timezone
 
-        title    = request.data.get('title', '').strip()
-        content  = request.data.get('content', '').strip()
-        category = request.data.get('category', 'general')
-        audience = request.data.get('target_audience', 'all')
-        status   = request.data.get('status', 'published')
-
-        if not title or not content:
-            return Response({'error': 'Title and content are required.'}, status=400)
-
-        announcement = Announcement.objects.create(
-            title=title,
-            content=content,
-            category=category,
-            target_audience=audience,
-            author=request.user,
-            status=status,
-            published_at=timezone.now() if status == 'published' else None,
+        d       = request.data
+        ann_status = d.get('status', 'draft')
+        ann = Announcement.objects.create(
+            title           = d.get('title', '').strip(),
+            content         = d.get('content', '').strip(),
+            category        = d.get('category', 'general'),
+            target_audience = d.get('target_audience', 'all'),
+            author          = request.user,
+            status          = ann_status,
+            published_at    = timezone.now() if ann_status == 'published' else None,
         )
-        return Response({
-            'id':              str(announcement.id),
-            'title':           announcement.title,
-            'content':         announcement.content,
-            'category':        announcement.category,
-            'target_audience': announcement.target_audience,
-            'status':          announcement.status,
-            'author':          request.user.get_full_name(),
-            'published_at':    str(announcement.published_at) if announcement.published_at else None,
-            'created_at':      str(announcement.created_at),
-        }, status=201)
+        return Response(_dis_ann_dict(ann), status=201)
+
+
+class DisciplineAnnouncementDetailView(APIView):
+    """PATCH | DELETE /imboni/discipline/announcements/<uuid:pk>/"""
+    permission_classes = [IsDiscipline]
+
+    def _get(self, pk):
+        from apps.announcements.models import Announcement
+        try:
+            return Announcement.objects.select_related('author').get(pk=pk)
+        except Announcement.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        from django.utils import timezone
+        ann = self._get(pk)
+        if not ann:
+            return Response({'error': 'Not found.'}, status=404)
+        d = request.data
+        for field in ('title', 'content', 'category', 'target_audience'):
+            if field in d:
+                setattr(ann, field, d[field])
+        if 'status' in d:
+            ann.status = d['status']
+            if d['status'] == 'published' and not ann.published_at:
+                ann.published_at = timezone.now()
+        ann.save()
+        return Response(_dis_ann_dict(ann))
+
+    def delete(self, request, pk):
+        ann = self._get(pk)
+        if not ann:
+            return Response({'error': 'Not found.'}, status=404)
+        ann.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

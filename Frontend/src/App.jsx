@@ -26,7 +26,6 @@ import { ParentAnnouncements } from './pages/Parent/ParentAnnouncements';
 import { ParentMessages } from './pages/Parent/ParentMessages';
 import { DisDashboard } from './pages/Dis/DisDashboard';
 import { DisActivities } from './pages/Dis/DisActivities';
-import { DisReports } from './pages/Dis/DisReports';
 import { DisStudents } from './pages/Dis/DisStudents';
 import { DisStudentLife } from './pages/Dis/DisStudentLife';
 import { DisBoarding } from './pages/Dis/DisBoarding';
@@ -36,6 +35,7 @@ import { DisStaff } from './pages/Dis/DisStaff';
 import { DisStudentLeaders } from './pages/Dis/DisStudentLeaders';
 import { DisTimetable } from './pages/Dis/DisTimetable';
 import { DisAnnouncements } from './pages/Dis/DisAnnouncements';
+import { DisSettings } from './pages/Dis/DisSettings';
 import { DosDashboard } from './pages/Dos/DosDashboard';
 import { DosStudents } from './pages/Dos/DosStudents';
 import { DosTeachers } from './pages/Dos/DosTeachers';
@@ -159,9 +159,9 @@ function App() {
       <Route path="/discipline/timetable" element={<ProtectedRoute><DisTimetable /></ProtectedRoute>} />
       {/* legacy routes kept for compatibility */}
       <Route path="/discipline/activities" element={<ProtectedRoute><DisActivities /></ProtectedRoute>} />
-      <Route path="/discipline/reports" element={<ProtectedRoute><DisReports /></ProtectedRoute>} />
       <Route path="/discipline/dining" element={<ProtectedRoute><DisDining /></ProtectedRoute>} />
       <Route path="/discipline/leaders" element={<ProtectedRoute><DisStudentLeaders /></ProtectedRoute>} />
+      <Route path="/discipline/settings" element={<ProtectedRoute><DisSettings /></ProtectedRoute>} />
       {/* ── DOS routes ── */}
       <Route path="/dos" element={<ProtectedRoute><DosDashboard /></ProtectedRoute>} />
       <Route path="/dos/results" element={<ProtectedRoute><DosResults /></ProtectedRoute>} />

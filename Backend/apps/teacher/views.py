@@ -668,9 +668,16 @@ class TeacherStudentListView(APIView):
                 if search not in haystack:
                     continue
 
-            # Attendance rate
-            att_obj = AttendanceSummary.objects.filter(student=student, term=term).first()
-            attendance_rate = round(float(att_obj.attendance_percentage), 1) if att_obj else None
+            # Attendance rate — AttendanceSummary uses month/year, not term FK
+            from django.db.models import Sum as _Sum
+            _att = AttendanceSummary.objects.filter(
+                student=student,
+                year__gte=term.start_date.year, year__lte=term.end_date.year,
+                month__gte=term.start_date.month, month__lte=term.end_date.month,
+            ).aggregate(total=_Sum('total_days'), present=_Sum('present_days'))
+            attendance_rate = (
+                round(_att['present'] / _att['total'] * 100, 1) if _att['total'] else None
+            )
 
             # Performance rate (average final_score this term)
             avg_raw = Result.objects.filter(
