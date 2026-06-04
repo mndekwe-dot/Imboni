@@ -484,6 +484,7 @@ export function TeacherClasses() {
     const [year,          setYear]          = useState('')
     const [classVal,      setClassVal]      = useState('')
 
+    const [loadError,    setLoadError]    = useState(null)
     const [openClass,    setOpenClass]    = useState(null)
     const [resultsClass, setResultsClass] = useState(null)
     const [resultsFromStudent, setResultsFromStudent] = useState(false)
@@ -501,7 +502,7 @@ export function TeacherClasses() {
                 setClasses(list)
                 setSections(buildSections(list))
             })
-            .catch(() => {})
+            .catch(err => setLoadError(err?.message || 'Failed to load classes.'))
             .finally(() => setLoadingClasses(false))
     }, [])
 
@@ -571,6 +572,11 @@ export function TeacherClasses() {
                             <div className="classes-wrap-body">
                                 {loadingClasses ? (
                                     <p style={{ color: 'var(--muted-foreground)', padding: '1.5rem' }}>Loading classes…</p>
+                                ) : loadError ? (
+                                    <div style={{ padding: '1.5rem', color: '#dc2626', fontSize: '0.875rem' }}>
+                                        <span className="material-symbols-rounded" style={{ verticalAlign: 'middle', marginRight: '0.4rem', fontSize: '1.1rem' }}>error</span>
+                                        {loadError}
+                                    </div>
                                 ) : visible.length === 0 ? (
                                     <div className="classes-wrap-empty">No classes match the selected filter.</div>
                                 ) : (

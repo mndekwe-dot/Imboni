@@ -1,72 +1,172 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { getDisStudents } from '../../api/discipline'
 import '../../styles/components.css'
 
 const DORMITORIES = [
-    { key: 'kigoma',    name: 'Kigoma',    gender: 'Girls' },
-    { key: 'europe',    name: 'Europe',    gender: 'Girls' },
-    { key: 'qatar',     name: 'Qatar',     gender: 'Boys'  },
-    { key: 'samiyonga', name: 'Samiyonga', gender: 'Boys'  },
+    { key: 'bisoke',    name: 'Bisoke',    gender: 'Girls' },
+    { key: 'karisimbi', name: 'Karisimbi', gender: 'Girls' },
+    { key: 'muhabura',  name: 'Muhabura',  gender: 'Boys'  },
+    { key: 'sabyinyo',  name: 'Sabyinyo',  gender: 'Boys'  },
 ]
 
 export function DormitoryCaptainModal({ captain, onClose, onSave }) {
     const isEditing = !!captain
+
+    const [dormKey,       setDormKey]       = useState(captain?.notes?.replace('Dormitory: ', '') || '')
+    const [appointedDate, setAppointedDate] = useState(captain?.appointed_date || '')
+    const [saving,        setSaving]        = useState(false)
+    const [error,         setError]         = useState(null)
+
+    // Student search
+    const [query,          setQuery]          = useState(captain?.student_name || '')
+    const [searchResults,  setSearchResults]  = useState([])
+    const [selectedStudent,setSelectedStudent]= useState(
+        captain ? { id: captain.student_uuid, name: captain.student_name, student_id: captain.student_id, grade: captain.grade, section: captain.section } : null
+    )
+    const [searching,    setSearching]    = useState(false)
+    const [dropdownOpen, setDropdownOpen] = useState(false)
+    const searchRef   = useRef(null)
+    const debounceRef = useRef(null)
 
     useEffect(() => {
         document.body.style.overflow = 'hidden'
         return () => { document.body.style.overflow = '' }
     }, [])
 
-    const [form, setForm] = useState({
-        dormKey:  captain?.dormKey  || '',
-        name:     captain?.name     || '',
-        adm:      captain?.adm      || '',
-        form:     captain?.form     || '',
-        since:    captain?.since    || '',
-        conduct:  captain?.conduct  || 'Clean record',
-    })
+    useEffect(() => {
+        function handler(e) {
+            if (searchRef.current && !searchRef.current.contains(e.target)) setDropdownOpen(false)
+        }
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [])
 
-    function handleChange(e) {
-        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    function handleSearch(e) {
+        const q = e.target.value
+        setQuery(q)
+        setSelectedStudent(null)
+        clearTimeout(debounceRef.current)
+        if (q.length < 2) { setSearchResults([]); setDropdownOpen(false); return }
+        debounceRef.current = setTimeout(async () => {
+            setSearching(true)
+            try {
+                const results = await getDisStudents({ search: q })
+                setSearchResults(Array.isArray(results) ? results.slice(0, 8) : [])
+                setDropdownOpen(true)
+            } catch { setSearchResults([]) }
+            finally { setSearching(false) }
+        }, 300)
     }
 
-    function handleSave() {
-        if (!form.dormKey || !form.name) return
-        const dorm = DORMITORIES.find(d => d.key === form.dormKey)
-        onSave({ ...form, gender: dorm?.gender })
-        onClose()
+    function selectStudent(s) {
+        setSelectedStudent(s)
+        setQuery(s.name)
+        setDropdownOpen(false)
+        setSearchResults([])
     }
 
-    const selectedDorm = DORMITORIES.find(d => d.key === form.dormKey)
+    async function handleSave() {
+        if (!isEditing && !selectedStudent) { setError('Please select a student.'); return }
+        if (!dormKey) { setError('Please select a dormitory.'); return }
+        setSaving(true); setError(null)
+        const dormName = DORMITORIES.find(d => d.key === dormKey)?.name || dormKey
+        try {
+            const data = {
+                appointed_date: appointedDate,
+                notes: `Dormitory: ${dormName}`,
+            }
+            if (!isEditing) data.student_id = selectedStudent.id
+            await onSave(data)
+        } catch { setError('Failed to save. Please try again.') }
+        finally   { setSaving(false) }
+    }
+
+    const selectedDorm = DORMITORIES.find(d => d.key === dormKey)
+    const cls = selectedStudent ? `${selectedStudent.grade || ''}${selectedStudent.section || ''}` : ''
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
-
                 <div className="modal-header">
                     <div className="modal-header-left">
                         <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>
                             {isEditing ? 'edit' : 'person_add'}
                         </span>
-                        <h2 className="modal-title">
-                            {isEditing ? 'Edit Dormitory Captain' : 'Add Dormitory Captain'}
-                        </h2>
+                        <h2 className="modal-title">{isEditing ? 'Edit Dormitory Captain' : 'Add Dormitory Captain'}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
-                    </button>
+                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
 
                 <div className="modal-body">
 
+                    {/* Student selector */}
+                    {isEditing ? (
+                        <div className="form-group">
+                            <label className="form-label">Student</label>
+                            <div style={{ padding: '0.5rem 0.75rem', background: 'var(--muted)', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 600 }}>
+                                {captain.student_name}
+                                {cls && <span className="class-chip" style={{ marginLeft: '0.5rem', fontSize: '0.72rem' }}>{cls}</span>}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="form-group" ref={searchRef} style={{ position: 'relative' }}>
+                            <label className="form-label">Student *</label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    className="form-input"
+                                    value={query}
+                                    onChange={handleSearch}
+                                    placeholder="Search by name or ADM number…"
+                                    autoComplete="off"
+                                />
+                                {searching && (
+                                    <span className="material-symbols-rounded" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', fontSize: '1rem', color: 'var(--muted-foreground)' }}>
+                                        progress_activity
+                                    </span>
+                                )}
+                            </div>
+                            {dropdownOpen && searchResults.length > 0 && (
+                                <div style={{
+                                    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
+                                    background: 'var(--card)', border: '1px solid var(--border)',
+                                    borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                    maxHeight: '220px', overflowY: 'auto', marginTop: '2px',
+                                }}>
+                                    {searchResults.map(s => (
+                                        <div key={s.id} onClick={() => selectStudent(s)} style={{
+                                            padding: '0.625rem 0.875rem', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', gap: '0.625rem',
+                                            borderBottom: '1px solid var(--border)',
+                                        }}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'var(--muted)'}
+                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                        >
+                                            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                                                {s.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
+                                            </div>
+                                            <div>
+                                                <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{s.name}</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                                    {s.student_id} · {s.grade}{s.section}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {selectedStudent && (
+                                <div style={{ marginTop: '0.35rem', fontSize: '0.78rem', color: '#15803d', fontWeight: 600 }}>
+                                    ✓ {selectedStudent.name} — {selectedStudent.student_id}
+                                    {cls && <span className="class-chip" style={{ marginLeft: '0.4rem', fontSize: '0.7rem' }}>{cls}</span>}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Dormitory */}
                     <div className="form-group">
-                        <label className="form-label">Dormitory</label>
-                        <select
-                            className="form-input"
-                            name="dormKey"
-                            value={form.dormKey}
-                            onChange={handleChange}
-                            disabled={isEditing}
-                        >
+                        <label className="form-label">Dormitory *</label>
+                        <select className="form-input" value={dormKey} onChange={e => setDormKey(e.target.value)} disabled={isEditing}>
                             <option value="">— Select dormitory —</option>
                             <optgroup label="Girls Dormitories">
                                 {DORMITORIES.filter(d => d.gender === 'Girls').map(d => (
@@ -89,76 +189,22 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                         )}
                     </div>
 
-                    <div className="form-row-2">
-                        <div className="form-group">
-                            <label className="form-label">Captain Name</label>
-                            <input
-                                className="form-input"
-                                name="name"
-                                value={form.name}
-                                onChange={handleChange}
-                                placeholder="e.g. Grace Auma"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">ADM Number</label>
-                            <input
-                                className="form-input"
-                                name="adm"
-                                value={form.adm}
-                                onChange={handleChange}
-                                placeholder="e.g. 2024-F3-001"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-row-2">
-                        <div className="form-group">
-                            <label className="form-label">Form / Class</label>
-                            <input
-                                className="form-input"
-                                name="form"
-                                value={form.form}
-                                onChange={handleChange}
-                                placeholder="e.g. S3A"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Appointed Since</label>
-                            <input
-                                className="form-input"
-                                name="since"
-                                type="date"
-                                value={form.since}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-
+                    {/* Appointed date */}
                     <div className="form-group">
-                        <label className="form-label">Conduct Record</label>
-                        <select className="form-input" name="conduct" value={form.conduct} onChange={handleChange}>
-                            <option value="Clean record">Clean record</option>
-                            <option value="1 conduct issue">1 conduct issue</option>
-                            <option value="2 conduct issues">2 conduct issues</option>
-                            <option value="Under review">Under review</option>
-                        </select>
+                        <label className="form-label">Appointed Date</label>
+                        <input className="form-input" type="date" value={appointedDate} onChange={e => setAppointedDate(e.target.value)} />
                     </div>
 
+                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
                 </div>
 
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
-                    <button
-                        className="btn btn-primary"
-                        onClick={handleSave}
-                        disabled={!form.dormKey || !form.name}
-                    >
+                    <button className="btn btn-primary" onClick={handleSave} disabled={saving || (!isEditing && !selectedStudent) || !dormKey}>
                         <span className="material-symbols-rounded">{isEditing ? 'save' : 'person_add'}</span>
-                        {isEditing ? ' Save Changes' : ' Add Captain'}
+                        {saving ? 'Saving…' : isEditing ? 'Save Changes' : 'Add Captain'}
                     </button>
                 </div>
-
             </div>
         </div>
     )

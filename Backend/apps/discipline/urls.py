@@ -2,6 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Current term
+    path('discipline/current-term/',                          views.DisciplineCurrentTermView.as_view(),       name='discipline-current-term'),
+
     # Dashboard
     path('discipline/dashboard/',                           views.DisciplineDashboardView.as_view(),         name='discipline-dashboard'),
 
@@ -28,6 +31,7 @@ urlpatterns = [
 
     # Dining
     path('discipline/dining/',                              views.DiningPlanListView.as_view(),              name='discipline-dining'),
+    path('discipline/dining/<uuid:pk>/',                    views.DiningPlanDetailView.as_view(),            name='discipline-dining-detail'),
 
     # Activities
     path('discipline/activities/',                          views.DisciplineActivityListView.as_view(),      name='discipline-activities'),
@@ -41,6 +45,13 @@ urlpatterns = [
     path('discipline/extracurricular/',                     views.ExtracurricularEntryListView.as_view(),    name='discipline-extracurricular'),
     path('discipline/extracurricular/<uuid:pk>/',           views.ExtracurricularEntryDetailView.as_view(),  name='discipline-extracurricular-detail'),
 
+    # Facilities (dormitories, dining halls, rooms)
+    path('discipline/facilities/',                   views.DisFacilityListView.as_view(),           name='discipline-facilities'),
+    path('discipline/facilities/<uuid:pk>/',          views.DisFacilityDetailView.as_view(),         name='discipline-facility-detail'),
+    path('discipline/facility-sections/',             views.DisFacilitySectionListView.as_view(),    name='discipline-facility-sections'),
+    path('discipline/facility-sections/<uuid:pk>/',   views.DisFacilitySectionDetailView.as_view(),  name='discipline-facility-section-detail'),
+
     # Announcements
-    path('discipline/announcements/',                       views.DisciplineAnnouncementView.as_view(),      name='discipline-announcements'),
+    path('discipline/announcements/',                       views.DisciplineAnnouncementView.as_view(),       name='discipline-announcements'),
+    path('discipline/announcements/<uuid:pk>/',             views.DisciplineAnnouncementDetailView.as_view(), name='discipline-announcement-detail'),
 ]

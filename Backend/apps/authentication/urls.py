@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework_nested import routers
+from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 from .views import (
     SendInvitationView,
@@ -45,4 +46,6 @@ urlpatterns = router.urls + user_nested_router.urls + [
     # Email change
     path('auth/email-change/request/',EmailChangeRequestView.as_view(),  name='email-change-request'),
     path('auth/email-change/confirm/<str:uid>/<str:token>/',EmailChangeConfirmView.as_view(),  name='email-change-confirm'),
+    # JWT token refresh
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 ]

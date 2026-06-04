@@ -57,12 +57,24 @@ class StudentBehaviorStatsView(APIView):
                 }
                 conduct_label = grade_labels.get(cg.grade, '')
 
+        from django.db.models import Sum
+        deducted = (
+            BehaviorReport.objects
+            .filter(student_id=pk, status='approved',
+                    report_type__in=['incident', 'warning'],
+                    marks_deducted__isnull=False)
+            .aggregate(total=Sum('marks_deducted'))['total'] or 0
+        )
+        discipline_marks = max(0, 40 - deducted)
+
         return Response({
-            'positive_reports': positive_count,
-            'warnings': warning_count,
-            'conduct_grade': conduct_grade,
-            'conduct_label': conduct_label,
-            'achievements': achievement_count,
+            'positive_reports':  positive_count,
+            'warnings':          warning_count,
+            'conduct_grade':     conduct_grade,
+            'conduct_label':     conduct_label,
+            'achievements':      achievement_count,
+            'discipline_marks':  discipline_marks,
+            'marks_deducted':    deducted,
         })
 
 

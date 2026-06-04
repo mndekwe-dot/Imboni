@@ -44,7 +44,24 @@ class BehaviorReport(models.Model):
     # Parent notification
     parents_notified = models.BooleanField(default=False)
     parent_notification_date = models.DateTimeField(null=True, blank=True)
-    
+
+    # Discipline marks deducted by this report (out of 40 total)
+    marks_deducted = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    # Review workflow (matron reports require discipline approval)
+    STATUS_CHOICES = [
+        ('pending_review', 'Pending Review'),
+        ('approved',       'Approved'),
+        ('rejected',       'Rejected'),
+    ]
+    status      = models.CharField(max_length=20, choices=STATUS_CHOICES, default='approved')
+    reviewed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='reviewed_reports',
+    )
+    reviewed_at  = models.DateTimeField(null=True, blank=True)
+    review_notes = models.TextField(blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

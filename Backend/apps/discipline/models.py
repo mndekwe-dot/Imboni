@@ -158,6 +158,69 @@ class NightAttendance(models.Model):
         return f"{self.student} — {self.date} — {status}"
 
 
+class DisFacilitySection(models.Model):
+    """Named grouping for dormitories — e.g. Boys Wing, Girls Section."""
+    GENDER_CHOICES = [
+        ('boys',  'Boys'),
+        ('girls', 'Girls'),
+        ('mixed', 'Mixed'),
+        ('na',    'Not Applicable'),
+    ]
+
+    id          = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name        = models.CharField(max_length=100)
+    gender      = models.CharField(max_length=10, choices=GENDER_CHOICES, default='na')
+    description = models.TextField(blank=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'dis_facility_sections'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class DisFacility(models.Model):
+    FACILITY_TYPE_CHOICES = [
+        ('dormitory',   'Dormitory'),
+        ('dining_hall', 'Dining Hall'),
+        ('common_room', 'Common Room'),
+        ('medical',     'Medical Room'),
+        ('sports',      'Sports Facility'),
+        ('library',     'Library'),
+        ('other',       'Other'),
+    ]
+    GENDER_CHOICES = [
+        ('boys',  'Boys'),
+        ('girls', 'Girls'),
+        ('mixed', 'Mixed'),
+        ('na',    'Not Applicable'),
+    ]
+
+    id            = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name          = models.CharField(max_length=100)
+    facility_type = models.CharField(max_length=20, choices=FACILITY_TYPE_CHOICES)
+    gender        = models.CharField(max_length=10, choices=GENDER_CHOICES, default='na')
+    section       = models.ForeignKey(
+        DisFacilitySection,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='facilities',
+    )
+    capacity      = models.PositiveIntegerField(null=True, blank=True)
+    description   = models.TextField(blank=True)
+    is_active     = models.BooleanField(default=True)
+    created_at    = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'dis_facilities'
+        ordering = ['facility_type', 'name']
+
+    def __str__(self):
+        return f"{self.name} ({self.get_facility_type_display()})"
+
+
 class ExtracurricularEntry(models.Model):
     ACTIVITY_TYPES = [
         ('sports',   'Sports'),

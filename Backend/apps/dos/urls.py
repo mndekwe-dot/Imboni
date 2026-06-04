@@ -108,6 +108,10 @@ urlpatterns = [
     path('dos/rooms/',               views.DosRoomListView.as_view(),      name='dos-rooms'),
     path('dos/rooms/<uuid:pk>/',     views.DosRoomDetailView.as_view(),    name='dos-room-detail'),
 
+    # ── Activity (Club) Management ────────────────────────────────────────────
+    path('dos/activities/',           views.DosActivityListView.as_view(),   name='dos-activities'),
+    path('dos/activities/<uuid:pk>/', views.DosActivityDetailView.as_view(), name='dos-activity-detail'),
+
 
 ]
 

@@ -2554,3 +2554,50 @@ class DosRoomDetailView(APIView):
             return Response({'error': 'Not found.'}, status=http_status.HTTP_404_NOT_FOUND)
         room.delete()
         return Response(status=http_status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------------------
+# DOS Activity (Club) Management
+# ---------------------------------------------------------------------------
+
+class DosActivityListView(APIView):
+    """GET /imboni/dos/activities/ — list all clubs/activities"""
+    permission_classes = [IsDOS]
+
+    def get(self, request):
+        from apps.student.models import Activity
+        from apps.student.serializers import ActivitySerializer
+        qs = Activity.objects.all().order_by('name')
+        return Response(ActivitySerializer(qs, many=True).data)
+
+
+class DosActivityDetailView(APIView):
+    """
+    PATCH  /imboni/dos/activities/<pk>/ — toggle is_active
+    DELETE /imboni/dos/activities/<pk>/ — hard delete
+    """
+    permission_classes = [IsDOS]
+
+    def _get(self, pk):
+        from apps.student.models import Activity
+        try:
+            return Activity.objects.get(pk=pk)
+        except Activity.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        from apps.student.serializers import ActivitySerializer
+        activity = self._get(pk)
+        if not activity:
+            return Response({'error': 'Not found.'}, status=404)
+        if 'is_active' in request.data:
+            activity.is_active = bool(request.data['is_active'])
+            activity.save(update_fields=['is_active'])
+        return Response(ActivitySerializer(activity).data)
+
+    def delete(self, request, pk):
+        activity = self._get(pk)
+        if not activity:
+            return Response({'error': 'Not found.'}, status=404)
+        activity.delete()
+        return Response(status=http_status.HTTP_204_NO_CONTENT)

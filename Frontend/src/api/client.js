@@ -1,37 +1,77 @@
 import axios from 'axios'
 
-// Create one axios instance shared across all API files.
-// baseURL means you only write the path e.g. '/imboni/dos/students/' not the full URL.
+const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+
 const client = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE || 'http://localhost:8000',
+    baseURL: BASE,
     headers: { 'Content-Type': 'application/json' },
 })
 
-// REQUEST interceptor — runs before every request is sent.
-// Reads the token from localStorage and attaches it to the request headers.
-// This replaces writing headers: { Authorization: `Bearer ${token}` } on every call.
+// REQUEST — attach access token
 client.interceptors.request.use(config => {
     const token = localStorage.getItem('imboni_access')
     if (token) config.headers.Authorization = `Bearer ${token}`
-    return config  // must return config or the request is blocked
+    return config
 })
 
-// RESPONSE interceptor — runs after every response comes back.
-// Takes two functions: one for success, one for error.
-client.interceptors.response.use(
-    // Success: unwrap response.data automatically so callers get data directly
-    response => response.data,
+// Track whether a refresh is already in-flight so we don't fire multiple
+let _refreshing = false
+let _queue = []   // { resolve, reject } pairs waiting for the new token
 
-    // Error: handle globally so each component doesn't repeat this logic
-    error => {
-        // 401 = token expired or missing — clear storage and go back to login
-        if (error.response?.status === 401) {
-            localStorage.clear()
-            window.location.href = '/login'
+function _processQueue(error, token) {
+    _queue.forEach(({ resolve, reject }) => error ? reject(error) : resolve(token))
+    _queue = []
+}
+
+// RESPONSE — unwrap data on success; silently refresh the access token on 401
+client.interceptors.response.use(
+    response => response.data,
+    async error => {
+        const original = error.config
+
+        // Only attempt a silent refresh on 401 and only once per request
+        if (error.response?.status === 401 && !original._retry) {
+            const refresh = localStorage.getItem('imboni_refresh')
+            if (!refresh) {
+                localStorage.clear()
+                window.location.href = '/login'
+                return Promise.reject(error)
+            }
+
+            if (_refreshing) {
+                // Queue this request until the in-flight refresh completes
+                return new Promise((resolve, reject) => {
+                    _queue.push({ resolve, reject })
+                }).then(token => {
+                    original.headers.Authorization = `Bearer ${token}`
+                    return client(original)
+                })
+            }
+
+            original._retry = true
+            _refreshing = true
+
+            try {
+                const res = await axios.post(`${BASE}/imboni/auth/token/refresh/`, { refresh })
+                const newAccess = res.data.access
+                localStorage.setItem('imboni_access', newAccess)
+                if (res.data.refresh) localStorage.setItem('imboni_refresh', res.data.refresh)
+                client.defaults.headers.common.Authorization = `Bearer ${newAccess}`
+                _processQueue(null, newAccess)
+                original.headers.Authorization = `Bearer ${newAccess}`
+                return client(original)
+            } catch (refreshError) {
+                _processQueue(refreshError, null)
+                localStorage.clear()
+                window.location.href = '/login'
+                return Promise.reject(refreshError)
+            } finally {
+                _refreshing = false
+            }
         }
-        // Pass the server's error message up to whoever made the request
+
         return Promise.reject(
-            new Error(error.response?.data?.error || 'Something went wrong')
+            new Error(error.response?.data?.error || error.response?.data?.detail || 'Something went wrong')
         )
     }
 )
