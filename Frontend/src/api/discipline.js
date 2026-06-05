@@ -71,6 +71,12 @@ export const getStudentBehaviorReports = (id, params) => client.get(`/imboni/beh
 export const getDisMessages = () => client.get('/imboni/discipline/messages/')
 export const sendDisMessage = (d) => client.post('/imboni/discipline/messages/', d)
 
+// Tasks
+export const getDisTasks    = ()      => client.get('/imboni/tasks/')
+export const createDisTask  = d       => client.post('/imboni/tasks/', d)
+export const updateDisTask  = (id, d) => client.patch(`/imboni/tasks/${id}/`, d)
+export const deleteDisTask  = id      => client.delete(`/imboni/tasks/${id}/`)
+
 // Extracurricular schedule CRUD
 export const getDisExtracurricular    = (week = 'default') => client.get('/imboni/discipline/extracurricular/', { params: { week } })
 export const createDisExtracurricular = (d)      => client.post('/imboni/discipline/extracurricular/', d)

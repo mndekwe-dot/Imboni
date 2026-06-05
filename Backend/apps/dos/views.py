@@ -2407,7 +2407,10 @@ class TeacherDetailView(APIView):
 
 # ── DOS Timetable ─────────────────────────────────────────────────────────────
 class DosTimetableView(APIView):
-    permission_classes =[IsDOSOrAdmin]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [IsTeacherOrDOS()]
+        return [IsDOSOrAdmin()]
 
     def get(self,request):
         from apps.teacher.models import Timetable,Class

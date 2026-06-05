@@ -3,9 +3,13 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r'teacher',           views.TeacherViewSet,        basename='teacher')
-router.register(r'teacher/tasks',     views.TeacherTaskViewSet,    basename='teacher-task')
-router.register(r'teacher/reminders', views.TeacherReminderViewSet, basename='teacher-reminder')
+router.register(r'teacher',              views.TeacherViewSet,          basename='teacher')
+router.register(r'teacher/tasks',        views.TeacherTaskViewSet,      basename='teacher-task')
+router.register(r'tasks',               views.TeacherTaskViewSet,      basename='task')          # generic — used by all staff portals
+router.register(r'teacher/reminders',    views.TeacherReminderViewSet,  basename='teacher-reminder')
+router.register(r'teacher/assignments',  views.AssignmentViewSet,       basename='teacher-assignment')
+router.register(r'teacher/question-bank', views.QuestionBankViewSet,   basename='question-bank')
+router.register(r'quiz',                 views.QuizSubmissionViewSet,   basename='quiz')
 
 urlpatterns = [
     # Weekly timetable
@@ -49,4 +53,10 @@ urlpatterns = [
 
     # Incident Reporting
     path('teacher/incidents/', views.TeacherReportIncidentView.as_view(), name='teacher-report-incident'),
+    # Subjects list for assignment form
+    path('teacher/subjects/', views.TeacherSubjectsView.as_view(), name='teacher-subjects'),
+    # Quiz submit action (outside router action to allow custom URL)
+    path('quiz/<pk>/submit/', views.QuizSubmissionViewSet.as_view({'post': 'submit'}), name='quiz-submit'),
+    # Teacher views submission list for one assignment
+    path('teacher/assignments/<pk>/submissions/', views.AssignmentSubmissionsView.as_view(), name='assignment-submissions'),
 ] + router.urls

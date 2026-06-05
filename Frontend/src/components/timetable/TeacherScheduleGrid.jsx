@@ -1,94 +1,121 @@
-import { useState } from 'react'
-import { PERIODS } from '../../data/academicTimetable'
-import { getTeacherSchedule } from '../../data/academicTimetable'
-import { DAYS, DAY_SHORT } from '../../data/extraTimetable'
-import { getTodayDayIndex } from './dateUtils'
+import { useState, useEffect } from 'react'
 import { DayTabs } from './DaysTabs'
 import { TimetableCell } from './TimetableCell'
+import { getTodayDayIndex } from './dateUtils'
+import { getTeacherTimetable } from '../../api/teacher'
+
+const DAY_KEYS  = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+const DAY_SHORT = ['Mon',    'Tue',     'Wed',       'Thu',      'Fri',    'Sat'     ]
+
+function normTime(t) {
+    // "08:00:00" → "08:00"  |  "08:00" → "08:00"
+    return t ? t.slice(0, 5) : ''
+}
+
+function fmtTime(t) {
+    if (!t) return ''
+    const [h, m] = t.split(':')
+    const hour = parseInt(h, 10)
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    return `${hour % 12 || 12}:${m} ${ampm}`
+}
 
 /**
- * TeacherScheduleGrid — shows all lessons for one teacher across all classes.
- *
- * Calls getTeacherSchedule(teacherId) to collect every lesson the teacher has,
- * then renders a PERIODS × Mon-Sat grid where each cell shows:
- *   subject (row 1), class (row 2, shown as teacher field), room (row 3)
- *
- * Props:
- *   teacherId     {string}   e.g. 'T001'
- *   currentMonday {Date}     Monday of the week being viewed (from WeekPicker)
- *   schedules     {object}   Optional live schedule state; null = use static data
+ * TeacherScheduleGrid — teacher's personal weekly timetable from the backend.
+ * Rows = unique start times, columns = Mon–Sat.
  */
-export function TeacherScheduleGrid({ teacherId, currentMonday, schedules = null }) {
-    const [selectedDay, setSelectedDay] = useState(0)
+export function TeacherScheduleGrid({ currentMonday }) {
+    const [slots,   setSlots]   = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error,   setError]   = useState(null)
+    const [selDay,  setSelDay]  = useState(0)
+
     const todayDayIndex = getTodayDayIndex(currentMonday)
 
-    /* Mon–Sat only */
-    const academicDays     = DAYS.slice(0, 6)
-    const academicDayShort = DAY_SHORT.slice(0, 6)
+    useEffect(() => {
+        getTeacherTimetable()
+            .then(data => {
+                const list = Array.isArray(data) ? data : (data?.results ?? [])
+                setSlots(list)
+            })
+            .catch(() => setError('Failed to load timetable.'))
+            .finally(() => setLoading(false))
+    }, [])
 
-    /* Build lookup: lookup[day][periodIndex] = cell object */
-    const lessons = getTeacherSchedule(teacherId, schedules || undefined)
-    const lookup = {}
-    for (const lesson of lessons) {
-        if (!lookup[lesson.day]) lookup[lesson.day] = {}
-        lookup[lesson.day][lesson.periodIndex] = {
-            type: 'academic',
-            subject: lesson.subject,
-            /* Show class name where TimetableCell renders the "teacher" line */
-            teacher: lesson.classId,
-            room: lesson.room,
-        }
+    if (loading) return <p style={{ color: 'var(--muted-foreground)', padding: '1rem' }}>Loading timetable…</p>
+    if (error)   return <p style={{ color: 'var(--destructive)',      padding: '1rem' }}>{error}</p>
+    if (slots.length === 0) return (
+        <p style={{ color: 'var(--muted-foreground)', padding: '1rem' }}>
+            No lessons scheduled for this term yet.
+        </p>
+    )
+
+    // Build sorted unique time rows
+    const rowMap = new Map()
+    for (const s of slots) {
+        const start = normTime(s.start_time)
+        const end   = normTime(s.end_time)
+        if (!rowMap.has(start)) rowMap.set(start, end)
     }
+    const timeRows = [...rowMap.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([start, end]) => ({ start, end }))
 
-    if (lessons.length === 0) {
-        return (
-            <p style={{ color: 'var(--muted-foreground)', padding: '1rem' }}>
-                No lessons found for this teacher.
-            </p>
-        )
+    // Build lookup: day → start_time → slot
+    const lookup = {}
+    for (const s of slots) {
+        const start = normTime(s.start_time)
+        if (!lookup[s.day]) lookup[s.day] = {}
+        lookup[s.day][start] = s
     }
 
     return (
         <div>
             <DayTabs
-                selected={selectedDay}
-                onChange={setSelectedDay}
-                days={academicDayShort}
+                selected={selDay}
+                onChange={setSelDay}
+                days={DAY_SHORT}
             />
             <div className="tt-wrap">
-                <table className="tt-table" data-day={selectedDay}>
+                <table className="tt-table" data-day={selDay}>
                     <thead>
                         <tr>
                             <th className="tt-time-head">Period</th>
-                            {academicDays.map((day, i) => (
-                                <th
-                                    key={day}
-                                    className={`tt-day-head tt-col-${i + 1}${i === todayDayIndex ? ' tt-today' : ''}`}
-                                >
-                                    {academicDayShort[i]}
+                            {DAY_SHORT.map((d, i) => (
+                                <th key={d} className={`tt-day-head tt-col-${i + 1}${i === todayDayIndex ? ' tt-today' : ''}`}>
+                                    {d}
                                 </th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {PERIODS.map((period, periodIndex) => (
-                            <tr key={period.id}>
+                        {timeRows.map((row, ri) => (
+                            <tr key={row.start}>
                                 <td className="tt-time-cell">
-                                    <strong>{period.label}</strong>
-                                    <span>{period.time}</span>
+                                    <strong>P{ri + 1}</strong>
+                                    <span>{fmtTime(row.start)}</span>
+                                    <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>
+                                        {fmtTime(row.end)}
+                                    </span>
                                 </td>
-                                {period.id === 'break'
-                                    ? <td className="tt-cell tt-break" colSpan={6}>Break</td>
-                                    : academicDays.map((day, i) => (
+                                {DAY_KEYS.map((day, i) => {
+                                    const s = lookup[day]?.[row.start]
+                                    const cell = s ? {
+                                        type:    'academic',
+                                        subject: s.subject_name,
+                                        teacher: s.class_name,
+                                        room:    s.room_number,
+                                    } : null
+                                    return (
                                         <TimetableCell
                                             key={day}
-                                            cell={lookup[day]?.[periodIndex] ?? null}
+                                            cell={cell}
                                             editable={false}
                                             onEdit={() => {}}
                                             colIndex={i + 1}
                                         />
-                                    ))
-                                }
+                                    )
+                                })}
                             </tr>
                         ))}
                     </tbody>

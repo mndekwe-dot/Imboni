@@ -6,8 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.authentication.models import User
 from apps.authentication.permissions import IsTeacher
+from rest_framework.permissions import IsAuthenticated
 from apps.results.models import AcademicTerm
-from .models import Timetable, Task, Reminder
+from .models import Timetable, Task, Reminder, Assignment, AssignmentSubmission, QuestionBank
 from .serializers import (
     TeacherSerializer, TimetableSerializer, ScheduleItemSerializer,
     MyClassSerializer, HomeworkStatusSerializer, TaskSerializer, ReminderSerializer,
@@ -16,6 +17,8 @@ from .serializers import (
     TeacherAttendanceStudentSerializer, MarkAttendanceSerializer, AttendancePatternSerializer,
     TeacherResultEntrySerializer, BulkSaveResultsSerializer,
     GradeDistributionSerializer, PerformanceTrendSerializer,
+    AssignmentSerializer, AssignmentWriteSerializer,
+    AssignmentSubmissionSerializer, QuizSubmitSerializer, QuestionBankSerializer,
 )
 
 
@@ -55,6 +58,7 @@ class MyTimetableView(generics.ListAPIView):
     """
     serializer_class = TimetableSerializer
     permission_classes = [IsTeacher]
+    pagination_class = None  # timetable is a small fixed set — no paging needed
 
     def get_queryset(self):
         term = _current_term()
@@ -412,20 +416,22 @@ class HomeworkSubmissionStatusView(APIView):
 
 class TeacherTaskViewSet(viewsets.ModelViewSet):
     """
-    GET    /imboni/teacher/tasks/       — list pending tasks
+    GET    /imboni/teacher/tasks/       — list tasks for the current user
     POST   /imboni/teacher/tasks/       — create task
     PATCH  /imboni/teacher/tasks/<id>/  — update (mark complete, change priority)
     DELETE /imboni/teacher/tasks/<id>/  — delete task
+
+    Open to any authenticated user so DOS, Discipline, Matron, etc. can also
+    maintain personal task lists via the same endpoint.
     """
     serializer_class = TaskSerializer
-    permission_classes = [IsTeacher]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        teacher = _get_teacher(self.request)
-        return Task.objects.filter(teacher=teacher)
+        return Task.objects.filter(teacher=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(teacher=_get_teacher(self.request))
+        serializer.save(teacher=self.request.user)
 
 
 # ---------------------------------------------------------------------------
@@ -554,10 +560,17 @@ class TeacherRecentActivitiesView(APIView):
                 'timestamp':     b.created_at,
             })
 
-        # Sort unified list by timestamp, return top 10
+        # Sort unified list by timestamp, paginate
         activities.sort(key=lambda x: x['timestamp'], reverse=True)
-        serializer = ActivitySerializer(activities[:10], many=True)
-        return Response(serializer.data)
+        limit  = min(int(request.query_params.get('limit',  10)), 50)
+        offset = int(request.query_params.get('offset', 0))
+        page   = activities[offset: offset + limit]
+        serializer = ActivitySerializer(page, many=True)
+        return Response({
+            'results':  serializer.data,
+            'has_more': offset + limit < len(activities),
+            'total':    len(activities),
+        })
 
 
 # ---------------------------------------------------------------------------
@@ -1458,3 +1471,310 @@ class TeacherReportIncidentView(APIView):
             follow_up_required = bool(d.get('follow_up_required', False)),
         )
         return Response({'id': str(report.id), 'detail': 'Incident reported.'}, status=201)
+
+
+# ---------------------------------------------------------------------------
+# Subjects list (for assignment form dropdowns)
+# ---------------------------------------------------------------------------
+
+class TeacherSubjectsView(APIView):
+    """GET /imboni/teacher/subjects/ — all active subjects for assignment form."""
+    permission_classes = [IsTeacher]
+
+    def get(self, request):
+        from apps.results.models import Subject
+        subjects = Subject.objects.filter(is_active=True).order_by('name')
+        return Response([
+            {'id': str(s.id), 'name': s.name, 'code': s.code}
+            for s in subjects
+        ])
+
+
+# ---------------------------------------------------------------------------
+# Assignments (teacher creates, publishes to class → triggers notification)
+# ---------------------------------------------------------------------------
+
+class AssignmentViewSet(viewsets.ModelViewSet):
+    """
+    GET    /imboni/teacher/assignments/          — list teacher's assignments
+    POST   /imboni/teacher/assignments/          — create
+    PATCH  /imboni/teacher/assignments/<id>/     — update (publish → creates Announcement)
+    DELETE /imboni/teacher/assignments/<id>/     — delete
+    """
+    permission_classes = [IsTeacher]
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return AssignmentWriteSerializer
+        return AssignmentSerializer
+
+    def get_queryset(self):
+        return (
+            Assignment.objects
+            .filter(teacher=self.request.user)
+            .select_related('class_obj', 'subject')
+        )
+
+    def perform_create(self, serializer):
+        instance = serializer.save(teacher=self.request.user)
+        if instance.status == 'active':
+            instance.published_at = timezone.now()
+            instance.save(update_fields=['published_at'])
+            self._notify_class(instance)
+
+    def perform_update(self, serializer):
+        old_status = self.get_object().status
+        instance   = serializer.save()
+        if old_status != 'active' and instance.status == 'active':
+            instance.published_at = timezone.now()
+            instance.save(update_fields=['published_at'])
+            self._notify_class(instance)
+
+    def _notify_class(self, assignment):
+        from apps.announcements.models import Announcement
+        class_name = assignment.class_obj.name
+        content = (
+            f"A new assignment has been published for {class_name}.\n"
+            f"Subject: {assignment.subject.name}\n"
+            f"Due date: {assignment.due_date}\n"
+            f"Max score: {assignment.max_score}"
+        )
+        if assignment.instructions:
+            content += f"\n\nInstructions: {assignment.instructions}"
+        Announcement.objects.create(
+            title          = f"New Assignment: {assignment.title}",
+            content        = content,
+            category       = 'academic',
+            target_audience= 'grade_specific',
+            target_grade   = class_name,
+            author         = assignment.teacher,
+            status         = 'published',
+            published_at   = timezone.now(),
+        )
+
+
+# ---------------------------------------------------------------------------
+# Auto-grade helper
+# ---------------------------------------------------------------------------
+
+def _auto_grade(assignment, answers_submitted):
+    """
+    Grade MCQ and True/False automatically. Short-answer and fill-blank use
+    case-insensitive string matching (teacher can override later).
+    Returns (graded_answers list, score, max_score).
+    """
+    questions  = assignment.questions or []
+    total      = 0
+    max_total  = 0
+    graded     = []
+
+    for q in questions:
+        qid    = str(q.get('id', ''))
+        points = int(q.get('points', 1))
+        qtype  = q.get('type', 'mcq')
+        correct = q.get('correct')
+        max_total += points
+
+        student_answer = next(
+            (a.get('answer') for a in answers_submitted if str(a.get('question_id', '')) == qid),
+            None,
+        )
+
+        is_correct   = False
+        points_earned = 0
+
+        if student_answer is not None:
+            if qtype in ('mcq', 'true_false'):
+                try:
+                    is_correct = int(student_answer) == int(correct)
+                except (TypeError, ValueError):
+                    is_correct = False
+            elif qtype in ('short_answer', 'fill_blank'):
+                is_correct = (
+                    str(student_answer).strip().lower() == str(correct).strip().lower()
+                    if correct is not None else False
+                )
+
+        if is_correct:
+            points_earned = points
+            total += points
+
+        graded.append({
+            'question_id':   qid,
+            'answer':        student_answer,
+            'correct_answer': correct,
+            'is_correct':    is_correct,
+            'points_earned': points_earned,
+            'max_points':    points,
+        })
+
+    return graded, total, max_total
+
+
+# ---------------------------------------------------------------------------
+# Quiz submission (student submits answers)
+# ---------------------------------------------------------------------------
+
+class QuizSubmissionViewSet(viewsets.ViewSet):
+    """
+    POST /imboni/quiz/<assignment_id>/submit/  — student submits answers
+    GET  /imboni/quiz/<assignment_id>/         — student fetches questions (no correct answers)
+    GET  /imboni/teacher/assignments/<id>/submissions/ — teacher views all submissions
+    """
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        """GET /imboni/quiz/ — list all available active online quizzes for the logged-in student."""
+        from apps.teacher.models import ClassAssignment
+        data = []
+        try:
+            student = request.user.student_profile
+            term    = _current_term()
+            class_ids = list(
+                ClassAssignment.objects
+                .filter(student=student, term=term)
+                .values_list('class_obj_id', flat=True)
+            )
+            quizzes = (
+                Assignment.objects
+                .filter(class_obj_id__in=class_ids, mode='online', status='active')
+                .select_related('subject', 'class_obj')
+            )
+            for q in quizzes:
+                sub = AssignmentSubmission.objects.filter(assignment=q, student=student).first()
+                data.append({
+                    'id':                 str(q.id),
+                    'title':              q.title,
+                    'subject_name':       q.subject.name,
+                    'class_name':         q.class_obj.name,
+                    'due_date':           q.due_date,
+                    'max_score':          q.max_score,
+                    'question_count':     len(q.questions or []),
+                    'time_limit_minutes': q.time_limit_minutes,
+                    'submitted':          sub is not None,
+                    'score':              float(sub.score)      if sub else None,
+                    'percentage':         float(sub.percentage) if sub else None,
+                })
+        except Exception:
+            pass
+        return Response(data)
+
+    def retrieve(self, request, pk=None):
+        """Return quiz questions without revealing correct answers."""
+        import random
+        try:
+            assignment = Assignment.objects.select_related('subject', 'class_obj').get(
+                pk=pk, mode='online', status='active'
+            )
+        except Assignment.DoesNotExist:
+            return Response({'detail': 'Quiz not found or not published.'}, status=404)
+
+        questions = [
+            {k: v for k, v in q.items() if k not in ('correct', 'correct_answer')}
+            for q in (assignment.questions or [])
+        ]
+        if assignment.shuffle_questions:
+            random.shuffle(questions)
+
+        return Response({
+            'id':                 str(assignment.id),
+            'title':              assignment.title,
+            'instructions':       assignment.instructions,
+            'subject_name':       assignment.subject.name,
+            'class_name':         assignment.class_obj.name,
+            'due_date':           assignment.due_date,
+            'max_score':          assignment.max_score,
+            'time_limit_minutes': assignment.time_limit_minutes,
+            'questions':          questions,
+            'question_count':     len(questions),
+        })
+
+    def submit(self, request, pk=None):
+        """Accept student answers, auto-grade, save submission."""
+        from django.utils import timezone as tz
+
+        try:
+            assignment = Assignment.objects.get(pk=pk, mode='online', status='active')
+        except Assignment.DoesNotExist:
+            return Response({'detail': 'Quiz not found or not published.'}, status=404)
+
+        serializer = QuizSubmitSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        answers = serializer.validated_data['answers']
+        graded, score, max_score = _auto_grade(assignment, answers)
+
+        pct = round(score / max_score * 100, 1) if max_score else 0
+        is_late = date.today() > assignment.due_date
+
+        # Resolve student record
+        student = None
+        student_name = ''
+        student_code = ''
+        try:
+            student = request.user.student_profile
+            student_name = student.full_name
+            student_code = student.student_id
+        except Exception:
+            student_name = request.user.get_full_name() or request.user.username
+
+        submission, created = AssignmentSubmission.objects.update_or_create(
+            assignment=assignment,
+            student=student,
+            defaults={
+                'student_name': student_name,
+                'student_code': student_code,
+                'answers':      graded,
+                'score':        score,
+                'max_score':    max_score,
+                'percentage':   pct,
+                'is_graded':    True,
+                'is_late':      is_late,
+            },
+        )
+        return Response({
+            'submitted': True,
+            'score':     score,
+            'max_score': max_score,
+            'percentage': pct,
+            'is_late':   is_late,
+            'answers':   graded,
+        }, status=201 if created else 200)
+
+
+class AssignmentSubmissionsView(APIView):
+    """GET /imboni/teacher/assignments/<pk>/submissions/ — teacher sees all submissions."""
+    permission_classes = [IsTeacher]
+
+    def get(self, request, pk):
+        subs = AssignmentSubmission.objects.filter(assignment_id=pk).select_related('student__user')
+        return Response(AssignmentSubmissionSerializer(subs, many=True).data)
+
+
+# ---------------------------------------------------------------------------
+# Question Bank CRUD (teacher only)
+# ---------------------------------------------------------------------------
+
+class QuestionBankViewSet(viewsets.ModelViewSet):
+    """
+    GET    /imboni/teacher/question-bank/       — list teacher's saved questions
+    POST   /imboni/teacher/question-bank/       — save a question
+    PATCH  /imboni/teacher/question-bank/<id>/  — update
+    DELETE /imboni/teacher/question-bank/<id>/  — delete
+    """
+    permission_classes   = [IsTeacher]
+    serializer_class     = QuestionBankSerializer
+
+    def get_queryset(self):
+        qs = QuestionBank.objects.filter(teacher=self.request.user)
+        q  = self.request.query_params.get('q', '').strip()
+        t  = self.request.query_params.get('type', '').strip()
+        if q:
+            qs = qs.filter(text__icontains=q)
+        if t:
+            qs = qs.filter(question_type=t)
+        return qs
+
+    def perform_create(self, serializer):
+        serializer.save(teacher=self.request.user)

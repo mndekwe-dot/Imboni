@@ -1,7 +1,8 @@
 from django.utils import timezone
 from rest_framework import serializers
 from apps.authentication.models import User
-from .models import Timetable, Task, Reminder
+from apps.results.models import AcademicTerm
+from .models import Timetable, Task, Reminder, Assignment, AssignmentSubmission, QuestionBank
 
 
 class TeacherSerializer(serializers.ModelSerializer):
@@ -268,3 +269,112 @@ class PerformanceTrendSerializer(serializers.Serializer):
     month          = serializers.IntegerField()
     year           = serializers.IntegerField()
     avg_score      = serializers.FloatField()
+
+
+# ---------------------------------------------------------------------------
+# Assignment serializers
+# ---------------------------------------------------------------------------
+
+class AssignmentSerializer(serializers.ModelSerializer):
+    class_name   = serializers.ReadOnlyField(source='class_obj.name')
+    subject_name = serializers.ReadOnlyField(source='subject.name')
+    class_id     = serializers.SerializerMethodField()
+    subject_id   = serializers.SerializerMethodField()
+    submitted    = serializers.SerializerMethodField()
+    total        = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = Assignment
+        fields = [
+            'id', 'title', 'instructions', 'mode', 'status',
+            'due_date', 'max_score', 'questions',
+            'time_limit_minutes', 'shuffle_questions',
+            'class_id', 'class_name', 'subject_id', 'subject_name',
+            'created_at', 'published_at', 'submitted', 'total',
+        ]
+        read_only_fields = ['id', 'created_at', 'published_at']
+
+    def get_class_id(self, obj):
+        return str(obj.class_obj_id)
+
+    def get_subject_id(self, obj):
+        return str(obj.subject_id)
+
+    def get_submitted(self, obj):
+        if obj.status != 'active' or obj.mode != 'online':
+            return None
+        return obj.submissions.count()
+
+    def get_total(self, obj):
+        if obj.status != 'active':
+            return None
+        from apps.teacher.models import ClassAssignment
+        term = AcademicTerm.objects.filter(is_current=True).first()
+        if not term:
+            return None
+        return ClassAssignment.objects.filter(class_obj=obj.class_obj, term=term).count()
+
+
+class AssignmentWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = Assignment
+        fields = [
+            'title', 'instructions', 'mode', 'status',
+            'due_date', 'max_score', 'questions', 'class_obj', 'subject',
+            'time_limit_minutes', 'shuffle_questions',
+        ]
+
+
+# Update AssignmentSerializer to include new fields and real submission counts
+# (replace the class defined above — done via appending updated version here)
+
+# ---------------------------------------------------------------------------
+# Quiz submission serializers
+# ---------------------------------------------------------------------------
+
+class QuizAnswerSerializer(serializers.Serializer):
+    question_id = serializers.CharField()
+    answer      = serializers.JSONField()   # int (MCQ/TF) or string (SA/FB)
+
+
+class QuizSubmitSerializer(serializers.Serializer):
+    answers             = QuizAnswerSerializer(many=True)
+    time_spent_seconds  = serializers.IntegerField(required=False, default=0)
+
+
+class AssignmentSubmissionSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+    student_code = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = AssignmentSubmission
+        fields = [
+            'id', 'student_name', 'student_code', 'answers',
+            'score', 'max_score', 'percentage', 'is_graded', 'is_late', 'submitted_at',
+        ]
+
+    def get_student_name(self, obj):
+        if obj.student:
+            return obj.student.full_name
+        return obj.student_name
+
+    def get_student_code(self, obj):
+        if obj.student:
+            return obj.student.student_id
+        return obj.student_code
+
+
+# ---------------------------------------------------------------------------
+# Question bank serializer
+# ---------------------------------------------------------------------------
+
+class QuestionBankSerializer(serializers.ModelSerializer):
+    subject_name = serializers.ReadOnlyField(source='subject.name', default=None)
+
+    class Meta:
+        model  = QuestionBank
+        fields = [
+            'id', 'question_type', 'text', 'options', 'correct_answer',
+            'explanation', 'points', 'image', 'tags', 'subject_name', 'created_at',
+        ]
+        read_only_fields = ['id', 'created_at']

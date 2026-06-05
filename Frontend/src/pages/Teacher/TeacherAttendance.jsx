@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router'
-import { useSchoolSettings } from '../../hooks/useSchoolSetting'
-import { formatSchoolDate } from '../../utils/date'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
@@ -51,8 +49,6 @@ function buildSections(classes) {
 }
 
 export function TeacherAttendance() {
-    const { setting } = useSchoolSettings()
-
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
     const lastName   = storedUser.last_name  || ''
@@ -186,25 +182,14 @@ export function TeacherAttendance() {
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Mark Attendance</h1>
-                            <p>Track student attendance for your classes</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{fullName}</span>
-                                    <span className="header-user-role">Teacher</span>
-                                </div>
-                                <Link to="/profile?role=teacher" className="header-user-av teacher-av">{initials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Mark Attendance"
+                        subtitle="Track student attendance for your classes"
+                        userName={fullName}
+                        userRole="Teacher"
+                        userInitials={initials}
+                        avatarClass="teacher-av"
+                    />
 
                     <DashboardContent>
                         {loadingClasses ? (

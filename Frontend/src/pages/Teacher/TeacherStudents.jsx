@@ -80,6 +80,7 @@ export function TeacherStudent() {
     const [sections, setSections] = useState([])
     const [students, setStudents] = useState([])
     const [loading,  setLoading]  = useState(true)
+    const [error,    setError]    = useState(null)
 
     const [section,    setSection]    = useState('')
     const [year,       setYear]       = useState('')
@@ -102,10 +103,10 @@ export function TeacherStudent() {
                 setClasses(list)
                 setSections(buildSections(list))
             })
-            .catch(() => {})
+            .catch(err => setError(err?.message || 'Failed to load classes.'))
         getTeacherStudents()
             .then(data => setStudents(Array.isArray(data) ? data : []))
-            .catch(() => setStudents([]))
+            .catch(err => { setStudents([]); setError(err?.message || 'Failed to load students.') })
             .finally(() => setLoading(false))
     }, [])
 
@@ -116,9 +117,10 @@ export function TeacherStudent() {
         const cls = classKey ? classes.find(c => c.class_name === classKey) : null
         const params = cls ? { class_id: cls.class_id } : {}
         setLoading(true)
+        setError(null)
         getTeacherStudents(params)
             .then(data => setStudents(Array.isArray(data) ? data : []))
-            .catch(() => setStudents([]))
+            .catch(err => { setStudents([]); setError(err?.message || 'Failed to load students.') })
             .finally(() => setLoading(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [year, classVal])
@@ -196,6 +198,13 @@ export function TeacherStudent() {
                             year={year}         onYearChange={v => { setYear(v); setClassVal('') }}
                             classVal={classVal} onClassChange={setClassVal}
                         />
+
+                        {error && (
+                            <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.4rem' }}>error</span>
+                                {error}
+                            </div>
+                        )}
 
                         <div className="search-filter-bar mb-5">
                             <div className="search-input-wrapper">

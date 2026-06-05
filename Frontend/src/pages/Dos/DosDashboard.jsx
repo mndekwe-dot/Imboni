@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
-import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade, getDosWeeklyTrend } from '../../api/dos'
+import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade, getDosWeeklyTrend, getDosTasks, createDosTask, updateDosTask } from '../../api/dos'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -95,6 +95,14 @@ export function DosDashboard() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
+    const [tasks,         setTasks]         = useState([])
+    const [taskTitle,     setTaskTitle]      = useState('')
+    const [taskPriority,  setTaskPriority]   = useState('medium')
+    const [taskDue,       setTaskDue]        = useState('')
+    const [taskSaving,    setTaskSaving]     = useState(false)
+    const [taskError,     setTaskError]      = useState(null)
+    const [showTaskForm,  setShowTaskForm]   = useState(false)
+
     function fetchActivityPage(offset, append) {
         const setter = append ? setActivityLoadingMore : () => {}
         setter(true)
@@ -130,7 +138,28 @@ export function DosDashboard() {
             .finally(() => setLoading(false))
 
         fetchActivityPage(0, false)
+        getDosTasks().then(data => setTasks(Array.isArray(data) ? data : [])).catch(() => {})
     }, [])
+
+    async function handleCreateTask() {
+        if (!taskTitle.trim()) return
+        setTaskSaving(true); setTaskError(null)
+        try {
+            const task = await createDosTask({ title: taskTitle.trim(), priority: taskPriority, due_date: taskDue || null })
+            setTasks(prev => [task, ...prev])
+            setTaskTitle(''); setTaskDue(''); setShowTaskForm(false)
+        } catch (e) {
+            setTaskError(e?.message || 'Failed to save task.')
+        } finally {
+            setTaskSaving(false) }
+    }
+
+    async function toggleTaskDone(task) {
+        try {
+            const updated = await updateDosTask(task.id, { is_completed: !task.is_completed })
+            setTasks(prev => prev.map(t => t.id === task.id ? updated : t))
+        } catch { /* silent — task remains unchanged */ }
+    }
 
     const dosStats = stats ? [
         { icon: 'people', value: stats.total_students, label: 'Total Students', trend: `+${stats.new_students} this term`, trendClass: 'positive', colorClass: '' },
@@ -321,6 +350,89 @@ export function DosDashboard() {
                                 </div>
                             </div>
                         </div>{/* end outer container */}
+
+                        {/* My Tasks widget */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h2 className="card-title">My Tasks</h2>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <span className="badge badge-secondary">{tasks.filter(t => !t.is_completed).length} pending</span>
+                                    <button className="btn btn-outline btn-sm" onClick={() => setShowTaskForm(v => !v)}>
+                                        <span className="material-symbols-rounded icon-sm">{showTaskForm ? 'expand_less' : 'add'}</span>
+                                        {showTaskForm ? 'Cancel' : 'Add'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="card-content">
+                                {showTaskForm && (
+                                    <div style={{ background: 'var(--muted)', borderRadius: '10px', padding: '1rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                        <input
+                                            className="form-input"
+                                            placeholder="Task title…"
+                                            value={taskTitle}
+                                            onChange={e => setTaskTitle(e.target.value)}
+                                            onKeyDown={e => e.key === 'Enter' && handleCreateTask()}
+                                            autoFocus
+                                        />
+                                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                            {['low', 'medium', 'high'].map(p => (
+                                                <label key={p} style={{
+                                                    display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer',
+                                                    fontSize: '0.82rem', padding: '0.3rem 0.7rem', borderRadius: '8px',
+                                                    border: `1px solid ${taskPriority === p ? 'var(--primary)' : 'var(--border)'}`,
+                                                    background: taskPriority === p ? 'var(--primary-light, #e0e7ff)' : 'transparent',
+                                                    textTransform: 'capitalize',
+                                                }}>
+                                                    <input type="radio" value={p} checked={taskPriority === p} onChange={() => setTaskPriority(p)} style={{ accentColor: 'var(--primary)' }} />
+                                                    {p}
+                                                </label>
+                                            ))}
+                                            <input type="date" className="form-input" style={{ flex: 1, minWidth: '140px' }} value={taskDue} onChange={e => setTaskDue(e.target.value)} />
+                                        </div>
+                                        {taskError && <p style={{ color: '#dc2626', fontSize: '0.8rem', margin: 0 }}>{taskError}</p>}
+                                        <button className="btn btn-primary btn-sm" onClick={handleCreateTask} disabled={taskSaving || !taskTitle.trim()}>
+                                            <span className="material-symbols-rounded icon-sm">save</span>
+                                            {taskSaving ? 'Saving…' : 'Save Task'}
+                                        </button>
+                                    </div>
+                                )}
+                                {tasks.length === 0 ? (
+                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No tasks yet. Click Add to create one.</p>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        {tasks.slice(0, 6).map(task => (
+                                            <div key={task.id} style={{
+                                                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                                                padding: '0.5rem 0.75rem', borderRadius: '8px',
+                                                background: task.is_completed ? 'var(--muted)' : 'var(--card)',
+                                                border: '1px solid var(--border)',
+                                                opacity: task.is_completed ? 0.6 : 1,
+                                            }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={task.is_completed}
+                                                    onChange={() => toggleTaskDone(task)}
+                                                    style={{ accentColor: 'var(--primary)', cursor: 'pointer', width: '1rem', height: '1rem', flexShrink: 0 }}
+                                                />
+                                                <span style={{
+                                                    flex: 1, fontSize: '0.875rem', fontWeight: 500,
+                                                    textDecoration: task.is_completed ? 'line-through' : 'none',
+                                                    color: task.is_completed ? 'var(--muted-foreground)' : 'inherit',
+                                                }}>{task.title}</span>
+                                                {task.due_date && (
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', flexShrink: 0 }}>
+                                                        {task.due_date}
+                                                    </span>
+                                                )}
+                                                <span className={`badge ${task.priority === 'high' ? 'badge-high' : task.priority === 'medium' ? 'badge-medium' : 'badge-low'}`} style={{ flexShrink: 0 }}>
+                                                    {task.priority}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
                         <div className="card">
                             <div className="card-header">
