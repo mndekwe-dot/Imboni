@@ -105,11 +105,12 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
     const [students, setStudents] = useState([])
     const [loading,  setLoading]  = useState(true)
     const [search,   setSearch]   = useState('')
+    const [panelError, setPanelError] = useState(null)
 
     useEffect(() => {
         getTeacherStudents({ class_id: cls.class_id })
             .then(s => setStudents(Array.isArray(s) ? s : []))
-            .catch(() => setStudents([]))
+            .catch(err => { setStudents([]); setPanelError(err?.message || 'Failed to load students.') })
             .finally(() => setLoading(false))
     }, [cls.class_id])
 
@@ -134,6 +135,13 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
                     </button>
                 )}
             </div>
+
+            {panelError && (
+                <p style={{ color: '#dc2626', fontSize: '0.82rem', padding: '0.5rem 0' }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.3rem' }}>error</span>
+                    {panelError}
+                </p>
+            )}
 
             {loading ? (
                 <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0' }}>Loading students…</p>

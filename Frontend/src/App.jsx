@@ -9,6 +9,7 @@ import { StudentResults } from './pages/Student/StudentResults';
 import { StudentAttendance } from './pages/Student/StudentAttendance';
 import { StudentTimetable } from './pages/Student/StudentTimetable';
 import { StudentAssignments } from './pages/Student/StudentAssignments';
+import { StudentQuizPage } from './pages/Student/StudentQuizPage';
 import { StudentActivities } from './pages/Student/StudentActivities';
 import { StudentAnnouncements } from './pages/Student/StudentAnnouncements';
 import { StudentMessages } from './pages/Student/StudentMessages';
@@ -131,6 +132,7 @@ function App() {
       <Route path="/student/attendance" element={<ProtectedRoute><StudentAttendance /></ProtectedRoute>} />
       <Route path="/student/timetable" element={<ProtectedRoute><StudentTimetable /></ProtectedRoute>} />
       <Route path="/student/assignments" element={<ProtectedRoute><StudentAssignments /></ProtectedRoute>} />
+      <Route path="/student/quiz/:assignmentId" element={<ProtectedRoute><StudentQuizPage /></ProtectedRoute>} />
       <Route path="/student/activities" element={<ProtectedRoute><StudentActivities /></ProtectedRoute>} />
       <Route path="/student/announcements" element={<ProtectedRoute><StudentAnnouncements /></ProtectedRoute>} />
       <Route path="/student/messages" element={<ProtectedRoute><StudentMessages /></ProtectedRoute>} />

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAssignments, submitAssignment } from '../../api/student'
+import { getStudentQuizzes } from '../../api/teacher'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -132,8 +134,10 @@ function AssignmentCard({ assignment, onSubmit }) {
 }
 
 export function StudentAssignments() {
+    const navigate = useNavigate()
     const [profile,     setProfile]     = useState(null)
     const [assignments, setAssignments] = useState([])
+    const [quizzes,     setQuizzes]     = useState([])
     const [loading,     setLoading]     = useState(true)
     const [statusFilter, setStatusFilter] = useState('All')
 
@@ -147,9 +151,11 @@ export function StudentAssignments() {
         Promise.all([
             getStudentProfile().catch(() => null),
             getStudentAssignments().catch(() => []),
-        ]).then(([prof, ass]) => {
+            getStudentQuizzes().catch(() => []),
+        ]).then(([prof, ass, qzs]) => {
             setProfile(prof)
             setAssignments(Array.isArray(ass) ? ass : [])
+            setQuizzes(Array.isArray(qzs) ? qzs : [])
         }).finally(() => setLoading(false))
     }, [])
 
@@ -223,6 +229,63 @@ export function StudentAssignments() {
                             ))}
                         </div>
 
+                        {/* Online quizzes section */}
+                        {quizzes.length > 0 && (
+                            <div className="act-list-card" style={{ marginBottom: '1.25rem' }}>
+                                <div className="act-list-header">
+                                    <div className="act-list-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <span className="material-symbols-rounded" style={{ fontSize: '1.1rem', color: 'var(--success)' }}>quiz</span>
+                                        Online Quizzes
+                                    </div>
+                                    <span className="act-list-count">{quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''}</span>
+                                </div>
+                                <div>
+                                    {quizzes.map((q, i) => (
+                                        <div key={q.id} style={{
+                                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                                            padding: '0.75rem 1rem',
+                                            borderBottom: i < quizzes.length - 1 ? '1px solid var(--border)' : 'none',
+                                        }}>
+                                            <div style={{
+                                                width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                background: q.submitted ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
+                                            }}>
+                                                <span className="material-symbols-rounded" style={{ fontSize: '1.2rem', color: q.submitted ? 'var(--success)' : '#6366f1' }}>
+                                                    {q.submitted ? 'check_circle' : 'quiz'}
+                                                </span>
+                                            </div>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{q.title}</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.1rem' }}>
+                                                    {q.subject_name} · {q.question_count} question{q.question_count !== 1 ? 's' : ''}
+                                                    {q.time_limit_minutes ? ` · ${q.time_limit_minutes} min` : ''}
+                                                    {' · Due '}
+                                                    <span style={{ color: new Date(q.due_date) < new Date() ? 'var(--destructive)' : 'inherit' }}>{q.due_date}</span>
+                                                </div>
+                                            </div>
+                                            {q.submitted ? (
+                                                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                                                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: q.percentage >= 50 ? 'var(--success)' : '#dc2626' }}>
+                                                        {q.percentage}%
+                                                    </div>
+                                                    <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>Completed</div>
+                                                </div>
+                                            ) : (
+                                                <button className="btn btn-primary btn-sm"
+                                                    style={{ flexShrink: 0 }}
+                                                    onClick={() => navigate(`/student/quiz/${q.id}`)}>
+                                                    <span className="material-symbols-rounded icon-sm">play_arrow</span>
+                                                    Take Quiz
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Paper assignments */}
                         {loading ? (
                             <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading assignments…</p>
                         ) : filtered.length === 0 ? (

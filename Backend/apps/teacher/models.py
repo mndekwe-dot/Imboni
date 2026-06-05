@@ -167,3 +167,96 @@ class TeacherClassList(models.Model):
         db_table        = 'teacher_class_list'
         unique_together = ['teacher', 'class_name']
 
+
+class Assignment(models.Model):
+    """Teacher-created assignments and quizzes published to a class."""
+    STATUS_CHOICES = [
+        ('draft',  'Draft'),
+        ('active', 'Active'),
+        ('closed', 'Closed'),
+    ]
+    MODE_CHOICES = [
+        ('paper',  'Paper'),
+        ('online', 'Online'),
+    ]
+
+    id                  = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    teacher             = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assignments_given')
+    class_obj           = models.ForeignKey('Class', on_delete=models.CASCADE, related_name='class_assignments')
+    subject             = models.ForeignKey('results.Subject', on_delete=models.PROTECT)
+    title               = models.CharField(max_length=200)
+    instructions        = models.TextField(blank=True)
+    mode                = models.CharField(max_length=10, choices=MODE_CHOICES, default='paper')
+    status              = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    due_date            = models.DateField()
+    max_score           = models.IntegerField()
+    questions           = models.JSONField(default=list, blank=True)
+    time_limit_minutes  = models.IntegerField(null=True, blank=True)
+    shuffle_questions   = models.BooleanField(default=False)
+    created_at          = models.DateTimeField(auto_now_add=True)
+    published_at        = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'teacher_assignments'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} — {self.class_obj.name}"
+
+
+class AssignmentSubmission(models.Model):
+    """A student's answers for an online quiz assignment."""
+    id           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assignment   = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='submissions')
+    student      = models.ForeignKey('student.Student', on_delete=models.SET_NULL,
+                                     null=True, blank=True, related_name='quiz_submissions')
+    student_name = models.CharField(max_length=200, blank=True)
+    student_code = models.CharField(max_length=50, blank=True)
+    # [{question_id, answer, is_correct, points_earned, max_points}]
+    answers      = models.JSONField(default=list)
+    score        = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    max_score    = models.IntegerField(default=0)
+    percentage   = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    is_graded    = models.BooleanField(default=False)
+    is_late      = models.BooleanField(default=False)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table        = 'quiz_submissions'
+        ordering        = ['-submitted_at']
+        unique_together = ['assignment', 'student']
+
+    def __str__(self):
+        return f"{self.student_name or 'Unknown'} — {self.assignment.title}"
+
+
+class QuestionBank(models.Model):
+    """Reusable questions saved by a teacher for future quizzes."""
+    QUESTION_TYPES = [
+        ('mcq',          'Multiple Choice'),
+        ('true_false',   'True / False'),
+        ('short_answer', 'Short Answer'),
+        ('fill_blank',   'Fill in the Blank'),
+    ]
+
+    id             = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    teacher        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='question_bank')
+    subject        = models.ForeignKey('results.Subject', on_delete=models.SET_NULL,
+                                       null=True, blank=True)
+    question_type  = models.CharField(max_length=20, choices=QUESTION_TYPES, default='mcq')
+    text           = models.TextField()
+    options        = models.JSONField(default=list)
+    correct_answer = models.JSONField(null=True, blank=True)
+    explanation    = models.TextField(blank=True)
+    points         = models.IntegerField(default=1)
+    image          = models.TextField(blank=True)   # base64 data URI
+    tags           = models.CharField(max_length=200, blank=True)
+    created_at     = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'question_bank'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.text[:80]
+

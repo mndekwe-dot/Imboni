@@ -97,6 +97,12 @@ export const createDosAnnouncement  = (data)       => client.post('/imboni/dos/a
 export const updateDosAnnouncement  = (id, data)   => client.patch(`/imboni/dos/announcements/${id}/`, data)
 export const deleteDosAnnouncement  = (id)         => client.delete(`/imboni/dos/announcements/${id}/`)
 
+// Tasks
+export const getDosTasks    = ()      => client.get('/imboni/tasks/')
+export const createDosTask  = d       => client.post('/imboni/tasks/', d)
+export const updateDosTask  = (id, d) => client.patch(`/imboni/tasks/${id}/`, d)
+export const deleteDosTask  = id      => client.delete(`/imboni/tasks/${id}/`)
+
 // Activity (Club) Management
 export const getDosActivities   = ()           => client.get('/imboni/dos/activities/')
 export const patchDosActivity   = (id, data)   => client.patch(`/imboni/dos/activities/${id}/`, data)

@@ -11,6 +11,7 @@ import {
     getTeacherDashboardStats,
     getTeacherTodaySchedule,
     getTeacherTasks,
+    createTeacherTask,
     getTeacherClassPerformance,
     getTeacherRecentActivities,
 } from '../../api/teacher'
@@ -103,9 +104,9 @@ function ActivityItem({ iconClass, icon, text, time }) {
 }
 
 const ACTIVITY_ICONS = {
-    result:     { iconClass: 'result',       icon: 'assignment_turned_in' },
-    attendance: { iconClass: 'attendance',   icon: 'check_circle'         },
-    incident:   { iconClass: 'incident',     icon: 'report_problem'       },
+    result:     { iconClass: 'result',     icon: 'assignment_turned_in' },
+    attendance: { iconClass: 'attendance', icon: 'check_circle'         },
+    incident:   { iconClass: 'incident',   icon: 'report_problem'       },
 }
 
 function slotMeta(status) {
@@ -114,6 +115,108 @@ function slotMeta(status) {
     return                               { label: 'Upcoming',    cls: 'badge-secondary', cardCls: 'upcoming',  showMark: false }
 }
 
+// ── Create Task Modal ─────────────────────────────────────────────────────────
+function CreateTaskModal({ onClose, onCreated }) {
+    const [title,    setTitle]    = useState('')
+    const [priority, setPriority] = useState('medium')
+    const [dueDate,  setDueDate]  = useState('')
+    const [saving,   setSaving]   = useState(false)
+    const [error,    setError]    = useState(null)
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden'
+        return () => { document.body.style.overflow = '' }
+    }, [])
+
+    async function handleSave() {
+        if (!title.trim()) { setError('Title is required.'); return }
+        setSaving(true); setError(null)
+        try {
+            const task = await createTeacherTask({
+                title: title.trim(),
+                priority,
+                due_date: dueDate || null,
+            })
+            onCreated(task)
+            onClose()
+        } catch (e) {
+            setError(e?.message || 'Failed to save task.')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                    <div className="modal-header-left">
+                        <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>task_alt</span>
+                        <h2 className="modal-title">New Task</h2>
+                    </div>
+                    <button className="btn-icon-clean" onClick={onClose}>
+                        <span className="material-symbols-rounded">close</span>
+                    </button>
+                </div>
+
+                <div className="modal-body">
+                    <div className="form-group">
+                        <label className="form-label">Title *</label>
+                        <input
+                            className="form-input"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            placeholder="What needs to be done?"
+                            autoFocus
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Priority</label>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            {['low', 'medium', 'high'].map(p => (
+                                <label key={p} style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.35rem',
+                                    cursor: 'pointer', fontSize: '0.875rem',
+                                    padding: '0.45rem 0.875rem', borderRadius: '8px',
+                                    border: `1px solid ${priority === p ? 'var(--primary)' : 'var(--border)'}`,
+                                    background: priority === p ? 'var(--primary-light, #ede9fe)' : 'transparent',
+                                    fontWeight: priority === p ? 600 : 400,
+                                    textTransform: 'capitalize',
+                                }}>
+                                    <input type="radio" value={p} checked={priority === p} onChange={() => setPriority(p)} style={{ accentColor: 'var(--primary)' }} />
+                                    {p}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Due Date</label>
+                        <input
+                            type="date"
+                            className="form-input"
+                            value={dueDate}
+                            onChange={e => setDueDate(e.target.value)}
+                        />
+                    </div>
+
+                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+                </div>
+
+                <div className="modal-footer">
+                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-primary" onClick={handleSave} disabled={saving || !title.trim()}>
+                        <span className="material-symbols-rounded">save</span>
+                        {saving ? 'Saving…' : 'Save Task'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherDashboard() {
     const navigate = useNavigate()
     const [stats,       setStats]       = useState(null)
@@ -121,7 +224,11 @@ export function TeacherDashboard() {
     const [tasks,       setTasks]       = useState([])
     const [performance, setPerformance] = useState([])
     const [activities,  setActivities]  = useState([])
+    const [hasMore,     setHasMore]     = useState(false)
+    const [loadingMore, setLoadingMore] = useState(false)
     const [loading,     setLoading]     = useState(true)
+    const [loadError,   setLoadError]   = useState(null)
+    const [showTaskModal, setShowTaskModal] = useState(false)
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
@@ -135,21 +242,39 @@ export function TeacherDashboard() {
             getTeacherTodaySchedule().catch(() => []),
             getTeacherTasks().catch(() => []),
             getTeacherClassPerformance().catch(() => []),
-            getTeacherRecentActivities().catch(() => []),
+            getTeacherRecentActivities({ limit: 10, offset: 0 }).catch(err => ({ _error: err?.message })),
         ]).then(([s, sched, t, perf, act]) => {
             setStats(s)
             setSchedule(Array.isArray(sched) ? sched : [])
             setTasks(Array.isArray(t) ? t : [])
             setPerformance(Array.isArray(perf) ? perf : [])
-            setActivities(Array.isArray(act) ? act : [])
+            if (act && !act._error) {
+                setActivities(act.results || [])
+                setHasMore(act.has_more || false)
+            } else if (act?._error) {
+                setLoadError(act._error)
+            }
         }).finally(() => setLoading(false))
     }, [])
 
+    async function loadMore() {
+        setLoadingMore(true)
+        try {
+            const res = await getTeacherRecentActivities({ limit: 10, offset: activities.length })
+            setActivities(prev => [...prev, ...(res.results || [])])
+            setHasMore(res.has_more || false)
+        } catch (e) {
+            setLoadError(e?.message || 'Failed to load more activities.')
+        } finally {
+            setLoadingMore(false)
+        }
+    }
+
     const statCards = stats ? [
-        { icon: 'check_circle',    value: `${stats.overall_attendance}%`, label: 'Attendance Rate', trend: 'This term',              trendClass: 'positive', colorClass: 'success' },
-        { icon: 'school',          value: `${stats.class_average}%`,      label: 'Class Average',   trend: 'This term',              trendClass: 'positive', colorClass: '' },
-        { icon: 'assignment_late', value: stats.pending_grading,           label: 'Pending Grading', trend: 'Draft results',          trendClass: 'negative', colorClass: 'warning' },
-        { icon: 'groups',          value: stats.total_students,            label: 'Total Students',  trend: 'Across your classes',   trendClass: '',          colorClass: '' },
+        { icon: 'check_circle',    value: `${stats.overall_attendance}%`, label: 'Attendance Rate', trend: 'This term',            trendClass: 'positive', colorClass: 'success' },
+        { icon: 'school',          value: `${stats.class_average}%`,      label: 'Class Average',   trend: 'This term',            trendClass: 'positive', colorClass: '' },
+        { icon: 'assignment_late', value: stats.pending_grading,           label: 'Pending Grading', trend: 'Draft results',        trendClass: 'negative', colorClass: 'warning' },
+        { icon: 'groups',          value: stats.total_students,            label: 'Total Students',  trend: 'Across your classes',  trendClass: '',          colorClass: '' },
         { icon: 'menu_book',       value: stats.classes_today,             label: 'Classes Today',   trend: `${stats.classes_completed} completed, ${stats.classes_remaining} left`, trendClass: '', colorClass: '' },
     ] : []
 
@@ -157,6 +282,13 @@ export function TeacherDashboard() {
 
     return (
         <>
+            {showTaskModal && (
+                <CreateTaskModal
+                    onClose={() => setShowTaskModal(false)}
+                    onCreated={task => setTasks(prev => [task, ...prev])}
+                />
+            )}
+
             <a href="#main-content" className="skip-link">Skip to content</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
@@ -172,10 +304,7 @@ export function TeacherDashboard() {
                     />
                     <DashboardContent>
 
-                        <WelcomeBanner
-                            name={firstName || 'Teacher'}
-                            role="Imboni Academy"
-                        />
+                        <WelcomeBanner name={firstName || 'Teacher'} role="Imboni Academy" />
 
                         <div className="dash-card">
                             <div className="section-label-sm">Quick Actions</div>
@@ -249,7 +378,17 @@ export function TeacherDashboard() {
                                     <div className="card">
                                         <div className="card-header">
                                             <h3 className="card-title">Pending Tasks</h3>
-                                            <span className="badge badge-secondary">{pendingTasks.length}</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <span className="badge badge-secondary">{pendingTasks.length}</span>
+                                                <button
+                                                    className="btn btn-outline btn-sm"
+                                                    onClick={() => setShowTaskModal(true)}
+                                                    title="Add task"
+                                                >
+                                                    <span className="material-symbols-rounded icon-sm">add</span>
+                                                    Add
+                                                </button>
+                                            </div>
                                         </div>
                                         <div className="card-content">
                                             {pendingTasks.length === 0 ? (
@@ -280,17 +419,8 @@ export function TeacherDashboard() {
                                                     <ResponsiveContainer width="100%" height={220}>
                                                         <BarChart data={performance} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                                                            <XAxis
-                                                                dataKey="class_name"
-                                                                tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-                                                                axisLine={false} tickLine={false}
-                                                            />
-                                                            <YAxis
-                                                                domain={[0, 100]}
-                                                                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-                                                                axisLine={false} tickLine={false}
-                                                                tickFormatter={v => `${v}%`}
-                                                            />
+                                                            <XAxis dataKey="class_name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
+                                                            <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                                                             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                                                             <Bar dataKey="average_score" radius={[6, 6, 0, 0]} maxBarSize={44}>
                                                                 {performance.map((entry, i) => (
@@ -321,7 +451,13 @@ export function TeacherDashboard() {
                                             <h3 className="card-title">Recent Activities</h3>
                                         </div>
                                         <div className="card-content">
-                                            {activities.length === 0 ? (
+                                            {loadError && (
+                                                <p style={{ color: '#dc2626', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
+                                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.3rem' }}>error</span>
+                                                    {loadError}
+                                                </p>
+                                            )}
+                                            {activities.length === 0 && !loadError ? (
                                                 <p style={{ color: 'var(--muted-foreground)' }}>No recent activities.</p>
                                             ) : activities.map((a, i) => {
                                                 const { iconClass, icon } = ACTIVITY_ICONS[a.activity_type] || { iconClass: '', icon: 'notifications' }
@@ -335,6 +471,19 @@ export function TeacherDashboard() {
                                                     />
                                                 )
                                             })}
+                                            {hasMore && (
+                                                <button
+                                                    className="btn btn-outline btn-sm"
+                                                    style={{ width: '100%', marginTop: '0.75rem' }}
+                                                    onClick={loadMore}
+                                                    disabled={loadingMore}
+                                                >
+                                                    <span className="material-symbols-rounded icon-sm">
+                                                        {loadingMore ? 'progress_activity' : 'expand_more'}
+                                                    </span>
+                                                    {loadingMore ? 'Loading…' : 'Load More'}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
