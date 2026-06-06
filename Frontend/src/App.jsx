@@ -67,7 +67,7 @@ import { TeacherRegistration } from './pages/TeacherRegistration';
 import { AdminDashboard } from './pages/Admin/AdminDashboard';
 import { AdminStaff } from './pages/Admin/AdminStaff';
 import { AdminStudents } from './pages/Admin/AdminStudents';
-import { AdminFinance } from './pages/Admin/AdminFinance';
+import { AdminApprovals } from './pages/Admin/AdminApprovals';
 import { AdminReports } from './pages/Admin/AdminReports';
 import { AdminAnnouncements } from './pages/Admin/AdminAnnouncements';
 import { AdminMessages } from './pages/Admin/AdminMessages';
@@ -191,7 +191,7 @@ function App() {
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/staff" element={<ProtectedRoute><AdminStaff /></ProtectedRoute>} />
       <Route path="/admin/students" element={<ProtectedRoute><AdminStudents /></ProtectedRoute>} />
-      <Route path="/admin/finance" element={<ProtectedRoute><AdminFinance /></ProtectedRoute>} />
+      <Route path="/admin/approvals" element={<ProtectedRoute><AdminApprovals /></ProtectedRoute>} />
       <Route path="/admin/reports" element={<ProtectedRoute><AdminReports /></ProtectedRoute>} />
       <Route path="/admin/announcements" element={<ProtectedRoute><AdminAnnouncements /></ProtectedRoute>} />
       <Route path="/admin/messages" element={<ProtectedRoute><AdminMessages /></ProtectedRoute>} />

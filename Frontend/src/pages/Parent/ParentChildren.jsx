@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { parentNavItems, parentSecondaryItems } from './parentNav'
+import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
 import {
     getMyChildren, getChildCard, getChildFees, getChildDocuments,
 } from '../../api/parent'
+
+function toList(data) {
+    return Array.isArray(data) ? data : (data?.results ?? [])
+}
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
@@ -118,7 +123,8 @@ export function ParentChildren() {
 
     useEffect(() => {
         getMyChildren()
-            .then(list => {
+            .then(raw => {
+                const list = toList(raw)
                 setChildren(list)
                 list.forEach(c => {
                     Promise.all([
@@ -127,8 +133,8 @@ export function ParentChildren() {
                         getChildDocuments(c.id).catch(() => []),
                     ]).then(([card, feeData, docData]) => {
                         if (card) setCards(prev => ({ ...prev, [c.id]: card }))
-                        setFees(prev => ({ ...prev, [c.id]: feeData || [] }))
-                        setDocs(prev => ({ ...prev, [c.id]: docData || [] }))
+                        setFees(prev => ({ ...prev, [c.id]: toList(feeData) }))
+                        setDocs(prev => ({ ...prev, [c.id]: toList(docData) }))
                     })
                 })
             })
@@ -141,14 +147,11 @@ export function ParentChildren() {
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>My Children</h1>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="My Children"
+                        subtitle="Overview of your children's profiles"
+                        {...parentUser}
+                    />
 
                     <DashboardContent>
                         {loading ? (

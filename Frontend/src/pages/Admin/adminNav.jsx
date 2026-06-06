@@ -2,7 +2,7 @@ export const adminNavItems = [
     { to: '/admin',                 icon: 'dashboard',      label: 'Dashboard',      end: true },
     { to: '/admin/staff',           icon: 'badge',          label: 'Staff'                     },
     { to: '/admin/students',        icon: 'people',         label: 'Students'                  },
-    { to: '/admin/finance',         icon: 'payments',       label: 'Finance'                   },
+    { to: '/admin/approvals',       icon: 'pending_actions',label: 'Approvals'                 },
     { to: '/admin/reports',         icon: 'bar_chart',      label: 'Reports'                   },
     { to: '/admin/announcements',   icon: 'announcement',   label: 'Announcements'             },
     { to: '/admin/messages',        icon: 'chat',           label: 'Messages'                  },
@@ -16,10 +16,17 @@ export const adminSecondaryItems = [
 
 import { notifications } from '../../data/notifications'
 
-export const adminUser = {
-    userName:      'Dr. Alphonse Nkurunziza',
-    userRole:      'School Principal',
-    userInitials:  'AN',
-    avatarClass:   'admin-av',
-    notifications: notifications.admin,
+function _buildAdminUser() {
+    try {
+        const u      = JSON.parse(localStorage.getItem('imboni_user') || '{}')
+        const first  = u.first_name || ''
+        const last   = u.last_name  || ''
+        const full   = `${first} ${last}`.trim() || 'Admin'
+        const inits  = [first[0], last[0]].filter(Boolean).join('').toUpperCase() || 'A'
+        return { userName: full, userRole: 'School Principal', userInitials: inits, avatarClass: 'admin-av', notifications: notifications.admin }
+    } catch {
+        return { userName: 'Admin', userRole: 'School Principal', userInitials: 'A', avatarClass: 'admin-av', notifications: [] }
+    }
 }
+
+export const adminUser = _buildAdminUser()

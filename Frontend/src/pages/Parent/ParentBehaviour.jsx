@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
 import { getMyChildren, getChildBehaviourStats, getChildBehaviourReports } from '../../api/parent'
+
+const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
@@ -76,7 +79,7 @@ export function ParentBehaviour() {
 
     useEffect(() => {
         getMyChildren()
-            .then(setChildren)
+            .then(d => setChildren(toList(d)))
             .catch(console.error)
             .finally(() => setLoading(false))
     }, [])
@@ -94,7 +97,7 @@ export function ParentBehaviour() {
             getChildBehaviourReports(child.id).catch(() => []),
         ]).then(([s, r]) => {
             setStats(s)
-            setReports(r)
+            setReports(toList(r))
         }).finally(() => setLoadingData(false))
     }, [children, activeIdx])
 
@@ -121,24 +124,11 @@ export function ParentBehaviour() {
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Behavior Reports</h1>
-                            <p>Track your child's conduct and achievements</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{parentUser.userName}</span>
-                                    <span className="header-user-role">{parentUser.userRole}</span>
-                                </div>
-                                <div className={`header-user-av ${parentUser.avatarClass}`}>{parentUser.userInitials}</div>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Behavior Reports"
+                        subtitle="Track your child's conduct and achievements"
+                        {...parentUser}
+                    />
 
                     {!loading && children.length > 0 && (
                         <div className="child-switcher-bar">

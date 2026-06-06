@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { parentNavItems, parentSecondaryItems } from './parentNav'
+import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
 import {
     getMyChildren, getChildAttendanceStats, getChildAttendanceCalendar,
 } from '../../api/parent'
+
+const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
@@ -81,7 +84,7 @@ function AttendancePanel({ childId, childName, loading }) {
             getChildAttendanceCalendar(childId, month, year).catch(() => []),
         ]).then(([s, records]) => {
             setStats(s)
-            setCalendarDays(buildCalendarGrid(year, month, records || []))
+            setCalendarDays(buildCalendarGrid(year, month, toList(records)))
         }).finally(() => setLoadingPanel(false))
     }, [childId, month, year])
 
@@ -154,7 +157,7 @@ export function ParentAttendance() {
 
     useEffect(() => {
         getMyChildren()
-            .then(setChildren)
+            .then(d => setChildren(toList(d)))
             .catch(console.error)
             .finally(() => setLoading(false))
     }, [])
@@ -166,14 +169,11 @@ export function ParentAttendance() {
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Attendance Records</h1>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Attendance Records"
+                        subtitle="Monthly attendance calendar and stats"
+                        {...parentUser}
+                    />
 
                     {!loading && children.length > 0 && (
                         <div className="child-switcher-bar">

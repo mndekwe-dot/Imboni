@@ -28,6 +28,7 @@ class MyChildrenView(generics.ListAPIView):
     """
     serializer_class = MyChildrenSerializer
     permission_classes = [IsParent]
+    pagination_class = None
 
     def get_queryset(self):
         return (
