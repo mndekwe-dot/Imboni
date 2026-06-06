@@ -1,140 +1,236 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList,
+    LineChart, Line, AreaChart, Area, PieChart, Pie, Legend,
+} from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { StatCard } from '../../components/layout/StatCard'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import {
+    getAdminDashboardStats,
+    getPerformanceByGrade,
+    getWeeklyTrend,
+    getEnrollmentByGrade,
+    getPerformanceDistribution,
+    getTeachersBySubject,
+} from '../../api/admin'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
-import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
-import { DashboardContent } from '../../components/layout/DashboardContent'
 
+const GRADE_COLORS = ['#003d7a', '#2563eb', '#0ea5e9', '#10b981', '#f59e0b', '#f97316']
+const PIE_COLORS   = { Excellent: '#10b981', Good: '#003d7a', Average: '#f59e0b', 'Below Average': '#dc2626' }
 
-const reportCards = [
-    { icon: 'school',        iconClass: '',        title: 'Academic Performance Report',  desc: 'Term-by-term averages, subject breakdowns and class rankings across all year groups.',               lastGenerated: 'Mar 5, 2026'  },
-    { icon: 'fact_check',    iconClass: 'success', title: 'Attendance Summary Report',    desc: 'School-wide attendance rates, absenteeism trends and individual student records.',                   lastGenerated: 'Mar 5, 2026'  },
-    { icon: 'payments',      iconClass: '',        title: 'Finance & Fee Collection',     desc: 'Fee collection progress, outstanding balances, bursary allocations and monthly expense summary.',    lastGenerated: 'Mar 8, 2026'  },
-    { icon: 'badge',         iconClass: 'success', title: 'Staff & HR Report',            desc: 'Staffing levels, contract types, leave records and teacher-to-student ratio analysis.',             lastGenerated: 'Feb 28, 2026' },
-    { icon: 'gavel',         iconClass: 'danger',  title: 'Discipline & Welfare Report',  desc: 'Incident log, disciplinary actions, dormitory compliance and student welfare summary.',              lastGenerated: 'Mar 1, 2026'  },
-    { icon: 'emoji_events',  iconClass: 'warning', title: 'Co-curricular Activities',     desc: 'Sports results, club membership, competitions entered and student participation rates.',             lastGenerated: 'Feb 20, 2026' },
-    { icon: 'analytics',     iconClass: '',        title: 'Exam Results Analysis',        desc: 'National exam performance, predicted grades, cohort comparisons and improvement targets.',          lastGenerated: 'Jan 15, 2026' },
-    { icon: 'local_library', iconClass: 'success', title: 'Library Usage Report',         desc: 'Book borrowing stats, popular titles, overdue returns and library access hours.',                   lastGenerated: 'Feb 25, 2026' },
-]
-
-const initialExports = [
-    { icon: 'picture_as_pdf', name: 'Term 2 Academic Report 2026.pdf',   size: '1.2 MB', date: 'Mar 5, 2026'  },
-    { icon: 'table_chart',    name: 'Fee Collection Summary Term2.xlsx',  size: '340 KB', date: 'Mar 8, 2026'  },
-    { icon: 'picture_as_pdf', name: 'Staff HR Report Feb 2026.pdf',       size: '780 KB', date: 'Feb 28, 2026' },
-    { icon: 'picture_as_pdf', name: 'Discipline Report Term 2 2026.pdf',  size: '560 KB', date: 'Mar 1, 2026'  },
-]
-
-function ReportCard({ icon, iconClass, title, desc, lastGenerated, genState, onGenerate }) {
+function ChartCard({ title, desc, children, loading }) {
     return (
-        <div className="adm-report-card">
-            <div className={`adm-report-icon ${iconClass}`}>
-                <span className="material-symbols-rounded">{icon}</span>
+        <div className="card">
+            <div className="card-header">
+                <h2 className="card-title">{title}</h2>
+                {desc && <p className="card-description">{desc}</p>}
             </div>
-            <div className="adm-report-title">{title}</div>
-            <div className="adm-report-desc">{desc}</div>
-            <div className="adm-report-meta">
-                <span className="material-symbols-rounded icon-sm">history</span>
-                Last: {genState === 'done' ? 'Just now' : lastGenerated}
-                <button
-                    className={`btn btn-sm btn-${genState === 'done' ? 'outline' : 'primary'} adm-report-btn`}
-                    onClick={onGenerate}
-                    disabled={genState === 'loading'}
-                >
-                    {genState === 'loading' && <span className="material-symbols-rounded icon-spin">refresh</span>}
-                    {genState === 'done'    && <span className="material-symbols-rounded icon-success">check</span>}
-                    {genState === 'idle'    && <span className="material-symbols-rounded icon-sm-btn">download</span>}
-                    {genState === 'loading' ? 'Generating…' : genState === 'done' ? 'Done' : 'Generate'}
-                </button>
+            <div className="card-content">
+                {loading ? (
+                    <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>
+                        Loading…
+                    </div>
+                ) : children}
             </div>
         </div>
     )
 }
 
+function GradePerformanceChart({ data }) {
+    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    return (
+        <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="grade" tickFormatter={v => `S${v}`} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
+                <Tooltip formatter={(v) => [`${v}%`, 'Avg Score']} />
+                <Bar dataKey="avg_score" radius={[6, 6, 0, 0]} maxBarSize={52}>
+                    <LabelList dataKey="avg_score" position="top" formatter={v => `${v}%`} style={{ fontSize: 10, fontWeight: 700, fill: 'var(--foreground)' }} />
+                    {data.map((_, i) => <Cell key={i} fill={GRADE_COLORS[i % GRADE_COLORS.length]} />)}
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+    )
+}
+
+function WeeklyTrendChart({ data }) {
+    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    return (
+        <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={data} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
+                <defs>
+                    <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#10b981" stopOpacity={0.18} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}    />
+                    </linearGradient>
+                    <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#003d7a" stopOpacity={0.18} />
+                        <stop offset="95%" stopColor="#003d7a" stopOpacity={0}    />
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="week" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis domain={[60, 100]} tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
+                <Tooltip formatter={(v, name) => [`${v}%`, name === 'attendance' ? 'Attendance' : 'Performance']} />
+                <Legend formatter={v => v === 'attendance' ? 'Attendance' : 'Performance'} iconSize={8} wrapperStyle={{ fontSize: '0.75rem' }} />
+                <Area type="monotone" dataKey="attendance"  stroke="#10b981" fill="url(#attGrad)"  strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="performance" stroke="#003d7a" fill="url(#perfGrad)" strokeWidth={2} dot={false} />
+            </AreaChart>
+        </ResponsiveContainer>
+    )
+}
+
+function EnrollmentChart({ data }) {
+    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    return (
+        <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
+                <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="grade" tickFormatter={v => `S${v}`} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} width={24} />
+                <Tooltip formatter={(v) => [v, 'Students']} />
+                <Bar dataKey="student_count" radius={[0, 6, 6, 0]} maxBarSize={24}>
+                    <LabelList dataKey="student_count" position="right" style={{ fontSize: 10, fontWeight: 600, fill: 'var(--foreground)' }} />
+                    {data.map((_, i) => <Cell key={i} fill={GRADE_COLORS[i % GRADE_COLORS.length]} />)}
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+    )
+}
+
+function DistributionChart({ data }) {
+    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <ResponsiveContainer width={180} height={180}>
+                <PieChart>
+                    <Pie data={data} dataKey="percentage" nameKey="category" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2}>
+                        {data.map((entry, i) => (
+                            <Cell key={i} fill={PIE_COLORS[entry.category] || GRADE_COLORS[i]} />
+                        ))}
+                    </Pie>
+                    <Tooltip formatter={(v) => [`${v}%`, '']} />
+                </PieChart>
+            </ResponsiveContainer>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+                {data.map((entry, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem' }}>
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: PIE_COLORS[entry.category] || GRADE_COLORS[i], flexShrink: 0 }} />
+                        <span style={{ flex: 1, color: 'var(--foreground)' }}>{entry.category}</span>
+                        <span style={{ fontWeight: 700 }}>{entry.percentage}%</span>
+                        <span style={{ color: 'var(--muted-foreground)' }}>({entry.count} students)</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+function SubjectChart({ data }) {
+    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    const top = data.slice(0, 8)
+    return (
+        <ResponsiveContainer width="100%" height={Math.max(180, top.length * 36)}>
+            <BarChart data={top} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
+                <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="subject_name" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} width={90} />
+                <Tooltip formatter={(v) => [v, 'Teachers']} />
+                <Bar dataKey="teacher_count" fill="#003d7a" radius={[0, 6, 6, 0]} maxBarSize={22}>
+                    <LabelList dataKey="teacher_count" position="right" style={{ fontSize: 10, fontWeight: 600, fill: 'var(--foreground)' }} />
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+    )
+}
+
 export function AdminReports() {
-    // genStates: { [title]: 'idle' | 'loading' | 'done' }
-    const [genStates, setGenStates] = useState({})
-    const [exports, setExports]     = useState(initialExports)
+    const [stats,       setStats]       = useState(null)
+    const [byGrade,     setByGrade]     = useState([])
+    const [weeklyTrend, setWeeklyTrend] = useState([])
+    const [enrollment,  setEnrollment]  = useState([])
+    const [distribution,setDistribution]= useState([])
+    const [bySubject,   setBySubject]   = useState([])
+    const [loading,     setLoading]     = useState(true)
 
-    function handleGenerate(title) {
-        setGenStates(prev => ({ ...prev, [title]: 'loading' }))
-        setTimeout(() => {
-            setGenStates(prev => ({ ...prev, [title]: 'done' }))
-            const fileName = title.replace(/[^a-zA-Z0-9]/g, '_') + '_2026.pdf'
-            setExports(prev => [
-                { icon: 'picture_as_pdf', name: fileName, size: `${(Math.random() * 1.5 + 0.3).toFixed(1)} MB`, date: 'Apr 17, 2026' },
-                ...prev.slice(0, 5),
-            ])
-            // Reset back to idle after 3 s so button is reusable
-            setTimeout(() => setGenStates(prev => ({ ...prev, [title]: 'idle' })), 3000)
-        }, 1800)
-    }
+    useEffect(() => {
+        Promise.all([
+            getAdminDashboardStats().catch(() => null),
+            getPerformanceByGrade().catch(() => []),
+            getWeeklyTrend().catch(() => []),
+            getEnrollmentByGrade().catch(() => []),
+            getPerformanceDistribution().catch(() => []),
+            getTeachersBySubject().catch(() => []),
+        ]).then(([s, grade, weekly, enroll, dist, subject]) => {
+            setStats(s)
+            setByGrade(Array.isArray(grade) ? grade : (grade?.results ?? []))
+            setWeeklyTrend(Array.isArray(weekly) ? weekly : (weekly?.results ?? []))
+            setEnrollment(Array.isArray(enroll) ? enroll : (enroll?.results ?? []))
+            setDistribution(Array.isArray(dist) ? dist : (dist?.results ?? []))
+            setBySubject(Array.isArray(subject) ? subject : (subject?.results ?? []))
+        }).finally(() => setLoading(false))
+    }, [])
 
-    function handleDownload(name) {
-        const el = document.createElement('a')
-        el.href = '#'
-        el.setAttribute('download', name)
-        el.click()
-    }
+    const statCards = stats ? [
+        { icon: 'groups',       value: stats.total_students    || 0,     label: 'Total Students',   trend: `+${stats.new_students || 0} this term`, colorClass: ''        },
+        { icon: 'trending_up',  value: `${stats.avg_performance || 0}%`, label: 'Avg Performance',  trend: stats.avg_performance_change >= 0 ? `+${stats.avg_performance_change}% vs last term` : `${stats.avg_performance_change}% vs last term`, colorClass: 'success' },
+        { icon: 'badge',        value: stats.teaching_staff    || 0,     label: 'Teaching Staff',   trend: 'Active',                                colorClass: 'info'    },
+        { icon: 'pending_actions', value: stats.pending_approvals || 0,  label: 'Pending Approvals',trend: 'Awaiting review',                       colorClass: 'warning' },
+    ] : [
+        { icon: 'groups',       value: '—', label: 'Total Students',    trend: 'Loading…', colorClass: ''        },
+        { icon: 'trending_up',  value: '—', label: 'Avg Performance',   trend: 'Loading…', colorClass: 'success' },
+        { icon: 'badge',        value: '—', label: 'Teaching Staff',    trend: 'Loading…', colorClass: 'info'    },
+        { icon: 'pending_actions', value: '—', label: 'Pending Approvals', trend: 'Loading…', colorClass: 'warning' },
+    ]
 
     return (
         <>
-
             <a href="#main-content" className="skip-link">Skip to content</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Reports"
-                        subtitle="Generate and download school reports for all departments"
-                        userName={adminUser.userName}
-                        userRole={adminUser.userRole}
-                        userInitials={adminUser.userInitials}
-                        avatarClass={adminUser.avatarClass}
-                        notifications={adminUser.notifications}
+                        title="Reports & Analytics"
+                        subtitle="School-wide performance, attendance and enrollment insights"
+                        {...adminUser}
                     />
                     <DashboardContent>
 
-                        {/* Report Cards */}
-                        <div>
-                            <h3 className="section-heading">Available Reports</h3>
-                            <div className="adm-report-grid">
-                                {reportCards.map((r, i) => (
-                                    <ReportCard
-                                        key={i} {...r}
-                                        genState={genStates[r.title] || 'idle'}
-                                        onGenerate={() => handleGenerate(r.title)}
-                                    />
-                                ))}
-                            </div>
+                        <div className="portal-stat-grid">
+                            {statCards.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
-                        {/* Recent Exports */}
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">Recent Exports</h2>
-                                <button className="btn btn-outline btn-sm">
-                                    <span className="material-symbols-rounded">folder_open</span>
-                                    View All
-                                </button>
-                            </div>
-                            <div className="card-content">
-                                {exports.map((file, i) => (
-                                    <div key={i} className="file-list-item">
-                                        <span className="material-symbols-rounded file-list-icon">{file.icon}</span>
-                                        <div className="file-list-body">
-                                            <div className="file-list-name">{file.name}</div>
-                                            <div className="file-list-meta">{file.size} · {file.date}</div>
-                                        </div>
-                                        <button className="adm-btn" onClick={() => handleDownload(file.name)} title="Download">
-                                            <span className="material-symbols-rounded">download</span>
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
+                        {/* Row 1: Performance by grade + Weekly trend */}
+                        <div className="cards-grid">
+                            <ChartCard title="Performance by Grade" desc="Average score per year group" loading={loading}>
+                                <GradePerformanceChart data={byGrade} />
+                            </ChartCard>
+                            <ChartCard title="Weekly Trend" desc="Attendance vs performance over 8 weeks" loading={loading}>
+                                <WeeklyTrendChart data={weeklyTrend} />
+                            </ChartCard>
                         </div>
+
+                        {/* Row 2: Enrollment + Performance distribution */}
+                        <div className="cards-grid">
+                            <ChartCard title="Enrollment by Class" desc="Number of students per year group" loading={loading}>
+                                <EnrollmentChart data={enrollment} />
+                            </ChartCard>
+                            <ChartCard title="Performance Distribution" desc="Students by performance band" loading={loading}>
+                                <DistributionChart data={distribution} />
+                            </ChartCard>
+                        </div>
+
+                        {/* Row 3: Teachers by subject (full width) */}
+                        <ChartCard title="Teachers by Subject" desc="Number of teachers assigned per subject" loading={loading}>
+                            <SubjectChart data={bySubject} />
+                        </ChartCard>
 
                     </DashboardContent>
                 </main>

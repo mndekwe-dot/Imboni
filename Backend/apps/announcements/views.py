@@ -3,7 +3,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Announcement
+from .models import Announcement, AnnouncementRead
 from .serializers import AnnouncementSerializer, AnnouncementWriteSerializer
 
 
@@ -207,29 +207,41 @@ class AnnouncementAudienceOptionsView(APIView):
     # permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        from apps.teacher.models import SubjectTeacherAssignment
+        from apps.teacher.models import SubjectTeacherAssignment, Class
         from apps.results.models import AcademicTerm
 
-        teacher = _get_teacher(request)
-        term    = AcademicTerm.objects.filter(is_current=True).first()
+        user      = _get_teacher(request)
+        user_role = getattr(user, 'role', None)
 
         options = [{'label': 'All Classes', 'target_audience': 'all', 'target_grade': ''}]
 
-        if term:
+        if user_role in ('admin', 'dos'):
+            # Admins and DOS see every active class in the school
+            class_names = (
+                Class.objects
+                .filter(is_active=True)
+                .order_by('grade', 'section')
+                .values_list('name', flat=True)
+                .distinct()
+            )
+        else:
+            # Teachers see only the classes they are assigned to in the current term
+            term = AcademicTerm.objects.filter(is_current=True).first()
             class_names = (
                 SubjectTeacherAssignment.objects
-                .filter(teacher=teacher, term=term)
+                .filter(teacher=user, term=term)
                 .select_related('class_obj')
                 .values_list('class_obj__name', flat=True)
                 .distinct()
                 .order_by('class_obj__grade', 'class_obj__section')
-            )
-            for name in class_names:
-                options.append({
-                    'label':           name,
-                    'target_audience': 'grade_specific',
-                    'target_grade':    name,
-                })
+            ) if term else []
+
+        for name in class_names:
+            options.append({
+                'label':           name,
+                'target_audience': 'grade_specific',
+                'target_grade':    name,
+            })
 
         options.append({'label': 'Parents Only', 'target_audience': 'parents', 'target_grade': ''})
 
@@ -243,15 +255,36 @@ class AnnouncementAudienceOptionsView(APIView):
 class PublishedAnnouncementListView(APIView):
     """
     GET /imboni/announcements/
-    Returns all published announcements, newest first. Used by parent and student portals.
+    Returns published announcements filtered by the logged-in user's role:
+      parent  → audience in (all, parents)
+      student → audience in (all, students)
+      others  → all published
+    Also annotates each announcement with is_read (bool) for the current user.
     """
     def get(self, request):
-        qs = (
-            Announcement.objects
-            .filter(status='published')
-            .order_by('-published_at', '-created_at')[:100]
-        )
-        return Response(AnnouncementSerializer(qs, many=True).data)
+        role = getattr(request.user, 'role', None) if request.user.is_authenticated else None
+
+        qs = Announcement.objects.filter(status='published')
+        if role == 'parent':
+            qs = qs.filter(target_audience__in=['all', 'parents'])
+        elif role == 'student':
+            qs = qs.filter(target_audience__in=['all', 'students'])
+
+        qs = qs.order_by('-published_at', '-created_at')[:100]
+
+        read_ids = set()
+        if request.user.is_authenticated:
+            read_ids = set(
+                AnnouncementRead.objects
+                .filter(user=request.user, announcement__in=qs)
+                .values_list('announcement_id', flat=True)
+            )
+
+        data = AnnouncementSerializer(qs, many=True).data
+        for item in data:
+            item['is_read'] = item['id'] in {str(r) for r in read_ids}
+
+        return Response(data)
 
 
 class AnnouncementMarkReadView(APIView):
@@ -280,7 +313,7 @@ class AnnouncementMarkAllReadView(APIView):
             return Response({'detail': 'Authentication required.'}, status=401)
 
         unread = Announcement.objects.exclude(
-            reads__user=request.user
+            read_receipts__user=request.user
         )
         count = 0
         for ann in unread:
@@ -293,18 +326,23 @@ class AnnouncementStatsView(APIView):
     """GET /imboni/announcements/stats/"""
 
     def get(self, request):
-        from .models import Announcement
         from django.utils import timezone
 
+        role  = getattr(request.user, 'role', None) if request.user.is_authenticated else None
         today = timezone.localdate()
-        total     = Announcement.objects.filter(status='published').count()
-        today_ct  = Announcement.objects.filter(status='published', created_at__date=today).count()
+
+        qs = Announcement.objects.filter(status='published')
+        if role == 'parent':
+            qs = qs.filter(target_audience__in=['all', 'parents'])
+        elif role == 'student':
+            qs = qs.filter(target_audience__in=['all', 'students'])
+
+        total    = qs.count()
+        today_ct = qs.filter(created_at__date=today).count()
 
         unread = 0
         if request.user.is_authenticated:
-            unread = Announcement.objects.filter(status='published').exclude(
-                reads__user=request.user
-            ).count()
+            unread = qs.exclude(read_receipts__user=request.user).count()
 
         return Response({
             'total_published': total,

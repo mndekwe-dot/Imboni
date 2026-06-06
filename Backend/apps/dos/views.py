@@ -94,7 +94,7 @@ class DOSDashboardStatsView(APIView):
         avg_performance_change — vs previous term
         pending_approvals      — Results with status='submitted'
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         term      = _current_term()
@@ -138,7 +138,7 @@ class DOSRecentActivityView(APIView):
         - Pending results summary item
     Max 10 items, newest first.
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         limit  = min(int(request.query_params.get('limit', 10)), 50)
@@ -282,7 +282,7 @@ class TeacherManagementStatsView(APIView):
         student_teacher_ratio — total active students / total teachers (e.g. "1:15")
         ratio_label           — Optimal (<20), High (20-30), Critical (>30)
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         term = _current_term()
@@ -340,7 +340,7 @@ class TeacherListCreateView(APIView):
     POST — Create a new teacher account (Add Teacher button).
     Body: first_name, last_name, email, phone_number, employment_type, password
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.teacher.models import SubjectTeacherAssignment
@@ -590,7 +590,7 @@ class StudentManagementStatsView(APIView):
         avg_performance        — school-wide avg final_score % (current term)
         avg_performance_change — vs previous term (+3% badge)
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         term      = _current_term()
@@ -641,7 +641,7 @@ class StudentListCreateView(APIView):
     POST — Create a new student account (Add Student button).
     Body: first_name, last_name, email, grade, section, enrollment_date, password
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.attendance.models import AttendanceSummary

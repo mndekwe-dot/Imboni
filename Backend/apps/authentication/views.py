@@ -37,7 +37,12 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and user.role in ['admin', 'dos']:
-            return User.objects.all()
+            qs = User.objects.all()
+            role_param = self.request.query_params.get('role', '').strip()
+            if role_param:
+                roles = [r.strip() for r in role_param.split(',') if r.strip()]
+                qs = qs.filter(role__in=roles)
+            return qs
         if user.is_authenticated:
             return User.objects.filter(id=user.id)
         return User.objects.all()  # Allow all for development

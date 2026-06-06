@@ -128,7 +128,7 @@ export function ParentDashboard() {
 
     useEffect(() => {
         getMyChildren()
-            .then(setChildren)
+            .then(data => setChildren(Array.isArray(data) ? data : (data?.results ?? [])))
             .catch(console.error)
             .finally(() => setLoadingChildren(false))
     }, [])
@@ -152,8 +152,8 @@ export function ParentDashboard() {
             getChildAssessments(child.id).catch(() => []),
             getChildSummative(child.id).catch(() => []),
         ]).then(([a, s]) => {
-            setAssessments(a)
-            setSummative(s)
+            setAssessments(Array.isArray(a) ? a : (a?.results ?? []))
+            setSummative(Array.isArray(s) ? s : (s?.results ?? []))
         }).finally(() => setLoadingData(false))
     }, [children, activeIdx])
 
