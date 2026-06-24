@@ -6,7 +6,15 @@ from rest_framework import generics
 
 from apps.behavior.models import BehaviorReport
 from apps.discipline.models import BoardingStudent, DisciplineStaff
-from .serializers import MatronBehaviorReportSerializer, MatronStudentSerializer
+from .models import (
+    HealthRecord, ParentCommunication, BoardingScheduleSlot, BoardingScheduleChange,
+    TOTAL_SICKBAY_BEDS,
+)
+from .serializers import (
+    MatronBehaviorReportSerializer, MatronStudentSerializer,
+    HealthRecordSerializer, ParentCommunicationSerializer,
+    BoardingScheduleSlotSerializer, BoardingScheduleChangeSerializer,
+)
 from apps.authentication.permissions import IsMatron
 
 def _get_matron_staff(request):
@@ -414,3 +422,283 @@ class MatronNightCheckView(APIView):
             saved += 1
 
         return Response({'detail': 'Night check saved.', 'saved': saved})
+
+
+# ---------------------------------------------------------------------------
+# Health & Wellness
+# ---------------------------------------------------------------------------
+
+class MatronHealthView(APIView):
+    """
+    GET  /imboni/matron/health/?student_id=<uuid>
+    POST /imboni/matron/health/
+         body: {student_id, visit_type, condition_tag, visit_datetime, temperature_c,
+                complaint, action_taken, admitted, notify_parent}
+    """
+    permission_classes = [IsMatron]
+
+    def get(self, request):
+        from django.utils import timezone
+
+        history_qs = HealthRecord.objects.select_related('student__user').all()
+        student_id = request.query_params.get('student_id')
+        if student_id:
+            history_qs = history_qs.filter(student_id=student_id)
+
+        now = timezone.localtime()
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        active_qs = HealthRecord.objects.filter(status__in=['in_sick_bay', 'observation'])
+        occupied_beds = {r.bed_number: r for r in active_qs.filter(admitted=True).select_related('student__user') if r.bed_number}
+
+        beds = []
+        for n in range(1, TOTAL_SICKBAY_BEDS + 1):
+            record = occupied_beds.get(n)
+            if record:
+                beds.append({
+                    'bed': f'BED {n}',
+                    'badgeClass': 'occupied' if record.status == 'in_sick_bay' else 'recovery',
+                    'badge': 'Occupied' if record.status == 'in_sick_bay' else 'Observation',
+                    'record_id': str(record.id),
+                    'student': record.student.user.get_full_name(),
+                    'condition': record.complaint,
+                    'since': record.visit_datetime.strftime('Admitted %b %d'),
+                    'isEmpty': False,
+                })
+            else:
+                beds.append({'bed': f'BED {n}', 'badgeClass': 'empty', 'badge': 'Available',
+                             'record_id': None, 'student': None, 'condition': None, 'since': None, 'isEmpty': True})
+
+        stats = {
+            'in_sick_bay_now':   active_qs.filter(status='in_sick_bay').count(),
+            'under_observation': active_qs.filter(status='observation').count(),
+            'visits_this_month': HealthRecord.objects.filter(created_at__gte=month_start).count(),
+            'cleared_this_month': HealthRecord.objects.filter(status='cleared', discharged_at__gte=month_start).count(),
+            'beds_total': TOTAL_SICKBAY_BEDS,
+            'beds_occupied': len(occupied_beds),
+        }
+
+        return Response({
+            'stats': stats,
+            'beds': beds,
+            'history': HealthRecordSerializer(history_qs, many=True).data,
+        })
+
+    def post(self, request):
+        from django.utils import timezone
+        from apps.student.models import Student
+
+        d = request.data
+        try:
+            student = Student.objects.get(pk=d.get('student_id'))
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        admitted = bool(d.get('admitted', False))
+        visit_type = d.get('visit_type', 'routine_checkup')
+
+        if visit_type == 'discharge':
+            status_value = 'cleared'
+            admitted = False
+        elif admitted:
+            status_value = 'in_sick_bay'
+        elif visit_type == 'follow_up':
+            status_value = 'observation'
+        else:
+            status_value = 'cleared'
+
+        bed_number = None
+        if admitted:
+            active_qs = HealthRecord.objects.filter(status__in=['in_sick_bay', 'observation'], admitted=True)
+            taken = set(active_qs.values_list('bed_number', flat=True))
+            free = next((n for n in range(1, TOTAL_SICKBAY_BEDS + 1) if n not in taken), None)
+            if free is None:
+                return Response({'error': 'No sick bay beds available.'}, status=400)
+            bed_number = free
+
+        record = HealthRecord.objects.create(
+            student=student,
+            visit_type=visit_type,
+            condition_tag=d.get('condition_tag', 'illness'),
+            status=status_value,
+            visit_datetime=d.get('visit_datetime') or timezone.now(),
+            temperature_c=d.get('temperature_c') or None,
+            complaint=d.get('complaint', ''),
+            action_taken=d.get('action_taken', ''),
+            admitted=admitted,
+            bed_number=bed_number,
+            discharged_at=timezone.now() if status_value == 'cleared' else None,
+            notify_parent=d.get('notify_parent', 'none'),
+            recorded_by=request.user,
+        )
+        return Response(HealthRecordSerializer(record).data, status=201)
+
+
+class MatronHealthRecordDetailView(APIView):
+    """
+    PATCH /imboni/matron/health/<pk>/
+          body: {status, action_taken, complaint, temperature_c, notify_parent}
+          Setting status='cleared' discharges the patient and frees their bed.
+    """
+    permission_classes = [IsMatron]
+
+    def patch(self, request, pk):
+        from django.utils import timezone
+
+        try:
+            record = HealthRecord.objects.get(pk=pk)
+        except HealthRecord.DoesNotExist:
+            return Response({'error': 'Not found.'}, status=404)
+
+        updatable = ['action_taken', 'complaint', 'temperature_c', 'notify_parent']
+        for field in updatable:
+            if field in request.data:
+                setattr(record, field, request.data[field])
+
+        if request.data.get('status') == 'cleared' and record.status != 'cleared':
+            record.status = 'cleared'
+            record.admitted = False
+            record.bed_number = None
+            record.discharged_at = timezone.now()
+
+        record.save()
+        return Response(HealthRecordSerializer(record).data)
+
+
+# ---------------------------------------------------------------------------
+# Parent Communications
+# ---------------------------------------------------------------------------
+
+class MatronParentCommsView(APIView):
+    """
+    GET  /imboni/matron/parent-comms/?type=&outcome=&student_id=&period=
+    POST /imboni/matron/parent-comms/
+         body: {student_id, parent_contact, comm_type, contacted_at, subject, notes,
+                outcome, urgency, follow_up_required, follow_up_date}
+    """
+    permission_classes = [IsMatron]
+
+    def get(self, request):
+        from datetime import timedelta
+        from django.utils import timezone
+
+        qs = ParentCommunication.objects.select_related('student__user').all()
+
+        comm_type = request.query_params.get('type')
+        if comm_type:
+            qs = qs.filter(comm_type=comm_type)
+
+        outcome = request.query_params.get('outcome')
+        if outcome:
+            qs = qs.filter(outcome=outcome)
+
+        student_id = request.query_params.get('student_id')
+        if student_id:
+            qs = qs.filter(student_id=student_id)
+
+        now = timezone.localtime()
+        period = request.query_params.get('period')
+        if period == 'this_month':
+            qs = qs.filter(contacted_at__gte=now.replace(day=1, hour=0, minute=0, second=0, microsecond=0))
+        elif period == 'last_month':
+            month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            last_month_start = (month_start - timedelta(days=1)).replace(day=1)
+            qs = qs.filter(contacted_at__gte=last_month_start, contacted_at__lt=month_start)
+        elif period == 'last_3_months':
+            qs = qs.filter(contacted_at__gte=now - timedelta(days=90))
+
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        this_month_qs = ParentCommunication.objects.filter(contacted_at__gte=month_start)
+        stats = {
+            'calls_this_month':  this_month_qs.filter(comm_type='call').count(),
+            'sms_sent':          this_month_qs.filter(comm_type='sms').count(),
+            'emails_sent':       this_month_qs.filter(comm_type='email').count(),
+            'awaiting_reply':    ParentCommunication.objects.filter(outcome='awaiting_reply').count(),
+        }
+
+        return Response({
+            'stats': stats,
+            'log': ParentCommunicationSerializer(qs, many=True).data,
+        })
+
+    def post(self, request):
+        from apps.student.models import Student
+
+        d = request.data
+        try:
+            student = Student.objects.get(pk=d.get('student_id'))
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        record = ParentCommunication.objects.create(
+            student=student,
+            parent_contact=d.get('parent_contact', ''),
+            comm_type=d.get('comm_type', 'call'),
+            contacted_at=d.get('contacted_at'),
+            subject=d.get('subject', ''),
+            notes=d.get('notes', ''),
+            outcome=d.get('outcome', 'completed'),
+            urgency=d.get('urgency', 'routine'),
+            follow_up_required=d.get('follow_up_required', False),
+            follow_up_date=d.get('follow_up_date') or None,
+            recorded_by=request.user,
+        )
+        return Response(ParentCommunicationSerializer(record).data, status=201)
+
+
+# ---------------------------------------------------------------------------
+# Boarding Schedule (standing weekly routine — read-only for the matron)
+# ---------------------------------------------------------------------------
+
+class MatronBoardingScheduleView(APIView):
+    """
+    GET /imboni/matron/boarding-schedule/
+
+    Issued by the Discipline Master; read-only for the matron. Returns the
+    standing weekday routine plus the Saturday/Sunday routine paired by row,
+    and the recent change log.
+    """
+    permission_classes = [IsMatron]
+
+    def get(self, request):
+        from apps.results.models import AcademicTerm
+
+        weekday_slots = BoardingScheduleSlot.objects.filter(day_type='weekday').order_by('order')
+        sat_slots = list(BoardingScheduleSlot.objects.filter(day_type='saturday').order_by('order'))
+        sun_slots = list(BoardingScheduleSlot.objects.filter(day_type='sunday').order_by('order'))
+
+        weekday_rows = [
+            {
+                'time': s.time, 'label': s.label, 'isBreak': s.is_break, 'breakText': s.break_text,
+                'cellClass': s.cell_class, 'subject': s.subject, 'teacher': s.supervisor, 'room': s.room,
+            }
+            for s in weekday_slots
+        ]
+
+        def slot_payload(s):
+            if not s:
+                return None
+            return {'cellClass': s.cell_class, 'subject': s.subject, 'teacher': s.supervisor, 'room': s.room}
+
+        weekend_rows = []
+        for sat, sun in zip(sat_slots, sun_slots):
+            weekend_rows.append({
+                'time': sat.time, 'label': sat.label, 'isBreak': sat.is_break, 'breakText': sat.break_text,
+                'sat': slot_payload(sat), 'sun': slot_payload(sun),
+            })
+
+        changes_qs = BoardingScheduleChange.objects.select_related('changed_by').all()
+        changes_this_week = changes_qs.filter(status='new').count()
+        current_term = AcademicTerm.objects.filter(is_current=True).first()
+
+        return Response({
+            'weekday_rows': weekday_rows,
+            'weekend_rows': weekend_rows,
+            'changes': BoardingScheduleChangeSerializer(changes_qs[:10], many=True).data,
+            'stats': {
+                'days_in_schedule': 7,
+                'total_activities': sum(1 for s in weekday_slots if not s.is_break) + sum(1 for s in sat_slots + sun_slots if not s.is_break),
+                'changes_this_week': changes_this_week,
+                'current_term': current_term.name if current_term else '—',
+            },
+        })

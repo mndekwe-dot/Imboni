@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -12,22 +12,12 @@ import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
+import { getMatronStudents } from '../../api/matron'
 
 
-const students = [
-    { initials: 'UA', name: 'Uwase Amina',         id: '2024-001',              year: 'S4', classLetter: 'A', classBadge: 'S4A', room: 'Room 14B', dining: 'Table 7, Seat 3', house: 'Karisimbi', tonightClass: 'present', tonight: 'Present', action: 'none'           },
-    { initials: 'MK', name: 'Mukamazimpaka Joy',   id: '2022-015 \u00b7 Prefect',year: 'S5', classLetter: 'A', classBadge: 'S5A', room: 'Room 12A', dining: 'Table 1, Seat 1', house: 'Karisimbi', tonightClass: 'present', tonight: 'Present', action: 'none'           },
-    { initials: 'NI', name: 'Niyomugabo Iris',     id: '2025-014',              year: 'S2', classLetter: 'A', classBadge: 'S2A', room: 'Room 8C',  dining: 'Table 9, Seat 4', house: 'Karisimbi', tonightClass: 'late',    tonight: 'Late',    action: 'report-outline' },
-    { initials: 'KU', name: 'Kayitesi Ursula',     id: '2024-078',              year: 'S3', classLetter: 'B', classBadge: 'S3B', room: 'Room 9A',  dining: 'Table 5, Seat 2', house: 'Karisimbi', tonightClass: 'absent',  tonight: 'Absent',  action: 'report-primary' },
-    { initials: 'IB', name: 'Ingabire Belise',     id: '2023-042',              year: 'S4', classLetter: 'A', classBadge: 'S4A', room: 'Room 7B',  dining: 'Table 3, Seat 5', house: 'Karisimbi', tonightClass: 'present', tonight: 'Present', action: 'none'           },
-    { initials: 'MB', name: 'Mukamana Brigitte',   id: '2023-061',              year: 'S4', classLetter: 'A', classBadge: 'S4A', room: 'Room 6C',  dining: 'Table 4, Seat 1', house: 'Karisimbi', tonightClass: 'present', tonight: 'Present', action: 'none'           },
-    { initials: 'NN', name: 'Nzeyimana Naomie',    id: '2026-003',              year: 'S1', classLetter: 'A', classBadge: 'S1A', room: 'Room 3A',  dining: 'Table 11, Seat 2', house: 'Karisimbi', tonightClass: 'present', tonight: 'Present', action: 'none'          },
-    { initials: 'RN', name: 'Rugamba Nadine',       id: '2026-017',              year: 'S1', classLetter: 'B', classBadge: 'S1B', room: 'Room 3B',  dining: 'Table 11, Seat 4', house: 'Karisimbi', tonightClass: 'present', tonight: 'Present', action: 'none'          },
-    { initials: 'NE', name: 'Ndayishimiye Elise',  id: '2025-031',              year: 'S2', classLetter: 'A', classBadge: 'S2A', room: 'Room 5A',  dining: 'Table 8, Seat 1', house: 'Karisimbi', tonightClass: 'present', tonight: 'Present', action: 'none'           },
-    { initials: 'UG', name: 'Uwimana Generose',    id: '2021-008 \u00b7 Head Girl', year: 'S6', classLetter: 'A', classBadge: 'S6A', room: 'Room 16A', dining: 'Table 2, Seat 1', house: 'Karisimbi', tonightClass: 'present', tonight: 'Present', action: 'none'   },
-]
-
-const tonightIcons = { present: 'check_circle', late: 'schedule', absent: 'cancel' }
+function initialsOf(name) {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()
+}
 
 function StudentStat({ colorClass, iconClass, icon, value, label }) {
     return (
@@ -43,32 +33,22 @@ function StudentStat({ colorClass, iconClass, icon, value, label }) {
     )
 }
 
-function StudentRow({ initials, name, id, year, classLetter, classBadge, room, dining, house, tonightClass, tonight, action }) {
+function StudentRow({ initials, name, studentCode, year, classBadge, room, dormitory, boardingType }) {
     return (
-        <tr data-year={year} data-classletter={classLetter} data-dorm="kigoma" data-name={name.toLowerCase()}>
+        <tr data-year={year} data-name={name.toLowerCase()}>
             <td>
                 <div className="stu-cell">
                     <div className="stu-av">{initials}</div>
                     <div>
                         <div className="stu-name">{name}</div>
-                        <div className="stu-id">{id}</div>
+                        <div className="stu-id">{studentCode}</div>
                     </div>
                 </div>
             </td>
             <td><span className="class-badge">{classBadge}</span></td>
             <td>{room}</td>
-            <td>{dining}</td>
-            <td>{house}</td>
-            <td>
-                <span className={`status-pill ${tonightClass}`}>
-                    <span className="material-symbols-rounded">{tonightIcons[tonightClass]}</span>{tonight}
-                </span>
-            </td>
-            <td>
-                {action === 'none' && <span>&mdash;</span>}
-                {action === 'report-outline' && <button className="btn btn-sm btn-outline"><span className="material-symbols-rounded">report</span> Report</button>}
-                {action === 'report-primary' && <button className="btn btn-sm btn-primary"><span className="material-symbols-rounded">report</span> Report</button>}
-            </td>
+            <td>{dormitory}</td>
+            <td style={{ textTransform: 'capitalize' }}>{boardingType}</td>
         </tr>
     )
 }
@@ -79,19 +59,45 @@ export function MatronStudents() {
     const [section, setSection] = useState('')
     const [year, setYear] = useState('')
     const [classVal, setClassVal] = useState('')
+    const [search, setSearch] = useState('')
+    const [students, setStudents] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
-    const visibleStudents = students.filter(s => {
-        if (year && s.year !== year) return false
-        if (classVal && s.classLetter !== classVal) return false
-        return true
-    })
+    useEffect(() => {
+        getMatronStudents(search ? { search } : undefined)
+            .then(data => setStudents(Array.isArray(data) ? data : []))
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [search])
+
+    const visibleStudents = students
+        .map(s => ({
+            initials: initialsOf(s.full_name),
+            name: s.full_name,
+            studentCode: s.student_code,
+            year: `S${s.grade}`,
+            classLetter: s.section,
+            classBadge: `S${s.grade}${s.section}`,
+            room: s.room_number,
+            dormitory: s.dormitory,
+            boardingType: s.boarding_type,
+        }))
+        .filter(s => {
+            if (year && s.year !== year) return false
+            if (classVal && s.classLetter !== classVal) return false
+            return true
+        })
 
     const studentStats = [
-        { colorClass: '',      iconClass: '',      icon: 'groups',       value: visibleStudents.length,                                                label: 'Total Students'  },
-        { colorClass: 'green', iconClass: 'green', icon: 'check_circle', value: visibleStudents.filter(s => s.tonightClass === 'present').length,      label: 'Present Tonight' },
-        { colorClass: 'red',   iconClass: 'red',   icon: 'cancel',       value: visibleStudents.filter(s => s.tonightClass === 'absent').length,       label: 'Absent'          },
-        { colorClass: '',      iconClass: '',      icon: 'meeting_room', value: [...new Set(visibleStudents.map(s => s.room))].length,                 label: 'Rooms Occupied'  },
+        { colorClass: '',      iconClass: '',      icon: 'groups',       value: visibleStudents.length,                                              label: 'Total Students'   },
+        { colorClass: 'green', iconClass: 'green', icon: 'home',         value: visibleStudents.filter(s => s.boardingType === 'full').length,       label: 'Full Boarders'    },
+        { colorClass: '',      iconClass: '',      icon: 'wb_sunny',     value: visibleStudents.filter(s => s.boardingType === 'day').length,        label: 'Day Boarders'     },
+        { colorClass: '',      iconClass: '',      icon: 'meeting_room', value: [...new Set(visibleStudents.map(s => s.room))].length,               label: 'Rooms Occupied'   },
     ]
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     return (
         <>
@@ -106,7 +112,7 @@ export function MatronStudents() {
                         <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
                         <div className="dashboard-header-title">
                             <h1>My Students</h1>
-                            <p>Karisimbi House &mdash; 10 students</p>
+                            <p>{matronUser.userRole.split('—').pop().trim()} &mdash; {visibleStudents.length} students</p>
                         </div>
                         <div className="dashboard-header-actions">
                             <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
@@ -142,7 +148,12 @@ export function MatronStudents() {
                         <div className="toolbar-card">
                             <div className="toolbar-search">
                                 <span className="material-symbols-rounded">search</span>
-                                <input type="text" placeholder="Search by name, class or student ID..." />
+                                <input
+                                    type="text"
+                                    placeholder="Search by name or student ID..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                />
                             </div>
                             <div className="toolbar-spacer" />
                             <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded icon-sm">download</span> Export</button>
@@ -150,13 +161,13 @@ export function MatronStudents() {
                         </div>
 
                         <DataTable
-                            title="Karisimbi House Students"
+                            title={`${matronUser.userRole.split('—').pop().trim()} Students`}
                             data={visibleStudents}
-                            columns={['Student','Class','Room','Dining','Dormitory','Tonight','Action']}
+                            columns={['Student','Class','Room','Dormitory','Boarding Type']}
                             renderRow={(student, index) => <StudentRow key={index} {...student} />}
                             emptyIcon="people"
                             emptyTitle="No students found"
-                            emptyDesc="No students match the selected class filter."
+                            emptyDesc="No students match the selected filters."
                         />
 
                     </DashboardContent>

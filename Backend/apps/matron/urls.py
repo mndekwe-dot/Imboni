@@ -18,4 +18,14 @@ urlpatterns = [
 
     # Night Attendance Check
     path('matron/night-check/',             views.MatronNightCheckView.as_view(),       name='matron-night-check'),
+
+    # Health & Wellness
+    path('matron/health/',                  views.MatronHealthView.as_view(),           name='matron-health'),
+    path('matron/health/<uuid:pk>/',        views.MatronHealthRecordDetailView.as_view(), name='matron-health-detail'),
+
+    # Parent Communications
+    path('matron/parent-comms/',            views.MatronParentCommsView.as_view(),      name='matron-parent-comms'),
+
+    # Boarding Schedule (standing weekly routine)
+    path('matron/boarding-schedule/',       views.MatronBoardingScheduleView.as_view(), name='matron-boarding-schedule'),
 ]
