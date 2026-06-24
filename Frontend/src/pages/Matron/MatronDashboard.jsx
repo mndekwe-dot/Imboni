@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
@@ -7,31 +8,12 @@ import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { getMatronDashboard, getMatronNightCheck } from '../../api/matron'
 
 
-const matronStats = [
-    { colorClass: '',        icon: 'home',         value: '42', label: 'Students in Dormitory' },
-    { colorClass: 'success', icon: 'check_circle', value: '40', label: 'Present Tonight'        },
-    { colorClass: 'red',     icon: 'cancel',       value: '1',  label: 'Absent'                 },
-    { colorClass: 'warning', icon: 'schedule',     value: '1',  label: 'Late Check-in'          },
-]
-
-const rollCall = [
-    { initials: 'UA', name: 'Uwase Amina',       room: 'Rm 14B', dotClass: 'present', label: 'Present' },
-    { initials: 'MK', name: 'Mukamazimpaka Joy',  room: 'Rm 12A', dotClass: 'present', label: 'Present' },
-    { initials: 'NI', name: 'Niyomugabo Iris',    room: 'Rm 8C',  dotClass: 'late',    label: 'Late'    },
-    { initials: 'IB', name: 'Ingabire Belise',    room: 'Rm 14B', dotClass: 'present', label: 'Present' },
-    { initials: 'KU', name: 'Kayitesi Ursula',    room: 'Rm 9A',  dotClass: 'absent',  label: 'Absent'  },
-    { initials: 'NE', name: 'Ndayishimiye Elise', room: 'Rm 7B',  dotClass: 'present', label: 'Present' },
-    { initials: 'RN', name: 'Rugamba Nadine',     room: 'Rm 11A', dotClass: 'present', label: 'Present' },
-    { initials: 'MB', name: 'Mukamana Brigitte',  room: 'Rm 6C',  dotClass: 'present', label: 'Present' },
-]
-
-const recentReports = [
-    { dotClass: 'reviewed', title: 'Niyomugabo Iris — Curfew violation',       meta: 'Mar 1, 2026 • Dormitory Violation', statusClass: 'reviewed', status: 'Reviewed' },
-    { dotClass: 'pending',  title: 'Kayitesi Ursula — Absent from roll call',  meta: 'Mar 9, 2026 • Missing Student',      statusClass: 'pending',  status: 'Pending'  },
-    { dotClass: 'reviewed', title: 'Ingabire Belise — Leadership recognition', meta: 'Feb 24, 2026 • Positive Conduct',    statusClass: 'reviewed', status: 'Reviewed' },
-]
+function initialsOf(name) {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()
+}
 
 function RollCallRow({ initials, name, room, dotClass, label }) {
     return (
@@ -59,6 +41,50 @@ function ReportRow({ dotClass, title, meta, statusClass, status }) {
 }
 
 export function MatronDashboard() {
+    const [dashboard, setDashboard] = useState(null)
+    const [boarders, setBoarders] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        Promise.all([getMatronDashboard(), getMatronNightCheck()])
+            .then(([d, nc]) => {
+                setDashboard(d)
+                setBoarders(nc.boarders || [])
+            })
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+
+    const dormitory = dashboard.stats.dormitory || 'your dormitory'
+
+    const matronStats = [
+        { colorClass: '',        icon: 'home',         value: boarders.length, label: 'Students in Dormitory' },
+        { colorClass: 'success', icon: 'check_circle', value: boarders.filter(b => b.is_present === true).length,  label: 'Present Tonight'   },
+        { colorClass: 'red',     icon: 'cancel',       value: boarders.filter(b => b.is_present === false).length, label: 'Absent'            },
+        { colorClass: 'warning', icon: 'schedule',     value: boarders.filter(b => b.is_present === null).length,  label: 'Not Yet Checked'   },
+    ]
+
+    const rollCall = boarders.map(b => {
+        const dotClass = b.is_present === true ? 'present' : b.is_present === false ? 'absent' : 'pending'
+        const label = b.is_present === true ? 'Present' : b.is_present === false ? 'Absent' : 'Not Checked'
+        return { initials: initialsOf(b.full_name), name: b.full_name, room: b.room_number, dotClass, label }
+    })
+
+    const recentReports = dashboard.recent_incidents.map(r => {
+        const positive = r.report_type === 'positive' || r.report_type === 'achievement'
+        return {
+            dotClass: positive ? 'reviewed' : 'pending',
+            title: `${r.student} — ${r.title}`,
+            meta: `${r.date} • ${r.severity ? r.severity[0].toUpperCase() + r.severity.slice(1) : r.report_type}`,
+            statusClass: positive ? 'reviewed' : 'pending',
+            status: positive ? 'Positive' : 'Flagged',
+        }
+    })
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -68,13 +94,13 @@ export function MatronDashboard() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dashboard" subtitle="Karisimbi House — Overview" {...matronUser} />
+                    <DashboardHeader title="Dashboard" subtitle={`${dormitory} — Overview`} {...matronUser} />
 
                     <DashboardContent>
 
                         <WelcomeBanner
-                            name="Mrs. Hakizimana"
-                            role="Karisimbi House Matron &mdash; 42 students in your care"
+                            name={matronUser.userName}
+                            role={`${dormitory} Matron — ${boarders.length} students in your care`}
                         />
 
                         <div className="portal-stat-grid">
@@ -92,9 +118,9 @@ export function MatronDashboard() {
                                 </div>
                                 <div className="card-content">
                                     <div className="roll-call-list">
-                                        {rollCall.map((r, i) => (
-                                            <RollCallRow key={i} {...r} />
-                                        ))}
+                                        {rollCall.length === 0
+                                            ? <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No boarders found.</p>
+                                            : rollCall.map((r, i) => <RollCallRow key={i} {...r} />)}
                                     </div>
                                 </div>
                             </div>
@@ -107,9 +133,9 @@ export function MatronDashboard() {
                                     </div>
                                     <div className="card-content">
                                         <div className="matron-report-list">
-                                            {recentReports.map((r, i) => (
-                                                <ReportRow key={i} {...r} />
-                                            ))}
+                                            {recentReports.length === 0
+                                                ? <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No reports filed yet.</p>
+                                                : recentReports.map((r, i) => <ReportRow key={i} {...r} />)}
                                         </div>
                                     </div>
                                 </div>

@@ -1,4 +1,5 @@
-﻿import { Sidebar } from '../../components/layout/Sidebar'
+﻿import { useEffect, useState } from 'react'
+import { Sidebar } from '../../components/layout/Sidebar'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -7,46 +8,13 @@ import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
+import { getMatronBoardingSchedule } from '../../api/matron'
 
 
-const scheduleStats = [
-    { iconClass: 'info',     icon: 'calendar_view_week', value: '7',      label: 'Days in Schedule'  },
-    { iconClass: 'success',  icon: 'event_available',    value: '42',     label: 'Total Activities'  },
-    { iconClass: 'warning',  icon: 'update',             value: '2',      label: 'Changes This Week' },
-    { iconClass: 'positive', icon: 'verified',           value: 'Term 1', label: 'Current Term'      },
-]
-
-const scheduleChanges = [
-    { dotClass: 'pending',  title: 'Wed Mar 11 \u2014 Games moved from 16:30 to 17:00 (field maintenance)', meta: 'Updated by Mr. E. Mutabazi \u00b7 Mar 08, 2026', statusClass: 'pending',  status: 'New'     },
-    { dotClass: 'pending',  title: 'Sat Mar 14 \u2014 Visiting hours extended to 16:00 (parent day)',        meta: 'Updated by Mr. E. Mutabazi \u00b7 Mar 08, 2026', statusClass: 'pending',  status: 'New'     },
-    { dotClass: 'reviewed', title: 'Week 8 \u2014 Evening prep extended to 21:30 (exam preparation period)', meta: 'Updated by Mr. E. Mutabazi \u00b7 Mar 01, 2026', statusClass: 'reviewed', status: 'Applied' },
-]
-
-const weekdayRows = [
-    { time: '05:30', label: 'Wake-up',    cellClass: 'other',     subject: 'Wake Up',                teacher: 'All Students',       room: 'Dormitories'          },
-    { time: '05:45', label: 'Prep',       cellClass: 'lang',      subject: 'Morning Prep & Showers', teacher: 'Matron supervision',  room: 'Rooms 1\u201310 first' },
-    { time: '06:45', label: 'Breakfast',  cellClass: 'science',   subject: 'Breakfast',              teacher: 'All Students',       room: 'Dining Hall'          },
-    { time: '07:15', label: 'Assembly',   cellClass: 'english',   subject: 'Morning Assembly',       teacher: 'All students',       room: 'Main Hall'            },
-    { time: '07:30', label: 'Lessons',    cellClass: 'math',      subject: 'Lessons Begin',          teacher: 'All classrooms',     room: 'As per class TT'      },
-    { time: '13:00', label: 'Lunch',      isBreak: true,          breakText: 'Lunch Break \u2014 Dining Hall \u2014 1 hour' },
-    { time: '14:00', label: 'Afternoon',  cellClass: 'math',      subject: 'Afternoon Lessons',      teacher: 'All classrooms',     room: 'As per class TT'      },
-    { time: '16:30', label: 'Games',      cellClass: 'humanities',subject: 'Games & Clubs',          teacher: 'Sports Master',      room: 'Grounds / Halls'      },
-    { time: '18:00', label: 'Supper',     cellClass: 'science',   subject: 'Supper',                 teacher: 'All Students',       room: 'Dining Hall'          },
-    { time: '19:00', label: 'Prep',       cellClass: 'english',   subject: 'Evening Prep',           teacher: 'Supervised study',   room: 'Classrooms / Library' },
-    { time: '21:00', label: 'Dorm',       cellClass: 'lang',      subject: 'Return to Dorm',         teacher: 'Matron supervision', room: 'All dormitories'      },
-    { time: '21:30', label: 'Lights Out', isBreak: true,          breakText: 'Lights Out \u2014 Juniors (S1\u2013S2) \u00b7 22:00 Seniors (S3\u2013S6) \u00b7 22:15 Curfew Roll Call' },
-]
-
-const weekendRows = [
-    { time: '06:30', label: 'Wake-up',   sat: { cellClass: 'other',     subject: 'Wake Up',                  teacher: 'All Students',       room: 'Dormitories'      }, sun: { cellClass: 'other',     subject: 'Wake Up',              teacher: 'All Students',    room: 'Dormitories'      } },
-    { time: '07:00', label: 'Breakfast', sat: { cellClass: 'science',   subject: 'Breakfast',                teacher: 'All Students',       room: 'Dining Hall'      }, sun: { cellClass: 'science',   subject: 'Breakfast',            teacher: 'All Students',    room: 'Dining Hall'      } },
-    { time: '08:00', label: 'Duties',    sat: { cellClass: 'lang',      subject: 'Dorm Cleaning & Duties',   teacher: 'Matron supervision', room: 'All areas'        }, sun: { cellClass: 'english',   subject: 'Chapel / Church Service',teacher: 'Chaplain',      room: 'Chapel'           } },
-    { time: '10:00', label: 'Activity',  sat: { cellClass: 'humanities',subject: 'Sports & Recreation',      teacher: 'Sports Master',      room: 'Grounds'          }, sun: { cellClass: 'humanities',subject: 'Free Time / Visiting', teacher: 'Matron on duty', room: 'Designated areas' } },
-    { time: '13:00', label: 'Lunch',     sat: { cellClass: 'science',   subject: 'Lunch',                    teacher: 'All Students',       room: 'Dining Hall'      }, sun: { cellClass: 'science',   subject: 'Lunch',                teacher: 'All Students',    room: 'Dining Hall'      } },
-    { time: '14:00', label: 'Afternoon', sat: { cellClass: 'humanities',subject: 'Club Activities',          teacher: 'Club patrons',       room: 'Various venues'   }, sun: { cellClass: 'math',      subject: 'Prep / Study',         teacher: 'Self-directed',   room: 'Library / Dorms'  } },
-    { time: '18:00', label: 'Supper',    sat: { cellClass: 'science',   subject: 'Supper',                   teacher: 'All Students',       room: 'Dining Hall'      }, sun: { cellClass: 'science',   subject: 'Supper',               teacher: 'All Students',    room: 'Dining Hall'      } },
-    { time: '21:00', label: 'Lights Out',isBreak: true, breakText: 'Return to Dorm \u00b7 Lights Out 21:30 (all) \u00b7 Roll Call 21:45' },
-]
+const CHANGE_STATUS_DISPLAY = {
+    new:     { dotClass: 'pending',  statusClass: 'pending',  status: 'New'     },
+    applied: { dotClass: 'reviewed', statusClass: 'reviewed', status: 'Applied' },
+}
 
 function ScheduleStat({ iconClass, icon, value, label }) {
     return (
@@ -120,6 +88,33 @@ function WeekendRow({ time, label, isBreak, breakText, sat, sun }) {
 
 export function MatronSchedule() {
     const { setting } = useSchoolSettings()
+    const [data, setData] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        getMatronBoardingSchedule()
+            .then(setData)
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+
+    const scheduleStats = [
+        { iconClass: 'info',     icon: 'calendar_view_week', value: data.stats.days_in_schedule,                label: 'Days in Schedule'  },
+        { iconClass: 'success',  icon: 'event_available',    value: data.stats.total_activities,                label: 'Total Activities'  },
+        { iconClass: 'warning',  icon: 'update',             value: data.stats.changes_this_week,               label: 'Changes This Week' },
+        { iconClass: 'positive', icon: 'verified',           value: data.stats.current_term,                    label: 'Current Term'      },
+    ]
+
+    const scheduleChanges = data.changes.map(c => ({
+        title: c.description,
+        meta: `${c.changed_by_name ? 'Updated by ' + c.changed_by_name + ' · ' : ''}${c.change_date}`,
+        ...(CHANGE_STATUS_DISPLAY[c.status] || CHANGE_STATUS_DISPLAY.new),
+    }))
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -137,16 +132,12 @@ export function MatronSchedule() {
                         </div>
                         <div className="dashboard-header-actions">
                             <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
-                            <button className="notification-btn">
-                                <span className="material-symbols-rounded">notifications</span>
-                                <span className="notification-badge">1</span>
-                            </button>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Mrs. Gloriose Hakizimana</span>
+                                    <span className="header-user-name">{matronUser.userName}</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <Link to="/profile?role=matron" className="header-user-av matron-av">GH</Link>
+                                <Link to="/profile?role=matron" className={`header-user-av ${matronUser.avatarClass}`}>{matronUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>
@@ -156,39 +147,9 @@ export function MatronSchedule() {
                         <div className="disc-welcome-banner mb-5">
                             <span className="material-symbols-rounded" style={{ fontSize: '1.5rem' }}>verified</span>
                             <div>
-                                <div className="banner-title">Schedule issued by Mr. E. Mutabazi &mdash; Director of Discipline</div>
-                                <div className="banner-sub">Last updated: {formatSchoolDate(setting.timezone)} &middot; Term 1, Week 9 &middot; Read-only &mdash; contact Discipline Master to request changes</div>
+                                <div className="banner-title">Standing boarding routine — issued by the Discipline Office</div>
+                                <div className="banner-sub">{data.stats.current_term} &middot; Read-only &mdash; contact the Discipline Master to request changes</div>
                             </div>
-                        </div>
-
-                        <div className="disc-picker mb-5">
-                            <div className="disc-picker-group">
-                                <label className="disc-picker-label">Week</label>
-                                <select className="disc-picker-select" defaultValue="week9">
-                                    <option value="week7">Week 7 (Feb 23 &ndash; Feb 27)</option>
-                                    <option value="week8">Week 8 (Mar 02 &ndash; Mar 06)</option>
-                                    <option value="week9">Week 9 (Mar 09 &ndash; Mar 13) &mdash; Current</option>
-                                    <option value="week10">Week 10 (Mar 16 &ndash; Mar 20)</option>
-                                    <option value="week11">Week 11 (Mar 23 &ndash; Mar 27)</option>
-                                </select>
-                            </div>
-                            <div className="disc-picker-group">
-                                <label className="disc-picker-label">Day</label>
-                                <select className="disc-picker-select" defaultValue="all">
-                                    <option value="all">All Days</option>
-                                    <option value="mon">Monday</option>
-                                    <option value="tue">Tuesday</option>
-                                    <option value="wed">Wednesday</option>
-                                    <option value="thu">Thursday</option>
-                                    <option value="fri">Friday</option>
-                                    <option value="sat">Saturday</option>
-                                    <option value="sun">Sunday</option>
-                                </select>
-                            </div>
-                            <span className="disc-picker-current">Week 9 &mdash; All Days</span>
-                            <button className="btn btn-outline btn-sm ml-auto">
-                                <span className="material-symbols-rounded">print</span> Print
-                            </button>
                         </div>
 
                         <div className="disc-stat-grid mb-5">
@@ -200,7 +161,7 @@ export function MatronSchedule() {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">calendar_view_week</span> Week 9 &mdash; Monday to Friday
+                                    <span className="material-symbols-rounded">calendar_view_week</span> Monday to Friday
                                 </h3>
                                 <span className="did-direct-badge">
                                     <span className="material-symbols-rounded">lock</span>
@@ -221,7 +182,7 @@ export function MatronSchedule() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {weekdayRows.map((row, index) => (
+                                            {data.weekday_rows.map((row, index) => (
                                                 <WeekdayRow key={index} {...row} />
                                             ))}
                                         </tbody>
@@ -233,7 +194,7 @@ export function MatronSchedule() {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">weekend</span> Week 9 &mdash; Weekend (Sat &amp; Sun)
+                                    <span className="material-symbols-rounded">weekend</span> Weekend (Sat &amp; Sun)
                                 </h3>
                                 <span className="did-direct-badge">
                                     <span className="material-symbols-rounded">lock</span>
@@ -251,7 +212,7 @@ export function MatronSchedule() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {weekendRows.map((row, index) => (
+                                            {data.weekend_rows.map((row, index) => (
                                                 <WeekendRow key={index} {...row} />
                                             ))}
                                         </tbody>

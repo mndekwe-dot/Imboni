@@ -4,26 +4,26 @@ import { FilterBar } from '../../components/ui/FilterBar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
+import { getMatronIncidents, createMatronIncident, getMatronStudents } from '../../api/matron'
 
 
-const pastReports = [
-    { date: 'Mar 9, 2026',  name: 'Kayitesi Ursula',   type: 'Missing from Roll Call', severityStyle: { background: 'rgba(245,158,11,0.12)', color: '#f59e0b' },               severity: 'Medium',   statusClass: 'pending',  status: 'Pending'  },
-    { date: 'Mar 1, 2026',  name: 'Niyomugabo Iris',   type: 'Dormitory Violation',     severityStyle: { background: 'rgba(245,158,11,0.12)', color: '#f59e0b' },               severity: 'Medium',   statusClass: 'reviewed', status: 'Reviewed' },
-    { date: 'Feb 24, 2026', name: 'Ingabire Belise',   type: 'Positive Conduct',        severityStyle: { background: 'var(--success-light)', color: 'var(--success)' },        severity: 'Positive', statusClass: 'reviewed', status: 'Reviewed' },
-    { date: 'Feb 15, 2026', name: 'Rugamba Nadine',    type: 'Health Concern',          severityStyle: { background: 'var(--destructive-light)', color: 'var(--destructive)' }, severity: 'High',    statusClass: 'reviewed', status: 'Reviewed' },
-    { date: 'Jan 28, 2026', name: 'Niyomugabo Iris',   type: 'Noise after curfew',      severityStyle: { background: 'var(--muted)', color: 'var(--muted-text)' },              severity: 'Low',      statusClass: 'reviewed', status: 'Reviewed' },
-]
+const STATUS_STYLE = {
+    pending_review: { statusClass: 'pending',  status: 'Pending Review' },
+    approved:       { statusClass: 'reviewed', status: 'Reviewed'        },
+    rejected:       { statusClass: 'reviewed', status: 'Rejected'        },
+}
 
-const filterOptions = [
-    { key: 'all',       label: 'All Reports',  },
-    { key: 'pending',   label: 'Pending', count: pastReports.filter(r => r.statusClass === 'pending').length },
-    { key: 'reviewed',  label: 'Reviewed'      },
-]
+const SEVERITY_STYLE = {
+    minor:    { background: 'var(--muted)', color: 'var(--muted-text)' },
+    moderate: { background: 'rgba(245,158,11,0.12)', color: '#f59e0b' },
+    serious:  { background: 'var(--destructive-light)', color: 'var(--destructive)' },
+    critical: { background: 'var(--destructive-light)', color: 'var(--destructive)' },
+}
 
 function PastReportRow({ date, name, type, severityStyle, severity, statusClass, status }) {
     return (
@@ -39,10 +39,80 @@ function PastReportRow({ date, name, type, severityStyle, severity, statusClass,
 
 export function MatronIncidents() {
     const { setting } = useSchoolSettings()
-    const [filter,setFilter]= useState('all')
-    const visible= filter === 'all'
+    const [filter, setFilter] = useState('all')
+    const [reports, setReports] = useState([])
+    const [students, setStudents] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    const [studentId, setStudentId] = useState('')
+    const [reportType, setReportType] = useState('incident')
+    const [severity, setSeverity] = useState('minor')
+    const [incidentDate, setIncidentDate] = useState('')
+    const [description, setDescription] = useState('')
+    const [actionTaken, setActionTaken] = useState('')
+    const [saving, setSaving] = useState(false)
+    const [saveError, setSaveError] = useState(null)
+
+    useEffect(() => {
+        Promise.all([getMatronIncidents(), getMatronStudents()])
+            .then(([incidents, studs]) => {
+                setReports(Array.isArray(incidents) ? incidents : [])
+                setStudents(Array.isArray(studs) ? studs : [])
+            })
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false))
+    }, [])
+
+    function resetForm() {
+        setStudentId(''); setReportType('incident'); setSeverity('minor')
+        setIncidentDate(''); setDescription(''); setActionTaken('')
+    }
+
+    async function handleSubmit() {
+        if (!studentId || !description.trim()) return
+        setSaving(true); setSaveError(null)
+        try {
+            const created = await createMatronIncident({
+                student_id: studentId,
+                title: `${reportType[0].toUpperCase()}${reportType.slice(1)} report`,
+                report_type: reportType,
+                severity,
+                description: description.trim(),
+                date: incidentDate || new Date().toISOString().slice(0, 10),
+                action_taken: actionTaken.trim(),
+            })
+            setReports(prev => [created, ...prev])
+            resetForm()
+        } catch (e) {
+            setSaveError(e?.message || 'Failed to submit report.')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const pastReports = reports.map(r => ({
+        date: r.date,
+        name: r.student_name,
+        type: r.badge,
+        severityStyle: SEVERITY_STYLE[r.severity] || SEVERITY_STYLE.minor,
+        severity: r.severity ? r.severity[0].toUpperCase() + r.severity.slice(1) : r.report_type,
+        ...(STATUS_STYLE[r.status] || STATUS_STYLE.pending_review),
+    }))
+
+    const filterOptions = [
+        { key: 'all',      label: 'All Reports' },
+        { key: 'pending',  label: 'Pending', count: pastReports.filter(r => r.statusClass === 'pending').length },
+        { key: 'reviewed', label: 'Reviewed' },
+    ]
+
+    const visible = filter === 'all'
         ? pastReports
         : pastReports.filter(r => r.statusClass === filter)
+
+    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -62,10 +132,10 @@ export function MatronIncidents() {
                             <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Mrs. Gloriose Hakizimana</span>
+                                    <span className="header-user-name">{matronUser.userName}</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <Link to="/profile?role=matron" className="header-user-av matron-av">GH</Link>
+                                <Link to="/profile?role=matron" className={`header-user-av ${matronUser.avatarClass}`}>{matronUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>
@@ -74,58 +144,66 @@ export function MatronIncidents() {
 
                         <div className="incident-form-card">
                             <div className="incident-form-title">
-                                <span className="material-symbols-rounded">report</span> New Incident Report &mdash; Karisimbi House &rarr; Discipline Master
+                                <span className="material-symbols-rounded">report</span> New Incident Report &mdash; {matronUser.userRole.split('—').pop().trim()} &rarr; Discipline Master
                             </div>
                             <div className="incident-form-grid">
                                 <div className="form-field">
                                     <label>Student</label>
-                                    <select>
-                                        <option value="">â€” Select student â€”</option>
-                                        <option>Uwase Amina (S4A)</option>
-                                        <option>Niyomugabo Iris (S2A)</option>
-                                        <option>Kayitesi Ursula (S3B)</option>
-                                        <option>Mukamazimpaka Joy (S5A)</option>
-                                        <option>Ingabire Belise (S4A)</option>
-                                        <option>Mukamana Brigitte (S4A)</option>
-                                        <option>Rugamba Nadine (S1B)</option>
+                                    <select value={studentId} onChange={e => setStudentId(e.target.value)}>
+                                        <option value="">— Select student —</option>
+                                        {students.map(s => (
+                                            <option key={s.student_pk} value={s.student_pk}>
+                                                {s.full_name} (S{s.grade}{s.section})
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="form-field">
-                                    <label>Incident Type</label>
-                                    <select>
-                                        <option>Dormitory Violation</option>
-                                        <option>Missing / Absent from Roll Call</option>
-                                        <option>Health Concern</option>
-                                        <option>Misconduct</option>
-                                        <option>Positive Conduct</option>
-                                        <option>Other</option>
+                                    <label>Report Type</label>
+                                    <select value={reportType} onChange={e => setReportType(e.target.value)}>
+                                        <option value="incident">Incident</option>
+                                        <option value="warning">Warning</option>
+                                        <option value="positive">Positive Report</option>
+                                        <option value="achievement">Achievement</option>
                                     </select>
                                 </div>
                                 <div className="form-field">
                                     <label>Severity</label>
-                                    <select>
-                                        <option>Low</option>
-                                        <option>Medium</option>
-                                        <option>High</option>
-                                        <option>Critical &mdash; Requires Immediate Action</option>
+                                    <select value={severity} onChange={e => setSeverity(e.target.value)}>
+                                        <option value="minor">Minor</option>
+                                        <option value="moderate">Moderate</option>
+                                        <option value="serious">Serious</option>
+                                        <option value="critical">Critical &mdash; Requires Immediate Action</option>
                                     </select>
                                 </div>
                                 <div className="form-field">
-                                    <label>Date &amp; Time of Incident</label>
-                                    <input type="datetime-local" defaultValue="2026-03-09T22:00" />
+                                    <label>Date of Incident</label>
+                                    <input type="date" value={incidentDate} onChange={e => setIncidentDate(e.target.value)} />
                                 </div>
                                 <div className="form-field form-field-full">
                                     <label>Description</label>
-                                    <textarea placeholder="Describe the incident in detail â€” what happened, where, who was involved, any witnesses..."></textarea>
+                                    <textarea
+                                        placeholder="Describe the incident in detail — what happened, where, who was involved, any witnesses..."
+                                        value={description}
+                                        onChange={e => setDescription(e.target.value)}
+                                    />
                                 </div>
                                 <div className="form-field form-field-full">
                                     <label>Action Taken (if any)</label>
-                                    <textarea placeholder="What immediate action did you take? (e.g. verbal warning, parent called, student confined to dorm)" style={{ minHeight: '60px' }} />
+                                    <textarea
+                                        placeholder="What immediate action did you take? (e.g. verbal warning, parent called, student confined to dorm)"
+                                        style={{ minHeight: '60px' }}
+                                        value={actionTaken}
+                                        onChange={e => setActionTaken(e.target.value)}
+                                    />
                                 </div>
                             </div>
+                            {saveError && <p style={{ color: '#dc2626', fontSize: '0.85rem' }}>{saveError}</p>}
                             <div className="btn-row">
-                                <button className="btn btn-primary"><span className="material-symbols-rounded">send</span> Submit to Discipline</button>
-                                <button className="btn btn-outline">Clear Form</button>
+                                <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !studentId || !description.trim()}>
+                                    <span className="material-symbols-rounded">send</span> {saving ? 'Submitting…' : 'Submit to Discipline'}
+                                </button>
+                                <button className="btn btn-outline" onClick={resetForm}>Clear Form</button>
                             </div>
                         </div>
 

@@ -16,11 +16,18 @@ export const updateHealthRecord = (id, data) => client.patch(`/imboni/matron/hea
 export const getMatronIncidents   = (params) => client.get('/imboni/matron/incidents/', { params })
 export const createMatronIncident = (data) => client.post('/imboni/matron/incidents/', data)
 
-// Schedule
+// Schedule (today's class timetable for the matron's assigned grade)
 export const getMatronSchedule = () => client.get('/imboni/matron/schedule/')
 
+// Boarding Schedule (standing weekly routine, read-only — issued by Discipline Master)
+export const getMatronBoardingSchedule = () => client.get('/imboni/matron/boarding-schedule/')
+
+// Night Attendance Check
+export const getMatronNightCheck   = (params) => client.get('/imboni/matron/night-check/', { params })
+export const submitMatronNightCheck = (data) => client.post('/imboni/matron/night-check/', data)
+
 // Parent Communication
-export const getParentComms = () => client.get('/imboni/matron/parent-comms/')
+export const getParentComms = (params) => client.get('/imboni/matron/parent-comms/', { params })
 export const sendParentComm = (data) => client.post('/imboni/matron/parent-comms/', data)
 
 // Messages
