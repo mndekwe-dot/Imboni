@@ -1,6 +1,7 @@
 import { MessagesPage } from '../../components/messaging/MessagesPage'
 import '../../styles/parent.css'
-import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { parentNavItems, parentSecondaryItems } from './parentNav'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 const conversations = [
@@ -19,16 +20,14 @@ const messages = [
 ]
 
 export function ParentMessages() {
+    const sessionUser = useSessionUser()
     return (
         <MessagesPage
             navItems={parentNavItems}
             secondaryItems={parentSecondaryItems}
             title="Messages"
             subtitle="Communicate with teachers and school staff"
-            userName="Mrs. Chantal Uwase"
-            userRole="Parent"
-            userInitials="CU"
-            avatarClass="parent-av"
+            {...sessionUser}
             conversations={conversations}
             tabs={['All', 'Teachers', 'Admin', 'Unread']}
             messages={messages}

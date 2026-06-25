@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { parentNavItems, parentSecondaryItems } from './parentNav'
 import {
     getMyChildren, getChildAssessments, getChildSummative, getChildReviews,
 } from '../../api/parent'
@@ -98,6 +99,7 @@ function AssessmentItem({ title, assessment_type, score_display, grade }) {
 
 export function ParentResults() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [children,    setChildren]    = useState([])
     const [activeIdx,   setActiveIdx]   = useState(0)
     const [loading,     setLoading]     = useState(true)
@@ -144,7 +146,7 @@ export function ParentResults() {
                     <DashboardHeader
                         title="Academic Results"
                         subtitle="Performance tracking and term reports"
-                        {...parentUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />

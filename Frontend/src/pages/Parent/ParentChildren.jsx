@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
+import { parentNavItems, parentSecondaryItems } from './parentNav'
 import {
     getMyChildren, getChildCard, getChildFees, getChildDocuments,
 } from '../../api/parent'
@@ -117,6 +118,7 @@ function LoadingCard() {
 
 export function ParentChildren() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [children, setChildren] = useState([])
     const [cards,    setCards]    = useState({})
     const [fees,     setFees]     = useState({})
@@ -152,7 +154,7 @@ export function ParentChildren() {
                     <DashboardHeader
                         title="My Children"
                         subtitle="Overview of your children's profiles"
-                        {...parentUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />
