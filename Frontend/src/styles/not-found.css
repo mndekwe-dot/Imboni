@@ -1,0 +1,108 @@
+.not-found-page {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    overflow: hidden;
+}
+
+.not-found-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(to right, var(--muted) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--muted) 1px, transparent 1px);
+    background-size: 80px 80px;
+    -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, transparent 65%);
+    mask-image: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, transparent 65%);
+}
+
+.not-found-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    max-width: 32rem;
+}
+
+.not-found-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--card);
+    margin-bottom: 1.5rem;
+}
+
+.not-found-icon .material-symbols-rounded {
+    font-size: 1.5rem;
+    color: var(--foreground);
+}
+
+.not-found-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    color: var(--foreground);
+    margin: 0 0 1rem;
+    line-height: 1.1;
+}
+
+.not-found-subtitle {
+    font-size: 1.05rem;
+    color: var(--muted-foreground);
+    line-height: 1.6;
+    margin: 0 0 2rem;
+}
+
+.not-found-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.not-found-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.not-found-btn .material-symbols-rounded {
+    font-size: 1.1rem;
+}
+
+.not-found-btn-outline {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+}
+
+.not-found-btn-outline:hover {
+    background: var(--muted);
+    border-color: var(--border-hover);
+}
+
+.not-found-btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.not-found-btn-primary:hover {
+    background: var(--primary-hover);
+}
