@@ -3,12 +3,18 @@ import client from './client'
 
 const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
 
-// Login uses plain axios — no token exists yet so client interceptor is not useful here
+// Login uses plain axios — no token exists yet so client's 401-refresh interceptor would
+// incorrectly wipe localStorage and force-redirect on every failed login attempt.
+// We still want the backend's real error message though, so unwrap it manually here.
 export async function loginUser(email, password, portal) {
-    const res = await axios.post(`${BASE}/imboni/auth/login/`, {
-        email, password, portal
-    })
-    return res.data
+    try {
+        const res = await axios.post(`${BASE}/imboni/auth/login/`, {
+            email, password, portal
+        })
+        return res.data
+    } catch (err) {
+        throw new Error(err.response?.data?.error || err.response?.data?.detail || 'Something went wrong')
+    }
 }
 
 // Logout uses client — user is logged in so the interceptor attaches the token automatically
