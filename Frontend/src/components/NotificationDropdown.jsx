@@ -2,13 +2,19 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import '../styles/notifications.css'
 
-export function NotificationDropdown({ notifications }) {
+export function NotificationDropdown({ notifications, onRead }) {
   const [isOpen, setIsOpen] = useState(false)
   const [items, setItems] = useState(notifications)
   const wrapperRef = useRef(null)
   const navigate = useNavigate()
 
   const unreadCount = items.filter(n => !n.read).length
+
+  // Re-sync local copy whenever the prop changes — needed because notifications
+  // usually arrive asynchronously (API call) after this component's first render.
+  useEffect(() => {
+    setItems(notifications)
+  }, [notifications])
 
   useEffect(() => {
     function handleOutsideClick(e) {
@@ -22,6 +28,7 @@ export function NotificationDropdown({ notifications }) {
 
   function handleItemClick(item) {
     setItems(prev => prev.map(n => n.id === item.id ? { ...n, read: true } : n))
+    onRead?.(item.id)   // persist to backend if the caller provided a handler
     navigate(item.path)
     setIsOpen(false)
   }
