@@ -12,7 +12,8 @@ import {
     markDosTeacherAttendance,
     getDosAttendanceStats,
 } from '../../api/dos'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -412,6 +413,7 @@ function TeacherAttendanceTab() {
 
 export function DosAttendance() {
     const { setting } = useSchoolSettings()
+    const sessionUser = useSessionUser()
     const [mode,      setMode]      = useState('student')
     const [sections,  setSections]  = useState([])
     const [attStats,  setAttStats]  = useState(null)
@@ -446,10 +448,10 @@ export function DosAttendance() {
                             <span className="date-display">{formatSchoolDate(setting?.timezone)}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">{dosUser?.name}</span>
-                                    <span className="header-user-role">Director of Studies</span>
+                                    <span className="header-user-name">{sessionUser.userName}</span>
+                                    <span className="header-user-role">{sessionUser.userRole}</span>
                                 </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">{dosUser?.initials}</Link>
+                                <Link to="/profile?role=dos" className="header-user-av dos-av">{sessionUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>

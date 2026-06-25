@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
-import { dosUser } from './dosNav'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { yearsFromConfig } from '../../utils/classes'
 import { Sidebar } from '../../components/layout/Sidebar'
@@ -751,6 +751,7 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function DosStudents() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const { config }  = useSchoolConfig()
     const admitYears  = yearsFromConfig(config)
     const admitStreams = [...new Set(config.flatMap(s => s.years.flatMap(y => y.streams)))]
@@ -856,7 +857,7 @@ export function DosStudents() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Student Management" subtitle="Monitor student enrollment and performance" {...dosUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title="Student Management" subtitle="Monitor student enrollment and performance" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
                         <div className="portal-stat-grid">

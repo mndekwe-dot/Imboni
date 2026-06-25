@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import {
@@ -11,7 +12,7 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -117,6 +118,7 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
 
 export function DosAnnouncement() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
 
     // Build year → classes lookup from school config
@@ -261,7 +263,7 @@ export function DosAnnouncement() {
                     <DashboardHeader
                         title="Announcements"
                         subtitle="Compose and broadcast school-wide announcements"
-                        {...dosUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />

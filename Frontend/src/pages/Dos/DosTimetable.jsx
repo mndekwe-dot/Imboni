@@ -3,6 +3,7 @@ import { Select } from '../../components/ui/Select'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { StatCard } from '../../components/layout/StatCard'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
@@ -47,6 +48,7 @@ function slotsToSchedules(classId, slots, periods) {
 
 export function DosTimetable() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [classes, setClasses]           = useState([])
     const [classId, setClassId]           = useState('')
     const [schedules, setSchedules]       = useState({})
@@ -168,10 +170,7 @@ export function DosTimetable() {
                     <DashboardHeader
                         title="Academic Timetable"
                         subtitle="Create and manage weekly class timetables for all forms"
-                        userName="Dr. Jean-Claude Ndagijimana"
-                        userRole="Director of Studies"
-                        userInitials="JN"
-                        avatarClass="dos-av"
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />
