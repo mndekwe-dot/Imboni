@@ -7,9 +7,10 @@ import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
-import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getMatronDashboard, getMatronNightCheck } from '../../api/matron'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 function initialsOf(name) {
@@ -42,6 +43,7 @@ function ReportRow({ dotClass, title, meta, statusClass, status }) {
 }
 
 export function MatronDashboard() {
+    const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [dashboard, setDashboard] = useState(null)
     const [boarders, setBoarders] = useState([])
@@ -96,12 +98,12 @@ export function MatronDashboard() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dashboard" subtitle={`${dormitory} — Overview`} {...matronUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title="Dashboard" subtitle={`${dormitory} — Overview`} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 
                         <WelcomeBanner
-                            name={matronUser.userName}
+                            name={sessionUser.userName}
                             role={`${dormitory} Matron — ${boarders.length} students in your care`}
                         />
 

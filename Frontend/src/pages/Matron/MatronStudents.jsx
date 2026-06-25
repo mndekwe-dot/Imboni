@@ -13,6 +13,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
 import { getMatronStudents } from '../../api/matron'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 function initialsOf(name) {
@@ -54,6 +55,7 @@ function StudentRow({ initials, name, studentCode, year, classBadge, room, dormi
 }
 
 export function MatronStudents() {
+    const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
     const { setting } = useSchoolSettings()
     const [section, setSection] = useState('')
@@ -122,10 +124,10 @@ export function MatronStudents() {
                             </button>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Mrs. Gloriose Hakizimana</span>
+                                    <span className="header-user-name">{sessionUser.userName}</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <Link to="/profile?role=matron" className="header-user-av matron-av">GH</Link>
+                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>

@@ -1,6 +1,7 @@
 import { MessagesPage } from '../../components/messaging/MessagesPage'
 import '../../styles/matron.css'
-import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { matronNavItems, matronSecondaryItems } from './matronNav'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 const conversations = [
@@ -16,16 +17,14 @@ const messages = [
 ]
 
 export function MatronMessages() {
+    const sessionUser = useSessionUser()
     return (
         <MessagesPage
             navItems={matronNavItems}
             secondaryItems={matronSecondaryItems}
             title="Messages"
             subtitle="Communicate with the Discipline Master, students & parents"
-            userName="Mrs. Gloriose Hakizimana"
-            userRole="Matron"
-            userInitials="GH"
-            avatarClass="matron-av"
+            {...sessionUser}
             conversations={conversations}
             tabs={['All', 'Discipline', 'Students', 'Parents']}
             messages={messages}

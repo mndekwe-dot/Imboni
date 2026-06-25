@@ -4,11 +4,12 @@ import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
-import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
 import { getMatronBoardingSchedule } from '../../api/matron'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 const CHANGE_STATUS_DISPLAY = {
@@ -87,6 +88,7 @@ function WeekendRow({ time, label, isBreak, breakText, sat, sun }) {
 }
 
 export function MatronSchedule() {
+    const sessionUser = useSessionUser()
     const { setting } = useSchoolSettings()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -134,10 +136,10 @@ export function MatronSchedule() {
                             <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">{matronUser.userName}</span>
+                                    <span className="header-user-name">{sessionUser.userName}</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${matronUser.avatarClass}`}>{matronUser.userInitials}</Link>
+                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>

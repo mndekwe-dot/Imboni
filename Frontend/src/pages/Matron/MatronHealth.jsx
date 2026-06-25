@@ -4,9 +4,10 @@ import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
-import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents } from '../../api/matron'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 const conditionLabels = { illness: 'Illness', injury: 'Injury', checkup: 'Check-up', followup: 'Follow-up' }
@@ -81,6 +82,7 @@ function HealthHistoryRow({ date, name, conditionTag, complaint, temp, action, s
 }
 
 export const MatronHealth = () => {
+    const sessionUser = useSessionUser()
     const [data, setData] = useState(null)
     const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(true)
@@ -190,10 +192,10 @@ export const MatronHealth = () => {
                             <span className="date-display">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">{matronUser.userName}</span>
+                                    <span className="header-user-name">{sessionUser.userName}</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${matronUser.avatarClass}`}>{matronUser.userInitials}</Link>
+                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>
