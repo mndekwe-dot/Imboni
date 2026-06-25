@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
@@ -102,6 +103,7 @@ function ActivityCard({ activity, enrolled, onJoin, onWithdraw, joining }) {
 }
 
 export function StudentActivities() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [mainTab,    setMainTab]    = useState('Discipline Records')
     const [typeFilter, setTypeFilter] = useState('All')
     const [profile,    setProfile]    = useState(null)
@@ -191,6 +193,8 @@ export function StudentActivities() {
                         userRole={userRole}
                         userInitials={initials}
                         avatarClass="student-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DataTable } from '../../components/ui/DataTable'
 import { DashboardContent } from '../../components/layout/DashboardContent'
@@ -217,6 +218,7 @@ function StudentRow({ student, onView }) {
 }
 
 export function AdminStudents() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config }    = useSchoolConfig()
     const [studentList, setStudentList] = useState([])
     const [stats,       setStats]       = useState(null)
@@ -274,6 +276,8 @@ export function AdminStudents() {
                         title="Student Management"
                         subtitle="Enrollment, admissions and student records"
                         {...adminUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

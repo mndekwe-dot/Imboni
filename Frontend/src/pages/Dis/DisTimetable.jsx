@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { getISOWeek, getISOWeekYear } from 'date-fns'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
@@ -70,6 +71,7 @@ function applyEntries(entries, weekKey, setEntries, setSchedules, setIdMap, setS
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function DisTimetable() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [editingSlot,     setEditingSlot]     = useState(null)
     const [showForm,        setShowForm]        = useState(false)
     const [slots,           setSlots]           = useState(EXTRA_SLOTS)
@@ -176,6 +178,8 @@ export function DisTimetable() {
                         title="Extracurricular Timetable"
                         subtitle="Plan, create, and update the weekly non-academic activity schedule"
                         {...disUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

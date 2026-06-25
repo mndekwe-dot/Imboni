@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { Modal } from '../../components/ui/Modal'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -1021,6 +1022,7 @@ function ClassDropdown({ value, onChange, options }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function TeacherAssignments() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [myClasses,       setMyClasses]       = useState([])
     const [classSubjectMap, setClassSubjectMap] = useState([])  // full list: [{class_id, class_name, subject_id, subject_name}]
     const [subjects,        setSubjects]        = useState([])
@@ -1156,6 +1158,8 @@ export function TeacherAssignments() {
                         subtitle="Create, manage and track student assignments"
                         userName={fullName} userRole="Teacher"
                         userInitials={initials} avatarClass="teacher-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
                         {loadError && (

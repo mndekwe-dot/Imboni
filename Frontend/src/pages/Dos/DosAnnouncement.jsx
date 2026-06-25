@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import {
@@ -115,6 +116,7 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DosAnnouncement() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config } = useSchoolConfig()
 
     // Build year → classes lookup from school config
@@ -260,6 +262,8 @@ export function DosAnnouncement() {
                         title="Announcements"
                         subtitle="Compose and broadcast school-wide announcements"
                         {...dosUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
 
                     <DashboardContent>

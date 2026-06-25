@@ -6,6 +6,7 @@ import {
 } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { Modal } from '../../components/ui/Modal'
 import { FilterBar } from '../../components/ui/FilterBar'
@@ -362,6 +363,7 @@ function ViewModal({ result, onClose }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function DosResults() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     // UI tab: 'approval' shows the result cards, 'analytics' shows charts
     const [activeTab, setActiveTab] = useState('approval')
     // Filter buttons: 'all', 'pending', 'approved', 'rejected'
@@ -476,7 +478,7 @@ export function DosResults() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Results" subtitle="Approval queue and school performance analytics" {...dosUser} />
+                    <DashboardHeader title="Results" subtitle="Approval queue and school performance analytics" {...dosUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
 import {
@@ -181,6 +182,7 @@ function AnnouncementCard({ ann, onMarkRead }) {
 }
 
 export function ParentAnnouncements() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements, setAnnouncements] = useState([])
     const [stats,         setStats]         = useState(null)
     const [loading,       setLoading]       = useState(true)
@@ -244,8 +246,9 @@ export function ParentAnnouncements() {
                         title="Announcements"
                         subtitle="Stay updated with school news and notifications"
                         {...parentUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     <DashboardContent>
                         {/* Stats row */}
                         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>

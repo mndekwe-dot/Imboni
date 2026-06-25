@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -272,6 +273,7 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminAnnouncements() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements,   setAnnouncements]   = useState([])
     const [draftCount,      setDraftCount]      = useState(0)
     const [urgentCount,     setUrgentCount]     = useState(0)
@@ -402,6 +404,8 @@ export function AdminAnnouncements() {
                         title="Announcements"
                         subtitle="Compose and broadcast school-wide notices"
                         {...adminUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

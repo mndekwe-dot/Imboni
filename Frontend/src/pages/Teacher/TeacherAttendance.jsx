@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
@@ -49,6 +50,7 @@ function buildSections(classes) {
 }
 
 export function TeacherAttendance() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
     const lastName   = storedUser.last_name  || ''
@@ -189,8 +191,9 @@ export function TeacherAttendance() {
                         userRole="Teacher"
                         userInitials={initials}
                         avatarClass="teacher-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     <DashboardContent>
                         {loadingClasses ? (
                             <EmptyState icon="sync" title="Loading classes…" description="Fetching your assigned classes." />

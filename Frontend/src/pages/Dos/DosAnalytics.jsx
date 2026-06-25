@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getDosAnalytics } from '../../api/dos'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -31,6 +32,7 @@ function SubjectRow({ subject, avg_score }) {
 }
 
 export function DosAnalytics() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [data,    setData]    = useState(null)
     const [loading, setLoading] = useState(true)
     const [error,   setError]   = useState(null)
@@ -87,6 +89,8 @@ export function DosAnalytics() {
                         title="School Analytics"
                         subtitle="Comprehensive school performance insights"
                         {...dosUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
 
                     <DashboardContent>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentResults, getStudentAssessments } from '../../api/student'
@@ -75,6 +76,7 @@ function AssessmentRow({ subject_name, title, max_score, score_obtained, percent
 }
 
 export function StudentResults() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [profile,     setProfile]     = useState(null)
     const [terms,       setTerms]       = useState([])
     const [assessments, setAssessments] = useState([])
@@ -139,6 +141,8 @@ export function StudentResults() {
                         userRole={userRole}
                         userInitials={initials}
                         avatarClass="student-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
@@ -44,6 +45,7 @@ function AnnouncementItem({ ann }) {
 }
 
 export function StudentAnnouncements() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements, setAnnouncements] = useState([])
     const [stats,         setStats]         = useState(null)
     const [loading,       setLoading]       = useState(true)
@@ -99,6 +101,8 @@ export function StudentAnnouncements() {
                         userRole="Student"
                         userInitials={initials}
                         avatarClass="student-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
@@ -134,6 +135,7 @@ function AssignmentCard({ assignment, onSubmit }) {
 }
 
 export function StudentAssignments() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
     const [profile,     setProfile]     = useState(null)
     const [assignments, setAssignments] = useState([])
@@ -206,6 +208,8 @@ export function StudentAssignments() {
                         userRole={userRole}
                         userInitials={initials}
                         avatarClass="student-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { EmptyState } from '../../components/ui/EmptyState'
 import {
@@ -129,6 +130,7 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function TeacherAnnouncement() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements,  setAnnouncements]  = useState([])
     const [audienceOpts,   setAudienceOpts]   = useState([])
     const [loading,        setLoading]        = useState(true)
@@ -283,6 +285,8 @@ export function TeacherAnnouncement() {
                         userRole="Teacher"
                         userInitials={initials}
                         avatarClass="teacher-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

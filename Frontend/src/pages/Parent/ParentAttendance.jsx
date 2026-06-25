@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
 import {
@@ -151,6 +152,7 @@ function AttendancePanel({ childId, childName, loading }) {
 }
 
 export function ParentAttendance() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [children,  setChildren]  = useState([])
     const [activeIdx, setActiveIdx] = useState(0)
     const [loading,   setLoading]   = useState(true)
@@ -173,8 +175,9 @@ export function ParentAttendance() {
                         title="Attendance Records"
                         subtitle="Monthly attendance calendar and stats"
                         {...parentUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     {!loading && children.length > 0 && (
                         <div className="child-switcher-bar">
                             <span className="child-switcher-label">Child:</span>

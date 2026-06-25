@@ -1,6 +1,7 @@
 import { useState,useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { updateSchoolSettings, getSubjects, createSubject, updateSubject, deleteSubject, renameSubjectCategory, deleteSubjectCategory, getDosRooms, createDosRoom, deleteDosRoom } from '../../api/dos'
@@ -295,6 +296,7 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export function DosSettings() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config, saveConfig, loading, error } = useSchoolConfig()
     const { setting, loading: settingsLoading } = useSchoolSettings()
     const [subjects,  setSubjects]  = useState([])
@@ -498,6 +500,8 @@ export function DosSettings() {
                         title="School Settings"
                         subtitle="Configure school structure — sections, year groups and stream classes"
                         {...dosUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
 
                     <DashboardContent>

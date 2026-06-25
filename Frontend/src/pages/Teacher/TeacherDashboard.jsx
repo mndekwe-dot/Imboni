@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
@@ -218,6 +219,7 @@ function CreateTaskModal({ onClose, onCreated }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherDashboard() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
     const [stats,       setStats]       = useState(null)
     const [schedule,    setSchedule]    = useState([])
@@ -301,6 +303,8 @@ export function TeacherDashboard() {
                         userRole="Teacher"
                         userInitials={initials}
                         avatarClass="teacher-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

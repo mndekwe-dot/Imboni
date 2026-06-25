@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
 import { getMyChildren, getChildBehaviourStats, getChildBehaviourReports } from '../../api/parent'
@@ -69,6 +70,7 @@ function BehaviourCard({ title, reported_by_display, badge, report_type, descrip
 const FILTERS = ['all', 'positive', 'achievement', 'warning', 'incident']
 
 export function ParentBehaviour() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [children,    setChildren]    = useState([])
     const [activeIdx,   setActiveIdx]   = useState(0)
     const [loading,     setLoading]     = useState(true)
@@ -128,8 +130,9 @@ export function ParentBehaviour() {
                         title="Behavior Reports"
                         subtitle="Track your child's conduct and achievements"
                         {...parentUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     {!loading && children.length > 0 && (
                         <div className="child-switcher-bar">
                             <span className="child-switcher-label">Child:</span>

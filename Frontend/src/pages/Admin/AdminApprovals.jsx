@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -140,6 +141,7 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
 }
 
 export function AdminApprovals() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config }    = useSchoolConfig()
     const [activeTab,   setActiveTab]   = useState('pending')
     const [allResults,  setAllResults]  = useState([])
@@ -254,6 +256,8 @@ export function AdminApprovals() {
                         title="Result Approvals"
                         subtitle="Review and approve exam results submitted by teachers"
                         {...adminUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

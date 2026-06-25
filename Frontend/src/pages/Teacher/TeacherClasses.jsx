@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { Modal } from '../../components/ui/Modal'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -485,6 +486,7 @@ function ResultsModal({ cls, onClose }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherClasses() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,       setClasses]       = useState([])
     const [loadingClasses, setLoadingClasses] = useState(true)
     const [sections,      setSections]      = useState([])
@@ -561,6 +563,8 @@ export function TeacherClasses() {
                         userRole="Teacher"
                         userInitials={initials}
                         avatarClass="teacher-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
                         <ClassPicker

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAttendanceStats, getStudentAttendanceCalendar } from '../../api/student'
@@ -70,6 +71,7 @@ function CalendarCell({ day, status }) {
 }
 
 export function StudentAttendance() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const today = new Date()
     const [profile,  setProfile]  = useState(null)
     const [stats,    setStats]    = useState(null)
@@ -152,6 +154,8 @@ export function StudentAttendance() {
                         userRole={userRole}
                         userInitials={initials}
                         avatarClass="student-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

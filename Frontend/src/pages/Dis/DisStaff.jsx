@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StaffModal } from '../../components/modals/StaffModal'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { getDisStaff } from '../../api/discipline'
@@ -64,6 +65,7 @@ function PatronCard({ staff, onEdit }) {
 }
 
 export function DisStaff() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [staff,         setStaff]         = useState([])
     const [loading,       setLoading]       = useState(true)
     const [showAddModal,  setShowAddModal]  = useState(false)
@@ -92,7 +94,7 @@ export function DisStaff() {
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Matrons & Patrons" subtitle="Staff under your supervision" {...disUser} />
+                    <DashboardHeader title="Matrons & Patrons" subtitle="Staff under your supervision" {...disUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

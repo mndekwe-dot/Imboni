@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import {
     getDisAnnouncements, createDisAnnouncement,
@@ -113,6 +114,7 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisAnnouncements() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements, setAnnouncements] = useState([])
     const [total,         setTotal]         = useState(0)
     const [hasMore,       setHasMore]       = useState(false)
@@ -225,8 +227,9 @@ export function DisAnnouncements() {
                         title="Announcements"
                         subtitle="Compose and broadcast discipline notices"
                         {...disUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     <DashboardContent>
                         <div className="ann-grid">
 

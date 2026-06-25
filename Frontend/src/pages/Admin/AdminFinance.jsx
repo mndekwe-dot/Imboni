@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { AdminPaymentModal } from '../../components/modals/AdminPaymentModal'
 import '../../styles/layout.css'
@@ -60,6 +61,7 @@ function TxRow({ initials, name, adm, amount, date, type, typeClass }) {
 }
 
 export function AdminFinance() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [txList, setTxList]           = useState(initialTransactions)
     const [statusFilter, setStatusFilter] = useState('All')
     const [showPayment, setShowPayment] = useState(false)
@@ -107,7 +109,8 @@ export function AdminFinance() {
                         userRole={adminUser.userRole}
                         userInitials={adminUser.userInitials}
                         avatarClass={adminUser.avatarClass}
-                        notifications={adminUser.notifications}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

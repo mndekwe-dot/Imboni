@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
@@ -151,6 +152,7 @@ function SubjectChart({ data }) {
 }
 
 export function AdminReports() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [stats,       setStats]       = useState(null)
     const [byGrade,     setByGrade]     = useState([])
     const [weeklyTrend, setWeeklyTrend] = useState([])
@@ -200,6 +202,8 @@ export function AdminReports() {
                         title="Reports & Analytics"
                         subtitle="School-wide performance, attendance and enrollment insights"
                         {...adminUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

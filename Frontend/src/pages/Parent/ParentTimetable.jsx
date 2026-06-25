@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { Timetable } from '../../components/timetable/Timetable'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
@@ -10,6 +11,7 @@ import '../../styles/components.css'
 import '../../styles/parent.css'
 
 export function ParentTimetable() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [children,      setChildren]      = useState([])
     const [selectedIndex, setSelectedIndex] = useState(0)
     const [loading,       setLoading]       = useState(true)
@@ -34,6 +36,8 @@ export function ParentTimetable() {
                         title="Class Timetable"
                         subtitle="View your child's weekly academic schedule"
                         {...parentUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
                         {loading ? (
