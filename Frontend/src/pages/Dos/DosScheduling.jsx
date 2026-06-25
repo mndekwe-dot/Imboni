@@ -4,6 +4,7 @@ import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { classesFromConfig } from '../../utils/classes'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
@@ -322,6 +323,7 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DosScheduling() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config } = useSchoolConfig()
     const { setting } = useSchoolSettings()
     const allClasses = classesFromConfig(config)
@@ -644,7 +646,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems}/>
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Scheduling" subtitle="Weekly class timetables and examination schedule" {...dosUser}/>
+                    <DashboardHeader title="Scheduling" subtitle="Weekly class timetables and examination schedule" {...dosUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
                         <div className="filter-tabs-bar mb-5">

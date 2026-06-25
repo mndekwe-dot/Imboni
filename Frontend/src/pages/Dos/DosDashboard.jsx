@@ -4,12 +4,13 @@ import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade, g
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 
@@ -80,6 +81,7 @@ function ProgressItem({ label, value, width }) {
 }
 
 export function DosDashboard() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
 
     const PAGE = 10
@@ -201,7 +203,8 @@ export function DosDashboard() {
                         userName="Dr. Jean-Claude Ndagijimana"
                         userRoleLabel="Director of Studies"
                         initials="JN"
-                        notifications={dosUser.notifications}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
 
                     <DashboardContent>

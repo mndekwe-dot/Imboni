@@ -5,6 +5,7 @@ import { ClassPicker } from '../../components/ui/ClassPicker'
 import { StudentConductModal } from '../../components/modals/StudentConductModal'
 import { DataTable } from '../../components/ui/DataTable'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { getDisStudents, getDisReports, updateDisReport, reviewDisReport } from '../../api/discipline'
@@ -230,6 +231,7 @@ function ReportRow({ report, onMarkComplete }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisStudents() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config } = useSchoolConfig()
     const [activeTab, setActiveTab] = useState('students')
 
@@ -313,8 +315,9 @@ export function DisStudents() {
                         title="Students"
                         subtitle="Conduct records and incident reports"
                         {...disUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     <DashboardContent>
 
                         <div className="filter-tabs-bar mb-5">

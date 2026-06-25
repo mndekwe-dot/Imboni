@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
@@ -41,6 +42,7 @@ function ReportRow({ dotClass, title, meta, statusClass, status }) {
 }
 
 export function MatronDashboard() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [dashboard, setDashboard] = useState(null)
     const [boarders, setBoarders] = useState([])
     const [loading, setLoading] = useState(true)
@@ -94,7 +96,7 @@ export function MatronDashboard() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dashboard" subtitle={`${dormitory} — Overview`} {...matronUser} />
+                    <DashboardHeader title="Dashboard" subtitle={`${dormitory} — Overview`} {...matronUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

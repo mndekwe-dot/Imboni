@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
@@ -702,6 +703,7 @@ function RoomsSection() {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminSettings() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [activeSection, setActiveSection] = useState('School Info')
 
     return (
@@ -715,6 +717,8 @@ export function AdminSettings() {
                         title="Settings"
                         subtitle="School-wide configuration — structure, subjects, rooms and preferences"
                         {...adminUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
                         <div className="adm-settings-grid">

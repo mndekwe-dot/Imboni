@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Select } from '../../components/ui/Select'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
@@ -45,6 +46,7 @@ function slotsToSchedules(classId, slots, periods) {
 }
 
 export function DosTimetable() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes, setClasses]           = useState([])
     const [classId, setClassId]           = useState('')
     const [schedules, setSchedules]       = useState({})
@@ -170,6 +172,8 @@ export function DosTimetable() {
                         role="Director of Studies"
                         initials="JN"
                         avatarClass="dos-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

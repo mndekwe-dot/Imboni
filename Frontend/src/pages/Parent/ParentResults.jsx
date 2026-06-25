@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems, parentUser } from './parentNav'
 import {
@@ -96,6 +97,7 @@ function AssessmentItem({ title, assessment_type, score_display, grade }) {
 }
 
 export function ParentResults() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [children,    setChildren]    = useState([])
     const [activeIdx,   setActiveIdx]   = useState(0)
     const [loading,     setLoading]     = useState(true)
@@ -143,8 +145,9 @@ export function ParentResults() {
                         title="Academic Results"
                         subtitle="Performance tracking and term reports"
                         {...parentUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     {!loading && children.length > 0 && (
                         <div className="child-switcher-bar">
                             <span className="child-switcher-label">Viewing:</span>

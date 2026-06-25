@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
@@ -291,6 +292,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function TeacherResults() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,    setClasses]    = useState([])
     const [sections,   setSections]   = useState([])
     const [loadingClasses, setLoadingClasses] = useState(true)
@@ -407,8 +409,9 @@ export function TeacherResults() {
                         userRole="Teacher"
                         userInitials={initials}
                         avatarClass="teacher-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     <DashboardContent>
                         {loadError && (
                             <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>

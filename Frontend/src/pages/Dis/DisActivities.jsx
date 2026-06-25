@@ -5,6 +5,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { NewActivityModal } from '../../components/modals/NewActivityModal'
 import { EditActivityModal } from '../../components/modals/EditActivityModal'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { getDisActivities, createDisActivity } from '../../api/discipline'
 import '../../styles/layout.css'
@@ -63,6 +64,7 @@ function ActivityCard({ activity, onEdit }) {
 }
 
 export function DisActivities() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [activities,      setActivities]      = useState([])
     const [loading,         setLoading]         = useState(true)
     const [filter,          setFilter]          = useState('all')
@@ -120,7 +122,7 @@ export function DisActivities() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Extracurricular Activities" subtitle="Manage clubs, patron assignments and memberships" {...disUser} />
+                    <DashboardHeader title="Extracurricular Activities" subtitle="Manage clubs, patron assignments and memberships" {...disUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

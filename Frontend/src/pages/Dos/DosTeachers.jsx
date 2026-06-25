@@ -3,6 +3,7 @@ import { getSubjects } from '../../api/dos'
 import { DataTable } from '../../components/ui/DataTable'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { Modal } from '../../components/ui/Modal'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -450,6 +451,7 @@ const typeMap = { full_time: 'Full-Time', part_time: 'Part-Time' }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function DosTeachers() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config } = useSchoolConfig()
 
     // ── All hooks first ────────────────────────────────────────────────────────
@@ -557,7 +559,7 @@ export function DosTeachers() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Teacher Management" subtitle="View, add, update teachers and manage class assignments" {...dosUser} />
+                    <DashboardHeader title="Teacher Management" subtitle="View, add, update teachers and manage class assignments" {...dosUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
                         <div className="portal-stat-grid">

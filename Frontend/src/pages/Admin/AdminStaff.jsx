@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DataTable } from '../../components/ui/DataTable'
 import { DashboardContent } from '../../components/layout/DashboardContent'
@@ -200,6 +201,7 @@ function InviteModal({ onClose, onSent }) {
 }
 
 export function AdminStaff() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [staffList,   setStaffList]   = useState([])
     const [stats,       setStats]       = useState(null)
     const [loading,     setLoading]     = useState(true)
@@ -300,7 +302,7 @@ export function AdminStaff() {
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Staff Management" subtitle="Teachers, welfare and administration staff" {...adminUser} />
+                    <DashboardHeader title="Staff Management" subtitle="Teachers, welfare and administration staff" {...adminUser} notifications={liveNotifications} onNotificationRead={markRead} />
                     <DashboardContent>
 
                         <div className="portal-stat-grid">

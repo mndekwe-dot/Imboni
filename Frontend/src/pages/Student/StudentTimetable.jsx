@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { Timetable } from '../../components/timetable/Timetable'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
@@ -10,6 +11,7 @@ import '../../styles/components.css'
 import '../../styles/student.css'
 
 export function StudentTimetable() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [profile, setProfile] = useState(null)
     const [loading, setLoading] = useState(true)
 
@@ -43,6 +45,8 @@ export function StudentTimetable() {
                         userRole={userRole}
                         userInitials={initials}
                         avatarClass="student-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
                         {loading ? (

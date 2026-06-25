@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import {
@@ -443,6 +444,7 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function DisSettings() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config, saveConfig, loading, error } = useSchoolConfig()
     const [activeTab, setActiveTab] = useState('facilities')
 
@@ -602,8 +604,9 @@ export function DisSettings() {
                         title="Settings"
                         subtitle="Configure facilities, school structure and portal defaults"
                         {...disUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     <DashboardContent>
 
                         <div className="filter-tabs-bar mb-5">

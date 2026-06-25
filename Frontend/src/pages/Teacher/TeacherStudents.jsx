@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { Modal } from '../../components/ui/Modal'
 import { DataTable } from '../../components/ui/DataTable'
@@ -76,6 +77,7 @@ function StudentRow({ student, onView }) {
 }
 
 export function TeacherStudent() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,  setClasses]  = useState([])
     const [sections, setSections] = useState([])
     const [students, setStudents] = useState([])
@@ -189,6 +191,8 @@ export function TeacherStudent() {
                         userRole="Teacher"
                         userInitials={initials}
                         avatarClass="teacher-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

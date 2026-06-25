@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { TeacherScheduleGrid } from '../../components/timetable/TeacherScheduleGrid'
 import { WeekPicker } from '../../components/timetable/weekPicker'
 import { getThisMonday } from '../../components/timetable/dateUtils'
@@ -11,6 +12,7 @@ import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 export function TeacherTimetable() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [currentMonday, setCurrentMonday] = useState(() => getThisMonday())
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
@@ -33,6 +35,8 @@ export function TeacherTimetable() {
                         userRole="Teacher"
                         userInitials={initials}
                         avatarClass="teacher-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

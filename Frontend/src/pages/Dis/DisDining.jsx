@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DataTable } from '../../components/ui/DataTable'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import { getDisDining, createDisDining, patchDisDining, deleteDisDining, getDisStudents } from '../../api/discipline'
@@ -227,6 +228,7 @@ function DiningRow({ plan, onEdit, onDelete }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function DisDining() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [plans,         setPlans]         = useState([])
     const [loading,       setLoading]       = useState(true)
     const [filter,        setFilter]        = useState('all')
@@ -281,7 +283,7 @@ export function DisDining() {
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dining" subtitle="Student dining plans for the current term" {...disUser} />
+                    <DashboardHeader title="Dining" subtitle="Student dining plans for the current term" {...disUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

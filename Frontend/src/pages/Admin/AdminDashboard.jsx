@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
@@ -36,6 +37,7 @@ const ACTIVITY_ICON = {
 }
 
 export function AdminDashboard() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
 
     const [stats,      setStats]      = useState(null)
@@ -82,6 +84,8 @@ export function AdminDashboard() {
                         title="Admin Dashboard"
                         subtitle="School-wide overview — Term 2, 2026"
                         {...adminUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
                     <DashboardContent>
 

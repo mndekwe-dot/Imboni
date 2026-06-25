@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import { disNavItems, disSecondaryItems } from './disNav'
@@ -60,6 +61,7 @@ function StaffItem({ full_name, staff_type, assigned_dormitory, assigned_grade }
 }
 
 export function DisDashboard() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
     const lastName   = storedUser.last_name  || ''
@@ -135,8 +137,9 @@ export function DisDashboard() {
                         userRole="Director of Discipline"
                         userInitials={userInitials}
                         avatarClass="discipline-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     <DashboardContent>
 
                         <WelcomeBanner

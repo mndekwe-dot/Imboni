@@ -6,6 +6,7 @@ import { EditActivityModal } from '../../components/modals/EditActivityModal'
 import { LeaderModal } from '../../components/modals/LeaderModal'
 import { DormitoryCaptainModal } from '../../components/modals/DormitoryCaptainModal'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { DataTable } from '../../components/ui/DataTable'
 import { disNavItems, disSecondaryItems, disUser } from './disNav'
 import {
@@ -178,6 +179,7 @@ function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCa
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisStudentLife() {
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [activeTab, setActiveTab] = useState('activities')
 
     // ── Activities ──
@@ -349,8 +351,9 @@ export function DisStudentLife() {
                         title="Student Life"
                         subtitle="Extracurricular activities, clubs and student leadership"
                         {...disUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
                     />
-
                     <DashboardContent>
 
                         <div className="filter-tabs-bar mb-5">
