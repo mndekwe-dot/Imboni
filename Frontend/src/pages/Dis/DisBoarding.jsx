@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { DataTable } from '../../components/ui/DataTable'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { disNavItems, disSecondaryItems } from './disNav'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
     getDisFacilities, getDisStudents,
@@ -319,6 +320,7 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
 
 export function DisBoarding() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [students,     setStudents]     = useState([])
     const [dormitories,  setDormitories]  = useState([])
     const [loading,      setLoading]      = useState(true)
@@ -398,7 +400,7 @@ export function DisBoarding() {
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Boarding" subtitle="Dormitory assignments and boarding records" {...disUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title="Boarding" subtitle="Dormitory assignments and boarding records" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

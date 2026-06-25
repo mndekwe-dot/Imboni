@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { DataTable } from '../../components/ui/DataTable'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { disNavItems, disSecondaryItems } from './disNav'
 import { getDisDining, createDisDining, patchDisDining, deleteDisDining, getDisStudents } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -229,6 +230,7 @@ function DiningRow({ plan, onEdit, onDelete }) {
 
 export function DisDining() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [plans,         setPlans]         = useState([])
     const [loading,       setLoading]       = useState(true)
     const [filter,        setFilter]        = useState('all')
@@ -283,7 +285,7 @@ export function DisDining() {
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dining" subtitle="Student dining plans for the current term" {...disUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title="Dining" subtitle="Student dining plans for the current term" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

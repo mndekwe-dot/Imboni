@@ -1,5 +1,6 @@
 import { MessagesPage } from '../../components/messaging/MessagesPage'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { disNavItems, disSecondaryItems } from './disNav'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import '../../styles/discipline.css'
 
 const conversations = [
@@ -17,13 +18,14 @@ const messages = [
 ]
 
 export function DisMessages() {
+    const sessionUser = useSessionUser()
     return (
         <MessagesPage
             navItems={disNavItems}
             secondaryItems={disSecondaryItems}
             title="Messages"
             subtitle="Communicate with matrons, patrons, students & parents"
-            {...disUser}
+            {...sessionUser}
             conversations={conversations}
             tabs={['All', 'Matrons', 'Patrons', 'Students', 'Parents']}
             messages={messages}

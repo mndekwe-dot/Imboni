@@ -7,8 +7,9 @@ import { LeaderModal } from '../../components/modals/LeaderModal'
 import { DormitoryCaptainModal } from '../../components/modals/DormitoryCaptainModal'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { DataTable } from '../../components/ui/DataTable'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { disNavItems, disSecondaryItems } from './disNav'
 import {
     getDisActivities, createDisActivity, patchDisActivity, deleteDisActivity,
     getDisStudentLeaders, createDisStudentLeader, patchDisStudentLeader, deleteDisStudentLeader,
@@ -180,6 +181,7 @@ function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCa
 
 export function DisStudentLife() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [activeTab, setActiveTab] = useState('activities')
 
     // ── Activities ──
@@ -350,7 +352,7 @@ export function DisStudentLife() {
                     <DashboardHeader
                         title="Student Life"
                         subtitle="Extracurricular activities, clubs and student leadership"
-                        {...disUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />

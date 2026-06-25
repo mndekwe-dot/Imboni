@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { useSessionUser } from '../../hooks/useSessionUser'
+import { disNavItems, disSecondaryItems } from './disNav'
 import { getDisStudentLeaders } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -75,6 +76,7 @@ function CaptainRow({ leader }) {
 
 export function DisStudentLeaders() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [leaders,  setLeaders]  = useState([])
     const [loading,  setLoading]  = useState(true)
 
@@ -101,7 +103,7 @@ export function DisStudentLeaders() {
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Student Leaders" subtitle="Prefects, house captains and club leaders" {...disUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title="Student Leaders" subtitle="Prefects, house captains and club leaders" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 
