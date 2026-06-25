@@ -7,6 +7,7 @@ import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getParentComms, sendParentComm, getMatronStudents } from '../../api/matron'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 const OUTCOME_DISPLAY = {
@@ -52,6 +53,7 @@ function CommEntry({ typeClass, typeIcon, student, parent, subject, notes, meta,
 }
 
 export function MatronParentComms() {
+    const sessionUser = useSessionUser()
     const [data, setData] = useState(null)
     const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(true)
@@ -174,10 +176,10 @@ export function MatronParentComms() {
                             <span className="date-display">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">{matronUser.userName}</span>
+                                    <span className="header-user-name">{sessionUser.userName}</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${matronUser.avatarClass}`}>{matronUser.userInitials}</Link>
+                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>

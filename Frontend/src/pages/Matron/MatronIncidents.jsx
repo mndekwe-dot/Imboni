@@ -10,6 +10,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
 import { getMatronIncidents, createMatronIncident, getMatronStudents } from '../../api/matron'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 const STATUS_STYLE = {
@@ -39,6 +40,7 @@ function PastReportRow({ date, name, type, severityStyle, severity, statusClass,
 
 export function MatronIncidents() {
     const { setting } = useSchoolSettings()
+    const sessionUser = useSessionUser()
     const [filter, setFilter] = useState('all')
     const [reports, setReports] = useState([])
     const [students, setStudents] = useState([])
@@ -132,10 +134,10 @@ export function MatronIncidents() {
                             <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">{matronUser.userName}</span>
+                                    <span className="header-user-name">{sessionUser.userName}</span>
                                     <span className="header-user-role">Matron</span>
                                 </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${matronUser.avatarClass}`}>{matronUser.userInitials}</Link>
+                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>
