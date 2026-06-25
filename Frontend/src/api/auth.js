@@ -33,6 +33,20 @@ export async function logoutUser() {
 export const requestPasswordReset = (email) =>
     axios.post(`${BASE}/imboni/auth/password-reset/`, { email })
 
+// Step 2 of the reset flow — submit the new password with the uid/token from the email link.
+// Same reasoning as loginUser: plain axios so the client's 401-refresh interceptor (which
+// assumes a logged-in session) doesn't fire, but unwrap the backend's real error message.
+export async function confirmPasswordReset(uid, token, newPassword) {
+    try {
+        const res = await axios.post(`${BASE}/imboni/auth/password-reset/confirm/`, {
+            uid, token, new_password: newPassword,
+        })
+        return res.data
+    } catch (err) {
+        throw new Error(err.response?.data?.error || err.response?.data?.detail || 'Something went wrong')
+    }
+}
+
 // Send invitation — DOS is logged in, use client for auth header
 export const sendInvitation = (data) => client.post('/imboni/auth/invite/', data)
 
