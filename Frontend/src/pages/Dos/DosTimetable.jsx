@@ -168,9 +168,9 @@ export function DosTimetable() {
                     <DashboardHeader
                         title="Academic Timetable"
                         subtitle="Create and manage weekly class timetables for all forms"
-                        name="Dr. Jean-Claude Ndagijimana"
-                        role="Director of Studies"
-                        initials="JN"
+                        userName="Dr. Jean-Claude Ndagijimana"
+                        userRole="Director of Studies"
+                        userInitials="JN"
                         avatarClass="dos-av"
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

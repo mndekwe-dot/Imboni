@@ -199,10 +199,10 @@ export function DosDashboard() {
                     <DashboardHeader
                         title="DOS Dashboard"
                         subtitle="Welcome back, Dr. Ndagijimana"
-                        userRole="DOS"
                         userName="Dr. Jean-Claude Ndagijimana"
-                        userRoleLabel="Director of Studies"
-                        initials="JN"
+                        userRole="Director of Studies"
+                        userInitials="JN"
+                        avatarClass="dos-av"
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />
