@@ -67,10 +67,14 @@ export function MatronStudents() {
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        getMatronStudents(search ? { search } : undefined)
-            .then(data => setStudents(Array.isArray(data) ? data : []))
-            .catch(err => setError(err.message))
-            .finally(() => setLoading(false))
+        const handle = setTimeout(() => {
+            setLoading(true)
+            getMatronStudents(search ? { search } : undefined)
+                .then(data => setStudents(Array.isArray(data) ? data : []))
+                .catch(err => setError(err.message))
+                .finally(() => setLoading(false))
+        }, search ? 300 : 0)
+        return () => clearTimeout(handle)
     }, [search])
 
     const visibleStudents = students
