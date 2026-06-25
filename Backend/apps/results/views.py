@@ -3,6 +3,8 @@ from rest_framework import generics, viewsets, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.authentication.permissions import IsTeacher, IsDOSOrAdmin, IsTeacherOrDOS, IsParentOrTeacherOrDOS
+from apps.authentication.models import User
+from apps.notifications.models import Notification
 from .models import Assessment, Result, AcademicTerm
 from .serializers import (
     AssessmentSerializer, AssessmentCreateSerializer,
@@ -170,6 +172,17 @@ class ResultSubmitView(APIView):
         result.status       = 'submitted'
         result.submitted_at = timezone.now()
         result.save(update_fields=['status', 'submitted_at'])
+
+        for dos_user in User.objects.filter(role='dos'):
+            Notification.objects.create(
+                user=dos_user,
+                title='Results submitted for approval',
+                message=f"{request.user.get_full_name()} submitted results for "
+                        f"{result.student.full_name} — {result.subject.name}.",
+                type='results',
+                path='/dos/results',
+            )
+
         return Response({'detail': 'Result submitted for approval.'})
 
 
