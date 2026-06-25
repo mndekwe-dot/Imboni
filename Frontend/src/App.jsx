@@ -4,6 +4,7 @@ import { LandingPage } from './pages/LandingPage';
 import { LogIn } from './pages/login';
 import { NotFound } from './pages/NotFound';
 import { PortalLogin } from './pages/PortalLogin';
+import { ResetPassword } from './pages/ResetPassword';
 import { StudentDashboard } from './pages/Student/StudentDashboard';
 import { StudentResults } from './pages/Student/StudentResults';
 import { StudentAttendance } from './pages/Student/StudentAttendance';
@@ -80,6 +81,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LogIn />} />
+      <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 
       {/* ── Portal-specific login pages ── */}
       <Route path="/login/student" element={
