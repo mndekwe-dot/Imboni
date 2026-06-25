@@ -4,6 +4,8 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from apps.authentication.permissions import IsTeacherOrDOS, IsDOSOrAdmin
+from apps.authentication.models import User
+from apps.notifications.models import Notification
 
 from .models import AttendanceRecord, AttendanceSummary, TeacherAttendanceRecord
 from .serializers import (
@@ -440,5 +442,17 @@ class MarkTeacherAttendanceView(APIView):
                 },
             )
             saved += 1
+
+            if att_status == 'absent':
+                absent_teacher = User.objects.filter(pk=teacher_id).first()
+                teacher_name = absent_teacher.get_full_name() if absent_teacher else 'A teacher'
+                for dos_user in User.objects.filter(role='dos'):
+                    Notification.objects.create(
+                        user=dos_user,
+                        title='Teacher marked absent',
+                        message=f"{teacher_name} was marked absent on {mark_date}.",
+                        type='staff',
+                        path='/dos/attendance',
+                    )
 
         return Response({'saved': saved})
