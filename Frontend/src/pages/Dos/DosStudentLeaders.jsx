@@ -6,9 +6,10 @@ import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { formatSchoolDate } from '../../utils/date'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { classesFromConfig } from '../../utils/classes'
@@ -229,6 +230,7 @@ function HouseCaptainRow({ initials, name, house, form, since, editMode, onEdit,
 
 export function DosStudentLeaders() {
     const { setting } = useSchoolSettings()
+    const sessionUser = useSessionUser()
     const { config }  = useSchoolConfig()
     const allClasses  = classesFromConfig(config)
     const [activeTab,      setActiveTab]      = useState('leaders')
@@ -332,10 +334,10 @@ export function DosStudentLeaders() {
                             )}
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
-                                    <span className="header-user-role">Director of Studies</span>
+                                    <span className="header-user-name">{sessionUser.userName}</span>
+                                    <span className="header-user-role">{sessionUser.userRole}</span>
                                 </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">JN</Link>
+                                <Link to="/profile?role=dos" className="header-user-av dos-av">{sessionUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>

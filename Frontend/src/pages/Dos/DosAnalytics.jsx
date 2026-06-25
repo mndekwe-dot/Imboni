@@ -3,11 +3,12 @@ import { getDosAnalytics } from '../../api/dos'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 function GradeRow({ grade, score }) {
@@ -33,6 +34,7 @@ function SubjectRow({ subject, avg_score }) {
 
 export function DosAnalytics() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [data,    setData]    = useState(null)
     const [loading, setLoading] = useState(true)
     const [error,   setError]   = useState(null)
@@ -88,7 +90,7 @@ export function DosAnalytics() {
                     <DashboardHeader
                         title="School Analytics"
                         subtitle="Comprehensive school performance insights"
-                        {...dosUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />

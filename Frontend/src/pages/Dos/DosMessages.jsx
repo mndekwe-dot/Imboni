@@ -1,6 +1,7 @@
 import { MessagesPage } from '../../components/messaging/MessagesPage'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
+import { useSessionUser } from '../../hooks/useSessionUser'
 
 
 const conversations = [
@@ -15,16 +16,14 @@ const messages = [
 ]
 
 export function DosMessages() {
+    const sessionUser = useSessionUser()
     return (
         <MessagesPage
             navItems={dosNavItems}
             secondaryItems={dosSecondaryItems}
             title="Messages"
             subtitle="Communicate with teachers, staff and parents"
-            userName="Dr. Jean-Claude Ndagijimana"
-            userRole="Director of Studies"
-            userInitials="JN"
-            avatarClass="dos-av"
+            {...sessionUser}
             conversations={conversations}
             tabs={['All', 'Teachers', 'Parents']}
             messages={messages}

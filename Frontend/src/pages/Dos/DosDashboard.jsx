@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
@@ -82,6 +83,7 @@ function ProgressItem({ label, value, width }) {
 
 export function DosDashboard() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const navigate = useNavigate()
 
     const PAGE = 10
@@ -198,18 +200,15 @@ export function DosDashboard() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="DOS Dashboard"
-                        subtitle="Welcome back, Dr. Ndagijimana"
-                        userName="Dr. Jean-Claude Ndagijimana"
-                        userRole="Director of Studies"
-                        userInitials="JN"
-                        avatarClass="dos-av"
+                        subtitle={`Welcome back, ${sessionUser.userName}`}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />
 
                     <DashboardContent>
                         <WelcomeBanner
-                            name="Dr. Ndagijimana"
+                            name={sessionUser.userName}
                             role="Director of Studies &bull; Imboni Academy"
                         />
 

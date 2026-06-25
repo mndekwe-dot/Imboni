@@ -2,13 +2,14 @@ import { useState,useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { updateSchoolSettings, getSubjects, createSubject, updateSubject, deleteSubject, renameSubjectCategory, deleteSubjectCategory, getDosRooms, createDosRoom, deleteDosRoom } from '../../api/dos'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 
 // ── Small reusable components ────────────────────────────────────────────────
@@ -297,6 +298,7 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
 
 export function DosSettings() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const { config, saveConfig, loading, error } = useSchoolConfig()
     const { setting, loading: settingsLoading } = useSchoolSettings()
     const [subjects,  setSubjects]  = useState([])
@@ -499,7 +501,7 @@ export function DosSettings() {
                     <DashboardHeader
                         title="School Settings"
                         subtitle="Configure school structure — sections, year groups and stream classes"
-                        {...dosUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />

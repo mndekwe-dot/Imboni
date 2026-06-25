@@ -5,9 +5,10 @@ import { getDosExamSchedule, deleteDosExamSchedule } from '../../api/dos'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems, dosUser } from './dosNav'
+import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { formatSchoolDate } from '../../utils/date'
 
 
@@ -53,6 +54,7 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
 
 export function DosExamSchedule() {
     const { setting } = useSchoolSettings()
+    const sessionUser = useSessionUser()
     const [exams,   setExams]   = useState(examRows)
     const [loading, setLoading] = useState(true)
     const [error,   setError]   = useState(null)
@@ -111,10 +113,10 @@ export function DosExamSchedule() {
                             <button className="btn btn-primary">+ Add Exam</button>
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">Dr. Jean-Claude Ndagijimana</span>
-                                    <span className="header-user-role">Director of Studies</span>
+                                    <span className="header-user-name">{sessionUser.userName}</span>
+                                    <span className="header-user-role">{sessionUser.userRole}</span>
                                 </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">JN</Link>
+                                <Link to="/profile?role=dos" className="header-user-av dos-av">{sessionUser.userInitials}</Link>
                             </div>
                         </div>
                     </header>
