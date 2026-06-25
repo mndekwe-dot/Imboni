@@ -6,7 +6,8 @@ import { StudentConductModal } from '../../components/modals/StudentConductModal
 import { DataTable } from '../../components/ui/DataTable'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { useSessionUser } from '../../hooks/useSessionUser'
+import { disNavItems, disSecondaryItems } from './disNav'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { getDisStudents, getDisReports, updateDisReport, reviewDisReport } from '../../api/discipline'
 import '../../styles/layout.css'
@@ -232,6 +233,7 @@ function ReportRow({ report, onMarkComplete }) {
 
 export function DisStudents() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
     const [activeTab, setActiveTab] = useState('students')
 
@@ -314,7 +316,7 @@ export function DisStudents() {
                     <DashboardHeader
                         title="Students"
                         subtitle="Conduct records and incident reports"
-                        {...disUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />

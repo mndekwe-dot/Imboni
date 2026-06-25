@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import {
@@ -11,7 +12,7 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { disNavItems, disSecondaryItems } from './disNav'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -445,6 +446,7 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
 
 export function DisSettings() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const { config, saveConfig, loading, error } = useSchoolConfig()
     const [activeTab, setActiveTab] = useState('facilities')
 
@@ -603,7 +605,7 @@ export function DisSettings() {
                     <DashboardHeader
                         title="Settings"
                         subtitle="Configure facilities, school structure and portal defaults"
-                        {...disUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />

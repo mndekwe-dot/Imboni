@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import { disNavItems, disSecondaryItems } from './disNav'
@@ -62,11 +63,7 @@ function StaffItem({ full_name, staff_type, assigned_dormitory, assigned_grade }
 
 export function DisDashboard() {
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
-    const firstName  = storedUser.first_name || ''
-    const lastName   = storedUser.last_name  || ''
-    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Director of Discipline'
-    const userInitials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'DD'
+    const sessionUser = useSessionUser()
 
     const [stats,     setStats]     = useState(null)
     const [incidents, setIncidents] = useState([])
@@ -133,17 +130,14 @@ export function DisDashboard() {
                     <DashboardHeader
                         title="Dashboard"
                         subtitle="Director of Discipline — Overview"
-                        userName={fullName}
-                        userRole="Director of Discipline"
-                        userInitials={userInitials}
-                        avatarClass="discipline-av"
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />
                     <DashboardContent>
 
                         <WelcomeBanner
-                            name={fullName}
+                            name={sessionUser.userName}
                             role="Director of Discipline · Imboni Academy"
                         />
 

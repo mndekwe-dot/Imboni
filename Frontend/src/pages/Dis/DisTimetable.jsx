@@ -3,6 +3,7 @@ import { getISOWeek, getISOWeekYear } from 'date-fns'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useSessionUser } from '../../hooks/useSessionUser'
 import { StatCard } from '../../components/layout/StatCard'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
@@ -13,7 +14,7 @@ import {
     getDisExtracurricular, createDisExtracurricular,
     patchDisExtracurricular, deleteDisExtracurricular,
 } from '../../api/discipline'
-import { disNavItems, disSecondaryItems, disUser } from './disNav'
+import { disNavItems, disSecondaryItems } from './disNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
@@ -72,6 +73,7 @@ function applyEntries(entries, weekKey, setEntries, setSchedules, setIdMap, setS
 
 export function DisTimetable() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const sessionUser = useSessionUser()
     const [editingSlot,     setEditingSlot]     = useState(null)
     const [showForm,        setShowForm]        = useState(false)
     const [slots,           setSlots]           = useState(EXTRA_SLOTS)
@@ -177,7 +179,7 @@ export function DisTimetable() {
                     <DashboardHeader
                         title="Extracurricular Timetable"
                         subtitle="Plan, create, and update the weekly non-academic activity schedule"
-                        {...disUser}
+                        {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                     />
