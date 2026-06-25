@@ -768,22 +768,29 @@ export function DosStudents() {
     const [invitations,       setInvitations]       = useState([])
     const [selectedStudentId, setSelectedStudentId] = useState(null)
 
-    async function loadData() {
-        const [list, stats, invList] = await Promise.all([getDosStudents(), getDosStudentStats(), getInvitations()])
+    async function loadData(params) {
+        const [list, stats, invList] = await Promise.all([getDosStudents(params), getDosStudentStats(), getInvitations()])
         setStudents((list.results ?? list).map(apiToStudent))
         setApiStats(stats)
         const arr = Array.isArray(invList) ? invList : (invList?.results ?? [])
         setInvitations(arr.filter(inv => inv.role === 'student'))
     }
 
+    // Search is debounced 300ms so the backend isn't queried on every keystroke —
+    // the actual filtering happens server-side via ?search=/?grade=, not in JS on
+    // an already-loaded full list (that approach doesn't scale past a few hundred students).
     useEffect(() => {
-        async function init() {
-            try   { await loadData() }
-            catch (err) { setError(err.message) }
-            finally     { setLoading(false) }
-        }
-        init()
-    }, [])
+        const handle = setTimeout(() => {
+            const params = {}
+            if (search) params.search = search
+            if (year) params.grade = year.replace('S', '')
+            setLoading(true)
+            loadData(params)
+                .catch(err => setError(err.message))
+                .finally(() => setLoading(false))
+        }, search || year ? 300 : 0)
+        return () => clearTimeout(handle)
+    }, [search, year])
 
     const studentStats = apiStats ? [
         { icon: 'people',       value: apiStats.total_students,        label: 'Total Students',  trend: `+${apiStats.new_this_term} this term`,            trendClass: 'positive', colorClass: 'info'    },
@@ -826,13 +833,11 @@ export function DosStudents() {
     if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
     if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
+    // search and year are already applied server-side (see the debounced effect above) —
+    // only section/classLetter still needs filtering here, since the backend doesn't
+    // support that param and the result set is already narrowed to one grade at most.
     const filtered = students.filter(s => {
-        if (year && s.year !== year) return false
         if (classVal && s.classLetter !== classVal) return false
-        if (search) {
-            const q = search.toLowerCase()
-            if (!s.name.toLowerCase().includes(q) && !s.adm.toLowerCase().includes(q)) return false
-        }
         return true
     })
 
