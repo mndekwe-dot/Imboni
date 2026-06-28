@@ -494,7 +494,15 @@ class MatronHealthView(APIView):
         except Student.DoesNotExist:
             return Response({'error': 'Student not found.'}, status=404)
 
-        admitted = bool(d.get('admitted', False))
+        # bool(d.get('admitted', False)) misreads form-encoded 'admitted': 'False'
+        # as truthy, since bool('False') is True in Python — only an empty
+        # string/missing key is falsy under plain bool(). Handle string values
+        # explicitly so both JSON booleans and form-encoded strings work.
+        admitted_raw = d.get('admitted', False)
+        if isinstance(admitted_raw, str):
+            admitted = admitted_raw.strip().lower() not in ('false', '0', '', 'no')
+        else:
+            admitted = bool(admitted_raw)
         visit_type = d.get('visit_type', 'routine_checkup')
 
         if visit_type == 'discharge':
