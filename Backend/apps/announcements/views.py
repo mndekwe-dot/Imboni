@@ -262,21 +262,44 @@ class PublishedAnnouncementListView(APIView):
     Also annotates each announcement with is_read (bool) for the current user.
     """
     def get(self, request):
+        from django.db.models import Q
+
         role = getattr(request.user, 'role', None) if request.user.is_authenticated else None
-
         qs = Announcement.objects.filter(status='published')
-        if role == 'parent':
-            qs = qs.filter(target_audience__in=['all', 'parents'])
-        elif role == 'student':
-            qs = qs.filter(target_audience__in=['all', 'students'])
 
-        qs = qs.order_by('-published_at', '-created_at')[:100]
+        if role == 'parent':
+            from apps.parents.models import ParentStudentRelationship
+            grade_targets = set()
+            for grade, section in ParentStudentRelationship.objects.filter(
+                parent=request.user
+            ).values_list('student__grade', 'student__section'):
+                grade_targets.add(grade)
+                grade_targets.add(f"{grade}{section}")
+            qs = qs.filter(
+                Q(target_audience__in=['all', 'parents']) |
+                Q(target_audience='grade_specific', target_grade__in=grade_targets)
+            )
+        elif role == 'student':
+            student = getattr(request.user, 'student_profile', None)
+            grade_targets = set()
+            if student:
+                grade_targets = {student.grade, f"{student.grade}{student.section}"}
+            qs = qs.filter(
+                Q(target_audience__in=['all', 'students']) |
+                Q(target_audience='grade_specific', target_grade__in=grade_targets)
+            )
+
+        # Materialize the IDs before reuse below — MySQL rejects a sliced
+        # queryset reused inside another query's __in filter
+        # ("LIMIT & IN/ALL/ANY/SOME subquery" NotSupportedError).
+        qs = list(qs.order_by('-published_at', '-created_at')[:100])
+        announcement_ids = [a.id for a in qs]
 
         read_ids = set()
         if request.user.is_authenticated:
             read_ids = set(
                 AnnouncementRead.objects
-                .filter(user=request.user, announcement__in=qs)
+                .filter(user=request.user, announcement_id__in=announcement_ids)
                 .values_list('announcement_id', flat=True)
             )
 
