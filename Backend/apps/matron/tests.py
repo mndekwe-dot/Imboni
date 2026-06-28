@@ -81,12 +81,6 @@ class TestMatronHealthViewBedAssignment:
         assert HealthRecord.objects.filter(student=overflow_student).count() == 0
 
     def test_non_admitted_visit_does_not_consume_a_bed(self, make_authenticated_client):
-        # NOTE: must POST as JSON here. The view does `bool(d.get('admitted', False))`,
-        # and when the field arrives as a form-encoded string 'False', Python's
-        # bool('False') evaluates to True — a real bug (any truthy non-empty
-        # string is treated as "admitted", including the literal text "False").
-        # Sending JSON avoids that string-coercion trap and exercises the
-        # intended boolean behavior.
         client, _user = make_authenticated_client('matron')
         student = StudentFactory()
 
@@ -102,13 +96,11 @@ class TestMatronHealthViewBedAssignment:
         assert response.data['bed_number'] is None
         assert response.data['status'] == 'cleared'
 
-    def test_admitted_false_as_form_string_is_misinterpreted_as_true(self, make_authenticated_client):
-        # BUG: when 'admitted' arrives as the form-encoded string 'False' (as a
-        # real browser <form> POST or any non-JSON client would send it), the
-        # view's `bool(d.get('admitted', False))` evaluates bool('False') == True,
-        # so the visit is incorrectly treated as an admission and a bed is
-        # consumed even though the caller said admitted=False. Documenting
-        # actual (buggy) behavior — flagged in the report.
+    def test_admitted_false_as_form_string_is_correctly_interpreted(self, make_authenticated_client):
+        # Was a real bug: when 'admitted' arrived as the form-encoded string
+        # 'False' (any real <form> POST or non-JSON client), bool('False')
+        # evaluates to True in Python — any non-empty string is truthy. Fixed
+        # by explicitly checking string values against false-like tokens.
         client, _user = make_authenticated_client('matron')
         student = StudentFactory()
 
@@ -121,8 +113,8 @@ class TestMatronHealthViewBedAssignment:
         })  # default multipart/form encoding -> 'admitted' becomes the string 'False'
 
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data['admitted'] is True
-        assert response.data['bed_number'] is not None
+        assert response.data['admitted'] is False
+        assert response.data['bed_number'] is None
 
 
 @pytest.mark.django_db
