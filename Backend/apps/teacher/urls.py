@@ -3,13 +3,18 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r'teacher',              views.TeacherViewSet,          basename='teacher')
+# More specific prefixes MUST be registered before the bare 'teacher' prefix below —
+# DRF's DefaultRouter concatenates patterns in registration order, and TeacherViewSet's
+# detail route (^teacher/(?P<pk>...)/$) would otherwise match /teacher/tasks/,
+# /teacher/reminders/, /teacher/assignments/, /teacher/question-bank/ first, treating
+# e.g. "assignments" as a pk and making AssignmentViewSet's real URLs unreachable.
 router.register(r'teacher/tasks',        views.TeacherTaskViewSet,      basename='teacher-task')
 router.register(r'tasks',               views.TeacherTaskViewSet,      basename='task')          # generic — used by all staff portals
 router.register(r'teacher/reminders',    views.TeacherReminderViewSet,  basename='teacher-reminder')
 router.register(r'teacher/assignments',  views.AssignmentViewSet,       basename='teacher-assignment')
 router.register(r'teacher/question-bank', views.QuestionBankViewSet,   basename='question-bank')
 router.register(r'quiz',                 views.QuizSubmissionViewSet,   basename='quiz')
+router.register(r'teacher',              views.TeacherViewSet,          basename='teacher')
 
 urlpatterns = [
     # Weekly timetable

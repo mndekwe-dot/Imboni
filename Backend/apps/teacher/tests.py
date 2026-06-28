@@ -3,7 +3,15 @@ import datetime
 from rest_framework import status
 from apps.authentication.factories import UserFactory, StudentFactory
 from apps.results.models import Subject, AcademicTerm
-from apps.teacher.models import Class, ClassAssignment, Timetable, Assignment
+from apps.teacher.models import Class, ClassAssignment, Timetable, Assignment, SubjectTeacherAssignment
+
+
+def _assign_teacher(teacher, subject, class_obj, term):
+    """Link a teacher to a class/subject for a term — required for the
+    class-ownership check on attendance/results views to allow access."""
+    return SubjectTeacherAssignment.objects.create(
+        teacher=teacher, subject=subject, class_obj=class_obj, term=term,
+    )
 
 
 def _make_term():
@@ -63,15 +71,11 @@ class TestTeacherAttendanceStudentsView:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_teacher_can_view_class_roster_for_attendance(self, make_authenticated_client):
-        # NOTE: TeacherAttendanceStudentsView filters only by `class_id` query
-        # param — it does not check whether the requesting teacher actually
-        # teaches that class (no SubjectTeacherAssignment/Timetable ownership
-        # check). So this only verifies the role-permission boundary (IsTeacher)
-        # and the basic happy path, not "own class" scoping, since the view
-        # doesn't actually implement that scoping.
-        client, _teacher = make_authenticated_client('teacher')
+        client, teacher = make_authenticated_client('teacher')
         term = _make_term()
+        subject = _make_subject()
         class_obj = _make_class()
+        _assign_teacher(teacher, subject, class_obj, term)
         student = StudentFactory(grade='4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
@@ -80,6 +84,20 @@ class TestTeacherAttendanceStudentsView:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
         assert response.data[0]['student_code'] == student.student_id
+
+    def test_teacher_cannot_view_roster_for_a_class_they_do_not_teach(self, make_authenticated_client):
+        # Was a real gap: this view had no check that the requesting teacher
+        # actually teaches the class_id given. Now enforced via
+        # _teacher_teaches_class().
+        client, _teacher = make_authenticated_client('teacher')
+        term = _make_term()
+        class_obj = _make_class()
+        student = StudentFactory(grade='4', section='A')
+        ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
+
+        response = client.get('/imboni/teacher/attendance/students/', {'class_id': str(class_obj.id)})
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.django_db
@@ -90,6 +108,26 @@ class TestMarkAttendanceView:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_teacher_can_mark_attendance(self, make_authenticated_client):
+        client, teacher = make_authenticated_client('teacher')
+        term = _make_term()
+        subject = _make_subject()
+        class_obj = _make_class()
+        _assign_teacher(teacher, subject, class_obj, term)
+        student = StudentFactory(grade='4', section='A')
+        ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
+
+        response = client.post('/imboni/teacher/attendance/mark/', {
+            'class_id': str(class_obj.id),
+            'date': '2025-02-03',
+            'records': [
+                {'student_id': str(student.id), 'status': 'present', 'notes': ''},
+            ],
+        }, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['saved'] == 1
+
+    def test_teacher_cannot_mark_attendance_for_a_class_they_do_not_teach(self, make_authenticated_client):
         client, _teacher = make_authenticated_client('teacher')
         term = _make_term()
         class_obj = _make_class()
@@ -104,8 +142,29 @@ class TestMarkAttendanceView:
             ],
         }, format='json')
 
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_cannot_mark_attendance_for_a_student_not_enrolled_in_the_class(self, make_authenticated_client):
+        # class_id was always required by the serializer but previously never
+        # used — any student_id could be marked regardless of class. Now the
+        # records list is filtered down to students actually enrolled.
+        client, teacher = make_authenticated_client('teacher')
+        term = _make_term()
+        subject = _make_subject()
+        class_obj = _make_class()
+        _assign_teacher(teacher, subject, class_obj, term)
+        outside_student = StudentFactory(grade='6', section='B')  # not enrolled in class_obj
+
+        response = client.post('/imboni/teacher/attendance/mark/', {
+            'class_id': str(class_obj.id),
+            'date': '2025-02-03',
+            'records': [
+                {'student_id': str(outside_student.id), 'status': 'present', 'notes': ''},
+            ],
+        }, format='json')
+
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['saved'] == 1
+        assert response.data['saved'] == 0
 
 
 @pytest.mark.django_db
@@ -121,6 +180,30 @@ class TestTeacherResultsViews:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_teacher_can_bulk_save_results(self, make_authenticated_client):
+        client, teacher = make_authenticated_client('teacher')
+        term = _make_term()
+        subject = _make_subject()
+        class_obj = _make_class()
+        _assign_teacher(teacher, subject, class_obj, term)
+        student = StudentFactory(grade='4', section='A')
+        ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
+
+        response = client.post('/imboni/teacher/results/bulk-save/', {
+            'class_id': str(class_obj.id),
+            'subject_id': str(subject.id),
+            'assessment_title': 'Mid-Term Exam',
+            'assessment_type': 'quiz',
+            'date': '2025-02-01',
+            'max_score': 100,
+            'entries': [
+                {'student_id': str(student.id), 'score_obtained': 85, 'notes': ''},
+            ],
+        }, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['saved'] == 1
+
+    def test_teacher_cannot_bulk_save_results_for_a_class_they_do_not_teach(self, make_authenticated_client):
         client, _teacher = make_authenticated_client('teacher')
         term = _make_term()
         subject = _make_subject()
@@ -140,14 +223,14 @@ class TestTeacherResultsViews:
             ],
         }, format='json')
 
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data['saved'] == 1
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_teacher_can_list_results_for_class(self, make_authenticated_client):
-        client, _teacher = make_authenticated_client('teacher')
+        client, teacher = make_authenticated_client('teacher')
         term = _make_term()
         subject = _make_subject()
         class_obj = _make_class()
+        _assign_teacher(teacher, subject, class_obj, term)
         student = StudentFactory(grade='4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
@@ -165,25 +248,29 @@ class TestTeacherResultsViews:
         assert len(response.data['results']) == 1
         assert response.data['results'][0]['student_code'] == student.student_id
 
+    def test_teacher_cannot_list_results_for_a_class_they_do_not_teach(self, make_authenticated_client):
+        client, _teacher = make_authenticated_client('teacher')
+        term = _make_term()
+        class_obj = _make_class()
+        student = StudentFactory(grade='4', section='A')
+        ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
+
+        response = client.get('/imboni/teacher/results/list/', {'class_id': str(class_obj.id)})
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
 
 @pytest.mark.django_db
 class TestAssignmentViewSet:
     """
-    REAL ROUTING BUG: apps/teacher/urls.py registers `router.register(r'teacher',
-    views.TeacherViewSet, ...)` BEFORE `router.register(r'teacher/assignments',
-    views.AssignmentViewSet, ...)` (same problem affects 'teacher/tasks',
-    'teacher/reminders', and 'teacher/question-bank'). DRF's DefaultRouter
-    concatenates each registration's URL patterns in registration order, and
-    Django resolves the first matching pattern. TeacherViewSet's detail route
-    `^teacher/(?P<pk>[^/.]+)/$` matches `/imboni/teacher/assignments/` first
-    (treating "assignments" as a pk), so requests never reach AssignmentViewSet:
-      - GET  /imboni/teacher/assignments/  -> 404 (TeacherViewSet.retrieve, no
-        such User pk) instead of the assignment list.
-      - POST /imboni/teacher/assignments/  -> 405 (TeacherViewSet only exposes
-        GET) instead of creating an assignment.
-    Tests below assert this actual (broken) behavior rather than the intended
-    behavior, so they fail loudly the moment routing is fixed and someone needs
-    to update them to assert the real list/create response.
+    Was a real routing bug: apps/teacher/urls.py registered the bare 'teacher'
+    prefix (TeacherViewSet) before the more specific 'teacher/assignments' (and
+    'teacher/tasks', 'teacher/reminders', 'teacher/question-bank') prefixes.
+    DRF's DefaultRouter concatenates patterns in registration order, so
+    TeacherViewSet's detail route `^teacher/(?P<pk>...)/$` matched
+    /imboni/teacher/assignments/ first, treating "assignments" as a pk and
+    making AssignmentViewSet completely unreachable. Fixed by registering the
+    specific prefixes first.
     """
 
     def test_non_teacher_role_is_rejected(self, make_authenticated_client):
@@ -191,7 +278,7 @@ class TestAssignmentViewSet:
         response = client.get('/imboni/teacher/assignments/')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_assignments_list_is_shadowed_by_teacher_detail_route(self, make_authenticated_client):
+    def test_assignments_list_only_returns_own_assignments(self, make_authenticated_client):
         client, teacher = make_authenticated_client('teacher')
         other_teacher = UserFactory(role='teacher')
         term = _make_term()
@@ -209,11 +296,12 @@ class TestAssignmentViewSet:
 
         response = client.get('/imboni/teacher/assignments/')
 
-        # Intended behavior would be 200 with only "Mine" returned; actual
-        # behavior is 404 because the request is routed to TeacherViewSet.
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_200_OK
+        results = response.data['results'] if isinstance(response.data, dict) else response.data
+        titles = {a['title'] for a in results}
+        assert titles == {'Mine'}
 
-    def test_assignment_create_is_shadowed_by_teacher_detail_route(self, make_authenticated_client):
+    def test_teacher_can_create_assignment(self, make_authenticated_client):
         client, _teacher = make_authenticated_client('teacher')
         term = _make_term()
         subject = _make_subject()
@@ -230,10 +318,8 @@ class TestAssignmentViewSet:
             'subject': str(subject.id),
         }, format='json')
 
-        # Intended behavior would be 201; actual behavior is 405 because
-        # TeacherViewSet's detail route (GET-only) intercepts this URL first.
-        assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
-        assert not Assignment.objects.filter(title='Homework 1').exists()
+        assert response.status_code == status.HTTP_201_CREATED
+        assert Assignment.objects.filter(title='Homework 1').exists()
 
 
 @pytest.mark.django_db
