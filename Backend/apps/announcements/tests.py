@@ -1,6 +1,6 @@
 import pytest
 from rest_framework import status
-from apps.authentication.factories import UserFactory
+from apps.authentication.factories import UserFactory, StudentFactory, ParentStudentRelationshipFactory
 from .models import Announcement, AnnouncementRead
 
 
@@ -132,18 +132,6 @@ class TestTeacherAnnouncementDetailView:
 
 
 @pytest.mark.django_db
-@pytest.mark.xfail(
-    reason=(
-        "BUG: PublishedAnnouncementListView slices the queryset to [:100] and then "
-        "reuses that sliced queryset inside announcement__in=qs. MySQL does not "
-        "support LIMIT inside an IN/ALL/ANY/SOME subquery, so this raises "
-        "django.db.utils.NotSupportedError (1235) for any authenticated parent/"
-        "student request against the project's real MySQL backend. "
-        "apps/announcements/views.py around line 273-281."
-    ),
-    raises=Exception,
-    strict=False,
-)
 class TestPublishedAnnouncementListView:
     def test_parent_sees_all_and_parents_audience_only(self, make_authenticated_client):
         client, _parent = make_authenticated_client('parent')
@@ -186,25 +174,59 @@ class TestPublishedAnnouncementListView:
 
         assert response.data[0]['is_read'] is True
 
-    def test_grade_specific_targeting_is_not_filtered_for_students(self, make_authenticated_client):
-        """
-        Documents current behavior: grade_specific announcements are NOT filtered by
-        target_grade for students/parents — PublishedAnnouncementListView only checks
-        target_audience (all/parents/students), it never inspects target_grade. A
-        student in any grade will currently see a grade_specific announcement only if
-        their role-based audience filter happens to include 'grade_specific' (it
-        doesn't), so grade_specific announcements are effectively invisible to
-        students/parents today.
-        """
-        client, _student = make_authenticated_client('student')
-        make_announcement(
-            title='Grade 5 only', target_audience='grade_specific', target_grade='5',
-        )
+    def test_student_in_matching_grade_sees_grade_specific_announcement(self, api_client):
+        student = StudentFactory(grade='5', section='A')
+        make_announcement(title='Grade 5 only', target_audience='grade_specific', target_grade='5')
 
-        response = client.get('/imboni/announcements/')
+        api_client.force_authenticate(student.user)
+        response = api_client.get('/imboni/announcements/')
+
+        titles = {a['title'] for a in response.data}
+        assert 'Grade 5 only' in titles
+
+    def test_student_in_different_grade_does_not_see_it(self, api_client):
+        student = StudentFactory(grade='3', section='A')
+        make_announcement(title='Grade 5 only', target_audience='grade_specific', target_grade='5')
+
+        api_client.force_authenticate(student.user)
+        response = api_client.get('/imboni/announcements/')
 
         titles = {a['title'] for a in response.data}
         assert 'Grade 5 only' not in titles
+
+    def test_student_matches_grade_and_section_target(self, api_client):
+        student = StudentFactory(grade='5', section='B')
+        make_announcement(title='5B only', target_audience='grade_specific', target_grade='5B')
+
+        api_client.force_authenticate(student.user)
+        response = api_client.get('/imboni/announcements/')
+
+        titles = {a['title'] for a in response.data}
+        assert '5B only' in titles
+
+    def test_parent_sees_grade_specific_announcement_for_their_childs_grade(self, api_client):
+        parent = UserFactory(role='parent')
+        child = StudentFactory(grade='2', section='A')
+        ParentStudentRelationshipFactory(parent=parent, student=child)
+        make_announcement(title='Grade 2 only', target_audience='grade_specific', target_grade='2')
+
+        api_client.force_authenticate(parent)
+        response = api_client.get('/imboni/announcements/')
+
+        titles = {a['title'] for a in response.data}
+        assert 'Grade 2 only' in titles
+
+    def test_parent_does_not_see_grade_specific_announcement_for_other_grades(self, api_client):
+        parent = UserFactory(role='parent')
+        child = StudentFactory(grade='2', section='A')
+        ParentStudentRelationshipFactory(parent=parent, student=child)
+        make_announcement(title='Grade 6 only', target_audience='grade_specific', target_grade='6')
+
+        api_client.force_authenticate(parent)
+        response = api_client.get('/imboni/announcements/')
+
+        titles = {a['title'] for a in response.data}
+        assert 'Grade 6 only' not in titles
 
 
 @pytest.mark.django_db
