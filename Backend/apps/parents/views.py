@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.utils import timezone
 from apps.authentication.models import User, UserPreferences
 from apps.authentication.permissions import IsParent
@@ -19,6 +20,18 @@ from .serializers import (
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+
+
+def _verify_parent_owns_student(request, student_pk):
+    """
+    Every view below takes a student pk straight from the URL/query param —
+    without this check, any logged-in parent could view any other family's
+    child by guessing/incrementing a UUID. Returns the Student if the
+    requesting parent actually has a ParentStudentRelationship to it, else None.
+    """
+    if not ParentStudentRelationship.objects.filter(parent=request.user, student_id=student_pk).exists():
+        return None
+    return get_object_or_404(Student, pk=student_pk)
 
 
 class MyChildrenView(generics.ListAPIView):
@@ -50,7 +63,9 @@ class StudentDashboardView(generics.RetrieveAPIView):
     permission_classes = [IsParent]
 
     def retrieve(self, request, *_args, **_kwargs):
-        student = get_object_or_404(Student, pk=self.kwargs['pk'])
+        student = _verify_parent_owns_student(request, self.kwargs['pk'])
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         # --- Overall Performance ---
         from apps.results.models import Result, AcademicTerm
@@ -127,12 +142,14 @@ class StudentCardView(generics.RetrieveAPIView):
     """
     permission_classes = [IsParent]
 
-    def retrieve(self, _request, *_args, **_kwargs):
+    def retrieve(self, request, *_args, **_kwargs):
         from apps.results.models import AcademicTerm
         from apps.attendance.models import AttendanceRecord
         from apps.teacher.models import ClassAssignment, SubjectTeacherAssignment
 
-        student = get_object_or_404(Student, pk=self.kwargs['pk'])
+        student = _verify_parent_owns_student(request, self.kwargs['pk'])
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
         today = timezone.now().date()
         current_term = AcademicTerm.objects.filter(is_current=True).first()
 
@@ -241,6 +258,8 @@ class StudentFeeListView(generics.ListAPIView):
     permission_classes = [IsParent]
 
     def get_queryset(self):
+        if _verify_parent_owns_student(self.request, self.kwargs['pk']) is None:
+            raise Http404
         return Fee.objects.filter(student_id=self.kwargs['pk'])
 
 
@@ -253,6 +272,8 @@ class StudentDocumentListView(generics.ListAPIView):
     permission_classes = [IsParent]
 
     def get_queryset(self):
+        if _verify_parent_owns_student(self.request, self.kwargs['pk']) is None:
+            raise Http404
         return StudentDocument.objects.filter(student_id=self.kwargs['pk'])
 
 
@@ -270,6 +291,9 @@ class StudentTodayScheduleView(generics.ListAPIView):
     def get_queryset(self):
         from apps.teacher.models import ClassAssignment, Timetable
         from apps.results.models import AcademicTerm
+
+        if _verify_parent_owns_student(self.request, self.kwargs['pk']) is None:
+            raise Http404
 
         today = timezone.now().date()
         day_name = today.strftime('%A').lower()  # e.g. 'monday'
@@ -356,19 +380,19 @@ from rest_framework.views import APIView as _APIView
 
 class ParentDashboardStatsView(_APIView):
     """GET /imboni/parents/dashboard/stats/?student_id=<uuid>"""
+    permission_classes = [IsParent]
 
     def get(self, request):
         student_id = request.query_params.get('student_id')
         if not student_id:
             return Response({'detail': 'student_id query param required.'}, status=400)
 
-        try:
-            student = Student.objects.get(pk=student_id)
-        except Student.DoesNotExist:
+        student = _verify_parent_owns_student(request, student_id)
+        if student is None:
             return Response({'detail': 'Student not found.'}, status=404)
 
         from apps.results.models import Result, AcademicTerm
-        from apps.attendance.models import Attendance
+        from apps.attendance.models import AttendanceRecord
         from django.db.models import Avg
 
         term = AcademicTerm.objects.filter(is_current=True).first()
@@ -378,22 +402,25 @@ class ParentDashboardStatsView(_APIView):
             student=student, term=term, status='approved'
         ).aggregate(a=Avg('final_score'))['a'] if term else None
 
-        # Attendance rate this term
-        att_qs   = Attendance.objects.filter(student=student, term=term) if term else Attendance.objects.none()
+        # Attendance rate this term — AttendanceRecord has no `term` FK, so scope by date range instead
+        if term:
+            att_qs = AttendanceRecord.objects.filter(student=student, date__gte=term.start_date, date__lte=term.end_date)
+        else:
+            att_qs = AttendanceRecord.objects.none()
         att_total = att_qs.count()
         att_pres  = att_qs.filter(status='present').count()
         att_rate  = round(att_pres / att_total * 100, 1) if att_total else None
 
-        # Pending fee balance
-        from apps.parents.models import Fee
-        fee_qs      = Fee.objects.filter(student=student, is_paid=False)
+        # Pending fee balance — Fee lives in apps.student.models (already imported at top
+        # of this file). Fee has no `is_paid` field; 'cleared' is the paid status.
+        fee_qs      = Fee.objects.filter(student=student).exclude(status='cleared')
         fee_balance = sum(f.amount for f in fee_qs)
 
-        # Unread announcements
+        # Unread announcements — related_name on AnnouncementRead is 'read_receipts', not 'reads'
         from apps.announcements.models import Announcement
         unread = Announcement.objects.filter(status='published').exclude(
-            reads__user=request.user
-        ).count() if request.user.is_authenticated else 0
+            read_receipts__user=request.user
+        ).count()
 
         return Response({
             'student_id':        str(student.id),
