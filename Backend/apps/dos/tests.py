@@ -1,6 +1,5 @@
 import pytest
 import datetime
-from django.core.exceptions import FieldError
 from rest_framework import status
 from apps.authentication.factories import UserFactory, StudentFactory
 from apps.results.models import Subject, AcademicTerm, Result
@@ -123,21 +122,18 @@ class TestTeacherListCreateView:
         assert len(response.data) == 2
 
     def test_search_filters_teacher_list_by_name(self, make_authenticated_client):
-        # REAL BUG: TeacherListCreateView.get() filters with
-        # Q(subjectteacherassignment__subject__name__icontains=search), but the
-        # actual reverse accessor for SubjectTeacherAssignment.teacher is
-        # 'teaching_assignments' (set via related_name on that FK), not the
-        # Django-default 'subjectteacherassignment'. Any request with ?search=
-        # raises a FieldError (500) instead of returning filtered results.
-        # Asserting the CURRENT (broken) behavior here so this regresses loudly
-        # if "fixed" without a matching code review; the intended behavior is a
-        # 200 with only matching teachers returned.
+        # Was a FieldError 500: filtered with the Django-default reverse accessor
+        # name 'subjectteacherassignment' instead of the actual related_name
+        # 'teaching_assignments' set on SubjectTeacherAssignment.teacher. Fixed.
         client, _user = make_authenticated_client('dos')
         UserFactory(role='teacher', first_name='Eric', last_name='Habimana')
         UserFactory(role='teacher', first_name='Grace', last_name='Umutoni')
 
-        with pytest.raises(FieldError):
-            client.get('/imboni/dos/teachers/', {'search': 'Eric'})
+        response = client.get('/imboni/dos/teachers/', {'search': 'Eric'})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 1
+        assert 'Eric' in response.data[0]['full_name']
 
 
 @pytest.mark.django_db
@@ -215,24 +211,19 @@ class TestDOSResultApproveView:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_unauthenticated_request_is_rejected(self, api_client):
-        # NOTE: DOSResultApproveView has no explicit permission_classes, so it
-        # falls back to the project default (IsAuthenticated) rather than IsDOS/
-        # IsDOSOrAdmin. This means ANY authenticated user (e.g. a teacher) can
-        # currently approve results — only unauthenticated requests are blocked.
-        # Flagging this as a likely permissions gap rather than asserting role
-        # enforcement that doesn't actually exist in the view.
         result = self._make_result(status_value='submitted')
         response = api_client.patch(f'/imboni/dos/results/{result.id}/approve/')
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_any_authenticated_role_can_currently_approve_results(self, make_authenticated_client):
-        # Documents the real gap: DOSResultApproveView has no role-based permission
-        # class, so a teacher (who should not approve results) is able to do so.
+    def test_teacher_cannot_approve_results(self, make_authenticated_client):
+        # Was a real gap: DOSResultApproveView had no role-based permission class
+        # at all, so any authenticated user — including a teacher — could approve
+        # their own (or anyone's) submitted result. Fixed with IsDOSOrAdmin.
         client, _user = make_authenticated_client('teacher')
         result = self._make_result(status_value='submitted')
 
         response = client.patch(f'/imboni/dos/results/{result.id}/approve/')
 
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         result.refresh_from_db()
-        assert result.status == 'approved'
+        assert result.status == 'submitted'

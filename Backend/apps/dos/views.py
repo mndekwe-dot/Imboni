@@ -359,15 +359,15 @@ class TeacherListCreateView(APIView):
             teachers = teachers.filter(
                 Q(first_name__icontains=search) |
                 Q(last_name__icontains=search)  |
-                Q(subjectteacherassignment__subject__name__icontains=search)
+                Q(teaching_assignments__subject__name__icontains=search)
             ).distinct()
         if subj:
             teachers = teachers.filter(
-                subjectteacherassignment__subject_id=subj
+                teaching_assignments__subject_id=subj
             ).distinct()
         if class_id:
             teachers = teachers.filter(
-                subjectteacherassignment__class_obj_id=class_id
+                teaching_assignments__class_obj_id=class_id
             ).distinct()
 
         data = []
@@ -1149,6 +1149,7 @@ class ImportStudentsCSVView(APIView):
 
 class DOSResultsListView(APIView):
     """GET /imboni/dos/results/ -- list results with optional filters."""
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.results.models import Result
@@ -1196,6 +1197,7 @@ class DOSResultsListView(APIView):
 
 class DOSResultApproveView(APIView):
     """PATCH /imboni/dos/results/<pk>/approve/"""
+    permission_classes = [IsDOSOrAdmin]
 
     def patch(self, request, pk):
         from apps.results.models import Result
@@ -1221,6 +1223,7 @@ class DOSResultApproveView(APIView):
 
 class DOSResultRejectView(APIView):
     """PATCH /imboni/dos/results/<pk>/reject/"""
+    permission_classes = [IsDOSOrAdmin]
 
     def patch(self, request, pk):
         from apps.results.models import Result
@@ -1244,6 +1247,7 @@ class DOSResultRejectView(APIView):
 
 class DOSResultBulkApproveView(APIView):
     """POST /imboni/dos/results/bulk-approve/  body: {ids: [uuid, ...]}"""
+    permission_classes = [IsDOSOrAdmin]
 
     def post(self, request):
         from apps.results.models import Result
