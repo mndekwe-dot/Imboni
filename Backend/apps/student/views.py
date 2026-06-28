@@ -326,8 +326,8 @@ class StudentResultsView(APIView):
             for r in term_results:
                 subjects.append({
                     'subject': r.subject.name,
-                    'quiz_average': float(r.quiz_average) if r.quiz_average else None,
-                    'group_work': float(r.group_work) if r.group_work else None,
+                    'class_test_marks': float(r.class_test_marks) if r.class_test_marks is not None else None,
+                    'class_test_maximum': float(r.class_test_maximum),
                     'exam_score': float(r.exam_score),
                     'final_score': float(r.final_score),
                     'grade': r.grade,
@@ -784,7 +784,7 @@ class StudentProfileView(APIView):
     def get(self, request):
         from apps.student.models import Student
         from apps.results.models import AcademicTerm, Result
-        from apps.attendance.models import Attendance
+        from apps.attendance.models import AttendanceRecord
         from django.db.models import Avg
 
         if not request.user.is_authenticated:
@@ -801,7 +801,11 @@ class StudentProfileView(APIView):
             student=student, term=term, status='approved'
         ).aggregate(a=Avg('final_score'))['a'] if term else None
 
-        att_qs    = Attendance.objects.filter(student=student, term=term) if term else Attendance.objects.none()
+        # AttendanceRecord has no `term` FK — scope by the term's date range instead.
+        if term:
+            att_qs = AttendanceRecord.objects.filter(student=student, date__gte=term.start_date, date__lte=term.end_date)
+        else:
+            att_qs = AttendanceRecord.objects.none()
         att_total = att_qs.count()
         att_pres  = att_qs.filter(status='present').count()
         att_rate  = round(att_pres / att_total * 100, 1) if att_total else None
