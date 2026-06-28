@@ -110,15 +110,11 @@ class TestMessageListCreateView:
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_non_participant_can_currently_read_and_post_to_any_conversation(self, make_authenticated_client):
+    def test_non_participant_cannot_read_or_post_to_a_conversation(self, make_authenticated_client):
         """
-        Documents an access-control gap: MessageListCreateView only checks
-        IsAuthenticated. It never verifies request.user is one of
-        conversation.participants before allowing GET (read messages) or
-        POST (send a message) for an arbitrary conversation_pk. Any
-        authenticated user can read/post into someone else's conversation
-        just by knowing/guessing its UUID. See apps/messages/views.py
-        MessageListCreateView (no object-level participant check).
+        Was a real access-control gap: MessageListCreateView only checked
+        IsAuthenticated, never that request.user is actually one of
+        conversation.participants. Fixed via _get_conversation_for_participant().
         """
         participant = UserFactory(role='parent')
         conversation = Conversation.objects.create(subject='Private chat')
@@ -130,6 +126,20 @@ class TestMessageListCreateView:
         post_response = client.post(
             f'/imboni/messages/conversations/{conversation.id}/messages/',
             {'content': 'I should not be able to do this'},
+        )
+
+        assert get_response.status_code == status.HTTP_404_NOT_FOUND
+        assert post_response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_participant_can_read_and_post_to_their_own_conversation(self, make_authenticated_client):
+        client, user = make_authenticated_client('teacher')
+        conversation = Conversation.objects.create(subject='My chat')
+        conversation.participants.add(user)
+
+        get_response = client.get(f'/imboni/messages/conversations/{conversation.id}/messages/')
+        post_response = client.post(
+            f'/imboni/messages/conversations/{conversation.id}/messages/',
+            {'content': 'Hello'},
         )
 
         assert get_response.status_code == status.HTTP_200_OK
