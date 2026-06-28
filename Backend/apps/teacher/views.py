@@ -37,6 +37,21 @@ def _current_term():
     return AcademicTerm.objects.filter(is_current=True).first()
 
 
+def _teacher_teaches_class(teacher, class_id, term):
+    """
+    Without this check, the attendance/results views below accepted any
+    class_id with no verification the requesting teacher actually teaches
+    that class — a teacher could view or mark attendance/results for any
+    class in the school just by changing the class_id query param/body field.
+    """
+    if not class_id or not term:
+        return False
+    from apps.teacher.models import SubjectTeacherAssignment
+    return SubjectTeacherAssignment.objects.filter(
+        teacher=teacher, class_obj_id=class_id, term=term
+    ).exists()
+
+
 # ---------------------------------------------------------------------------
 # Existing views (unchanged)
 # ---------------------------------------------------------------------------
@@ -979,6 +994,9 @@ class TeacherAttendanceStudentsView(APIView):
         if not class_id or not term:
             return Response([])
 
+        if not _teacher_teaches_class(_get_teacher(request), class_id, term):
+            return Response({'detail': 'You do not teach this class.'}, status=status.HTTP_403_FORBIDDEN)
+
         enrollments = (
             ClassAssignment.objects
             .filter(class_obj_id=class_id, term=term)
@@ -1040,12 +1058,27 @@ class MarkAttendanceView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        teacher    = _get_teacher(request)
+        teacher     = _get_teacher(request)
+        class_id    = serializer.validated_data['class_id']
         target_date = serializer.validated_data['date']
-        records    = serializer.validated_data['records']
+        records     = serializer.validated_data['records']
+        term        = _current_term()
+
+        if not _teacher_teaches_class(teacher, class_id, term):
+            return Response({'detail': 'You do not teach this class.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Restrict to students actually enrolled in this class — class_id was
+        # validated by the serializer but previously never used for anything,
+        # so any student_id could be marked regardless of class.
+        from apps.teacher.models import ClassAssignment
+        enrolled_student_ids = set(
+            ClassAssignment.objects.filter(class_obj_id=class_id, term=term).values_list('student_id', flat=True)
+        )
 
         saved = 0
         for rec in records:
+            if rec['student_id'] not in enrolled_student_ids:
+                continue
             AttendanceRecord.objects.update_or_create(
                 student_id=rec['student_id'],
                 date=target_date,
@@ -1153,6 +1186,9 @@ class TeacherResultListView(APIView):
         if not class_id or not term:
             return Response({'assessment_titles': [], 'results': []})
 
+        if not _teacher_teaches_class(_get_teacher(request), class_id, term):
+            return Response({'detail': 'You do not teach this class.'}, status=status.HTTP_403_FORBIDDEN)
+
         student_ids = list(
             ClassAssignment.objects
             .filter(class_obj_id=class_id, term=term)
@@ -1237,6 +1273,9 @@ class TeacherBulkSaveResultsView(APIView):
         term = _current_term()
         if not term:
             return Response({'error': 'No current term found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not _teacher_teaches_class(_get_teacher(request), d['class_id'], term):
+            return Response({'detail': 'You do not teach this class.'}, status=status.HTTP_403_FORBIDDEN)
 
         saved = 0
         for entry in d['entries']:
