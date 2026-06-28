@@ -20,24 +20,24 @@ class TestStudentProfileView:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_student_without_profile_currently_errors(self, make_authenticated_client):
-        # BUG: StudentProfileView.get() does `from apps.attendance.models import
-        # Attendance` unconditionally at the top of the method, before the
-        # "does this user have a student profile" check even runs. That model
-        # does not exist (only AttendanceRecord/AttendanceSummary/
-        # TeacherAttendanceRecord do), so this view 500s on every single call,
-        # even for a student with no profile. Documenting actual behavior.
+        # Was a 500 on every call: StudentProfileView.get() imported
+        # apps.attendance.models.Attendance, which doesn't exist (only
+        # AttendanceRecord/AttendanceSummary/TeacherAttendanceRecord do).
+        # Fixed to use AttendanceRecord, scoped by the term's date range.
         client, _user = make_authenticated_client('student')
-        with pytest.raises(ImportError):
-            client.get('/imboni/student/profile/')
+        response = client.get('/imboni/student/profile/')
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_student_sees_own_profile_currently_errors(self, api_client):
-        # Same bug as above — even a fully valid student profile request 500s
-        # because of the bad import. See report for details.
+    def test_student_sees_own_profile(self, api_client):
         student = StudentFactory(student_id='STU00100', grade='3', section='B')
         api_client.force_authenticate(student.user)
 
-        with pytest.raises(ImportError):
-            api_client.get('/imboni/student/profile/')
+        response = api_client.get('/imboni/student/profile/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['student_code'] == 'STU00100'
+        assert response.data['grade'] == '3'
+        assert response.data['section'] == 'B'
 
 
 @pytest.mark.django_db
@@ -72,14 +72,12 @@ class TestStudentResultsView:
         response = client.get('/imboni/student/results/')
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_results_view_currently_errors_on_any_approved_result(self, api_client):
-        # BUG: the serialization loop does
-        #   r.quiz_average / r.group_work
-        # but the Result model has no such fields (it has class_test_marks /
-        # class_test_maximum instead). So this view 500s as soon as there is
-        # any approved Result for the student — it can never successfully
-        # return real data today. Documenting actual behavior; data-isolation
-        # could not be exercised end-to-end because of this crash.
+    def test_results_view_shows_own_approved_results_only(self, api_client):
+        # Was a 500 on any approved Result: the serialization loop referenced
+        # r.quiz_average/r.group_work, fields that don't exist on Result (it
+        # has class_test_marks/class_test_maximum instead). Fixed, and now
+        # data isolation can actually be exercised: "other"'s result must
+        # never appear in "me"'s response.
         from apps.results.models import Result
 
         term = AcademicTermFactory(is_current=True)
@@ -98,8 +96,14 @@ class TestStudentResultsView:
         )
 
         api_client.force_authenticate(me.user)
-        with pytest.raises(AttributeError):
-            api_client.get('/imboni/student/results/')
+        response = api_client.get('/imboni/student/results/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 1
+        subjects = response.data[0]['subjects']
+        assert len(subjects) == 1
+        assert subjects[0]['final_score'] == 85.0
+        assert subjects[0]['grade'] == 'B'
 
     def test_only_approved_results_are_shown(self, api_client):
         from apps.results.models import Result
