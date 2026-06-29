@@ -12,7 +12,13 @@ const DORMITORIES = [
 export function DormitoryCaptainModal({ captain, onClose, onSave }) {
     const isEditing = !!captain
 
-    const [dormKey,       setDormKey]       = useState(captain?.notes?.replace('Dormitory: ', '') || '')
+    // captain.notes stores the dormitory's display name ("Dormitory: Bisoke"),
+    // but the <select> below is keyed by lowercase id ("bisoke") — resolve the
+    // matching key so editing a captain shows their actual dormitory selected.
+    const [dormKey, setDormKey] = useState(() => {
+        const displayName = captain?.notes?.replace('Dormitory: ', '') || ''
+        return DORMITORIES.find(d => d.name === displayName)?.key || displayName
+    })
     const [appointedDate, setAppointedDate] = useState(captain?.appointed_date || '')
     const [saving,        setSaving]        = useState(false)
     const [error,         setError]         = useState(null)
