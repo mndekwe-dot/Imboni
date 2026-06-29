@@ -31,16 +31,16 @@ export function TimetableEditForm({
             <div className="tt-form">
                 <div className="tt-form-row">
                     <div className="form-group">
-                        <label className="form-label">Day</label>
-                        <select className="form-input" name="day" value={form.day} onChange={handleChange}>
+                        <label className="form-label" htmlFor="tt-form-day">Day</label>
+                        <select id="tt-form-day" className="form-input" name="day" value={form.day} onChange={handleChange}>
                             <option value="">Select day</option>
                             {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">{type === 'academic' ? 'Period' : 'Time Slot'}</label>
-                        <select className="form-input" name="slotId" value={form.slotId} onChange={handleChange}>
+                        <label className="form-label" htmlFor="tt-form-slot">{type === 'academic' ? 'Period' : 'Time Slot'}</label>
+                        <select id="tt-form-slot" className="form-input" name="slotId" value={form.slotId} onChange={handleChange}>
                             <option value="">Select {type === 'academic' ? 'period' : 'slot'}</option>
                             {type === 'academic'
                                 ? periods.map(p => <option key={p.id} value={p.id}>{p.label} ({p.time})</option>)
@@ -51,8 +51,8 @@ export function TimetableEditForm({
 
                     {type === 'extracurricular' && (
                         <div className="form-group">
-                            <label className="form-label">Activity Type</label>
-                            <select className="form-input" name="cellType" value={form.cellType} onChange={handleChange}>
+                            <label className="form-label" htmlFor="tt-form-cell-type">Activity Type</label>
+                            <select id="tt-form-cell-type" className="form-input" name="cellType" value={form.cellType} onChange={handleChange}>
                                 <option value="sports">Sports</option>
                                 <option value="academic">Academic Club</option>
                                 <option value="arts">Arts</option>
@@ -67,8 +67,9 @@ export function TimetableEditForm({
 
                 <div className="tt-form-row">
                     <div className="form-group">
-                        <label className="form-label">{type === 'academic' ? 'Subject' : 'Activity Name'}</label>
+                        <label className="form-label" htmlFor="tt-form-subject">{type === 'academic' ? 'Subject' : 'Activity Name'}</label>
                         <select
+                            id="tt-form-subject"
                             className="form-input"
                             name="subjectId"
                             value={form.subjectId}
@@ -85,8 +86,9 @@ export function TimetableEditForm({
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">{type === 'academic' ? 'Teacher' : 'Staff in Charge'}</label>
+                        <label className="form-label" htmlFor="tt-form-teacher">{type === 'academic' ? 'Teacher' : 'Staff in Charge'}</label>
                         <select
+                            id="tt-form-teacher"
                             className="form-input"
                             name="teacherId"
                             value={form.teacherId}
@@ -102,8 +104,9 @@ export function TimetableEditForm({
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Venue / Room</label>
+                        <label className="form-label" htmlFor="tt-form-room">Venue / Room</label>
                         <select
+                            id="tt-form-room"
                             className="form-input"
                             name="room"
                             value={form.room}
