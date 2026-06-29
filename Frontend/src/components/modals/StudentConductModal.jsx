@@ -470,7 +470,10 @@ export function StudentConductModal({ student, onClose }) {
                         />
                     )}
                     {tab === 'log' && (
-                        <LogTab student={student} onReportSaved={() => { setTab('profile'); refreshHistory() }} />
+                        // Refresh the profile's history in the background, but don't switch
+                        // tabs away immediately — that would hide LogTab's own "Report Saved"
+                        // confirmation screen before the user ever sees it.
+                        <LogTab student={student} onReportSaved={refreshHistory} />
                     )}
                 </div>
 
