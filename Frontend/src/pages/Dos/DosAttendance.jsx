@@ -28,8 +28,18 @@ const STATUS_OPTS = ['present', 'absent', 'late', 'excused']
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+// Local calendar date as YYYY-MM-DD. Deliberately avoids Date#toISOString()
+// (UTC-based) — for any timezone ahead of UTC (e.g. Africa/Kigali, UTC+2),
+// toISOString() on a local midnight rolls the date back by one day.
+function toLocalISODate(d) {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+}
+
 function todayISO() {
-    return new Date().toISOString().split('T')[0]
+    return toLocalISODate(new Date())
 }
 
 function fmtWeek(start, end) {
@@ -259,20 +269,13 @@ function TeacherAttendanceTab() {
     const totalPages = weekData?.total_pages ?? 1
     const totalCount = weekData?.count       ?? 0
 
-    // monday ISO string for save
-    function mondayOf(iso) {
-        const d = new Date(iso + 'T00:00:00')
-        d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1))
-        return d.toISOString().split('T')[0]
-    }
-
     const dayDates = (() => {
         if (!weekData?.week_start) return {}
         const start = new Date(weekData.week_start + 'T00:00:00')
         const out = {}
         DAY_KEYS.forEach((k, i) => {
             const d = new Date(start); d.setDate(start.getDate() + i)
-            out[k] = d.toISOString().split('T')[0]
+            out[k] = toLocalISODate(d)
         })
         return out
     })()
