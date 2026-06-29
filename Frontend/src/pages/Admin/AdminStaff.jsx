@@ -161,29 +161,29 @@ function InviteModal({ onClose, onSent }) {
                     <form className="modal-body" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                             <div className="form-group form-group-0">
-                                <label className="form-label">First Name *</label>
-                                <input className="form-input" name="first_name" value={form.first_name} onChange={handleChange} autoFocus />
+                                <label className="form-label" htmlFor="invite-first-name">First Name *</label>
+                                <input id="invite-first-name" className="form-input" name="first_name" value={form.first_name} onChange={handleChange} autoFocus />
                             </div>
                             <div className="form-group form-group-0">
-                                <label className="form-label">Last Name *</label>
-                                <input className="form-input" name="last_name" value={form.last_name} onChange={handleChange} />
+                                <label className="form-label" htmlFor="invite-last-name">Last Name *</label>
+                                <input id="invite-last-name" className="form-input" name="last_name" value={form.last_name} onChange={handleChange} />
                             </div>
                         </div>
                         <div className="form-group form-group-0">
-                            <label className="form-label">Email Address *</label>
-                            <input className="form-input" name="email" type="email" value={form.email} onChange={handleChange} />
+                            <label className="form-label" htmlFor="invite-email">Email Address *</label>
+                            <input id="invite-email" className="form-input" name="email" type="email" value={form.email} onChange={handleChange} />
                         </div>
                         <div className="form-group form-group-0">
-                            <label className="form-label">Role *</label>
-                            <select className="form-input" name="role" value={form.role} onChange={handleChange}>
+                            <label className="form-label" htmlFor="invite-role">Role *</label>
+                            <select id="invite-role" className="form-input" name="role" value={form.role} onChange={handleChange}>
                                 {INVITE_ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                             </select>
                         </div>
                         <div className="form-group form-group-0">
-                            <label className="form-label">
+                            <label className="form-label" htmlFor="invite-phone">
                                 Phone <span style={{ color: 'var(--muted-foreground)', fontWeight: 400 }}>(optional)</span>
                             </label>
-                            <input className="form-input" name="phone_number" value={form.phone_number} onChange={handleChange} placeholder="+250 7XX XXX XXX" />
+                            <input id="invite-phone" className="form-input" name="phone_number" value={form.phone_number} onChange={handleChange} placeholder="+250 7XX XXX XXX" />
                         </div>
                         {error && <p style={{ color: 'var(--destructive)', fontSize: '0.82rem' }}>{error}</p>}
                         <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', paddingTop: '0.25rem' }}>
