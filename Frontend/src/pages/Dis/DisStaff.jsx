@@ -5,7 +5,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { StaffModal } from '../../components/modals/StaffModal'
 import { disNavItems, disSecondaryItems } from './disNav'
-import { getDisStaff } from '../../api/discipline'
+import { getDisStaff, createDisStaff, updateDisStaff } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
@@ -83,13 +83,37 @@ export function DisStaff() {
     const matrons = staff.filter(s => ['matron', 'head_matron'].includes(s.staff_type))
     const patrons = staff.filter(s => s.staff_type === 'patron')
 
+    async function handleCreate(data) {
+        try {
+            const created = await createDisStaff(data)
+            setStaff(prev => [created, ...prev])
+        } catch (e) { console.error(e) }
+    }
+
+    async function handleUpdate(id, data) {
+        try {
+            const updated = await updateDisStaff(id, data)
+            setStaff(prev => prev.map(s => s.id === id ? updated : s))
+        } catch (e) { console.error(e) }
+    }
+
     return (
         <>
             {showAddModal && (
-                <StaffModal onClose={() => setShowAddModal(false)} onSave={() => setShowAddModal(false)} />
+                <StaffModal onClose={() => setShowAddModal(false)} onSave={(data) => { handleCreate(data); setShowAddModal(false) }} />
             )}
             {editingStaff && (
-                <StaffModal staff={editingStaff} onClose={() => setEditingStaff(null)} onSave={() => setEditingStaff(null)} />
+                <StaffModal
+                    staff={{
+                        name: editingStaff.full_name,
+                        role: editingStaff.staff_type === 'head_matron' ? 'Head Matron'
+                            : editingStaff.staff_type === 'matron' ? 'Matron'
+                            : 'Patron',
+                        email: editingStaff.email,
+                    }}
+                    onClose={() => setEditingStaff(null)}
+                    onSave={(data) => { handleUpdate(editingStaff.id, data); setEditingStaff(null) }}
+                />
             )}
             <a href="#main-content" className="skip-link">Skip to content</a>
             <div className="sidebar-overlay"></div>
