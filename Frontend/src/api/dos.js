@@ -84,7 +84,7 @@ export const deleteDosRoom   = (id)         => client.delete(`/imboni/dos/rooms/
 export const getDosTimetable = (classId) => client.get('/imboni/dos/timetable/',{params :{class_id : classId}})
 export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
 export const updateDosSlot = (id,data) => client.patch(`/imboni/dos/timetable/${id}/`,data)
-export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}`)
+export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}/`)
 export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('/imboni/dos/teachers/',{params:{subject_id:subjectId,class_id:classId}})
 
 // Analytics
