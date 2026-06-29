@@ -256,8 +256,8 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
                 </div>
                 <div className="tt-form-row">
                     <div className="form-group">
-                        <label className="form-label">Subject *</label>
-                        <select className="form-input" value={form.subject_id} onChange={set('subject_id')}>
+                        <label className="form-label" htmlFor="exam-subject">Subject *</label>
+                        <select id="exam-subject" className="form-input" value={form.subject_id} onChange={set('subject_id')}>
                             <option value="">Select subject</option>
                             {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                         </select>
@@ -278,16 +278,16 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
                 </div>
                 <div className="tt-form-row">
                     <div className="form-group">
-                        <label className="form-label">Date *</label>
-                        <input className="form-input" type="date" value={form.exam_date} onChange={set('exam_date')}/>
+                        <label className="form-label" htmlFor="exam-date">Date *</label>
+                        <input id="exam-date" className="form-input" type="date" value={form.exam_date} onChange={set('exam_date')}/>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Start *</label>
-                        <input className="form-input" type="time" value={form.start_time} onChange={set('start_time')}/>
+                        <label className="form-label" htmlFor="exam-start">Start *</label>
+                        <input id="exam-start" className="form-input" type="time" value={form.start_time} onChange={set('start_time')}/>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">End *</label>
-                        <input className="form-input" type="time" value={form.end_time} onChange={set('end_time')}/>
+                        <label className="form-label" htmlFor="exam-end">End *</label>
+                        <input id="exam-end" className="form-input" type="time" value={form.end_time} onChange={set('end_time')}/>
                     </div>
                 </div>
                 <div className="tt-form-row">
@@ -672,8 +672,8 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         <h2 className="card-title">Class {classId}</h2>
                                         <div className="flex-row-gap">
                                             <div className="flex-row-gap-sm">
-                                                <label className="form-label mb-0">Class:</label>
-                                                <select className="form-input" style={{width:'auto'}} value={classId} onChange={e=>setClassId(e.target.value)}>
+                                                <label className="form-label mb-0" htmlFor="timetable-class-select">Class:</label>
+                                                <select id="timetable-class-select" className="form-input" style={{width:'auto'}} value={classId} onChange={e=>setClassId(e.target.value)}>
                                                     {allClasses.map(c => <option key={c} value={c}>{c}</option>)}
                                                 </select>
                                             </div>
