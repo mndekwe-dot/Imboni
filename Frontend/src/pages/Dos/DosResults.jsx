@@ -538,7 +538,7 @@ export function DosResults() {
                                 ) : (
                                     <div className="settings-form">
                                         {visible.map(r => (
-                                            <ResultCard key={r.id} result={r}
+                                            <ResultCard key={r.key} result={r}
                                                 onReview={setReviewing}
                                                 onView={setViewing}
                                                 onApprove={handleApprove}
