@@ -23,17 +23,35 @@ const timetableStats = [
     { colorClass: '',        icon: 'event_available',    value: 'Term 1', label: 'Current Term',      trend: '2026'         },
 ]
 
+// "8:00", "08:00" → 480 (minutes since midnight). Lets us match times
+// regardless of zero-padding differences between the API and PERIODS data.
+function toMinutes(t) {
+    const [h, m] = t.trim().split(':').map(Number)
+    return h * 60 + m
+}
+
+function periodStartMinutes(period) {
+    return toMinutes(period.time.split(/[–-]/)[0])
+}
+
 /* Convert backend slots array → { [classId]: { [day]: [9 items] } }
    matching each slot to a period row by start_time */
 function slotsToSchedules(classId, slots, periods) {
     const dayMap = {}
     for (const slot of slots) {
-        if (!dayMap[slot.day]) {
-            dayMap[slot.day] = Array(periods.length).fill(null)
+        // Backend stores day lowercase (see handleSave's day.toLowerCase()), but the
+        // Timetable component looks rows up by the capitalized names in DAYS — without
+        // this normalization, fetched slots never render in the grid.
+        const day = slot.day.charAt(0).toUpperCase() + slot.day.slice(1)
+        if (!dayMap[day]) {
+            dayMap[day] = Array(periods.length).fill(null)
         }
-        const idx = periods.findIndex(p => p.time.startsWith(slot.start_time))
+        // Compare by minutes-since-midnight, not string prefix — the API sends
+        // zero-padded times ("08:00") while PERIODS uses unpadded ("8:00"), so
+        // startsWith() would never match and slots would silently vanish.
+        const idx = periods.findIndex(p => periodStartMinutes(p) === toMinutes(slot.start_time))
         if (idx !== -1) {
-            dayMap[slot.day][idx] = {
+            dayMap[day][idx] = {
                 _id:     slot.id,
                 subject: slot.subject_name,
                 teacher: slot.teacher_name,
@@ -63,12 +81,11 @@ export function DosTimetable() {
 
     // Load class list, subjects and rooms on mount
     useEffect(() => {
-        getDosClasses().then(res => {
-            const list = res.data
+        getDosClasses().then(list => {
             setClasses(list)
             if (list.length > 0) setClassId(list[0].id)
         })
-        getSubjects().then(res => setSubjects(res.data)).catch(err => console.error('subjects failed:', err))
+        getSubjects().then(data => setSubjects(data)).catch(err => console.error('subjects failed:', err))
         getDosRooms().then(data => setRooms(data)).catch(err => console.error('rooms failed:', err))
     }, [])
 
@@ -86,8 +103,8 @@ export function DosTimetable() {
         async function fetchTimetable() {
             setLoading(true)
             try {
-                const res = await getDosTimetable(classId)
-                if (!cancelled) setSchedules(slotsToSchedules(classId, res.data.slots, periods))
+                const data = await getDosTimetable(classId)
+                if (!cancelled) setSchedules(slotsToSchedules(classId, data.slots, periods))
             } finally {
                 if (!cancelled) setLoading(false)
             }
@@ -102,7 +119,7 @@ export function DosTimetable() {
         setEditingSlot(slotInfo)
         if (slotInfo?.cell?.subjectId && classId) {
             getDosTeachersBySubjectAndClass(slotInfo.cell.subjectId, classId)
-                .then(res => setTeachers(res.data))
+                .then(data => setTeachers(data))
         }
         setShowForm(true)
     }
@@ -152,7 +169,8 @@ export function DosTimetable() {
         setTeachers([])
         if (!subjectId || !classId) return
         getDosTeachersBySubjectAndClass(subjectId,classId)
-            .then(res => setTeachers(res.data))
+            .then(data => setTeachers(data))
+            .catch(err => console.error('teachers-by-subject failed:', err))
     }
 
     const selectedClass = classes.find(c => c.id === classId)
