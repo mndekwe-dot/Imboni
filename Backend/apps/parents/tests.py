@@ -351,3 +351,54 @@ class TestConsentRequests:
         listing = client.get('/imboni/consent-requests/')
         assert listing.data[0]['approved'] == 1
         assert listing.data[0]['declined'] == 0
+
+
+@pytest.mark.django_db
+class TestWeeklyDigestCommand:
+    def test_digest_sent_only_to_parents_with_activity(self):
+        import datetime
+        from io import StringIO
+        from django.core.management import call_command
+        from apps.authentication.factories import UserFactory, StudentFactory
+        from apps.parents.models import ParentStudentRelationship
+        from apps.attendance.models import AttendanceRecord
+        from apps.notifications.models import Notification
+
+        active_parent = UserFactory(role='parent')
+        active_child = StudentFactory()
+        ParentStudentRelationship.objects.create(
+            parent=active_parent, student=active_child, relationship_type='mother')
+        AttendanceRecord.objects.create(
+            student=active_child, date=datetime.date.today(), status='absent')
+
+        quiet_parent = UserFactory(role='parent')
+        quiet_child = StudentFactory()
+        ParentStudentRelationship.objects.create(
+            parent=quiet_parent, student=quiet_child, relationship_type='father')
+
+        out = StringIO()
+        call_command('send_weekly_digest', '--no-email', stdout=out)
+
+        assert Notification.objects.filter(user=active_parent, title='Your weekly summary').count() == 1
+        assert Notification.objects.filter(user=quiet_parent).count() == 0
+        assert '1 digest(s) sent' in out.getvalue()
+
+    def test_dry_run_sends_nothing(self):
+        import datetime
+        from io import StringIO
+        from django.core.management import call_command
+        from apps.authentication.factories import UserFactory, StudentFactory
+        from apps.parents.models import ParentStudentRelationship
+        from apps.attendance.models import AttendanceRecord
+        from apps.notifications.models import Notification
+
+        parent = UserFactory(role='parent')
+        child = StudentFactory()
+        ParentStudentRelationship.objects.create(parent=parent, student=child, relationship_type='mother')
+        AttendanceRecord.objects.create(student=child, date=datetime.date.today(), status='late')
+
+        out = StringIO()
+        call_command('send_weekly_digest', '--dry-run', stdout=out)
+
+        assert Notification.objects.count() == 0
+        assert 'would send to' in out.getvalue()

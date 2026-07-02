@@ -567,3 +567,63 @@ class TestQuestionBankSharing:
         assert response.status_code == status.HTTP_200_OK
         q.refresh_from_db()
         assert q.is_shared is True
+
+
+@pytest.mark.django_db
+class TestDueDateReminderCommand:
+    def test_reminds_only_students_who_have_not_submitted(self):
+        from io import StringIO
+        from django.core.management import call_command
+        from apps.teacher.models import Assignment, AssignmentSubmission
+        from apps.notifications.models import Notification
+
+        teacher = UserFactory(role='teacher')
+        term = _make_term()
+        subject = _make_subject()
+        class_obj = _make_class()
+        submitted_student = StudentFactory(grade='4', section='A')
+        pending_student   = StudentFactory(grade='4', section='A')
+        for s in (submitted_student, pending_student):
+            ClassAssignment.objects.create(class_obj=class_obj, student=s, term=term)
+
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        assignment = Assignment.objects.create(
+            teacher=teacher, class_obj=class_obj, subject=subject,
+            title='Problem Set', mode='online', status='active',
+            due_date=tomorrow, max_score=20,
+        )
+        AssignmentSubmission.objects.create(
+            assignment=assignment, student=submitted_student,
+            student_name=submitted_student.full_name, score=15, max_score=20,
+        )
+
+        out = StringIO()
+        call_command('send_due_date_reminders', stdout=out)
+
+        assert Notification.objects.filter(user=pending_student.user).count() == 1
+        assert Notification.objects.filter(user=submitted_student.user).count() == 0
+        assert '1 reminder(s) sent' in out.getvalue()
+
+    def test_draft_assignments_are_ignored(self):
+        from io import StringIO
+        from django.core.management import call_command
+        from apps.teacher.models import Assignment
+        from apps.notifications.models import Notification
+
+        teacher = UserFactory(role='teacher')
+        term = _make_term()
+        subject = _make_subject()
+        class_obj = _make_class()
+        student = StudentFactory(grade='4', section='A')
+        ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
+
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        Assignment.objects.create(
+            teacher=teacher, class_obj=class_obj, subject=subject,
+            title='Draft Quiz', mode='online', status='draft',
+            due_date=tomorrow, max_score=20,
+        )
+
+        call_command('send_due_date_reminders', stdout=StringIO())
+
+        assert Notification.objects.filter(user=student.user).count() == 0
