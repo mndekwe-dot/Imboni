@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'apps.discipline',
     'apps.matron',
     'apps.notifications',
+    'apps.audit',
 ]
 
 MIDDLEWARE = [

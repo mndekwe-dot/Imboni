@@ -73,6 +73,7 @@ import { AdminReports } from './pages/Admin/AdminReports';
 import { AdminAnnouncements } from './pages/Admin/AdminAnnouncements';
 import { AdminMessages } from './pages/Admin/AdminMessages';
 import { AdminSettings } from './pages/Admin/AdminSettings';
+import { AdminAuditLog } from './pages/Admin/AdminAuditLog';
 
 
 
@@ -198,6 +199,7 @@ function App() {
       <Route path="/admin/announcements" element={<ProtectedRoute><AdminAnnouncements /></ProtectedRoute>} />
       <Route path="/admin/messages" element={<ProtectedRoute><AdminMessages /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+      <Route path="/admin/audit" element={<ProtectedRoute><AdminAuditLog /></ProtectedRoute>} />
       {/* ── Shared routes ── */}
       <Route path="/profile" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       {/* ── Student extra routes ── */}

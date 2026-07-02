@@ -647,6 +647,11 @@ class SendFeeRemindersView(APIView):
             students_count += 1
             parents_notified += sent
 
+        from apps.audit.services import audit
+        audit(request.user, 'fees.reminders_sent',
+              target=f"{students_count} students",
+              detail={'students': students_count, 'parents_notified': parents_notified, 'term': term.name})
+
         return Response({'students': students_count, 'parents_notified': parents_notified})
 
 

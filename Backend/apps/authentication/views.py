@@ -359,11 +359,16 @@ class SendInvitationView(APIView):
 
         registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
 
-        #send to all available channels 
+        #send to all available channels
         channels = dispatch_invitation(invitation,registration_link)
         invitation.channels_sent = channels
         invitation.delivery_status = 'sent' if channels else 'failed'
         invitation.save()
+
+        from apps.audit.services import audit
+        audit(request.user, 'invitation.sent',
+              target=invitation.email or f"{invitation.first_name} {invitation.last_name}",
+              detail={'role': target_role, 'channels': channels})
 
         return Response({
             'detail':'Invitation sent successfully. ',
@@ -498,12 +503,16 @@ class CancelInvitationView(APIView):
                 {'error':'Cannot cancel an already used invitation.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        from apps.audit.services import audit
+        audit(request.user, 'invitation.cancelled',
+              target=invitation.email or f"{invitation.first_name} {invitation.last_name}",
+              detail={'role': invitation.role})
         invitation.delete()
         return Response({
             'detail' : 'Invitation cancelled.'
         },
         status=status.HTTP_204_NO_CONTENT
-        ) 
+        )
     
 class CSVInviteView(APIView):
     """

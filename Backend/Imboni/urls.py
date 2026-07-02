@@ -20,6 +20,7 @@ urlpatterns = [
     path('imboni/', include('apps.matron.urls')),
     path('imboni/', include('apps.analytics.urls')),
     path('imboni/', include('apps.notifications.urls')),
+    path('imboni/', include('apps.audit.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
