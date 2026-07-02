@@ -6,6 +6,7 @@ export const adminNavItems = [
     { to: '/admin/reports',         icon: 'bar_chart',      label: 'Reports'                   },
     { to: '/admin/announcements',   icon: 'announcement',   label: 'Announcements'             },
     { to: '/admin/messages',        icon: 'chat',           label: 'Messages'                  },
+    { to: '/admin/audit',           icon: 'history',        label: 'Audit Log'                 },
     { to: '/admin/settings',        icon: 'settings',       label: 'Settings'                  },
 ]
 

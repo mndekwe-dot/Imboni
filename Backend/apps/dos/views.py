@@ -1218,6 +1218,10 @@ class DOSResultApproveView(APIView):
         result.approved_at = timezone.now()
         result.dos_comment = request.data.get('dos_comment', result.dos_comment or '')
         result.save(update_fields=['status', 'approved_by', 'approved_at', 'dos_comment'])
+        from apps.audit.services import audit
+        audit(request.user, 'result.approved',
+              target=f"{result.student.full_name} — {result.subject.name}",
+              detail={'result_id': str(result.id)})
         return Response({'detail': 'Result approved.'})
 
 
@@ -1242,6 +1246,10 @@ class DOSResultRejectView(APIView):
         result.rejection_reason = request.data.get('rejection_reason', '')
         result.dos_comment      = request.data.get('dos_comment', result.dos_comment or '')
         result.save(update_fields=['status', 'rejection_reason', 'dos_comment'])
+        from apps.audit.services import audit
+        audit(request.user, 'result.rejected',
+              target=f"{result.student.full_name} — {result.subject.name}",
+              detail={'result_id': str(result.id), 'reason': result.rejection_reason})
         return Response({'detail': 'Result rejected.'})
 
 
@@ -1255,6 +1263,9 @@ class DOSResultBulkApproveView(APIView):
         if not ids:
             return Response({'detail': 'No ids provided.'}, status=http_status.HTTP_400_BAD_REQUEST)
         updated = Result.objects.filter(id__in=ids, status='submitted').update(status='approved')
+        from apps.audit.services import audit
+        audit(request.user, 'result.bulk_approved', target=f"{updated} results",
+              detail={'count': updated})
         return Response({'approved': updated})
 
 
@@ -1632,6 +1643,10 @@ class SuspendStudentView(APIView):
         suspend = request.data.get('suspended', True)
         student.status = 'suspended' if suspend else 'active'
         student.save(update_fields=['status'])
+        from apps.audit.services import audit
+        audit(request.user,
+              'student.suspended' if suspend else 'student.reinstated',
+              target=f"{student.full_name} ({student.student_id})")
         return Response({'status': student.status})
 
 

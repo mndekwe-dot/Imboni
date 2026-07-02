@@ -53,3 +53,6 @@ export const getStudentTermResults     = (id, params) => client.get(`/imboni/res
 
 // ── Finance ───────────────────────────────────────────────────────────────────
 export const sendFeeReminders = (data = {}) => client.post('/imboni/analytics/fees/remind/', data)
+
+// ── Audit Log ─────────────────────────────────────────────────────────────────
+export const getAuditLog = (params) => client.get('/imboni/admin/audit/', { params })
