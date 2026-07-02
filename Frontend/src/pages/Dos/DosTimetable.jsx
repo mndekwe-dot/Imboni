@@ -78,6 +78,7 @@ export function DosTimetable() {
     const [subjects, setSubjects] = useState([])
     const [teachers, setTeachers] = useState([])
     const [rooms, setRooms]       = useState([])
+    const [conflict, setConflict] = useState(null)   // { formData, conflicts: [...] }
 
     // Load class list, subjects and rooms on mount
     useEffect(() => {
@@ -124,7 +125,7 @@ export function DosTimetable() {
         setShowForm(true)
     }
 
-    async function handleSave(formData) {
+    async function handleSave(formData, { force = false } = {}) {
         const { day, slotId, room, subjectId, teacherId } = formData
         if (!day || !slotId) return
 
@@ -143,15 +144,26 @@ export function DosTimetable() {
             start_time: toHHMM(startRaw),
             end_time:   toHHMM(endRaw),
             room:       room || '',
+            ...(force ? { force: true } : {}),
         }
 
         const existingId = editingSlot?.cell?._id
-        if (existingId) {
-            await updateDosSlot(existingId, payload)
-        } else {
-            await saveDosSlot(payload)
+        try {
+            if (existingId) {
+                await updateDosSlot(existingId, payload)
+            } else {
+                await saveDosSlot(payload)
+            }
+        } catch (err) {
+            if (err?.response?.status === 409) {
+                // Teacher or room double-booked — let the DOS decide
+                setConflict({ formData, conflicts: err.response.data?.conflicts || [] })
+                return
+            }
+            throw err
         }
 
+        setConflict(null)
         setShowForm(false)
         setEditingSlot(null)
         loadTimetable()
@@ -263,13 +275,46 @@ export function DosTimetable() {
                                 editingSlot={editingSlot}
                                 onSave={handleSave}
                                 onDelete={handleDelete}
-                                onCancel={() => setShowForm(false)}
+                                onCancel={() => { setShowForm(false); setConflict(null) }}
                                 periods={periods}
                                 subjects={subjects}
                                 teachers={teachers}
                                 rooms={rooms}
                                 onSubjectChange={handleSubjectChange}
                             />
+                        )}
+
+                        {conflict && (
+                            <div className="modal-overlay" onClick={() => setConflict(null)}>
+                                <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
+                                    <div className="modal-header">
+                                        <div className="modal-header-left">
+                                            <span className="material-symbols-rounded" style={{ color: 'var(--warning, #d97706)' }}>warning</span>
+                                            <h2 className="modal-title">Scheduling Conflict</h2>
+                                        </div>
+                                        <button className="btn-icon-clean" onClick={() => setConflict(null)}>
+                                            <span className="material-symbols-rounded">close</span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <p style={{ fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                                            This slot clashes with the existing timetable:
+                                        </p>
+                                        <ul style={{ margin: 0, paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                            {conflict.conflicts.map((c, i) => (
+                                                <li key={i} style={{ fontSize: '0.84rem' }}>{c.message}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button className="btn btn-secondary" onClick={() => setConflict(null)}>Go Back</button>
+                                        <button className="btn btn-primary"
+                                            onClick={() => handleSave(conflict.formData, { force: true })}>
+                                            Save Anyway
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         )}
 
                     </DashboardContent>
