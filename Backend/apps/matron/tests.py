@@ -258,3 +258,50 @@ class TestMatronBoardingScheduleView:
         response = client.post('/imboni/matron/boarding-schedule/', {})
 
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+
+
+@pytest.mark.django_db
+class TestMatronIncidentParentNotification:
+    def _post_incident(self, client, student, severity):
+        return client.post('/imboni/matron/incidents/', {
+            'student_id': str(student.id),
+            'title': 'Dormitory altercation',
+            'report_type': 'incident',
+            'severity': severity,
+            'description': 'Details here.',
+            'date': '2025-02-03',
+        }, format='json')
+
+    def test_serious_incident_notifies_parents_and_flags_report(self, make_authenticated_client):
+        from apps.authentication.factories import UserFactory
+        from apps.parents.models import ParentStudentRelationship
+        from apps.notifications.models import Notification
+        from apps.behavior.models import BehaviorReport
+
+        client, _matron = make_authenticated_client('matron')
+        student = StudentFactory()
+        parent = UserFactory(role='parent')
+        ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='father')
+
+        response = self._post_incident(client, student, 'serious')
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert Notification.objects.filter(user=parent).count() == 1
+        report = BehaviorReport.objects.get(pk=response.data['id'])
+        assert report.parents_notified is True
+        assert report.parent_notification_date is not None
+
+    def test_minor_incident_does_not_notify_parents(self, make_authenticated_client):
+        from apps.authentication.factories import UserFactory
+        from apps.parents.models import ParentStudentRelationship
+        from apps.notifications.models import Notification
+
+        client, _matron = make_authenticated_client('matron')
+        student = StudentFactory()
+        parent = UserFactory(role='parent')
+        ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='mother')
+
+        response = self._post_incident(client, student, 'minor')
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert Notification.objects.filter(user=parent).count() == 0
