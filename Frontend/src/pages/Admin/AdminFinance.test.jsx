@@ -1,10 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderWithRouter, screen, fireEvent, act } from '../../test/test-utils'
+import { renderWithRouter, screen, fireEvent, act, waitFor } from '../../test/test-utils'
 import { AdminFinance } from './AdminFinance'
+import { sendFeeReminders } from '../../api/admin'
 
 vi.mock('../../api/notifications', () => ({
   getNotifications: vi.fn().mockResolvedValue([]),
   markNotificationRead: vi.fn(),
+}))
+
+vi.mock('../../api/admin', () => ({
+  sendFeeReminders: vi.fn(),
 }))
 
 describe('AdminFinance', () => {
@@ -41,18 +46,28 @@ describe('AdminFinance', () => {
     expect(screen.queryByText('Exported!')).not.toBeInTheDocument()
   })
 
-  it('disables and re-labels the reminder button temporarily when clicked', () => {
+  it('sends fee reminders and shows how many parents were notified', async () => {
+    sendFeeReminders.mockResolvedValue({ students: 3, parents_notified: 4 })
     renderWithRouter(<AdminFinance />)
     const reminderBtn = screen.getByText(/Send Fee Reminder/).closest('button')
 
     fireEvent.click(reminderBtn)
 
-    expect(reminderBtn).toBeDisabled()
-    expect(reminderBtn).toHaveTextContent('Reminders Sent!')
+    await waitFor(() => expect(reminderBtn).toHaveTextContent('Reminded 4 parents (3 students)'))
+    expect(sendFeeReminders).toHaveBeenCalled()
 
-    act(() => { vi.advanceTimersByTime(2500) })
-    expect(reminderBtn).not.toBeDisabled()
+    act(() => { vi.advanceTimersByTime(4000) })
     expect(reminderBtn).toHaveTextContent('Send Fee Reminder — All Overdue')
+  })
+
+  it('shows an error label when sending reminders fails', async () => {
+    sendFeeReminders.mockRejectedValue(new Error('boom'))
+    renderWithRouter(<AdminFinance />)
+    const reminderBtn = screen.getByText(/Send Fee Reminder/).closest('button')
+
+    fireEvent.click(reminderBtn)
+
+    await waitFor(() => expect(reminderBtn).toHaveTextContent('Failed to send reminders.'))
   })
 
   it('records a new payment via the modal and prepends it to the transaction list', () => {

@@ -148,3 +148,45 @@ class TestAttendanceOverviewView:
         client, _user = make_authenticated_client('teacher')
         response = client.get('/imboni/analytics/attendance/overview/')
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestSendFeeRemindersView:
+    def test_reminders_are_grouped_per_student_and_sent_to_parents(self, make_authenticated_client):
+        import datetime
+        from apps.authentication.factories import UserFactory
+        from apps.parents.models import ParentStudentRelationship
+        from apps.student.models import Fee
+        from apps.notifications.models import Notification
+
+        client, _admin = make_authenticated_client('admin')
+        term = AcademicTermFactory(is_current=True)
+        student = StudentFactory()
+        parent = UserFactory(role='parent')
+        ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='mother')
+
+        # Two unpaid fee lines for the same student → ONE reminder
+        for category, amount in (('tuition', 500000), ('lunch', 80000)):
+            Fee.objects.create(
+                student=student, category=category, amount=amount,
+                due_date=datetime.date(2025, 2, 1), status='overdue', term=term,
+            )
+        # A cleared fee must not trigger anything
+        Fee.objects.create(
+            student=StudentFactory(), category='tuition', amount=500000,
+            due_date=datetime.date(2025, 2, 1), status='cleared', term=term,
+        )
+
+        response = client.post('/imboni/analytics/fees/remind/', {}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['students'] == 1
+        assert response.data['parents_notified'] == 1
+        notes = Notification.objects.filter(user=parent, title='Fee payment reminder')
+        assert notes.count() == 1
+        assert '580,000' in notes.first().message
+
+    def test_teacher_cannot_send_reminders(self, make_authenticated_client):
+        client, _user = make_authenticated_client('teacher')
+        response = client.post('/imboni/analytics/fees/remind/', {}, format='json')
+        assert response.status_code == status.HTTP_403_FORBIDDEN
