@@ -62,6 +62,8 @@ urlpatterns = [
     path('teacher/subjects/', views.TeacherSubjectsView.as_view(), name='teacher-subjects'),
     # Quiz submit action (outside router action to allow custom URL)
     path('quiz/<pk>/submit/', views.QuizSubmissionViewSet.as_view({'post': 'submit'}), name='quiz-submit'),
+    # Student reviews their graded submission (answers + explanations)
+    path('quiz/<pk>/review/', views.QuizSubmissionViewSet.as_view({'get': 'review'}), name='quiz-review'),
     # Teacher views submission list for one assignment
     path('teacher/assignments/<pk>/submissions/', views.AssignmentSubmissionsView.as_view(), name='assignment-submissions'),
 ] + router.urls

@@ -376,3 +376,70 @@ class TestTeacherSubjectsView:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
         assert response.data[0]['name'] == 'English'
+
+
+@pytest.mark.django_db
+class TestQuizReview:
+    QUESTIONS = [
+        {'id': 'q1', 'type': 'mcq', 'text': '2+2?', 'options': ['3', '4'], 'correct': 1,
+         'points': 2, 'explanation': 'Basic addition.'},
+        {'id': 'q2', 'type': 'true_false', 'text': 'Sky is green.', 'correct': 1, 'points': 1},
+    ]
+
+    def _make_quiz(self):
+        teacher = UserFactory(role='teacher')
+        term = _make_term()
+        subject = _make_subject()
+        class_obj = _make_class()
+        return Assignment.objects.create(
+            teacher=teacher, class_obj=class_obj, subject=subject,
+            title='Chapter Quiz', mode='online', status='active',
+            due_date=datetime.date(2030, 1, 1), max_score=3,
+            questions=self.QUESTIONS,
+        ), class_obj, term
+
+    def test_student_can_review_their_graded_submission(self, make_authenticated_client):
+        from apps.teacher.models import AssignmentSubmission
+        from apps.student.models import Student
+
+        client, user = make_authenticated_client('student')
+        quiz, class_obj, term = self._make_quiz()
+        student = StudentFactory(user=user)
+
+        AssignmentSubmission.objects.create(
+            assignment=quiz, student=student, student_name=student.full_name,
+            answers=[
+                {'question_id': 'q1', 'answer': 1, 'is_correct': True,  'points_earned': 2, 'max_points': 2},
+                {'question_id': 'q2', 'answer': 0, 'is_correct': False, 'points_earned': 0, 'max_points': 1},
+            ],
+            score=2, max_score=3, percentage=66.7, is_graded=True,
+        )
+
+        response = client.get(f'/imboni/quiz/{quiz.id}/review/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['score'] == 2.0
+        q1 = next(q for q in response.data['questions'] if q['id'] == 'q1')
+        assert q1['correct'] == 1                       # correct answer now revealed
+        assert q1['your_answer'] == 1
+        assert q1['is_correct'] is True
+        assert q1['explanation'] == 'Basic addition.'
+        q2 = next(q for q in response.data['questions'] if q['id'] == 'q2')
+        assert q2['is_correct'] is False
+
+    def test_review_requires_a_submission(self, make_authenticated_client):
+        client, user = make_authenticated_client('student')
+        quiz, _class_obj, _term = self._make_quiz()
+        StudentFactory(user=user)
+
+        response = client.get(f'/imboni/quiz/{quiz.id}/review/')
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_non_students_cannot_review(self, make_authenticated_client):
+        client, _user = make_authenticated_client('teacher')
+        quiz, _class_obj, _term = self._make_quiz()
+
+        response = client.get(f'/imboni/quiz/{quiz.id}/review/')
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
