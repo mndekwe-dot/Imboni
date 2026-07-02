@@ -2410,6 +2410,57 @@ class TeacherDetailView(APIView):
         return Response({'detail': 'Updated.'})
 
 # ── DOS Timetable ─────────────────────────────────────────────────────────────
+def _find_timetable_conflicts(term, day, start_time, end_time,
+                              teacher_id=None, room='',
+                              exclude_class_id=None, exclude_start=None,
+                              exclude_pk=None):
+    """
+    Return a list of conflict dicts for any timetable slot in the same term/day
+    whose time range overlaps [start_time, end_time) and which either:
+      - has the same teacher (teacher double-booked), or
+      - uses the same room (room double-booked).
+    The slot being replaced/updated is excluded from the scan.
+    """
+    from apps.teacher.models import Timetable
+
+    overlapping = (
+        Timetable.objects
+        .filter(term=term, day=day, start_time__lt=end_time, end_time__gt=start_time)
+        .select_related('class_obj', 'subject', 'teacher')
+    )
+    if exclude_pk:
+        overlapping = overlapping.exclude(pk=exclude_pk)
+    if exclude_class_id and exclude_start:
+        # update_or_create will overwrite this exact slot — not a conflict
+        overlapping = overlapping.exclude(
+            class_obj_id=exclude_class_id, start_time=exclude_start,
+        )
+
+    conflicts = []
+    for other in overlapping:
+        if teacher_id and other.teacher_id and str(other.teacher_id) == str(teacher_id):
+            conflicts.append({
+                'type':       'teacher',
+                'message':    f"{other.teacher.get_full_name()} already teaches "
+                              f"{other.subject.name} to {other.class_obj.name} at this time.",
+                'class_name': other.class_obj.name,
+                'day':        other.day,
+                'start_time': other.start_time.strftime('%H:%M'),
+                'end_time':   other.end_time.strftime('%H:%M'),
+            })
+        if room and other.room_number and other.room_number.strip().lower() == room.strip().lower():
+            conflicts.append({
+                'type':       'room',
+                'message':    f"Room {other.room_number} is already used by "
+                              f"{other.class_obj.name} ({other.subject.name}) at this time.",
+                'class_name': other.class_obj.name,
+                'day':        other.day,
+                'start_time': other.start_time.strftime('%H:%M'),
+                'end_time':   other.end_time.strftime('%H:%M'),
+            })
+    return conflicts
+
+
 class DosTimetableView(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -2467,16 +2518,27 @@ class DosTimetableView(APIView):
             return Response({'error':'No active term.'},status=400)
 
         class_id = request.data.get('class_id')
-        subject_id = request.data.get('subject_id')    
-        teacher_id = request.data.get('teacher_id')    
-        day = request.data.get('day','').lower()    
-        start_time = request.data.get('start_time')    
-        end_time = request.data.get('end_time')    
-        room  = request.data.get('room','')   
+        subject_id = request.data.get('subject_id')
+        teacher_id = request.data.get('teacher_id')
+        day = request.data.get('day','').lower()
+        start_time = request.data.get('start_time')
+        end_time = request.data.get('end_time')
+        room  = request.data.get('room','')
 
         if not all([class_id,subject_id,day,start_time,end_time]):
-            return Response({'error':'class_id,subject_id,day,start_time,end_time are required'}) 
-        
+            return Response({'error':'class_id,subject_id,day,start_time,end_time are required'})
+
+        # Refuse to double-book a teacher or room. Pass "force": true to
+        # override (e.g. shared venues like the sports field).
+        if not request.data.get('force'):
+            conflicts = _find_timetable_conflicts(
+                term=term, day=day, start_time=start_time, end_time=end_time,
+                teacher_id=teacher_id, room=room,
+                exclude_class_id=class_id, exclude_start=start_time,
+            )
+            if conflicts:
+                return Response({'error': 'Scheduling conflict.', 'conflicts': conflicts}, status=409)
+
         slot ,created = Timetable.objects.update_or_create(
             class_obj_id=class_id,
             day=day,
@@ -2509,6 +2571,17 @@ class DosTimetableSlotView(APIView):
             slot.subject_id = request.data['subject_id']
         if 'teacher_id' in request.data:
             slot.teacher_id = request.data['teacher_id'] or None
+
+        if not request.data.get('force'):
+            conflicts = _find_timetable_conflicts(
+                term=slot.term, day=slot.day,
+                start_time=slot.start_time, end_time=slot.end_time,
+                teacher_id=slot.teacher_id, room=slot.room_number,
+                exclude_pk=slot.pk,
+            )
+            if conflicts:
+                return Response({'error': 'Scheduling conflict.', 'conflicts': conflicts}, status=409)
+
         slot.save()
         return Response({'id':str(slot.id),'detail':'Updated.'})
     
