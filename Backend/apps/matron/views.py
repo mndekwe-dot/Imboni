@@ -246,6 +246,28 @@ class MatronIncidentListView(APIView):
             follow_up_date=request.data.get('follow_up_date') or None,
             parents_notified=request.data.get('parents_notified', False),
         )
+
+        # Serious/critical incidents automatically alert the parents so the
+        # matron doesn't have to remember to call — the notification appears
+        # in the parent portal immediately.
+        if report.report_type == 'incident' and report.severity in ('serious', 'critical'):
+            from django.utils import timezone
+            from apps.notifications.services import notify_parents_of
+            sent = notify_parents_of(
+                student,
+                title=f"Incident involving {student.full_name}",
+                message=(
+                    f"A {report.severity} incident was reported on {report.date}: "
+                    f"{report.title}. The school will contact you with details."
+                ),
+                type='attendance',
+                path='/parent/behaviour',
+            )
+            if sent:
+                report.parents_notified = True
+                report.parent_notification_date = timezone.now()
+                report.save(update_fields=['parents_notified', 'parent_notification_date'])
+
         return Response(MatronBehaviorReportSerializer(report).data, status=201)
 
 
