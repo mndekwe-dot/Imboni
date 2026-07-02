@@ -89,6 +89,8 @@ export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('
 
 // Analytics
 export const getDosAnalytics        = (params)     => client.get('/imboni/dos/analytics/', { params })
+export const getAtRiskStudents      = (params)     => client.get('/imboni/analytics/performance/at-risk/', { params })
+export const getChronicAbsence      = (params)     => client.get('/imboni/analytics/attendance/chronic-absence/', { params })
 export const getDosAttendanceStats  = ()           => client.get('/imboni/dos/attendance/overview/')
 
 // Announcements
