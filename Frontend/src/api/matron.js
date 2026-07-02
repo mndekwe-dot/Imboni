@@ -33,3 +33,11 @@ export const sendParentComm = (data) => client.post('/imboni/matron/parent-comms
 // Messages
 export const getMatronMessages = () => client.get('/imboni/matron/messages/')
 export const sendMatronMessage = (data) => client.post('/imboni/matron/messages/', data)
+
+// Medication Schedule
+export const getMedications        = ()        => client.get('/imboni/matron/medications/')
+export const createMedication      = (data)    => client.post('/imboni/matron/medications/', data)
+export const patchMedication       = (id, d)   => client.patch(`/imboni/matron/medications/${id}/`, d)
+export const deleteMedication      = (id)      => client.delete(`/imboni/matron/medications/${id}/`)
+export const getMedicationsToday   = (params)  => client.get('/imboni/matron/medications/today/', { params })
+export const administerMedication  = (id, d)   => client.post(`/imboni/matron/medications/${id}/administer/`, d)

@@ -732,3 +732,204 @@ class MatronBoardingScheduleView(APIView):
                 'current_term': current_term.name if current_term else '—',
             },
         })
+
+
+# ── Medication Schedule ────────────────────────────────────────────────────────
+
+def _medication_dict(m):
+    return {
+        'id':            str(m.id),
+        'student_id':    str(m.student.id),
+        'student_name':  m.student.full_name,
+        'student_code':  m.student.student_id,
+        'grade':         m.student.grade,
+        'section':       m.student.section,
+        'medicine_name': m.medicine_name,
+        'dosage':        m.dosage,
+        'times':         m.times or [],
+        'start_date':    str(m.start_date),
+        'end_date':      str(m.end_date) if m.end_date else None,
+        'notes':         m.notes,
+        'is_active':     m.is_active,
+    }
+
+
+def _end_date_open(target):
+    """end_date is null (open-ended) OR >= target."""
+    from django.db.models import Q
+    return Q(end_date__isnull=True) | Q(end_date__gte=target)
+
+
+class MatronMedicationListView(APIView):
+    """
+    GET  /imboni/matron/medications/          — active schedules
+    POST /imboni/matron/medications/
+    Body: { student_id, medicine_name, dosage, times: ["08:00", ...],
+            start_date, end_date?, notes? }
+    """
+    permission_classes = [IsMatron]
+
+    def get(self, request):
+        from .models import MedicationSchedule
+        qs = (
+            MedicationSchedule.objects
+            .filter(is_active=True)
+            .select_related('student__user')
+        )
+        return Response([_medication_dict(m) for m in qs])
+
+    def post(self, request):
+        from apps.student.models import Student
+        from .models import MedicationSchedule
+
+        try:
+            student = Student.objects.get(pk=request.data.get('student_id'))
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        times = request.data.get('times') or []
+        if not isinstance(times, list) or not times:
+            return Response({'error': 'times must be a non-empty list like ["08:00"].'}, status=400)
+        for field in ('medicine_name', 'dosage', 'start_date'):
+            if not request.data.get(field):
+                return Response({'error': f'{field} is required.'}, status=400)
+
+        m = MedicationSchedule.objects.create(
+            student=student,
+            medicine_name=request.data['medicine_name'],
+            dosage=request.data['dosage'],
+            times=sorted(times),
+            start_date=request.data['start_date'],
+            end_date=request.data.get('end_date') or None,
+            notes=request.data.get('notes', ''),
+            created_by=request.user,
+        )
+        return Response(_medication_dict(m), status=201)
+
+
+class MatronMedicationDetailView(APIView):
+    """PATCH/DELETE /imboni/matron/medications/<pk>/ — delete deactivates."""
+    permission_classes = [IsMatron]
+
+    def patch(self, request, pk):
+        from .models import MedicationSchedule
+        try:
+            m = MedicationSchedule.objects.get(pk=pk)
+        except MedicationSchedule.DoesNotExist:
+            return Response({'error': 'Not found.'}, status=404)
+        for field in ('medicine_name', 'dosage', 'times', 'start_date', 'notes', 'is_active'):
+            if field in request.data:
+                setattr(m, field, request.data[field])
+        if 'end_date' in request.data:
+            m.end_date = request.data['end_date'] or None
+        if isinstance(m.times, list):
+            m.times = sorted(m.times)
+        m.save()
+        return Response(_medication_dict(m))
+
+    def delete(self, request, pk):
+        from .models import MedicationSchedule
+        try:
+            m = MedicationSchedule.objects.get(pk=pk)
+        except MedicationSchedule.DoesNotExist:
+            return Response({'error': 'Not found.'}, status=404)
+        m.is_active = False
+        m.save(update_fields=['is_active'])
+        return Response(status=204)
+
+
+class MatronMedicationTodayView(APIView):
+    """
+    GET /imboni/matron/medications/today/?date=YYYY-MM-DD
+
+    The daily checklist: one item per (schedule, time) due on the given date
+    (default today), with whether that dose has been given yet. Items whose
+    time has passed and are still ungiven are flagged overdue.
+    """
+    permission_classes = [IsMatron]
+
+    def get(self, request):
+        from datetime import datetime
+        from django.utils import timezone as tz
+        from .models import MedicationSchedule, MedicationLog
+
+        date_str = request.query_params.get('date')
+        try:
+            target = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else date.today()
+        except ValueError:
+            return Response({'error': 'Invalid date.'}, status=400)
+
+        schedules = (
+            MedicationSchedule.objects
+            .filter(is_active=True, start_date__lte=target)
+            .filter(_end_date_open(target))
+            .select_related('student__user')
+        )
+
+        given = {
+            (log.schedule_id, log.time): log
+            for log in MedicationLog.objects.filter(date=target)
+        }
+
+        now = tz.localtime()
+        is_today = target == now.date()
+        now_hhmm = now.strftime('%H:%M')
+
+        items = []
+        for m in schedules:
+            for t in (m.times or []):
+                log = given.get((m.id, t))
+                items.append({
+                    'schedule_id':   str(m.id),
+                    'student_name':  m.student.full_name,
+                    'student_code':  m.student.student_id,
+                    'grade':         m.student.grade,
+                    'section':       m.student.section,
+                    'medicine_name': m.medicine_name,
+                    'dosage':        m.dosage,
+                    'time':          t,
+                    'given':         log is not None,
+                    'given_at':      log.given_at.isoformat() if log else None,
+                    'overdue':       log is None and (target < now.date() or (is_today and t < now_hhmm)),
+                })
+
+        items.sort(key=lambda i: (i['time'], i['student_name']))
+        return Response({
+            'date':    str(target),
+            'total':   len(items),
+            'given':   sum(1 for i in items if i['given']),
+            'overdue': sum(1 for i in items if i['overdue']),
+            'items':   items,
+        })
+
+
+class MatronMedicationAdministerView(APIView):
+    """
+    POST /imboni/matron/medications/<pk>/administer/
+    Body: { time: "08:00", date?: "YYYY-MM-DD", notes? }
+    Marks one dose as given (idempotent per schedule/date/time).
+    """
+    permission_classes = [IsMatron]
+
+    def post(self, request, pk):
+        from .models import MedicationSchedule, MedicationLog
+
+        try:
+            m = MedicationSchedule.objects.get(pk=pk, is_active=True)
+        except MedicationSchedule.DoesNotExist:
+            return Response({'error': 'Schedule not found.'}, status=404)
+
+        t = request.data.get('time')
+        if t not in (m.times or []):
+            return Response({'error': f'time must be one of {m.times}.'}, status=400)
+
+        target = request.data.get('date') or str(date.today())
+        log, created = MedicationLog.objects.get_or_create(
+            schedule=m, date=target, time=t,
+            defaults={'given_by': request.user, 'notes': request.data.get('notes', '')},
+        )
+        return Response({
+            'given': True,
+            'given_at': log.given_at.isoformat(),
+            'already_recorded': not created,
+        }, status=201 if created else 200)
