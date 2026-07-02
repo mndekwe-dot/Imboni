@@ -5,6 +5,9 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentResults, getStudentAssessments } from '../../api/student'
+import {
+    ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+} from 'recharts'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -127,6 +130,15 @@ export function StudentResults() {
         ? assessments.filter(() => true)
         : assessments
 
+    // Term-over-term average, oldest first (terms arrive newest-first)
+    const trendData = [...terms]
+        .reverse()
+        .filter(t => t.average_score != null)
+        .map(t => ({
+            label: t.year && !String(t.term).includes(String(t.year)) ? `${t.term} ${t.year}` : t.term,
+            average: t.average_score,
+        }))
+
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
@@ -171,6 +183,34 @@ export function StudentResults() {
                                         <ResultSummaryCard key={i} {...s} />
                                     ))}
                                 </div>
+
+                                {/* Term-over-term trend */}
+                                {trendData.length >= 2 && (
+                                    <div className="card" style={{ marginBottom: '1rem' }}>
+                                        <div className="card-header">
+                                            <h3 className="card-title">My Average Over Time</h3>
+                                        </div>
+                                        <div className="card-content" style={{ height: 200 }}>
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <LineChart data={trendData} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                                    <XAxis dataKey="label" tickLine={false} axisLine={false}
+                                                        tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
+                                                    <YAxis domain={[0, 100]} tickLine={false} axisLine={false}
+                                                        tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                                                        tickFormatter={v => `${v}%`} />
+                                                    <Tooltip
+                                                        formatter={v => [`${v}%`, 'My average']}
+                                                        cursor={{ stroke: 'var(--border)', strokeWidth: 1 }}
+                                                    />
+                                                    <Line type="monotone" dataKey="average" name="My average"
+                                                        stroke="#0891b2" strokeWidth={2}
+                                                        dot={{ r: 4, fill: '#0891b2', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
+                                                </LineChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Subject grade cards */}
                                 {subjects.length > 0 && (

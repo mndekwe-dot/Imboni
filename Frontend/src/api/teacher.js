@@ -50,6 +50,9 @@ export const getAssignmentSubmissions = id          => client.get(`/imboni/teach
 export const getAssignmentGradeSheet  = id            => client.get(`/imboni/teacher/assignments/${id}/grade/`)
 export const saveAssignmentGrades     = (id, records) => client.post(`/imboni/teacher/assignments/${id}/grade/`, { records })
 
+// Performance trends (month-by-month class average)
+export const getTeacherPerformanceTrends = (params) => client.get('/imboni/teacher/results/performance-trends/', { params })
+
 // Question Bank
 export const getQuestionBank    = (params)  => client.get('/imboni/teacher/question-bank/', { params })
 export const saveToQuestionBank = d          => client.post('/imboni/teacher/question-bank/', d)

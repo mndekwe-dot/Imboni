@@ -66,6 +66,25 @@ describe('StudentResults', () => {
     expect(screen.getByText('English')).toBeInTheDocument()
   })
 
+  it('shows the term-over-term trend chart when at least two terms have averages', async () => {
+    getStudentProfile.mockResolvedValue(PROFILE)
+    getStudentResults.mockResolvedValue(TERMS)
+    getStudentAssessments.mockResolvedValue([])
+
+    renderWithRouter(<StudentResults />)
+    await waitFor(() => expect(screen.getByText('My Average Over Time')).toBeInTheDocument())
+  })
+
+  it('hides the trend chart when only one term exists', async () => {
+    getStudentProfile.mockResolvedValue(PROFILE)
+    getStudentResults.mockResolvedValue([TERMS[0]])
+    getStudentAssessments.mockResolvedValue([])
+
+    renderWithRouter(<StudentResults />)
+    await waitFor(() => expect(screen.getByText('80%')).toBeInTheDocument())
+    expect(screen.queryByText('My Average Over Time')).not.toBeInTheDocument()
+  })
+
   it('shows the no-assessments message when a term has none', async () => {
     getStudentProfile.mockResolvedValue(PROFILE)
     getStudentResults.mockResolvedValue(TERMS)
