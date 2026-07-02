@@ -83,3 +83,7 @@ export const getDisExtracurricular    = (week = 'default') => client.get('/imbon
 export const createDisExtracurricular = (d)      => client.post('/imboni/discipline/extracurricular/', d)
 export const patchDisExtracurricular  = (id, d)  => client.patch(`/imboni/discipline/extracurricular/${id}/`, d)
 export const deleteDisExtracurricular = (id)     => client.delete(`/imboni/discipline/extracurricular/${id}/`)
+
+// Consent Requests (staff side)
+export const getConsentRequests   = ()  => client.get('/imboni/consent-requests/')
+export const createConsentRequest = (d) => client.post('/imboni/consent-requests/', d)

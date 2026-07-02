@@ -8,7 +8,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { disNavItems, disSecondaryItems } from './disNav'
-import { getDisActivities, createDisActivity } from '../../api/discipline'
+import { getDisActivities, createDisActivity, getConsentRequests, createConsentRequest } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
@@ -59,6 +59,140 @@ function ActivityCard({ activity, onEdit }) {
                 <button className="btn btn-primary btn-sm" onClick={onEdit}>
                     <span className="material-symbols-rounded">edit</span> Edit
                 </button>
+            </div>
+        </div>
+    )
+}
+
+const GRADE_OPTIONS = [
+    { value: '',  label: 'All grades' },
+    { value: '1', label: 'S1' }, { value: '2', label: 'S2' }, { value: '3', label: 'S3' },
+    { value: '4', label: 'S4' }, { value: '5', label: 'S5' }, { value: '6', label: 'S6' },
+]
+
+function ConsentRequestsPanel() {
+    const [requests, setRequests] = useState([])
+    const [loading, setLoading]   = useState(true)
+    const [showForm, setShowForm] = useState(false)
+    const [form, setForm] = useState({ title: '', description: '', event_date: '', response_deadline: '', grade: '' })
+    const [saving, setSaving]     = useState(false)
+    const [error, setError]       = useState(null)
+
+    function load() {
+        getConsentRequests()
+            .then(data => setRequests(Array.isArray(data) ? data : []))
+            .catch(() => setRequests([]))
+            .finally(() => setLoading(false))
+    }
+
+    useEffect(() => { load() }, [])
+
+    async function handleCreate() {
+        if (!form.title.trim() || !form.description.trim() || !form.event_date) {
+            setError('Title, description and event date are required.')
+            return
+        }
+        setSaving(true); setError(null)
+        try {
+            await createConsentRequest({
+                title: form.title.trim(),
+                description: form.description.trim(),
+                event_date: form.event_date,
+                response_deadline: form.response_deadline || null,
+                grade: form.grade,
+            })
+            setForm({ title: '', description: '', event_date: '', response_deadline: '', grade: '' })
+            setShowForm(false)
+            load()
+        } catch {
+            setError('Failed to create the request.')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    return (
+        <div className="card mb-1-5">
+            <div className="card-header">
+                <h2 className="card-title">
+                    <span className="material-symbols-rounded" style={{ verticalAlign: 'middle', marginRight: '0.4rem' }}>approval</span>
+                    Parent Consent Requests
+                </h2>
+                <button className="btn btn-outline btn-sm" onClick={() => setShowForm(s => !s)}>
+                    <span className="material-symbols-rounded icon-sm">add</span>
+                    New Request
+                </button>
+            </div>
+            <div className="card-content">
+                {showForm && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '0.6rem', marginBottom: '1rem', padding: '0.75rem', background: 'var(--muted)', borderRadius: 10 }}>
+                        <div style={{ gridColumn: '1/-1' }}>
+                            <label className="form-label" htmlFor="cr-title">Title</label>
+                            <input id="cr-title" className="form-input" placeholder="e.g. Museum Trip"
+                                value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                        </div>
+                        <div style={{ gridColumn: '1/-1' }}>
+                            <label className="form-label" htmlFor="cr-desc">Description</label>
+                            <textarea id="cr-desc" className="form-input form-textarea" rows="2"
+                                placeholder="What are parents consenting to?"
+                                value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="cr-date">Event date</label>
+                            <input id="cr-date" type="date" className="form-input"
+                                value={form.event_date} onChange={e => setForm(f => ({ ...f, event_date: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="cr-deadline">Respond by (optional)</label>
+                            <input id="cr-deadline" type="date" className="form-input"
+                                value={form.response_deadline} onChange={e => setForm(f => ({ ...f, response_deadline: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="cr-grade">Grade</label>
+                            <select id="cr-grade" className="form-input" value={form.grade}
+                                onChange={e => setForm(f => ({ ...f, grade: e.target.value }))}>
+                                {GRADE_OPTIONS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                            </select>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                            <button className="btn btn-primary btn-sm" onClick={handleCreate} disabled={saving}>
+                                {saving ? 'Sending…' : 'Send to Parents'}
+                            </button>
+                        </div>
+                        {error && <p style={{ color: '#dc2626', fontSize: '0.8rem', gridColumn: '1/-1', margin: 0 }}>{error}</p>}
+                    </div>
+                )}
+
+                {loading ? (
+                    <p style={{ color: 'var(--muted-foreground)' }}>Loading consent requests…</p>
+                ) : requests.length === 0 ? (
+                    <p style={{ color: 'var(--muted-foreground)' }}>
+                        No consent requests yet. Create one to collect parent approvals for a trip or activity.
+                    </p>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {requests.map(req => (
+                            <div key={req.id} style={{
+                                display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
+                                padding: '0.6rem 0.9rem', border: '1px solid var(--border)', borderRadius: 10,
+                            }}>
+                                <div style={{ flex: 1, minWidth: 180 }}>
+                                    <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{req.title}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                        {req.event_date} · {req.grade ? `S${req.grade}` : 'All grades'}
+                                        {req.response_deadline && ` · respond by ${req.response_deadline}`}
+                                    </div>
+                                </div>
+                                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--success)' }}>
+                                    {req.approved ?? 0} approved
+                                </span>
+                                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#dc2626' }}>
+                                    {req.declined ?? 0} declined
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     )
@@ -139,6 +273,8 @@ export function DisActivities() {
                                 </div>
                             ))}
                         </div>
+
+                        <ConsentRequestsPanel />
 
                         <div className="toolbar-card">
                             <FilterBar options={filterOptions} active={filter} onChange={setFilter} />
