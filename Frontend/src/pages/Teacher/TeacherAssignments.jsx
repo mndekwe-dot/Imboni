@@ -15,7 +15,7 @@ import {
     getTeacherMyClasses, getTeacherSubjects,
     getTeacherAssignments, createTeacherAssignment,
     updateTeacherAssignment, deleteTeacherAssignment,
-    getAssignmentSubmissions,
+    getAssignmentSubmissions, getAssignmentGradeSheet, saveAssignmentGrades,
     getQuestionBank, saveToQuestionBank, deleteFromQuestionBank,
 } from '../../api/teacher'
 
@@ -634,6 +634,111 @@ function PreviewModal({ assignment, questions, onClose }) {
     )
 }
 
+// ── Paper Grading Modal ───────────────────────────────────────────────────────
+
+function GradeModal({ assignment, onClose }) {
+    const [sheet,   setSheet]   = useState(null)
+    const [scores,  setScores]  = useState({})
+    const [loading, setLoading] = useState(true)
+    const [saving,  setSaving]  = useState(false)
+    const [message, setMessage] = useState(null)
+
+    useEffect(() => {
+        getAssignmentGradeSheet(assignment.id)
+            .then(data => {
+                setSheet(data)
+                const init = {}
+                for (const s of data.students || []) {
+                    if (s.score !== null && s.score !== undefined) init[s.student_id] = String(s.score)
+                }
+                setScores(init)
+            })
+            .catch(() => setMessage({ type: 'error', text: 'Failed to load the class roster.' }))
+            .finally(() => setLoading(false))
+    }, [assignment.id])
+
+    const maxScore = sheet?.max_score || assignment.max_score
+
+    function setScore(studentId, value) {
+        setScores(prev => ({ ...prev, [studentId]: value }))
+    }
+
+    async function handleSave() {
+        setSaving(true); setMessage(null)
+        try {
+            const records = Object.entries(scores)
+                .filter(([, v]) => v !== '')
+                .map(([student_id, score]) => ({ student_id, score }))
+            const res = await saveAssignmentGrades(assignment.id, records)
+            if (res.errors?.length) {
+                setMessage({ type: 'error', text: `${res.saved} saved, ${res.errors.length} rejected (check scores are 0–${maxScore}).` })
+            } else {
+                setMessage({ type: 'success', text: `Saved ${res.saved} score${res.saved !== 1 ? 's' : ''}.` })
+            }
+        } catch {
+            setMessage({ type: 'error', text: 'Failed to save scores.' })
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const gradedCount = Object.values(scores).filter(v => v !== '').length
+
+    return (
+        <Modal title={`Grade — ${assignment.title}`} icon="edit_note" onClose={onClose} size="wide"
+            footer={
+                <div className="modal-footer-row">
+                    <span className="modal-footer-hint"
+                        style={{ color: message?.type === 'error' ? '#dc2626' : message?.type === 'success' ? 'var(--success)' : undefined }}>
+                        {message?.text || `${gradedCount}/${sheet?.students?.length ?? 0} graded · out of ${maxScore}`}
+                    </span>
+                    <button className="btn btn-outline" onClick={onClose}>Close</button>
+                    <button className="btn btn-primary" onClick={handleSave} disabled={saving || loading}>
+                        <span className="material-symbols-rounded icon-sm">save</span>
+                        {saving ? 'Saving…' : 'Save Scores'}
+                    </button>
+                </div>
+            }>
+            {loading ? (
+                <p style={{ color: 'var(--muted-foreground)' }}>Loading roster…</p>
+            ) : !sheet?.students?.length ? (
+                <p style={{ color: 'var(--muted-foreground)' }}>No students found in {assignment.class_name}.</p>
+            ) : (
+                <div className="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th style={{ width: 140 }}>Score (/{maxScore})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sheet.students.map(s => (
+                                <tr key={s.student_id}>
+                                    <td>
+                                        <div style={{ fontWeight: 500 }}>{s.full_name}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{s.student_code}</div>
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="number" min="0" max={maxScore}
+                                            className="form-control"
+                                            style={{ width: 110, padding: '0.3rem 0.5rem' }}
+                                            aria-label={`Score for ${s.full_name}`}
+                                            value={scores[s.student_id] ?? ''}
+                                            onChange={e => setScore(s.student_id, e.target.value)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </Modal>
+    )
+}
+
 // ── Submissions Modal ─────────────────────────────────────────────────────────
 
 function SubmissionsModal({ assignment, onClose }) {
@@ -918,7 +1023,7 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
 
 // ── Assignment Card ───────────────────────────────────────────────────────────
 
-function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSubmissions, publishing }) {
+function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSubmissions, onGrade, publishing }) {
     const pill = submissionPill(a)
     const statusStyle = {
         active: { bg: 'rgba(16,185,129,0.1)',  color: 'var(--success)'          },
@@ -969,6 +1074,12 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                         <button className="btn btn-outline btn-sm" onClick={() => onViewSubmissions(a)} title="View submissions">
                             <span className="material-symbols-rounded icon-sm">fact_check</span>
                             Submissions
+                        </button>
+                    )}
+                    {a.mode === 'paper' && a.status === 'active' && (
+                        <button className="btn btn-outline btn-sm" onClick={() => onGrade(a)} title="Enter scores">
+                            <span className="material-symbols-rounded icon-sm">edit_note</span>
+                            Grade
                         </button>
                     )}
                     {a.status !== 'closed' && (
@@ -1037,6 +1148,7 @@ export function TeacherAssignments() {
     const [saveError,    setSaveError]    = useState(null)
     const [publishing,   setPublishing]   = useState(null)
     const [viewSubs,     setViewSubs]     = useState(null)   // assignment to view submissions for
+    const [grading,      setGrading]      = useState(null)   // paper assignment being graded
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
@@ -1150,6 +1262,10 @@ export function TeacherAssignments() {
                 <SubmissionsModal assignment={viewSubs} onClose={() => setViewSubs(null)} />
             )}
 
+            {grading && (
+                <GradeModal assignment={grading} onClose={() => setGrading(null)} />
+            )}
+
             <div className="dashboard-layout">
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
@@ -1210,6 +1326,7 @@ export function TeacherAssignments() {
                                                 onPublish={handlePublish}
                                                 onDuplicate={handleDuplicate}
                                                 onViewSubmissions={setViewSubs}
+                                                onGrade={setGrading}
                                                 publishing={publishing}
                                             />
                                         </div>

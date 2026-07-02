@@ -47,6 +47,8 @@ export const createTeacherAssignment  = d           => client.post('/imboni/teac
 export const updateTeacherAssignment  = (id, d)    => client.patch(`/imboni/teacher/assignments/${id}/`, d)
 export const deleteTeacherAssignment  = id          => client.delete(`/imboni/teacher/assignments/${id}/`)
 export const getAssignmentSubmissions = id          => client.get(`/imboni/teacher/assignments/${id}/submissions/`)
+export const getAssignmentGradeSheet  = id            => client.get(`/imboni/teacher/assignments/${id}/grade/`)
+export const saveAssignmentGrades     = (id, records) => client.post(`/imboni/teacher/assignments/${id}/grade/`, { records })
 
 // Question Bank
 export const getQuestionBank    = (params)  => client.get('/imboni/teacher/question-bank/', { params })
