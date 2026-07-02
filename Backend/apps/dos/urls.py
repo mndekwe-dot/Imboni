@@ -112,6 +112,7 @@ urlpatterns = [
     path('dos/activities/',           views.DosActivityListView.as_view(),   name='dos-activities'),
     path('dos/activities/<uuid:pk>/', views.DosActivityDetailView.as_view(), name='dos-activity-detail'),
 
-
+    # ── Term Rollover (Admin) ─────────────────────────────────────────────────
+    path('dos/term-rollover/',        views.TermRolloverView.as_view(),      name='dos-term-rollover'),
 ]
 

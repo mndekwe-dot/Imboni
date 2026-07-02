@@ -56,3 +56,6 @@ export const sendFeeReminders = (data = {}) => client.post('/imboni/analytics/fe
 
 // ── Audit Log ─────────────────────────────────────────────────────────────────
 export const getAuditLog = (params) => client.get('/imboni/admin/audit/', { params })
+
+// ── Term Rollover ─────────────────────────────────────────────────────────────
+export const runTermRollover = (data) => client.post('/imboni/dos/term-rollover/', data)
