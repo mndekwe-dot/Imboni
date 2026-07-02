@@ -16,7 +16,7 @@ import {
     getTeacherAssignments, createTeacherAssignment,
     updateTeacherAssignment, deleteTeacherAssignment,
     getAssignmentSubmissions, getAssignmentGradeSheet, saveAssignmentGrades,
-    getQuestionBank, saveToQuestionBank, deleteFromQuestionBank,
+    getQuestionBank, saveToQuestionBank, patchQuestionBank, deleteFromQuestionBank,
 } from '../../api/teacher'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -404,20 +404,26 @@ function QuestionBankModal({ onClose, onImport }) {
     const [loading, setLoading] = useState(true)
     const [search,  setSearch]  = useState('')
     const [typeF,   setTypeF]   = useState('')
+    const [scope,   setScope]   = useState('')   // '' | 'mine' | 'shared'
     const [selected, setSelected] = useState(new Set())
 
     useEffect(() => {
-        getQuestionBank()
+        getQuestionBank(scope ? { scope } : undefined)
             .then(data => setBank(Array.isArray(data) ? data : []))
             .catch(() => {})
             .finally(() => setLoading(false))
-    }, [])
+    }, [scope])
 
     const filtered = bank.filter(q => {
         if (typeF && q.question_type !== typeF) return false
         if (search && !q.text.toLowerCase().includes(search.toLowerCase())) return false
         return true
     })
+
+    async function toggleShare(q) {
+        const updated = await patchQuestionBank(q.id, { is_shared: !q.is_shared }).catch(() => null)
+        if (updated) setBank(prev => prev.map(b => b.id === q.id ? { ...b, is_shared: updated.is_shared } : b))
+    }
 
     function toggle(id) {
         setSelected(prev => {
@@ -465,6 +471,12 @@ function QuestionBankModal({ onClose, onImport }) {
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
                 <input className="form-control" placeholder="Search questions…" style={{ flex: 1, minWidth: 180 }}
                     value={search} onChange={e => setSearch(e.target.value)} />
+                <select className="form-control" style={{ width: 150 }} value={scope} onChange={e => setScope(e.target.value)}
+                    aria-label="Question scope">
+                    <option value="">All questions</option>
+                    <option value="mine">My questions</option>
+                    <option value="shared">Shared with me</option>
+                </select>
                 <select className="form-control" style={{ width: 160 }} value={typeF} onChange={e => setTypeF(e.target.value)}>
                     <option value="">All types</option>
                     {QUESTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -491,12 +503,26 @@ function QuestionBankModal({ onClose, onImport }) {
                                 <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '0.15rem' }}>
                                     {typeLabel[q.question_type] || q.question_type} · {q.points} pt{q.points !== 1 ? 's' : ''}
                                     {q.subject_name ? ` · ${q.subject_name}` : ''}
+                                    {q.is_mine === false && q.teacher_name ? ` · Shared by ${q.teacher_name}` : ''}
+                                    {q.is_mine !== false && q.is_shared ? ' · Shared' : ''}
                                 </div>
                             </div>
-                            <button type="button" onClick={e => { e.stopPropagation(); handleDelete(q.id) }}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', flexShrink: 0 }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
-                            </button>
+                            {q.is_mine !== false && (
+                                <button type="button"
+                                    onClick={e => { e.stopPropagation(); toggleShare(q) }}
+                                    title={q.is_shared ? 'Stop sharing with other teachers' : 'Share with other teachers'}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: q.is_shared ? 'var(--primary)' : 'var(--muted-foreground)', flexShrink: 0 }}>
+                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>
+                                        {q.is_shared ? 'group' : 'group_off'}
+                                    </span>
+                                </button>
+                            )}
+                            {q.is_mine !== false && (
+                                <button type="button" onClick={e => { e.stopPropagation(); handleDelete(q.id) }}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', flexShrink: 0 }}>
+                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>

@@ -510,3 +510,60 @@ class TestPaperAssignmentGrading:
         response = other_client.get(f'/imboni/teacher/assignments/{assignment.id}/grade/')
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+class TestQuestionBankSharing:
+    def _make_question(self, teacher, text='What is 2+2?', is_shared=False):
+        from apps.teacher.models import QuestionBank
+        return QuestionBank.objects.create(
+            teacher=teacher, question_type='mcq', text=text,
+            options=['3', '4'], correct_answer=1, is_shared=is_shared,
+        )
+
+    def test_teacher_sees_own_and_shared_questions(self, make_authenticated_client):
+        client, me = make_authenticated_client('teacher')
+        other = UserFactory(role='teacher')
+        self._make_question(me, 'My private question')
+        self._make_question(other, 'Their shared question', is_shared=True)
+        self._make_question(other, 'Their private question')
+
+        response = client.get('/imboni/teacher/question-bank/')
+
+        texts = {q['text'] for q in response.data}
+        assert texts == {'My private question', 'Their shared question'}
+
+        shared_q = next(q for q in response.data if q['text'] == 'Their shared question')
+        assert shared_q['is_mine'] is False
+        assert shared_q['teacher_name']
+
+    def test_scope_filters_mine_and_shared(self, make_authenticated_client):
+        client, me = make_authenticated_client('teacher')
+        other = UserFactory(role='teacher')
+        self._make_question(me, 'Mine')
+        self._make_question(other, 'Shared', is_shared=True)
+
+        mine = client.get('/imboni/teacher/question-bank/', {'scope': 'mine'})
+        assert [q['text'] for q in mine.data] == ['Mine']
+
+        shared = client.get('/imboni/teacher/question-bank/', {'scope': 'shared'})
+        assert [q['text'] for q in shared.data] == ['Shared']
+
+    def test_cannot_delete_another_teachers_shared_question(self, make_authenticated_client):
+        client, _me = make_authenticated_client('teacher')
+        other = UserFactory(role='teacher')
+        q = self._make_question(other, 'Shared', is_shared=True)
+
+        response = client.delete(f'/imboni/teacher/question-bank/{q.id}/')
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_owner_can_toggle_sharing(self, make_authenticated_client):
+        client, me = make_authenticated_client('teacher')
+        q = self._make_question(me, 'Mine')
+
+        response = client.patch(f'/imboni/teacher/question-bank/{q.id}/', {'is_shared': True}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        q.refresh_from_db()
+        assert q.is_shared is True

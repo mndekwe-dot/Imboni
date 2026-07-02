@@ -1982,23 +1982,48 @@ class PaperAssignmentGradeView(APIView):
 
 class QuestionBankViewSet(viewsets.ModelViewSet):
     """
-    GET    /imboni/teacher/question-bank/       — list teacher's saved questions
+    GET    /imboni/teacher/question-bank/       — own questions + questions
+             shared by other teachers (?scope=mine|shared to narrow)
     POST   /imboni/teacher/question-bank/       — save a question
-    PATCH  /imboni/teacher/question-bank/<id>/  — update
-    DELETE /imboni/teacher/question-bank/<id>/  — delete
+    PATCH  /imboni/teacher/question-bank/<id>/  — update (own only)
+    DELETE /imboni/teacher/question-bank/<id>/  — delete (own only)
     """
     permission_classes   = [IsTeacher]
     serializer_class     = QuestionBankSerializer
+    # The QuestionBankModal consumes a plain array; global PageNumberPagination
+    # would wrap it in {results: []} and the bank would always render empty.
+    pagination_class     = None
 
     def get_queryset(self):
-        qs = QuestionBank.objects.filter(teacher=self.request.user)
+        from django.db.models import Q
+        scope = self.request.query_params.get('scope', '').strip()
+        if scope == 'mine':
+            qs = QuestionBank.objects.filter(teacher=self.request.user)
+        elif scope == 'shared':
+            qs = QuestionBank.objects.filter(is_shared=True).exclude(teacher=self.request.user)
+        else:
+            qs = QuestionBank.objects.filter(
+                Q(teacher=self.request.user) | Q(is_shared=True)
+            )
         q  = self.request.query_params.get('q', '').strip()
         t  = self.request.query_params.get('type', '').strip()
         if q:
             qs = qs.filter(text__icontains=q)
         if t:
             qs = qs.filter(question_type=t)
-        return qs
+        return qs.select_related('teacher', 'subject')
 
     def perform_create(self, serializer):
         serializer.save(teacher=self.request.user)
+
+    def perform_update(self, serializer):
+        if serializer.instance.teacher_id != self.request.user.id:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('You can only edit your own questions.')
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.teacher_id != self.request.user.id:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('You can only delete your own questions.')
+        instance.delete()

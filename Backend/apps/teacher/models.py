@@ -251,6 +251,8 @@ class QuestionBank(models.Model):
     points         = models.IntegerField(default=1)
     image          = models.TextField(blank=True)   # base64 data URI
     tags           = models.CharField(max_length=200, blank=True)
+    # Shared questions are visible (read-only) to every teacher
+    is_shared      = models.BooleanField(default=False)
     created_at     = models.DateTimeField(auto_now_add=True)
 
     class Meta:
