@@ -57,3 +57,4 @@ export const deleteFromQuestionBank = id     => client.delete(`/imboni/teacher/q
 export const getStudentQuizzes  = ()        => client.get('/imboni/quiz/')
 export const getQuizForStudent  = id        => client.get(`/imboni/quiz/${id}/`)
 export const submitQuizAnswers  = (id, d)   => client.post(`/imboni/quiz/${id}/submit/`, d)
+export const getQuizReview      = id        => client.get(`/imboni/quiz/${id}/review/`)

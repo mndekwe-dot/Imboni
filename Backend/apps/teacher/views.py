@@ -1751,6 +1751,63 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
             'question_count':     len(questions),
         })
 
+    def review(self, request, pk=None):
+        """
+        GET /imboni/quiz/<pk>/review/
+
+        After submitting, a student can revisit the quiz to see their own
+        answers next to the correct answers and explanations. Only available
+        to the student who submitted; questions keep their original order.
+        """
+        try:
+            assignment = Assignment.objects.select_related('subject', 'class_obj').get(
+                pk=pk, mode='online'
+            )
+        except Assignment.DoesNotExist:
+            return Response({'detail': 'Quiz not found.'}, status=404)
+
+        try:
+            student = request.user.student_profile
+        except Exception:
+            return Response({'detail': 'Only students can review their submissions.'}, status=403)
+
+        submission = AssignmentSubmission.objects.filter(assignment=assignment, student=student).first()
+        if not submission:
+            return Response({'detail': 'You have not submitted this quiz yet.'}, status=404)
+
+        answers_by_qid = {str(a.get('question_id')): a for a in (submission.answers or [])}
+        questions = []
+        for q in (assignment.questions or []):
+            qid = str(q.get('id'))
+            ans = answers_by_qid.get(qid, {})
+            questions.append({
+                'id':            qid,
+                'type':          q.get('type'),
+                'text':          q.get('text'),
+                'options':       q.get('options', []),
+                'image':         q.get('image', ''),
+                'points':        q.get('points', 1),
+                'correct':       q.get('correct'),
+                'explanation':   q.get('explanation', ''),
+                'your_answer':   ans.get('answer'),
+                'is_correct':    ans.get('is_correct'),
+                'points_earned': ans.get('points_earned'),
+            })
+
+        return Response({
+            'id':           str(assignment.id),
+            'title':        assignment.title,
+            'subject_name': assignment.subject.name,
+            'class_name':   assignment.class_obj.name,
+            'due_date':     assignment.due_date,
+            'score':        float(submission.score),
+            'max_score':    submission.max_score,
+            'percentage':   float(submission.percentage),
+            'is_late':      submission.is_late,
+            'submitted_at': submission.submitted_at.isoformat(),
+            'questions':    questions,
+        })
+
     def submit(self, request, pk=None):
         """Accept student answers, auto-grade, save submission."""
         from django.utils import timezone as tz
