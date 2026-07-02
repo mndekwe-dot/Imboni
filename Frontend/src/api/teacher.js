@@ -53,6 +53,7 @@ export const saveAssignmentGrades     = (id, records) => client.post(`/imboni/te
 // Question Bank
 export const getQuestionBank    = (params)  => client.get('/imboni/teacher/question-bank/', { params })
 export const saveToQuestionBank = d          => client.post('/imboni/teacher/question-bank/', d)
+export const patchQuestionBank  = (id, d)    => client.patch(`/imboni/teacher/question-bank/${id}/`, d)
 export const deleteFromQuestionBank = id     => client.delete(`/imboni/teacher/question-bank/${id}/`)
 
 // Student-facing quiz (also used by student portal)
