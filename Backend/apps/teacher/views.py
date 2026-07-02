@@ -1075,7 +1075,16 @@ class MarkAttendanceView(APIView):
             ClassAssignment.objects.filter(class_obj_id=class_id, term=term).values_list('student_id', flat=True)
         )
 
+        # Snapshot existing statuses so parents are only notified when a student
+        # is NEWLY marked absent, not on every re-save of the register.
+        previous_status = dict(
+            AttendanceRecord.objects
+            .filter(student_id__in=enrolled_student_ids, date=target_date)
+            .values_list('student_id', 'status')
+        )
+
         saved = 0
+        newly_absent_ids = []
         for rec in records:
             if rec['student_id'] not in enrolled_student_ids:
                 continue
@@ -1089,6 +1098,20 @@ class MarkAttendanceView(APIView):
                 },
             )
             saved += 1
+            if rec['status'] == 'absent' and previous_status.get(rec['student_id']) != 'absent':
+                newly_absent_ids.append(rec['student_id'])
+
+        if newly_absent_ids:
+            from apps.notifications.services import notify_parents_of
+            from apps.student.models import Student
+            for student in Student.objects.filter(id__in=newly_absent_ids).select_related('user'):
+                notify_parents_of(
+                    student,
+                    title='Absence recorded',
+                    message=f"{student.full_name} was marked absent on {target_date.strftime('%d %b %Y')}.",
+                    type='attendance',
+                    path='/parent/attendance',
+                )
 
         return Response({'saved': saved}, status=status.HTTP_200_OK)
 
