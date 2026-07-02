@@ -9,6 +9,7 @@ import '../../styles/components.css'
 import '../../styles/admin.css'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { sendFeeReminders } from '../../api/admin'
 
 
 const stats = [
@@ -80,15 +81,21 @@ export function AdminFinance() {
         setTimeout(() => setExportMsg(''), 2000)
     }
 
-    function handleSendReminder() {
-        const btn = document.getElementById('reminder-btn')
-        if (!btn) return
-        btn.textContent = 'Reminders Sent!'
-        btn.disabled = true
-        setTimeout(() => {
-            btn.textContent = 'Send Fee Reminder — All Overdue'
-            btn.disabled = false
-        }, 2500)
+    const [reminderState, setReminderState] = useState({ sending: false, message: '' })
+
+    async function handleSendReminder() {
+        if (reminderState.sending) return
+        setReminderState({ sending: true, message: '' })
+        try {
+            const res = await sendFeeReminders()
+            setReminderState({
+                sending: false,
+                message: `Reminded ${res.parents_notified} parent${res.parents_notified === 1 ? '' : 's'} (${res.students} student${res.students === 1 ? '' : 's'})`,
+            })
+        } catch {
+            setReminderState({ sending: false, message: 'Failed to send reminders.' })
+        }
+        setTimeout(() => setReminderState(s => ({ ...s, message: '' })), 4000)
     }
 
     return (
@@ -189,12 +196,14 @@ export function AdminFinance() {
                                         <p className="quick-actions-label">Quick Actions</p>
                                         <div className="quick-actions-btns">
                                             <button
-                                                id="reminder-btn"
                                                 className="btn btn-outline btn-sm btn-left"
                                                 onClick={handleSendReminder}
+                                                disabled={reminderState.sending}
                                             >
                                                 <span className="material-symbols-rounded">mail</span>
-                                                Send Fee Reminder — All Overdue
+                                                {reminderState.sending
+                                                    ? 'Sending…'
+                                                    : reminderState.message || 'Send Fee Reminder — All Overdue'}
                                             </button>
                                             <button className="btn btn-outline btn-sm btn-left" onClick={handleExport}>
                                                 <span className="material-symbols-rounded">summarize</span>
