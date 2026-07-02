@@ -7,6 +7,8 @@ import { getNotifications } from '../../api/notifications'
 vi.mock('../../api/discipline', () => ({
     getDisActivities: vi.fn(),
     createDisActivity: vi.fn(),
+    getConsentRequests: vi.fn().mockResolvedValue([]),
+    createConsentRequest: vi.fn(),
 }))
 vi.mock('../../api/notifications', () => ({
     getNotifications: vi.fn(),

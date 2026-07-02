@@ -28,4 +28,8 @@ urlpatterns = router.urls + students_router.urls + [
     path('account/family/link/', views.LinkStudentView.as_view(), name='account-family-link'),
     # Parent Dashboard stats (?student_id=)
     path('parents/dashboard/stats/', views.ParentDashboardStatsView.as_view(), name='parent-dashboard-stats'),
+    # Consent requests — staff create/list, parents list/respond
+    path('consent-requests/', views.StaffConsentRequestListView.as_view(), name='consent-requests'),
+    path('parents/consent-requests/', views.ParentConsentRequestListView.as_view(), name='parent-consent-requests'),
+    path('parents/consent-requests/<uuid:pk>/respond/', views.ParentConsentRespondView.as_view(), name='parent-consent-respond'),
 ]

@@ -7,6 +7,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
 import {
     getMyChildren, getChildCard, getChildFees, getChildDocuments,
+    getConsentRequests, respondToConsent,
 } from '../../api/parent'
 
 function toList(data) {
@@ -116,6 +117,107 @@ function LoadingCard() {
     )
 }
 
+function ConsentCard() {
+    const [requests, setRequests] = useState([])
+    const [loading, setLoading]   = useState(true)
+    const [busy, setBusy]         = useState(null)   // "requestId|studentId"
+
+    function load() {
+        getConsentRequests()
+            .then(data => setRequests(Array.isArray(data) ? data : []))
+            .catch(() => setRequests([]))
+            .finally(() => setLoading(false))
+    }
+
+    useEffect(() => { load() }, [])
+
+    async function respond(requestId, studentId, status) {
+        const key = `${requestId}|${studentId}`
+        setBusy(key)
+        try {
+            await respondToConsent(requestId, { student_id: studentId, status })
+            load()
+        } finally {
+            setBusy(null)
+        }
+    }
+
+    const pendingCount = requests.reduce(
+        (n, r) => n + (r.children || []).filter(c => !c.status).length, 0)
+
+    if (!loading && requests.length === 0) return null
+
+    return (
+        <div className="card mb-1-5">
+            <div className="card-header">
+                <h2 className="card-title">
+                    <span className="material-symbols-rounded" style={{ verticalAlign: 'middle', marginRight: '0.4rem' }}>approval</span>
+                    Consent Requests
+                </h2>
+                {pendingCount > 0 && <span className="badge">{pendingCount} pending</span>}
+            </div>
+            <div className="card-content">
+                {loading ? (
+                    <p style={{ color: 'var(--muted-foreground)' }}>Loading consent requests…</p>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {requests.map(req => (
+                            <div key={req.id} style={{ border: '1px solid var(--border)', borderRadius: 10, padding: '0.75rem 1rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+                                    <div>
+                                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{req.title}</div>
+                                        <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '0.15rem' }}>
+                                            {req.event_date}
+                                            {req.response_deadline && ` · respond by ${req.response_deadline}`}
+                                            {req.created_by && ` · from ${req.created_by}`}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p style={{ fontSize: '0.83rem', margin: '0.5rem 0 0.75rem' }}>{req.description}</p>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                    {(req.children || []).map(child => {
+                                        const key = `${req.id}|${child.student_id}`
+                                        return (
+                                            <div key={child.student_id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 500, minWidth: 140 }}>{child.student_name}</span>
+                                                {child.status ? (
+                                                    <span style={{
+                                                        fontSize: '0.78rem', fontWeight: 600,
+                                                        color: child.status === 'approved' ? 'var(--success)' : '#dc2626',
+                                                        display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                                                    }}>
+                                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>
+                                                            {child.status === 'approved' ? 'check_circle' : 'cancel'}
+                                                        </span>
+                                                        {child.status === 'approved' ? 'Approved' : 'Declined'}
+                                                    </span>
+                                                ) : (
+                                                    <span style={{ display: 'flex', gap: '0.4rem' }}>
+                                                        <button className="btn btn-primary btn-sm"
+                                                            disabled={busy === key}
+                                                            onClick={() => respond(req.id, child.student_id, 'approved')}>
+                                                            Approve
+                                                        </button>
+                                                        <button className="btn btn-outline btn-sm"
+                                                            disabled={busy === key}
+                                                            onClick={() => respond(req.id, child.student_id, 'declined')}>
+                                                            Decline
+                                                        </button>
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
 export function ParentChildren() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -159,6 +261,7 @@ export function ParentChildren() {
                         onNotificationRead={markRead}
                     />
                     <DashboardContent>
+                        <ConsentCard />
                         {loading ? (
                             <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading children…</p>
                         ) : children.length === 0 ? (
