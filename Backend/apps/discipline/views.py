@@ -857,6 +857,60 @@ def _section_dict(s):
     }
 
 
+class DisFacilityOccupancyView(APIView):
+    """
+    GET /imboni/discipline/facilities/occupancy/
+
+    Occupancy board for dormitories: each active dormitory facility with its
+    capacity and the number of active boarders assigned to it (matched by
+    dormitory name, case-insensitive). Boarders whose dormitory doesn't match
+    any facility are reported under 'unassigned'.
+    """
+    permission_classes = [IsDiscipline]
+
+    def get(self, request):
+        from collections import Counter
+        from .models import DisFacility
+
+        boarder_counts = Counter(
+            (b.dormitory or '').strip().lower()
+            for b in BoardingStudent.objects.filter(is_active=True)
+            if (b.dormitory or '').strip()
+        )
+
+        dorms = []
+        matched_names = set()
+        facilities = DisFacility.objects.select_related('section').filter(
+            is_active=True, facility_type='dormitory'
+        )
+        for f in facilities:
+            key = f.name.strip().lower()
+            occupied = boarder_counts.get(key, 0)
+            matched_names.add(key)
+            capacity = f.capacity or 0
+            dorms.append({
+                'id':           str(f.id),
+                'name':         f.name,
+                'gender':       f.gender,
+                'section_name': f.section.name if f.section else None,
+                'capacity':     capacity,
+                'occupied':     occupied,
+                'available':    max(0, capacity - occupied) if capacity else None,
+                'occupancy_pct': round(occupied / capacity * 100, 1) if capacity else None,
+            })
+
+        unassigned = sum(
+            count for name, count in boarder_counts.items() if name not in matched_names
+        )
+
+        return Response({
+            'dormitories':     sorted(dorms, key=lambda d: d['name'].lower()),
+            'total_boarders':  sum(boarder_counts.values()),
+            'total_capacity':  sum(d['capacity'] for d in dorms),
+            'unassigned':      unassigned,
+        })
+
+
 class DisFacilityListView(APIView):
     """
     GET  /imboni/discipline/facilities/?type=dormitory
