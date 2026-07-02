@@ -305,3 +305,88 @@ class TestMatronIncidentParentNotification:
 
         assert response.status_code == status.HTTP_201_CREATED
         assert Notification.objects.filter(user=parent).count() == 0
+
+
+@pytest.mark.django_db
+class TestMedicationSchedule:
+    def _create_schedule(self, client, student, times=None):
+        return client.post('/imboni/matron/medications/', {
+            'student_id': str(student.id),
+            'medicine_name': 'Amoxicillin',
+            'dosage': '500mg',
+            'times': times or ['08:00', '20:00'],
+            'start_date': '2020-01-01',
+        }, format='json')
+
+    def test_create_and_list_schedules(self, make_authenticated_client):
+        client, _matron = make_authenticated_client('matron')
+        student = StudentFactory()
+
+        response = self._create_schedule(client, student)
+        assert response.status_code == status.HTTP_201_CREATED
+
+        listing = client.get('/imboni/matron/medications/')
+        assert len(listing.data) == 1
+        assert listing.data[0]['medicine_name'] == 'Amoxicillin'
+        assert listing.data[0]['times'] == ['08:00', '20:00']
+
+    def test_times_are_required(self, make_authenticated_client):
+        client, _matron = make_authenticated_client('matron')
+        student = StudentFactory()
+
+        response = client.post('/imboni/matron/medications/', {
+            'student_id': str(student.id),
+            'medicine_name': 'X', 'dosage': '1', 'times': [],
+            'start_date': '2020-01-01',
+        }, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_today_checklist_and_administering(self, make_authenticated_client):
+        client, _matron = make_authenticated_client('matron')
+        student = StudentFactory()
+        created = self._create_schedule(client, student)
+        schedule_id = created.data['id']
+
+        today = client.get('/imboni/matron/medications/today/')
+        assert today.status_code == status.HTTP_200_OK
+        assert today.data['total'] == 2
+        assert today.data['given'] == 0
+
+        given = client.post(f'/imboni/matron/medications/{schedule_id}/administer/', {
+            'time': '08:00',
+        }, format='json')
+        assert given.status_code == status.HTTP_201_CREATED
+
+        # Same dose again is idempotent
+        again = client.post(f'/imboni/matron/medications/{schedule_id}/administer/', {
+            'time': '08:00',
+        }, format='json')
+        assert again.status_code == status.HTTP_200_OK
+        assert again.data['already_recorded'] is True
+
+        today = client.get('/imboni/matron/medications/today/')
+        assert today.data['given'] == 1
+        item = next(i for i in today.data['items'] if i['time'] == '08:00')
+        assert item['given'] is True
+
+    def test_administering_an_unscheduled_time_is_rejected(self, make_authenticated_client):
+        client, _matron = make_authenticated_client('matron')
+        student = StudentFactory()
+        created = self._create_schedule(client, student)
+
+        response = client.post(f"/imboni/matron/medications/{created.data['id']}/administer/", {
+            'time': '11:11',
+        }, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_delete_deactivates_and_removes_from_checklist(self, make_authenticated_client):
+        client, _matron = make_authenticated_client('matron')
+        student = StudentFactory()
+        created = self._create_schedule(client, student)
+
+        client.delete(f"/imboni/matron/medications/{created.data['id']}/")
+
+        assert client.get('/imboni/matron/medications/').data == []
+        assert client.get('/imboni/matron/medications/today/').data['total'] == 0

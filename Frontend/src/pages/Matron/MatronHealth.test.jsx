@@ -1,13 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, setSessionUser, screen, fireEvent, waitFor, within } from '../../test/test-utils'
 import { MatronHealth } from './MatronHealth'
-import { getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents } from '../../api/matron'
+import {
+    getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents,
+    getMedicationsToday, administerMedication, createMedication,
+} from '../../api/matron'
 
 vi.mock('../../api/matron', () => ({
     getMatronHealth: vi.fn(),
     createHealthRecord: vi.fn(),
     updateHealthRecord: vi.fn(),
     getMatronStudents: vi.fn(),
+    getMedicationsToday: vi.fn(),
+    administerMedication: vi.fn(),
+    createMedication: vi.fn(),
 }))
 
 const HEALTH_DATA = {
@@ -45,6 +51,7 @@ beforeEach(() => {
     vi.clearAllMocks()
     setSessionUser({ first_name: 'Gloriose', last_name: 'Hakizimana', role: 'matron' })
     getMatronStudents.mockResolvedValue(STUDENTS)
+    getMedicationsToday.mockResolvedValue({ date: '2026-07-02', total: 0, given: 0, overdue: 0, items: [] })
 })
 
 describe('MatronHealth', () => {
@@ -150,5 +157,58 @@ describe('MatronHealth', () => {
         fireEvent.change(filterSelect, { target: { value: '1' } })
 
         await waitFor(() => expect(getMatronHealth).toHaveBeenCalledWith({ student_id: '1' }))
+    })
+
+    it('shows the medication checklist and marks a dose as given', async () => {
+        getMatronHealth.mockResolvedValue(HEALTH_DATA)
+        getMedicationsToday.mockResolvedValue({
+            date: '2026-07-02', total: 2, given: 1, overdue: 1,
+            items: [
+                { schedule_id: 'm1', student_name: 'Iris Niyomugabo', student_code: 'STU001', grade: '2', section: 'A',
+                  medicine_name: 'Amoxicillin', dosage: '500mg', time: '08:00', given: true, given_at: '2026-07-02T08:05:00Z', overdue: false },
+                { schedule_id: 'm1', student_name: 'Iris Niyomugabo', student_code: 'STU001', grade: '2', section: 'A',
+                  medicine_name: 'Amoxicillin', dosage: '500mg', time: '13:00', given: false, given_at: null, overdue: true },
+            ],
+        })
+        administerMedication.mockResolvedValue({ given: true })
+        renderWithRouter(<MatronHealth />)
+
+        const medHeader = await waitFor(() => {
+            const header = screen.getByText(/Today.s Medication/).closest('.card-header')
+            expect(header.textContent).toContain('1/2 given')
+            return header
+        })
+        expect(medHeader.textContent).toContain('1 overdue')
+        expect(screen.getByText('Given')).toBeInTheDocument()
+        expect(screen.getByText('Overdue')).toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole('button', { name: /Mark Given/ }))
+
+        await waitFor(() => expect(administerMedication).toHaveBeenCalledWith('m1', { time: '13:00' }))
+    })
+
+    it('creates a medication schedule from the add form', async () => {
+        getMatronHealth.mockResolvedValue(HEALTH_DATA)
+        getMatronStudents.mockResolvedValue([{ id: 's1', name: 'Iris Niyomugabo' }])
+        createMedication.mockResolvedValue({ id: 'm9' })
+        renderWithRouter(<MatronHealth />)
+        await waitFor(() => expect(screen.getByText(/Today.s Medication/)).toBeInTheDocument())
+
+        fireEvent.click(screen.getByRole('button', { name: /Add Schedule/ }))
+        fireEvent.change(screen.getByLabelText('Student'), { target: { value: 's1' } })
+        fireEvent.change(screen.getByLabelText('Medicine'), { target: { value: 'Ibuprofen' } })
+        fireEvent.change(screen.getByLabelText('Dosage'), { target: { value: '200mg' } })
+        fireEvent.change(screen.getByLabelText(/Times/), { target: { value: '08:00, 20:00' } })
+        fireEvent.change(screen.getByLabelText('Start'), { target: { value: '2026-07-02' } })
+        fireEvent.click(screen.getByRole('button', { name: /Save Schedule/ }))
+
+        await waitFor(() => expect(createMedication).toHaveBeenCalledWith({
+            student_id: 's1',
+            medicine_name: 'Ibuprofen',
+            dosage: '200mg',
+            times: ['08:00', '20:00'],
+            start_date: '2026-07-02',
+            end_date: null,
+        }))
     })
 })

@@ -70,6 +70,56 @@ class HealthRecord(models.Model):
         return f"{self.student.full_name} — {self.visit_type} ({self.status})"
 
 
+class MedicationSchedule(models.Model):
+    """
+    A standing prescription: which student gets which medicine at which
+    times of day, between start and end dates. The daily checklist is
+    generated from active schedules.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='medication_schedules')
+
+    medicine_name = models.CharField(max_length=150)
+    dosage = models.CharField(max_length=100)                 # e.g. "500mg", "2 tablets"
+    times = models.JSONField(default=list)                    # ["08:00", "13:00", "20:00"]
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)        # null = until stopped
+    notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                   related_name='medication_schedules_created')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'matron_medication_schedules'
+        ordering = ['student__user__last_name', 'medicine_name']
+
+    def __str__(self):
+        return f"{self.student.full_name} — {self.medicine_name} ({self.dosage})"
+
+
+class MedicationLog(models.Model):
+    """One dose actually administered (ticks an item on the daily checklist)."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    schedule = models.ForeignKey(MedicationSchedule, on_delete=models.CASCADE, related_name='logs')
+    date = models.DateField()
+    time = models.CharField(max_length=5)                     # the scheduled slot, e.g. "08:00"
+    given_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                 related_name='medication_doses_given')
+    given_at = models.DateTimeField(auto_now_add=True)
+    notes = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        db_table = 'matron_medication_logs'
+        unique_together = ['schedule', 'date', 'time']
+        ordering = ['-date', 'time']
+
+    def __str__(self):
+        return f"{self.schedule.medicine_name} — {self.date} {self.time}"
+
+
 class ParentCommunication(models.Model):
     TYPE_CHOICES = [
         ('call',  'Phone Call'),
