@@ -4,7 +4,8 @@ import { TeacherAssignments } from './TeacherAssignments'
 import {
   getTeacherMyClasses, getTeacherSubjects, getTeacherAssignments,
   createTeacherAssignment, updateTeacherAssignment, deleteTeacherAssignment,
-  getAssignmentSubmissions, getQuestionBank, saveToQuestionBank, deleteFromQuestionBank,
+  getAssignmentSubmissions, getAssignmentGradeSheet, saveAssignmentGrades,
+  getQuestionBank, saveToQuestionBank, deleteFromQuestionBank,
 } from '../../api/teacher'
 
 vi.mock('../../api/teacher', () => ({
@@ -15,6 +16,8 @@ vi.mock('../../api/teacher', () => ({
   updateTeacherAssignment: vi.fn(),
   deleteTeacherAssignment: vi.fn(),
   getAssignmentSubmissions: vi.fn(),
+  getAssignmentGradeSheet: vi.fn(),
+  saveAssignmentGrades: vi.fn(),
   getQuestionBank: vi.fn(),
   saveToQuestionBank: vi.fn(),
   deleteFromQuestionBank: vi.fn(),
@@ -79,6 +82,35 @@ describe('TeacherAssignments', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /New Assignment/ })[0])
 
     expect(screen.getByRole('heading', { name: /New Assignment/ })).toBeInTheDocument()
+  })
+
+  it('opens the grading queue for an active paper assignment and saves scores', async () => {
+    getTeacherAssignments.mockResolvedValue(ASSIGNMENTS)
+    getAssignmentGradeSheet.mockResolvedValue({
+      assignment_id: '1', title: 'Chapter 6 Quiz', max_score: 30, class_name: 'S1A',
+      students: [
+        { student_id: 's1', full_name: 'Alice M', student_code: 'STU001', score: null },
+        { student_id: 's2', full_name: 'Bob K', student_code: 'STU002', score: 20 },
+      ],
+    })
+    saveAssignmentGrades.mockResolvedValue({ saved: 2, errors: [] })
+    renderWithRouter(<TeacherAssignments />)
+    await waitFor(() => expect(screen.getByText('Chapter 6 Quiz')).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: /Grade/ }))
+    await waitFor(() => expect(screen.getByText('Alice M')).toBeInTheDocument())
+
+    // Bob's existing score is pre-filled
+    expect(screen.getByLabelText('Score for Bob K')).toHaveValue(20)
+
+    fireEvent.change(screen.getByLabelText('Score for Alice M'), { target: { value: '25' } })
+    fireEvent.click(screen.getByRole('button', { name: /Save Scores/ }))
+
+    await waitFor(() => expect(saveAssignmentGrades).toHaveBeenCalledWith(1, [
+      { student_id: 's2', score: '20' },
+      { student_id: 's1', score: '25' },
+    ]))
+    await waitFor(() => expect(screen.getByText('Saved 2 scores.')).toBeInTheDocument())
   })
 
   it('filters to only draft assignments when the Draft tab is clicked', async () => {

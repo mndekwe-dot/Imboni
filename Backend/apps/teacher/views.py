@@ -1871,6 +1871,111 @@ class AssignmentSubmissionsView(APIView):
         return Response(AssignmentSubmissionSerializer(subs, many=True).data)
 
 
+class PaperAssignmentGradeView(APIView):
+    """
+    Grading queue for paper-mode assignments.
+
+    GET  /imboni/teacher/assignments/<pk>/grade/
+         Class roster with any scores already entered.
+    POST /imboni/teacher/assignments/<pk>/grade/
+         Body: { records: [ { student_id, score }, ... ] }
+         Upserts a graded submission per student.
+    """
+    permission_classes = [IsTeacher]
+
+    def _get_assignment(self, request, pk):
+        try:
+            assignment = Assignment.objects.select_related('class_obj').get(
+                pk=pk, teacher=request.user, mode='paper'
+            )
+        except Assignment.DoesNotExist:
+            return None
+        return assignment
+
+    def get(self, request, pk):
+        from apps.teacher.models import ClassAssignment
+
+        assignment = self._get_assignment(request, pk)
+        if not assignment:
+            return Response({'detail': 'Paper assignment not found.'}, status=404)
+
+        term = _current_term()
+        roster = (
+            ClassAssignment.objects
+            .filter(class_obj=assignment.class_obj, term=term)
+            .select_related('student__user')
+            .order_by('student__user__last_name')
+        )
+        existing = {
+            sub.student_id: sub for sub in
+            AssignmentSubmission.objects.filter(assignment=assignment)
+        }
+
+        return Response({
+            'assignment_id': str(assignment.id),
+            'title':         assignment.title,
+            'max_score':     assignment.max_score,
+            'class_name':    assignment.class_obj.name,
+            'students': [
+                {
+                    'student_id':   str(ca.student.id),
+                    'full_name':    ca.student.full_name,
+                    'student_code': ca.student.student_id,
+                    'score':        float(existing[ca.student.id].score) if ca.student.id in existing else None,
+                }
+                for ca in roster
+            ],
+        })
+
+    def post(self, request, pk):
+        assignment = self._get_assignment(request, pk)
+        if not assignment:
+            return Response({'detail': 'Paper assignment not found.'}, status=404)
+
+        records = request.data.get('records', [])
+        if not isinstance(records, list) or not records:
+            return Response({'detail': 'records list is required.'}, status=400)
+
+        from apps.student.models import Student
+        max_score = assignment.max_score or 0
+        saved = 0
+        errors = []
+        for rec in records:
+            sid = rec.get('student_id')
+            raw = rec.get('score')
+            if raw in (None, ''):
+                continue
+            try:
+                score = float(raw)
+            except (TypeError, ValueError):
+                errors.append({'student_id': sid, 'error': 'Score must be a number.'})
+                continue
+            if score < 0 or (max_score and score > max_score):
+                errors.append({'student_id': sid, 'error': f'Score must be between 0 and {max_score}.'})
+                continue
+            student = Student.objects.filter(pk=sid).select_related('user').first()
+            if not student:
+                errors.append({'student_id': sid, 'error': 'Student not found.'})
+                continue
+
+            pct = round(score / max_score * 100, 1) if max_score else 0
+            AssignmentSubmission.objects.update_or_create(
+                assignment=assignment,
+                student=student,
+                defaults={
+                    'student_name': student.full_name,
+                    'student_code': student.student_id,
+                    'score':        score,
+                    'max_score':    max_score,
+                    'percentage':   pct,
+                    'is_graded':    True,
+                },
+            )
+            saved += 1
+
+        return Response({'saved': saved, 'errors': errors})
+
+
 # ---------------------------------------------------------------------------
 # Question Bank CRUD (teacher only)
 # ---------------------------------------------------------------------------

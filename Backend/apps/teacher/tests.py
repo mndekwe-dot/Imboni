@@ -443,3 +443,70 @@ class TestQuizReview:
         response = client.get(f'/imboni/quiz/{quiz.id}/review/')
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestPaperAssignmentGrading:
+    def _setup(self, make_authenticated_client):
+        client, teacher = make_authenticated_client('teacher')
+        term = _make_term()
+        subject = _make_subject()
+        class_obj = _make_class()
+        student = StudentFactory(grade='4', section='A')
+        ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
+        assignment = Assignment.objects.create(
+            teacher=teacher, class_obj=class_obj, subject=subject,
+            title='Problem Set 4', mode='paper', status='active',
+            due_date=datetime.date(2030, 1, 1), max_score=30,
+        )
+        return client, assignment, student
+
+    def test_get_returns_class_roster_with_empty_scores(self, make_authenticated_client):
+        client, assignment, student = self._setup(make_authenticated_client)
+
+        response = client.get(f'/imboni/teacher/assignments/{assignment.id}/grade/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['max_score'] == 30
+        assert len(response.data['students']) == 1
+        assert response.data['students'][0]['student_code'] == student.student_id
+        assert response.data['students'][0]['score'] is None
+
+    def test_post_saves_scores_and_get_returns_them(self, make_authenticated_client):
+        from apps.teacher.models import AssignmentSubmission
+        client, assignment, student = self._setup(make_authenticated_client)
+
+        response = client.post(f'/imboni/teacher/assignments/{assignment.id}/grade/', {
+            'records': [{'student_id': str(student.id), 'score': 24}],
+        }, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['saved'] == 1
+        sub = AssignmentSubmission.objects.get(assignment=assignment, student=student)
+        assert float(sub.score) == 24.0
+        assert float(sub.percentage) == 80.0
+        assert sub.is_graded is True
+
+        roster = client.get(f'/imboni/teacher/assignments/{assignment.id}/grade/')
+        assert roster.data['students'][0]['score'] == 24.0
+
+    def test_scores_above_max_are_rejected_per_record(self, make_authenticated_client):
+        client, assignment, student = self._setup(make_authenticated_client)
+
+        response = client.post(f'/imboni/teacher/assignments/{assignment.id}/grade/', {
+            'records': [{'student_id': str(student.id), 'score': 45}],
+        }, format='json')
+
+        assert response.data['saved'] == 0
+        assert len(response.data['errors']) == 1
+
+    def test_other_teachers_cannot_grade_the_assignment(self, make_authenticated_client):
+        _client, assignment, student = self._setup(make_authenticated_client)
+        from rest_framework.test import APIClient
+        other = UserFactory(role='teacher')
+        other_client = APIClient()
+        other_client.force_authenticate(other)
+
+        response = other_client.get(f'/imboni/teacher/assignments/{assignment.id}/grade/')
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
