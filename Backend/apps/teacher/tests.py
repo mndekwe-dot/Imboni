@@ -144,6 +144,43 @@ class TestMarkAttendanceView:
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
+    def test_marking_a_student_absent_notifies_their_parents(self, make_authenticated_client):
+        from apps.parents.models import ParentStudentRelationship
+        from apps.notifications.models import Notification
+
+        client, teacher = make_authenticated_client('teacher')
+        term = _make_term()
+        subject = _make_subject()
+        class_obj = _make_class()
+        _assign_teacher(teacher, subject, class_obj, term)
+        student = StudentFactory(grade='4', section='A')
+        ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
+        parent = UserFactory(role='parent')
+        ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='mother')
+
+        response = client.post('/imboni/teacher/attendance/mark/', {
+            'class_id': str(class_obj.id),
+            'date': '2025-02-03',
+            'records': [
+                {'student_id': str(student.id), 'status': 'absent', 'notes': ''},
+            ],
+        }, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        notes = Notification.objects.filter(user=parent, type='attendance')
+        assert notes.count() == 1
+        assert student.full_name in notes.first().message
+
+        # Re-saving the same register must NOT create a duplicate notification
+        client.post('/imboni/teacher/attendance/mark/', {
+            'class_id': str(class_obj.id),
+            'date': '2025-02-03',
+            'records': [
+                {'student_id': str(student.id), 'status': 'absent', 'notes': ''},
+            ],
+        }, format='json')
+        assert Notification.objects.filter(user=parent, type='attendance').count() == 1
+
     def test_cannot_mark_attendance_for_a_student_not_enrolled_in_the_class(self, make_authenticated_client):
         # class_id was always required by the serializer but previously never
         # used — any student_id could be marked regardless of class. Now the
