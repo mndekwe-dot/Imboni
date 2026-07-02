@@ -10,6 +10,7 @@ vi.mock('../../api/teacher', () => ({
   getTeacherStudents: vi.fn(),
   getTeacherResultList: vi.fn(),
   bulkSaveResults: vi.fn(),
+  getTeacherPerformanceTrends: vi.fn().mockResolvedValue([]),
 }))
 
 vi.mock('../../api/notifications', () => ({
