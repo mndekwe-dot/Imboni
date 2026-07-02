@@ -2696,3 +2696,145 @@ class DosActivityDetailView(APIView):
             return Response({'error': 'Not found.'}, status=404)
         activity.delete()
         return Response(status=http_status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------------------
+# Term Rollover (Admin)
+# ---------------------------------------------------------------------------
+
+class TermRolloverView(APIView):
+    """
+    POST /imboni/dos/term-rollover/
+
+    Ends the current term and starts the next one. When the new term starts a
+    new academic year (term1 after term3, or a later year), students are
+    promoted one grade (S6 graduates); otherwise class rosters are simply
+    carried over to the new term.
+
+    Body: {
+        dry_run: bool,                 — preview counts without changing anything
+        term: 'term1'|'term2'|'term3',
+        year: 2027,
+        name: 'Term 1 2027',
+        start_date: 'YYYY-MM-DD',
+        end_date:   'YYYY-MM-DD',
+    }
+    """
+    def get_permissions(self):
+        from apps.authentication.permissions import IsAdminRole
+        return [IsAdminRole()]
+
+    def post(self, request):
+        from django.db import transaction
+        from apps.results.models import AcademicTerm
+        from apps.student.models import Student
+        from apps.teacher.models import Class, ClassAssignment
+
+        current = AcademicTerm.objects.filter(is_current=True).first()
+        if not current:
+            return Response({'error': 'No current term configured.'}, status=400)
+
+        term_key = request.data.get('term')
+        year     = request.data.get('year')
+        name     = request.data.get('name', '').strip()
+        start    = request.data.get('start_date')
+        end      = request.data.get('end_date')
+        dry_run  = bool(request.data.get('dry_run'))
+
+        if term_key not in ('term1', 'term2', 'term3'):
+            return Response({'error': "term must be 'term1', 'term2' or 'term3'."}, status=400)
+        try:
+            year = int(year)
+        except (TypeError, ValueError):
+            return Response({'error': 'year is required.'}, status=400)
+        if not (name and start and end):
+            return Response({'error': 'name, start_date and end_date are required.'}, status=400)
+        if AcademicTerm.objects.filter(term=term_key, year=year).exists():
+            return Response({'error': f'{name} already exists.'}, status=400)
+
+        order = {'term1': 1, 'term2': 2, 'term3': 3}
+        is_new_year = (year > current.year) or (
+            year == current.year and order[term_key] < order[current.term]
+        )
+        # Moving backwards makes no sense
+        if year < current.year or (year == current.year and order[term_key] <= order[current.term]):
+            if not is_new_year:
+                return Response({'error': 'The new term must come after the current one.'}, status=400)
+
+        active_students = Student.objects.filter(status='active')
+        summary = {
+            'mode':               'promotion' if is_new_year else 'carry_over',
+            'current_term':       current.name,
+            'new_term':           name,
+            'students_promoted':  0,
+            'students_graduated': 0,
+            'rosters_created':    0,
+            'missing_classes':    [],
+        }
+
+        classes_by_key = {
+            (c.grade, c.section): c for c in Class.objects.filter(is_active=True)
+        }
+        current_assignments = (
+            ClassAssignment.objects
+            .filter(term=current)
+            .select_related('student', 'class_obj')
+        )
+
+        with transaction.atomic():
+            new_term = None
+            if not dry_run:
+                new_term = AcademicTerm.objects.create(
+                    name=name, term=term_key, year=year,
+                    start_date=start, end_date=end, is_current=True,
+                )
+                AcademicTerm.objects.exclude(pk=new_term.pk).update(is_current=False)
+
+            if is_new_year:
+                for student in active_students:
+                    if student.grade == '6':
+                        summary['students_graduated'] += 1
+                        if not dry_run:
+                            student.status = 'graduated'
+                            student.save(update_fields=['status'])
+                        continue
+
+                    new_grade = str(int(student.grade) + 1)
+                    summary['students_promoted'] += 1
+                    if not dry_run:
+                        student.grade = new_grade
+                        student.save(update_fields=['grade'])
+
+                    target = classes_by_key.get((new_grade, student.section))
+                    if target:
+                        summary['rosters_created'] += 1
+                        if not dry_run:
+                            ClassAssignment.objects.get_or_create(
+                                class_obj=target, student=student, term=new_term,
+                            )
+                    else:
+                        key = f'S{new_grade}{student.section}'
+                        if key not in summary['missing_classes']:
+                            summary['missing_classes'].append(key)
+            else:
+                for ca in current_assignments:
+                    if ca.student.status != 'active':
+                        continue
+                    summary['rosters_created'] += 1
+                    if not dry_run:
+                        ClassAssignment.objects.get_or_create(
+                            class_obj=ca.class_obj, student=ca.student, term=new_term,
+                        )
+
+            if dry_run:
+                # Nothing was written inside a dry run, but keep the guarantee explicit
+                transaction.set_rollback(True)
+
+        if not dry_run:
+            from apps.audit.services import audit
+            audit(request.user, 'term.rollover',
+                  target=f'{current.name} → {name}',
+                  detail={k: v for k, v in summary.items() if k != 'missing_classes'})
+
+        summary['dry_run'] = dry_run
+        return Response(summary)

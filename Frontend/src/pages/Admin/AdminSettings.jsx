@@ -10,7 +10,9 @@ import {
     getSubjects, createSubject, updateSubject, deleteSubject,
     renameSubjectCategory, deleteSubjectCategory,
     getDosRooms, createDosRoom, deleteDosRoom,
+    getCurrentTerm,
 } from '../../api/dos'
+import { runTermRollover } from '../../api/admin'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -25,13 +27,14 @@ const settingsNav = [
     { icon: 'layers',         label: 'School Structure' },
     { icon: 'book',           label: 'Subjects'         },
     { icon: 'meeting_room',   label: 'Rooms'            },
+    { icon: 'restart_alt',    label: 'Term Rollover'    },
     { icon: 'calendar_month', label: 'Academic Calendar'},
     { icon: 'notifications',  label: 'Notifications'    },
     { icon: 'security',       label: 'Access & Roles'   },
     { icon: 'backup',         label: 'Data & Backup'    },
 ]
 
-const LIVE_SECTIONS = ['School Info', 'School Structure', 'Subjects', 'Rooms']
+const LIVE_SECTIONS = ['School Info', 'School Structure', 'Subjects', 'Rooms', 'Term Rollover']
 
 // ── Shared small components ───────────────────────────────────────────────────
 
@@ -700,6 +703,161 @@ function RoomsSection() {
     )
 }
 
+// ── Term Rollover ─────────────────────────────────────────────────────────────
+
+const TERM_OPTIONS = [
+    { value: 'term1', label: 'Term 1' },
+    { value: 'term2', label: 'Term 2' },
+    { value: 'term3', label: 'Term 3' },
+]
+
+function TermRolloverSection() {
+    const [currentTerm, setCurrentTerm] = useState(null)
+    const [step, setStep]       = useState(1)          // 1 form → 2 preview → 3 done
+    const [form, setForm] = useState({ term: 'term1', year: '', name: '', start_date: '', end_date: '' })
+    const [preview, setPreview] = useState(null)
+    const [result, setResult]   = useState(null)
+    const [busy, setBusy]       = useState(false)
+    const [error, setError]     = useState(null)
+
+    useEffect(() => {
+        getCurrentTerm().then(setCurrentTerm).catch(() => setCurrentTerm(null))
+    }, [])
+
+    function set(field, value) { setForm(f => ({ ...f, [field]: value })) }
+
+    const isValid = form.term && form.year && form.name.trim() && form.start_date && form.end_date
+
+    async function handlePreview() {
+        setBusy(true); setError(null)
+        try {
+            const data = await runTermRollover({ ...form, name: form.name.trim(), dry_run: true })
+            setPreview(data)
+            setStep(2)
+        } catch (err) {
+            setError(err?.response?.data?.error || 'Preview failed.')
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    async function handleExecute() {
+        setBusy(true); setError(null)
+        try {
+            const data = await runTermRollover({ ...form, name: form.name.trim(), dry_run: false })
+            setResult(data)
+            setStep(3)
+        } catch (err) {
+            setError(err?.response?.data?.error || 'Rollover failed.')
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    const summaryRows = (data) => [
+        { label: 'Mode', value: data.mode === 'promotion' ? 'New academic year — promote students' : 'Same year — carry rosters over' },
+        { label: 'Students promoted', value: data.students_promoted },
+        { label: 'Students graduating (S6)', value: data.students_graduated },
+        { label: 'Class rosters created', value: data.rosters_created },
+    ]
+
+    return (
+        <div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+                Current term: <strong>{currentTerm?.name || '—'}</strong>.
+                Rolling over ends the current term, creates the next one and — when a new
+                academic year starts — promotes every active student one grade (S6 graduates).
+            </p>
+
+            {step === 1 && (
+                <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+                        <div>
+                            <label className="form-label" htmlFor="ro-term">New term</label>
+                            <select id="ro-term" className="form-input" value={form.term} onChange={e => set('term', e.target.value)}>
+                                {TERM_OPTIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="ro-year">Year</label>
+                            <input id="ro-year" type="number" className="form-input" placeholder="e.g. 2027"
+                                value={form.year} onChange={e => set('year', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="ro-name">Display name</label>
+                            <input id="ro-name" className="form-input" placeholder="e.g. Term 1 2027"
+                                value={form.name} onChange={e => set('name', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="ro-start">Start date</label>
+                            <input id="ro-start" type="date" className="form-input"
+                                value={form.start_date} onChange={e => set('start_date', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="ro-end">End date</label>
+                            <input id="ro-end" type="date" className="form-input"
+                                value={form.end_date} onChange={e => set('end_date', e.target.value)} />
+                        </div>
+                    </div>
+                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem' }}>{error}</p>}
+                    <button className="btn btn-primary" onClick={handlePreview} disabled={!isValid || busy}>
+                        <span className="material-symbols-rounded icon-sm">visibility</span>
+                        {busy ? 'Checking…' : 'Preview Rollover'}
+                    </button>
+                </>
+            )}
+
+            {step === 2 && preview && (
+                <>
+                    <div style={{ border: '1px solid var(--border)', borderRadius: 10, padding: '1rem', marginBottom: '1rem' }}>
+                        <p style={{ fontWeight: 600, marginBottom: '0.75rem' }}>
+                            {preview.current_term} → {preview.new_term}
+                        </p>
+                        {summaryRows(preview).map(row => (
+                            <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.3rem 0', borderBottom: '1px solid var(--border)', fontSize: '0.85rem' }}>
+                                <span style={{ color: 'var(--muted-foreground)' }}>{row.label}</span>
+                                <strong>{row.value}</strong>
+                            </div>
+                        ))}
+                        {preview.missing_classes?.length > 0 && (
+                            <p style={{ color: 'var(--warning, #d97706)', fontSize: '0.8rem', marginTop: '0.75rem' }}>
+                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle' }}>warning</span>{' '}
+                                No class exists for: {preview.missing_classes.join(', ')} — those students will be
+                                promoted but not added to a roster. Create the classes first if needed.
+                            </p>
+                        )}
+                    </div>
+                    <p style={{ fontSize: '0.82rem', color: '#dc2626', marginBottom: '0.75rem' }}>
+                        This cannot be undone from the interface. Make sure results for
+                        {' '}{preview.current_term} are approved before proceeding.
+                    </p>
+                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem' }}>{error}</p>}
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="btn btn-outline" onClick={() => setStep(1)} disabled={busy}>Back</button>
+                        <button className="btn btn-primary" onClick={handleExecute} disabled={busy}>
+                            <span className="material-symbols-rounded icon-sm">restart_alt</span>
+                            {busy ? 'Rolling over…' : 'Run Rollover'}
+                        </button>
+                    </div>
+                </>
+            )}
+
+            {step === 3 && result && (
+                <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', color: 'var(--success)' }}>check_circle</span>
+                    <p style={{ fontWeight: 700, fontSize: '1.05rem', margin: '0.5rem 0' }}>
+                        {result.new_term} is now the current term
+                    </p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
+                        {result.students_promoted} promoted · {result.students_graduated} graduated ·{' '}
+                        {result.rosters_created} rosters created
+                    </p>
+                </div>
+            )}
+        </div>
+    )
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminSettings() {
@@ -751,6 +909,7 @@ export function AdminSettings() {
                                     {activeSection === 'School Structure' && <SchoolStructureSection />}
                                     {activeSection === 'Subjects'         && <SubjectsSection />}
                                     {activeSection === 'Rooms'            && <RoomsSection />}
+                                    {activeSection === 'Term Rollover'    && <TermRolloverSection />}
 
                                     {!LIVE_SECTIONS.includes(activeSection) && (
                                         <div className="coming-soon">

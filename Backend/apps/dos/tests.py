@@ -302,3 +302,92 @@ class TestTimetableConflictDetection:
                          self._slot_payload(class_b, subject, teacher,
                                             start_time='09:00', end_time='10:00'), format='json')
         assert r2.status_code == status.HTTP_201_CREATED
+
+
+@pytest.mark.django_db
+class TestTermRollover:
+    def _setup_school(self):
+        from apps.teacher.models import ClassAssignment
+        term = _make_term()  # term1 2025, current
+        s2_class = Class.objects.create(name='S2A', grade='2', section='A')
+        s3_class = Class.objects.create(name='S3A', grade='3', section='A')
+        s2_student = StudentFactory(grade='2', section='A')
+        s6_student = StudentFactory(grade='6', section='A')
+        ClassAssignment.objects.create(class_obj=s2_class, student=s2_student, term=term)
+        return term, s2_student, s6_student, s3_class
+
+    def _payload(self, **overrides):
+        payload = {
+            'term': 'term1', 'year': 2026, 'name': 'Term 1 2026',
+            'start_date': '2026-01-05', 'end_date': '2026-04-03',
+        }
+        payload.update(overrides)
+        return payload
+
+    def test_dry_run_previews_without_changing_anything(self, make_authenticated_client):
+        from apps.results.models import AcademicTerm
+        client, _admin = make_authenticated_client('admin')
+        term, s2_student, s6_student, _ = self._setup_school()
+
+        response = client.post('/imboni/dos/term-rollover/', self._payload(dry_run=True), format='json')
+
+        assert response.status_code == 200
+        assert response.data['mode'] == 'promotion'
+        assert response.data['students_promoted'] == 1
+        assert response.data['students_graduated'] == 1
+        s2_student.refresh_from_db(); s6_student.refresh_from_db()
+        assert s2_student.grade == '2'                      # unchanged
+        assert s6_student.status == 'active'                # unchanged
+        assert not AcademicTerm.objects.filter(year=2026).exists()
+
+    def test_new_year_rollover_promotes_and_graduates(self, make_authenticated_client):
+        from apps.results.models import AcademicTerm
+        from apps.teacher.models import ClassAssignment
+        client, _admin = make_authenticated_client('admin')
+        term, s2_student, s6_student, s3_class = self._setup_school()
+
+        response = client.post('/imboni/dos/term-rollover/', self._payload(), format='json')
+
+        assert response.status_code == 200
+        s2_student.refresh_from_db(); s6_student.refresh_from_db()
+        assert s2_student.grade == '3'
+        assert s6_student.status == 'graduated'
+        new_term = AcademicTerm.objects.get(term='term1', year=2026)
+        assert new_term.is_current is True
+        term.refresh_from_db()
+        assert term.is_current is False
+        assert ClassAssignment.objects.filter(
+            class_obj=s3_class, student=s2_student, term=new_term).exists()
+
+    def test_same_year_rollover_carries_rosters_without_promotion(self, make_authenticated_client):
+        from apps.results.models import AcademicTerm
+        from apps.teacher.models import ClassAssignment
+        client, _admin = make_authenticated_client('admin')
+        term, s2_student, _s6, _ = self._setup_school()
+
+        response = client.post('/imboni/dos/term-rollover/', self._payload(
+            term='term2', year=2025, name='Term 2 2025',
+            start_date='2025-05-01', end_date='2025-08-01',
+        ), format='json')
+
+        assert response.status_code == 200
+        assert response.data['mode'] == 'carry_over'
+        s2_student.refresh_from_db()
+        assert s2_student.grade == '2'                      # no promotion mid-year
+        new_term = AcademicTerm.objects.get(term='term2', year=2025)
+        assert ClassAssignment.objects.filter(student=s2_student, term=new_term).exists()
+
+    def test_duplicate_term_is_rejected(self, make_authenticated_client):
+        client, _admin = make_authenticated_client('admin')
+        self._setup_school()
+
+        response = client.post('/imboni/dos/term-rollover/', self._payload(
+            term='term1', year=2025, name='Term 1 2025 again',
+        ), format='json')
+
+        assert response.status_code == 400
+
+    def test_only_admin_can_roll_over(self, make_authenticated_client):
+        client, _dos = make_authenticated_client('dos')
+        response = client.post('/imboni/dos/term-rollover/', {}, format='json')
+        assert response.status_code == status.HTTP_403_FORBIDDEN

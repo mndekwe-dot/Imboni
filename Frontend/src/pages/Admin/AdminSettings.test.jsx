@@ -7,7 +7,13 @@ import {
   getSubjects, createSubject, updateSubject, deleteSubject,
   renameSubjectCategory, deleteSubjectCategory,
   getDosRooms, createDosRoom, deleteDosRoom,
+  getCurrentTerm,
 } from '../../api/dos'
+import { runTermRollover } from '../../api/admin'
+
+vi.mock('../../api/admin', () => ({
+  runTermRollover: vi.fn(),
+}))
 
 vi.mock('../../api/dos', () => ({
   getSchoolSettings: vi.fn(),
@@ -23,6 +29,7 @@ vi.mock('../../api/dos', () => ({
   getDosRooms: vi.fn(),
   createDosRoom: vi.fn(),
   deleteDosRoom: vi.fn(),
+  getCurrentTerm: vi.fn().mockResolvedValue({ id: 't1', name: 'Term 3 2026' }),
 }))
 
 vi.mock('../../api/notifications', () => ({
@@ -117,5 +124,41 @@ describe('AdminSettings', () => {
     fireEvent.click(screen.getByRole('button', { name: /Academic Calendar/ }))
 
     expect(screen.getByText('Configuration options coming soon.')).toBeInTheDocument()
+  })
+
+  it('runs the term rollover wizard: preview then execute', async () => {
+    getCurrentTerm.mockResolvedValue({ id: 't1', name: 'Term 3 2026' })
+    runTermRollover
+      .mockResolvedValueOnce({
+        dry_run: true, mode: 'promotion', current_term: 'Term 3 2026', new_term: 'Term 1 2027',
+        students_promoted: 120, students_graduated: 30, rosters_created: 118,
+        missing_classes: ['S4C'],
+      })
+      .mockResolvedValueOnce({
+        dry_run: false, mode: 'promotion', current_term: 'Term 3 2026', new_term: 'Term 1 2027',
+        students_promoted: 120, students_graduated: 30, rosters_created: 118,
+        missing_classes: [],
+      })
+
+    renderWithRouter(<AdminSettings />)
+    fireEvent.click(screen.getByRole('button', { name: /Term Rollover/ }))
+
+    await waitFor(() => expect(screen.getByText(/Current term:/)).toBeInTheDocument())
+
+    fireEvent.change(screen.getByLabelText('Year'), { target: { value: '2027' } })
+    fireEvent.change(screen.getByLabelText('Display name'), { target: { value: 'Term 1 2027' } })
+    fireEvent.change(screen.getByLabelText('Start date'), { target: { value: '2027-01-05' } })
+    fireEvent.change(screen.getByLabelText('End date'), { target: { value: '2027-04-02' } })
+    fireEvent.click(screen.getByRole('button', { name: /Preview Rollover/ }))
+
+    // Preview step shows the counts and the missing-class warning
+    await waitFor(() => expect(screen.getByText('120')).toBeInTheDocument())
+    expect(screen.getByText(/S4C/)).toBeInTheDocument()
+    expect(runTermRollover).toHaveBeenLastCalledWith(expect.objectContaining({ dry_run: true }))
+
+    fireEvent.click(screen.getByRole('button', { name: /Run Rollover/ }))
+
+    await waitFor(() => expect(screen.getByText(/is now the current term/)).toBeInTheDocument())
+    expect(runTermRollover).toHaveBeenLastCalledWith(expect.objectContaining({ dry_run: false }))
   })
 })
