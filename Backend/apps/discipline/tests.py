@@ -235,3 +235,70 @@ class TestDisciplineStaffListView:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
+
+
+@pytest.mark.django_db
+class TestConductReportEscalation:
+    def _file_report(self, client, student, n):
+        return client.post('/imboni/discipline/reports/', {
+            'student_id': str(student.id),
+            'report_type': 'warning',
+            'title': f'Report {n}',
+            'description': 'Details.',
+            'date': f'2025-02-0{n}',
+        }, format='json')
+
+    def _make_current_term(self):
+        import datetime
+        from apps.results.models import AcademicTerm
+        return AcademicTerm.objects.create(
+            name='Term 1 2025', term='term1', year=2025,
+            start_date=datetime.date(2025, 1, 1),
+            end_date=datetime.date(2025, 4, 1),
+            is_current=True,
+        )
+
+    def test_third_approved_report_escalates_to_parents_and_staff(self, make_authenticated_client):
+        from apps.parents.models import ParentStudentRelationship
+        from apps.notifications.models import Notification
+
+        client, dis_user = make_authenticated_client('discipline')
+        self._make_current_term()
+        student = StudentFactory()
+        parent = UserFactory(role='parent')
+        ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='mother')
+
+        for n in (1, 2):
+            r = self._file_report(client, student, n)
+            assert r.status_code == status.HTTP_201_CREATED
+        assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 0
+
+        # Third approved report crosses the threshold
+        self._file_report(client, student, 3)
+        assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 1
+        assert Notification.objects.filter(user=dis_user, title__startswith='Escalation:').count() == 1
+
+        # Fourth report does not re-fire the escalation
+        self._file_report(client, student, 4)
+        assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 1
+
+    def test_positive_reports_do_not_count_toward_escalation(self, make_authenticated_client):
+        from apps.parents.models import ParentStudentRelationship
+        from apps.notifications.models import Notification
+
+        client, _dis = make_authenticated_client('discipline')
+        self._make_current_term()
+        student = StudentFactory()
+        parent = UserFactory(role='parent')
+        ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='father')
+
+        for n in (1, 2, 3):
+            client.post('/imboni/discipline/reports/', {
+                'student_id': str(student.id),
+                'report_type': 'positive',
+                'title': f'Great work {n}',
+                'description': 'Details.',
+                'date': f'2025-02-0{n}',
+            }, format='json')
+
+        assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 0

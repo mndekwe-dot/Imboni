@@ -58,6 +58,70 @@ def _notify_parent(dis_user, parent_user, report):
     conv.save(update_fields=['updated_at'])
 
 
+# Number of approved warning/incident reports in one term that triggers an
+# automatic "parent meeting required" escalation.
+ESCALATION_THRESHOLD = 3
+
+
+def _check_escalation(student):
+    """
+    Called after a warning/incident report is approved. When the student's
+    approved warning+incident count for the current term reaches the
+    threshold, notify the discipline office, admins and the parents that a
+    parent meeting is required. Fires exactly once (at the threshold).
+    """
+    from apps.results.models import AcademicTerm
+    from apps.notifications.services import notify_parents_of, notify_role
+
+    term = AcademicTerm.objects.filter(is_current=True).first()
+    if not term:
+        return False
+
+    count = BehaviorReport.objects.filter(
+        student=student,
+        status='approved',
+        report_type__in=('warning', 'incident'),
+        date__gte=term.start_date,
+        date__lte=term.end_date,
+    ).count()
+
+    if count != ESCALATION_THRESHOLD:
+        return False
+
+    student_name = student.user.get_full_name()
+    notify_role(
+        'discipline',
+        title=f'Escalation: {student_name}',
+        message=(
+            f"{student_name} ({student.student_id}) now has {count} approved conduct "
+            f"reports this term. A parent meeting is required."
+        ),
+        type='attendance',
+        path='/dis/students',
+    )
+    notify_role(
+        'admin',
+        title=f'Escalation: {student_name}',
+        message=(
+            f"{student_name} ({student.student_id}) has reached {count} approved conduct "
+            f"reports this term and requires a parent meeting."
+        ),
+        type='attendance',
+        path='/admin/students',
+    )
+    notify_parents_of(
+        student,
+        title='Parent meeting required',
+        message=(
+            f"{student_name} has received {count} conduct reports this term. "
+            f"The school will contact you to arrange a meeting with the Discipline Office."
+        ),
+        type='attendance',
+        path='/parent/behaviour',
+    )
+    return True
+
+
 class DisciplineCurrentTermView(APIView):
     """GET /imboni/discipline/current-term/ — returns the current academic term id + name."""
     permission_classes = [IsDiscipline]
@@ -260,6 +324,10 @@ class DisciplineReportListView(APIView):
             marks_deducted=marks_deducted,
         )
 
+        # Discipline-filed reports are auto-approved and count toward escalation
+        if report.status == 'approved' and report.report_type in ('warning', 'incident'):
+            _check_escalation(student)
+
         return Response({
             'id': str(report.id),
             'student': student.user.get_full_name(),
@@ -385,6 +453,9 @@ class DisciplineReportReviewView(APIView):
             if rel:
                 _notify_parent(request.user, rel.parent, report)
                 parent_notified = True
+
+            if report.report_type in ('warning', 'incident'):
+                _check_escalation(report.student)
 
         return Response({
             'id': str(report.id),
