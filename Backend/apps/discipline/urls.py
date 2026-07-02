@@ -46,6 +46,7 @@ urlpatterns = [
     path('discipline/extracurricular/<uuid:pk>/',           views.ExtracurricularEntryDetailView.as_view(),  name='discipline-extracurricular-detail'),
 
     # Facilities (dormitories, dining halls, rooms)
+    path('discipline/facilities/occupancy/',          views.DisFacilityOccupancyView.as_view(),      name='discipline-facility-occupancy'),
     path('discipline/facilities/',                   views.DisFacilityListView.as_view(),           name='discipline-facilities'),
     path('discipline/facilities/<uuid:pk>/',          views.DisFacilityDetailView.as_view(),         name='discipline-facility-detail'),
     path('discipline/facility-sections/',             views.DisFacilitySectionListView.as_view(),    name='discipline-facility-sections'),

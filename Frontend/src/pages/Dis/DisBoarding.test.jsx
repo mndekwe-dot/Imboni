@@ -3,7 +3,7 @@ import { renderWithRouter, screen, waitFor, fireEvent } from '../../test/test-ut
 import { DisBoarding } from './DisBoarding'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
-    getDisFacilities, getDisStudents,
+    getDisFacilities, getDisStudents, getDisOccupancy,
 } from '../../api/discipline'
 import { getNotifications } from '../../api/notifications'
 
@@ -14,6 +14,7 @@ vi.mock('../../api/discipline', () => ({
     deleteDisBoarding: vi.fn(),
     getDisFacilities: vi.fn(),
     getDisStudents: vi.fn(),
+    getDisOccupancy: vi.fn(),
 }))
 vi.mock('../../api/notifications', () => ({
     getNotifications: vi.fn(),
@@ -30,6 +31,7 @@ describe('DisBoarding', () => {
         vi.clearAllMocks()
         getNotifications.mockResolvedValue([])
         getDisFacilities.mockResolvedValue([])
+        getDisOccupancy.mockResolvedValue(null)
     })
 
     it('shows loading state', () => {
@@ -81,6 +83,25 @@ describe('DisBoarding', () => {
         await waitFor(() => expect(createDisBoarding).toHaveBeenCalledWith(
             expect.objectContaining({ student_id: 5, room_number: '14', check_in_date: '2026-02-01' })
         ))
+    })
+
+    it('renders the dormitory occupancy board with capacity bars', async () => {
+        getDisBoarding.mockResolvedValue([])
+        getDisOccupancy.mockResolvedValue({
+            total_boarders: 3, total_capacity: 5, unassigned: 1,
+            dormitories: [
+                { id: 'd1', name: 'Bisoke', gender: 'boys', section_name: 'Boys Wing', capacity: 3, occupied: 2, available: 1, occupancy_pct: 66.7 },
+                { id: 'd2', name: 'Karisimbi', gender: 'girls', section_name: null, capacity: 2, occupied: 2, available: 0, occupancy_pct: 100 },
+            ],
+        })
+        renderWithRouter(<DisBoarding />)
+
+        await waitFor(() => expect(screen.getByText('Dormitory Occupancy')).toBeInTheDocument())
+        expect(screen.getByText('2/3')).toBeInTheDocument()
+        expect(screen.getByText('1 bed free')).toBeInTheDocument()
+        expect(screen.getByText('Full')).toBeInTheDocument()
+        expect(screen.getByText(/3 boarders \/ 5 beds/)).toBeInTheDocument()
+        expect(screen.getByText(/1 unassigned/)).toBeInTheDocument()
     })
 
     it('deletes a boarding record after confirming', async () => {

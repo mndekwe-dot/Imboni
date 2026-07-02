@@ -28,6 +28,7 @@ export const deleteDisBoarding = (id)     => client.delete(`/imboni/discipline/b
 
 // Facilities (dormitories, dining halls, rooms)
 export const getDisFacilities   = (params) => client.get('/imboni/discipline/facilities/', { params })
+export const getDisOccupancy    = ()       => client.get('/imboni/discipline/facilities/occupancy/')
 export const createDisFacility  = (d)      => client.post('/imboni/discipline/facilities/', d)
 export const patchDisFacility   = (id, d)  => client.patch(`/imboni/discipline/facilities/${id}/`, d)
 export const deleteDisFacility  = (id)     => client.delete(`/imboni/discipline/facilities/${id}/`)

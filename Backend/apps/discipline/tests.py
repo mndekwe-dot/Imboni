@@ -302,3 +302,47 @@ class TestConductReportEscalation:
             }, format='json')
 
         assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 0
+
+
+@pytest.mark.django_db
+class TestDormitoryOccupancy:
+    def test_occupancy_counts_active_boarders_per_dormitory(self, make_authenticated_client):
+        from apps.discipline.models import DisFacility, BoardingStudent
+        import datetime
+
+        client, _dis = make_authenticated_client('discipline')
+        DisFacility.objects.create(name='Bisoke', facility_type='dormitory', gender='boys', capacity=3)
+        DisFacility.objects.create(name='Karisimbi', facility_type='dormitory', gender='girls', capacity=2)
+
+        for i in range(2):
+            BoardingStudent.objects.create(
+                student=StudentFactory(), dormitory='bisoke',   # case-insensitive match
+                room_number=str(i + 1), check_in_date=datetime.date(2025, 1, 10),
+            )
+        # An inactive boarder must not count
+        BoardingStudent.objects.create(
+            student=StudentFactory(), dormitory='Bisoke', room_number='9',
+            check_in_date=datetime.date(2025, 1, 10), is_active=False,
+        )
+        # A boarder in an unknown dorm is reported as unassigned
+        BoardingStudent.objects.create(
+            student=StudentFactory(), dormitory='Old Wing', room_number='1',
+            check_in_date=datetime.date(2025, 1, 10),
+        )
+
+        response = client.get('/imboni/discipline/facilities/occupancy/')
+
+        assert response.status_code == status.HTTP_200_OK
+        bisoke = next(d for d in response.data['dormitories'] if d['name'] == 'Bisoke')
+        assert bisoke['occupied'] == 2
+        assert bisoke['available'] == 1
+        assert bisoke['occupancy_pct'] == 66.7
+        karisimbi = next(d for d in response.data['dormitories'] if d['name'] == 'Karisimbi')
+        assert karisimbi['occupied'] == 0
+        assert response.data['unassigned'] == 1
+        assert response.data['total_boarders'] == 3
+
+    def test_requires_discipline_role(self, make_authenticated_client):
+        client, _user = make_authenticated_client('teacher')
+        response = client.get('/imboni/discipline/facilities/occupancy/')
+        assert response.status_code == status.HTTP_403_FORBIDDEN
