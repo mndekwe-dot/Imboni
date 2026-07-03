@@ -12,7 +12,8 @@ vi.mock('./client', () => ({
   default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn(), put: vi.fn() },
 }))
 
-const BASE = 'http://localhost:8000'
+// Must mirror auth.js — the local .env can override the API base (e.g. port 8001)
+const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
 
 describe('auth api', () => {
   beforeEach(() => {
