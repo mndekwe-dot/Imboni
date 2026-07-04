@@ -600,10 +600,11 @@ class SendFeeRemindersView(APIView):
     permission_classes = [IsDOSOrAdmin]
 
     def post(self, request):
-        from collections import defaultdict
         from apps.student.models import Fee
+        from apps.parents.models import ParentStudentRelationship
         from apps.results.models import AcademicTerm
-        from apps.notifications.services import notify_parents_of
+        from apps.notifications.tasks import safe_delay
+        from .tasks import send_fee_reminders_task
 
         term_id = request.data.get('term_id')
         if term_id:
@@ -616,36 +617,23 @@ class SendFeeRemindersView(APIView):
         status_filter = request.data.get('status')
         statuses = [status_filter] if status_filter else ['due', 'overdue', 'partial']
 
-        unpaid = (
+        # Counts for the response; the actual fan-out runs in a Celery task
+        # (inline fallback when no broker is up) so hundreds of notifications
+        # don't block this request.
+        student_ids = list(
             Fee.objects
             .filter(term=term, status__in=statuses)
-            .select_related('student__user')
+            .values_list('student_id', flat=True)
+            .distinct()
+        )
+        students_count = len(student_ids)
+        parents_notified = (
+            ParentStudentRelationship.objects
+            .filter(student_id__in=student_ids)
+            .count()
         )
 
-        # One reminder per student with their total outstanding, not one per fee line
-        by_student = defaultdict(list)
-        for fee in unpaid:
-            by_student[fee.student_id].append(fee)
-
-        students_count = 0
-        parents_notified = 0
-        for fees in by_student.values():
-            student = fees[0].student
-            total = sum(float(f.amount) for f in fees)
-            categories = ', '.join(sorted({f.get_category_display() for f in fees}))
-            sent = notify_parents_of(
-                student,
-                title='Fee payment reminder',
-                message=(
-                    f"{student.full_name} has outstanding fees of RWF {total:,.0f} "
-                    f"({categories}) for {term.name}. Please arrange payment at your "
-                    f"earliest convenience."
-                ),
-                type='announcement',
-                path='/parent',
-            )
-            students_count += 1
-            parents_notified += sent
+        safe_delay(send_fee_reminders_task, str(term.id), statuses)
 
         from apps.audit.services import audit
         audit(request.user, 'fees.reminders_sent',

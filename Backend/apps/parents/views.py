@@ -492,7 +492,8 @@ class StaffConsentRequestListView(generics.GenericAPIView):
 
     def post(self, request):
         from .models import ConsentRequest
-        from apps.notifications.services import notify_user
+        from .tasks import notify_consent_parents_task
+        from apps.notifications.tasks import safe_delay
 
         for field in ('title', 'description', 'event_date'):
             if not request.data.get(field):
@@ -507,28 +508,18 @@ class StaffConsentRequestListView(generics.GenericAPIView):
             created_by=request.user,
         )
 
-        # Notify every parent with a child in the targeted grade(s)
-        rels = ParentStudentRelationship.objects.select_related('parent', 'student')
+        # Fan-out to parents happens in a Celery task so a whole-school
+        # request doesn't block this response (falls back to inline when no
+        # broker is running). The count is precomputed for the response.
+        rels = ParentStudentRelationship.objects.all()
         if req.grade:
             rels = rels.filter(student__grade=req.grade)
-        notified_parents = set()
-        for rel in rels:
-            if rel.parent_id in notified_parents:
-                continue
-            notify_user(
-                rel.parent,
-                title=f'Consent required: {req.title}',
-                message=(
-                    f"Your approval is requested for '{req.title}' on {req.event_date}. "
-                    f"Please respond in the parent portal."
-                ),
-                type='announcement',
-                path='/parent/children',
-            )
-            notified_parents.add(rel.parent_id)
+        parent_count = rels.values('parent_id').distinct().count()
+
+        safe_delay(notify_consent_parents_task, str(req.id))
 
         d = _consent_dict(req)
-        d['parents_notified'] = len(notified_parents)
+        d['parents_notified'] = parent_count
         return Response(d, status=201)
 
 

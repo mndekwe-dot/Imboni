@@ -264,3 +264,29 @@ AFRICASTALKING_SENDER_ID=config('AFRICASTALKING_SENDER_ID',default='Imboni')
 SCHOOL_NAME  = config('SCHOOL_NAME',  default='Imboni School')
 SCHOOL_EMAIL = config('SCHOOL_EMAIL', default='')
 SCHOOL_PHONE = config('SCHOOL_PHONE', default='')
+
+# ── Celery ─────────────────────────────────────────────────────────────────────
+# Broker/result backend default to a local Redis; override in .env for prod.
+CELERY_BROKER_URL         = config('CELERY_BROKER_URL',     default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND     = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/1')
+CELERY_TIMEZONE           = TIME_ZONE
+CELERY_TASK_SERIALIZER    = 'json'
+CELERY_RESULT_SERIALIZER  = 'json'
+CELERY_ACCEPT_CONTENT     = ['json']
+CELERY_TASK_TIME_LIMIT    = 300           # hard kill after 5 minutes
+CELERY_TASK_SOFT_TIME_LIMIT = 240
+CELERY_RESULT_EXPIRES     = 60 * 60 * 24  # keep results for 1 day
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# Fail fast when the broker is down so safe_delay() can fall back to running
+# tasks inline instead of hanging the request for ~100s of connection retries.
+CELERY_BROKER_CONNECTION_TIMEOUT = 3
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'max_retries': 1,
+    'socket_connect_timeout': 2,
+    'socket_timeout': 2,
+}
+CELERY_TASK_PUBLISH_RETRY = False
+# Set CELERY_TASK_ALWAYS_EAGER=True in .env to run tasks inline (no Redis
+# needed) — handy in development before the broker is set up.
+CELERY_TASK_ALWAYS_EAGER  = config('CELERY_TASK_ALWAYS_EAGER', cast=bool, default=False)
+CELERY_TASK_EAGER_PROPAGATES = True
