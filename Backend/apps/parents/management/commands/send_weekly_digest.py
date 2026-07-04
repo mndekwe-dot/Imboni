@@ -55,10 +55,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from collections import defaultdict
-        from django.conf import settings
-        from django.core.mail import send_mail
         from apps.parents.models import ParentStudentRelationship
         from apps.notifications.services import notify_user
+        from apps.notifications.tasks import safe_delay, send_email_task
 
         since = date.today() - timedelta(days=7)
 
@@ -94,13 +93,14 @@ class Command(BaseCommand):
             )
 
             if not options['no_email'] and parent.email:
+                # Each email is its own Celery task so one bad address can be
+                # retried (3x) without blocking or failing the whole digest.
                 try:
-                    send_mail(
-                        subject='Imboni — Your weekly school summary',
-                        message=body,
-                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-                        recipient_list=[parent.email],
-                        fail_silently=True,
+                    safe_delay(
+                        send_email_task,
+                        'Imboni — Your weekly school summary',
+                        body,
+                        [parent.email],
                     )
                 except Exception:
                     pass
