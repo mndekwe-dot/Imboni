@@ -11,6 +11,7 @@ import {
     getMedicationsToday, administerMedication, createMedication,
 } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { OfflineIndicator } from '../../components/ui/OfflineIndicator'
 
 
 const conditionLabels = { illness: 'Illness', injury: 'Injury', checkup: 'Check-up', followup: 'Follow-up' }
@@ -104,8 +105,22 @@ function MedicationChecklist({ students }) {
         const key = `${item.schedule_id}|${item.time}`
         setGiving(key)
         try {
-            await administerMedication(item.schedule_id, { time: item.time })
-            load()
+            const res = await administerMedication(item.schedule_id, { time: item.time })
+            if (res?.queued) {
+                // Offline — the dose is in the sync outbox; tick it locally so
+                // the checklist reflects what actually happened in the dorm.
+                setChecklist(prev => prev && ({
+                    ...prev,
+                    given: prev.given + 1,
+                    overdue: item.overdue ? prev.overdue - 1 : prev.overdue,
+                    items: prev.items.map(i =>
+                        i.schedule_id === item.schedule_id && i.time === item.time
+                            ? { ...i, given: true, overdue: false }
+                            : i),
+                }))
+            } else {
+                load()
+            }
         } finally {
             setGiving(null)
         }
@@ -144,6 +159,7 @@ function MedicationChecklist({ students }) {
             <div className="card-header">
                 <h3 className="card-title"><span className="material-symbols-rounded">medication</span> Today&apos;s Medication</h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <OfflineIndicator />
                     {checklist && (
                         <span className="settings-info-text align-self-center">
                             {checklist.given}/{checklist.total} given

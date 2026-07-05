@@ -5,6 +5,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
+import { OfflineIndicator } from '../../components/ui/OfflineIndicator'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -160,10 +161,18 @@ export function TeacherAttendance() {
                 status: getStatus(s.student_id),
                 notes:  getNotes(s.student_id),
             }))
-            await markTeacherAttendance({ class_id: selectedClassId, date: selectedDate, records })
-            const statsRes = await getTeacherAttendanceStats({ class_id: selectedClassId, date: selectedDate })
-            setStats(statsRes)
-            setSaved(true)
+            const res = await markTeacherAttendance({ class_id: selectedClassId, date: selectedDate, records })
+            if (res?.queued) {
+                // No connection — the register is in the offline outbox and
+                // will sync automatically when we're back online.
+                setSaved('offline')
+            } else {
+                try {
+                    const statsRes = await getTeacherAttendanceStats({ class_id: selectedClassId, date: selectedDate })
+                    setStats(statsRes)
+                } catch { /* stats refresh is cosmetic — don't undo the save */ }
+                setSaved(true)
+            }
         } catch {
             setError('Failed to save attendance. Please try again.')
         } finally {
@@ -214,6 +223,7 @@ export function TeacherAttendance() {
                                         <span className="material-symbols-rounded icon-sm">done_all</span>
                                         Mark All Present
                                     </button>
+                                    <OfflineIndicator />
                                     <div className="toolbar-spacer" />
                                     <input
                                         type="date"
@@ -227,8 +237,13 @@ export function TeacherAttendance() {
                                 {error && (
                                     <div className="alert alert-danger">{error}</div>
                                 )}
-                                {saved && (
+                                {saved === true && (
                                     <div className="alert alert-success">Attendance saved successfully.</div>
+                                )}
+                                {saved === 'offline' && (
+                                    <div className="alert alert-success">
+                                        Attendance saved offline — it will sync automatically when you're back online.
+                                    </div>
                                 )}
 
                                 {!classKey ? (
