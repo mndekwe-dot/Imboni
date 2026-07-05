@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
-import { Link } from 'react-router'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentDiscipline } from '../../api/student'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
@@ -140,6 +141,7 @@ export function StudentDiscipline() {
     const [discipline, setDiscipline] = useState(null)
     const [loading,    setLoading]    = useState(true)
     const [typeFilter, setTypeFilter] = useState('All')
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { setting } = useSchoolSettings()
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
@@ -185,25 +187,16 @@ export function StudentDiscipline() {
             <div className="dashboard-layout">
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Discipline</h1>
-                            <p>School rules, your discipline record &amp; appeals</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{fullName || 'Student'}</span>
-                                    <span className="header-user-role">{userRole}</span>
-                                </div>
-                                <Link to="/profile?role=student" className="header-user-av student-av">{initials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Discipline"
+                        subtitle="School rules, your discipline record & appeals"
+                        userName={fullName || 'Student'}
+                        userRole={userRole}
+                        userInitials={initials}
+                        avatarClass="student-av"
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                    />
 
                     <DashboardContent>
 

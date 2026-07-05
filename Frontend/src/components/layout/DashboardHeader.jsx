@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { NotificationDropdown } from '../NotificationDropdown'
 
-export function DashboardHeader({ title, subtitle, userName, userRole, userInitials, avatarClass, notifications, onNotificationRead }) {
+export function DashboardHeader({ title, subtitle, userName, userRole, userInitials, avatarClass, notifications, onNotificationRead, actions }) {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -26,6 +26,9 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
 
       <div className="dashboard-header-actions">
         <span className="date-display">{today}</span>
+
+        {/* Optional page-specific action buttons (e.g. "+ Add Exam") */}
+        {actions}
 
         <NotificationDropdown notifications={notifications ?? []} onRead={onNotificationRead} />
 

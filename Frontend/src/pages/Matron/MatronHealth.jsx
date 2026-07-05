@@ -12,6 +12,8 @@ import {
 } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { OfflineIndicator } from '../../components/ui/OfflineIndicator'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 
 
 const conditionLabels = { illness: 'Illness', injury: 'Injury', checkup: 'Check-up', followup: 'Follow-up' }
@@ -268,6 +270,7 @@ function MedicationChecklist({ students }) {
 
 export const MatronHealth = () => {
     const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [data, setData] = useState(null)
     const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(true)
@@ -367,23 +370,13 @@ export const MatronHealth = () => {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
-                        <div className="dashboard-header-title">
-                            <h1>Health &amp; Wellness</h1>
-                            <p>Sick bay management and student health records &mdash; Karisimbi House</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{sessionUser.userName}</span>
-                                    <span className="header-user-role">Matron</span>
-                                </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Health & Wellness"
+                        subtitle="Sick bay management and student health records — Karisimbi House"
+                        {...sessionUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                    />
 
                     <DashboardContent>
 

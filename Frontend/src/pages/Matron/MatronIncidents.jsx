@@ -11,6 +11,8 @@ import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
 import { getMatronIncidents, createMatronIncident, getMatronStudents } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 
 
 const STATUS_STYLE = {
@@ -41,6 +43,7 @@ function PastReportRow({ date, name, type, severityStyle, severity, statusClass,
 export function MatronIncidents() {
     const { setting } = useSchoolSettings()
     const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [filter, setFilter] = useState('all')
     const [reports, setReports] = useState([])
     const [students, setStudents] = useState([])
@@ -124,23 +127,13 @@ export function MatronIncidents() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
-                        <div className="dashboard-header-title">
-                            <h1>Report Incident</h1>
-                            <p>Submit incident reports directly to the Director of Discipline</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{sessionUser.userName}</span>
-                                    <span className="header-user-role">Matron</span>
-                                </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Report Incident"
+                        subtitle="Submit incident reports directly to the Director of Discipline"
+                        {...sessionUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                    />
 
                     <DashboardContent>
 

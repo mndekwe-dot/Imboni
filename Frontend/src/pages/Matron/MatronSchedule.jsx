@@ -10,6 +10,8 @@ import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
 import { getMatronBoardingSchedule } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 
 
 const CHANGE_STATUS_DISPLAY = {
@@ -89,6 +91,7 @@ function WeekendRow({ time, label, isBreak, breakText, sat, sun }) {
 
 export function MatronSchedule() {
     const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { setting } = useSchoolSettings()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -126,23 +129,13 @@ export function MatronSchedule() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
-                        <div className="dashboard-header-title">
-                            <h1>Boarding Schedule</h1>
-                            <p>Timetable sent by the Discipline Master &mdash; Karisimbi House</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{sessionUser.userName}</span>
-                                    <span className="header-user-role">Matron</span>
-                                </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Boarding Schedule"
+                        subtitle="Timetable sent by the Discipline Master — Karisimbi House"
+                        {...sessionUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                    />
 
                     <DashboardContent>
 
