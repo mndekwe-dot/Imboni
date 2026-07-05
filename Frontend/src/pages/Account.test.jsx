@@ -10,6 +10,11 @@ vi.mock('../api/account', () => ({
     uploadAvatar: vi.fn(),
 }))
 
+vi.mock('../api/notifications', () => ({
+    getNotifications: vi.fn().mockResolvedValue([]),
+    markNotificationRead: vi.fn(),
+}))
+
 const PROFILE = {
     first_name: 'Gloriose', last_name: 'Hakizimana', phone_number: '0788000000',
     email: 'gloriose@imboni.rw', role: 'matron',
