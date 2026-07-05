@@ -14,6 +14,8 @@ import {
 } from '../../api/dos'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -417,6 +419,7 @@ function TeacherAttendanceTab() {
 export function DosAttendance() {
     const { setting } = useSchoolSettings()
     const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [mode,      setMode]      = useState('student')
     const [sections,  setSections]  = useState([])
     const [attStats,  setAttStats]  = useState(null)
@@ -439,25 +442,13 @@ export function DosAttendance() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Attendance</h1>
-                            <p>Track student and teacher attendance by class</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{formatSchoolDate(setting?.timezone)}</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{sessionUser.userName}</span>
-                                    <span className="header-user-role">{sessionUser.userRole}</span>
-                                </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">{sessionUser.userInitials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Attendance"
+                        subtitle="Track student and teacher attendance by class"
+                        {...sessionUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                    />
 
                     <DashboardContent>
 

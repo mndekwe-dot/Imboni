@@ -10,6 +10,8 @@ import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { classesFromConfig } from '../../utils/classes'
@@ -231,6 +233,7 @@ function HouseCaptainRow({ initials, name, house, form, since, editMode, onEdit,
 export function DosStudentLeaders() {
     const { setting } = useSchoolSettings()
     const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const { config }  = useSchoolConfig()
     const allClasses  = classesFromConfig(config)
     const [activeTab,      setActiveTab]      = useState('leaders')
@@ -317,30 +320,18 @@ export function DosStudentLeaders() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Student Leaders</h1>
-                            <p>Appoint and manage school prefects, house captains, and club leaders</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
-                            {activeTab === 'leaders' && (
-                                <button className="btn btn-primary" onClick={() => setShowAppoint(true)}>
-                                    <span className="material-symbols-rounded">add</span> Appoint Leader
-                                </button>
-                            )}
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{sessionUser.userName}</span>
-                                    <span className="header-user-role">{sessionUser.userRole}</span>
-                                </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">{sessionUser.userInitials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Student Leaders"
+                        subtitle="Appoint and manage school prefects, house captains, and club leaders"
+                        {...sessionUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                        actions={activeTab === 'leaders' && (
+                            <button className="btn btn-primary" onClick={() => setShowAppoint(true)}>
+                                <span className="material-symbols-rounded">add</span> Appoint Leader
+                            </button>
+                        )}
+                    />
 
                     <DashboardContent>
                         <div className="dos-welcome-banner">
