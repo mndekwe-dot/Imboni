@@ -75,6 +75,10 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise serves static files (Django admin, DRF) straight from gunicorn
+    # so a pilot doesn't need a separate nginx static block. Must sit right
+    # after SecurityMiddleware.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -164,6 +168,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# collectstatic gathers everything here for WhiteNoise to serve in production.
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Compressed + hashed static storage in production only. The manifest variant
+# errors on any un-collected reference, so keep the plain storage in
+# dev/test where collectstatic hasn't run.
+if not DEBUG and not TESTING:
+    STORAGES = {
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+    }
 
 # Media files configuration
 MEDIA_URL = 'media/'
