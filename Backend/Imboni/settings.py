@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -18,6 +19,10 @@ import Imboni
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# True while running the test suite — lets us disable throttling and use a
+# local cache so tests stay fast and deterministic.
+TESTING = 'pytest' in sys.modules or 'test' in sys.argv
 
 
 # Quick-start development settings - unsuitable for production
@@ -189,6 +194,21 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    # Rate limiting — throttles brute-force login/password-reset and abusive
+    # anonymous traffic. Scoped rates ('login', 'password_reset') are applied
+    # on the relevant views. Disabled under tests to keep them deterministic.
+    'DEFAULT_THROTTLE_CLASSES': [] if TESTING else [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    # None disables a scope. Under tests everything is None so repeated
+    # logins in a test don't trip the limiter.
+    'DEFAULT_THROTTLE_RATES': {
+        'anon':           None if TESTING else '60/min',
+        'user':           None if TESTING else '1000/min',
+        'login':          None if TESTING else '5/min',   # per IP — stops guessing
+        'password_reset': None if TESTING else '3/min',
+    },
 }
 
 # Simple JWT configuration
@@ -200,22 +220,34 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# Cache — swap 'LocMemCache' for Redis in production:
-#   pip install django-redis
-#   'BACKEND': 'django_redis.cache.RedisCache'
-#   'LOCATION': 'redis://127.0.0.1:6379/1'
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'imboni-cache',
+# Cache — Redis in production so throttle counters are shared across all
+# gunicorn workers (a per-process LocMemCache would let a brute-forcer get
+# N× the login limit). Falls back to LocMem in dev/test.
+REDIS_CACHE_URL = config('REDIS_CACHE_URL', default='')
+if REDIS_CACHE_URL and not TESTING:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_CACHE_URL,
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'imboni-cache',
+        }
+    }
 
 # CORS configuration
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
+# In development, allow everything. In production, allow only the deployed
+# frontend origin(s) — set CORS_ALLOWED_ORIGINS in .env (comma-separated).
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    o.strip() for o in config(
+        'CORS_ALLOWED_ORIGINS',
+        default='http://localhost:3000,http://127.0.0.1:3000,http://localhost:5174',
+    ).split(',') if o.strip()
 ]
 
 # Debug toolbar configuration
@@ -247,11 +279,24 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Imboni School <ndekwe
 
 # Security settings for production
 if not DEBUG:
-    SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+
+    # Tell Django it's behind an HTTPS-terminating proxy (nginx/Cloudflare),
+    # otherwise request.is_secure() is False and the secure cookies + SSL
+    # redirect below never engage.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', cast=bool, default=True)
+
+    # HTTP Strict Transport Security — force HTTPS for a year. Start with a
+    # small value when first enabling, then raise; preload only once stable.
+    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', cast=int, default=31536000)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_REFERRER_POLICY = 'same-origin'
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
 #africatalking config

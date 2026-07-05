@@ -3,6 +3,17 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.throttling import AnonRateThrottle
+
+
+class LoginRateThrottle(AnonRateThrottle):
+    """Per-IP throttle for the login endpoint (rate: 'login' scope)."""
+    scope = 'login'
+
+
+class PasswordResetRateThrottle(AnonRateThrottle):
+    """Per-IP throttle for password-reset requests (rate: 'password_reset')."""
+    scope = 'password_reset'
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import default_token_generator
@@ -33,7 +44,18 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-    
+
+    # Creating, deleting or registering accounts is admin-only. Everyone else
+    # gets read + self-update (avatar/phone/etc — role/is_active are read-only
+    # in the serializer, so self-update can't escalate privileges).
+    ADMIN_ONLY_ACTIONS = {'create', 'destroy', 'register'}
+
+    def get_permissions(self):
+        if self.action in self.ADMIN_ONLY_ACTIONS:
+            from apps.authentication.permissions import IsAdminRole
+            return [IsAdminRole()]
+        return super().get_permissions()
+
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and user.role in ['admin', 'dos']:
@@ -45,7 +67,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return qs
         if user.is_authenticated:
             return User.objects.filter(id=user.id)
-        return User.objects.all()  # Allow all for development
+        return User.objects.none()   # never leak the full user table
     
     @action(detail=False, methods=['get'])
     def me(self, request):
@@ -120,11 +142,20 @@ class AuthViewSet(viewsets.ViewSet):
         'admin':      'Admin Portal',
     }
 
+    def get_throttles(self):
+        # Rate-limit only the login action (per IP). get_throttles is the
+        # reliable place to do this — @action(throttle_classes=...) is not
+        # consistently applied across DRF versions.
+        if self.action == 'login':
+            return [LoginRateThrottle()]
+        return super().get_throttles()
+
     @action(detail=False, methods=['post'])
     def login(self, request):
         """
         Login user — accepts email + password + portal.
         The portal field restricts which role can log in through this endpoint.
+        Rate-limited per IP to blunt password-guessing.
         """
         identifier = request.data.get('username') or request.data.get('email')
         password   = request.data.get('password')
@@ -244,6 +275,7 @@ class PasswordResetRequestView(APIView):
     Body: { "email": "user@school.com" }
     """
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [PasswordResetRateThrottle]
 
     def post(self, request):
         email = request.data.get('email', '').strip()
