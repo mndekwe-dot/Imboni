@@ -1,15 +1,28 @@
-import { describe, it, expect } from 'vitest'
-import { renderWithRouter, screen, setSessionUser } from '../../test/test-utils'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { renderWithRouter, setSessionUser, screen, waitFor } from '../../test/test-utils'
 import { ParentMessages } from './ParentMessages'
+import { getConversations } from '../../api/messages'
+
+// Behaviour is covered by LiveMessages.test.jsx; these are thin-wrapper smoke tests.
+vi.mock('../../api/messages', () => ({
+  getConversations: vi.fn().mockResolvedValue([]),
+  getMessages: vi.fn(),
+  sendMessage: vi.fn(),
+  getMessageContacts: vi.fn(),
+  startConversation: vi.fn(),
+}))
 
 describe('ParentMessages', () => {
-  it('renders the messaging chrome with seeded conversations and the active thread', () => {
-    setSessionUser({ first_name: 'Aline', last_name: 'Uwase', role: 'parent' })
-    renderWithRouter(<ParentMessages />)
+  beforeEach(() => {
+    vi.clearAllMocks()
+    getConversations.mockResolvedValue([])
+    setSessionUser({ first_name: 'Paul', last_name: 'Parent', role: 'parent' })
+  })
 
-    expect(screen.getByText('Communicate with teachers and school staff')).toBeInTheDocument()
-    expect(screen.getAllByText('Ms. C. Umutoni').length).toBeGreaterThan(0)
-    expect(screen.getByText('Mr. E. Mutabazi')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Type a message…')).toBeInTheDocument()
+  it('mounts the live messaging page and loads conversations', async () => {
+    renderWithRouter(<ParentMessages />)
+    expect(screen.getByText('Paul Parent')).toBeInTheDocument()
+    await waitFor(() => expect(getConversations).toHaveBeenCalled())
+    expect(screen.getByText(/No conversations yet/)).toBeInTheDocument()
   })
 })
