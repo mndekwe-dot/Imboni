@@ -40,8 +40,12 @@ class ConversationSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def get_last_message(self, obj):
-        msg = obj.messages.last()
-        if msg:
+        # Read from the prefetched (sender-joined) message cache — using
+        # obj.messages.last() here would fire a fresh query per conversation
+        # (an N+1 on a list endpoint that LiveMessages polls every 20s).
+        msgs = list(obj.messages.all())
+        if msgs:
+            msg = msgs[-1]   # Message Meta orders by created_at
             return {
                 'content': msg.content,
                 'sender_name': msg.sender.get_full_name(),
@@ -72,4 +76,9 @@ class ConversationSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request:
             return 0
-        return obj.messages.filter(is_read=False).exclude(sender=request.user).count()
+        # Count over the prefetched cache, not a fresh .filter().count() query.
+        me_id = request.user.id
+        return sum(
+            1 for m in obj.messages.all()
+            if not m.is_read and m.sender_id != me_id
+        )

@@ -84,10 +84,17 @@ class ConversationListCreateView(generics.ListCreateAPIView):
         return ctx
 
     def get_queryset(self):
+        from django.db.models import Prefetch
+        # Prefetch messages WITH their senders so the serializer's last-message
+        # and unread-count logic reads entirely from cache — the whole list is
+        # then a constant handful of queries regardless of conversation count.
         return (
             Conversation.objects
             .filter(participants=self.request.user)
-            .prefetch_related('participants', 'messages')
+            .prefetch_related(
+                'participants',
+                Prefetch('messages', queryset=Message.objects.select_related('sender')),
+            )
             .order_by('-updated_at')
         )
 

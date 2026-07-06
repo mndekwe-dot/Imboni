@@ -211,10 +211,16 @@ class MatronIncidentListView(APIView):
     """
     permission_classes = [IsMatron]
     def get(self, request):
+        from django.db.models import Prefetch
+        from apps.teacher.models import SubjectTeacherAssignment
         qs = (
             BehaviorReport.objects
             .filter(reported_by=request.user)
-            .select_related('student__user')
+            .select_related('student__user', 'reported_by')
+            .prefetch_related(Prefetch(
+                'reported_by__teaching_assignments',
+                queryset=SubjectTeacherAssignment.objects.select_related('subject'),
+            ))
             .order_by('-date', '-created_at')
         )
 
