@@ -285,3 +285,44 @@ class TestUnreadCountsAndReadReceipts:
         other = results[0]['other_participant']
         assert other['name'] == 'Grace Uwase'
         assert other['role'] == 'teacher'
+
+
+@pytest.mark.django_db
+class TestConversationListQueryCount:
+    """
+    N+1 regression guard: the conversation list is polled every 20s by every
+    logged-in user, so its query count must NOT grow with the number of
+    conversations. If someone reintroduces obj.messages.last()/.filter() in
+    the serializer, n2 jumps above n1 and this fails.
+    """
+    def _make_conversation(self, owner):
+        from apps.authentication.factories import UserFactory
+        other = UserFactory(role='teacher')
+        conv = Conversation.objects.create()
+        conv.participants.add(owner, other)
+        Message.objects.create(conversation=conv, sender=other, content='hi')
+        Message.objects.create(conversation=conv, sender=owner, content='reply')
+        return conv
+
+    def test_query_count_is_constant_regardless_of_conversation_count(self, make_authenticated_client):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        client, parent = make_authenticated_client('parent')
+        self._make_conversation(parent)
+
+        with CaptureQueriesContext(connection) as first:
+            r1 = client.get('/imboni/messages/conversations/')
+        assert r1.status_code == 200
+        baseline = len(first)
+
+        # Add four more conversations, each with messages
+        for _ in range(4):
+            self._make_conversation(parent)
+
+        with CaptureQueriesContext(connection) as second:
+            r2 = client.get('/imboni/messages/conversations/')
+        assert r2.status_code == 200
+
+        # Same number of queries for 5 conversations as for 1 → no N+1
+        assert len(second) == baseline
