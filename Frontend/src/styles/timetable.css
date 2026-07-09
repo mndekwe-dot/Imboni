@@ -137,6 +137,21 @@
 .tt-teacher { font-size: 0.72rem; color: var(--muted-foreground); }
 .tt-room    { font-size: 0.7rem;  color: var(--muted-foreground); margin-top: 0.1rem; }
 
+/* ── Drag-to-move (DOS academic timetable) ─────────────────────────────────── */
+.tt-draggable { cursor: grab; touch-action: none; }
+.tt-draggable:active { cursor: grabbing; }
+.tt-dragging {
+    opacity: 0.5;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    position: relative;
+}
+/* Empty cell highlighted as a valid drop target while dragging over it */
+.tt-drop-over {
+    background: rgba(37, 99, 235, 0.12);
+    outline: 2px dashed var(--primary, #2563eb);
+    outline-offset: -2px;
+}
+
 /* ─── Cell type colours ────────────────────────────────── */
 .tt-sports   { background: #eff6ff; border-left: 3px solid #3b82f6; }
 .tt-academic { background: #f0fdf4; border-left: 3px solid #22c55e; }

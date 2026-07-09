@@ -34,6 +34,28 @@ function periodStartMinutes(period) {
     return toMinutes(period.time.split(/[–-]/)[0])
 }
 
+/* Parse a period's "8:00 – 8:40" label into zero-padded start/end times. */
+export function periodTimes(period) {
+    const [startRaw, endRaw] = period.time.split(/[–-]/).map(s => s.trim())
+    const toHHMM = t => t.length === 4 ? '0' + t : t
+    return { start_time: toHHMM(startRaw), end_time: toHHMM(endRaw) }
+}
+
+/* Build the PATCH payload to move a lesson cell to a target period + day,
+   keeping its subject/teacher/room. Exported so the move logic is unit-tested
+   without simulating the drag gesture. */
+export function buildMovePayload(cell, targetPeriod, toDay) {
+    const { start_time, end_time } = periodTimes(targetPeriod)
+    return {
+        day:         toDay.toLowerCase(),
+        start_time,
+        end_time,
+        subject_id:  cell.subjectId,
+        teacher_id:  cell.teacherId || null,
+        room_number: cell.room || '',
+    }
+}
+
 /* Convert backend slots array → { [classId]: { [day]: [9 items] } }
    matching each slot to a period row by start_time */
 function slotsToSchedules(classId, slots, periods) {
@@ -157,7 +179,10 @@ export function DosTimetable() {
         } catch (err) {
             if (err?.response?.status === 409) {
                 // Teacher or room double-booked — let the DOS decide
-                setConflict({ formData, conflicts: err.response.data?.conflicts || [] })
+                setConflict({
+                    conflicts: err.response.data?.conflicts || [],
+                    onForce: () => handleSave(formData, { force: true }),
+                })
                 return
             }
             throw err
@@ -166,6 +191,33 @@ export function DosTimetable() {
         setConflict(null)
         setShowForm(false)
         setEditingSlot(null)
+        loadTimetable()
+    }
+
+    /* Drag-to-move: reposition an existing lesson to a new period + day.
+       Reuses the same PATCH + teacher/room conflict flow as manual editing. */
+    async function handleMoveSlot({ cell, toDay, toPeriodIndex }, { force = false } = {}) {
+        if (!cell?._id) return
+        const targetPeriod = periods[toPeriodIndex]
+        if (!targetPeriod) return
+
+        const payload = buildMovePayload(cell, targetPeriod, toDay)
+        if (force) payload.force = true
+
+        try {
+            await updateDosSlot(cell._id, payload)
+        } catch (err) {
+            if (err?.response?.status === 409) {
+                setConflict({
+                    conflicts: err.response.data?.conflicts || [],
+                    onForce: () => handleMoveSlot({ cell, toDay, toPeriodIndex }, { force: true }),
+                })
+                return
+            }
+            throw err
+        }
+
+        setConflict(null)
         loadTimetable()
     }
 
@@ -256,6 +308,7 @@ export function DosTimetable() {
                                         onEditCell={handleEditCell}
                                         periods={periods}
                                         schedules={schedules}
+                                        onMoveSlot={handleMoveSlot}
                                     />
                                 )}
                             </div>
@@ -309,7 +362,7 @@ export function DosTimetable() {
                                     <div className="modal-footer">
                                         <button className="btn btn-secondary" onClick={() => setConflict(null)}>Go Back</button>
                                         <button className="btn btn-primary"
-                                            onClick={() => handleSave(conflict.formData, { force: true })}>
+                                            onClick={() => conflict.onForce?.()}>
                                             Save Anyway
                                         </button>
                                     </div>
