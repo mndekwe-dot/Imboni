@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { renderWithRouter, setSessionUser, screen, fireEvent, waitFor, within } from '../../test/test-utils'
-import { DosTimetable } from './DosTimetable'
+import { DosTimetable, periodTimes, buildMovePayload } from './DosTimetable'
 import {
   getDosClasses, getDosTimetable, saveDosSlot, updateDosSlot, deleteDosSlot,
   getSubjects, getDosTeachersBySubjectAndClass, getDosRooms,
@@ -168,5 +168,35 @@ describe('DosTimetable', () => {
 
     await waitFor(() => expect(getDosTimetable).toHaveBeenCalledWith('c2'))
     expect(screen.getByText('Class S3B — Weekly Timetable')).toBeInTheDocument()
+  })
+})
+
+describe('drag-to-move helpers', () => {
+  it('periodTimes zero-pads a "8:00 – 8:40" label into HH:MM', () => {
+    expect(periodTimes({ time: '8:00 – 8:40' })).toEqual({ start_time: '08:00', end_time: '08:40' })
+    expect(periodTimes({ time: '10:20 – 11:00' })).toEqual({ start_time: '10:20', end_time: '11:00' })
+  })
+
+  it('buildMovePayload keeps subject/teacher/room and targets the new day + period', () => {
+    const cell = { _id: 's1', subject: 'Maths', subjectId: 'sub1', teacherId: 't1', room: 'R101' }
+    const targetPeriod = { id: 3, time: '11:10 – 11:50' }
+
+    const payload = buildMovePayload(cell, targetPeriod, 'Tuesday')
+
+    expect(payload).toEqual({
+      day: 'tuesday',
+      start_time: '11:10',
+      end_time: '11:50',
+      subject_id: 'sub1',
+      teacher_id: 't1',
+      room_number: 'R101',
+    })
+  })
+
+  it('buildMovePayload sends null teacher and empty room when absent', () => {
+    const cell = { _id: 's2', subjectId: 'sub2' }
+    const payload = buildMovePayload(cell, { id: 1, time: '8:00 – 8:40' }, 'Monday')
+    expect(payload.teacher_id).toBeNull()
+    expect(payload.room_number).toBe('')
   })
 })

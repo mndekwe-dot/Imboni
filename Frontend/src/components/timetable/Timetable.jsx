@@ -1,8 +1,10 @@
 import { useState } from "react"
+import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { WeekPicker } from './weekPicker'
 import { getThisMonday, getTodayDayIndex } from './dateUtils'
 import { DayTabs } from './DaysTabs'
 import { TimetableCell } from './TimetableCell'
+import { DraggableCell } from './DraggableCell'
 import { DAYS, DAY_SHORT, EXTRA_SLOTS, extraSchedules } from '../../data/extraTimetable'
 import { PERIODS, academicSchedules } from '../../data/academicTimetable'
 import '../../styles/timetable.css'
@@ -62,7 +64,9 @@ function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, sch
                the static import as fallback)
    todayDayIndex — DAYS index of today, or -1 if not current week
 ─────────────────────────────────────────────────────────────────────────── */
-function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods, schedules, todayDayIndex }) {
+function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods, schedules, todayDayIndex, onMoveSlot }) {
+    // A small drag threshold so a click on a cell/edit button never starts a drag.
+    const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
     const schedule = (schedules || academicSchedules)[classId]
 
     if (!schedule) {
@@ -72,46 +76,81 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
     /* Mon–Sat only — Sunday excluded from academic schedule */
     const academicDays     = DAYS.slice(0, 6)
     const academicDayShort = DAY_SHORT.slice(0, 6)
+    const dragEnabled = typeof onMoveSlot === 'function'
+
+    function handleDragEnd(event) {
+        const { active, over } = event
+        if (!over) return
+        const from = active.data.current   // { cell, day, periodIndex }
+        const to   = over.data.current     // { day, periodIndex }
+        if (!from || !to) return
+        if (from.day === to.day && from.periodIndex === to.periodIndex) return
+        onMoveSlot({
+            cell: from.cell,
+            fromDay: from.day, fromPeriodIndex: from.periodIndex,
+            toDay: to.day, toPeriodIndex: to.periodIndex,
+        })
+    }
+
+    const table = (
+        <table className="tt-table" data-day={selectedDay}>
+            <thead>
+                <tr>
+                    <th className="tt-time-head">Period</th>
+                    {academicDays.map((day, i) => (
+                        <th
+                            key={day}
+                            className={`tt-day-head tt-col-${i + 1}${i === todayDayIndex ? ' tt-today' : ''}`}
+                        >
+                            {academicDayShort[i]}
+                        </th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {periods.map((period, periodIndex) => (
+                    <tr key={period.id}>
+                        <td className="tt-time-cell">
+                            <strong>{period.label}</strong>
+                            <span>{period.time}</span>
+                        </td>
+                        {academicDays.map((day, i) => {
+                            const raw = schedule[day]?.[periodIndex] ?? null
+                            const cell = raw ? { type: raw.type || 'academic', ...raw } : null
+                            if (dragEnabled) {
+                                return (
+                                    <DraggableCell
+                                        key={day}
+                                        cell={cell}
+                                        day={day}
+                                        periodIndex={periodIndex}
+                                        colIndex={i + 1}
+                                        editable={editable}
+                                        onEdit={(c) => onEditCell({ period, day, cell: c })}
+                                    />
+                                )
+                            }
+                            return (
+                                <TimetableCell
+                                    key={day}
+                                    cell={cell}
+                                    editable={editable}
+                                    onEdit={(c) => onEditCell({ period, day, cell: c })}
+                                    colIndex={i + 1}
+                                />
+                            )
+                        })}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    )
 
     return (
         <div className="tt-wrap">
-            <table className="tt-table" data-day={selectedDay}>
-                <thead>
-                    <tr>
-                        <th className="tt-time-head">Period</th>
-                        {academicDays.map((day, i) => (
-                            <th
-                                key={day}
-                                className={`tt-day-head tt-col-${i + 1}${i === todayDayIndex ? ' tt-today' : ''}`}
-                            >
-                                {academicDayShort[i]}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {periods.map((period, periodIndex) => (
-                        <tr key={period.id}>
-                            <td className="tt-time-cell">
-                                <strong>{period.label}</strong>
-                                <span>{period.time}</span>
-                            </td>
-                            {academicDays.map((day, i) => {
-                                const cell = schedule[day]?.[periodIndex] ?? null
-                                return (
-                                    <TimetableCell
-                                        key={day}
-                                        cell={cell ? { type: cell.type || 'academic', ...cell } : null}
-                                        editable={editable}
-                                        onEdit={(c) => onEditCell({ period, day, cell: c })}
-                                        colIndex={i + 1}
-                                    />
-                                )
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            {dragEnabled
+                ? <DndContext sensors={sensors} onDragEnd={handleDragEnd}>{table}</DndContext>
+                : table}
         </div>
     )
 }
@@ -151,6 +190,7 @@ export function Timetable({
     weekKey      = 'default',
     onWeekChange = null,
     currentMonday: controlledMonday = null,
+    onMoveSlot   = null,
 }) {
     const [internalMonday, setInternalMonday] = useState(() => getThisMonday())
     const currentMonday = controlledMonday ?? internalMonday
@@ -192,6 +232,7 @@ export function Timetable({
                     periods={periods}
                     schedules={schedules}
                     todayDayIndex={todayDayIndex}
+                    onMoveSlot={onMoveSlot}
                 />
             )}
         </div>
