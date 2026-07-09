@@ -348,5 +348,8 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 CELERY_TASK_PUBLISH_RETRY = False
 # Set CELERY_TASK_ALWAYS_EAGER=True in .env to run tasks inline (no Redis
 # needed) — handy in development before the broker is set up.
-CELERY_TASK_ALWAYS_EAGER  = config('CELERY_TASK_ALWAYS_EAGER', cast=bool, default=False)
+# Under tests, ALWAYS run tasks inline so results are deterministic no matter
+# whether a Redis broker happens to be running locally — otherwise safe_delay()
+# may queue to a broker with no worker and background effects never happen.
+CELERY_TASK_ALWAYS_EAGER  = True if TESTING else config('CELERY_TASK_ALWAYS_EAGER', cast=bool, default=False)
 CELERY_TASK_EAGER_PROPAGATES = True
