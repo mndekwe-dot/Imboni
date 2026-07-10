@@ -35,4 +35,9 @@ app.conf.beat_schedule = {
         'task': 'apps.parents.tasks.send_weekly_digest_task',
         'schedule': crontab(day_of_week='friday', hour=17, minute=0),
     },
+    # Every day at 02:00 — compressed off-hours database backup (+ prune old ones)
+    'backup-database': {
+        'task': 'apps.audit.tasks.backup_database_task',
+        'schedule': crontab(hour=2, minute=0),
+    },
 }

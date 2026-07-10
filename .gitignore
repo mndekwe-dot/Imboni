@@ -22,6 +22,11 @@ staticfiles/
 *.log
 db.sqlite3
 
+# Database backups (never commit real pupil data)
+backups/
+*.sql
+*.sql.gz
+
 # IDE
 .vscode/
 .idea/
