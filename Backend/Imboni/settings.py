@@ -223,6 +223,7 @@ REST_FRAMEWORK = {
         'user':           None if TESTING else '1000/min',
         'login':          None if TESTING else '5/min',   # per IP — stops guessing
         'password_reset': None if TESTING else '3/min',
+        'two_factor':     None if TESTING else '10/min',  # per IP — stops OTP brute force
     },
 }
 

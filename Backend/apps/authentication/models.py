@@ -74,6 +74,32 @@ class UserPreferences(models.Model):
     
     def __str__(self):
         return f"Preferences for {self.user.username}"
+class TwoFactorConfig(models.Model):
+    """
+    TOTP two-factor authentication for an account (authenticator apps like
+    Google Authenticator / Authy). One row per user who has started 2FA setup.
+
+    `secret` holds the base32 TOTP shared secret. `is_enabled` is False during
+    setup and flips True once the user proves they can generate a valid code.
+    `backup_codes` stores *hashed* one-time recovery codes (never plaintext) for
+    when the authenticator device is lost.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='two_factor')
+    secret = models.CharField(max_length=64)
+    is_enabled = models.BooleanField(default=False)
+    backup_codes = models.JSONField(default=list, blank=True)   # list of hashed codes
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'two_factor_configs'
+
+    def __str__(self):
+        return f"2FA({'on' if self.is_enabled else 'setup'}) for {self.user.username}"
+
+
 class Invitation(models.Model):
     ROLE_CHOICE =(
         ('student','Student'),
