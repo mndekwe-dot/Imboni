@@ -37,24 +37,33 @@ export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEd
         )
     }
 
-    // No transform on the <td> itself — table cells don't move reliably. A
-    // DragOverlay (in AcademicTimetable) renders the floating copy that follows
-    // the cursor; the source cell just dims via .tt-dragging.
+    // The drag activator is an explicit grip handle, NOT the whole cell — so
+    // grabbing the text can't start a text-selection instead of a drag, and the
+    // draggable affordance is visible. The <td> is still the draggable node
+    // (for measurement); only the handle carries the pointer listeners.
     return (
         <td
             ref={setRef}
             className={`tt-cell tt-${cell.type || 'academic'} tt-col-${colIndex} tt-draggable${drag.isDragging ? ' tt-dragging' : ''}`}
-            {...drag.attributes}
-            {...drag.listeners}
         >
+            <button
+                type="button"
+                ref={drag.setActivatorNodeRef}
+                className="tt-drag-handle"
+                title="Drag to move this lesson"
+                aria-label="Drag to move this lesson"
+                {...drag.attributes}
+                {...drag.listeners}
+            >
+                <span className="material-symbols-rounded">drag_indicator</span>
+            </button>
+
             <div className="tt-subject">{cell.subject}</div>
             {cell.teacher && <div className="tt-teacher">{cell.teacher}</div>}
             {cell.room && <div className="tt-room">{cell.room}</div>}
             {editable && (
                 <button
                     className="tt-cell-edit-btn"
-                    // Stop the pointerdown from starting a drag so the edit
-                    // button stays clickable inside a draggable cell.
                     onPointerDown={e => e.stopPropagation()}
                     onClick={() => onEdit(cell)}
                 >
