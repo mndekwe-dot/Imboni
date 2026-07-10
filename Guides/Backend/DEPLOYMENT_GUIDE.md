@@ -174,6 +174,34 @@ npm run build      # outputs dist/ (nginx serves it)
 
 Rebuild and let nginx pick up `dist/` on every frontend change.
 
+## 5.5 Onboarding a school's data
+
+Setting up a pilot school without hand-entering hundreds of rows. Sample CSVs
+and the full walk-through live in `Backend/onboarding_samples/` — export the
+school's real data as **CSV UTF-8** into those shapes. Every step has a
+`--dry-run`; always preview first.
+
+**Order matters** (each step depends on the previous):
+
+1. **Staff & students** — upload `people.csv` via **Admin/DOS → Invitations →
+   Import CSV** (the existing bulk-invite). Staff get an account on accepting;
+   students/parents register from their invite link.
+2. **Classes** — `python manage.py import_classes onboarding_samples/classes.csv`
+   (matched on grade+section, safe to re-run).
+3. **Subjects** — create them (DOS portal or seed) so the timetable can
+   reference them by code.
+4. **Timetable** — `python manage.py import_timetable onboarding_samples/timetable.csv`
+   (needs a current `AcademicTerm`; skips teacher double-bookings rather than
+   clashing them).
+
+```bash
+# Always dry-run first
+python manage.py import_classes  onboarding_samples/classes.csv  --dry-run
+python manage.py import_timetable onboarding_samples/timetable.csv --dry-run
+```
+
+Class and timetable imports are recorded in the audit log.
+
 ## 6. Go-live checklist
 
 Before letting a real school in, confirm:
