@@ -43,7 +43,8 @@ describe('Sidebar', () => {
     renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
     const aside = document.querySelector('aside.sidebar')
     expect(aside).not.toHaveClass('collapsed')
-    fireEvent.click(screen.getByLabelText('Toggle sidebar'))
+    // Label reflects the action: "Collapse sidebar" when expanded, "Expand" when collapsed.
+    fireEvent.click(screen.getByLabelText('Collapse sidebar'))
     expect(aside).toHaveClass('collapsed')
   })
 

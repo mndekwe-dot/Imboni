@@ -16,7 +16,7 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
         aria-label="Open menu"
         onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}
       >
-        <span className="material-symbols-rounded">menu</span>
+        <span className="material-symbols-rounded" aria-hidden="true">menu</span>
       </button>
 
       <div className="dashboard-header-title">
@@ -37,7 +37,7 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
             <span className="header-user-name">{userName}</span>
             <span className="header-user-role">{userRole}</span>
           </div>
-          <Link to={`/profile?role=${avatarClass?.replace('-av', '') ?? ''}`} className={`header-user-av ${avatarClass}`}>{userInitials}</Link>
+          <Link to={`/profile?role=${avatarClass?.replace('-av', '') ?? ''}`} className={`header-user-av ${avatarClass}`} aria-label="Your profile">{userInitials}</Link>
         </div>
       </div>
     </header>

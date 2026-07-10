@@ -26,6 +26,7 @@ export function Sidebar({ navItems, secondaryItems }) {
       {mobileOpen && (
         <div
           className="sidebar-overlay active"
+          aria-hidden="true"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -45,10 +46,11 @@ export function Sidebar({ navItems, secondaryItems }) {
           {/* Desktop: collapse/expand */}
           <button
             className="toggle sidebar-toggle"
-            aria-label="Toggle sidebar"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-expanded={!collapsed}
             onClick={() => setCollapsed(c => !c)}
           >
-            <span className="material-symbols-rounded">chevron_left</span>
+            <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
           </button>
 
           {/* Mobile: close sidebar */}
@@ -57,11 +59,11 @@ export function Sidebar({ navItems, secondaryItems }) {
             aria-label="Close menu"
             onClick={() => setMobileOpen(false)}
           >
-            <span className="material-symbols-rounded">close</span>
+            <span className="material-symbols-rounded" aria-hidden="true">close</span>
           </button>
         </header>
 
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" aria-label="Main navigation">
           <ul className="nav-list primary-nav">
             {navItems.map((item) => (
               <li key={item.to}>
@@ -73,7 +75,7 @@ export function Sidebar({ navItems, secondaryItems }) {
                   }
                   onClick={() => setMobileOpen(false)}
                 >
-                  <span className="material-symbols-rounded">{item.icon}</span>
+                  <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
                   <span>{item.label}</span>
                 </NavLink>
               </li>
@@ -88,7 +90,7 @@ export function Sidebar({ navItems, secondaryItems }) {
                     className="sidebar-nav-item"
                     onClick={() => { setMobileOpen(false); logout() }}
                   >
-                    <span className="material-symbols-rounded">{item.icon}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
                     <span>{item.label}</span>
                   </button>
                 ) : (
@@ -100,7 +102,7 @@ export function Sidebar({ navItems, secondaryItems }) {
                     }
                     onClick={() => setMobileOpen(false)}
                   >
-                    <span className="material-symbols-rounded">{item.icon}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
                     <span>{item.label}</span>
                   </NavLink>
                 )}
