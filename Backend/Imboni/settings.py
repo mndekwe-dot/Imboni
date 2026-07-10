@@ -353,3 +353,29 @@ CELERY_TASK_PUBLISH_RETRY = False
 # may queue to a broker with no worker and background effects never happen.
 CELERY_TASK_ALWAYS_EAGER  = True if TESTING else config('CELERY_TASK_ALWAYS_EAGER', cast=bool, default=False)
 CELERY_TASK_EAGER_PROPAGATES = True
+
+# ── Error monitoring (Sentry) ──────────────────────────────────────────────────
+# Only initialises when SENTRY_DSN is set, so local dev and the test suite run
+# with no Sentry at all (no DSN in .env = no-op). Set SENTRY_DSN in production.
+#
+# IMPORTANT — children's data: send_default_pii is left False so Sentry never
+# captures request bodies, cookies, user emails, or IP addresses. This app holds
+# minors' grades, medical, and disciplinary records; error reports must not leak
+# them. Do not flip send_default_pii to True.
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN and not TESTING:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration(), CeleryIntegration()],
+        environment=config('SENTRY_ENVIRONMENT', default='production'),
+        release=config('SENTRY_RELEASE', default=None),
+        # Fraction of requests traced for performance. Keep low in production to
+        # control volume; raise while investigating a specific slowdown.
+        traces_sample_rate=config('SENTRY_TRACES_SAMPLE_RATE', cast=float, default=0.1),
+        # Never attach PII (emails, IPs, request bodies) to events — see note above.
+        send_default_pii=False,
+    )
