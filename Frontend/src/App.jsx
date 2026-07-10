@@ -114,6 +114,10 @@ function App() {
   // only when its route is first visited, instead of shipping all 7 portals in
   // one bundle up front. Suspense shows RouteFallback during that brief fetch.
   return (
+    <>
+    {/* Keyboard users can jump past the sidebar straight to page content.
+        Every portal page renders <main id="main-content">. */}
+    <a href="#main-content" className="skip-link">Skip to main content</a>
     <Suspense fallback={<RouteFallback />}>
     <Routes>
       <Route path="/" element={<LandingPage />} />
@@ -250,6 +254,7 @@ function App() {
       <Route path="*"    element={<NotFound/>} />
     </Routes>
     </Suspense>
+    </>
   )
 }
 

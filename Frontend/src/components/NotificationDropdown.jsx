@@ -22,8 +22,15 @@ export function NotificationDropdown({ notifications, onRead }) {
         setIsOpen(false)
       }
     }
+    function handleEscape(e) {
+      if (e.key === 'Escape') setIsOpen(false)
+    }
     document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('keydown', handleEscape)
+    }
   }, [])
 
   function handleItemClick(item) {
@@ -35,8 +42,14 @@ export function NotificationDropdown({ notifications, onRead }) {
 
   return (
     <div className="notif-wrapper" ref={wrapperRef}>
-      <button className="notification-btn" onClick={() => setIsOpen(prev => !prev)}>
-        <span className="material-symbols-rounded">notifications</span>
+      <button
+        className="notification-btn"
+        aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen(prev => !prev)}
+      >
+        <span className="material-symbols-rounded" aria-hidden="true">notifications</span>
         {unreadCount > 0 && (
           <span className="notification-badge">{unreadCount}</span>
         )}
@@ -54,10 +67,18 @@ export function NotificationDropdown({ notifications, onRead }) {
             {items.map(item => (
               <div
                 key={item.id}
+                role="button"
+                tabIndex={0}
                 className={`notif-item ${item.read ? 'notif-read' : 'notif-unread'}`}
                 onClick={() => handleItemClick(item)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleItemClick(item)
+                  }
+                }}
               >
-                <div className="notif-dot" />
+                <div className="notif-dot" aria-hidden="true" />
                 <div className="notif-content">
                   <p className="notif-title">{item.title}</p>
                   <p className="notif-message">{item.message}</p>
