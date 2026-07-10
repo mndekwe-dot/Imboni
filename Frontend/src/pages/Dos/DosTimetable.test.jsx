@@ -127,7 +127,8 @@ describe('DosTimetable', () => {
     // The subject text itself isn't clickable — only the small edit-icon
     // button inside the same cell opens the edit form.
     const cell = screen.getByText('Mathematics').closest('td')
-    fireEvent.click(within(cell).getByRole('button'))
+    const editBtn = within(cell).getAllByRole('button').find(b => b.getAttribute('aria-label') !== 'Drag to move this lesson')
+    fireEvent.click(editBtn)
 
     await waitFor(() => expect(screen.getByText('Edit Slot', { selector: 'h2' })).toBeInTheDocument())
 
@@ -147,7 +148,8 @@ describe('DosTimetable', () => {
 
     await waitFor(() => expect(screen.getByText('Mathematics')).toBeInTheDocument())
     const cell = screen.getByText('Mathematics').closest('td')
-    fireEvent.click(within(cell).getByRole('button'))
+    const editBtn = within(cell).getAllByRole('button').find(b => b.getAttribute('aria-label') !== 'Drag to move this lesson')
+    fireEvent.click(editBtn)
 
     await waitFor(() => expect(screen.getByRole('button', { name: /Delete/ })).toBeInTheDocument())
     fireEvent.click(screen.getByRole('button', { name: /Delete/ }))

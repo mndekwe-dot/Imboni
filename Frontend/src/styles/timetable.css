@@ -138,16 +138,35 @@
 .tt-room    { font-size: 0.7rem;  color: var(--muted-foreground); margin-top: 0.1rem; }
 
 /* ── Drag-to-move (DOS academic timetable) ─────────────────────────────────── */
-/* user-select:none is essential — without it, press-and-drag selects the cell
-   text instead of starting the drag. touch-action:none enables touch drag. */
-.tt-draggable {
+.tt-draggable { position: relative; }
+.tt-dragging { opacity: 0.4; }
+
+/* Grip handle — the only drag activator (avoids text-selection stealing the
+   gesture). touch-action/user-select:none make press-drag work on it. */
+.tt-drag-handle {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    border: none;
+    background: transparent;
+    color: var(--muted-foreground, #94a3b8);
     cursor: grab;
+    opacity: 0.55;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
 }
-.tt-draggable:active { cursor: grabbing; }
-.tt-dragging { opacity: 0.4; }
+.tt-drag-handle:hover { opacity: 1; color: var(--primary, #2563eb); }
+.tt-drag-handle:active { cursor: grabbing; }
+.tt-drag-handle .material-symbols-rounded { font-size: 1rem; }
+/* Nudge cell text right so it doesn't sit under the handle */
+.tt-draggable .tt-subject { padding-left: 1.1rem; }
 
 /* Empty cell highlighted as a valid drop target while dragging over it */
 .tt-drop-over {
