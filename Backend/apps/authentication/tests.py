@@ -167,3 +167,85 @@ class TestSendInvitationView:
         })
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestPrivilegeEscalationIsBlocked:
+    """
+    Regression tests for the critical self-promotion hole: UserViewSet is a
+    ModelViewSet and role used to be a writable serializer field, so any user
+    could PATCH their own record to become an admin.
+    """
+    def test_student_cannot_promote_self_to_admin(self, make_authenticated_client):
+        client, student = make_authenticated_client('student')
+
+        response = client.patch(f'/imboni/users/{student.id}/', {'role': 'admin'}, format='json')
+
+        student.refresh_from_db()
+        assert student.role == 'student'                 # role unchanged
+        # Request itself may succeed (200) but the privileged field is ignored
+        assert response.status_code in (status.HTTP_200_OK, status.HTTP_403_FORBIDDEN)
+        if response.status_code == status.HTTP_200_OK:
+            assert response.data['role'] == 'student'
+
+    def test_student_cannot_reactivate_self_via_is_active(self, make_authenticated_client):
+        client, student = make_authenticated_client('student')
+        student.is_active = True
+        student.save()
+
+        client.patch(f'/imboni/users/{student.id}/', {'is_active': False, 'role': 'admin'}, format='json')
+
+        student.refresh_from_db()
+        assert student.role == 'student'
+        assert student.is_active is True                 # is_active is read-only here
+
+    def test_non_admin_cannot_create_users(self, make_authenticated_client):
+        client, _teacher = make_authenticated_client('teacher')
+
+        response = client.post('/imboni/users/', {
+            'username': 'sneaky', 'email': 'sneaky@x.com',
+            'first_name': 'S', 'last_name': 'Neaky', 'role': 'admin',
+        }, format='json')
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert not User.objects.filter(email='sneaky@x.com').exists()
+
+    def test_non_admin_cannot_register_arbitrary_role(self, make_authenticated_client):
+        client, _student = make_authenticated_client('student')
+
+        response = client.post('/imboni/users/register/', {
+            'username': 'newadmin', 'email': 'newadmin@x.com',
+            'password': 'ComplexPass123!', 'password_confirm': 'ComplexPass123!',
+            'first_name': 'New', 'last_name': 'Admin', 'role': 'admin',
+        }, format='json')
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert not User.objects.filter(email='newadmin@x.com').exists()
+
+    def test_admin_can_still_manage_users(self, make_authenticated_client):
+        client, _admin = make_authenticated_client('admin')
+        response = client.get('/imboni/users/', {'role': 'teacher'})
+        assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+class TestLoginThrottling:
+    def test_login_is_rate_limited_per_ip(self, api_client, monkeypatch):
+        # Throttling is disabled under the test suite by default (rates=None);
+        # force a low rate on the login throttle to prove it's wired up.
+        # SimpleRateThrottle uses a truthy class `rate` attr directly.
+        from apps.authentication.views import LoginRateThrottle
+        from django.core.cache import cache
+        cache.clear()
+        # raising=False: `rate` only exists on instances, not the class
+        monkeypatch.setattr(LoginRateThrottle, 'rate', '3/min', raising=False)
+
+        statuses = []
+        for _ in range(5):
+            r = api_client.post('/imboni/auth/login/', {
+                'username': 'nobody@imboni.test', 'password': 'x', 'portal': 'dos',
+            })
+            statuses.append(r.status_code)
+
+        assert statuses.count(status.HTTP_429_TOO_MANY_REQUESTS) >= 1
+        cache.clear()   # don't leak throttle state into other tests

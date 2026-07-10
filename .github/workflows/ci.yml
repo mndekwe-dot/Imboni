@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+    branches: [main, portal-features]
+  pull_request:
+    branches: [main]
+  # Weekly run catches newly-disclosed CVEs in unchanged dependencies.
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
+
+jobs:
+  backend:
+    name: Backend (Django + pytest)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: imboni_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      # settings.py reads these via python-decouple; no real secrets in CI.
+      THE_SECRET_KEY: ci-not-a-real-secret-key-for-tests-only-0123456789
+      MY_DEBUG: "False"
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      DATABASE_NAME: imboni_test
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+      CELERY_TASK_ALWAYS_EAGER: "True"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install system deps for mysqlclient
+        run: sudo apt-get update && sudo apt-get install -y pkg-config default-libmysqlclient-dev build-essential
+
+      - name: Install Python dependencies
+        working-directory: Backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Audit Python dependencies for known CVEs
+        working-directory: Backend
+        # Fails the build if any installed package has a known vulnerability.
+        # Bump the offending pin in requirements.txt to fix. To temporarily
+        # accept one with no fix yet, add: --ignore-vuln <ID>  (with a comment).
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+
+      - name: Point Django at the MySQL service host
+        working-directory: Backend
+        # settings.py hardcodes HOST 127.0.0.1 which matches the mapped service port
+        run: python -c "import django; print('Django', django.get_version())"
+
+      - name: Run migrations check
+        working-directory: Backend
+        run: python manage.py migrate --noinput
+
+      - name: Run backend tests
+        working-directory: Backend
+        run: python -m pytest -q --create-db
+
+  frontend:
+    name: Frontend (Vitest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: Frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: Frontend
+        run: npm ci
+
+      - name: Audit npm dependencies for known CVEs
+        working-directory: Frontend
+        # Fails on high/critical advisories. Run `npm audit fix` locally to
+        # resolve, or raise the threshold if a finding is triaged as acceptable.
+        run: npm audit --audit-level=high
+
+      - name: Run frontend tests
+        working-directory: Frontend
+        run: npm test
+
+      - name: Build (verifies the production bundle + PWA compile)
+        working-directory: Frontend
+        run: npm run build
+
+  e2e:
+    name: Frontend E2E (Playwright)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: Frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: Frontend
+        run: npm ci
+
+      - name: Install Playwright browser
+        working-directory: Frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E
+        working-directory: Frontend
+        # Playwright starts the dev server itself (see playwright.config.js).
+        run: npm run e2e
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: Frontend/playwright-report/
+          retention-days: 7

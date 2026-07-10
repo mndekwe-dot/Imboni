@@ -11,6 +11,8 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 
+const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
+
 export function ParentTimetable() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -20,7 +22,7 @@ export function ParentTimetable() {
 
     useEffect(() => {
         getMyChildren()
-            .then(setChildren)
+            .then(d => setChildren(toList(d)))
             .catch(console.error)
             .finally(() => setLoading(false))
     }, [])
@@ -54,8 +56,9 @@ export function ParentTimetable() {
                                     </h2>
                                     {children.length > 1 && (
                                         <div className="flex-row-gap-sm">
-                                            <label className="form-label mb-0">Child:</label>
+                                            <label className="form-label mb-0" htmlFor="parent-timetable-child">Child:</label>
                                             <select
+                                                id="parent-timetable-child"
                                                 className="form-input"
                                                 style={{ width: 'auto' }}
                                                 value={selectedIndex}

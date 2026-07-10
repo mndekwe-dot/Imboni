@@ -47,13 +47,20 @@ export const createTeacherAssignment  = d           => client.post('/imboni/teac
 export const updateTeacherAssignment  = (id, d)    => client.patch(`/imboni/teacher/assignments/${id}/`, d)
 export const deleteTeacherAssignment  = id          => client.delete(`/imboni/teacher/assignments/${id}/`)
 export const getAssignmentSubmissions = id          => client.get(`/imboni/teacher/assignments/${id}/submissions/`)
+export const getAssignmentGradeSheet  = id            => client.get(`/imboni/teacher/assignments/${id}/grade/`)
+export const saveAssignmentGrades     = (id, records) => client.post(`/imboni/teacher/assignments/${id}/grade/`, { records })
+
+// Performance trends (month-by-month class average)
+export const getTeacherPerformanceTrends = (params) => client.get('/imboni/teacher/results/performance-trends/', { params })
 
 // Question Bank
 export const getQuestionBank    = (params)  => client.get('/imboni/teacher/question-bank/', { params })
 export const saveToQuestionBank = d          => client.post('/imboni/teacher/question-bank/', d)
+export const patchQuestionBank  = (id, d)    => client.patch(`/imboni/teacher/question-bank/${id}/`, d)
 export const deleteFromQuestionBank = id     => client.delete(`/imboni/teacher/question-bank/${id}/`)
 
 // Student-facing quiz (also used by student portal)
 export const getStudentQuizzes  = ()        => client.get('/imboni/quiz/')
 export const getQuizForStudent  = id        => client.get(`/imboni/quiz/${id}/`)
 export const submitQuizAnswers  = (id, d)   => client.post(`/imboni/quiz/${id}/submit/`, d)
+export const getQuizReview      = id        => client.get(`/imboni/quiz/${id}/review/`)

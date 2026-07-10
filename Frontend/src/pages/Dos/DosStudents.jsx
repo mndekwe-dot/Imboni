@@ -10,7 +10,8 @@ import { DataTable } from '../../components/ui/DataTable'
 import { StatCard } from '../../components/layout/StatCard'
 import { Modal } from '../../components/ui/Modal'
 import { getDosStudents, getDosStudentStats, inviteDosStudent, bulkInviteDosStudents,
-         getDosStudentDetail, suspendDosStudent, changeDosStudentClass, appointStudentLeader, removeStudentLeader } from '../../api/dos'
+         getDosStudentDetail, suspendDosStudent, changeDosStudentClass, appointStudentLeader, removeStudentLeader,
+         downloadStudentReportCard } from '../../api/dos'
 import { getInvitations, resendInvitation, cancelInvitation } from '../../api/auth'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -382,6 +383,27 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
 
     const [suspending, setSuspending] = useState(false)
     const [removing,   setRemoving]   = useState(null)
+    const [downloading, setDownloading] = useState(false)
+
+    async function handleDownloadReportCard() {
+        setDownloading(true); setActionErr('')
+        try {
+            const blob = await downloadStudentReportCard(studentId)
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `report_${student?.student_code || studentId}.pdf`
+            a.click()
+            URL.revokeObjectURL(url)
+        } catch (err) {
+            // 404 = no approved results for the current term
+            setActionErr(err?.response?.status === 404
+                ? 'No approved results for this student in the current term yet.'
+                : 'Failed to generate the report card.')
+        } finally {
+            setDownloading(false)
+        }
+    }
 
     const availYears   = yearsFromConfig(config)
     const availStreams  = [...new Set(config.flatMap(s => s.years.flatMap(y => y.streams)))]
@@ -469,6 +491,12 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     >
                         <span className="material-symbols-rounded icon-sm">{isSuspended ? 'check_circle' : 'block'}</span>
                         {suspending ? '…' : isSuspended ? 'Reinstate' : 'Suspend'}
+                    </button>
+                    <button className="btn btn-outline btn-sm" onClick={handleDownloadReportCard}
+                        disabled={downloading || !student}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <span className="material-symbols-rounded icon-sm">picture_as_pdf</span>
+                        {downloading ? 'Generating…' : 'Report Card'}
                     </button>
                     <button className="btn btn-primary btn-sm" onClick={onClose}>Close</button>
                 </div>

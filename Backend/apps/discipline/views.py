@@ -58,6 +58,70 @@ def _notify_parent(dis_user, parent_user, report):
     conv.save(update_fields=['updated_at'])
 
 
+# Number of approved warning/incident reports in one term that triggers an
+# automatic "parent meeting required" escalation.
+ESCALATION_THRESHOLD = 3
+
+
+def _check_escalation(student):
+    """
+    Called after a warning/incident report is approved. When the student's
+    approved warning+incident count for the current term reaches the
+    threshold, notify the discipline office, admins and the parents that a
+    parent meeting is required. Fires exactly once (at the threshold).
+    """
+    from apps.results.models import AcademicTerm
+    from apps.notifications.services import notify_parents_of, notify_role
+
+    term = AcademicTerm.objects.filter(is_current=True).first()
+    if not term:
+        return False
+
+    count = BehaviorReport.objects.filter(
+        student=student,
+        status='approved',
+        report_type__in=('warning', 'incident'),
+        date__gte=term.start_date,
+        date__lte=term.end_date,
+    ).count()
+
+    if count != ESCALATION_THRESHOLD:
+        return False
+
+    student_name = student.user.get_full_name()
+    notify_role(
+        'discipline',
+        title=f'Escalation: {student_name}',
+        message=(
+            f"{student_name} ({student.student_id}) now has {count} approved conduct "
+            f"reports this term. A parent meeting is required."
+        ),
+        type='attendance',
+        path='/dis/students',
+    )
+    notify_role(
+        'admin',
+        title=f'Escalation: {student_name}',
+        message=(
+            f"{student_name} ({student.student_id}) has reached {count} approved conduct "
+            f"reports this term and requires a parent meeting."
+        ),
+        type='attendance',
+        path='/admin/students',
+    )
+    notify_parents_of(
+        student,
+        title='Parent meeting required',
+        message=(
+            f"{student_name} has received {count} conduct reports this term. "
+            f"The school will contact you to arrange a meeting with the Discipline Office."
+        ),
+        type='attendance',
+        path='/parent/behaviour',
+    )
+    return True
+
+
 class DisciplineCurrentTermView(APIView):
     """GET /imboni/discipline/current-term/ — returns the current academic term id + name."""
     permission_classes = [IsDiscipline]
@@ -260,6 +324,10 @@ class DisciplineReportListView(APIView):
             marks_deducted=marks_deducted,
         )
 
+        # Discipline-filed reports are auto-approved and count toward escalation
+        if report.status == 'approved' and report.report_type in ('warning', 'incident'):
+            _check_escalation(student)
+
         return Response({
             'id': str(report.id),
             'student': student.user.get_full_name(),
@@ -385,6 +453,9 @@ class DisciplineReportReviewView(APIView):
             if rel:
                 _notify_parent(request.user, rel.parent, report)
                 parent_notified = True
+
+            if report.report_type in ('warning', 'incident'):
+                _check_escalation(report.student)
 
         return Response({
             'id': str(report.id),
@@ -784,6 +855,60 @@ def _section_dict(s):
         'gender':      s.gender,
         'description': s.description,
     }
+
+
+class DisFacilityOccupancyView(APIView):
+    """
+    GET /imboni/discipline/facilities/occupancy/
+
+    Occupancy board for dormitories: each active dormitory facility with its
+    capacity and the number of active boarders assigned to it (matched by
+    dormitory name, case-insensitive). Boarders whose dormitory doesn't match
+    any facility are reported under 'unassigned'.
+    """
+    permission_classes = [IsDiscipline]
+
+    def get(self, request):
+        from collections import Counter
+        from .models import DisFacility
+
+        boarder_counts = Counter(
+            (b.dormitory or '').strip().lower()
+            for b in BoardingStudent.objects.filter(is_active=True)
+            if (b.dormitory or '').strip()
+        )
+
+        dorms = []
+        matched_names = set()
+        facilities = DisFacility.objects.select_related('section').filter(
+            is_active=True, facility_type='dormitory'
+        )
+        for f in facilities:
+            key = f.name.strip().lower()
+            occupied = boarder_counts.get(key, 0)
+            matched_names.add(key)
+            capacity = f.capacity or 0
+            dorms.append({
+                'id':           str(f.id),
+                'name':         f.name,
+                'gender':       f.gender,
+                'section_name': f.section.name if f.section else None,
+                'capacity':     capacity,
+                'occupied':     occupied,
+                'available':    max(0, capacity - occupied) if capacity else None,
+                'occupancy_pct': round(occupied / capacity * 100, 1) if capacity else None,
+            })
+
+        unassigned = sum(
+            count for name, count in boarder_counts.items() if name not in matched_names
+        )
+
+        return Response({
+            'dormitories':     sorted(dorms, key=lambda d: d['name'].lower()),
+            'total_boarders':  sum(boarder_counts.values()),
+            'total_capacity':  sum(d['capacity'] for d in dorms),
+            'unassigned':      unassigned,
+        })
 
 
 class DisFacilityListView(APIView):

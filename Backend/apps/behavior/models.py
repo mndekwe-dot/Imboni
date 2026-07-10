@@ -71,6 +71,8 @@ class BehaviorReport(models.Model):
         indexes = [
             models.Index(fields=['student', 'date']),
             models.Index(fields=['report_type']),
+            # The discipline incident list filters by status and orders by date.
+            models.Index(fields=['status', 'date']),
         ]
     
     def __str__(self):

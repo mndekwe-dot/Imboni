@@ -54,16 +54,12 @@ class BehaviorReportSerializer(serializers.ModelSerializer):
         role = obj.reported_by.role
 
         if role == 'teacher':
-            # Deferred import to avoid circular dependency
-            from apps.teacher.models import SubjectTeacherAssignment
-            assignment = (
-                SubjectTeacherAssignment.objects
-                .filter(teacher=obj.reported_by)
-                .select_related('subject')
-                .first()
-            )
-            if assignment:
-                return f"{name} - {assignment.subject.name}"
+            # Read from the reporter's teaching assignments. List views prefetch
+            # reported_by__teaching_assignments__subject, so this is cache-only
+            # (was a per-report query — an N+1 on lists of up to 100 reports).
+            assignments = list(obj.reported_by.teaching_assignments.all())
+            if assignments:
+                return f"{name} - {assignments[0].subject.name}"
 
         role_labels = {
             'dos':   'Director of Studies',

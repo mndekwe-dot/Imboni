@@ -28,4 +28,10 @@ urlpatterns = [
 
     # Boarding Schedule (standing weekly routine)
     path('matron/boarding-schedule/',       views.MatronBoardingScheduleView.as_view(), name='matron-boarding-schedule'),
+
+    # Medication Schedule
+    path('matron/medications/',                        views.MatronMedicationListView.as_view(),       name='matron-medications'),
+    path('matron/medications/today/',                  views.MatronMedicationTodayView.as_view(),      name='matron-medications-today'),
+    path('matron/medications/<uuid:pk>/',              views.MatronMedicationDetailView.as_view(),     name='matron-medication-detail'),
+    path('matron/medications/<uuid:pk>/administer/',   views.MatronMedicationAdministerView.as_view(), name='matron-medication-administer'),
 ]

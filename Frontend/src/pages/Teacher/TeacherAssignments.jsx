@@ -15,8 +15,8 @@ import {
     getTeacherMyClasses, getTeacherSubjects,
     getTeacherAssignments, createTeacherAssignment,
     updateTeacherAssignment, deleteTeacherAssignment,
-    getAssignmentSubmissions,
-    getQuestionBank, saveToQuestionBank, deleteFromQuestionBank,
+    getAssignmentSubmissions, getAssignmentGradeSheet, saveAssignmentGrades,
+    getQuestionBank, saveToQuestionBank, patchQuestionBank, deleteFromQuestionBank,
 } from '../../api/teacher'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -404,20 +404,26 @@ function QuestionBankModal({ onClose, onImport }) {
     const [loading, setLoading] = useState(true)
     const [search,  setSearch]  = useState('')
     const [typeF,   setTypeF]   = useState('')
+    const [scope,   setScope]   = useState('')   // '' | 'mine' | 'shared'
     const [selected, setSelected] = useState(new Set())
 
     useEffect(() => {
-        getQuestionBank()
+        getQuestionBank(scope ? { scope } : undefined)
             .then(data => setBank(Array.isArray(data) ? data : []))
             .catch(() => {})
             .finally(() => setLoading(false))
-    }, [])
+    }, [scope])
 
     const filtered = bank.filter(q => {
         if (typeF && q.question_type !== typeF) return false
         if (search && !q.text.toLowerCase().includes(search.toLowerCase())) return false
         return true
     })
+
+    async function toggleShare(q) {
+        const updated = await patchQuestionBank(q.id, { is_shared: !q.is_shared }).catch(() => null)
+        if (updated) setBank(prev => prev.map(b => b.id === q.id ? { ...b, is_shared: updated.is_shared } : b))
+    }
 
     function toggle(id) {
         setSelected(prev => {
@@ -465,6 +471,12 @@ function QuestionBankModal({ onClose, onImport }) {
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
                 <input className="form-control" placeholder="Search questions…" style={{ flex: 1, minWidth: 180 }}
                     value={search} onChange={e => setSearch(e.target.value)} />
+                <select className="form-control" style={{ width: 150 }} value={scope} onChange={e => setScope(e.target.value)}
+                    aria-label="Question scope">
+                    <option value="">All questions</option>
+                    <option value="mine">My questions</option>
+                    <option value="shared">Shared with me</option>
+                </select>
                 <select className="form-control" style={{ width: 160 }} value={typeF} onChange={e => setTypeF(e.target.value)}>
                     <option value="">All types</option>
                     {QUESTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -491,12 +503,26 @@ function QuestionBankModal({ onClose, onImport }) {
                                 <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '0.15rem' }}>
                                     {typeLabel[q.question_type] || q.question_type} · {q.points} pt{q.points !== 1 ? 's' : ''}
                                     {q.subject_name ? ` · ${q.subject_name}` : ''}
+                                    {q.is_mine === false && q.teacher_name ? ` · Shared by ${q.teacher_name}` : ''}
+                                    {q.is_mine !== false && q.is_shared ? ' · Shared' : ''}
                                 </div>
                             </div>
-                            <button type="button" onClick={e => { e.stopPropagation(); handleDelete(q.id) }}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', flexShrink: 0 }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
-                            </button>
+                            {q.is_mine !== false && (
+                                <button type="button"
+                                    onClick={e => { e.stopPropagation(); toggleShare(q) }}
+                                    title={q.is_shared ? 'Stop sharing with other teachers' : 'Share with other teachers'}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: q.is_shared ? 'var(--primary)' : 'var(--muted-foreground)', flexShrink: 0 }}>
+                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>
+                                        {q.is_shared ? 'group' : 'group_off'}
+                                    </span>
+                                </button>
+                            )}
+                            {q.is_mine !== false && (
+                                <button type="button" onClick={e => { e.stopPropagation(); handleDelete(q.id) }}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', flexShrink: 0 }}>
+                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -628,6 +654,111 @@ function PreviewModal({ assignment, questions, onClose }) {
             {revealed && Object.keys(answers).length > 0 && (
                 <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--muted)', borderRadius: 8, fontWeight: 600, fontSize: '0.9rem' }}>
                     Preview score: {score()} / {calcMaxScore(questions)}
+                </div>
+            )}
+        </Modal>
+    )
+}
+
+// ── Paper Grading Modal ───────────────────────────────────────────────────────
+
+function GradeModal({ assignment, onClose }) {
+    const [sheet,   setSheet]   = useState(null)
+    const [scores,  setScores]  = useState({})
+    const [loading, setLoading] = useState(true)
+    const [saving,  setSaving]  = useState(false)
+    const [message, setMessage] = useState(null)
+
+    useEffect(() => {
+        getAssignmentGradeSheet(assignment.id)
+            .then(data => {
+                setSheet(data)
+                const init = {}
+                for (const s of data.students || []) {
+                    if (s.score !== null && s.score !== undefined) init[s.student_id] = String(s.score)
+                }
+                setScores(init)
+            })
+            .catch(() => setMessage({ type: 'error', text: 'Failed to load the class roster.' }))
+            .finally(() => setLoading(false))
+    }, [assignment.id])
+
+    const maxScore = sheet?.max_score || assignment.max_score
+
+    function setScore(studentId, value) {
+        setScores(prev => ({ ...prev, [studentId]: value }))
+    }
+
+    async function handleSave() {
+        setSaving(true); setMessage(null)
+        try {
+            const records = Object.entries(scores)
+                .filter(([, v]) => v !== '')
+                .map(([student_id, score]) => ({ student_id, score }))
+            const res = await saveAssignmentGrades(assignment.id, records)
+            if (res.errors?.length) {
+                setMessage({ type: 'error', text: `${res.saved} saved, ${res.errors.length} rejected (check scores are 0–${maxScore}).` })
+            } else {
+                setMessage({ type: 'success', text: `Saved ${res.saved} score${res.saved !== 1 ? 's' : ''}.` })
+            }
+        } catch {
+            setMessage({ type: 'error', text: 'Failed to save scores.' })
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const gradedCount = Object.values(scores).filter(v => v !== '').length
+
+    return (
+        <Modal title={`Grade — ${assignment.title}`} icon="edit_note" onClose={onClose} size="wide"
+            footer={
+                <div className="modal-footer-row">
+                    <span className="modal-footer-hint"
+                        style={{ color: message?.type === 'error' ? '#dc2626' : message?.type === 'success' ? 'var(--success)' : undefined }}>
+                        {message?.text || `${gradedCount}/${sheet?.students?.length ?? 0} graded · out of ${maxScore}`}
+                    </span>
+                    <button className="btn btn-outline" onClick={onClose}>Close</button>
+                    <button className="btn btn-primary" onClick={handleSave} disabled={saving || loading}>
+                        <span className="material-symbols-rounded icon-sm">save</span>
+                        {saving ? 'Saving…' : 'Save Scores'}
+                    </button>
+                </div>
+            }>
+            {loading ? (
+                <p style={{ color: 'var(--muted-foreground)' }}>Loading roster…</p>
+            ) : !sheet?.students?.length ? (
+                <p style={{ color: 'var(--muted-foreground)' }}>No students found in {assignment.class_name}.</p>
+            ) : (
+                <div className="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th style={{ width: 140 }}>Score (/{maxScore})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sheet.students.map(s => (
+                                <tr key={s.student_id}>
+                                    <td>
+                                        <div style={{ fontWeight: 500 }}>{s.full_name}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{s.student_code}</div>
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="number" min="0" max={maxScore}
+                                            className="form-control"
+                                            style={{ width: 110, padding: '0.3rem 0.5rem' }}
+                                            aria-label={`Score for ${s.full_name}`}
+                                            value={scores[s.student_id] ?? ''}
+                                            onChange={e => setScore(s.student_id, e.target.value)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
         </Modal>
@@ -918,7 +1049,7 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
 
 // ── Assignment Card ───────────────────────────────────────────────────────────
 
-function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSubmissions, publishing }) {
+function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSubmissions, onGrade, publishing }) {
     const pill = submissionPill(a)
     const statusStyle = {
         active: { bg: 'rgba(16,185,129,0.1)',  color: 'var(--success)'          },
@@ -969,6 +1100,12 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                         <button className="btn btn-outline btn-sm" onClick={() => onViewSubmissions(a)} title="View submissions">
                             <span className="material-symbols-rounded icon-sm">fact_check</span>
                             Submissions
+                        </button>
+                    )}
+                    {a.mode === 'paper' && a.status === 'active' && (
+                        <button className="btn btn-outline btn-sm" onClick={() => onGrade(a)} title="Enter scores">
+                            <span className="material-symbols-rounded icon-sm">edit_note</span>
+                            Grade
                         </button>
                     )}
                     {a.status !== 'closed' && (
@@ -1037,6 +1174,7 @@ export function TeacherAssignments() {
     const [saveError,    setSaveError]    = useState(null)
     const [publishing,   setPublishing]   = useState(null)
     const [viewSubs,     setViewSubs]     = useState(null)   // assignment to view submissions for
+    const [grading,      setGrading]      = useState(null)   // paper assignment being graded
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
@@ -1150,6 +1288,10 @@ export function TeacherAssignments() {
                 <SubmissionsModal assignment={viewSubs} onClose={() => setViewSubs(null)} />
             )}
 
+            {grading && (
+                <GradeModal assignment={grading} onClose={() => setGrading(null)} />
+            )}
+
             <div className="dashboard-layout">
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
@@ -1210,6 +1352,7 @@ export function TeacherAssignments() {
                                                 onPublish={handlePublish}
                                                 onDuplicate={handleDuplicate}
                                                 onViewSubmissions={setViewSubs}
+                                                onGrade={setGrading}
                                                 publishing={publishing}
                                             />
                                         </div>

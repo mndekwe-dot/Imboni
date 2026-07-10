@@ -586,6 +586,63 @@ class FeesOverviewView(APIView):
         })
 
 
+class SendFeeRemindersView(APIView):
+    """
+    Send an in-app fee reminder to the parents of every student with
+    due/overdue/partial fees in the current (or given) term.
+
+    POST /imboni/analytics/fees/remind/
+    Body (optional): { term_id: <uuid>, status: 'overdue' } — status defaults
+    to all unpaid states.
+
+    Returns { students: n, parents_notified: n }.
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def post(self, request):
+        from apps.student.models import Fee
+        from apps.parents.models import ParentStudentRelationship
+        from apps.results.models import AcademicTerm
+        from apps.notifications.tasks import safe_delay
+        from .tasks import send_fee_reminders_task
+
+        term_id = request.data.get('term_id')
+        if term_id:
+            term = AcademicTerm.objects.filter(pk=term_id).first()
+        else:
+            term = AcademicTerm.objects.filter(is_current=True).first()
+        if not term:
+            return Response({'error': 'No active term found.'}, status=404)
+
+        status_filter = request.data.get('status')
+        statuses = [status_filter] if status_filter else ['due', 'overdue', 'partial']
+
+        # Counts for the response; the actual fan-out runs in a Celery task
+        # (inline fallback when no broker is up) so hundreds of notifications
+        # don't block this request.
+        student_ids = list(
+            Fee.objects
+            .filter(term=term, status__in=statuses)
+            .values_list('student_id', flat=True)
+            .distinct()
+        )
+        students_count = len(student_ids)
+        parents_notified = (
+            ParentStudentRelationship.objects
+            .filter(student_id__in=student_ids)
+            .count()
+        )
+
+        safe_delay(send_fee_reminders_task, str(term.id), statuses)
+
+        from apps.audit.services import audit
+        audit(request.user, 'fees.reminders_sent',
+              target=f"{students_count} students",
+              detail={'students': students_count, 'parents_notified': parents_notified, 'term': term.name})
+
+        return Response({'students': students_count, 'parents_notified': parents_notified})
+
+
 class OutstandingFeesView(APIView):
     """
     Students with overdue or unpaid fees.

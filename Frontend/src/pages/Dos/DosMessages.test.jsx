@@ -1,0 +1,28 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { renderWithRouter, setSessionUser, screen, waitFor } from '../../test/test-utils'
+import { DosMessages } from './DosMessages'
+import { getConversations } from '../../api/messages'
+
+// Behaviour is covered by LiveMessages.test.jsx; these are thin-wrapper smoke tests.
+vi.mock('../../api/messages', () => ({
+  getConversations: vi.fn().mockResolvedValue([]),
+  getMessages: vi.fn(),
+  sendMessage: vi.fn(),
+  getMessageContacts: vi.fn(),
+  startConversation: vi.fn(),
+}))
+
+describe('DosMessages', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    getConversations.mockResolvedValue([])
+    setSessionUser({ first_name: 'Jean', last_name: 'Director', role: 'dos' })
+  })
+
+  it('mounts the live messaging page and loads conversations', async () => {
+    renderWithRouter(<DosMessages />)
+    expect(screen.getByText('Jean Director')).toBeInTheDocument()
+    await waitFor(() => expect(getConversations).toHaveBeenCalled())
+    expect(screen.getByText(/No conversations yet/)).toBeInTheDocument()
+  })
+})

@@ -1218,6 +1218,10 @@ class DOSResultApproveView(APIView):
         result.approved_at = timezone.now()
         result.dos_comment = request.data.get('dos_comment', result.dos_comment or '')
         result.save(update_fields=['status', 'approved_by', 'approved_at', 'dos_comment'])
+        from apps.audit.services import audit
+        audit(request.user, 'result.approved',
+              target=f"{result.student.full_name} — {result.subject.name}",
+              detail={'result_id': str(result.id)})
         return Response({'detail': 'Result approved.'})
 
 
@@ -1242,6 +1246,10 @@ class DOSResultRejectView(APIView):
         result.rejection_reason = request.data.get('rejection_reason', '')
         result.dos_comment      = request.data.get('dos_comment', result.dos_comment or '')
         result.save(update_fields=['status', 'rejection_reason', 'dos_comment'])
+        from apps.audit.services import audit
+        audit(request.user, 'result.rejected',
+              target=f"{result.student.full_name} — {result.subject.name}",
+              detail={'result_id': str(result.id), 'reason': result.rejection_reason})
         return Response({'detail': 'Result rejected.'})
 
 
@@ -1255,6 +1263,9 @@ class DOSResultBulkApproveView(APIView):
         if not ids:
             return Response({'detail': 'No ids provided.'}, status=http_status.HTTP_400_BAD_REQUEST)
         updated = Result.objects.filter(id__in=ids, status='submitted').update(status='approved')
+        from apps.audit.services import audit
+        audit(request.user, 'result.bulk_approved', target=f"{updated} results",
+              detail={'count': updated})
         return Response({'approved': updated})
 
 
@@ -1632,6 +1643,10 @@ class SuspendStudentView(APIView):
         suspend = request.data.get('suspended', True)
         student.status = 'suspended' if suspend else 'active'
         student.save(update_fields=['status'])
+        from apps.audit.services import audit
+        audit(request.user,
+              'student.suspended' if suspend else 'student.reinstated',
+              target=f"{student.full_name} ({student.student_id})")
         return Response({'status': student.status})
 
 
@@ -2410,6 +2425,57 @@ class TeacherDetailView(APIView):
         return Response({'detail': 'Updated.'})
 
 # ── DOS Timetable ─────────────────────────────────────────────────────────────
+def _find_timetable_conflicts(term, day, start_time, end_time,
+                              teacher_id=None, room='',
+                              exclude_class_id=None, exclude_start=None,
+                              exclude_pk=None):
+    """
+    Return a list of conflict dicts for any timetable slot in the same term/day
+    whose time range overlaps [start_time, end_time) and which either:
+      - has the same teacher (teacher double-booked), or
+      - uses the same room (room double-booked).
+    The slot being replaced/updated is excluded from the scan.
+    """
+    from apps.teacher.models import Timetable
+
+    overlapping = (
+        Timetable.objects
+        .filter(term=term, day=day, start_time__lt=end_time, end_time__gt=start_time)
+        .select_related('class_obj', 'subject', 'teacher')
+    )
+    if exclude_pk:
+        overlapping = overlapping.exclude(pk=exclude_pk)
+    if exclude_class_id and exclude_start:
+        # update_or_create will overwrite this exact slot — not a conflict
+        overlapping = overlapping.exclude(
+            class_obj_id=exclude_class_id, start_time=exclude_start,
+        )
+
+    conflicts = []
+    for other in overlapping:
+        if teacher_id and other.teacher_id and str(other.teacher_id) == str(teacher_id):
+            conflicts.append({
+                'type':       'teacher',
+                'message':    f"{other.teacher.get_full_name()} already teaches "
+                              f"{other.subject.name} to {other.class_obj.name} at this time.",
+                'class_name': other.class_obj.name,
+                'day':        other.day,
+                'start_time': other.start_time.strftime('%H:%M'),
+                'end_time':   other.end_time.strftime('%H:%M'),
+            })
+        if room and other.room_number and other.room_number.strip().lower() == room.strip().lower():
+            conflicts.append({
+                'type':       'room',
+                'message':    f"Room {other.room_number} is already used by "
+                              f"{other.class_obj.name} ({other.subject.name}) at this time.",
+                'class_name': other.class_obj.name,
+                'day':        other.day,
+                'start_time': other.start_time.strftime('%H:%M'),
+                'end_time':   other.end_time.strftime('%H:%M'),
+            })
+    return conflicts
+
+
 class DosTimetableView(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -2467,16 +2533,27 @@ class DosTimetableView(APIView):
             return Response({'error':'No active term.'},status=400)
 
         class_id = request.data.get('class_id')
-        subject_id = request.data.get('subject_id')    
-        teacher_id = request.data.get('teacher_id')    
-        day = request.data.get('day','').lower()    
-        start_time = request.data.get('start_time')    
-        end_time = request.data.get('end_time')    
-        room  = request.data.get('room','')   
+        subject_id = request.data.get('subject_id')
+        teacher_id = request.data.get('teacher_id')
+        day = request.data.get('day','').lower()
+        start_time = request.data.get('start_time')
+        end_time = request.data.get('end_time')
+        room  = request.data.get('room','')
 
         if not all([class_id,subject_id,day,start_time,end_time]):
-            return Response({'error':'class_id,subject_id,day,start_time,end_time are required'}) 
-        
+            return Response({'error':'class_id,subject_id,day,start_time,end_time are required'})
+
+        # Refuse to double-book a teacher or room. Pass "force": true to
+        # override (e.g. shared venues like the sports field).
+        if not request.data.get('force'):
+            conflicts = _find_timetable_conflicts(
+                term=term, day=day, start_time=start_time, end_time=end_time,
+                teacher_id=teacher_id, room=room,
+                exclude_class_id=class_id, exclude_start=start_time,
+            )
+            if conflicts:
+                return Response({'error': 'Scheduling conflict.', 'conflicts': conflicts}, status=409)
+
         slot ,created = Timetable.objects.update_or_create(
             class_obj_id=class_id,
             day=day,
@@ -2509,6 +2586,17 @@ class DosTimetableSlotView(APIView):
             slot.subject_id = request.data['subject_id']
         if 'teacher_id' in request.data:
             slot.teacher_id = request.data['teacher_id'] or None
+
+        if not request.data.get('force'):
+            conflicts = _find_timetable_conflicts(
+                term=slot.term, day=slot.day,
+                start_time=slot.start_time, end_time=slot.end_time,
+                teacher_id=slot.teacher_id, room=slot.room_number,
+                exclude_pk=slot.pk,
+            )
+            if conflicts:
+                return Response({'error': 'Scheduling conflict.', 'conflicts': conflicts}, status=409)
+
         slot.save()
         return Response({'id':str(slot.id),'detail':'Updated.'})
     
@@ -2608,3 +2696,145 @@ class DosActivityDetailView(APIView):
             return Response({'error': 'Not found.'}, status=404)
         activity.delete()
         return Response(status=http_status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------------------
+# Term Rollover (Admin)
+# ---------------------------------------------------------------------------
+
+class TermRolloverView(APIView):
+    """
+    POST /imboni/dos/term-rollover/
+
+    Ends the current term and starts the next one. When the new term starts a
+    new academic year (term1 after term3, or a later year), students are
+    promoted one grade (S6 graduates); otherwise class rosters are simply
+    carried over to the new term.
+
+    Body: {
+        dry_run: bool,                 — preview counts without changing anything
+        term: 'term1'|'term2'|'term3',
+        year: 2027,
+        name: 'Term 1 2027',
+        start_date: 'YYYY-MM-DD',
+        end_date:   'YYYY-MM-DD',
+    }
+    """
+    def get_permissions(self):
+        from apps.authentication.permissions import IsAdminRole
+        return [IsAdminRole()]
+
+    def post(self, request):
+        from django.db import transaction
+        from apps.results.models import AcademicTerm
+        from apps.student.models import Student
+        from apps.teacher.models import Class, ClassAssignment
+
+        current = AcademicTerm.objects.filter(is_current=True).first()
+        if not current:
+            return Response({'error': 'No current term configured.'}, status=400)
+
+        term_key = request.data.get('term')
+        year     = request.data.get('year')
+        name     = request.data.get('name', '').strip()
+        start    = request.data.get('start_date')
+        end      = request.data.get('end_date')
+        dry_run  = bool(request.data.get('dry_run'))
+
+        if term_key not in ('term1', 'term2', 'term3'):
+            return Response({'error': "term must be 'term1', 'term2' or 'term3'."}, status=400)
+        try:
+            year = int(year)
+        except (TypeError, ValueError):
+            return Response({'error': 'year is required.'}, status=400)
+        if not (name and start and end):
+            return Response({'error': 'name, start_date and end_date are required.'}, status=400)
+        if AcademicTerm.objects.filter(term=term_key, year=year).exists():
+            return Response({'error': f'{name} already exists.'}, status=400)
+
+        order = {'term1': 1, 'term2': 2, 'term3': 3}
+        is_new_year = (year > current.year) or (
+            year == current.year and order[term_key] < order[current.term]
+        )
+        # Moving backwards makes no sense
+        if year < current.year or (year == current.year and order[term_key] <= order[current.term]):
+            if not is_new_year:
+                return Response({'error': 'The new term must come after the current one.'}, status=400)
+
+        active_students = Student.objects.filter(status='active')
+        summary = {
+            'mode':               'promotion' if is_new_year else 'carry_over',
+            'current_term':       current.name,
+            'new_term':           name,
+            'students_promoted':  0,
+            'students_graduated': 0,
+            'rosters_created':    0,
+            'missing_classes':    [],
+        }
+
+        classes_by_key = {
+            (c.grade, c.section): c for c in Class.objects.filter(is_active=True)
+        }
+        current_assignments = (
+            ClassAssignment.objects
+            .filter(term=current)
+            .select_related('student', 'class_obj')
+        )
+
+        with transaction.atomic():
+            new_term = None
+            if not dry_run:
+                new_term = AcademicTerm.objects.create(
+                    name=name, term=term_key, year=year,
+                    start_date=start, end_date=end, is_current=True,
+                )
+                AcademicTerm.objects.exclude(pk=new_term.pk).update(is_current=False)
+
+            if is_new_year:
+                for student in active_students:
+                    if student.grade == '6':
+                        summary['students_graduated'] += 1
+                        if not dry_run:
+                            student.status = 'graduated'
+                            student.save(update_fields=['status'])
+                        continue
+
+                    new_grade = str(int(student.grade) + 1)
+                    summary['students_promoted'] += 1
+                    if not dry_run:
+                        student.grade = new_grade
+                        student.save(update_fields=['grade'])
+
+                    target = classes_by_key.get((new_grade, student.section))
+                    if target:
+                        summary['rosters_created'] += 1
+                        if not dry_run:
+                            ClassAssignment.objects.get_or_create(
+                                class_obj=target, student=student, term=new_term,
+                            )
+                    else:
+                        key = f'S{new_grade}{student.section}'
+                        if key not in summary['missing_classes']:
+                            summary['missing_classes'].append(key)
+            else:
+                for ca in current_assignments:
+                    if ca.student.status != 'active':
+                        continue
+                    summary['rosters_created'] += 1
+                    if not dry_run:
+                        ClassAssignment.objects.get_or_create(
+                            class_obj=ca.class_obj, student=ca.student, term=new_term,
+                        )
+
+            if dry_run:
+                # Nothing was written inside a dry run, but keep the guarantee explicit
+                transaction.set_rollback(True)
+
+        if not dry_run:
+            from apps.audit.services import audit
+            audit(request.user, 'term.rollover',
+                  target=f'{current.name} → {name}',
+                  detail={k: v for k, v in summary.items() if k != 'missing_classes'})
+
+        summary['dry_run'] = dry_run
+        return Response(summary)

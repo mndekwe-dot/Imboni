@@ -14,7 +14,12 @@ class UserSerializer(serializers.ModelSerializer):
             'role', 'phone_number', 'avatar', 'date_of_birth', 'address',
             'emergency_contact', 'is_active', 'email_verified', 'created_at'
         ]
-        read_only_fields = ['id', 'created_at', 'email_verified']
+        # role / is_active / email are privilege- and identity-bearing: a user
+        # PATCHing their own record must NOT be able to promote themselves to
+        # admin or reactivate a disabled account. Role is assigned at invitation
+        # time and changed only through admin staff management, never here.
+        read_only_fields = ['id', 'created_at', 'email_verified',
+                            'role', 'is_active', 'email']
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):

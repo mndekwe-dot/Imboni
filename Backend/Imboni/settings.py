@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -18,6 +19,10 @@ import Imboni
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# True while running the test suite — lets us disable throttling and use a
+# local cache so tests stay fast and deterministic.
+TESTING = 'pytest' in sys.modules or 'test' in sys.argv
 
 
 # Quick-start development settings - unsuitable for production
@@ -64,11 +69,16 @@ INSTALLED_APPS = [
     'apps.discipline',
     'apps.matron',
     'apps.notifications',
+    'apps.audit',
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise serves static files (Django admin, DRF) straight from gunicorn
+    # so a pilot doesn't need a separate nginx static block. Must sit right
+    # after SecurityMiddleware.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -158,6 +168,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# collectstatic gathers everything here for WhiteNoise to serve in production.
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Compressed + hashed static storage in production only. The manifest variant
+# errors on any un-collected reference, so keep the plain storage in
+# dev/test where collectstatic hasn't run.
+if not DEBUG and not TESTING:
+    STORAGES = {
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+    }
 
 # Media files configuration
 MEDIA_URL = 'media/'
@@ -188,6 +209,22 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    # Rate limiting — throttles brute-force login/password-reset and abusive
+    # anonymous traffic. Scoped rates ('login', 'password_reset') are applied
+    # on the relevant views. Disabled under tests to keep them deterministic.
+    'DEFAULT_THROTTLE_CLASSES': [] if TESTING else [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    # None disables a scope. Under tests everything is None so repeated
+    # logins in a test don't trip the limiter.
+    'DEFAULT_THROTTLE_RATES': {
+        'anon':           None if TESTING else '60/min',
+        'user':           None if TESTING else '1000/min',
+        'login':          None if TESTING else '5/min',   # per IP — stops guessing
+        'password_reset': None if TESTING else '3/min',
+        'two_factor':     None if TESTING else '10/min',  # per IP — stops OTP brute force
+    },
 }
 
 # Simple JWT configuration
@@ -199,22 +236,34 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# Cache — swap 'LocMemCache' for Redis in production:
-#   pip install django-redis
-#   'BACKEND': 'django_redis.cache.RedisCache'
-#   'LOCATION': 'redis://127.0.0.1:6379/1'
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'imboni-cache',
+# Cache — Redis in production so throttle counters are shared across all
+# gunicorn workers (a per-process LocMemCache would let a brute-forcer get
+# N× the login limit). Falls back to LocMem in dev/test.
+REDIS_CACHE_URL = config('REDIS_CACHE_URL', default='')
+if REDIS_CACHE_URL and not TESTING:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_CACHE_URL,
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'imboni-cache',
+        }
+    }
 
 # CORS configuration
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
+# In development, allow everything. In production, allow only the deployed
+# frontend origin(s) — set CORS_ALLOWED_ORIGINS in .env (comma-separated).
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    o.strip() for o in config(
+        'CORS_ALLOWED_ORIGINS',
+        default='http://localhost:3000,http://127.0.0.1:3000,http://localhost:5174',
+    ).split(',') if o.strip()
 ]
 
 # Debug toolbar configuration
@@ -246,11 +295,24 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Imboni School <ndekwe
 
 # Security settings for production
 if not DEBUG:
-    SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+
+    # Tell Django it's behind an HTTPS-terminating proxy (nginx/Cloudflare),
+    # otherwise request.is_secure() is False and the secure cookies + SSL
+    # redirect below never engage.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', cast=bool, default=True)
+
+    # HTTP Strict Transport Security — force HTTPS for a year. Start with a
+    # small value when first enabling, then raise; preload only once stable.
+    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', cast=int, default=31536000)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_REFERRER_POLICY = 'same-origin'
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
 #africatalking config
@@ -263,3 +325,65 @@ AFRICASTALKING_SENDER_ID=config('AFRICASTALKING_SENDER_ID',default='Imboni')
 SCHOOL_NAME  = config('SCHOOL_NAME',  default='Imboni School')
 SCHOOL_EMAIL = config('SCHOOL_EMAIL', default='')
 SCHOOL_PHONE = config('SCHOOL_PHONE', default='')
+
+# ── Celery ─────────────────────────────────────────────────────────────────────
+# Broker/result backend default to a local Redis; override in .env for prod.
+CELERY_BROKER_URL         = config('CELERY_BROKER_URL',     default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND     = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/1')
+CELERY_TIMEZONE           = TIME_ZONE
+CELERY_TASK_SERIALIZER    = 'json'
+CELERY_RESULT_SERIALIZER  = 'json'
+CELERY_ACCEPT_CONTENT     = ['json']
+CELERY_TASK_TIME_LIMIT    = 300           # hard kill after 5 minutes
+CELERY_TASK_SOFT_TIME_LIMIT = 240
+CELERY_RESULT_EXPIRES     = 60 * 60 * 24  # keep results for 1 day
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# Fail fast when the broker is down so safe_delay() can fall back to running
+# tasks inline instead of hanging the request for ~100s of connection retries.
+CELERY_BROKER_CONNECTION_TIMEOUT = 3
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'max_retries': 1,
+    'socket_connect_timeout': 2,
+    'socket_timeout': 2,
+}
+CELERY_TASK_PUBLISH_RETRY = False
+# Set CELERY_TASK_ALWAYS_EAGER=True in .env to run tasks inline (no Redis
+# needed) — handy in development before the broker is set up.
+# Under tests, ALWAYS run tasks inline so results are deterministic no matter
+# whether a Redis broker happens to be running locally — otherwise safe_delay()
+# may queue to a broker with no worker and background effects never happen.
+CELERY_TASK_ALWAYS_EAGER  = True if TESTING else config('CELERY_TASK_ALWAYS_EAGER', cast=bool, default=False)
+CELERY_TASK_EAGER_PROPAGATES = True
+
+# ── Database backups ───────────────────────────────────────────────────────────
+# Where `manage.py backup_database` writes gzipped mysqldump snapshots, and how
+# long to keep them. On a server, point BACKUP_DIR at a mounted volume that is
+# itself copied off-box (a backup on the same disk as the DB is not a backup).
+BACKUP_DIR = config('BACKUP_DIR', default=str(BASE_DIR / 'backups'))
+BACKUP_RETENTION_DAYS = config('BACKUP_RETENTION_DAYS', cast=int, default=14)
+
+# ── Error monitoring (Sentry) ──────────────────────────────────────────────────
+# Only initialises when SENTRY_DSN is set, so local dev and the test suite run
+# with no Sentry at all (no DSN in .env = no-op). Set SENTRY_DSN in production.
+#
+# IMPORTANT — children's data: send_default_pii is left False so Sentry never
+# captures request bodies, cookies, user emails, or IP addresses. This app holds
+# minors' grades, medical, and disciplinary records; error reports must not leak
+# them. Do not flip send_default_pii to True.
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN and not TESTING:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration(), CeleryIntegration()],
+        environment=config('SENTRY_ENVIRONMENT', default='production'),
+        release=config('SENTRY_RELEASE', default=None),
+        # Fraction of requests traced for performance. Keep low in production to
+        # control volume; raise while investigating a specific slowdown.
+        traces_sample_rate=config('SENTRY_TRACES_SAMPLE_RATE', cast=float, default=0.1),
+        # Never attach PII (emails, IPs, request bodies) to events — see note above.
+        send_default_pii=False,
+    )

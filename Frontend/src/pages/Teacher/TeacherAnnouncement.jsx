@@ -322,8 +322,8 @@ export function TeacherAnnouncement() {
                                     {/* Row 1: category + audience */}
                                     <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
                                         <div className="form-group">
-                                            <label className="label">Category *</label>
-                                            <select className="input" name="category" value={form.category} onChange={handleChange}>
+                                            <label className="label" htmlFor="teacher-ann-category">Category *</label>
+                                            <select id="teacher-ann-category" className="input" name="category" value={form.category} onChange={handleChange}>
                                                 <option value="">Select category…</option>
                                                 {CATEGORY_OPTIONS.map(o => (
                                                     <option key={o.value} value={o.value}>{o.label}</option>

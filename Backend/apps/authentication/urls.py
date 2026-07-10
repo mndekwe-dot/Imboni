@@ -13,6 +13,10 @@ from .views import (
     CompleteRegistrationView,
     EmailChangeRequestView,
     EmailChangeConfirmView,
+    TwoFactorStatusView,
+    TwoFactorSetupView,
+    TwoFactorVerifyView,
+    TwoFactorDisableView,
 )
 
 
@@ -46,6 +50,12 @@ urlpatterns = router.urls + user_nested_router.urls + [
     # Email change
     path('auth/email-change/request/',EmailChangeRequestView.as_view(),  name='email-change-request'),
     path('auth/email-change/confirm/<str:uid>/<str:token>/',EmailChangeConfirmView.as_view(),  name='email-change-confirm'),
+    # Two-factor authentication (TOTP) — self-service management.
+    # The second login step lives on the AuthViewSet at auth/2fa/login/.
+    path('auth/2fa/status/',  TwoFactorStatusView.as_view(),  name='2fa-status'),
+    path('auth/2fa/setup/',   TwoFactorSetupView.as_view(),   name='2fa-setup'),
+    path('auth/2fa/verify/',  TwoFactorVerifyView.as_view(),  name='2fa-verify'),
+    path('auth/2fa/disable/', TwoFactorDisableView.as_view(), name='2fa-disable'),
     # JWT token refresh
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 ]
