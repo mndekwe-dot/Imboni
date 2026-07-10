@@ -269,11 +269,18 @@ export function StudentAssignments() {
                                                 </div>
                                             </div>
                                             {q.submitted ? (
-                                                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                                                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: q.percentage >= 50 ? 'var(--success)' : '#dc2626' }}>
-                                                        {q.percentage}%
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: q.percentage >= 50 ? 'var(--success)' : '#dc2626' }}>
+                                                            {q.percentage}%
+                                                        </div>
+                                                        <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>Completed</div>
                                                     </div>
-                                                    <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>Completed</div>
+                                                    <button className="btn btn-outline btn-sm"
+                                                        onClick={() => navigate(`/student/quiz/${q.id}/review`)}>
+                                                        <span className="material-symbols-rounded icon-sm">visibility</span>
+                                                        Review
+                                                    </button>
                                                 </div>
                                             ) : (
                                                 <button className="btn btn-primary btn-sm"

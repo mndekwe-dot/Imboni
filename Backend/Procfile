@@ -1,0 +1,13 @@
+# Process definitions for the Imboni backend (Render / Railway / Heroku-style
+# platforms, or `honcho`/`foreman` locally). Each line is a process type.
+#
+# web:    the API server
+# worker: Celery worker — runs background tasks (notifications, emails, fan-outs)
+# beat:   Celery scheduler — fires the periodic jobs (reminders, weekly digest)
+#
+# release runs once per deploy, before the new processes start.
+
+release: python manage.py migrate --noinput && python manage.py collectstatic --noinput
+web: gunicorn -c gunicorn.conf.py Imboni.wsgi:application
+worker: celery -A Imboni worker -l info
+beat: celery -A Imboni beat -l info

@@ -15,7 +15,11 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import {
     getTeacherMyClasses, getTeacherStudents,
     getTeacherResultList, bulkSaveResults,
+    getTeacherPerformanceTrends,
 } from '../../api/teacher'
+import {
+    ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+} from 'recharts'
 
 const ASSESSMENT_TYPES = [
     { value: 'quiz',         label: 'Quiz'         },
@@ -307,6 +311,7 @@ export function TeacherResults() {
     const [loadingData, setLoadingData] = useState(false)
 
     const [showEnterModal, setShowEnterModal] = useState(false)
+    const [trend, setTrend] = useState([])
 
     const fileInputRef = useRef(null)
 
@@ -366,6 +371,14 @@ export function TeacherResults() {
             .finally(() => setLoadingData(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedClass?.class_id, assessment])
+
+    // Month-by-month class average for the trend chart
+    useEffect(() => {
+        if (!selectedClass) { setTrend([]); return }
+        getTeacherPerformanceTrends({ class_id: selectedClass.class_id })
+            .then(data => setTrend(Array.isArray(data) ? data : []))
+            .catch(() => setTrend([]))
+    }, [selectedClass?.class_id])
 
     const avg      = rows.length ? Math.round(rows.reduce((s, r) => s + r.percentage, 0) / rows.length) : 0
     const highest  = rows.length ? rows.reduce((a, b) => a.percentage > b.percentage ? a : b) : null
@@ -493,6 +506,33 @@ export function TeacherResults() {
                                                         <div className="mini-stat-label">{s.label}</div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                        )}
+
+                                        {trend.length >= 2 && (
+                                            <div className="card" style={{ marginBottom: '1rem' }}>
+                                                <div className="card-header">
+                                                    <h2 className="card-title">Class Average Over Time — {classKey}</h2>
+                                                </div>
+                                                <div className="card-content" style={{ height: 220 }}>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <LineChart data={trend} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
+                                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                                                            <XAxis dataKey="month_label" tickLine={false} axisLine={false}
+                                                                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
+                                                            <YAxis domain={[0, 100]} tickLine={false} axisLine={false}
+                                                                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                                                                tickFormatter={v => `${v}%`} />
+                                                            <Tooltip
+                                                                formatter={v => [`${v}%`, 'Class average']}
+                                                                cursor={{ stroke: 'var(--border)', strokeWidth: 1 }}
+                                                            />
+                                                            <Line type="monotone" dataKey="avg_score" name="Class average"
+                                                                stroke="#003d7a" strokeWidth={2}
+                                                                dot={{ r: 4, fill: '#003d7a', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
+                                                </div>
                                             </div>
                                         )}
 

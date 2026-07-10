@@ -1,0 +1,8 @@
+grade,section,day,start_time,end_time,subject,teacher_email,room_number
+1,A,monday,08:00,08:40,MATH101,,R101
+1,A,monday,08:40,09:20,ENG101,,R101
+1,A,monday,09:20,10:00,SCI101,,R101
+1,A,tuesday,08:00,08:40,ENG101,,R101
+1,A,tuesday,08:40,09:20,MATH101,,R101
+1,B,monday,08:00,08:40,ENG101,,R102
+1,B,monday,08:40,09:20,MATH101,,R102

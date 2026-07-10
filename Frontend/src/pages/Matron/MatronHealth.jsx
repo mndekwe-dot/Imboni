@@ -6,8 +6,14 @@ import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents } from '../../api/matron'
+import {
+    getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents,
+    getMedicationsToday, administerMedication, createMedication,
+} from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { OfflineIndicator } from '../../components/ui/OfflineIndicator'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 
 
 const conditionLabels = { illness: 'Illness', injury: 'Injury', checkup: 'Check-up', followup: 'Follow-up' }
@@ -81,8 +87,190 @@ function HealthHistoryRow({ date, name, conditionTag, complaint, temp, action, s
     )
 }
 
+function MedicationChecklist({ students }) {
+    const [checklist, setChecklist] = useState(null)
+    const [giving, setGiving]       = useState(null)     // "scheduleId|time" in flight
+    const [showAdd, setShowAdd]     = useState(false)
+    const [form, setForm] = useState({ student_id: '', medicine_name: '', dosage: '', times: '08:00', start_date: '', end_date: '' })
+    const [saveError, setSaveError] = useState(null)
+    const [saving, setSaving]       = useState(false)
+
+    function load() {
+        getMedicationsToday()
+            .then(setChecklist)
+            .catch(() => setChecklist({ items: [], total: 0, given: 0, overdue: 0 }))
+    }
+
+    useEffect(() => { load() }, [])
+
+    async function handleGive(item) {
+        const key = `${item.schedule_id}|${item.time}`
+        setGiving(key)
+        try {
+            const res = await administerMedication(item.schedule_id, { time: item.time })
+            if (res?.queued) {
+                // Offline — the dose is in the sync outbox; tick it locally so
+                // the checklist reflects what actually happened in the dorm.
+                setChecklist(prev => prev && ({
+                    ...prev,
+                    given: prev.given + 1,
+                    overdue: item.overdue ? prev.overdue - 1 : prev.overdue,
+                    items: prev.items.map(i =>
+                        i.schedule_id === item.schedule_id && i.time === item.time
+                            ? { ...i, given: true, overdue: false }
+                            : i),
+                }))
+            } else {
+                load()
+            }
+        } finally {
+            setGiving(null)
+        }
+    }
+
+    async function handleAdd() {
+        const times = form.times.split(',').map(t => t.trim()).filter(Boolean)
+        if (!form.student_id || !form.medicine_name.trim() || !form.dosage.trim() || !form.start_date || times.length === 0) {
+            setSaveError('Fill in student, medicine, dosage, start date and at least one time.')
+            return
+        }
+        setSaving(true); setSaveError(null)
+        try {
+            await createMedication({
+                student_id: form.student_id,
+                medicine_name: form.medicine_name.trim(),
+                dosage: form.dosage.trim(),
+                times,
+                start_date: form.start_date,
+                end_date: form.end_date || null,
+            })
+            setForm({ student_id: '', medicine_name: '', dosage: '', times: '08:00', start_date: '', end_date: '' })
+            setShowAdd(false)
+            load()
+        } catch (e) {
+            setSaveError(e?.response?.data?.error || 'Failed to save the schedule.')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const items = checklist?.items || []
+
+    return (
+        <div className="card mb-1-5">
+            <div className="card-header">
+                <h3 className="card-title"><span className="material-symbols-rounded">medication</span> Today&apos;s Medication</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <OfflineIndicator />
+                    {checklist && (
+                        <span className="settings-info-text align-self-center">
+                            {checklist.given}/{checklist.total} given
+                            {checklist.overdue > 0 && <span style={{ color: '#dc2626' }}> &middot; {checklist.overdue} overdue</span>}
+                        </span>
+                    )}
+                    <button className="btn btn-outline btn-sm" onClick={() => setShowAdd(s => !s)}>
+                        <span className="material-symbols-rounded icon-sm">add</span>
+                        Add Schedule
+                    </button>
+                </div>
+            </div>
+            <div className="card-content">
+                {showAdd && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.6rem', marginBottom: '1rem', padding: '0.75rem', background: 'var(--muted)', borderRadius: 10 }}>
+                        <div>
+                            <label className="form-label" htmlFor="med-student">Student</label>
+                            <select id="med-student" className="form-input" value={form.student_id}
+                                onChange={e => setForm(f => ({ ...f, student_id: e.target.value }))}>
+                                <option value="">— Select —</option>
+                                {students.map(s => <option key={s.id} value={s.id}>{s.name || s.full_name}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="med-name">Medicine</label>
+                            <input id="med-name" className="form-input" placeholder="e.g. Amoxicillin"
+                                value={form.medicine_name} onChange={e => setForm(f => ({ ...f, medicine_name: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="med-dosage">Dosage</label>
+                            <input id="med-dosage" className="form-input" placeholder="e.g. 500mg"
+                                value={form.dosage} onChange={e => setForm(f => ({ ...f, dosage: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="med-times">Times (comma-separated)</label>
+                            <input id="med-times" className="form-input" placeholder="08:00, 13:00, 20:00"
+                                value={form.times} onChange={e => setForm(f => ({ ...f, times: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="med-start">Start</label>
+                            <input id="med-start" type="date" className="form-input"
+                                value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
+                        </div>
+                        <div>
+                            <label className="form-label" htmlFor="med-end">End (optional)</label>
+                            <input id="med-end" type="date" className="form-input"
+                                value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
+                            <button className="btn btn-primary btn-sm" onClick={handleAdd} disabled={saving}>
+                                {saving ? 'Saving…' : 'Save Schedule'}
+                            </button>
+                        </div>
+                        {saveError && <p style={{ color: '#dc2626', fontSize: '0.8rem', gridColumn: '1/-1', margin: 0 }}>{saveError}</p>}
+                    </div>
+                )}
+
+                {!checklist ? (
+                    <p style={{ color: 'var(--muted-foreground)' }}>Loading medication checklist…</p>
+                ) : items.length === 0 ? (
+                    <p style={{ color: 'var(--muted-foreground)' }}>No medications scheduled for today.</p>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                        {items.map(item => {
+                            const key = `${item.schedule_id}|${item.time}`
+                            return (
+                                <div key={key} style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
+                                    padding: '0.55rem 0.8rem', borderRadius: 10,
+                                    border: `1px solid ${item.overdue ? '#dc2626' : 'var(--border)'}`,
+                                    background: item.given ? 'rgba(16,185,129,0.06)' : 'transparent',
+                                }}>
+                                    <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums', minWidth: 48 }}>{item.time}</span>
+                                    <div style={{ flex: 1, minWidth: 160 }}>
+                                        <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.student_name}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                            {item.medicine_name} · {item.dosage} · S{item.grade}{item.section}
+                                        </div>
+                                    </div>
+                                    {item.given ? (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--success)', fontSize: '0.8rem', fontWeight: 600 }}>
+                                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>check_circle</span>
+                                            Given
+                                        </span>
+                                    ) : (
+                                        <>
+                                            {item.overdue && (
+                                                <span style={{ color: '#dc2626', fontSize: '0.75rem', fontWeight: 600 }}>Overdue</span>
+                                            )}
+                                            <button className="btn btn-primary btn-sm"
+                                                disabled={giving === key}
+                                                onClick={() => handleGive(item)}>
+                                                {giving === key ? 'Saving…' : 'Mark Given'}
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
 export const MatronHealth = () => {
     const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [data, setData] = useState(null)
     const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(true)
@@ -182,23 +370,13 @@ export const MatronHealth = () => {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
-                        <div className="dashboard-header-title">
-                            <h1>Health &amp; Wellness</h1>
-                            <p>Sick bay management and student health records &mdash; Karisimbi House</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{sessionUser.userName}</span>
-                                    <span className="header-user-role">Matron</span>
-                                </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Health & Wellness"
+                        subtitle="Sick bay management and student health records — Karisimbi House"
+                        {...sessionUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                    />
 
                     <DashboardContent>
 
@@ -207,6 +385,8 @@ export const MatronHealth = () => {
                                 <HealthStat key={index} {...stat} />
                             ))}
                         </div>
+
+                        <MedicationChecklist students={students} />
 
                         <div className="card mb-1-5">
                             <div className="card-header">

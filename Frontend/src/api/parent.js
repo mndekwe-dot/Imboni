@@ -34,3 +34,7 @@ export const markAllAnnouncementsRead  = ()  => client.post('/imboni/announcemen
 // ── Messages (no backend endpoint yet) ───────────────────────────────────────
 export const getParentMessages = () => client.get('/imboni/parent/messages/')
 export const sendParentMessage = (d) => client.post('/imboni/parent/messages/', d)
+
+// ── Consent Requests ──────────────────────────────────────────────────────────
+export const getConsentRequests    = ()        => client.get('/imboni/parents/consent-requests/')
+export const respondToConsent      = (id, d)   => client.post(`/imboni/parents/consent-requests/${id}/respond/`, d)

@@ -26,6 +26,7 @@ urlpatterns = [
     # Fees
     path('analytics/fees/overview/',               views.FeesOverviewView.as_view(),              name='analytics-fees-overview'),
     path('analytics/fees/outstanding/',            views.OutstandingFeesView.as_view(),           name='analytics-fees-outstanding'),
+    path('analytics/fees/remind/',                 views.SendFeeRemindersView.as_view(),          name='analytics-fees-remind'),
 
     # Teachers
     path('analytics/teachers/overview/',           views.TeacherOverviewView.as_view(),           name='analytics-teachers-overview'),

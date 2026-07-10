@@ -1,8 +1,11 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { changePassword, getProfile, updateProfile, uploadAvatar } from '../api/account'
 import { useSearchParams } from 'react-router'
-import { Link } from 'react-router'
 import { Sidebar } from '../components/layout/Sidebar'
+import { DashboardHeader } from '../components/layout/DashboardHeader'
+import { useSessionUser } from '../hooks/useSessionUser'
+import { useNotifications } from '../hooks/useNotifications'
+import { TwoFactorSettings } from '../components/TwoFactorSettings'
 import '../styles/layout.css'
 import '../styles/components.css'
 import '../styles/parent.css'
@@ -41,6 +44,12 @@ export function Account() {
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || 'null')
     const role = searchParams.get('role') || storedUser?.role || ''
     const { navItems = [], secondaryItems = [] } = NAV[role] ?? {}
+
+    // Same header data source as every other page in the portal, so the
+    // profile page's header matches the dashboard (proper role label, correct
+    // avatar colour, notification bell, live date).
+    const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
 
     // Ref pointing to the hidden file input — used to trigger file picker from the button
     const avatarInputRef = useRef(null)
@@ -131,23 +140,16 @@ export function Account() {
             <div className="dashboard-layout">
                 <Sidebar navItems={navItems} secondaryItems={secondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
-                        <div className="dashboard-header-title">
-                            <h1>Account Settings</h1>
-                            <p>Update your personal information and preferences</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">Tuesday, March 10, 2026</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{profile?.first_name} {profile?.last_name}</span>
-                                    <span className="header-user-role">{profile?.role ?? 'User'}</span>
-                                </div>
-                                <Link to="/profile" className="header-user-av parent-av">{initials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Account Settings"
+                        subtitle="Update your personal information and preferences"
+                        userName={profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || sessionUser.userName : sessionUser.userName}
+                        userRole={sessionUser.userRole}
+                        userInitials={initials !== '?' ? initials.toUpperCase() : sessionUser.userInitials}
+                        avatarClass={sessionUser.avatarClass}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                    />
 
                     <DashboardContent>
                         <div className="account-settings-grid">
@@ -290,6 +292,8 @@ export function Account() {
                                                 {pwSaved ? 'Password Changed!' : pwSaving ? 'Saving...' : 'Change Password'}
                                             </button>
                                         </div>
+
+                                        <TwoFactorSettings />
                                     </div>
                                 </section>
 

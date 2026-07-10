@@ -7,7 +7,7 @@ import { DataTable } from '../../components/ui/DataTable'
 import { disNavItems, disSecondaryItems } from './disNav'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
-    getDisFacilities, getDisStudents,
+    getDisFacilities, getDisStudents, getDisOccupancy,
 } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -327,14 +327,17 @@ export function DisBoarding() {
     const [filter,       setFilter]       = useState('all')
     const [showModal,    setShowModal]    = useState(false)
     const [editingRecord,setEditingRecord]= useState(null)
+    const [occupancy,    setOccupancy]    = useState(null)
 
     useEffect(() => {
         Promise.all([
             getDisBoarding(),
             getDisFacilities({ type: 'dormitory' }),
-        ]).then(([boarding, dorms]) => {
+            getDisOccupancy().catch(() => null),
+        ]).then(([boarding, dorms, occ]) => {
             setStudents(Array.isArray(boarding) ? boarding : [])
             setDormitories(Array.isArray(dorms) ? dorms : [])
+            setOccupancy(occ)
         }).catch(console.error).finally(() => setLoading(false))
     }, [])
 
@@ -415,6 +418,58 @@ export function DisBoarding() {
                                 </div>
                             ))}
                         </div>
+
+                        {occupancy && occupancy.dormitories.length > 0 && (
+                            <div className="card mb-1-5">
+                                <div className="card-header">
+                                    <h2 className="card-title">
+                                        <span className="material-symbols-rounded" style={{ verticalAlign: 'middle', marginRight: '0.4rem' }}>hotel</span>
+                                        Dormitory Occupancy
+                                    </h2>
+                                    <span style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                                        {occupancy.total_boarders} boarders / {occupancy.total_capacity} beds
+                                        {occupancy.unassigned > 0 && ` · ${occupancy.unassigned} unassigned`}
+                                    </span>
+                                </div>
+                                <div className="card-content">
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: '0.75rem' }}>
+                                        {occupancy.dormitories.map(d => {
+                                            const pct = d.occupancy_pct
+                                            const barColor = pct == null ? 'var(--muted-foreground)'
+                                                : pct >= 95 ? '#dc2626'
+                                                : pct >= 80 ? 'var(--warning, #d97706)'
+                                                : 'var(--success, #16a34a)'
+                                            return (
+                                                <div key={d.id} style={{ border: '1px solid var(--border)', borderRadius: 10, padding: '0.75rem 0.9rem' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem' }}>
+                                                        <div>
+                                                            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{d.name}</span>
+                                                            {d.section_name && (
+                                                                <span style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginLeft: '0.4rem' }}>{d.section_name}</span>
+                                                            )}
+                                                        </div>
+                                                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: barColor }}>
+                                                            {d.capacity ? `${d.occupied}/${d.capacity}` : `${d.occupied}`}
+                                                        </span>
+                                                    </div>
+                                                    <div className="progress" style={{ height: 8 }}>
+                                                        <div className="progress-bar" style={{
+                                                            width: pct != null ? `${Math.min(100, pct)}%` : '0%',
+                                                            background: barColor,
+                                                        }} />
+                                                    </div>
+                                                    <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '0.35rem' }}>
+                                                        {d.capacity
+                                                            ? d.available === 0 ? 'Full' : `${d.available} bed${d.available !== 1 ? 's' : ''} free`
+                                                            : 'No capacity set'}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="card mb-1-5">
                             <div className="card-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>

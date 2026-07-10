@@ -84,11 +84,25 @@ export const deleteDosRoom   = (id)         => client.delete(`/imboni/dos/rooms/
 export const getDosTimetable = (classId) => client.get('/imboni/dos/timetable/',{params :{class_id : classId}})
 export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
 export const updateDosSlot = (id,data) => client.patch(`/imboni/dos/timetable/${id}/`,data)
-export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}`)
+export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}/`)
 export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('/imboni/dos/teachers/',{params:{subject_id:subjectId,class_id:classId}})
+
+// Report cards (PDF / ZIP downloads)
+export const downloadStudentReportCard = (id, termId) =>
+    client.get(`/imboni/dos/reports/student/${id}/`, {
+        params: termId ? { term_id: termId } : {},
+        responseType: 'blob',
+    })
+export const downloadClassReportCards = (classId, termId) =>
+    client.get(`/imboni/dos/reports/class/${classId}/`, {
+        params: termId ? { term_id: termId } : {},
+        responseType: 'blob',
+    })
 
 // Analytics
 export const getDosAnalytics        = (params)     => client.get('/imboni/dos/analytics/', { params })
+export const getAtRiskStudents      = (params)     => client.get('/imboni/analytics/performance/at-risk/', { params })
+export const getChronicAbsence      = (params)     => client.get('/imboni/analytics/attendance/chronic-absence/', { params })
 export const getDosAttendanceStats  = ()           => client.get('/imboni/dos/attendance/overview/')
 
 // Announcements

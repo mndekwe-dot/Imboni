@@ -432,3 +432,163 @@ class ParentDashboardStatsView(_APIView):
             'fee_balance':       float(fee_balance),
             'unread_announcements': unread,
         })
+
+
+# ── Consent Requests ───────────────────────────────────────────────────────────
+
+def _consent_dict(req, response_map=None, children=None):
+    """Serialize a request; when children given, include per-child status."""
+    d = {
+        'id':                str(req.id),
+        'title':             req.title,
+        'description':       req.description,
+        'event_date':        str(req.event_date),
+        'response_deadline': str(req.response_deadline) if req.response_deadline else None,
+        'grade':             req.grade,
+        'created_by':        req.created_by.get_full_name() if req.created_by else '',
+        'created_at':        req.created_at.isoformat(),
+    }
+    if children is not None:
+        d['children'] = [
+            {
+                'student_id':   str(c.id),
+                'student_name': c.full_name,
+                'grade':        c.grade,
+                'status':       (response_map or {}).get((req.id, c.id)),
+            }
+            for c in children
+            if not req.grade or c.grade == req.grade
+        ]
+    return d
+
+
+class StaffConsentRequestListView(generics.GenericAPIView):
+    """
+    Staff side (discipline/dos/admin):
+    GET  /imboni/consent-requests/  — active requests with response tallies
+    POST /imboni/consent-requests/  — create + notify targeted parents
+    """
+    def get_permissions(self):
+        from apps.authentication.permissions import IsDOSOrAdminOrDiscipline
+        return [IsDOSOrAdminOrDiscipline()]
+
+    def get(self, request):
+        from django.db.models import Count, Q as DQ
+        from .models import ConsentRequest
+        qs = (
+            ConsentRequest.objects.filter(is_active=True)
+            .annotate(
+                approved=Count('responses', filter=DQ(responses__status='approved')),
+                declined=Count('responses', filter=DQ(responses__status='declined')),
+            )
+        )
+        data = []
+        for r in qs:
+            d = _consent_dict(r)
+            d['approved'] = r.approved
+            d['declined'] = r.declined
+            data.append(d)
+        return Response(data)
+
+    def post(self, request):
+        from .models import ConsentRequest
+        from .tasks import notify_consent_parents_task
+        from apps.notifications.tasks import safe_delay
+
+        for field in ('title', 'description', 'event_date'):
+            if not request.data.get(field):
+                return Response({'error': f'{field} is required.'}, status=400)
+
+        req = ConsentRequest.objects.create(
+            title=request.data['title'],
+            description=request.data['description'],
+            event_date=request.data['event_date'],
+            response_deadline=request.data.get('response_deadline') or None,
+            grade=request.data.get('grade', '').strip(),
+            created_by=request.user,
+        )
+
+        # Fan-out to parents happens in a Celery task so a whole-school
+        # request doesn't block this response (falls back to inline when no
+        # broker is running). The count is precomputed for the response.
+        rels = ParentStudentRelationship.objects.all()
+        if req.grade:
+            rels = rels.filter(student__grade=req.grade)
+        parent_count = rels.values('parent_id').distinct().count()
+
+        safe_delay(notify_consent_parents_task, str(req.id))
+
+        d = _consent_dict(req)
+        d['parents_notified'] = parent_count
+        return Response(d, status=201)
+
+
+class ParentConsentRequestListView(generics.GenericAPIView):
+    """
+    Parent side:
+    GET /imboni/parents/consent-requests/ — active requests targeting the
+    parent's children, with each child's current response status.
+    """
+    permission_classes = [IsParent]
+
+    def get(self, request):
+        from .models import ConsentRequest, ConsentResponse
+
+        children = [
+            rel.student for rel in
+            ParentStudentRelationship.objects.filter(parent=request.user).select_related('student__user')
+        ]
+        if not children:
+            return Response([])
+
+        grades = {c.grade for c in children}
+        from django.db.models import Q as DQ
+        qs = ConsentRequest.objects.filter(is_active=True).filter(
+            DQ(grade='') | DQ(grade__in=grades)
+        )
+
+        response_map = {
+            (resp.request_id, resp.student_id): resp.status
+            for resp in ConsentResponse.objects.filter(parent=request.user)
+        }
+        return Response([_consent_dict(r, response_map, children) for r in qs])
+
+
+class ParentConsentRespondView(generics.GenericAPIView):
+    """
+    POST /imboni/parents/consent-requests/<pk>/respond/
+    Body: { student_id, status: 'approved'|'declined', note? }
+    """
+    permission_classes = [IsParent]
+
+    def post(self, request, pk):
+        from .models import ConsentRequest, ConsentResponse
+
+        try:
+            req = ConsentRequest.objects.get(pk=pk, is_active=True)
+        except ConsentRequest.DoesNotExist:
+            return Response({'error': 'Request not found.'}, status=404)
+
+        status_val = request.data.get('status')
+        if status_val not in ('approved', 'declined'):
+            return Response({'error': "status must be 'approved' or 'declined'."}, status=400)
+
+        rel = ParentStudentRelationship.objects.filter(
+            parent=request.user, student_id=request.data.get('student_id')
+        ).select_related('student').first()
+        if not rel:
+            return Response({'error': 'That student is not linked to your account.'}, status=403)
+
+        if req.grade and rel.student.grade != req.grade:
+            return Response({'error': 'This request does not apply to that student.'}, status=400)
+
+        resp, _created = ConsentResponse.objects.update_or_create(
+            request=req, student=rel.student,
+            defaults={'parent': request.user, 'status': status_val,
+                      'note': request.data.get('note', '')},
+        )
+        return Response({
+            'request_id': str(req.id),
+            'student_id': str(rel.student.id),
+            'status':     resp.status,
+        })

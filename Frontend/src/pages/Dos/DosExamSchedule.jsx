@@ -9,6 +9,8 @@ import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
 
 
@@ -55,6 +57,7 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
 export function DosExamSchedule() {
     const { setting } = useSchoolSettings()
     const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [exams,   setExams]   = useState(examRows)
     const [loading, setLoading] = useState(true)
     const [error,   setError]   = useState(null)
@@ -100,26 +103,14 @@ export function DosExamSchedule() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}>
-                            <span className="material-symbols-rounded">menu</span>
-                        </button>
-                        <div className="dashboard-header-title">
-                            <h1>Exam Schedule</h1>
-                            <p>Create and manage examination timetables</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{formatSchoolDate(setting.timezone)}</span>
-                            <button className="btn btn-primary">+ Add Exam</button>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{sessionUser.userName}</span>
-                                    <span className="header-user-role">{sessionUser.userRole}</span>
-                                </div>
-                                <Link to="/profile?role=dos" className="header-user-av dos-av">{sessionUser.userInitials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Exam Schedule"
+                        subtitle="Create and manage examination timetables"
+                        {...sessionUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                        actions={<button className="btn btn-primary">+ Add Exam</button>}
+                    />
 
                     <DashboardContent>
                         {/* Page Tabs */}

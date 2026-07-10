@@ -50,3 +50,12 @@ export const getTeachersBySubject       = ()       => client.get('/imboni/dos/te
 export const getStudentDetail          = (id)         => client.get(`/imboni/dos/students/${id}/`)
 export const getStudentAttendanceStats = (id)         => client.get(`/imboni/attendance/students/${id}/stats/`)
 export const getStudentTermResults     = (id, params) => client.get(`/imboni/results/students/${id}/summative/`, { params })
+
+// ── Finance ───────────────────────────────────────────────────────────────────
+export const sendFeeReminders = (data = {}) => client.post('/imboni/analytics/fees/remind/', data)
+
+// ── Audit Log ─────────────────────────────────────────────────────────────────
+export const getAuditLog = (params) => client.get('/imboni/admin/audit/', { params })
+
+// ── Term Rollover ─────────────────────────────────────────────────────────────
+export const runTermRollover = (data) => client.post('/imboni/dos/term-rollover/', data)

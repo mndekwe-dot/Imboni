@@ -235,3 +235,115 @@ class TestDisciplineStaffListView:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
+
+
+@pytest.mark.django_db
+class TestConductReportEscalation:
+    def _file_report(self, client, student, n):
+        return client.post('/imboni/discipline/reports/', {
+            'student_id': str(student.id),
+            'report_type': 'warning',
+            'title': f'Report {n}',
+            'description': 'Details.',
+            'date': f'2025-02-0{n}',
+        }, format='json')
+
+    def _make_current_term(self):
+        import datetime
+        from apps.results.models import AcademicTerm
+        return AcademicTerm.objects.create(
+            name='Term 1 2025', term='term1', year=2025,
+            start_date=datetime.date(2025, 1, 1),
+            end_date=datetime.date(2025, 4, 1),
+            is_current=True,
+        )
+
+    def test_third_approved_report_escalates_to_parents_and_staff(self, make_authenticated_client):
+        from apps.parents.models import ParentStudentRelationship
+        from apps.notifications.models import Notification
+
+        client, dis_user = make_authenticated_client('discipline')
+        self._make_current_term()
+        student = StudentFactory()
+        parent = UserFactory(role='parent')
+        ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='mother')
+
+        for n in (1, 2):
+            r = self._file_report(client, student, n)
+            assert r.status_code == status.HTTP_201_CREATED
+        assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 0
+
+        # Third approved report crosses the threshold
+        self._file_report(client, student, 3)
+        assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 1
+        assert Notification.objects.filter(user=dis_user, title__startswith='Escalation:').count() == 1
+
+        # Fourth report does not re-fire the escalation
+        self._file_report(client, student, 4)
+        assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 1
+
+    def test_positive_reports_do_not_count_toward_escalation(self, make_authenticated_client):
+        from apps.parents.models import ParentStudentRelationship
+        from apps.notifications.models import Notification
+
+        client, _dis = make_authenticated_client('discipline')
+        self._make_current_term()
+        student = StudentFactory()
+        parent = UserFactory(role='parent')
+        ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='father')
+
+        for n in (1, 2, 3):
+            client.post('/imboni/discipline/reports/', {
+                'student_id': str(student.id),
+                'report_type': 'positive',
+                'title': f'Great work {n}',
+                'description': 'Details.',
+                'date': f'2025-02-0{n}',
+            }, format='json')
+
+        assert Notification.objects.filter(user=parent, title='Parent meeting required').count() == 0
+
+
+@pytest.mark.django_db
+class TestDormitoryOccupancy:
+    def test_occupancy_counts_active_boarders_per_dormitory(self, make_authenticated_client):
+        from apps.discipline.models import DisFacility, BoardingStudent
+        import datetime
+
+        client, _dis = make_authenticated_client('discipline')
+        # Unique names — seed data may already contain real dorms like 'Bisoke'
+        DisFacility.objects.create(name='Testdorm East', facility_type='dormitory', gender='boys', capacity=3)
+        DisFacility.objects.create(name='Testdorm West', facility_type='dormitory', gender='girls', capacity=2)
+
+        for i in range(2):
+            BoardingStudent.objects.create(
+                student=StudentFactory(), dormitory='testdorm east',   # case-insensitive match
+                room_number=str(i + 1), check_in_date=datetime.date(2025, 1, 10),
+            )
+        # An inactive boarder must not count
+        BoardingStudent.objects.create(
+            student=StudentFactory(), dormitory='Testdorm East', room_number='9',
+            check_in_date=datetime.date(2025, 1, 10), is_active=False,
+        )
+        # A boarder in an unknown dorm is reported as unassigned
+        BoardingStudent.objects.create(
+            student=StudentFactory(), dormitory='Old Wing', room_number='1',
+            check_in_date=datetime.date(2025, 1, 10),
+        )
+
+        response = client.get('/imboni/discipline/facilities/occupancy/')
+
+        assert response.status_code == status.HTTP_200_OK
+        east = next(d for d in response.data['dormitories'] if d['name'] == 'Testdorm East')
+        assert east['occupied'] == 2
+        assert east['available'] == 1
+        assert east['occupancy_pct'] == 66.7
+        west = next(d for d in response.data['dormitories'] if d['name'] == 'Testdorm West')
+        assert west['occupied'] == 0
+        assert response.data['unassigned'] == 1
+        assert response.data['total_boarders'] == 3
+
+    def test_requires_discipline_role(self, make_authenticated_client):
+        client, _user = make_authenticated_client('teacher')
+        response = client.get('/imboni/discipline/facilities/occupancy/')
+        assert response.status_code == status.HTTP_403_FORBIDDEN

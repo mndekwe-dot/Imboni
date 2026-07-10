@@ -8,6 +8,8 @@ import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getParentComms, sendParentComm, getMatronStudents } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { useNotifications } from '../../hooks/useNotifications'
 
 
 const OUTCOME_DISPLAY = {
@@ -54,6 +56,7 @@ function CommEntry({ typeClass, typeIcon, student, parent, subject, notes, meta,
 
 export function MatronParentComms() {
     const sessionUser = useSessionUser()
+    const { notifications: liveNotifications, markRead } = useNotifications()
     const [data, setData] = useState(null)
     const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(true)
@@ -166,23 +169,13 @@ export function MatronParentComms() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <header className="dashboard-header">
-                        <button className="mobile-menu-btn" onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}><span className="material-symbols-rounded">menu</span></button>
-                        <div className="dashboard-header-title">
-                            <h1>Parent Communications</h1>
-                            <p>Log and track all parent contact &mdash; {matronUser.userRole.split('—').pop().trim()}</p>
-                        </div>
-                        <div className="dashboard-header-actions">
-                            <span className="date-display">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                            <div className="header-user">
-                                <div className="header-user-info">
-                                    <span className="header-user-name">{sessionUser.userName}</span>
-                                    <span className="header-user-role">Matron</span>
-                                </div>
-                                <Link to="/profile?role=matron" className={`header-user-av ${sessionUser.avatarClass}`}>{sessionUser.userInitials}</Link>
-                            </div>
-                        </div>
-                    </header>
+                    <DashboardHeader
+                        title="Parent Communications"
+                        subtitle={`Log and track all parent contact — ${matronUser.userRole.split('—').pop().trim()}`}
+                        {...sessionUser}
+                        notifications={liveNotifications}
+                        onNotificationRead={markRead}
+                    />
 
                     <DashboardContent>
 

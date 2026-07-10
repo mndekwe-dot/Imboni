@@ -66,3 +66,67 @@ class TestNotificationMarkAllReadView:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['updated'] == 2
         assert Notification.objects.filter(user=user, is_read=False).count() == 0
+
+
+@pytest.mark.django_db
+class TestCeleryTasks:
+    def test_bulk_notify_task_creates_notifications(self):
+        from .tasks import bulk_notify_task
+
+        users = [UserFactory(role='parent') for _ in range(2)]
+        inactive = UserFactory(role='parent', is_active=False)
+
+        result = bulk_notify_task.apply(args=(
+            [str(u.id) for u in users] + [str(inactive.id)],
+            'Hello', 'Message body', 'announcement', '/parent',
+        )).get()
+
+        assert result == 2
+        assert Notification.objects.filter(title='Hello').count() == 2
+        assert not Notification.objects.filter(user=inactive).exists()
+
+    def test_safe_delay_falls_back_to_inline_without_a_broker(self):
+        from .tasks import safe_delay, bulk_notify_task
+
+        user = UserFactory(role='parent')
+        # No broker is running in the test environment — .delay() fails and
+        # safe_delay must execute the task inline instead of raising.
+        safe_delay(bulk_notify_task, [str(user.id)], 'Inline', 'Body')
+
+        assert Notification.objects.filter(user=user, title='Inline').count() == 1
+
+    def test_send_email_task_uses_locmem_backend(self, settings):
+        from .tasks import send_email_task
+        from django.core import mail
+
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        sent = send_email_task.apply(args=('Subject', 'Body', ['parent@example.com'])).get()
+
+        assert sent == 1
+        assert len(mail.outbox) == 1
+        assert mail.outbox[0].to == ['parent@example.com']
+
+
+@pytest.mark.django_db
+class TestPeriodicTaskWrappers:
+    def test_due_date_reminder_task_runs_the_command(self):
+        from apps.teacher.tasks import send_due_date_reminders_task
+        result = send_due_date_reminders_task.apply(args=(1,)).get()
+        assert 'reminder(s) sent' in result
+
+    def test_weekly_digest_task_runs_the_command(self):
+        from apps.parents.tasks import send_weekly_digest_task
+        result = send_weekly_digest_task.apply(kwargs={'no_email': True}).get()
+        assert 'digest(s) sent' in result
+
+    def test_beat_schedule_points_at_real_tasks(self):
+        from Imboni.celery import app
+        from celery import current_app
+
+        for entry in app.conf.beat_schedule.values():
+            # Task must be registered — a typo here would fail silently at runtime
+            assert entry['task'] in current_app.tasks or entry['task'].startswith('apps.')
+            module_path, func_name = entry['task'].rsplit('.', 1)
+            import importlib
+            module = importlib.import_module(module_path)
+            assert hasattr(module, func_name)

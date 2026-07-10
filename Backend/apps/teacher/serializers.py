@@ -370,11 +370,21 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
 
 class QuestionBankSerializer(serializers.ModelSerializer):
     subject_name = serializers.ReadOnlyField(source='subject.name', default=None)
+    teacher_name = serializers.SerializerMethodField()
+    is_mine      = serializers.SerializerMethodField()
 
     class Meta:
         model  = QuestionBank
         fields = [
             'id', 'question_type', 'text', 'options', 'correct_answer',
-            'explanation', 'points', 'image', 'tags', 'subject_name', 'created_at',
+            'explanation', 'points', 'image', 'tags', 'subject_name',
+            'is_shared', 'teacher_name', 'is_mine', 'created_at',
         ]
         read_only_fields = ['id', 'created_at']
+
+    def get_teacher_name(self, obj):
+        return obj.teacher.get_full_name() if obj.teacher else ''
+
+    def get_is_mine(self, obj):
+        request = self.context.get('request')
+        return bool(request and obj.teacher_id == request.user.id)

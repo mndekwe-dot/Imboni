@@ -1075,7 +1075,16 @@ class MarkAttendanceView(APIView):
             ClassAssignment.objects.filter(class_obj_id=class_id, term=term).values_list('student_id', flat=True)
         )
 
+        # Snapshot existing statuses so parents are only notified when a student
+        # is NEWLY marked absent, not on every re-save of the register.
+        previous_status = dict(
+            AttendanceRecord.objects
+            .filter(student_id__in=enrolled_student_ids, date=target_date)
+            .values_list('student_id', 'status')
+        )
+
         saved = 0
+        newly_absent_ids = []
         for rec in records:
             if rec['student_id'] not in enrolled_student_ids:
                 continue
@@ -1089,6 +1098,20 @@ class MarkAttendanceView(APIView):
                 },
             )
             saved += 1
+            if rec['status'] == 'absent' and previous_status.get(rec['student_id']) != 'absent':
+                newly_absent_ids.append(rec['student_id'])
+
+        if newly_absent_ids:
+            from apps.notifications.services import notify_parents_of
+            from apps.student.models import Student
+            for student in Student.objects.filter(id__in=newly_absent_ids).select_related('user'):
+                notify_parents_of(
+                    student,
+                    title='Absence recorded',
+                    message=f"{student.full_name} was marked absent on {target_date.strftime('%d %b %Y')}.",
+                    type='attendance',
+                    path='/parent/attendance',
+                )
 
         return Response({'saved': saved}, status=status.HTTP_200_OK)
 
@@ -1728,6 +1751,63 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
             'question_count':     len(questions),
         })
 
+    def review(self, request, pk=None):
+        """
+        GET /imboni/quiz/<pk>/review/
+
+        After submitting, a student can revisit the quiz to see their own
+        answers next to the correct answers and explanations. Only available
+        to the student who submitted; questions keep their original order.
+        """
+        try:
+            assignment = Assignment.objects.select_related('subject', 'class_obj').get(
+                pk=pk, mode='online'
+            )
+        except Assignment.DoesNotExist:
+            return Response({'detail': 'Quiz not found.'}, status=404)
+
+        try:
+            student = request.user.student_profile
+        except Exception:
+            return Response({'detail': 'Only students can review their submissions.'}, status=403)
+
+        submission = AssignmentSubmission.objects.filter(assignment=assignment, student=student).first()
+        if not submission:
+            return Response({'detail': 'You have not submitted this quiz yet.'}, status=404)
+
+        answers_by_qid = {str(a.get('question_id')): a for a in (submission.answers or [])}
+        questions = []
+        for q in (assignment.questions or []):
+            qid = str(q.get('id'))
+            ans = answers_by_qid.get(qid, {})
+            questions.append({
+                'id':            qid,
+                'type':          q.get('type'),
+                'text':          q.get('text'),
+                'options':       q.get('options', []),
+                'image':         q.get('image', ''),
+                'points':        q.get('points', 1),
+                'correct':       q.get('correct'),
+                'explanation':   q.get('explanation', ''),
+                'your_answer':   ans.get('answer'),
+                'is_correct':    ans.get('is_correct'),
+                'points_earned': ans.get('points_earned'),
+            })
+
+        return Response({
+            'id':           str(assignment.id),
+            'title':        assignment.title,
+            'subject_name': assignment.subject.name,
+            'class_name':   assignment.class_obj.name,
+            'due_date':     assignment.due_date,
+            'score':        float(submission.score),
+            'max_score':    submission.max_score,
+            'percentage':   float(submission.percentage),
+            'is_late':      submission.is_late,
+            'submitted_at': submission.submitted_at.isoformat(),
+            'questions':    questions,
+        })
+
     def submit(self, request, pk=None):
         """Accept student answers, auto-grade, save submission."""
         from django.utils import timezone as tz
@@ -1791,29 +1871,159 @@ class AssignmentSubmissionsView(APIView):
         return Response(AssignmentSubmissionSerializer(subs, many=True).data)
 
 
+class PaperAssignmentGradeView(APIView):
+    """
+    Grading queue for paper-mode assignments.
+
+    GET  /imboni/teacher/assignments/<pk>/grade/
+         Class roster with any scores already entered.
+    POST /imboni/teacher/assignments/<pk>/grade/
+         Body: { records: [ { student_id, score }, ... ] }
+         Upserts a graded submission per student.
+    """
+    permission_classes = [IsTeacher]
+
+    def _get_assignment(self, request, pk):
+        try:
+            assignment = Assignment.objects.select_related('class_obj').get(
+                pk=pk, teacher=request.user, mode='paper'
+            )
+        except Assignment.DoesNotExist:
+            return None
+        return assignment
+
+    def get(self, request, pk):
+        from apps.teacher.models import ClassAssignment
+
+        assignment = self._get_assignment(request, pk)
+        if not assignment:
+            return Response({'detail': 'Paper assignment not found.'}, status=404)
+
+        term = _current_term()
+        roster = (
+            ClassAssignment.objects
+            .filter(class_obj=assignment.class_obj, term=term)
+            .select_related('student__user')
+            .order_by('student__user__last_name')
+        )
+        existing = {
+            sub.student_id: sub for sub in
+            AssignmentSubmission.objects.filter(assignment=assignment)
+        }
+
+        return Response({
+            'assignment_id': str(assignment.id),
+            'title':         assignment.title,
+            'max_score':     assignment.max_score,
+            'class_name':    assignment.class_obj.name,
+            'students': [
+                {
+                    'student_id':   str(ca.student.id),
+                    'full_name':    ca.student.full_name,
+                    'student_code': ca.student.student_id,
+                    'score':        float(existing[ca.student.id].score) if ca.student.id in existing else None,
+                }
+                for ca in roster
+            ],
+        })
+
+    def post(self, request, pk):
+        assignment = self._get_assignment(request, pk)
+        if not assignment:
+            return Response({'detail': 'Paper assignment not found.'}, status=404)
+
+        records = request.data.get('records', [])
+        if not isinstance(records, list) or not records:
+            return Response({'detail': 'records list is required.'}, status=400)
+
+        from apps.student.models import Student
+        max_score = assignment.max_score or 0
+        saved = 0
+        errors = []
+        for rec in records:
+            sid = rec.get('student_id')
+            raw = rec.get('score')
+            if raw in (None, ''):
+                continue
+            try:
+                score = float(raw)
+            except (TypeError, ValueError):
+                errors.append({'student_id': sid, 'error': 'Score must be a number.'})
+                continue
+            if score < 0 or (max_score and score > max_score):
+                errors.append({'student_id': sid, 'error': f'Score must be between 0 and {max_score}.'})
+                continue
+            student = Student.objects.filter(pk=sid).select_related('user').first()
+            if not student:
+                errors.append({'student_id': sid, 'error': 'Student not found.'})
+                continue
+
+            pct = round(score / max_score * 100, 1) if max_score else 0
+            AssignmentSubmission.objects.update_or_create(
+                assignment=assignment,
+                student=student,
+                defaults={
+                    'student_name': student.full_name,
+                    'student_code': student.student_id,
+                    'score':        score,
+                    'max_score':    max_score,
+                    'percentage':   pct,
+                    'is_graded':    True,
+                },
+            )
+            saved += 1
+
+        return Response({'saved': saved, 'errors': errors})
+
+
 # ---------------------------------------------------------------------------
 # Question Bank CRUD (teacher only)
 # ---------------------------------------------------------------------------
 
 class QuestionBankViewSet(viewsets.ModelViewSet):
     """
-    GET    /imboni/teacher/question-bank/       — list teacher's saved questions
+    GET    /imboni/teacher/question-bank/       — own questions + questions
+             shared by other teachers (?scope=mine|shared to narrow)
     POST   /imboni/teacher/question-bank/       — save a question
-    PATCH  /imboni/teacher/question-bank/<id>/  — update
-    DELETE /imboni/teacher/question-bank/<id>/  — delete
+    PATCH  /imboni/teacher/question-bank/<id>/  — update (own only)
+    DELETE /imboni/teacher/question-bank/<id>/  — delete (own only)
     """
     permission_classes   = [IsTeacher]
     serializer_class     = QuestionBankSerializer
+    # The QuestionBankModal consumes a plain array; global PageNumberPagination
+    # would wrap it in {results: []} and the bank would always render empty.
+    pagination_class     = None
 
     def get_queryset(self):
-        qs = QuestionBank.objects.filter(teacher=self.request.user)
+        from django.db.models import Q
+        scope = self.request.query_params.get('scope', '').strip()
+        if scope == 'mine':
+            qs = QuestionBank.objects.filter(teacher=self.request.user)
+        elif scope == 'shared':
+            qs = QuestionBank.objects.filter(is_shared=True).exclude(teacher=self.request.user)
+        else:
+            qs = QuestionBank.objects.filter(
+                Q(teacher=self.request.user) | Q(is_shared=True)
+            )
         q  = self.request.query_params.get('q', '').strip()
         t  = self.request.query_params.get('type', '').strip()
         if q:
             qs = qs.filter(text__icontains=q)
         if t:
             qs = qs.filter(question_type=t)
-        return qs
+        return qs.select_related('teacher', 'subject')
 
     def perform_create(self, serializer):
         serializer.save(teacher=self.request.user)
+
+    def perform_update(self, serializer):
+        if serializer.instance.teacher_id != self.request.user.id:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('You can only edit your own questions.')
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.teacher_id != self.request.user.id:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('You can only delete your own questions.')
+        instance.delete()
