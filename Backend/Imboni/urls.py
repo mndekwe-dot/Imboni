@@ -5,7 +5,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('__debug__/', include('debug_toolbar.urls')),
     path('imboni/', include('apps.parents.urls')),
     path('imboni/', include('apps.authentication.urls')),
     path('imboni/', include('apps.results.urls')),
@@ -23,4 +22,8 @@ urlpatterns = [
     path('imboni/', include('apps.audit.urls')),
 ]
 if settings.DEBUG:
+    # debug_toolbar is only in INSTALLED_APPS when DEBUG=True, so its URLs
+    # (which import its models) must only be wired up then — otherwise a
+    # DEBUG=False run fails with "model isn't in an application in INSTALLED_APPS".
+    urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
