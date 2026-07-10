@@ -14,6 +14,11 @@ class LoginRateThrottle(AnonRateThrottle):
 class PasswordResetRateThrottle(AnonRateThrottle):
     """Per-IP throttle for password-reset requests (rate: 'password_reset')."""
     scope = 'password_reset'
+
+
+class TwoFactorRateThrottle(AnonRateThrottle):
+    """Per-IP throttle for the 2FA login step (rate: 'two_factor') — blunts OTP guessing."""
+    scope = 'two_factor'
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import default_token_generator
@@ -148,6 +153,8 @@ class AuthViewSet(viewsets.ViewSet):
         # consistently applied across DRF versions.
         if self.action == 'login':
             return [LoginRateThrottle()]
+        if self.action == 'verify_2fa_login':
+            return [TwoFactorRateThrottle()]
         return super().get_throttles()
 
     @action(detail=False, methods=['post'])
@@ -197,13 +204,62 @@ class AuthViewSet(viewsets.ViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+        # If the account has 2FA enabled, the password is only step one — issue a
+        # short-lived challenge instead of tokens and require a code via 2fa/login.
+        from . import twofactor
+        tf = getattr(user, 'two_factor', None)
+        if tf and tf.is_enabled:
+            return Response({
+                'requires_2fa': True,
+                'challenge':    twofactor.make_challenge(user, portal),
+            })
+
         refresh = RefreshToken.for_user(user)
         return Response({
             'access':  str(refresh.access_token),
             'refresh': str(refresh),
             'user':    UserSerializer(user).data,
         })
-    
+
+    @action(detail=False, methods=['post'], url_path='2fa/login')
+    def verify_2fa_login(self, request):
+        """
+        Second login step for 2FA accounts: exchange a valid challenge + TOTP
+        code (or a backup code) for JWT tokens. Rate-limited per IP.
+        """
+        from . import twofactor
+        challenge = request.data.get('challenge')
+        code      = request.data.get('code') or request.data.get('token')
+
+        payload = twofactor.read_challenge(challenge) if challenge else None
+        if not payload:
+            return Response(
+                {'error': 'Your login session expired. Please sign in again.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = User.objects.get(id=payload['uid'])
+        except (User.DoesNotExist, KeyError, ValueError):
+            return Response({'error': 'Invalid session.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        tf = getattr(user, 'two_factor', None)
+        if not tf or not tf.is_enabled:
+            return Response({'error': 'Two-factor is not enabled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not (twofactor.verify_totp(tf, code) or twofactor.verify_backup_code(tf, code)):
+            return Response(
+                {'error': 'Invalid or expired code.'},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'access':  str(refresh.access_token),
+            'refresh': str(refresh),
+            'user':    UserSerializer(user).data,
+        })
+
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def logout(self, request):
         """Logout user"""
@@ -216,6 +272,94 @@ class AuthViewSet(viewsets.ViewSet):
             return Response({
                 'error': 'Invalid token'
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TwoFactorStatusView(APIView):
+    """GET /imboni/auth/2fa/status/ — is 2FA enabled for the current user?"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        tf = getattr(request.user, 'two_factor', None)
+        return Response({'enabled': bool(tf and tf.is_enabled)})
+
+
+class TwoFactorSetupView(APIView):
+    """
+    POST /imboni/auth/2fa/setup/ — begin enrollment. Returns the secret, the
+    otpauth URI, and an inline QR image to scan. Idempotent until confirmed;
+    calling it again before verifying rotates the pending secret.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        from . import twofactor
+        tf = getattr(request.user, 'two_factor', None)
+        if tf and tf.is_enabled:
+            return Response(
+                {'error': 'Two-factor is already enabled. Disable it first to re-enrol.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        config = twofactor.get_or_create_pending(request.user)
+        # Rotate the secret on each fresh setup attempt so an abandoned one can't linger.
+        twofactor.rotate_secret(config)
+
+        uri = twofactor.provisioning_uri(config, request.user)
+        return Response({
+            'secret':       config.secret,
+            'otpauth_uri':  uri,
+            'qr':           twofactor.qr_data_uri(uri),
+        })
+
+
+class TwoFactorVerifyView(APIView):
+    """
+    POST /imboni/auth/2fa/verify/  body: { code }
+    Confirm enrollment by proving a valid code, enable 2FA, and return the
+    one-time backup codes (shown to the user exactly once).
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        from . import twofactor
+        tf = getattr(request.user, 'two_factor', None)
+        if tf is None or not tf.secret:
+            return Response({'error': 'Start setup first.'}, status=status.HTTP_400_BAD_REQUEST)
+        if tf.is_enabled:
+            return Response({'error': 'Two-factor is already enabled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not twofactor.verify_totp(tf, request.data.get('code')):
+            return Response({'error': 'Invalid code. Try again.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        twofactor.enable(tf)
+        backup_codes = twofactor.generate_backup_codes(tf)
+
+        from apps.audit.services import audit
+        audit(request.user, 'user.2fa_enabled', target=request.user.email or request.user.username)
+
+        return Response({'enabled': True, 'backup_codes': backup_codes})
+
+
+class TwoFactorDisableView(APIView):
+    """
+    POST /imboni/auth/2fa/disable/  body: { password }
+    Turn 2FA off. Requires the account password to re-authenticate, so a
+    walk-up on an unlocked session can't silently remove the second factor.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        password = request.data.get('password')
+        if not password or not request.user.check_password(password):
+            return Response({'error': 'Password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        tf = getattr(request.user, 'two_factor', None)
+        if tf:
+            tf.delete()
+
+        from apps.audit.services import audit
+        audit(request.user, 'user.2fa_disabled', target=request.user.email or request.user.username)
+
+        return Response({'enabled': False})
 
 
 class UserPreferencesViewSet(viewsets.ModelViewSet):
