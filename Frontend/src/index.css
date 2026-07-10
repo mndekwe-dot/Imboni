@@ -306,3 +306,23 @@ img, video, iframe, embed, object {
   a { text-decoration: underline; }
   .no-print { display: none !important; }
 }
+
+/* Fallback shown while a lazily-loaded route chunk downloads */
+.route-fallback {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.route-fallback-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid var(--muted, #e2e8f0);
+  border-top-color: var(--primary, #2563eb);
+  border-radius: 50%;
+  animation: route-spin 0.7s linear infinite;
+}
+@keyframes route-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .route-fallback-spinner { animation-duration: 2s; }
+}

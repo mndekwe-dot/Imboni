@@ -1,85 +1,120 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router';
 import { ProtectedRoute } from './components/ProtectedRoute';
+
+// Entry-path pages stay eager so the first paint (landing / login) needs no
+// extra round-trip. Everything behind a login is code-split below and loads
+// only when that route is visited — see the note in App() for the payoff.
 import { LandingPage } from './pages/LandingPage';
 import { LogIn } from './pages/login';
 import { NotFound } from './pages/NotFound';
 import { PortalLogin } from './pages/PortalLogin';
 import { ResetPassword } from './pages/ResetPassword';
-import { StudentDashboard } from './pages/Student/StudentDashboard';
-import { StudentResults } from './pages/Student/StudentResults';
-import { StudentAttendance } from './pages/Student/StudentAttendance';
-import { StudentTimetable } from './pages/Student/StudentTimetable';
-import { StudentAssignments } from './pages/Student/StudentAssignments';
-import { StudentQuizReview } from './pages/Student/StudentQuizReview';
-import { StudentQuizPage } from './pages/Student/StudentQuizPage';
-import { StudentActivities } from './pages/Student/StudentActivities';
-import { StudentAnnouncements } from './pages/Student/StudentAnnouncements';
-import { StudentMessages } from './pages/Student/StudentMessages';
-import { TeacherDashboard } from './pages/Teacher/TeacherDashboard';
-import { TeacherClasses } from './pages/Teacher/TeacherClasses';
-import { TeacherAttendance } from './pages/Teacher/TeacherAttendance';
-import { TeacherMessages } from './pages/Teacher/TeacherMessages';
-import { TeacherAnnouncement } from './pages/Teacher/TeacherAnnouncement';
-import { ParentDashboard } from './pages/Parent/ParentDashboard';
-import { ParentChildren } from './pages/Parent/ParentChildren';
-import { ParentResults } from './pages/Parent/ParentResults';
-import { ParentAttendance } from './pages/Parent/ParentAttendance';
-import { ParentBehaviour } from './pages/Parent/ParentBehaviour';
-import { ParentAnnouncements } from './pages/Parent/ParentAnnouncements';
-import { ParentMessages } from './pages/Parent/ParentMessages';
-import { DisDashboard } from './pages/Dis/DisDashboard';
-import { DisActivities } from './pages/Dis/DisActivities';
-import { DisStudents } from './pages/Dis/DisStudents';
-import { DisStudentLife } from './pages/Dis/DisStudentLife';
-import { DisBoarding } from './pages/Dis/DisBoarding';
-import { DisDining } from './pages/Dis/DisDining';
-import { DisMessages } from './pages/Dis/DisMessages';
-import { DisStaff } from './pages/Dis/DisStaff';
-import { DisStudentLeaders } from './pages/Dis/DisStudentLeaders';
-import { DisTimetable } from './pages/Dis/DisTimetable';
-import { DisAnnouncements } from './pages/Dis/DisAnnouncements';
-import { DisSettings } from './pages/Dis/DisSettings';
-import { DosDashboard } from './pages/Dos/DosDashboard';
-import { DosStudents } from './pages/Dos/DosStudents';
-import { DosTeachers } from './pages/Dos/DosTeachers';
-import { DosResults } from './pages/Dos/DosResults';
-import { DosScheduling } from './pages/Dos/DosScheduling';
-import { DosAttendance } from './pages/Dos/DosAttendance';
-import { DosTimetable } from './pages/Dos/DosTimetable';
-import { DosExamSchedule } from './pages/Dos/DosExamSchedule';
-import { DosAnalytics } from './pages/Dos/DosAnalytics';
-import { DosStudentLeaders } from './pages/Dos/DosStudentLeaders';
-import { DosAnnouncement } from './pages/Dos/DosAnnouncement';
-import { DosMessages } from './pages/Dos/DosMessages';
-import {MatronDashboard} from './pages/Matron/MatronDashboard';
-import {MatronHealth} from './pages/Matron/MatronHealth';
-import {MatronIncidents} from './pages/Matron/MatronIncidents';
-import {MatronMessages} from './pages/Matron/MatronMessages';
-import {MatronStudents} from './pages/Matron/MatronStudents';
-import {MatronParentComms} from './pages/Matron/MatronParentComms';
-import {MatronSchedule} from './pages/Matron/MatronSchedule';
-import { StudentDiscipline } from './pages/Student/StudentDiscipline';
-import { TeacherAssignments } from './pages/Teacher/TeacherAssignments';
-import { TeacherTimetable } from './pages/Teacher/TeacherTimetable';
-import { TeacherResults } from './pages/Teacher/TeacherResults';
-import { TeacherStudent } from './pages/Teacher/TeacherStudents';
-import { Account } from './pages/Account';
-import { DosSettings } from './pages/Dos/DosSettings';
 import { TeacherRegistration } from './pages/TeacherRegistration';
-import { AdminDashboard } from './pages/Admin/AdminDashboard';
-import { AdminStaff } from './pages/Admin/AdminStaff';
-import { AdminStudents } from './pages/Admin/AdminStudents';
-import { AdminApprovals } from './pages/Admin/AdminApprovals';
-import { AdminReports } from './pages/Admin/AdminReports';
-import { AdminAnnouncements } from './pages/Admin/AdminAnnouncements';
-import { AdminMessages } from './pages/Admin/AdminMessages';
-import { AdminSettings } from './pages/Admin/AdminSettings';
-import { AdminAuditLog } from './pages/Admin/AdminAuditLog';
 
+// Lazy helper for named exports (React.lazy expects a default export).
+// The import string stays static so the bundler can split each page out.
+const load = (factory, name) => lazy(() => factory().then(m => ({ default: m[name] })));
 
+// ── Student ──
+const StudentDashboard    = load(() => import('./pages/Student/StudentDashboard'), 'StudentDashboard');
+const StudentResults      = load(() => import('./pages/Student/StudentResults'), 'StudentResults');
+const StudentAttendance   = load(() => import('./pages/Student/StudentAttendance'), 'StudentAttendance');
+const StudentTimetable    = load(() => import('./pages/Student/StudentTimetable'), 'StudentTimetable');
+const StudentAssignments  = load(() => import('./pages/Student/StudentAssignments'), 'StudentAssignments');
+const StudentQuizReview   = load(() => import('./pages/Student/StudentQuizReview'), 'StudentQuizReview');
+const StudentQuizPage     = load(() => import('./pages/Student/StudentQuizPage'), 'StudentQuizPage');
+const StudentActivities   = load(() => import('./pages/Student/StudentActivities'), 'StudentActivities');
+const StudentAnnouncements = load(() => import('./pages/Student/StudentAnnouncements'), 'StudentAnnouncements');
+const StudentMessages     = load(() => import('./pages/Student/StudentMessages'), 'StudentMessages');
+const StudentDiscipline   = load(() => import('./pages/Student/StudentDiscipline'), 'StudentDiscipline');
+
+// ── Teacher ──
+const TeacherDashboard    = load(() => import('./pages/Teacher/TeacherDashboard'), 'TeacherDashboard');
+const TeacherClasses      = load(() => import('./pages/Teacher/TeacherClasses'), 'TeacherClasses');
+const TeacherAttendance   = load(() => import('./pages/Teacher/TeacherAttendance'), 'TeacherAttendance');
+const TeacherMessages     = load(() => import('./pages/Teacher/TeacherMessages'), 'TeacherMessages');
+const TeacherAnnouncement = load(() => import('./pages/Teacher/TeacherAnnouncement'), 'TeacherAnnouncement');
+const TeacherAssignments  = load(() => import('./pages/Teacher/TeacherAssignments'), 'TeacherAssignments');
+const TeacherTimetable    = load(() => import('./pages/Teacher/TeacherTimetable'), 'TeacherTimetable');
+const TeacherResults      = load(() => import('./pages/Teacher/TeacherResults'), 'TeacherResults');
+const TeacherStudent      = load(() => import('./pages/Teacher/TeacherStudents'), 'TeacherStudent');
+
+// ── Parent ──
+const ParentDashboard     = load(() => import('./pages/Parent/ParentDashboard'), 'ParentDashboard');
+const ParentChildren      = load(() => import('./pages/Parent/ParentChildren'), 'ParentChildren');
+const ParentResults       = load(() => import('./pages/Parent/ParentResults'), 'ParentResults');
+const ParentAttendance    = load(() => import('./pages/Parent/ParentAttendance'), 'ParentAttendance');
+const ParentBehaviour     = load(() => import('./pages/Parent/ParentBehaviour'), 'ParentBehaviour');
+const ParentAnnouncements = load(() => import('./pages/Parent/ParentAnnouncements'), 'ParentAnnouncements');
+const ParentMessages      = load(() => import('./pages/Parent/ParentMessages'), 'ParentMessages');
+
+// ── Discipline ──
+const DisDashboard        = load(() => import('./pages/Dis/DisDashboard'), 'DisDashboard');
+const DisActivities       = load(() => import('./pages/Dis/DisActivities'), 'DisActivities');
+const DisStudents         = load(() => import('./pages/Dis/DisStudents'), 'DisStudents');
+const DisStudentLife      = load(() => import('./pages/Dis/DisStudentLife'), 'DisStudentLife');
+const DisBoarding         = load(() => import('./pages/Dis/DisBoarding'), 'DisBoarding');
+const DisDining           = load(() => import('./pages/Dis/DisDining'), 'DisDining');
+const DisMessages         = load(() => import('./pages/Dis/DisMessages'), 'DisMessages');
+const DisStaff            = load(() => import('./pages/Dis/DisStaff'), 'DisStaff');
+const DisStudentLeaders   = load(() => import('./pages/Dis/DisStudentLeaders'), 'DisStudentLeaders');
+const DisTimetable        = load(() => import('./pages/Dis/DisTimetable'), 'DisTimetable');
+const DisAnnouncements    = load(() => import('./pages/Dis/DisAnnouncements'), 'DisAnnouncements');
+const DisSettings         = load(() => import('./pages/Dis/DisSettings'), 'DisSettings');
+
+// ── DOS ──
+const DosDashboard        = load(() => import('./pages/Dos/DosDashboard'), 'DosDashboard');
+const DosStudents         = load(() => import('./pages/Dos/DosStudents'), 'DosStudents');
+const DosTeachers         = load(() => import('./pages/Dos/DosTeachers'), 'DosTeachers');
+const DosResults          = load(() => import('./pages/Dos/DosResults'), 'DosResults');
+const DosScheduling       = load(() => import('./pages/Dos/DosScheduling'), 'DosScheduling');
+const DosAttendance       = load(() => import('./pages/Dos/DosAttendance'), 'DosAttendance');
+const DosTimetable        = load(() => import('./pages/Dos/DosTimetable'), 'DosTimetable');
+const DosExamSchedule     = load(() => import('./pages/Dos/DosExamSchedule'), 'DosExamSchedule');
+const DosAnalytics        = load(() => import('./pages/Dos/DosAnalytics'), 'DosAnalytics');
+const DosStudentLeaders   = load(() => import('./pages/Dos/DosStudentLeaders'), 'DosStudentLeaders');
+const DosAnnouncement     = load(() => import('./pages/Dos/DosAnnouncement'), 'DosAnnouncement');
+const DosMessages         = load(() => import('./pages/Dos/DosMessages'), 'DosMessages');
+const DosSettings         = load(() => import('./pages/Dos/DosSettings'), 'DosSettings');
+
+// ── Matron ──
+const MatronDashboard     = load(() => import('./pages/Matron/MatronDashboard'), 'MatronDashboard');
+const MatronHealth        = load(() => import('./pages/Matron/MatronHealth'), 'MatronHealth');
+const MatronIncidents     = load(() => import('./pages/Matron/MatronIncidents'), 'MatronIncidents');
+const MatronMessages      = load(() => import('./pages/Matron/MatronMessages'), 'MatronMessages');
+const MatronStudents      = load(() => import('./pages/Matron/MatronStudents'), 'MatronStudents');
+const MatronParentComms   = load(() => import('./pages/Matron/MatronParentComms'), 'MatronParentComms');
+const MatronSchedule      = load(() => import('./pages/Matron/MatronSchedule'), 'MatronSchedule');
+
+// ── Admin ──
+const AdminDashboard      = load(() => import('./pages/Admin/AdminDashboard'), 'AdminDashboard');
+const AdminStaff          = load(() => import('./pages/Admin/AdminStaff'), 'AdminStaff');
+const AdminStudents       = load(() => import('./pages/Admin/AdminStudents'), 'AdminStudents');
+const AdminApprovals      = load(() => import('./pages/Admin/AdminApprovals'), 'AdminApprovals');
+const AdminReports        = load(() => import('./pages/Admin/AdminReports'), 'AdminReports');
+const AdminAnnouncements  = load(() => import('./pages/Admin/AdminAnnouncements'), 'AdminAnnouncements');
+const AdminMessages       = load(() => import('./pages/Admin/AdminMessages'), 'AdminMessages');
+const AdminSettings       = load(() => import('./pages/Admin/AdminSettings'), 'AdminSettings');
+const AdminAuditLog       = load(() => import('./pages/Admin/AdminAuditLog'), 'AdminAuditLog');
+
+// ── Shared ──
+const Account             = load(() => import('./pages/Account'), 'Account');
+
+function RouteFallback() {
+  return (
+    <div className="route-fallback" role="status" aria-label="Loading">
+      <div className="route-fallback-spinner" />
+    </div>
+  );
+}
 
 function App() {
+  // Every portal page above is code-split: the browser downloads a page's chunk
+  // only when its route is first visited, instead of shipping all 7 portals in
+  // one bundle up front. Suspense shows RouteFallback during that brief fetch.
   return (
+    <Suspense fallback={<RouteFallback />}>
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LogIn />} />
@@ -214,6 +249,7 @@ function App() {
       {/* ── Not Found route ── */}
       <Route path="*"    element={<NotFound/>} />
     </Routes>
+    </Suspense>
   )
 }
 
