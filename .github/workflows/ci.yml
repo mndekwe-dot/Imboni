@@ -5,6 +5,9 @@ on:
     branches: [main, portal-features]
   pull_request:
     branches: [main]
+  # Weekly run catches newly-disclosed CVEs in unchanged dependencies.
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
 
 jobs:
   backend:
@@ -53,6 +56,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Audit Python dependencies for known CVEs
+        working-directory: Backend
+        # Fails the build if any installed package has a known vulnerability.
+        # Bump the offending pin in requirements.txt to fix. To temporarily
+        # accept one with no fix yet, add: --ignore-vuln <ID>  (with a comment).
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+
       - name: Point Django at the MySQL service host
         working-directory: Backend
         # settings.py hardcodes HOST 127.0.0.1 which matches the mapped service port
@@ -83,6 +95,12 @@ jobs:
       - name: Install dependencies
         working-directory: Frontend
         run: npm ci
+
+      - name: Audit npm dependencies for known CVEs
+        working-directory: Frontend
+        # Fails on high/critical advisories. Run `npm audit fix` locally to
+        # resolve, or raise the threshold if a finding is triaged as acceptable.
+        run: npm audit --audit-level=high
 
       - name: Run frontend tests
         working-directory: Frontend
