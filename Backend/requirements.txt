@@ -21,7 +21,7 @@ defusedxml==0.7.1
 django-cors-headers==4.9.0
 django-debug-toolbar==6.2.0
 django-filter==25.2
-Django==6.0.6
+Django==6.0.7
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
 djoser==2.3.3
