@@ -28,7 +28,12 @@ class Notification(models.Model):
     class Meta:
         db_table = 'notifications'
         ordering = ['-created_at']
-        indexes = [models.Index(fields=['user', 'is_read'])]
+        indexes = [
+            models.Index(fields=['user', 'is_read']),
+            # The notification feed is polled: filter(user=…) ordered by newest.
+            # This composite serves both the filter and the sort from one index.
+            models.Index(fields=['user', '-created_at']),
+        ]
 
     def __str__(self):
         return f"{self.user.email} — {self.title}"

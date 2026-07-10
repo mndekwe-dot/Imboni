@@ -65,6 +65,11 @@ class HealthRecord(models.Model):
     class Meta:
         db_table = 'matron_health_records'
         ordering = ['-visit_datetime']
+        indexes = [
+            # Sick-bay dashboards filter by status (in_sick_bay/observation/cleared)
+            # on every load; without this it's a full scan of the health table.
+            models.Index(fields=['status']),
+        ]
 
     def __str__(self):
         return f"{self.student.full_name} — {self.visit_type} ({self.status})"
