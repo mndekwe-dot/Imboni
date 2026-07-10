@@ -190,12 +190,55 @@ Before letting a real school in, confirm:
 - [ ] A test email actually sends (invitation or password reset)
 - [ ] Database backups scheduled (`mysqldump` cron, off-box copy)
 - [ ] Install the PWA on a phone and confirm offline attendance syncs
+- [ ] `SENTRY_DSN` set on backend **and** `VITE_SENTRY_DSN` set at frontend build (see §6.5)
 
 Run the built-in deployment audit — it flags anything still insecure:
 
 ```bash
 python manage.py check --deploy
 ```
+
+## 6.5 Error monitoring (Sentry)
+
+Without this you have zero visibility when a real teacher hits a bug — no stack
+trace, no idea it happened. Sentry is wired into both backend and frontend and
+stays a **complete no-op until a DSN is provided**, so dev and CI send nothing.
+
+**Set up (once):** create a free project at sentry.io — one for the Django
+backend (platform: Django) and one for the React frontend (platform: React).
+Each gives you a DSN.
+
+**Backend** — put the DSN in the server `.env`:
+
+```bash
+SENTRY_DSN=https://<key>@o0.ingest.sentry.io/<project>
+SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0.1     # 10% of requests traced; raise to debug a slowdown
+```
+
+The init lives at the end of `Imboni/settings.py`; it wires the Django **and
+Celery** integrations, so unhandled errors in web requests *and* background
+tasks both report automatically.
+
+**Frontend** — Vite bakes env vars in **at build time**, so the DSN must be set
+*before* `npm run build`, not at runtime:
+
+```bash
+VITE_SENTRY_DSN=https://<key>@o0.ingest.sentry.io/<project>
+VITE_SENTRY_ENVIRONMENT=production
+```
+
+A top-level `Sentry.ErrorBoundary` (see `src/main.jsx`) also replaces the white
+screen-of-death with a recoverable "Something went wrong" page.
+
+**Privacy — important for children's data:** both SDKs are configured with
+`send_default_pii=False` and scrub cookies, request bodies, and URL query
+strings, so grades, medical notes, and auth/reset tokens never leave in an error
+report. Do not enable PII capture.
+
+**Verify it works:** after deploy, trigger a test error (e.g. hit a URL that
+raises, or add a throwaway `1/0` view temporarily) and confirm the event appears
+in the Sentry dashboard within a minute.
 
 ## 7. Day-2 operations
 
