@@ -66,4 +66,41 @@ test.describe('Login', () => {
         await page.goto('/dos')
         await expect(page).toHaveURL(/\/login$/)
     })
+
+    test('a 2FA account is prompted for a code, then lands on the dashboard', async ({ page }) => {
+        // Login returns a challenge instead of tokens; the 2FA step then succeeds.
+        await page.route('**/imboni/**', async (route) => {
+            const url = route.request().url()
+            if (url.includes('/imboni/auth/2fa/login/')) {
+                return route.fulfill({
+                    status: 200, contentType: 'application/json',
+                    body: JSON.stringify({ access: 'fake-access', refresh: 'fake-refresh', user: USER }),
+                })
+            }
+            if (url.includes('/imboni/auth/login/')) {
+                return route.fulfill({
+                    status: 200, contentType: 'application/json',
+                    body: JSON.stringify({ requires_2fa: true, challenge: 'signed-challenge' }),
+                })
+            }
+            return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+        })
+
+        await page.goto('/login/dos')
+        await page.fill('input[name="email"]', 'dos@imboni.rw')
+        await page.fill('input[name="password"]', 'CorrectHorse1!')
+        await page.getByRole('button', { name: /Sign in to/ }).click()
+
+        // The code step appears — password alone did not log us in.
+        const codeInput = page.locator('input[name="code"]')
+        await expect(codeInput).toBeVisible()
+        await expect(page).toHaveURL(/\/login\/dos$/)
+
+        await codeInput.fill('123456')
+        await page.getByRole('button', { name: /Verify and sign in/ }).click()
+
+        await expect(page).toHaveURL(/\/dos$/)
+        const token = await page.evaluate(() => localStorage.getItem('imboni_access'))
+        expect(token).toBe('fake-access')
+    })
 })

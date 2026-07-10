@@ -17,6 +17,23 @@ export async function loginUser(email, password, portal) {
     }
 }
 
+// Second login step for 2FA accounts — exchanges the challenge + a TOTP/backup
+// code for real tokens. Plain axios: no session token exists yet.
+export async function verifyTwoFactorLogin(challenge, code) {
+    try {
+        const res = await axios.post(`${BASE}/imboni/auth/2fa/login/`, { challenge, code })
+        return res.data
+    } catch (err) {
+        throw new Error(err.response?.data?.error || err.response?.data?.detail || 'Invalid or expired code')
+    }
+}
+
+// ── 2FA self-service management (authenticated — use client for the auth header) ──
+export const getTwoFactorStatus = () => client.get('/imboni/auth/2fa/status/')
+export const setupTwoFactor     = () => client.post('/imboni/auth/2fa/setup/')
+export const verifyTwoFactor    = (code) => client.post('/imboni/auth/2fa/verify/', { code })
+export const disableTwoFactor   = (password) => client.post('/imboni/auth/2fa/disable/', { password })
+
 // Logout uses client — user is logged in so the interceptor attaches the token automatically
 export async function logoutUser() {
     const refresh = localStorage.getItem('imboni_refresh')

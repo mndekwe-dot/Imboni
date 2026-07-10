@@ -219,6 +219,7 @@ Before letting a real school in, confirm:
 - [ ] Database backups scheduled (`mysqldump` cron, off-box copy)
 - [ ] Install the PWA on a phone and confirm offline attendance syncs
 - [ ] `SENTRY_DSN` set on backend **and** `VITE_SENTRY_DSN` set at frontend build (see §6.5)
+- [ ] Admin/staff enable two-factor auth (**Account → Security → Two-Factor**) — TOTP is built in; strongly recommended for accounts that can see every child's records
 
 Run the built-in deployment audit — it flags anything still insecure:
 

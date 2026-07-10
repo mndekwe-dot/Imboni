@@ -5,6 +5,7 @@ import { Sidebar } from '../components/layout/Sidebar'
 import { DashboardHeader } from '../components/layout/DashboardHeader'
 import { useSessionUser } from '../hooks/useSessionUser'
 import { useNotifications } from '../hooks/useNotifications'
+import { TwoFactorSettings } from '../components/TwoFactorSettings'
 import '../styles/layout.css'
 import '../styles/components.css'
 import '../styles/parent.css'
@@ -291,6 +292,8 @@ export function Account() {
                                                 {pwSaved ? 'Password Changed!' : pwSaving ? 'Saving...' : 'Change Password'}
                                             </button>
                                         </div>
+
+                                        <TwoFactorSettings />
                                     </div>
                                 </section>
 
