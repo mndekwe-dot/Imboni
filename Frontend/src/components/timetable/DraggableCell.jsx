@@ -37,15 +37,13 @@ export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEd
         )
     }
 
-    const style = drag.transform
-        ? { transform: `translate(${drag.transform.x}px, ${drag.transform.y}px)`, zIndex: 50 }
-        : undefined
-
+    // No transform on the <td> itself — table cells don't move reliably. A
+    // DragOverlay (in AcademicTimetable) renders the floating copy that follows
+    // the cursor; the source cell just dims via .tt-dragging.
     return (
         <td
             ref={setRef}
             className={`tt-cell tt-${cell.type || 'academic'} tt-col-${colIndex} tt-draggable${drag.isDragging ? ' tt-dragging' : ''}`}
-            style={style}
             {...drag.attributes}
             {...drag.listeners}
         >

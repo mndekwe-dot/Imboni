@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { WeekPicker } from './weekPicker'
 import { getThisMonday, getTodayDayIndex } from './dateUtils'
 import { DayTabs } from './DaysTabs'
@@ -67,6 +67,7 @@ function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, sch
 function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods, schedules, todayDayIndex, onMoveSlot }) {
     // A small drag threshold so a click on a cell/edit button never starts a drag.
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+    const [activeCell, setActiveCell] = useState(null)   // lesson being dragged (for the overlay)
     const schedule = (schedules || academicSchedules)[classId]
 
     if (!schedule) {
@@ -78,7 +79,12 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
     const academicDayShort = DAY_SHORT.slice(0, 6)
     const dragEnabled = typeof onMoveSlot === 'function'
 
+    function handleDragStart(event) {
+        setActiveCell(event.active.data.current?.cell ?? null)
+    }
+
     function handleDragEnd(event) {
+        setActiveCell(null)
         const { active, over } = event
         if (!over) return
         const from = active.data.current   // { cell, day, periodIndex }
@@ -149,7 +155,25 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
     return (
         <div className="tt-wrap">
             {dragEnabled
-                ? <DndContext sensors={sensors} onDragEnd={handleDragEnd}>{table}</DndContext>
+                ? (
+                    <DndContext
+                        sensors={sensors}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                        onDragCancel={() => setActiveCell(null)}
+                    >
+                        {table}
+                        <DragOverlay>
+                            {activeCell ? (
+                                <div className="tt-drag-overlay">
+                                    <div className="tt-subject">{activeCell.subject}</div>
+                                    {activeCell.teacher && <div className="tt-teacher">{activeCell.teacher}</div>}
+                                    {activeCell.room && <div className="tt-room">{activeCell.room}</div>}
+                                </div>
+                            ) : null}
+                        </DragOverlay>
+                    </DndContext>
+                )
                 : table}
         </div>
     )
