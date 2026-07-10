@@ -110,20 +110,39 @@ function ForgotPasswordModal({ onClose }) {
  *   redirectTo  — path after login          e.g. '/dos'
  */
 export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeholder, redirectTo }) {
-    const {login} = useAuth()
+    const {login, completeTwoFactor} = useAuth()
     const [email,      setEmail]      = useState('')
     const [password,   setPassword]   = useState('')
     const [showPw,     setShowPw]     = useState(false)
     const [error,      setError]      = useState('')
     const [loading,    setLoading]    = useState(false)
     const [showForgot, setShowForgot] = useState(false)
+    // When the account has 2FA, login returns a challenge and we show a code step.
+    const [challenge,  setChallenge]  = useState(null)
+    const [code,       setCode]       = useState('')
 
     async function handleSubmit(e) {
         e.preventDefault()
         setError('')
         setLoading(true)
         try {
-            await login(email,password,portal,redirectTo)
+            const result = await login(email,password,portal,redirectTo)
+            if (result?.requires2fa) {
+                setChallenge(result.challenge)
+            }
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function handleVerify(e) {
+        e.preventDefault()
+        setError('')
+        setLoading(true)
+        try {
+            await completeTwoFactor(challenge, code.trim(), redirectTo)
         } catch (err) {
             setError(err.message)
         } finally {
@@ -210,6 +229,46 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                     </div>
                 )}
 
+                {challenge ? (
+                    <form className="login-form" onSubmit={handleVerify} autoComplete="off">
+                        <p className="login-subheading" style={{ marginTop: 0 }}>
+                            Enter the 6-digit code from your authenticator app
+                            (or a backup code) to finish signing in.
+                        </p>
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="twofa-code">Verification code</label>
+                            <div className="input-wrap">
+                                <span className="input-icon material-symbols-rounded">password</span>
+                                <input
+                                    className="form-input"
+                                    type="text"
+                                    id="twofa-code"
+                                    name="code"
+                                    inputMode="numeric"
+                                    autoComplete="one-time-code"
+                                    placeholder="123456"
+                                    required
+                                    autoFocus
+                                    value={code}
+                                    onChange={e => setCode(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <button type="submit" className="login-btn portal-login-btn" disabled={loading}>
+                            {loading
+                                ? <><span className="btn-spinner"></span> Verifying...</>
+                                : 'Verify and sign in'}
+                        </button>
+                        <button
+                            type="button"
+                            className="forgot-link portal-forgot-link"
+                            style={{ marginTop: '0.75rem' }}
+                            onClick={() => { setChallenge(null); setCode(''); setError('') }}
+                        >
+                            Back to sign in
+                        </button>
+                    </form>
+                ) : (
                 <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
 
                     <div className="form-group">
@@ -271,6 +330,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                     </button>
 
                 </form>
+                )}
 
                 <div className="login-footer">
                     Imboni Education Connects &copy; {new Date().getFullYear()} &mdash;{' '}
