@@ -249,15 +249,78 @@ in the Sentry dashboard within a minute.
 | Tail API logs | `journalctl -u imboni-web -f` |
 | Check Celery health | `celery -A Imboni inspect active` |
 | Run a scheduled job now | `python manage.py send_weekly_digest` / `send_due_date_reminders` |
-| Database backup | `mysqldump imboni | gzip > imboni-$(date +%F).sql.gz` |
+| Back up the database now | `python manage.py backup_database` |
+| Erase a person's data (GDPR) | `python manage.py erase_user_data <email> --dry-run` |
+
+## 7.5 Data protection — backups & erasure
+
+Two management commands cover the data-protection basics. Both are also
+documented for the school in `PRIVACY_POLICY.md` (repo root — a template to
+review and publish; the school is the data controller).
+
+### Automated backups
+
+`backup_database` writes a gzipped `mysqldump` snapshot and prunes ones older
+than the retention window (default 14 days):
+
+```bash
+python manage.py backup_database                 # writes to BACKUP_DIR
+python manage.py backup_database --dry-run       # show the plan, change nothing
+python manage.py backup_database --retention-days 30
+```
+
+It runs automatically **every day at 02:00** via Celery beat
+(`apps.audit.tasks.backup_database_task`) — so keep the beat process running
+(§3). Configure where snapshots land and how long to keep them:
+
+```bash
+BACKUP_DIR=/var/backups/imboni     # point at a volume that is copied OFF the DB host
+BACKUP_RETENTION_DAYS=14
+```
+
+> A backup on the same disk as the database is not a backup. Ensure `BACKUP_DIR`
+> is (or is synced to) separate, off-box storage.
+
+**Restore drill — do this once before go-live** (a backup you have never
+restored is only a guess):
+
+```bash
+# 1. Pick a snapshot and unzip it
+gunzip -k /var/backups/imboni/imboni-imboni-20260710T020000Z.sql.gz
+
+# 2. Restore into a scratch database (NOT production) to prove it's valid
+mysql -e "CREATE DATABASE imboni_restore_test"
+mysql imboni_restore_test < /var/backups/imboni/imboni-imboni-20260710T020000Z.sql
+
+# 3. Sanity-check row counts, then drop the scratch DB
+mysql imboni_restore_test -e "SELECT COUNT(*) FROM users; SELECT COUNT(*) FROM students;"
+mysql -e "DROP DATABASE imboni_restore_test"
+```
+
+### Data-erasure requests ("right to be forgotten")
+
+When a parent or staff member asks for their (or their child's) data to be
+erased, use `erase_user_data`. Default mode **anonymises** — it scrubs all
+personal data (name, email, phone, address, DOB, emergency contact, avatar, and
+pupil medical fields) and deactivates the account, while keeping the row so
+academic/attendance history stays intact where the school must retain it:
+
+```bash
+python manage.py erase_user_data parent@example.com --dry-run   # preview
+python manage.py erase_user_data parent@example.com --actor dpo@school.rw
+python manage.py erase_user_data <user-id> --delete             # full hard delete
+```
+
+Every erasure is written to the audit log (`user.erased`), so the erasure itself
+stays accountable.
 
 ## 8. What still needs a human decision before real pupils
 
-- **Data protection**: children's grades, medical (medication/health) and
-  disciplinary records are sensitive. Confirm who may access what, a retention
-  policy, and consent — the app enforces role permissions and keeps an audit
-  log, but policy is yours to set.
-- **Backups tested**: a backup you haven't restored is a guess. Do one restore
-  drill before go-live.
+- **Data protection policy**: children's grades, medical (medication/health) and
+  disciplinary records are sensitive. The app enforces role permissions, keeps an
+  audit log, backs up automatically, and can erase/anonymise on request (§7.5) —
+  but the school must adopt `PRIVACY_POLICY.md`, set a retention period, and
+  confirm consent.
+- **Backups tested**: run the restore drill in §7.5 before go-live.
 - **A rollback plan**: keep the previous release and a DB snapshot so a bad
   deploy can be reverted in minutes.

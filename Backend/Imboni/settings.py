@@ -354,6 +354,13 @@ CELERY_TASK_PUBLISH_RETRY = False
 CELERY_TASK_ALWAYS_EAGER  = True if TESTING else config('CELERY_TASK_ALWAYS_EAGER', cast=bool, default=False)
 CELERY_TASK_EAGER_PROPAGATES = True
 
+# ── Database backups ───────────────────────────────────────────────────────────
+# Where `manage.py backup_database` writes gzipped mysqldump snapshots, and how
+# long to keep them. On a server, point BACKUP_DIR at a mounted volume that is
+# itself copied off-box (a backup on the same disk as the DB is not a backup).
+BACKUP_DIR = config('BACKUP_DIR', default=str(BASE_DIR / 'backups'))
+BACKUP_RETENTION_DAYS = config('BACKUP_RETENTION_DAYS', cast=int, default=14)
+
 # ── Error monitoring (Sentry) ──────────────────────────────────────────────────
 # Only initialises when SENTRY_DSN is set, so local dev and the test suite run
 # with no Sentry at all (no DSN in .env = no-op). Set SENTRY_DSN in production.
