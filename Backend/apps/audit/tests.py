@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 import pytest
+from django.utils import timezone
 from rest_framework import status
 
 from apps.audit.models import AuditEntry
@@ -34,8 +37,14 @@ class TestAuditLogListView:
 
     def test_admin_sees_entries_newest_first_with_filters(self, make_authenticated_client):
         client, admin = make_authenticated_client('admin')
-        audit(admin, 'invitation.sent', target='a@school.rw')
-        audit(admin, 'result.approved', target='John Doe — Maths')
+        older = audit(admin, 'invitation.sent', target='a@school.rw')
+        newer = audit(admin, 'result.approved', target='John Doe — Maths')
+        # created_at is auto_now_add and can tie at microsecond resolution, and
+        # the UUID PK gives no monotonic tiebreaker — so pin distinct timestamps
+        # to make "newest first" deterministic instead of order-of-insertion luck.
+        now = timezone.now()
+        AuditEntry.objects.filter(pk=older.pk).update(created_at=now - timedelta(seconds=1))
+        AuditEntry.objects.filter(pk=newer.pk).update(created_at=now)
 
         response = client.get('/imboni/admin/audit/')
         assert response.status_code == status.HTTP_200_OK
