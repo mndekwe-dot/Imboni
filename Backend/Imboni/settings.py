@@ -41,21 +41,39 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
 # Application definition
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
+# ── Multi-tenancy (django-tenants, schema-per-tenant) ───────────────────────────
+# SHARED_APPS live in the `public` schema (the platform layer + anything without
+# per-school data). TENANT_APPS are created inside EVERY school's own schema.
+# See MULTI_TENANCY_GUIDE.md for the full rationale.
+#
+# The custom User model (apps.authentication) lives ONLY in TENANT_APPS: its
+# Invitation model has FKs into per-school tables (students, classes), so it is
+# inherently per-tenant. Each school therefore gets its own isolated users,
+# logins and invitations. SHARED_APPS is kept minimal: the platform tenant
+# registry plus no-model third-party libraries (global code, no tables).
+SHARED_APPS = [
+    'django_tenants',            # must be first
+    'apps.tenants',              # the tenant registry (Client + Domain)
+
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third party
+    # Third party with no DB tables — safe to load once in the public schema
+    'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',  # For token blacklisting
-    'corsheaders',
     'django_filters',
-    # Local apps
-    'apps.authentication',
+]
+
+TENANT_APPS = [
+    'django.contrib.contenttypes',
+    'django.contrib.auth',
+    'apps.authentication',       # custom User model — one isolated user set per school
+    'django.contrib.admin',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    # Third party with per-tenant tables
+    'rest_framework_simplejwt.token_blacklist',  # JWT blacklist is per-school
+    # Local apps — all per-school data
     'apps.results',
     'apps.attendance',
     'apps.behavior',
@@ -72,7 +90,19 @@ INSTALLED_APPS = [
     'apps.audit',
 ]
 
+# The real INSTALLED_APPS is the union (shared first, then tenant-only extras).
+INSTALLED_APPS = list(SHARED_APPS) + [a for a in TENANT_APPS if a not in SHARED_APPS]
+
+TENANT_MODEL = 'tenants.Client'
+TENANT_DOMAIN_MODEL = 'tenants.Domain'
+
 MIDDLEWARE = [
+    # Must be first: resolves the subdomain -> tenant schema before anything
+    # touches the database or auth.
+    'django_tenants.middleware.main.TenantMainMiddleware',
+    # Enforces the school's subscription status (blocks suspended, flags past_due).
+    # Must sit right after the tenant middleware so connection.tenant is populated.
+    'apps.tenants.middleware.SubscriptionStatusMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     # WhiteNoise serves static files (Django admin, DRF) straight from gunicorn
@@ -115,22 +145,24 @@ WSGI_APPLICATION = 'Imboni.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# PostgreSQL via django-tenants. The tenant backend rewrites the connection's
+# search_path to the active school's schema on every request (set by the
+# TenantMainMiddleware from the request subdomain).
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DATABASE_NAME'),
-        'USER': config('DATABASE_USER'),
-        'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': '127.0.0.1',
-        'PORT': 3306,
+        'ENGINE': 'django_tenants.postgresql_backend',
+        'NAME': config('DATABASE_NAME', default='imboni'),
+        'USER': config('DATABASE_USER', default='imboni'),
+        'PASSWORD': config('DATABASE_PASSWORD', default='imboni'),
+        'HOST': config('DATABASE_HOST', default='127.0.0.1'),
+        'PORT': config('DATABASE_PORT', default='5432'),
         # Keep connections open — avoids reconnect overhead on every request
         'CONN_MAX_AGE': 60,
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
     }
 }
+
+# Routes migrations/queries to the right schema (public vs tenant).
+DATABASE_ROUTERS = ('django_tenants.routers.TenantSyncRouter',)
 
 
 # Password validation
