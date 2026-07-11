@@ -293,8 +293,10 @@ else:
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Imboni School <ndekwe22@gmail.com>')
 
-# Security settings for production
-if not DEBUG:
+# Security settings for production. Excluded under TESTING: SECURE_SSL_REDIRECT
+# would 301-redirect every test request (which uses http) to https, breaking the
+# whole API test suite.
+if not DEBUG and not TESTING:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     CSRF_COOKIE_SECURE = True
