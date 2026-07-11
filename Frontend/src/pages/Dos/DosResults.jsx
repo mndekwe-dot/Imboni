@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
+import { Loading } from '../../components/ui/Loading'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
     PieChart, Pie, Legend, AreaChart, Area,
@@ -470,7 +471,7 @@ export function DosResults() {
         return true
     })
 
-    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (loading) return <Loading fullPage />
     if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     return (

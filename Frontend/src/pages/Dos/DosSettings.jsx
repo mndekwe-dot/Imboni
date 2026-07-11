@@ -11,6 +11,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { Loading } from '../../components/ui/Loading'
 
 // ── Small reusable components ────────────────────────────────────────────────
 
@@ -397,7 +398,7 @@ export function DosSettings() {
 
     // ── Loading / error / empty states ───────────────────────────────────────
 
-    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (loading) return <Loading fullPage />
     if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     // ── Derived stat counts ───────────────────────────────────────────────────

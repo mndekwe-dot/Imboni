@@ -17,6 +17,7 @@ import { parentNavItems, parentSecondaryItems } from './Parent/parentNav'
 import { matronNavItems, matronSecondaryItems } from './Matron/matronNav'
 import { disNavItems, disSecondaryItems } from './Dis/disNav'
 import { adminNavItems, adminSecondaryItems } from './Admin/adminNav'
+import { Loading } from '../components/ui/Loading'
 
 // Lookup table — given a role string, returns the correct sidebar nav items.
 // Each portal exports its own nav from its own file — one source of truth.
@@ -78,7 +79,7 @@ export function Account() {
 
     // Show loading text while API call is in progress.
     // Prevents the form from flashing with empty inputs.
-    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (loading) return <Loading fullPage />
 
     // Build initials from first and last name for the avatar circle e.g. "JN"
     const initials = profile

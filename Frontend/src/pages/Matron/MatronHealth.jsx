@@ -6,6 +6,7 @@ import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { Loading } from '../../components/ui/Loading'
 import {
     getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents,
     getMedicationsToday, administerMedication, createMedication,
@@ -341,7 +342,7 @@ export const MatronHealth = () => {
         }
     }
 
-    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (loading) return <Loading fullPage />
     if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     const healthStats = [

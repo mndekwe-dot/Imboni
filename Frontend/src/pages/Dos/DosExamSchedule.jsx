@@ -12,6 +12,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
+import { Loading } from '../../components/ui/Loading'
 
 
 const examRows = [
@@ -93,7 +94,7 @@ export function DosExamSchedule() {
         } catch (err) { console.error(err) }
     }
 
-    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (loading) return <Loading fullPage />
     if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     return (

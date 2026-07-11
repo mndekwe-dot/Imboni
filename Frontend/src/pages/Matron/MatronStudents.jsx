@@ -16,6 +16,7 @@ import { getMatronStudents } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { Loading } from '../../components/ui/Loading'
 
 
 function initialsOf(name) {
@@ -105,7 +106,7 @@ export function MatronStudents() {
         { colorClass: '',      iconClass: '',      icon: 'meeting_room', value: [...new Set(visibleStudents.map(s => s.room))].length,               label: 'Rooms Occupied'   },
     ]
 
-    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (loading) return <Loading fullPage />
     if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     return (

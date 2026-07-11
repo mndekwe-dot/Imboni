@@ -11,6 +11,7 @@ import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getMatronDashboard, getMatronNightCheck } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { Loading } from '../../components/ui/Loading'
 
 
 function initialsOf(name) {
@@ -60,7 +61,7 @@ export function MatronDashboard() {
             .finally(() => setLoading(false))
     }, [])
 
-    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (loading) return <Loading fullPage />
     if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     const dormitory = dashboard.stats.dormitory || 'your dormitory'

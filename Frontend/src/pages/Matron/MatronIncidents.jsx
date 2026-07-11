@@ -13,6 +13,7 @@ import { getMatronIncidents, createMatronIncident, getMatronStudents } from '../
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { Loading } from '../../components/ui/Loading'
 
 
 const STATUS_STYLE = {
@@ -115,7 +116,7 @@ export function MatronIncidents() {
         ? pastReports
         : pastReports.filter(r => r.statusClass === filter)
 
-    if (loading) return <p style={{ padding: '2rem' }}>Loading...</p>
+    if (loading) return <Loading fullPage />
     if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
 
     return (
