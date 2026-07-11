@@ -2,6 +2,9 @@
 .env
 .env.*
 !.env.example
+# ...but DO commit the *.example templates (real secrets stay ignored above)
+!*.env.example
+!.env.*.example
 
 # Python
 __pycache__/

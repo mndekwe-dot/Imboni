@@ -1,0 +1,58 @@
+# Production overrides for the Imboni stack.
+#
+# Usage (compose merges this on top of the base file):
+#   docker compose --env-file .env.prod \
+#       -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Assumes an edge proxy / load balancer terminates TLS for your wildcard domain
+# (e.g. *.imboni.com) and forwards requests to the `web` service with
+# `X-Forwarded-Proto: https`. The app already trusts that header
+# (SECURE_PROXY_SSL_HEADER), so SECURE_SSL_REDIRECT and secure cookies engage
+# correctly once TLS is in front.
+#
+# Secrets come from `.env.prod` (gitignored — see .env.prod.example). The `:?`
+# substitutions below make compose FAIL FAST if a required secret is missing.
+
+x-prod-backend-env: &prod_backend_env
+  MY_DEBUG: "False"
+  # TLS is terminated at the edge, so re-enable the http->https redirect + HSTS.
+  SECURE_SSL_REDIRECT: "True"
+  # Your real hosts, e.g. ".imboni.com" (leading dot covers every subdomain).
+  ALLOWED_HOSTS: ${ALLOWED_HOSTS:?set ALLOWED_HOSTS in .env.prod}
+  THE_SECRET_KEY: ${THE_SECRET_KEY:?set THE_SECRET_KEY in .env.prod}
+  DATABASE_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD in .env.prod}
+
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD in .env.prod}
+    restart: always
+
+  redis:
+    restart: always
+
+  backend:
+    environment: *prod_backend_env
+    command: >
+      gunicorn Imboni.wsgi:application
+      --bind 0.0.0.0:8000
+      --workers ${GUNICORN_WORKERS:-4}
+      --timeout 60
+      --access-logfile -
+    restart: always
+
+  worker:
+    environment: *prod_backend_env
+    command: celery -A Imboni worker -l warning --concurrency ${CELERY_CONCURRENCY:-4}
+    restart: always
+
+  beat:
+    environment: *prod_backend_env
+    command: celery -A Imboni beat -l warning
+    restart: always
+
+  web:
+    # In production the edge proxy forwards to web:80. If instead you want THIS
+    # container to be the TLS edge, mount your certs and add a 443 server block
+    # to Frontend/nginx.conf; otherwise leave it on 80 behind your load balancer.
+    restart: always
