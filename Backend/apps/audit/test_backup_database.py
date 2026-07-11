@@ -2,7 +2,7 @@
 Tests for the `backup_database` management command.
 
 These cover the pure logic (argv construction, retention pruning, dry-run,
-guardrails) without invoking a real `mysqldump` or MySQL server.
+guardrails) without invoking a real `pg_dump` or PostgreSQL server.
 """
 from datetime import datetime, timezone, timedelta
 
@@ -23,19 +23,20 @@ class TestBuildDumpCommand:
         }
         cmd = build_dump_command(db)
 
-        assert cmd[0] == 'mysqldump'
+        assert cmd[0] == 'pg_dump'
         assert '--host=db.internal' in cmd
         assert '--port=3307' in cmd
-        assert '--user=imboni' in cmd
+        assert '--username=imboni' in cmd
         assert cmd[-1] == 'imboni'                       # database name is last
-        assert '--single-transaction' in cmd            # consistent InnoDB snapshot
+        assert '--no-owner' in cmd                       # restore under any role
+        assert '--no-password' in cmd                    # never prompt; use PGPASSWORD
         # The password must never appear on the argv (visible in `ps`).
         assert not any('super-secret' in part for part in cmd)
 
     def test_defaults_host_and_port_when_absent(self):
         cmd = build_dump_command({'NAME': 'imboni', 'USER': 'u', 'PASSWORD': ''})
         assert '--host=127.0.0.1' in cmd
-        assert '--port=3306' in cmd
+        assert '--port=5432' in cmd
 
 
 class TestPruneOldBackups:
@@ -74,11 +75,11 @@ class TestBackupCommand:
         assert 'Dry run' in out
         assert list(tmp_path.glob('*.sql.gz')) == []
 
-    def test_missing_mysqldump_raises_clear_error(self, tmp_path, monkeypatch):
-        # Simulate mysqldump not being installed on PATH.
+    def test_missing_pg_dump_raises_clear_error(self, tmp_path, monkeypatch):
+        # Simulate pg_dump not being installed on PATH.
         monkeypatch.setattr(
             'apps.audit.management.commands.backup_database.shutil.which',
             lambda _: None,
         )
-        with pytest.raises(CommandError, match='mysqldump not found'):
+        with pytest.raises(CommandError, match='pg_dump not found'):
             call_command('backup_database', '--output-dir', str(tmp_path))

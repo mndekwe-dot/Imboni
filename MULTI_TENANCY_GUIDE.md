@@ -105,16 +105,30 @@ automatically scoped once the subdomain resolves the schema.
 
 ## 5. Implementation phases
 
-### Phase 1 — Foundation: two isolated schools running side by side  ◄ current
+### Phase 1 — Foundation: two isolated schools running side by side  ✅ DONE (commit 8abc456)
 
-- [ ] Add `django-tenants` + `psycopg` to requirements; Postgres running in Docker.
-- [ ] Create `apps/tenants` with `Client(TenantMixin)` and `Domain(DomainMixin)`.
-- [ ] Restructure settings: `SHARED_APPS` / `TENANT_APPS` / `INSTALLED_APPS`,
+- [x] Add `django-tenants` + `psycopg` to requirements; Postgres running in Docker.
+- [x] Create `apps/tenants` with `Client(TenantMixin)` and `Domain(DomainMixin)`.
+- [x] Restructure settings: `SHARED_APPS` / `TENANT_APPS` / `INSTALLED_APPS`,
       `DATABASE_ROUTERS`, `TenantMainMiddleware` first in `MIDDLEWARE`,
       engine → `django_tenants.postgresql_backend`.
-- [ ] `migrate_schemas --shared`; create the `public` tenant.
-- [ ] Create two demo tenants (`school1.localhost`, `school2.localhost`), seed an admin each.
-- [ ] **Milestone:** log into both; confirm school1 cannot see school2's data.
+- [x] `migrate_schemas --shared`; create the `public` tenant.
+- [x] Create two demo tenants (`school1.localhost`, `school2.localhost`), seed an admin each.
+- [x] **Milestone:** logged into both over HTTP by subdomain; school1 admin gets 401 on
+      school2 and vice-versa; schema/table isolation confirmed. Also verified suspension
+      enforcement (suspended school → 402, login still reachable).
+
+**Verified `authentication` must be TENANT-only** (not shared): its `Invitation` model
+FKs into per-school `students`/`classes`, so it cannot live in the public schema.
+
+**Test suite: GREEN under django-tenants.** `Backend/conftest.py` now builds a `test` tenant
+(domain `testserver`) so `TenantMainMiddleware` routes every test request into its schema, and
+pins the connection to that schema for ORM calls. Full suite: **333 passed**. Also ported the
+`backup_database` command MySQL→Postgres (`pg_dump`) — it was the only real code casualty of the
+engine switch.
+
+**Still owed:** the platform super-admin API (`apps/tenants/views.py`) is built but unwired,
+pending a shared-schema platform-auth model (Phase 5).
 
 ### Phase 2 — Onboarding / provisioning
 
@@ -181,6 +195,26 @@ automatically scoped once the subdomain resolves the schema.
 - **Wildcard DNS** `*.imboni.com` + **wildcard TLS** (Let's Encrypt / host-managed certs).
 - Celery + broker (Redis) for background generation and per-tenant jobs.
 - Container image already viable (Docker present); one web image serves all tenants.
+
+### Phase 8 — Full containerization (Docker) — REQUESTED, not started
+
+Goal: run the whole stack in containers so dev == prod and deploys are reproducible.
+Currently only Postgres is containerized (`docker-compose.yml`). To do:
+
+- [ ] **Backend `Dockerfile`** — Python image, install `Backend/requirements.txt`, collectstatic,
+      run gunicorn; entrypoint runs `migrate_schemas --shared` (and `--tenant`) on start.
+- [ ] **Frontend `Dockerfile`** — multi-stage: `npm run build` then serve the static bundle
+      (nginx or a small static server).
+- [ ] **Extend `docker-compose.yml`** into the full stack: `db` (postgres), `redis`,
+      `backend` (gunicorn), `worker` + `beat` (Celery), `frontend`, and a reverse proxy
+      (nginx/Caddy) that terminates TLS and routes `*.localhost` / `*.imboni.com` subdomains.
+- [ ] **Env wiring** — pass `DATABASE_HOST=db`, `CELERY_BROKER_URL=redis://redis:6379/0`, etc.
+      via compose env, not the host `.env`; keep secrets out of the image.
+- [ ] **Volumes** — named volume for Postgres data; bind-mount media (or use S3 in prod).
+- [ ] **One image, all tenants** — the same backend image serves every school; no per-tenant
+      images. Subdomain routing happens at the proxy + `TenantMainMiddleware`.
+- [ ] Optionally a production `docker-compose.prod.yml` override (no code bind-mounts,
+      restart policies, healthchecks).
 
 ---
 

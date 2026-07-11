@@ -1,13 +1,18 @@
 """
 python manage.py backup_database [--output-dir DIR] [--retention-days N] [--dry-run]
 
-Take a compressed, timestamped snapshot of the MySQL database with `mysqldump`
+Take a compressed, timestamped snapshot of the PostgreSQL database with `pg_dump`
 and prune snapshots older than the retention window. Designed to be run on a
 schedule (see apps/audit/tasks.py + the Celery beat entry) so the pilot always
 has a recent off-the-cuff restore point.
 
+Under django-tenants every school is a separate Postgres schema in the one
+database, so a plain `pg_dump <db>` captures the public schema AND every tenant
+schema in a single consistent snapshot. (Per-tenant selective backups are a
+later, Phase-6 concern — see MULTI_TENANCY_GUIDE.md.)
+
 The dump is streamed straight into a gzip file, so nothing large is held in
-memory. The DB password is passed to mysqldump via the MYSQL_PWD environment
+memory. The DB password is passed to pg_dump via the PGPASSWORD environment
 variable, never on the argv (which would be visible in `ps`).
 
 A restore drill is documented in Guides/Backend/DEPLOYMENT_GUIDE.md — a backup
@@ -33,18 +38,18 @@ def default_backup_dir():
 
 def build_dump_command(db):
     """
-    Build the mysqldump argv for the given DATABASES['default'] dict.
-    The password is NOT included here — it is passed via MYSQL_PWD in the env.
+    Build the pg_dump argv for the given DATABASES['default'] dict.
+    The password is NOT included here — it is passed via PGPASSWORD in the env.
     """
     return [
-        'mysqldump',
+        'pg_dump',
         f'--host={db.get("HOST") or "127.0.0.1"}',
-        f'--port={db.get("PORT") or 3306}',
-        f'--user={db["USER"]}',
-        '--single-transaction',   # consistent snapshot without locking InnoDB tables
-        '--quick',                # stream rows instead of buffering the whole table
-        '--default-character-set=utf8mb4',
-        db['NAME'],
+        f'--port={db.get("PORT") or 5432}',
+        f'--username={db["USER"]}',
+        '--no-password',   # never prompt interactively; rely on PGPASSWORD
+        '--no-owner',      # restore under whatever role runs the restore
+        '--no-privileges', # skip GRANT/REVOKE — not portable across environments
+        db['NAME'],        # dumps all schemas (public + every tenant) in one snapshot
     ]
 
 
@@ -61,7 +66,7 @@ def prune_old_backups(directory, retention_days, now=None):
 
 
 class Command(BaseCommand):
-    help = 'Create a gzipped mysqldump backup of the database and prune old ones.'
+    help = 'Create a gzipped pg_dump backup of the database and prune old ones.'
 
     def add_arguments(self, parser):
         parser.add_argument('--output-dir', help='Directory to write the backup into.')
@@ -77,8 +82,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         db = settings.DATABASES['default']
-        if 'mysql' not in db['ENGINE']:
-            raise CommandError(f'backup_database only supports MySQL (got {db["ENGINE"]}).')
+        if 'postgresql' not in db['ENGINE']:
+            raise CommandError(f'backup_database only supports PostgreSQL (got {db["ENGINE"]}).')
 
         out_dir = Path(options['output_dir']) if options['output_dir'] else default_backup_dir()
         retention = options['retention_days']
@@ -93,22 +98,22 @@ class Command(BaseCommand):
             self.stdout.write(f'  Would prune *.sql.gz older than {retention} days in {out_dir}')
             return
 
-        if not shutil.which('mysqldump'):
-            raise CommandError('mysqldump not found on PATH — install the MySQL client tools.')
+        if not shutil.which('pg_dump'):
+            raise CommandError('pg_dump not found on PATH — install the PostgreSQL client tools.')
 
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        env = {**os.environ, 'MYSQL_PWD': db['PASSWORD']}
+        env = {**os.environ, 'PGPASSWORD': db['PASSWORD']}
         try:
             with gzip.open(target, 'wb') as gz:
                 proc = subprocess.run(cmd, stdout=gz, stderr=subprocess.PIPE, env=env, check=False)
         except OSError as exc:
-            raise CommandError(f'Failed to run mysqldump: {exc}')
+            raise CommandError(f'Failed to run pg_dump: {exc}')
 
         if proc.returncode != 0:
             # Don't leave a truncated/empty file behind.
             target.unlink(missing_ok=True)
-            raise CommandError(f'mysqldump failed: {proc.stderr.decode(errors="replace").strip()}')
+            raise CommandError(f'pg_dump failed: {proc.stderr.decode(errors="replace").strip()}')
 
         size = target.stat().st_size
         deleted = prune_old_backups(out_dir, retention)
