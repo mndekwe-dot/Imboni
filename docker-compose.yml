@@ -1,3 +1,35 @@
+# Full Imboni stack (Phase 8 — multi-tenant SaaS in containers).
+#
+#   docker compose up --build
+#   docker compose exec backend python manage.py provision_school \
+#       --name "Green Hills" --subdomain school1 --admin-email admin@school1.com
+#   # then browse http://school1.localhost/  (add *.localhost to your hosts file,
+#   # or curl with a Host header: curl -H "Host: school1.localhost" http://localhost/...)
+#
+# One backend image serves every tenant; the nginx `web` service serves the SPA
+# and reverse-proxies the API to `backend`, forwarding the Host header so
+# TenantMainMiddleware routes each request to the right school's schema.
+
+# Shared backend environment, reused by backend / worker / beat via a YAML anchor.
+x-backend-env: &backend_env
+  THE_SECRET_KEY: ${THE_SECRET_KEY:-dev-insecure-docker-key-change-me}
+  MY_DEBUG: ${MY_DEBUG:-False}
+  # .localhost matches every *.localhost tenant subdomain; backend/web are the
+  # in-network service names used by healthchecks / internal calls.
+  ALLOWED_HOSTS: ${ALLOWED_HOSTS:-.localhost,localhost,127.0.0.1,backend,web}
+  DATABASE_NAME: imboni
+  DATABASE_USER: imboni
+  DATABASE_PASSWORD: imboni
+  DATABASE_HOST: db
+  DATABASE_PORT: "5432"
+  # The stack runs over plain http locally (no TLS), so disable the http->https
+  # 301 redirect that DEBUG=False would otherwise enable. In production, terminate
+  # TLS at the proxy, forward X-Forwarded-Proto=https, and set this back to True.
+  SECURE_SSL_REDIRECT: "False"
+  CELERY_BROKER_URL: redis://redis:6379/0
+  CELERY_RESULT_BACKEND: redis://redis:6379/1
+  REDIS_CACHE_URL: redis://redis:6379/2
+
 services:
   db:
     image: postgres:16
@@ -5,11 +37,85 @@ services:
       POSTGRES_USER: imboni
       POSTGRES_PASSWORD: imboni
       POSTGRES_DB: imboni
-    ports:
-      - "5432:5432"
     volumes:
       - imboni_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U imboni -d imboni"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build: ./Backend
+    environment: *backend_env
+    # entrypoint waits for db, runs migrate_schemas --shared, ensures the public
+    # tenant exists, then execs this command:
+    command: gunicorn Imboni.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - imboni_media:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      # gunicorn is listening only after the entrypoint finished migrating.
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8000), 3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    restart: unless-stopped
+
+  worker:
+    build: ./Backend
+    environment: *backend_env
+    command: celery -A Imboni worker -l info
+    volumes:
+      - imboni_media:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      # start after the backend has applied migrations (its entrypoint re-runs
+      # migrate_schemas, which is then a harmless no-op).
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  beat:
+    build: ./Backend
+    environment: *backend_env
+    command: celery -A Imboni beat -l info
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build: ./Frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
   imboni_pgdata:
+  imboni_media:

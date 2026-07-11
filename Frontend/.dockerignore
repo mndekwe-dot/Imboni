@@ -1,0 +1,30 @@
+# Dependencies & build output (rebuilt inside the image)
+node_modules
+dist
+build
+
+# Local env files — never bake secrets into the image
+.env
+.env.*
+
+# Test artifacts & caches
+coverage
+.vitest
+.vite
+.cache
+playwright-report
+test-results
+.nyc_output
+
+# Logs
+*.log
+npm-debug.log*
+
+# Docker / VCS / editor cruft
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.idea
+.vscode
+.DS_Store

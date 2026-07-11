@@ -3,7 +3,14 @@ import {
     cachePut, cacheGet, isQueueable, enqueue, initOfflineSync,
 } from '../offline'
 
-const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+// When VITE_API_BASE is defined (even as an empty string) we honour it verbatim.
+// An empty string means "same origin" — used by the containerized multi-tenant
+// build, where nginx serves the SPA and proxies the API on each school subdomain,
+// so the browser must call /imboni/... relative to the current host. Only when
+// the var is entirely undefined (plain `npm run dev`) do we default to :8000.
+const BASE = import.meta.env.VITE_API_BASE === undefined
+    ? 'http://localhost:8000'
+    : import.meta.env.VITE_API_BASE
 
 const client = axios.create({
     baseURL: BASE,

@@ -1,7 +1,10 @@
 import axios from 'axios'
 import client from './client'
 
-const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+// See client.js: undefined -> dev default; empty string -> same-origin (container).
+const BASE = import.meta.env.VITE_API_BASE === undefined
+    ? 'http://localhost:8000'
+    : import.meta.env.VITE_API_BASE
 
 // Login uses plain axios — no token exists yet so client's 401-refresh interceptor would
 // incorrectly wipe localStorage and force-redirect on every failed login attempt.

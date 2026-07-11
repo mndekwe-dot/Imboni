@@ -1,0 +1,33 @@
+# Python bytecode / caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment / secrets
+.env
+*.env
+Imboni/.env
+.env.*
+
+# Local virtualenvs (in case one lives inside the build context)
+benv/
+venv/
+.venv/
+
+# Runtime / generated artifacts
+media/
+staticfiles/
+backups/
+
+# Test & coverage artifacts
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+*.sqlite3
+
+# Editor / OS cruft
+.vscode/
+.idea/
+.DS_Store
