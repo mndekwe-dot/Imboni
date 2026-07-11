@@ -196,25 +196,38 @@ pending a shared-schema platform-auth model (Phase 5).
 - Celery + broker (Redis) for background generation and per-tenant jobs.
 - Container image already viable (Docker present); one web image serves all tenants.
 
-### Phase 8 — Full containerization (Docker) — REQUESTED, not started
+### Phase 8 — Full containerization (Docker) — ✅ DONE (commit 27b4e22)
 
-Goal: run the whole stack in containers so dev == prod and deploys are reproducible.
-Currently only Postgres is containerized (`docker-compose.yml`). To do:
+Whole stack runs in containers; verified end-to-end through nginx on :80.
 
-- [ ] **Backend `Dockerfile`** — Python image, install `Backend/requirements.txt`, collectstatic,
-      run gunicorn; entrypoint runs `migrate_schemas --shared` (and `--tenant`) on start.
-- [ ] **Frontend `Dockerfile`** — multi-stage: `npm run build` then serve the static bundle
-      (nginx or a small static server).
-- [ ] **Extend `docker-compose.yml`** into the full stack: `db` (postgres), `redis`,
-      `backend` (gunicorn), `worker` + `beat` (Celery), `frontend`, and a reverse proxy
-      (nginx/Caddy) that terminates TLS and routes `*.localhost` / `*.imboni.com` subdomains.
-- [ ] **Env wiring** — pass `DATABASE_HOST=db`, `CELERY_BROKER_URL=redis://redis:6379/0`, etc.
-      via compose env, not the host `.env`; keep secrets out of the image.
-- [ ] **Volumes** — named volume for Postgres data; bind-mount media (or use S3 in prod).
-- [ ] **One image, all tenants** — the same backend image serves every school; no per-tenant
-      images. Subdomain routing happens at the proxy + `TenantMainMiddleware`.
-- [ ] Optionally a production `docker-compose.prod.yml` override (no code bind-mounts,
-      restart policies, healthchecks).
+- [x] **Backend `Dockerfile`** (`python:3.13-slim`) — cairo/pango + `pkg-config` + `libcairo2-dev`
+      (pycairo builds) + `postgresql-client`; gunicorn; `entrypoint.sh` waits for db, runs
+      `migrate_schemas --shared`, seeds the public tenant.
+- [x] **Frontend `Dockerfile`** — multi-stage `node:22` (rolldown-vite needs ≥22.12) → `nginx:alpine`.
+- [x] **Full `docker-compose.yml`** — `db` (postgres:16), `redis`, `backend` (gunicorn),
+      `worker` + `beat` (Celery), `web` (nginx serves SPA + reverse-proxies API). nginx forwards
+      the `Host` header so `TenantMainMiddleware` routes subdomains. Healthchecks + startup order.
+- [x] **Env wiring** — compose env (`DATABASE_HOST=db`, `CELERY_BROKER_URL=redis://redis:6379/0`,
+      `SECURE_SSL_REDIRECT=False` for local http); secrets out of the image via `.dockerignore`.
+- [x] **Volumes** — named `imboni_pgdata` + `imboni_media`.
+- [x] **One image, all tenants** — same backend image for every school; subdomain routing at nginx +
+      `TenantMainMiddleware`.
+- [ ] Optional production override (`docker-compose.prod.yml`: TLS termination + `X-Forwarded-Proto=https`
+      so `SECURE_SSL_REDIRECT` can go back on, no code bind-mounts, restart policies).
+
+**Run it:**
+```bash
+docker compose up --build -d
+docker compose exec backend python manage.py provision_school \
+    --name "Green Hills" --subdomain school1 --admin-email admin@school1.com
+curl -H "Host: school1.localhost" http://localhost/                       # SPA
+curl -X POST -H "Host: school1.localhost" -H "Content-Type: application/json" \
+     -d '{"email":"admin@school1.com","password":"changeme123"}' \
+     http://localhost/imboni/auth/login/                                   # 200
+```
+Build gotchas already handled: node 22 (not 20) for rolldown-vite; `npm install` (the Windows
+`package-lock.json` lacks Linux optional deps that strict `npm ci` demands); backend needs
+`pkg-config`+`libcairo2-dev` to compile `pycairo`.
 
 ---
 
