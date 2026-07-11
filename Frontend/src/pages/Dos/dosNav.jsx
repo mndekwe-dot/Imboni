@@ -14,13 +14,3 @@ export const dosSecondaryItems = [
     { to: '/profile?role=dos', icon: 'account_circle', label: 'Profile'  },
     { to: '/login',            icon: 'logout',         label: 'Logout'   },
 ]
-
-import { notifications } from '../../data/notifications'
-
-export const dosUser = {
-    userName:      'Dr. Jean-Claude Ndagijimana',
-    userRole:      'Director of Studies',
-    userInitials:  'JN',
-    avatarClass:   'dos-av',
-    notifications: notifications.dos,
-}
