@@ -144,8 +144,11 @@ pending a shared-schema platform-auth model (Phase 5).
       user model before anyone can authenticate to it.
 - [x] Public `/signup` page on the frontend. Verified e2e through nginx: signup → live schema,
       new admin logs in on its subdomain (200) and 401 elsewhere; all validation paths → 400.
-- [ ] **Follow-up:** provisioning runs migrations synchronously in the request (gunicorn
-      timeout bumped to 120s). Move it to a **Celery task** so signup returns immediately.
+- [x] **Async provisioning (commit 77716c9):** signup records a `TenantProvision` row,
+      dispatches `provision_school_task` (Celery) and returns **202** + a status URL; the worker
+      builds the schema in the background and the frontend polls to `ready`. Password is hashed
+      in the request and passed to the task as a hash (never persisted). Verified: 202 in ~0.5s,
+      worker provisions in ~11s. (`GET /imboni/onboarding/status/<uuid>/`.)
 
 ### Phase 3 — Billing & access enforcement (the "rent or buy")
 
