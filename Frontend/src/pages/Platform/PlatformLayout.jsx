@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { NavLink, useNavigate } from 'react-router'
+import { useState } from 'react'
+import { NavLink, Navigate, useNavigate } from 'react-router'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { platformLogout, platformUser, isPlatformAuthed } from '../../api/platform'
 import logo from '../../assets/images/imboni-logo.png'
@@ -30,8 +30,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
     const navigate = useNavigate()
     const [mobileOpen, setMobileOpen] = useState(false)
     const me = platformUser()
-
-    useEffect(() => { if (!isPlatformAuthed()) navigate('/platform/login', { replace: true }) }, [navigate])
+    const authed = isPlatformAuthed()
 
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     const initials = (me?.name || me?.email || 'OP').slice(0, 2).toUpperCase()
@@ -40,6 +39,10 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
         platformLogout()
         navigate('/platform/login', { replace: true })
     }
+
+    // Not signed in as an operator → straight to the platform login (no flash,
+    // no section API calls). Hooks above run unconditionally first.
+    if (!authed) return <Navigate to="/platform/login" replace />
 
     return (
         <div className="platform-portal">
