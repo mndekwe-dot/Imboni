@@ -8,10 +8,14 @@ We drive the viewset with DRF's APIRequestFactory rather than a URL path so the
 tests are self-contained: they do NOT require these routes to be wired into the
 project's Imboni/urls.py (that wiring is documented in apps/tenants/urls.py).
 
-Client rows are created with auto_create_schema disabled so the tests never try
-to CREATE a real Postgres schema / run tenant migrations — we only exercise the
-public-schema registry row.
+Schema plumbing (important): the `Client` registry lives in the PUBLIC schema,
+but the test suite pins every request to the `test` tenant schema (conftest), and
+django-tenants refuses to create/query a tenant outside public. So we create and
+drive the registry inside `schema_context(public)` via the helpers below, while
+`User` rows (a TENANT-app model) are still created in the pinned tenant schema.
+`Client` rows use auto_create_schema=False so no real Postgres schema is built.
 """
+from django_tenants.utils import schema_context, get_public_schema_name
 import pytest
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -22,8 +26,13 @@ from apps.tenants.serializers import ClientSerializer
 from apps.tenants.views import SchoolViewSet
 
 
+def _public():
+    """Context manager: run the block against the public (registry) schema."""
+    return schema_context(get_public_schema_name())
+
+
 def make_school(name='Springfield High', schema_name='springfield', **kwargs):
-    """Create a Client row WITHOUT provisioning a real Postgres schema."""
+    """Create a Client registry row in the public schema (no real Postgres schema)."""
     school = Client(
         name=name,
         schema_name=schema_name,
@@ -32,8 +41,15 @@ def make_school(name='Springfield High', schema_name='springfield', **kwargs):
     )
     # Prevent django-tenants from creating the schema + running migrations.
     school.auto_create_schema = False
-    school.save()
+    with _public():
+        school.save()
     return school
+
+
+def _refresh_public(school):
+    """refresh_from_db() for a registry row, which lives in the public schema."""
+    with _public():
+        school.refresh_from_db()
 
 
 def platform_admin():
@@ -89,7 +105,9 @@ class TestSuspendReactivate:
         view = SchoolViewSet.as_view({'post': action_name})
         request = self.factory.post(f'/imboni/platform/schools/{school.pk}/{action_name}/')
         force_authenticate(request, user=user)
-        return view(request, pk=school.pk)
+        # The registry lives in public; drive the viewset there.
+        with _public():
+            return view(request, pk=school.pk)
 
     def test_suspend_sets_status_suspended(self):
         school = make_school(status='active')
@@ -97,7 +115,7 @@ class TestSuspendReactivate:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['status'] == 'suspended'
-        school.refresh_from_db()
+        _refresh_public(school)
         assert school.status == 'suspended'
 
     def test_reactivate_sets_status_active(self):
@@ -106,7 +124,7 @@ class TestSuspendReactivate:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['status'] == 'active'
-        school.refresh_from_db()
+        _refresh_public(school)
         assert school.status == 'active'
 
     def test_suspend_then_reactivate_round_trip(self):
@@ -114,11 +132,11 @@ class TestSuspendReactivate:
         admin = platform_admin()
 
         self._call('suspend', school, admin)
-        school.refresh_from_db()
+        _refresh_public(school)
         assert school.status == 'suspended'
 
         self._call('reactivate', school, admin)
-        school.refresh_from_db()
+        _refresh_public(school)
         assert school.status == 'active'
 
 
@@ -135,7 +153,8 @@ class TestPlatformAdminOnly:
         make_school()
         view = SchoolViewSet.as_view({'get': 'list'})
         request = self.factory.get('/imboni/platform/schools/')
-        response = view(request)
+        with _public():
+            response = view(request)
         assert response.status_code in (
             status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN,
         )
@@ -146,7 +165,8 @@ class TestPlatformAdminOnly:
         view = SchoolViewSet.as_view({'get': 'list'})
         request = self.factory.get('/imboni/platform/schools/')
         force_authenticate(request, user=non_staff)
-        response = view(request)
+        with _public():
+            response = view(request)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_non_staff_user_cannot_suspend(self):
@@ -155,10 +175,11 @@ class TestPlatformAdminOnly:
         view = SchoolViewSet.as_view({'post': 'suspend'})
         request = self.factory.post(f'/imboni/platform/schools/{school.pk}/suspend/')
         force_authenticate(request, user=non_staff)
-        response = view(request, pk=school.pk)
+        with _public():
+            response = view(request, pk=school.pk)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        school.refresh_from_db()
+        _refresh_public(school)
         assert school.status == 'active'   # unchanged
 
     def test_staff_user_can_list(self):
@@ -166,5 +187,6 @@ class TestPlatformAdminOnly:
         view = SchoolViewSet.as_view({'get': 'list'})
         request = self.factory.get('/imboni/platform/schools/')
         force_authenticate(request, user=platform_admin())
-        response = view(request)
+        with _public():
+            response = view(request)
         assert response.status_code == status.HTTP_200_OK
