@@ -6,6 +6,8 @@ import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { getPendingResults, approveResult, rejectResult, bulkApproveResults } from '../../api/admin'
 import '../../styles/layout.css'
@@ -143,6 +145,7 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
 export function AdminApprovals() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const { config }    = useSchoolConfig()
+    const toast = useToast()
     const [activeTab,   setActiveTab]   = useState('pending')
     const [allResults,  setAllResults]  = useState([])
     const [loading,     setLoading]     = useState(true)
@@ -198,19 +201,26 @@ export function AdminApprovals() {
     async function handleApprove(id) {
         try {
             await approveResult(id, {})
+            toast.success('Result approved.')
             load(activeTab, year)
             loadCounts()
-        } catch {}
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not approve this result.'))
+        }
     }
 
     async function handleBulkApprove() {
         if (selected.size === 0) return
         setBulkLoading(true)
         try {
+            const n = selected.size
             await bulkApproveResults([...selected])
+            toast.success(`Approved ${n} result${n === 1 ? '' : 's'}.`)
             load(activeTab, year)
             loadCounts()
-        } catch {} finally {
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not approve the selected results.'))
+        } finally {
             setBulkLoading(false)
         }
     }

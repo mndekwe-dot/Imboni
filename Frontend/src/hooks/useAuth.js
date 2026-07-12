@@ -2,6 +2,19 @@ import { useState } from "react";
 import {useNavigate} from 'react-router'
 import { loginUser,logoutUser, verifyTwoFactorLogin } from "../api/auth";
 
+// Where each role lands after a successful login when the caller doesn't pass an
+// explicit redirect (e.g. the generic /login page). Keep in sync with the
+// portal-login routes in App.jsx.
+const ROLE_HOME = {
+    student:    '/student',
+    teacher:    '/teacher',
+    parent:     '/parent',
+    dos:        '/dos',
+    matron:     '/matron',
+    discipline: '/discipline',
+    admin:      '/admin',
+}
+
 export function useAuth(){
     const navigate= useNavigate()
 
@@ -17,7 +30,9 @@ export function useAuth(){
         localStorage.setItem('imboni_refresh',data.refresh)
         localStorage.setItem('imboni_user',JSON.stringify(data.user))
         setUser(data.user)
-        navigate(redirectTo)
+        // Explicit redirect (portal logins) wins; otherwise send the user to
+        // their role's home so the generic /login always lands somewhere real.
+        navigate(redirectTo || ROLE_HOME[data.user?.role] || '/')
     }
 
     async function login(email,password,portal,redirectTo) {

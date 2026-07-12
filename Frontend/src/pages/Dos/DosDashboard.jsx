@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade, getDosWeeklyTrend, getDosTasks, createDosTask, updateDosTask } from '../../api/dos'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
@@ -84,6 +86,7 @@ function ProgressItem({ label, value, width }) {
 
 export function DosDashboard() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const toast = useToast()
     const sessionUser = useSessionUser()
     const navigate = useNavigate()
 
@@ -143,7 +146,7 @@ export function DosDashboard() {
             .finally(() => setLoading(false))
 
         fetchActivityPage(0, false)
-        getDosTasks().then(data => setTasks(Array.isArray(data) ? data : [])).catch(() => {})
+        getDosTasks().then(data => setTasks(Array.isArray(data) ? data : [])).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
     }, [])
 
     async function handleCreateTask() {

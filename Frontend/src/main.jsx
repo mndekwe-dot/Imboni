@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
+import { ToastProvider } from './context/ToastContext'
 import { AnnouncementsProvider } from './context/AnnouncementsContext'
 import { initSentry, Sentry } from './utils/sentry'
 import { ErrorFallback } from './components/ErrorFallback'
@@ -14,9 +15,11 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Sentry.ErrorBoundary fallback={ErrorFallback}>
       <BrowserRouter>
-        <AnnouncementsProvider>
-          <App />
-        </AnnouncementsProvider>
+        <ToastProvider>
+          <AnnouncementsProvider>
+            <App />
+          </AnnouncementsProvider>
+        </ToastProvider>
       </BrowserRouter>
     </Sentry.ErrorBoundary>
   </StrictMode>,

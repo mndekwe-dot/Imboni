@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
@@ -63,6 +65,7 @@ function StaffItem({ full_name, staff_type, assigned_dormitory, assigned_grade }
 
 export function DisDashboard() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const toast = useToast()
     const sessionUser = useSessionUser()
 
     const [stats,     setStats]     = useState(null)
@@ -88,7 +91,7 @@ export function DisDashboard() {
             setStaff((staffList || []).slice(0, 4))
         }).catch(console.error)
           .finally(() => setLoading(false))
-        getDisTasks().then(data => setTasks(Array.isArray(data) ? data : [])).catch(() => {})
+        getDisTasks().then(data => setTasks(Array.isArray(data) ? data : [])).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
     }, [])
 
     async function handleCreateTask() {

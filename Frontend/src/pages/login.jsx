@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAuth } from '../hooks/useAuth'
 import '../styles/login.css'
 import '../styles/components.css'
 import logo from '../assets/images/imboni-logo.png'
@@ -55,7 +56,46 @@ const stats = [
 ]
 
 export function LogIn() {
+    const { login, completeTwoFactor } = useAuth()
+    const [email,      setEmail]      = useState('')
+    const [password,   setPassword]   = useState('')
+    const [showPw,     setShowPw]     = useState(false)
+    const [error,      setError]      = useState('')
+    const [loading,    setLoading]    = useState(false)
     const [showForgot, setShowForgot] = useState(false)
+    // 2FA accounts get a challenge back from the first step; we then ask for a code.
+    const [challenge,  setChallenge]  = useState(null)
+    const [code,       setCode]       = useState('')
+
+    // Generic login: no portal restriction. useAuth redirects by the user's role.
+    async function handleSubmit(e) {
+        e.preventDefault()
+        setError('')
+        setLoading(true)
+        try {
+            const result = await login(email, password)
+            if (result?.requires2fa) {
+                setChallenge(result.challenge)
+            }
+        } catch (err) {
+            setError(err.message || 'Unable to sign in. Please try again.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function handleVerify(e) {
+        e.preventDefault()
+        setError('')
+        setLoading(true)
+        try {
+            await completeTwoFactor(challenge, code.trim())
+        } catch (err) {
+            setError(err.message || 'Invalid or expired code. Please try again.')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <div className="login-page">
@@ -121,12 +161,55 @@ export function LogIn() {
                     Sign in with your school-issued credentials to access your portal.
                 </p>
 
-                {/* Error banner — hidden by default */}
-                <div className="login-error" id="login-error">
-                    Invalid email or password. Please try again.
-                </div>
+                {/* Error banner — shown only when there's an error to report. */}
+                {error && (
+                    <div className="login-error portal-login-error-visible" role="alert">
+                        <span className="material-symbols-rounded">error</span>
+                        {error}
+                    </div>
+                )}
 
-                <form className="login-form" onSubmit={e => e.preventDefault()}>
+                {challenge ? (
+                    <form className="login-form" onSubmit={handleVerify} autoComplete="off">
+                        <p className="login-subheading" style={{ marginTop: 0 }}>
+                            Enter the 6-digit code from your authenticator app (or a backup
+                            code) to finish signing in.
+                        </p>
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="twofa-code">Verification code</label>
+                            <div className="input-wrap">
+                                <span className="input-icon material-symbols-rounded">password</span>
+                                <input
+                                    className="form-input"
+                                    type="text"
+                                    id="twofa-code"
+                                    name="code"
+                                    inputMode="numeric"
+                                    autoComplete="one-time-code"
+                                    placeholder="123456"
+                                    required
+                                    autoFocus
+                                    value={code}
+                                    onChange={e => setCode(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <button type="submit" className="login-btn" disabled={loading}>
+                            {loading
+                                ? <><span className="btn-spinner"></span> Verifying...</>
+                                : 'Verify and sign in'}
+                        </button>
+                        <button
+                            type="button"
+                            className="forgot-link"
+                            style={{ marginTop: '0.75rem' }}
+                            onClick={() => { setChallenge(null); setCode(''); setError('') }}
+                        >
+                            Back to sign in
+                        </button>
+                    </form>
+                ) : (
+                <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
 
                     <div className="form-group">
                         <label className="form-label" htmlFor="email">Email address</label>
@@ -140,6 +223,8 @@ export function LogIn() {
                                 placeholder="you@imboni.edu"
                                 autoComplete="email"
                                 required
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
                             />
                         </div>
                     </div>
@@ -150,15 +235,24 @@ export function LogIn() {
                             <span className="input-icon material-symbols-rounded">lock</span>
                             <input
                                 className="form-input"
-                                type="password"
+                                type={showPw ? 'text' : 'password'}
                                 id="password"
                                 name="password"
                                 placeholder="Enter your password"
                                 autoComplete="current-password"
                                 required
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
                             />
-                            <button type="button" className="pw-toggle" aria-label="Toggle password visibility">
-                                <span className="material-symbols-rounded">visibility</span>
+                            <button
+                                type="button"
+                                className="pw-toggle"
+                                aria-label="Toggle password visibility"
+                                onClick={() => setShowPw(p => !p)}
+                            >
+                                <span className="material-symbols-rounded">
+                                    {showPw ? 'visibility_off' : 'visibility'}
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -171,12 +265,14 @@ export function LogIn() {
                         <button type="button" className="forgot-link" onClick={() => setShowForgot(true)}>Forgot password?</button>
                     </div>
 
-                    <button type="submit" className="login-btn">
-                        <span className="btn-spinner" id="btn-spinner"></span>
-                        Sign in
+                    <button type="submit" className="login-btn" disabled={loading}>
+                        {loading
+                            ? <><span className="btn-spinner"></span> Signing in...</>
+                            : 'Sign in'}
                     </button>
 
                 </form>
+                )}
 
                 <div className="form-divider">or</div>
 

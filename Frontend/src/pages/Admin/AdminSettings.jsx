@@ -5,6 +5,8 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import {
     updateSchoolSettings,
     getSubjects, createSubject, updateSubject, deleteSubject,
@@ -292,6 +294,7 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
 // ── Section components ────────────────────────────────────────────────────────
 
 function SchoolInfoSection() {
+    const toast = useToast()
     const { setting, loading: settingsLoading } = useSchoolSettings()
     const [schoolName, setSchoolName] = useState('')
     const [timezone,   setTimezone]   = useState('Africa/Kigali')
@@ -311,7 +314,9 @@ function SchoolInfoSection() {
             await updateSchoolSettings({ school_name: schoolName, timezone })
             setSaved(true)
             setTimeout(() => setSaved(false), 3000)
-        } catch {}
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not save school information.'))
+        }
         finally { setSaving(false) }
     }
 
@@ -390,6 +395,7 @@ function SchoolInfoSection() {
 }
 
 function SchoolStructureSection() {
+    const toast = useToast()
     const { config, saveConfig, loading, error } = useSchoolConfig()
     const [saving, setSaving] = useState(false)
     const [saved,  setSaved]  = useState(false)
@@ -440,7 +446,9 @@ function SchoolStructureSection() {
             await saveConfig(config)
             setSaved(true)
             setTimeout(() => setSaved(false), 3000)
-        } catch {} finally { setSaving(false) }
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not save the school structure.'))
+        } finally { setSaving(false) }
     }
 
     return (
@@ -530,11 +538,12 @@ function SchoolStructureSection() {
 }
 
 function SubjectsSection() {
+    const toast = useToast()
     const [subjects,    setSubjects]    = useState([])
     const [newTypeName, setNewTypeName] = useState('')
 
     useEffect(() => {
-        getSubjects().then(setSubjects).catch(() => {})
+        getSubjects().then(setSubjects).catch(e => toast.error(errorMessage(e, 'Could not load subjects.')))
     }, [])
 
     function handleAddType() {
@@ -632,12 +641,13 @@ function SubjectsSection() {
 }
 
 function RoomsSection() {
+    const toast = useToast()
     const [rooms,     setRooms]     = useState([])
     const [roomInput, setRoomInput] = useState('')
     const [roomErr,   setRoomErr]   = useState('')
 
     useEffect(() => {
-        getDosRooms().then(data => setRooms(data)).catch(() => {})
+        getDosRooms().then(data => setRooms(data)).catch(e => toast.error(errorMessage(e, 'Could not load rooms.')))
     }, [])
 
     async function handleAddRoom() {
@@ -658,7 +668,9 @@ function RoomsSection() {
         try {
             await deleteDosRoom(id)
             setRooms(prev => prev.filter(r => r.id !== id))
-        } catch {}
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not delete the room.'))
+        }
     }
 
     return (

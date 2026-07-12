@@ -1,0 +1,69 @@
+/* App-wide toast notifications (see context/ToastContext.jsx) */
+
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: min(92vw, 400px);
+    pointer-events: none;               /* let clicks through the gaps */
+}
+
+.toast {
+    pointer-events: auto;               /* but the toasts themselves are clickable */
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.8rem 0.9rem;
+    border-radius: 0.7rem;
+    background: #fff;
+    color: #1f2937;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 4px 10px -6px rgba(0, 0, 0, 0.14);
+    border-left: 4px solid #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    animation: toast-in 0.18s ease-out;
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.toast-icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
+.toast-message { flex: 1; word-break: break-word; }
+
+.toast-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.55;
+    padding: 0;
+    display: inline-flex;
+    line-height: 1;
+}
+.toast-close:hover { opacity: 1; }
+.toast-close .material-symbols-rounded { font-size: 1.1rem; }
+
+.toast-error   { border-left-color: #dc2626; }
+.toast-error   .toast-icon { color: #dc2626; }
+.toast-success { border-left-color: #16a34a; }
+.toast-success .toast-icon { color: #16a34a; }
+.toast-info    { border-left-color: #2563eb; }
+.toast-info    .toast-icon { color: #2563eb; }
+.toast-warning { border-left-color: #d97706; }
+.toast-warning .toast-icon { color: #d97706; }
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+    .toast {
+        background: #1f2937;
+        color: #f3f4f6;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 4px 10px -6px rgba(0, 0, 0, 0.4);
+    }
+}

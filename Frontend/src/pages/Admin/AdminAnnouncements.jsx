@@ -5,6 +5,8 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import {
     getAdminAnnouncements, createAdminAnnouncement,
@@ -274,6 +276,7 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
 
 export function AdminAnnouncements() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const toast = useToast()
     const [announcements,   setAnnouncements]   = useState([])
     const [draftCount,      setDraftCount]      = useState(0)
     const [urgentCount,     setUrgentCount]     = useState(0)
@@ -301,7 +304,7 @@ export function AdminAnnouncements() {
                 setUrgentCount(list.filter(a => a.category === 'urgent').length)
                 setPublishedCount(list.filter(a => a.status === 'published').length)
             })
-            .catch(() => {})
+            .catch(e => toast.error(errorMessage(e, 'Could not load announcements.')))
     }, [activeTab])
 
     useEffect(() => {
@@ -340,27 +343,36 @@ export function AdminAnnouncements() {
             }
             setComposing(false)
             setEditing(null)
+            toast.success(editing ? 'Announcement updated.' : 'Announcement created.')
             setLoading(true)
             await load(activeTab)
-        } catch {}
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not save the announcement.'))
+        }
         finally { setSaving(false); setLoading(false) }
     }
 
     async function handlePublish(ann) {
         try {
             await updateAdminAnnouncement(ann.id, { status: 'published' })
+            toast.success('Announcement published.')
             setLoading(true)
             await load(activeTab)
-        } catch {} finally { setLoading(false) }
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not publish the announcement.'))
+        } finally { setLoading(false) }
     }
 
     async function handleDeleteConfirm() {
         if (!deleteTarget) return
         try {
             await deleteAdminAnnouncement(deleteTarget.id)
+            toast.success('Announcement deleted.')
             setLoading(true)
             await load(activeTab)
-        } catch {} finally { setDeleteTarget(null); setLoading(false) }
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not delete the announcement.'))
+        } finally { setDeleteTarget(null); setLoading(false) }
     }
 
     function startEdit(ann) {

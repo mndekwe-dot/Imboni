@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
@@ -418,6 +420,7 @@ function TeacherAttendanceTab() {
 
 export function DosAttendance() {
     const { setting } = useSchoolSettings()
+    const toast = useToast()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [mode,      setMode]      = useState('student')
@@ -427,10 +430,10 @@ export function DosAttendance() {
     useEffect(() => {
         getDosClasses()
             .then(res => setSections(buildSections(res)))
-            .catch(() => {})
+            .catch(e => toast.error(errorMessage(e, 'Could not load classes.')))
         getDosAttendanceStats()
             .then(res => setAttStats(res))
-            .catch(() => {})
+            .catch(e => toast.error(errorMessage(e, 'Could not load attendance stats.')))
     }, [])
 
     return (

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { Loading } from '../../components/ui/Loading'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -366,6 +368,7 @@ function ViewModal({ result, onClose }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function DosResults() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const toast = useToast()
     const sessionUser = useSessionUser()
     // UI tab: 'approval' shows the result cards, 'analytics' shows charts
     const [activeTab, setActiveTab] = useState('approval')
@@ -395,7 +398,7 @@ export function DosResults() {
                 setAnalyticsData(data)
                 if (!activeTermId && data.current_term_id) setActiveTermId(data.current_term_id)
             })
-            .catch(() => {})
+            .catch(e => toast.error(errorMessage(e, 'Could not load analytics.')))
             .finally(() => setAnalyticsLoading(false))
     }, [activeTab, activeTermId])
 

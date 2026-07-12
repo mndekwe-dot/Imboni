@@ -5,6 +5,8 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DataTable } from '../../components/ui/DataTable'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import {
     getAdminStaff, getAdminTeacherStats,
@@ -202,6 +204,7 @@ function InviteModal({ onClose, onSent }) {
 
 export function AdminStaff() {
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const toast = useToast()
     const [staffList,   setStaffList]   = useState([])
     const [stats,       setStats]       = useState(null)
     const [loading,     setLoading]     = useState(true)
@@ -227,16 +230,28 @@ export function AdminStaff() {
     function loadInvitations() {
         getInvitations().then(data => {
             setInvitations(Array.isArray(data) ? data : (data?.results ?? []))
-        }).catch(() => {})
+        }).catch(e => toast.error(errorMessage(e, 'Could not load invitations.')))
     }
 
     useEffect(() => { loadStaff(); loadInvitations() }, [])
 
     async function handleResend(id) {
-        try { await resendInvitation(id); loadInvitations() } catch {}
+        try {
+            await resendInvitation(id)
+            toast.success('Invitation resent.')
+            loadInvitations()
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not resend the invitation.'))
+        }
     }
     async function handleCancel(id) {
-        try { await cancelInvitation(id); loadInvitations() } catch {}
+        try {
+            await cancelInvitation(id)
+            toast.success('Invitation cancelled.')
+            loadInvitations()
+        } catch (e) {
+            toast.error(errorMessage(e, 'Could not cancel the invitation.'))
+        }
     }
 
     const statCards = stats ? [
