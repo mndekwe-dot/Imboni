@@ -9,6 +9,8 @@ import { LandingPage } from './pages/LandingPage';
 import { LogIn } from './pages/login';
 import { NotFound } from './pages/NotFound';
 import { PortalLogin } from './pages/PortalLogin';
+import { PlatformLogin } from './pages/Platform/PlatformLogin';
+import { PlatformDashboard } from './pages/Platform/PlatformDashboard';
 import { ResetPassword } from './pages/ResetPassword';
 import { Signup } from './pages/Signup';
 import { TeacherRegistration } from './pages/TeacherRegistration';
@@ -170,6 +172,10 @@ function App() {
           icon="admin_panel_settings" accentColor="#4f46e5"
           placeholder="admin@imboni.rw" redirectTo="/admin" />
       } />
+      {/* ── Platform (vendor) console — all schools; served on the bare domain ── */}
+      <Route path="/platform/login" element={<PlatformLogin />} />
+      <Route path="/platform" element={<PlatformDashboard />} />
+
       {/* ── Public registration routes ── */}
       <Route path="/register/:uid/:token" element={<TeacherRegistration />} />
       {/* ── Student routes ── */}

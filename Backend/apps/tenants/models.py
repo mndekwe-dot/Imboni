@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.auth.hashers import check_password as _check_password, make_password
 from django.db import models
 from django_tenants.models import TenantMixin, DomainMixin
 
@@ -38,6 +39,44 @@ class Client(TenantMixin):
 
 class Domain(DomainMixin):
     pass
+
+
+class PlatformUser(models.Model):
+    """
+    A platform/vendor operator — the person who runs Imboni across ALL schools
+    (Phase 5). This is deliberately NOT the per-school `authentication.User`:
+
+      * `authentication.User` lives inside each tenant schema and only exists
+        within one school. There is no such thing as a user who spans schools.
+      * A platform operator must sit ABOVE every tenant, so this model lives in
+        the public schema (apps.tenants is a SHARED app) and authenticates
+        against the platform API on the bare domain — never a school subdomain.
+
+    Passwords are hashed with Django's hashers; auth + JWT issuance live in
+    `apps.tenants.platform_auth`. Keep this account list tiny and trusted — it
+    can suspend/reactivate any school.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)          # hashed, never plaintext
+    name = models.CharField(max_length=120, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField(null=True, blank=True)
+
+    # Enough of the Django/DRF auth surface for permission checks to treat an
+    # authenticated PlatformUser as a real principal (see platform_auth.py).
+    is_authenticated = True
+    is_anonymous = False
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return _check_password(raw_password, self.password)
+
+    def __str__(self):
+        return f'PlatformUser<{self.email}>'
 
 
 class TenantProvision(models.Model):

@@ -1,0 +1,115 @@
+/* Platform operator console (Phase 5) — deliberately its own look, distinct from
+   the per-school portals, so it's visually obvious you're in the vendor console. */
+
+.platform-shell,
+.platform-auth {
+    min-height: 100vh;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Brand ── */
+.platform-brand { display: flex; align-items: center; gap: 0.7rem; }
+.platform-brand .material-symbols-rounded {
+    font-size: 2rem; color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12); border-radius: 12px; padding: 0.35rem;
+}
+.platform-brand h1 { font-size: 1.15rem; font-weight: 700; margin: 0; color: #f8fafc; }
+.platform-brand p  { font-size: 0.8rem; margin: 0; color: #94a3b8; }
+
+/* ── Auth (login) ── */
+.platform-auth { display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+.platform-auth-card {
+    width: 100%; max-width: 380px;
+    background: #1e293b; border: 1px solid #334155; border-radius: 16px;
+    padding: 1.75rem; display: flex; flex-direction: column;
+    box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.6);
+}
+.platform-auth-card .platform-brand { margin-bottom: 1.25rem; }
+.platform-label { font-size: 0.8rem; font-weight: 600; color: #cbd5e1; margin: 0.85rem 0 0.35rem; }
+.platform-input {
+    width: 100%; background: #0f172a; border: 1px solid #334155; color: #e2e8f0;
+    border-radius: 9px; padding: 0.65rem 0.8rem; font-size: 0.9rem; outline: none;
+}
+.platform-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); }
+.platform-input-wrap { position: relative; }
+.platform-input-wrap .platform-input { padding-right: 2.4rem; }
+.platform-pw-toggle {
+    position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: #94a3b8; cursor: pointer; display: inline-flex;
+}
+.platform-pw-toggle .material-symbols-rounded { font-size: 1.2rem; }
+.platform-auth-note { font-size: 0.75rem; color: #64748b; margin-top: 1rem; line-height: 1.4; }
+
+.platform-error {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5; border-radius: 9px; padding: 0.6rem 0.8rem; font-size: 0.85rem; margin-bottom: 0.5rem;
+}
+.platform-error .material-symbols-rounded { font-size: 1.1rem; }
+
+/* ── Buttons ── */
+.platform-btn {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 0.5rem 0.9rem; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, opacity 0.15s;
+}
+.platform-btn:hover:not(:disabled) { background: #3f4d63; }
+.platform-btn:disabled { opacity: 0.55; cursor: default; }
+.platform-btn-primary { background: #0ea5e9; border-color: #0ea5e9; color: #05283a; }
+.platform-btn-primary:hover:not(:disabled) { background: #38bdf8; }
+.platform-btn-danger { background: transparent; border-color: #ef4444; color: #fca5a5; }
+.platform-btn-danger:hover:not(:disabled) { background: rgba(239, 68, 68, 0.12); }
+
+/* ── Topbar ── */
+.platform-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.5rem; border-bottom: 1px solid #1e293b; background: #0b1220;
+}
+.platform-topbar-right { display: flex; align-items: center; gap: 1rem; }
+.platform-whoami { font-size: 0.85rem; color: #94a3b8; }
+
+/* ── Main ── */
+.platform-main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+.platform-muted { color: #94a3b8; }
+.platform-strong { font-weight: 600; color: #f1f5f9; }
+.platform-muted code { background: #1e293b; padding: 0.1rem 0.35rem; border-radius: 5px; }
+
+/* ── Summary cards ── */
+.platform-cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem; margin-bottom: 1.5rem;
+}
+.platform-card {
+    display: flex; align-items: center; gap: 0.9rem;
+    background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1rem 1.1rem;
+}
+.platform-card-icon { font-size: 1.8rem; color: #38bdf8; }
+.platform-card-value { font-size: 1.5rem; font-weight: 700; color: #f8fafc; line-height: 1.1; }
+.platform-card-label { font-size: 0.8rem; color: #94a3b8; }
+
+/* ── Panel + table ── */
+.platform-panel { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 1.1rem 1.25rem; }
+.platform-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; }
+.platform-panel-head h2 { font-size: 1.05rem; font-weight: 700; margin: 0; color: #f1f5f9; }
+
+.platform-table-wrap { overflow-x: auto; }
+.platform-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.platform-table th {
+    text-align: left; font-weight: 600; color: #94a3b8; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.03em; padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #334155;
+}
+.platform-table td { padding: 0.7rem 0.75rem; border-bottom: 1px solid #24324a; }
+.platform-table tbody tr:last-child td { border-bottom: none; }
+.platform-col-action { text-align: right; }
+
+.platform-chip {
+    display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600;
+}
+.platform-chip-ok   { background: rgba(34, 197, 94, 0.15);  color: #4ade80; }
+.platform-chip-info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.platform-chip-warn { background: rgba(217, 119, 6, 0.18);  color: #fbbf24; }
+.platform-chip-bad  { background: rgba(239, 68, 68, 0.15);  color: #f87171; }

@@ -21,10 +21,10 @@ This viewset only manages the lifecycle of schools that already exist.
 """
 from rest_framework import viewsets, status as http_status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from .models import Client
+from .platform_auth import IsPlatformAdmin, PlatformJWTAuthentication
 from .serializers import ClientSerializer
 
 
@@ -44,7 +44,8 @@ class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Client.objects.all().order_by('name')
     serializer_class = ClientSerializer
-    permission_classes = [IsAdminUser]
+    authentication_classes = [PlatformJWTAuthentication]
+    permission_classes = [IsPlatformAdmin]
 
     def _set_status(self, request, pk, new_status):
         school = self.get_object()

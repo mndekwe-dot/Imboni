@@ -15,16 +15,24 @@ tenant registry lives. IsAdminUser (is_staff) further restricts access to
 platform operators.
 
 Resulting endpoints:
+    POST /imboni/platform/auth/login/              — platform operator login
+    GET  /imboni/platform/auth/me/                 — current platform operator
     GET  /imboni/platform/schools/                 — list schools
     GET  /imboni/platform/schools/<pk>/            — retrieve a school
     POST /imboni/platform/schools/<pk>/suspend/    — suspend a school
     POST /imboni/platform/schools/<pk>/reactivate/ — reactivate a school
 """
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
+from .platform_auth import PlatformLoginView, PlatformMeView
 
 router = DefaultRouter()
 router.register(r'platform/schools', views.SchoolViewSet, basename='platform-school')
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('platform/auth/login/', PlatformLoginView.as_view(), name='platform-login'),
+    path('platform/auth/me/', PlatformMeView.as_view(), name='platform-me'),
+    *router.urls,
+]
