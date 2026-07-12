@@ -164,12 +164,20 @@ pending a shared-schema platform-auth model (Phase 5).
       `subscription.updated (active)` → restored.
 - [ ] **To go live:** set real Stripe test keys + `STRIPE_PRICE_BASIC/PREMIUM` price IDs and
       exercise live Checkout; point a Stripe webhook at `/imboni/billing/webhook/` with a secret.
-- [ ] **Frontend:** admin Billing page (plan cards + upgrade button → checkout redirect).
+- [x] **Frontend:** admin Billing page (plan cards + upgrade button → checkout redirect) —
+      commit `c189903`.
 
-### Phase 4 — Plan gating & limits
+### Phase 4 — Plan gating & limits ✅ DONE (commit `1f86da1`)
 
-- [ ] Seat limits (max students/staff), storage caps, tier-gated features.
-- [ ] Enforced backend (source of truth) + reflected in frontend (upgrade prompts).
+- [x] Seat limits (max students/staff) per plan — `apps/tenants/plans.py` (pure policy:
+      free 50/10, basic 500/50, premium unlimited; unknown plan → most-restrictive fallback).
+- [x] Enforced backend (source of truth): `apps/tenants/limits.py` `enforce_capacity()` → 402;
+      a seat = active users of the role(s) + still-pending invitations (mass-invite can't bypass).
+      Wired into DOS add/bulk/CSV student, DOS teacher add, DOS student invite (+bulk), and the
+      auth invite/bulk/CSV views (gated by invited role).
+- [x] Reflected in frontend: `BillingStatusView` returns a usage snapshot; `AdminBilling.jsx`
+      shows per-resource usage meters (amber near full, red + upgrade prompt when full).
+- [ ] Future: storage caps and tier-gated feature flags (not yet needed).
 
 ### Phase 5 — Platform super-admin console
 
