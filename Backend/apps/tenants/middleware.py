@@ -31,7 +31,7 @@ from django_tenants.utils import get_public_schema_name
 ALWAYS_ALLOWED_PREFIXES = (
     '/imboni/auth/',
     '/imboni/billing/',
-    '/admin/',          # Django admin — staff must always be able to intervene.
+    '/django-admin/',   # Django admin — staff must always be able to intervene.
 )
 
 # Decision outcomes returned by the pure helper.

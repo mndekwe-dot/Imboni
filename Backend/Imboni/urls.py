@@ -4,7 +4,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # /django-admin/ (not /admin/) so the React admin portal owns /admin/*.
+    path('django-admin/', admin.site.urls),
     path('imboni/', include('apps.parents.urls')),
     path('imboni/', include('apps.authentication.urls')),
     path('imboni/', include('apps.results.urls')),
