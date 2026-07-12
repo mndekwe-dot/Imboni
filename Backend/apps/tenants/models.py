@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.auth.hashers import check_password as _check_password, make_password
 from django.db import models
+from django.utils import timezone
 from django_tenants.models import TenantMixin, DomainMixin
 
 
@@ -77,6 +78,142 @@ class PlatformUser(models.Model):
 
     def __str__(self):
         return f'PlatformUser<{self.email}>'
+
+
+# ── Platform operations (Phase 6) — all public-schema, operator-facing ──────────
+
+class PlatformExpense(models.Model):
+    """
+    A service/bill the VENDOR pays to run the platform (money OUT): hosting,
+    Stripe fees, domains, email, SaaS tools, etc. Tracked by the operator with a
+    due date so upcoming/overdue bills are visible. Public schema only.
+    """
+    CATEGORY_CHOICES = [
+        ('hosting', 'Hosting / Infrastructure'),
+        ('payments', 'Payment processing'),
+        ('domain', 'Domain / DNS'),
+        ('email', 'Email / Messaging'),
+        ('saas', 'SaaS / Tools'),
+        ('other', 'Other'),
+    ]
+    RECURRENCE_CHOICES = [
+        ('one_time', 'One-time'),
+        ('monthly', 'Monthly'),
+        ('quarterly', 'Quarterly'),
+        ('yearly', 'Yearly'),
+    ]
+    STATUS_CHOICES = [('due', 'Due'), ('paid', 'Paid')]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=120)
+    vendor = models.CharField(max_length=120, blank=True)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3, default='USD')
+    recurrence = models.CharField(max_length=12, choices=RECURRENCE_CHOICES, default='monthly')
+    due_date = models.DateField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='due')
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['due_date']
+
+    @property
+    def is_overdue(self):
+        return self.status == 'due' and self.due_date < timezone.localdate()
+
+    def __str__(self):
+        return f'{self.name} ({self.amount} {self.currency}, due {self.due_date})'
+
+
+class Payment(models.Model):
+    """
+    A payment RECEIVED from a school (money IN / revenue). Populated by the Stripe
+    webhook when live keys are configured, and addable manually meanwhile. Public
+    schema only (the tenant registry + billing all live here).
+    """
+    STATUS_CHOICES = [
+        ('succeeded', 'Succeeded'),
+        ('pending', 'Pending'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    client = models.ForeignKey('Client', on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name='payments')
+    school_name = models.CharField(max_length=120, blank=True)   # snapshot for display
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3, default='USD')
+    plan = models.CharField(max_length=20, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='succeeded')
+    stripe_payment_id = models.CharField(max_length=120, blank=True, default='')
+    received_at = models.DateTimeField(default=timezone.now)
+    note = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-received_at']
+
+    def __str__(self):
+        return f'{self.school_name or self.client_id} — {self.amount} {self.currency} ({self.status})'
+
+
+class SupportTicket(models.Model):
+    """
+    A support ticket raised by a school user, surfaced to the platform operator.
+    Lives in the PUBLIC schema so one inbox spans all schools: the tenant-side
+    view (apps/tenants/support.py) writes here via schema_context(public), and the
+    operator console reads/answers here.
+    """
+    PRIORITY_CHOICES = [('low', 'Low'), ('normal', 'Normal'), ('high', 'High'), ('urgent', 'Urgent')]
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('in_progress', 'In progress'),
+        ('resolved', 'Resolved'),
+        ('closed', 'Closed'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    client = models.ForeignKey('Client', on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name='tickets')
+    school_name = models.CharField(max_length=120, blank=True)   # snapshot for display
+    schema_name = models.CharField(max_length=63, blank=True)    # tenant it came from
+    raised_by_email = models.EmailField(blank=True)
+    raised_by_name = models.CharField(max_length=150, blank=True)
+    raised_by_role = models.CharField(max_length=20, blank=True)
+    subject = models.CharField(max_length=200)
+    body = models.TextField()
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normal')
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='open')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'#{str(self.id)[:8]} {self.subject} ({self.status})'
+
+
+class TicketReply(models.Model):
+    """A message on a support ticket, from either the school or the operator."""
+    AUTHOR_CHOICES = [('school', 'School'), ('operator', 'Operator')]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='replies')
+    author_type = models.CharField(max_length=10, choices=AUTHOR_CHOICES)
+    author_name = models.CharField(max_length=150, blank=True)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'Reply({self.author_type}) on {self.ticket_id}'
 
 
 class TenantProvision(models.Model):

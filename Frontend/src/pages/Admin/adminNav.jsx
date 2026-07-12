@@ -8,6 +8,7 @@ export const adminNavItems = [
     { to: '/admin/messages',        icon: 'chat',           label: 'Messages'                  },
     { to: '/admin/audit',           icon: 'history',        label: 'Audit Log'                 },
     { to: '/admin/billing',         icon: 'credit_card',    label: 'Billing'                   },
+    { to: '/admin/support',         icon: 'support_agent',  label: 'Support'                   },
     { to: '/admin/settings',        icon: 'settings',       label: 'Settings'                  },
 ]
 

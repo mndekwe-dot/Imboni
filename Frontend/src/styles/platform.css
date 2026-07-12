@@ -113,3 +113,61 @@
 .platform-chip-info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
 .platform-chip-warn { background: rgba(217, 119, 6, 0.18);  color: #fbbf24; }
 .platform-chip-bad  { background: rgba(239, 68, 68, 0.15);  color: #f87171; }
+
+/* ── Tabs ── */
+.platform-tabs {
+    display: flex; gap: 0.25rem; padding: 0 1.5rem; background: #0b1220;
+    border-bottom: 1px solid #1e293b; overflow-x: auto;
+}
+.platform-tab {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: #94a3b8; padding: 0.8rem 0.9rem; font-size: 0.875rem; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+}
+.platform-tab .material-symbols-rounded { font-size: 1.1rem; }
+.platform-tab:hover { color: #e2e8f0; }
+.platform-tab.is-active { color: #38bdf8; border-bottom-color: #38bdf8; }
+
+/* ── Section titles + card tones ── */
+.platform-section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: #94a3b8; margin: 1.25rem 0 0.6rem; }
+.platform-section-title:first-child { margin-top: 0; }
+.platform-card-hint { font-size: 0.72rem; color: #64748b; margin-top: 0.15rem; }
+.platform-card-ok  .platform-card-icon { color: #4ade80; }
+.platform-card-bad .platform-card-icon { color: #f87171; }
+.platform-card-warn .platform-card-icon { color: #fbbf24; }
+.platform-card-click { cursor: pointer; }
+.platform-card-click:hover { border-color: #475569; }
+
+/* ── Forms ── */
+.platform-form { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+.platform-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; }
+.platform-form-grid label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.78rem; color: #94a3b8; font-weight: 600; }
+select.platform-input { appearance: none; }
+.platform-input-sm { padding: 0.35rem 0.5rem; font-size: 0.8rem; width: auto; }
+
+/* ── Tickets: master/detail ── */
+.platform-tickets { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 1rem; align-items: start; }
+@media (max-width: 800px) { .platform-tickets { grid-template-columns: 1fr; } }
+.platform-ticket-list { max-height: 70vh; overflow-y: auto; }
+.platform-ticket-row {
+    display: block; width: 100%; text-align: left; background: #0f172a;
+    border: 1px solid #24324a; border-radius: 9px; padding: 0.6rem 0.7rem;
+    margin-bottom: 0.5rem; cursor: pointer; color: inherit;
+}
+.platform-ticket-row:hover { border-color: #475569; }
+.platform-ticket-row.is-active { border-color: #38bdf8; }
+.platform-ticket-row-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem; }
+.platform-ticket-row-sub { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; }
+
+.platform-thread { display: flex; flex-direction: column; gap: 0.6rem; margin: 0.75rem 0; }
+.platform-msg { border-radius: 10px; padding: 0.6rem 0.8rem; max-width: 85%; }
+.platform-msg-who { font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.2rem; font-weight: 600; }
+.platform-msg-body { white-space: pre-wrap; font-size: 0.88rem; }
+.platform-msg-school { background: #0f172a; border: 1px solid #24324a; align-self: flex-start; }
+.platform-msg-operator { background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); align-self: flex-end; }
+
+.platform-reply { margin-top: 0.5rem; }
+.platform-reply textarea { width: 100%; resize: vertical; }
+.platform-reply-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.platform-status-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }

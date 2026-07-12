@@ -19,6 +19,7 @@ domain and seeding an admin user) is done by the existing management command:
 
 This viewset only manages the lifecycle of schools that already exist.
 """
+from django_tenants.utils import get_public_schema_name
 from rest_framework import viewsets, status as http_status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -42,7 +43,8 @@ class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
       - provisioning a school is done by the ``provision_school`` command, and
       - the only mutations a vendor performs day-to-day are suspend/reactivate.
     """
-    queryset = Client.objects.all().order_by('name')
+    # Exclude the platform's own public schema — it's not a customer school.
+    queryset = Client.objects.exclude(schema_name=get_public_schema_name()).order_by('name')
     serializer_class = ClientSerializer
     authentication_classes = [PlatformJWTAuthentication]
     permission_classes = [IsPlatformAdmin]

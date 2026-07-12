@@ -25,10 +25,34 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from decimal import Decimal, InvalidOperation
+
 from .limits import capacity_snapshot
-from .models import Client
+from .models import Client, Payment
 
 logger = logging.getLogger(__name__)
+
+
+def _record_payment(client, amount_cents, currency, plan, stripe_id):
+    """Store a received payment (money in) for the platform revenue view.
+
+    Stripe amounts are integer minor units (cents), so we divide by 100.
+    Best-effort: never let a bookkeeping write break webhook handling.
+    """
+    if not client or not amount_cents:
+        return
+    try:
+        amount = Decimal(amount_cents) / 100
+    except (InvalidOperation, TypeError):
+        return
+    with schema_context(get_public_schema_name()):
+        if stripe_id and Payment.objects.filter(stripe_payment_id=stripe_id).exists():
+            return   # idempotent: Stripe may retry the same event
+        Payment.objects.create(
+            client=client, school_name=client.name, amount=amount,
+            currency=(currency or 'usd').upper(), plan=plan or client.plan,
+            status='succeeded', stripe_payment_id=stripe_id or '',
+        )
 
 
 # ── Status mapping (pure, unit-tested) ──────────────────────────────────────────
@@ -200,6 +224,15 @@ def _handle_event(event):
                 stripe_customer_id=obj.get('customer') or client.stripe_customer_id,
                 stripe_subscription_id=obj.get('subscription') or client.stripe_subscription_id,
             )
+            _record_payment(client, obj.get('amount_total'), obj.get('currency'),
+                            meta.get('plan'), obj.get('payment_intent') or obj.get('id'))
+        return
+
+    if etype == 'invoice.payment_succeeded':
+        client = _find_client(schema=schema, customer_id=obj.get('customer'))
+        if client:
+            _record_payment(client, obj.get('amount_paid'), obj.get('currency'),
+                            client.plan, obj.get('id'))
         return
 
     if etype in ('customer.subscription.updated', 'customer.subscription.created'):

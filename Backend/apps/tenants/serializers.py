@@ -9,7 +9,7 @@ from django.db import transaction
 from django_tenants.utils import schema_context
 from rest_framework import serializers
 
-from .models import Client, Domain
+from .models import Client, Domain, PlatformExpense, Payment, SupportTicket, TicketReply
 
 
 def _tenant_usage(schema_name):
@@ -76,3 +76,69 @@ class DomainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Domain
         fields = ['id', 'domain', 'tenant', 'is_primary']
+
+
+# ── Platform operations (Phase 6) ───────────────────────────────────────────────
+
+class PlatformExpenseSerializer(serializers.ModelSerializer):
+    """A vendor service/bill (money out) — full CRUD for the operator."""
+    is_overdue = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = PlatformExpense
+        fields = [
+            'id', 'name', 'vendor', 'category', 'amount', 'currency', 'recurrence',
+            'due_date', 'status', 'notes', 'is_overdue', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'is_overdue', 'created_at', 'updated_at']
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    """A payment received from a school (money in)."""
+    class Meta:
+        model = Payment
+        fields = [
+            'id', 'client', 'school_name', 'amount', 'currency', 'plan', 'status',
+            'stripe_payment_id', 'received_at', 'note', 'created_at',
+        ]
+        read_only_fields = ['id', 'created_at']
+
+    def validate(self, attrs):
+        # Snapshot the school name from the linked client when not given, so the
+        # payment row is still readable if the client is later removed.
+        if not attrs.get('school_name') and attrs.get('client'):
+            attrs['school_name'] = attrs['client'].name
+        return attrs
+
+
+class TicketReplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TicketReply
+        fields = ['id', 'author_type', 'author_name', 'body', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class SupportTicketListSerializer(serializers.ModelSerializer):
+    """Lightweight row for the inbox — no message bodies."""
+    reply_count = serializers.IntegerField(source='replies.count', read_only=True)
+
+    class Meta:
+        model = SupportTicket
+        fields = [
+            'id', 'school_name', 'schema_name', 'raised_by_email', 'raised_by_name',
+            'raised_by_role', 'subject', 'priority', 'status', 'reply_count',
+            'created_at', 'updated_at',
+        ]
+
+
+class SupportTicketDetailSerializer(serializers.ModelSerializer):
+    """Full ticket with its thread of replies."""
+    replies = TicketReplySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SupportTicket
+        fields = [
+            'id', 'school_name', 'schema_name', 'raised_by_email', 'raised_by_name',
+            'raised_by_role', 'subject', 'body', 'priority', 'status',
+            'created_at', 'updated_at', 'replies',
+        ]

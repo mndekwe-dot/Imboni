@@ -62,11 +62,30 @@ export async function platformLogin(email, password) {
     return res.data   // { access, refresh, user }
 }
 
-// The list endpoint is DRF-paginated; normalise to a plain array.
-export async function getPlatformSchools() {
-    const { data } = await client.get('/imboni/platform/schools/')
-    return Array.isArray(data) ? data : (data?.results ?? [])
-}
+// DRF list endpoints are paginated; normalise to a plain array.
+const asList = (data) => (Array.isArray(data) ? data : (data?.results ?? []))
 
+// ── Schools ──────────────────────────────────────────────────────────────────
+export const getPlatformSchools = () => client.get('/imboni/platform/schools/').then(r => asList(r.data))
 export const suspendSchool    = (id) => client.post(`/imboni/platform/schools/${id}/suspend/`).then(r => r.data)
 export const reactivateSchool = (id) => client.post(`/imboni/platform/schools/${id}/reactivate/`).then(r => r.data)
+
+// ── Summary (money + support headline numbers) ───────────────────────────────
+export const getPlatformSummary = () => client.get('/imboni/platform/summary/').then(r => r.data)
+
+// ── Expenses / bills (money out) ─────────────────────────────────────────────
+export const getExpenses   = ()        => client.get('/imboni/platform/expenses/').then(r => asList(r.data))
+export const createExpense = (data)    => client.post('/imboni/platform/expenses/', data).then(r => r.data)
+export const updateExpense = (id, data) => client.patch(`/imboni/platform/expenses/${id}/`, data).then(r => r.data)
+export const deleteExpense = (id)      => client.delete(`/imboni/platform/expenses/${id}/`)
+
+// ── Payments / revenue (money in) ────────────────────────────────────────────
+export const getPayments   = ()     => client.get('/imboni/platform/payments/').then(r => asList(r.data))
+export const createPayment = (data) => client.post('/imboni/platform/payments/', data).then(r => r.data)
+export const deletePayment = (id)   => client.delete(`/imboni/platform/payments/${id}/`)
+
+// ── Support tickets (operator inbox) ─────────────────────────────────────────
+export const getTickets      = (status) => client.get('/imboni/platform/tickets/', status ? { params: { status } } : {}).then(r => asList(r.data))
+export const getTicket       = (id)     => client.get(`/imboni/platform/tickets/${id}/`).then(r => r.data)
+export const replyTicket     = (id, body)   => client.post(`/imboni/platform/tickets/${id}/reply/`, { body }).then(r => r.data)
+export const setTicketStatus = (id, status) => client.post(`/imboni/platform/tickets/${id}/set_status/`, { status }).then(r => r.data)

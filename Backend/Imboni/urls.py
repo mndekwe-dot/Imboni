@@ -3,6 +3,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+from apps.tenants import support
+
 urlpatterns = [
     # /django-admin/ (not /admin/) so the React admin portal owns /admin/*.
     path('django-admin/', admin.site.urls),
@@ -23,6 +25,10 @@ urlpatterns = [
     path('imboni/', include('apps.audit.urls')),
     # School-facing billing (tenant subdomain, admin-authenticated).
     path('', include('apps.tenants.billing_urls')),
+    # School-facing support: staff raise/track tickets (Phase 6).
+    path('imboni/support/tickets/', support.MyTicketsView.as_view(), name='support-tickets'),
+    path('imboni/support/tickets/<uuid:pk>/reply/', support.MyTicketReplyView.as_view(),
+         name='support-ticket-reply'),
 ]
 if settings.DEBUG:
     # debug_toolbar is only in INSTALLED_APPS when DEBUG=True, so its URLs

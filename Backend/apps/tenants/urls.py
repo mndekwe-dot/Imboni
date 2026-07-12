@@ -26,13 +26,19 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
+from . import platform_ops
 from .platform_auth import PlatformLoginView, PlatformMeView
 
 router = DefaultRouter()
 router.register(r'platform/schools', views.SchoolViewSet, basename='platform-school')
+# Phase 6 — platform operations (money + support desk).
+router.register(r'platform/expenses', platform_ops.ExpenseViewSet, basename='platform-expense')
+router.register(r'platform/payments', platform_ops.PaymentViewSet, basename='platform-payment')
+router.register(r'platform/tickets', platform_ops.SupportTicketViewSet, basename='platform-ticket')
 
 urlpatterns = [
     path('platform/auth/login/', PlatformLoginView.as_view(), name='platform-login'),
     path('platform/auth/me/', PlatformMeView.as_view(), name='platform-me'),
+    path('platform/summary/', platform_ops.PlatformSummaryView.as_view(), name='platform-summary'),
     *router.urls,
 ]
