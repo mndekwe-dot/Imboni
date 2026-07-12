@@ -25,6 +25,10 @@ class Client(TenantMixin):
     on_trial = models.BooleanField(default=True)
     created_on = models.DateField(auto_now_add=True)
 
+    # Stripe billing links (Phase 3) — set when the school subscribes.
+    stripe_customer_id = models.CharField(max_length=64, blank=True, default='')
+    stripe_subscription_id = models.CharField(max_length=64, blank=True, default='')
+
     # django-tenants uses this to auto-create the Postgres schema on save.
     auto_create_schema = True
 

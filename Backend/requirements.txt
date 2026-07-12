@@ -73,6 +73,7 @@ six==1.17.0
 social-auth-app-django==5.7.0
 social-auth-core==4.8.5
 sqlparse==0.5.5
+stripe==15.3.0
 svglib==1.6.0
 tinycss2==1.5.1
 tinyhtml5==2.1.0

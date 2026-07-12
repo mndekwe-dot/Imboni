@@ -425,3 +425,25 @@ if SENTRY_DSN and not TESTING:
         # Never attach PII (emails, IPs, request bodies) to events — see note above.
         send_default_pii=False,
     )
+
+
+# ── Stripe billing (Phase 3) ────────────────────────────────────────────────────
+# All optional: with no keys set, STRIPE_ENABLED is False and the billing
+# endpoints report "not configured" instead of erroring. Set the keys (test-mode
+# to start) in the environment to turn it on.
+STRIPE_SECRET_KEY      = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_WEBHOOK_SECRET  = config('STRIPE_WEBHOOK_SECRET', default='')
+
+# Our plan keys -> Stripe Price IDs (create the products/prices in Stripe, then
+# put their price_… ids here).
+STRIPE_PRICES = {
+    'basic':   config('STRIPE_PRICE_BASIC', default=''),
+    'premium': config('STRIPE_PRICE_PREMIUM', default=''),
+}
+
+# Where Stripe Checkout returns the user — on the school's own subdomain.
+STRIPE_SUCCESS_PATH = config('STRIPE_SUCCESS_PATH', default='/admin/settings?billing=success')
+STRIPE_CANCEL_PATH  = config('STRIPE_CANCEL_PATH',  default='/admin/settings?billing=cancelled')
+
+STRIPE_ENABLED = bool(STRIPE_SECRET_KEY)

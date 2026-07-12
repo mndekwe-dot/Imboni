@@ -20,6 +20,8 @@ urlpatterns = [
     path('imboni/', include('apps.analytics.urls')),
     path('imboni/', include('apps.notifications.urls')),
     path('imboni/', include('apps.audit.urls')),
+    # School-facing billing (tenant subdomain, admin-authenticated).
+    path('', include('apps.tenants.billing_urls')),
 ]
 if settings.DEBUG:
     # debug_toolbar is only in INSTALLED_APPS when DEBUG=True, so its URLs
