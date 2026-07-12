@@ -130,12 +130,22 @@ engine switch.
 **Still owed:** the platform super-admin API (`apps/tenants/views.py`) is built but unwired,
 pending a shared-schema platform-auth model (Phase 5).
 
-### Phase 2 — Onboarding / provisioning
+### Phase 2 — Onboarding / provisioning — ✅ DONE (commit 33e2d5b)
 
-- [ ] Programmatic "create school" flow: create `Client` + `Domain`, run
-      `migrate_schemas --tenant`, seed defaults (academic term, first admin, roles),
-      send welcome email — idempotent and reusable.
-- [ ] A management command `provision_school` and/or an API endpoint for it.
+- [x] One `provision_tenant()` service (`apps/tenants/services.py`) creates `Client` + `Domain`,
+      runs tenant migrations (auto_create_schema), seeds the admin; subdomain validation
+      (format + reserved blocklist + uniqueness). Backs both entry points below.
+- [x] Management command `provision_school` **and** a self-serve API
+      `POST /imboni/onboarding/signup/` (`apps/tenants/onboarding.py`, `AllowAny`), best-effort
+      welcome email, returns the new school URL.
+- [x] `PUBLIC_SCHEMA_URLCONF` (`Imboni/urls_public.py`): the bare domain serves onboarding +
+      the platform API; subdomains serve the full app. **This also wires the platform API**
+      (Phase 5 code) to a URL — though its `IsAdminUser` still needs a shared-schema platform
+      user model before anyone can authenticate to it.
+- [x] Public `/signup` page on the frontend. Verified e2e through nginx: signup → live schema,
+      new admin logs in on its subdomain (200) and 401 elsewhere; all validation paths → 400.
+- [ ] **Follow-up:** provisioning runs migrations synchronously in the request (gunicorn
+      timeout bumped to 120s). Move it to a **Celery task** so signup returns immediately.
 
 ### Phase 3 — Billing & access enforcement (the "rent or buy")
 
