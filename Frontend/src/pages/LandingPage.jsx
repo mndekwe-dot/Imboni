@@ -122,6 +122,7 @@ export function LandingPage() {
                         <a href="#portals">Portals</a>
                         <a href="#features">Features</a>
                         <a href="#contact">Contact</a>
+                        <Link to="/signup">Sign up your school</Link>
                     </div>
                     <Link to="/login" className="landing-nav-signin">
                         <span className="material-symbols-rounded">login</span>

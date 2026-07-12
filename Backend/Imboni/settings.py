@@ -124,6 +124,10 @@ if DEBUG:
 
 ROOT_URLCONF = 'Imboni.urls'
 
+# django-tenants: the bare/public domain serves only the onboarding + platform
+# endpoints (Imboni.urls_public); school subdomains serve the full app above.
+PUBLIC_SCHEMA_URLCONF = 'Imboni.urls_public'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

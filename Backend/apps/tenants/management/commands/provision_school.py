@@ -15,11 +15,10 @@ The command is idempotent: if a client already exists for the given subdomain
 it prints a warning and exits without touching anything, and the admin user is
 only created if one with that email doesn't already exist.
 """
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
-from django_tenants.utils import schema_context
 
-from apps.tenants.models import Client, Domain
+from apps.tenants.models import Client
+from apps.tenants.services import provision_tenant, ProvisioningError
 
 
 class Command(BaseCommand):
@@ -61,55 +60,22 @@ class Command(BaseCommand):
             ))
             return
 
-        domain_name = f'{subdomain}.{domain_base}'
-
         try:
-            # Saving triggers schema creation + tenant migrations (auto_create_schema).
-            client = Client(
-                schema_name=subdomain,
+            client, domain_name = provision_tenant(
                 name=name,
-                on_trial=True,
-                status='trial',
+                subdomain=subdomain,
+                admin_email=admin_email,
+                admin_password=admin_password,
+                domain_base=domain_base,
             )
-            client.save()
-
-            Domain.objects.create(
-                domain=domain_name,
-                tenant=client,
-                is_primary=True,
-            )
-
-            admin_email_display = self._seed_admin(client, admin_email, admin_password)
+        except ProvisioningError as exc:
+            raise CommandError(str(exc))
         except Exception as exc:  # noqa: BLE001 — surface a helpful message for any failure.
             raise CommandError(f'Provisioning "{subdomain}" failed: {exc}')
 
         self.stdout.write(self.style.SUCCESS('School provisioned successfully.'))
         self.stdout.write(self.style.SUCCESS(f'  Schema name : {client.schema_name}'))
         self.stdout.write(self.style.SUCCESS(f'  Domain URL  : http://{domain_name}/'))
-        self.stdout.write(self.style.SUCCESS(f'  Admin login : {admin_email_display}'))
-
-    # ── helpers ────────────────────────────────────────────────────────────────
-
-    def _seed_admin(self, client, admin_email, admin_password):
-        """Create the admin user inside the tenant schema. Returns the login email."""
-        User = get_user_model()
-
-        with schema_context(client.schema_name):
-            if User.objects.filter(email__iexact=admin_email).exists():
-                self.stdout.write(self.style.WARNING(
-                    f'An admin user with email "{admin_email}" already exists in this schema — skipping.'
-                ))
-                return admin_email
-
-            username = admin_email.split('@', 1)[0]
-            admin = User(
-                username=username,
-                email=admin_email,
-                role='admin',
-                is_staff=True,
-                is_superuser=True,
-            )
-            admin.set_password(admin_password)
-            admin.save()
+        self.stdout.write(self.style.SUCCESS(f'  Admin login : {admin_email}'))
 
         return admin_email

@@ -60,7 +60,9 @@ services:
     environment: *backend_env
     # entrypoint waits for db, runs migrate_schemas --shared, ensures the public
     # tenant exists, then execs this command:
-    command: gunicorn Imboni.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    # --timeout 120: self-serve signup provisions a schema + runs tenant
+    # migrations synchronously, which can exceed gunicorn's 30s default.
+    command: gunicorn Imboni.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
     volumes:
       - imboni_media:/app/media
     depends_on:

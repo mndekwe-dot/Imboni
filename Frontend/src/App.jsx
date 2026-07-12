@@ -10,6 +10,7 @@ import { LogIn } from './pages/login';
 import { NotFound } from './pages/NotFound';
 import { PortalLogin } from './pages/PortalLogin';
 import { ResetPassword } from './pages/ResetPassword';
+import { Signup } from './pages/Signup';
 import { TeacherRegistration } from './pages/TeacherRegistration';
 
 // Lazy helper for named exports (React.lazy expects a default export).
@@ -121,6 +122,7 @@ function App() {
     <Suspense fallback={<RouteFallback />}>
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<LogIn />} />
       <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 
