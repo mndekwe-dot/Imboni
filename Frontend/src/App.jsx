@@ -98,6 +98,7 @@ const AdminAnnouncements  = load(() => import('./pages/Admin/AdminAnnouncements'
 const AdminMessages       = load(() => import('./pages/Admin/AdminMessages'), 'AdminMessages');
 const AdminSettings       = load(() => import('./pages/Admin/AdminSettings'), 'AdminSettings');
 const AdminAuditLog       = load(() => import('./pages/Admin/AdminAuditLog'), 'AdminAuditLog');
+const AdminBilling        = load(() => import('./pages/Admin/AdminBilling'), 'AdminBilling');
 
 // ── Shared ──
 const Account             = load(() => import('./pages/Account'), 'Account');
@@ -243,6 +244,7 @@ function App() {
       <Route path="/admin/messages" element={<ProtectedRoute><AdminMessages /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
       <Route path="/admin/audit" element={<ProtectedRoute><AdminAuditLog /></ProtectedRoute>} />
+      <Route path="/admin/billing" element={<ProtectedRoute><AdminBilling /></ProtectedRoute>} />
       {/* ── Shared routes ── */}
       <Route path="/profile" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       {/* ── Student extra routes ── */}
