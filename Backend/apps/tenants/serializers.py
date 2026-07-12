@@ -9,7 +9,11 @@ from django.db import transaction
 from django_tenants.utils import schema_context
 from rest_framework import serializers
 
-from .models import Client, Domain, PlatformExpense, Payment, SupportTicket, TicketReply
+from .models import (
+    Client, Domain, PlatformExpense, Payment, SupportTicket, TicketReply,
+    SchoolApplication, Contract,
+)
+from .services import normalize_subdomain, SUBDOMAIN_RE
 
 
 def _tenant_usage(schema_name):
@@ -142,3 +146,57 @@ class SupportTicketDetailSerializer(serializers.ModelSerializer):
             'raised_by_role', 'subject', 'body', 'priority', 'status',
             'created_at', 'updated_at', 'replies',
         ]
+
+
+# ── Phase 7: applications + contracts ───────────────────────────────────────────
+
+class SchoolApplySerializer(serializers.ModelSerializer):
+    """Public 'apply to join Imboni' form — only fields a prospect fills in."""
+    class Meta:
+        model = SchoolApplication
+        fields = [
+            'school_name', 'desired_subdomain', 'contact_name', 'contact_email',
+            'contact_phone', 'country', 'city', 'student_estimate',
+            'plan_interest', 'message',
+        ]
+
+    def validate_desired_subdomain(self, value):
+        value = normalize_subdomain(value)
+        if not SUBDOMAIN_RE.match(value):
+            raise serializers.ValidationError(
+                'Use 3–63 lowercase letters, numbers and hyphens, starting with a letter.')
+        return value
+
+
+class SchoolApplicationSerializer(serializers.ModelSerializer):
+    """Full application as the operator sees it."""
+    provisioned_client_name = serializers.CharField(source='provisioned_client.name',
+                                                     read_only=True, default=None)
+
+    class Meta:
+        model = SchoolApplication
+        fields = [
+            'id', 'school_name', 'desired_subdomain', 'contact_name', 'contact_email',
+            'contact_phone', 'country', 'city', 'student_estimate', 'plan_interest',
+            'message', 'status', 'review_notes', 'reviewed_at',
+            'provisioned_client', 'provisioned_client_name', 'created_at', 'updated_at',
+        ]
+        read_only_fields = fields
+
+
+class ContractSerializer(serializers.ModelSerializer):
+    school_name = serializers.CharField(source='client.name', read_only=True)
+    days_remaining = serializers.IntegerField(read_only=True)
+    is_expired = serializers.BooleanField(read_only=True)
+    is_expiring_soon = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Contract
+        fields = [
+            'id', 'client', 'school_name', 'title', 'plan', 'amount', 'currency',
+            'billing_interval', 'start_date', 'end_date', 'status', 'auto_renew',
+            'grace_days', 'signed_at', 'signed_by', 'notes',
+            'days_remaining', 'is_expired', 'is_expiring_soon', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'school_name', 'days_remaining', 'is_expired',
+                            'is_expiring_soon', 'created_at', 'updated_at']

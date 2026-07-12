@@ -147,3 +147,71 @@ class TestSupportTickets:
         resp = MyTicketReplyView.as_view()(_authed('post', user, {'body': 'Still broken'}), pk=str(t.id))
         assert resp.status_code == 201
         assert resp.data['status'] == 'open'   # re-opened
+
+
+# ── School applications (Phase 7) ─────────────────────────────────────────────
+
+from apps.tenants.onboarding import SchoolApplyView          # noqa: E402
+from apps.tenants.models import SchoolApplication, Client     # noqa: E402
+
+
+class TestApplications:
+    def _apply(self, **data):
+        req = factory.post('/imboni/onboarding/apply/', data, format='json')
+        with _public():
+            return SchoolApplyView.as_view()(req)
+
+    def test_public_apply_creates_pending(self):
+        resp = self._apply(school_name='Green Valley', desired_subdomain='greenvalley',
+                           contact_name='Jane Doe', contact_email='jane@gv.com')
+        assert resp.status_code == 201
+        with _public():
+            app = SchoolApplication.objects.get(id=resp.data['id'])
+        assert app.status == 'pending'
+
+    def test_apply_rejects_bad_subdomain(self):
+        resp = self._apply(school_name='X', desired_subdomain='A B!',
+                           contact_name='Y', contact_email='y@x.com')
+        assert resp.status_code == 400
+
+    def test_operator_approve(self):
+        op = platform_admin()
+        with _public():
+            app = SchoolApplication.objects.create(school_name='GV', desired_subdomain='gv',
+                                                   contact_name='J', contact_email='j@gv.com')
+        view = platform_ops.ApplicationViewSet.as_view({'post': 'approve'})
+        with _public():
+            resp = view(_authed('post', op, {'review_notes': 'ok'}), pk=str(app.id))
+        assert resp.status_code == 200
+        assert resp.data['status'] == 'approved'
+        assert resp.data['review_notes'] == 'ok'
+
+    def test_cannot_provision_unapproved(self):
+        op = platform_admin()
+        with _public():
+            app = SchoolApplication.objects.create(school_name='GV', desired_subdomain='gv',
+                                                   contact_name='J', contact_email='j@gv.com')
+        view = platform_ops.ApplicationViewSet.as_view({'post': 'provision'})
+        with _public():
+            resp = view(_authed('post', op), pk=str(app.id))
+        assert resp.status_code == 400
+
+    def test_provision_marks_provisioned_and_returns_creds(self, monkeypatch):
+        op = platform_admin()
+        with _public():
+            app = SchoolApplication.objects.create(school_name='GV', desired_subdomain='gv',
+                                                   contact_name='Jane Doe', contact_email='j@gv.com',
+                                                   status='approved')
+            client = Client(name='GV', schema_name='gvfake')
+            client.auto_create_schema = False
+            client.save()
+        # Avoid building a real Postgres schema in the test.
+        monkeypatch.setattr('apps.tenants.platform_ops.provision_tenant',
+                            lambda **kw: (client, 'gv.localhost'))
+        view = platform_ops.ApplicationViewSet.as_view({'post': 'provision'})
+        with _public():
+            resp = view(_authed('post', op), pk=str(app.id))
+        assert resp.status_code == 201
+        assert resp.data['status'] == 'provisioned'
+        assert resp.data['provisioned']['temp_password']
+        assert resp.data['provisioned']['login_url'].endswith('/login/admin')

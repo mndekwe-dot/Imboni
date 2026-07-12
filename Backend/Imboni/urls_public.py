@@ -9,7 +9,7 @@ admin are served from here, NOT from a school subdomain.
 """
 from django.urls import path, include
 
-from apps.tenants.onboarding import SchoolSignupView, ProvisionStatusView
+from apps.tenants.onboarding import SchoolSignupView, ProvisionStatusView, SchoolApplyView
 from apps.tenants.billing import StripeWebhookView
 
 urlpatterns = [
@@ -17,6 +17,8 @@ urlpatterns = [
     path('imboni/onboarding/signup/', SchoolSignupView.as_view(), name='school-signup'),
     path('imboni/onboarding/status/<uuid:pk>/', ProvisionStatusView.as_view(),
          name='school-signup-status'),
+    # Apply to join Imboni (Phase 7) — reviewed by an operator, not auto-provisioned.
+    path('imboni/onboarding/apply/', SchoolApplyView.as_view(), name='school-apply'),
 
     # Stripe webhook (Phase 3) — server-to-server on the public/bare domain.
     path('imboni/billing/webhook/', StripeWebhookView.as_view(), name='stripe-webhook'),

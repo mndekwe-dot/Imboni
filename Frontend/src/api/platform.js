@@ -89,3 +89,16 @@ export const getTickets      = (status) => client.get('/imboni/platform/tickets/
 export const getTicket       = (id)     => client.get(`/imboni/platform/tickets/${id}/`).then(r => r.data)
 export const replyTicket     = (id, body)   => client.post(`/imboni/platform/tickets/${id}/reply/`, { body }).then(r => r.data)
 export const setTicketStatus = (id, status) => client.post(`/imboni/platform/tickets/${id}/set_status/`, { status }).then(r => r.data)
+
+// ── School applications (operator: review intake) ────────────────────────────
+export const getApplications     = (status) => client.get('/imboni/platform/applications/', status ? { params: { status } } : {}).then(r => asList(r.data))
+export const getApplication      = (id)         => client.get(`/imboni/platform/applications/${id}/`).then(r => r.data)
+export const approveApplication  = (id, notes)  => client.post(`/imboni/platform/applications/${id}/approve/`, { review_notes: notes }).then(r => r.data)
+export const rejectApplication   = (id, notes)  => client.post(`/imboni/platform/applications/${id}/reject/`, { review_notes: notes }).then(r => r.data)
+export const provisionApplication = (id)        => client.post(`/imboni/platform/applications/${id}/provision/`).then(r => r.data)
+
+// ── Public: apply to join Imboni (no auth) ───────────────────────────────────
+export async function applyToImboni(data) {
+    const res = await axios.post(`${BASE}/imboni/onboarding/apply/`, data)
+    return res.data
+}

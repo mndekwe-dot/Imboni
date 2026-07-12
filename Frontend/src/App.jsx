@@ -12,7 +12,9 @@ import { PortalLogin } from './pages/PortalLogin';
 import { PlatformLogin } from './pages/Platform/PlatformLogin';
 import { PlatformLayout } from './pages/Platform/PlatformLayout';
 import { OverviewSection } from './pages/Platform/sections/OverviewSection';
+import { ApplicationsSection } from './pages/Platform/sections/ApplicationsSection';
 import { SchoolsSection } from './pages/Platform/sections/SchoolsSection';
+import { Apply } from './pages/Apply';
 import { RevenueSection } from './pages/Platform/sections/RevenueSection';
 import { ExpensesSection } from './pages/Platform/sections/ExpensesSection';
 import { TicketsSection } from './pages/Platform/sections/TicketsSection';
@@ -132,6 +134,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/apply" element={<Apply />} />
       <Route path="/login" element={<LogIn />} />
       <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 
@@ -181,6 +184,7 @@ function App() {
       {/* ── Platform (vendor) console — all schools; served on the bare domain ── */}
       <Route path="/platform/login" element={<PlatformLogin />} />
       <Route path="/platform" element={<PlatformLayout title="Overview" subtitle="Your platform at a glance"><OverviewSection /></PlatformLayout>} />
+      <Route path="/platform/applications" element={<PlatformLayout title="Applications" subtitle="Schools applying to join Imboni"><ApplicationsSection /></PlatformLayout>} />
       <Route path="/platform/schools" element={<PlatformLayout title="Schools" subtitle="All tenant schools"><SchoolsSection /></PlatformLayout>} />
       <Route path="/platform/revenue" element={<PlatformLayout title="Revenue" subtitle="Payments received from schools"><RevenueSection /></PlatformLayout>} />
       <Route path="/platform/expenses" element={<PlatformLayout title="Expenses" subtitle="Services & bills you pay for"><ExpensesSection /></PlatformLayout>} />

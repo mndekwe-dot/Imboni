@@ -10,11 +10,12 @@ import '../../styles/tables.css'
 import '../../styles/platform.css'
 
 const NAV = [
-    { to: '/platform',          icon: 'dashboard',      label: 'Overview', end: true },
-    { to: '/platform/schools',  icon: 'apartment',      label: 'Schools'  },
-    { to: '/platform/revenue',  icon: 'payments',       label: 'Revenue'  },
-    { to: '/platform/expenses', icon: 'receipt_long',   label: 'Expenses' },
-    { to: '/platform/support',  icon: 'support_agent',  label: 'Support'  },
+    { to: '/platform',              icon: 'dashboard',      label: 'Overview', end: true },
+    { to: '/platform/applications', icon: 'inbox',          label: 'Applications' },
+    { to: '/platform/schools',      icon: 'apartment',      label: 'Schools'  },
+    { to: '/platform/revenue',      icon: 'payments',       label: 'Revenue'  },
+    { to: '/platform/expenses',     icon: 'receipt_long',   label: 'Expenses' },
+    { to: '/platform/support',      icon: 'support_agent',  label: 'Support'  },
 ]
 
 /**

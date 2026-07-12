@@ -198,6 +198,104 @@ class SupportTicket(models.Model):
         return f'#{str(self.id)[:8]} {self.subject} ({self.status})'
 
 
+class SchoolApplication(models.Model):
+    """
+    A school's request to join Imboni (Phase 7). Public prospects apply; the
+    platform operator reviews and approves/rejects, then provisions the tenant
+    as a separate step. Public schema.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('provisioned', 'Provisioned'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    school_name = models.CharField(max_length=150)
+    desired_subdomain = models.CharField(max_length=63)
+    contact_name = models.CharField(max_length=150)
+    contact_email = models.EmailField()
+    contact_phone = models.CharField(max_length=30, blank=True)
+    country = models.CharField(max_length=80, blank=True)
+    city = models.CharField(max_length=80, blank=True)
+    student_estimate = models.PositiveIntegerField(null=True, blank=True)
+    plan_interest = models.CharField(max_length=20, blank=True)
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='pending')
+    review_notes = models.TextField(blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    # Set once the approved application is turned into a live school.
+    provisioned_client = models.ForeignKey('Client', on_delete=models.SET_NULL,
+                                            null=True, blank=True, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.school_name} ({self.status})'
+
+
+class Contract(models.Model):
+    """
+    A subscription contract between Imboni and a school (Phase 7): its terms and
+    its lifecycle (start → end, renewal, expiry, termination). Public schema.
+
+    Expiry policy (chosen): warn as the end date approaches, and auto-suspend the
+    school `grace_days` after the end date if the contract is still active and
+    unrenewed — enforced by `enforce_contract_lifecycle` (management command +
+    Celery beat).
+    """
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('active', 'Active'),
+        ('expired', 'Expired'),
+        ('terminated', 'Terminated'),
+    ]
+    INTERVAL_CHOICES = [
+        ('monthly', 'Monthly'), ('quarterly', 'Quarterly'),
+        ('yearly', 'Yearly'), ('one_time', 'One-time'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    client = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='contracts')
+    title = models.CharField(max_length=150)
+    plan = models.CharField(max_length=20, blank=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    currency = models.CharField(max_length=3, default='USD')
+    billing_interval = models.CharField(max_length=12, choices=INTERVAL_CHOICES, default='yearly')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='draft')
+    auto_renew = models.BooleanField(default=False)
+    grace_days = models.PositiveIntegerField(default=14)
+    signed_at = models.DateTimeField(null=True, blank=True)
+    signed_by = models.CharField(max_length=150, blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-start_date']
+
+    @property
+    def days_remaining(self):
+        return (self.end_date - timezone.localdate()).days
+
+    @property
+    def is_expired(self):
+        return timezone.localdate() > self.end_date
+
+    @property
+    def is_expiring_soon(self):
+        return self.status == 'active' and 0 <= self.days_remaining <= 30
+
+    def __str__(self):
+        return f'{self.title} — {self.client_id} ({self.status})'
+
+
 class TicketReply(models.Model):
     """A message on a support ticket, from either the school or the operator."""
     AUTHOR_CHOICES = [('school', 'School'), ('operator', 'Operator')]

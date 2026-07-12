@@ -19,12 +19,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import PlatformExpense, Payment, SupportTicket, TicketReply
+from django.utils.crypto import get_random_string
+
+from .models import PlatformExpense, Payment, SupportTicket, TicketReply, SchoolApplication
 from .platform_auth import IsPlatformAdmin, PlatformJWTAuthentication
 from .serializers import (
     PlatformExpenseSerializer, PaymentSerializer,
     SupportTicketListSerializer, SupportTicketDetailSerializer, TicketReplySerializer,
+    SchoolApplicationSerializer,
 )
+from .services import provision_tenant, ProvisioningError
 
 
 class _PlatformBase(viewsets.ModelViewSet):
@@ -91,6 +95,85 @@ class SupportTicketViewSet(_PlatformBase):
         ticket.status = new_status
         ticket.save(update_fields=['status', 'updated_at'])
         return Response(SupportTicketDetailSerializer(ticket).data)
+
+
+class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    School applications to join Imboni. Prospects create these via the public
+    apply endpoint; the operator reviews here: approve/reject, then provision
+    (a separate step — approving does NOT create the tenant).
+    """
+    queryset = SchoolApplication.objects.all()
+    serializer_class = SchoolApplicationSerializer
+    authentication_classes = [PlatformJWTAuthentication]
+    permission_classes = [IsPlatformAdmin]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        status_filter = self.request.query_params.get('status')
+        return qs.filter(status=status_filter) if status_filter else qs
+
+    def _review(self, app, status):
+        app.status = status
+        app.review_notes = self.request.data.get('review_notes', app.review_notes)
+        app.reviewed_at = timezone.now()
+        app.save()
+        return Response(SchoolApplicationSerializer(app).data)
+
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        app = self.get_object()
+        if app.status == 'provisioned':
+            return Response({'error': 'Already provisioned.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        return self._review(app, 'approved')
+
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        return self._review(self.get_object(), 'rejected')
+
+    @action(detail=True, methods=['post'])
+    def provision(self, request, pk=None):
+        """Turn an approved application into a live school (creates the tenant)."""
+        app = self.get_object()
+        if app.status != 'approved':
+            return Response({'error': 'Only approved applications can be provisioned.'},
+                            status=http_status.HTTP_400_BAD_REQUEST)
+        if app.provisioned_client_id:
+            return Response({'error': 'This application is already provisioned.'},
+                            status=http_status.HTTP_400_BAD_REQUEST)
+
+        temp_password = get_random_string(12)
+        parts = app.contact_name.split(' ', 1)
+        domain_base = request.get_host().split(':')[0]
+        try:
+            client, domain_name = provision_tenant(
+                name=app.school_name,
+                subdomain=app.desired_subdomain,
+                admin_email=app.contact_email,
+                admin_password=temp_password,
+                admin_first_name=parts[0],
+                admin_last_name=parts[1] if len(parts) > 1 else '',
+                domain_base=domain_base,
+                plan=app.plan_interest or 'free',
+                on_trial=True, status='trial',
+            )
+        except ProvisioningError as exc:
+            return Response({'error': str(exc)}, status=http_status.HTTP_400_BAD_REQUEST)
+
+        app.provisioned_client = client
+        app.status = 'provisioned'
+        app.reviewed_at = app.reviewed_at or timezone.now()
+        app.save()
+
+        scheme = 'https' if request.is_secure() else 'http'
+        data = SchoolApplicationSerializer(app).data
+        # The operator relays these to the school (best-effort email can be added later).
+        data['provisioned'] = {
+            'login_url': f'{scheme}://{domain_name}/login/admin',
+            'admin_email': app.contact_email,
+            'temp_password': temp_password,
+        }
+        return Response(data, status=http_status.HTTP_201_CREATED)
 
 
 class PlatformSummaryView(APIView):

@@ -105,3 +105,24 @@ def _domain_base(request):
     if not host or host.replace('.', '').isdigit():   # empty or raw IPv4
         return 'localhost'
     return host
+
+
+class SchoolApplyView(APIView):
+    """
+    Public 'apply to join Imboni' endpoint (Phase 7). Unlike the self-serve
+    signup above, this does NOT create a tenant — it records an application for
+    the platform operator to review and, if approved, provision.
+    """
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        from .serializers import SchoolApplySerializer
+        serializer = SchoolApplySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        application = serializer.save()
+        return Response(
+            {'detail': 'Application received. Our team will review it and be in touch.',
+             'id': str(application.id)},
+            status=status.HTTP_201_CREATED,
+        )
