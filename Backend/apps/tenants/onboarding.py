@@ -8,15 +8,15 @@ in the public schema.
 """
 import logging
 
-from django.core.mail import send_mail
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .services import (
-    provision_tenant, validate_subdomain, normalize_subdomain, ProvisioningError,
-)
+from .models import TenantProvision
+from .services import validate_subdomain, normalize_subdomain, ProvisioningError
+from .tasks import provision_school_task
 
 logger = logging.getLogger(__name__)
 
@@ -46,36 +46,51 @@ class SchoolSignupView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        try:
-            client, domain_name = provision_tenant(
-                name=data['school_name'],
-                subdomain=data['subdomain'],
-                admin_email=data['admin_email'],
-                admin_password=data['admin_password'],
-                admin_first_name=data.get('admin_first_name', ''),
-                admin_last_name=data.get('admin_last_name', ''),
-                domain_base=_domain_base(request),
-            )
-        except ProvisioningError as exc:
-            # e.g. the subdomain was taken between validation and creation.
-            return Response({'subdomain': [str(exc)]}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
-            logger.exception('School provisioning failed for %r', data.get('subdomain'))
-            return Response(
-                {'detail': 'Something went wrong creating your school. Please try again.'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-        url = _school_url(request, domain_name)
-        _send_welcome_email(data['admin_email'], client.name, url)
+        # Record the request, then hand the slow part (schema + migrations) to a
+        # Celery worker so this response returns immediately. The password is
+        # hashed here and passed to the task as a hash — it is never stored.
+        rec = TenantProvision.objects.create(
+            school_name=data['school_name'],
+            subdomain=data['subdomain'],
+            admin_email=data['admin_email'],
+            admin_first_name=data.get('admin_first_name', ''),
+            admin_last_name=data.get('admin_last_name', ''),
+            status='pending',
+        )
+        provision_school_task.delay(
+            str(rec.id),
+            make_password(data['admin_password']),
+            _domain_base(request),
+            'https' if request.is_secure() else 'http',
+        )
 
         return Response({
-            'school_name': client.name,
-            'subdomain': client.schema_name,
-            'url': url,
-            'admin_email': data['admin_email'],
-            'message': 'School created. You can now sign in.',
-        }, status=status.HTTP_201_CREATED)
+            'provision_id': str(rec.id),
+            'status': rec.status,
+            'subdomain': rec.subdomain,
+            'status_url': f'/imboni/onboarding/status/{rec.id}/',
+            'message': 'Creating your school — this takes a moment.',
+        }, status=status.HTTP_202_ACCEPTED)
+
+
+class ProvisionStatusView(APIView):
+    """Poll target for the frontend during async signup."""
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        try:
+            rec = TenantProvision.objects.get(pk=pk)
+        except TenantProvision.DoesNotExist:
+            return Response({'detail': 'Unknown provisioning id.'},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            'status': rec.status,          # pending | ready | failed
+            'subdomain': rec.subdomain,
+            'school_name': rec.school_name,
+            'admin_email': rec.admin_email,
+            'url': rec.url,                # set once ready
+            'detail': rec.detail,          # set once failed
+        })
 
 
 # ── helpers ─────────────────────────────────────────────────────────────────────
@@ -90,29 +105,3 @@ def _domain_base(request):
     if not host or host.replace('.', '').isdigit():   # empty or raw IPv4
         return 'localhost'
     return host
-
-
-def _school_url(request, domain_name):
-    scheme = 'https' if request.is_secure() else 'http'
-    # Preserve a non-standard port (e.g. dev on :8000) so the link is clickable.
-    port = request.get_host().partition(':')[2]
-    host = f'{domain_name}:{port}' if port and port not in ('80', '443') else domain_name
-    return f'{scheme}://{host}/'
-
-
-def _send_welcome_email(admin_email, school_name, url):
-    """Best-effort welcome email — never let a mail failure break signup."""
-    try:
-        send_mail(
-            subject=f'Welcome to Imboni — {school_name} is ready',
-            message=(
-                f'Your school "{school_name}" has been created.\n\n'
-                f'Sign in at: {url}\n\n'
-                'Use the email and password you chose during signup.'
-            ),
-            from_email=None,   # uses DEFAULT_FROM_EMAIL
-            recipient_list=[admin_email],
-            fail_silently=True,
-        )
-    except Exception:
-        logger.warning('Welcome email failed for %s', admin_email, exc_info=True)

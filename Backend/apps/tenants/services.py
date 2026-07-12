@@ -51,16 +51,20 @@ def validate_subdomain(subdomain):
         raise ProvisioningError(f'The subdomain "{subdomain}" is already taken.')
 
 
-def provision_tenant(*, name, subdomain, admin_email, admin_password,
-                     admin_first_name='', admin_last_name='',
-                     domain_base='localhost', plan='free', on_trial=True,
-                     status='trial'):
+def provision_tenant(*, name, subdomain, admin_email, admin_password=None,
+                     admin_password_hash=None, admin_first_name='',
+                     admin_last_name='', domain_base='localhost', plan='free',
+                     on_trial=True, status='trial'):
     """
     Create a school tenant end to end and return (client, domain_name).
 
     Steps: validate the subdomain, create the Client (which auto-creates the
     Postgres schema and runs the tenant migrations), register its primary
     domain, then seed an admin user inside the new schema.
+
+    Pass either a raw ``admin_password`` (the CLI does) or an already-hashed
+    ``admin_password_hash`` (the async signup task does, so plaintext never
+    leaves the request that collected it).
     """
     subdomain = normalize_subdomain(subdomain)
     validate_subdomain(subdomain)
@@ -74,13 +78,15 @@ def provision_tenant(*, name, subdomain, admin_email, admin_password,
 
     Domain.objects.create(domain=domain_name, tenant=client, is_primary=True)
 
-    _seed_admin(client, admin_email, admin_password,
+    _seed_admin(client, admin_email, admin_password=admin_password,
+                admin_password_hash=admin_password_hash,
                 first_name=admin_first_name, last_name=admin_last_name)
 
     return client, domain_name
 
 
-def _seed_admin(client, admin_email, admin_password, first_name='', last_name=''):
+def _seed_admin(client, admin_email, admin_password=None, admin_password_hash=None,
+                first_name='', last_name=''):
     """Create the school's first admin user inside its schema (idempotent)."""
     User = get_user_model()
     with schema_context(client.schema_name):
@@ -96,5 +102,8 @@ def _seed_admin(client, admin_email, admin_password, first_name='', last_name=''
             is_staff=True,
             is_superuser=True,
         )
-        admin.set_password(admin_password)
+        if admin_password_hash:
+            admin.password = admin_password_hash   # already hashed by make_password
+        else:
+            admin.set_password(admin_password)
         admin.save()

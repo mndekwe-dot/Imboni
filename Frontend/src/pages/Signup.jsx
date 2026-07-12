@@ -4,6 +4,8 @@ import '../styles/components.css'
 
 const SIGNUP_URL = '/imboni/onboarding/signup/'
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
 // Public marketing domain used only for the live subdomain preview.
 const BASE_DOMAIN = 'imboni.com'
 
@@ -77,8 +79,21 @@ export function Signup() {
             let data = null
             try { data = await res.json() } catch { /* body may be empty */ }
 
-            if (res.ok) {
-                setResult(data)
+            // Accepted: provisioning runs in the background — poll for completion.
+            if (res.status === 202 && data?.status_url) {
+                const outcome = await pollUntilReady(data.status_url)
+                if (outcome.ok) {
+                    setResult({
+                        school_name: outcome.data.school_name,
+                        subdomain:   outcome.data.subdomain,
+                        admin_email: outcome.data.admin_email,
+                        url:         outcome.data.url,
+                        message:     'School created. You can now sign in.',
+                    })
+                } else {
+                    setGeneralError(outcome.detail)
+                }
+                setSubmitting(false)
                 return
             }
 
@@ -90,10 +105,31 @@ export function Signup() {
             } else {
                 setGeneralError(data?.detail || 'Something went wrong creating your school. Please try again.')
             }
+            setSubmitting(false)
         } catch {
             setGeneralError('Could not reach the server. Check your connection and try again.')
-        } finally {
             setSubmitting(false)
+        }
+    }
+
+    // Poll the status endpoint until the school is ready or failed. Checks once
+    // immediately, then every 2s (in case provisioning is quick).
+    async function pollUntilReady(statusUrl) {
+        for (let i = 0; i < 46; i++) {          // ~90s ceiling
+            let data = null
+            try {
+                const res = await fetch(statusUrl, { headers: { Accept: 'application/json' } })
+                if (res.ok) data = await res.json().catch(() => null)
+            } catch { /* transient network blip — retry after the wait */ }
+
+            if (data?.status === 'ready')  return { ok: true, data }
+            if (data?.status === 'failed') return { ok: false, detail: data.detail || 'Provisioning failed. Please try again.' }
+
+            await sleep(2000)                   // 'pending' or blip — wait, then retry
+        }
+        return {
+            ok: false,
+            detail: 'This is taking longer than expected. Your school may still be finishing setup — try signing in shortly.',
         }
     }
 

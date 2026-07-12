@@ -9,11 +9,13 @@ admin are served from here, NOT from a school subdomain.
 """
 from django.urls import path, include
 
-from apps.tenants.onboarding import SchoolSignupView
+from apps.tenants.onboarding import SchoolSignupView, ProvisionStatusView
 
 urlpatterns = [
-    # Self-serve school signup (Phase 2) — unauthenticated.
+    # Self-serve school signup (Phase 2) — unauthenticated, async.
     path('imboni/onboarding/signup/', SchoolSignupView.as_view(), name='school-signup'),
+    path('imboni/onboarding/status/<uuid:pk>/', ProvisionStatusView.as_view(),
+         name='school-signup-status'),
 
     # Platform super-admin API (Phase 5) — IsAdminUser.
     path('imboni/', include('apps.tenants.urls')),

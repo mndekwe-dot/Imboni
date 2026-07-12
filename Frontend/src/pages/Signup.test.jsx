@@ -32,30 +32,43 @@ afterEach(() => {
 })
 
 describe('Signup page', () => {
-    it('posts to the onboarding endpoint and shows the confirmation on success', async () => {
-        const fetchMock = vi.fn().mockResolvedValue({
-            ok: true,
-            json: async () => ({
-                school_name: 'Green Hills Academy',
-                subdomain: 'greenhills',
-                url: 'http://greenhills.localhost/',
-                admin_email: 'jane@greenhills.edu',
-                message: 'School created. You can now sign in.',
-            }),
-        })
+    it('accepts a 202, polls status, and shows the confirmation when ready', async () => {
+        const fetchMock = vi.fn()
+            // 1) POST /signup -> 202 Accepted with a status URL to poll.
+            .mockResolvedValueOnce({
+                status: 202,
+                ok: true,
+                json: async () => ({
+                    provision_id: 'abc',
+                    status: 'pending',
+                    subdomain: 'greenhills',
+                    status_url: '/imboni/onboarding/status/abc/',
+                    message: 'Creating your school — this takes a moment.',
+                }),
+            })
+            // 2) GET status -> ready (first poll happens immediately).
+            .mockResolvedValue({
+                ok: true,
+                json: async () => ({
+                    status: 'ready',
+                    school_name: 'Green Hills Academy',
+                    subdomain: 'greenhills',
+                    admin_email: 'jane@greenhills.edu',
+                    url: 'http://greenhills.localhost/',
+                }),
+            })
         vi.stubGlobal('fetch', fetchMock)
 
         renderSignup()
         fillValidForm()
         fireEvent.click(screen.getByRole('button', { name: /create school/i }))
 
-        // Confirmation renders.
+        // Confirmation renders once the poll returns ready.
         await waitFor(() => expect(screen.getByText(/is ready!/i)).toBeTruthy())
         expect(screen.getByText('http://greenhills.localhost/')).toBeTruthy()
         expect(screen.getByText('jane@greenhills.edu')).toBeTruthy()
 
-        // Called with a relative URL, JSON content type and the right body.
-        expect(fetchMock).toHaveBeenCalledTimes(1)
+        // First call is the signup POST (relative url, JSON body).
         const [url, opts] = fetchMock.mock.calls[0]
         expect(url).toBe('/imboni/onboarding/signup/')
         expect(opts.method).toBe('POST')
@@ -65,6 +78,8 @@ describe('Signup page', () => {
             subdomain: 'greenhills',
             admin_email: 'jane@greenhills.edu',
         })
+        // Second call polls the status endpoint from the 202 response.
+        expect(fetchMock.mock.calls[1][0]).toBe('/imboni/onboarding/status/abc/')
     })
 
     it('shows inline field errors from a 400 response', async () => {
