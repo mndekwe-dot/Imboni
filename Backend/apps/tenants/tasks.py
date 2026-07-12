@@ -72,3 +72,12 @@ def _send_welcome_email(admin_email, school_name, url):
         )
     except Exception:
         logger.warning('Welcome email failed for %s', admin_email, exc_info=True)
+
+
+@shared_task
+def enforce_contract_lifecycle_task():
+    """Daily (Celery beat): expire past-grace contracts and suspend uncovered schools."""
+    from .lifecycle import enforce_contract_lifecycle
+    result = enforce_contract_lifecycle()
+    logger.info('Contract lifecycle: %s', result)
+    return result

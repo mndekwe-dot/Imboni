@@ -14,6 +14,7 @@ import { PlatformLayout } from './pages/Platform/PlatformLayout';
 import { OverviewSection } from './pages/Platform/sections/OverviewSection';
 import { ApplicationsSection } from './pages/Platform/sections/ApplicationsSection';
 import { SchoolsSection } from './pages/Platform/sections/SchoolsSection';
+import { ContractsSection } from './pages/Platform/sections/ContractsSection';
 import { Apply } from './pages/Apply';
 import { RevenueSection } from './pages/Platform/sections/RevenueSection';
 import { ExpensesSection } from './pages/Platform/sections/ExpensesSection';
@@ -186,6 +187,7 @@ function App() {
       <Route path="/platform" element={<PlatformLayout title="Overview" subtitle="Your platform at a glance"><OverviewSection /></PlatformLayout>} />
       <Route path="/platform/applications" element={<PlatformLayout title="Applications" subtitle="Schools applying to join Imboni"><ApplicationsSection /></PlatformLayout>} />
       <Route path="/platform/schools" element={<PlatformLayout title="Schools" subtitle="All tenant schools"><SchoolsSection /></PlatformLayout>} />
+      <Route path="/platform/contracts" element={<PlatformLayout title="Contracts" subtitle="Agreements & their lifecycle"><ContractsSection /></PlatformLayout>} />
       <Route path="/platform/revenue" element={<PlatformLayout title="Revenue" subtitle="Payments received from schools"><RevenueSection /></PlatformLayout>} />
       <Route path="/platform/expenses" element={<PlatformLayout title="Expenses" subtitle="Services & bills you pay for"><ExpensesSection /></PlatformLayout>} />
       <Route path="/platform/support" element={<PlatformLayout title="Support" subtitle="Tickets raised by schools"><TicketsSection /></PlatformLayout>} />

@@ -97,6 +97,14 @@ export const approveApplication  = (id, notes)  => client.post(`/imboni/platform
 export const rejectApplication   = (id, notes)  => client.post(`/imboni/platform/applications/${id}/reject/`, { review_notes: notes }).then(r => r.data)
 export const provisionApplication = (id)        => client.post(`/imboni/platform/applications/${id}/provision/`).then(r => r.data)
 
+// ── Contracts (operator) ─────────────────────────────────────────────────────
+export const getContracts      = (params)      => client.get('/imboni/platform/contracts/', params ? { params } : {}).then(r => asList(r.data))
+export const createContract    = (data)        => client.post('/imboni/platform/contracts/', data).then(r => r.data)
+export const signContract      = (id, by)      => client.post(`/imboni/platform/contracts/${id}/sign/`, { signed_by: by }).then(r => r.data)
+export const terminateContract = (id)          => client.post(`/imboni/platform/contracts/${id}/terminate/`).then(r => r.data)
+export const renewContract     = (id)          => client.post(`/imboni/platform/contracts/${id}/renew/`).then(r => r.data)
+export const deleteContract    = (id)          => client.delete(`/imboni/platform/contracts/${id}/`)
+
 // ── Public: apply to join Imboni (no auth) ───────────────────────────────────
 export async function applyToImboni(data) {
     const res = await axios.post(`${BASE}/imboni/onboarding/apply/`, data)

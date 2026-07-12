@@ -35,8 +35,9 @@ router.register(r'platform/schools', views.SchoolViewSet, basename='platform-sch
 router.register(r'platform/expenses', platform_ops.ExpenseViewSet, basename='platform-expense')
 router.register(r'platform/payments', platform_ops.PaymentViewSet, basename='platform-payment')
 router.register(r'platform/tickets', platform_ops.SupportTicketViewSet, basename='platform-ticket')
-# Phase 7 — school applications (intake -> review -> provision).
+# Phase 7 — school applications (intake -> review -> provision) + contracts.
 router.register(r'platform/applications', platform_ops.ApplicationViewSet, basename='platform-application')
+router.register(r'platform/contracts', platform_ops.ContractViewSet, basename='platform-contract')
 
 urlpatterns = [
     path('platform/auth/login/', PlatformLoginView.as_view(), name='platform-login'),

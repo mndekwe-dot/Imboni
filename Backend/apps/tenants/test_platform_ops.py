@@ -215,3 +215,70 @@ class TestApplications:
         assert resp.data['status'] == 'provisioned'
         assert resp.data['provisioned']['temp_password']
         assert resp.data['provisioned']['login_url'].endswith('/login/admin')
+
+
+# ── Contracts + lifecycle (Phase 7.2) ─────────────────────────────────────────
+
+from apps.tenants.models import Contract                       # noqa: E402
+from apps.tenants.lifecycle import enforce_contract_lifecycle  # noqa: E402
+
+
+class TestContracts:
+    def _client(self, name='Co', schema='cofake', status='active'):
+        with _public():
+            c = Client(name=name, schema_name=schema, status=status)
+            c.auto_create_schema = False
+            c.save()
+        return c
+
+    def test_create_sign_renew(self):
+        op = platform_admin()
+        client = self._client()
+        create = platform_ops.ContractViewSet.as_view({'post': 'create'})
+        with _public():
+            resp = create(_authed('post', op, {
+                'client': str(client.id), 'title': '2026 Annual', 'amount': '100',
+                'start_date': str(timezone.localdate()),
+                'end_date': str(timezone.localdate() + timedelta(days=365))}))
+        assert resp.status_code == 201
+        assert resp.data['status'] == 'draft'
+        cid = resp.data['id']
+
+        with _public():
+            signed = platform_ops.ContractViewSet.as_view({'post': 'sign'})(
+                _authed('post', op, {'signed_by': 'Ops'}), pk=cid)
+        assert signed.data['status'] == 'active'
+        assert signed.data['signed_by'] == 'Ops'
+
+        with _public():
+            renewed = platform_ops.ContractViewSet.as_view({'post': 'renew'})(_authed('post', op), pk=cid)
+        assert renewed.status_code == 201
+        assert renewed.data['status'] == 'active'
+        with _public():
+            assert Contract.objects.get(id=cid).status == 'expired'   # old one closed out
+
+    def test_lifecycle_suspends_school_past_grace(self):
+        client = self._client(status='active')
+        with _public():
+            Contract.objects.create(client=client, title='old',
+                                    start_date=timezone.localdate() - timedelta(days=400),
+                                    end_date=timezone.localdate() - timedelta(days=30),
+                                    status='active', grace_days=14)
+        result = enforce_contract_lifecycle()
+        assert result['expired'] == 1 and result['suspended'] == 1
+        with _public():
+            client.refresh_from_db()
+        assert client.status == 'suspended'
+
+    def test_lifecycle_within_grace_leaves_school_active(self):
+        client = self._client(status='active')
+        with _public():
+            Contract.objects.create(client=client, title='recent',
+                                    start_date=timezone.localdate() - timedelta(days=400),
+                                    end_date=timezone.localdate() - timedelta(days=5),
+                                    status='active', grace_days=14)
+        result = enforce_contract_lifecycle()
+        assert result['suspended'] == 0
+        with _public():
+            client.refresh_from_db()
+        assert client.status == 'active'

@@ -21,12 +21,12 @@ from rest_framework.views import APIView
 
 from django.utils.crypto import get_random_string
 
-from .models import PlatformExpense, Payment, SupportTicket, TicketReply, SchoolApplication
+from .models import PlatformExpense, Payment, SupportTicket, TicketReply, SchoolApplication, Contract
 from .platform_auth import IsPlatformAdmin, PlatformJWTAuthentication
 from .serializers import (
     PlatformExpenseSerializer, PaymentSerializer,
     SupportTicketListSerializer, SupportTicketDetailSerializer, TicketReplySerializer,
-    SchoolApplicationSerializer,
+    SchoolApplicationSerializer, ContractSerializer,
 )
 from .services import provision_tenant, ProvisioningError
 
@@ -95,6 +95,59 @@ class SupportTicketViewSet(_PlatformBase):
         ticket.status = new_status
         ticket.save(update_fields=['status', 'updated_at'])
         return Response(SupportTicketDetailSerializer(ticket).data)
+
+
+class ContractViewSet(_PlatformBase):
+    """
+    Contracts with schools + their lifecycle. CRUD plus sign / terminate / renew.
+    Auto-suspend on expiry-past-grace is handled by `enforce_contract_lifecycle`.
+    """
+    queryset = Contract.objects.all()
+    serializer_class = ContractSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        client_id = self.request.query_params.get('client')
+        status_filter = self.request.query_params.get('status')
+        if client_id:
+            qs = qs.filter(client_id=client_id)
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
+
+    @action(detail=True, methods=['post'])
+    def sign(self, request, pk=None):
+        """Mark a contract signed + active."""
+        contract = self.get_object()
+        contract.signed_at = timezone.now()
+        contract.signed_by = request.data.get('signed_by', contract.signed_by)
+        contract.status = 'active'
+        contract.save(update_fields=['signed_at', 'signed_by', 'status', 'updated_at'])
+        return Response(ContractSerializer(contract).data)
+
+    @action(detail=True, methods=['post'])
+    def terminate(self, request, pk=None):
+        contract = self.get_object()
+        contract.status = 'terminated'
+        contract.save(update_fields=['status', 'updated_at'])
+        return Response(ContractSerializer(contract).data)
+
+    @action(detail=True, methods=['post'])
+    def renew(self, request, pk=None):
+        """Create a follow-on contract (same duration by default) and expire this one."""
+        old = self.get_object()
+        duration = old.end_date - old.start_date
+        new_start = old.end_date
+        new = Contract.objects.create(
+            client=old.client, title=old.title, plan=old.plan, amount=old.amount,
+            currency=old.currency, billing_interval=old.billing_interval,
+            start_date=new_start, end_date=new_start + duration,
+            status='active', auto_renew=old.auto_renew, grace_days=old.grace_days,
+            signed_at=timezone.now(), signed_by=request.data.get('signed_by', old.signed_by),
+        )
+        old.status = 'expired'
+        old.save(update_fields=['status', 'updated_at'])
+        return Response(ContractSerializer(new).data, status=http_status.HTTP_201_CREATED)
 
 
 class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):

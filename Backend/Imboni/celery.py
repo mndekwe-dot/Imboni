@@ -40,4 +40,9 @@ app.conf.beat_schedule = {
         'task': 'apps.audit.tasks.backup_database_task',
         'schedule': crontab(hour=2, minute=0),
     },
+    # Every day at 03:00 — expire past-grace contracts + auto-suspend uncovered schools
+    'enforce-contract-lifecycle': {
+        'task': 'apps.tenants.tasks.enforce_contract_lifecycle_task',
+        'schedule': crontab(hour=3, minute=0),
+    },
 }
