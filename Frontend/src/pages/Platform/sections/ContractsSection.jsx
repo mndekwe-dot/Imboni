@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Modal } from '../../../components/ui/Modal'
 import {
     getContracts, createContract, signContract, terminateContract, renewContract, deleteContract,
     getPlatformSchools,
@@ -84,12 +85,17 @@ export function ContractsSection() {
             <div className="card-content">
                 <div className="platform-panel-head">
                     <h2>Contracts</h2>
-                    <button className="btn btn-primary btn-sm" onClick={() => setAdding(a => !a)}>{adding ? 'Cancel' : '+ New contract'}</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>+ New contract</button>
                 </div>
 
                 {adding && (
-                    <form className="platform-form" onSubmit={submit}>
-                        <div className="platform-form-grid">
+                    <Modal title="New contract" icon="contract" size="lg" onClose={() => setAdding(false)} footer={
+                        <>
+                            <button className="btn btn-outline" onClick={() => setAdding(false)}>Cancel</button>
+                            <button type="submit" form="contract-form" className="btn btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Create contract'}</button>
+                        </>
+                    }>
+                        <form id="contract-form" className="platform-form-grid" onSubmit={submit}>
                             <label>School
                                 <select className="form-input" value={form.client} onChange={e => set('client', e.target.value)} required>
                                     <option value="">— select —</option>
@@ -112,9 +118,8 @@ export function ContractsSection() {
                             <label>Start<input className="form-input" type="date" required value={form.start_date} onChange={e => set('start_date', e.target.value)} /></label>
                             <label>End<input className="form-input" type="date" required value={form.end_date} onChange={e => set('end_date', e.target.value)} /></label>
                             <label>Grace (days)<input className="form-input" type="number" min="0" value={form.grace_days} onChange={e => set('grace_days', e.target.value)} /></label>
-                        </div>
-                        <button className="btn btn-primary btn-sm" disabled={saving}>{saving ? 'Saving…' : 'Create contract'}</button>
-                    </form>
+                        </form>
+                    </Modal>
                 )}
 
                 {loading ? (

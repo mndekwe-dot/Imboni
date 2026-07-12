@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Modal } from '../../../components/ui/Modal'
 import { StatCard } from '../../../components/layout/StatCard'
 import { getPayments, createPayment, deletePayment, getPlatformSchools } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
@@ -73,14 +74,17 @@ export function RevenueSection() {
                 <div className="card-content">
                     <div className="platform-panel-head">
                         <h2>Payments received</h2>
-                        <button className="btn btn-primary btn-sm" onClick={() => setAdding(a => !a)}>
-                            {adding ? 'Cancel' : '+ Record payment'}
-                        </button>
+                        <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>+ Record payment</button>
                     </div>
 
                     {adding && (
-                        <form className="platform-form" onSubmit={submit}>
-                            <div className="platform-form-grid">
+                        <Modal title="Record a payment" icon="payments" size="lg" onClose={() => setAdding(false)} footer={
+                            <>
+                                <button className="btn btn-outline" onClick={() => setAdding(false)}>Cancel</button>
+                                <button type="submit" form="payment-form" className="btn btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Record payment'}</button>
+                            </>
+                        }>
+                            <form id="payment-form" className="platform-form-grid" onSubmit={submit}>
                                 <label>School
                                     <select className="form-input" value={form.client} onChange={e => set('client', e.target.value)}>
                                         <option value="">— select —</option>
@@ -100,11 +104,8 @@ export function RevenueSection() {
                                     </select>
                                 </label>
                                 <label>Date<input className="form-input" type="date" value={form.received_at} onChange={e => set('received_at', e.target.value)} /></label>
-                            </div>
-                            <button className="btn btn-primary btn-sm" disabled={saving}>
-                                {saving ? 'Saving…' : 'Record payment'}
-                            </button>
-                        </form>
+                            </form>
+                        </Modal>
                     )}
 
                     {loading ? (

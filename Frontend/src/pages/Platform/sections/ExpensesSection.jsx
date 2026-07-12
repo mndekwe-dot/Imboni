@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Modal } from '../../../components/ui/Modal'
 import { getExpenses, createExpense, updateExpense, deleteExpense } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
@@ -75,14 +76,17 @@ export function ExpensesSection() {
             <div className="card-content">
                 <div className="platform-panel-head">
                     <h2>Services &amp; bills</h2>
-                    <button className="btn btn-primary btn-sm" onClick={() => setAdding(a => !a)}>
-                        {adding ? 'Cancel' : '+ Add bill'}
-                    </button>
+                    <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>+ Add bill</button>
                 </div>
 
                 {adding && (
-                    <form className="platform-form" onSubmit={submit}>
-                        <div className="platform-form-grid">
+                    <Modal title="Add a bill" icon="receipt_long" size="lg" onClose={() => setAdding(false)} footer={
+                        <>
+                            <button className="btn btn-outline" onClick={() => setAdding(false)}>Cancel</button>
+                            <button type="submit" form="expense-form" className="btn btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save bill'}</button>
+                        </>
+                    }>
+                        <form id="expense-form" className="platform-form-grid" onSubmit={submit}>
                             <label>Name<input className="form-input" required value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. AWS hosting" /></label>
                             <label>Vendor<input className="form-input" value={form.vendor} onChange={e => set('vendor', e.target.value)} placeholder="e.g. Amazon" /></label>
                             <label>Category
@@ -98,11 +102,8 @@ export function ExpensesSection() {
                                 </select>
                             </label>
                             <label>Due date<input className="form-input" type="date" required value={form.due_date} onChange={e => set('due_date', e.target.value)} /></label>
-                        </div>
-                        <button className="btn btn-primary btn-sm" disabled={saving}>
-                            {saving ? 'Saving…' : 'Save bill'}
-                        </button>
-                    </form>
+                        </form>
+                    </Modal>
                 )}
 
                 {loading ? (
