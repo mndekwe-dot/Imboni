@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { platformLogin, storePlatformSession, isPlatformAuthed } from '../../api/platform'
 import { errorMessage } from '../../utils/errors'
+import logo from '../../assets/images/imboni-logo.png'
+import '../../styles/components.css'
 import '../../styles/platform.css'
 
 export function PlatformLogin() {
@@ -12,7 +14,6 @@ export function PlatformLogin() {
     const [error,    setError]    = useState('')
     const [loading,  setLoading]  = useState(false)
 
-    // Already signed in? Go straight to the console.
     useEffect(() => { if (isPlatformAuthed()) navigate('/platform', { replace: true }) }, [navigate])
 
     async function handleSubmit(e) {
@@ -31,10 +32,10 @@ export function PlatformLogin() {
     }
 
     return (
-        <div className="platform-auth">
-            <form className="platform-auth-card" onSubmit={handleSubmit}>
-                <div className="platform-brand">
-                    <span className="material-symbols-rounded">hub</span>
+        <div className="platform-login">
+            <form className="platform-login-card" onSubmit={handleSubmit}>
+                <div className="platform-login-brand">
+                    <img src={logo} alt="Imboni" />
                     <div>
                         <h1>Imboni Platform</h1>
                         <p>Operator console — all schools</p>
@@ -42,49 +43,36 @@ export function PlatformLogin() {
                 </div>
 
                 {error && (
-                    <div className="platform-error" role="alert">
+                    <div className="platform-login-error" role="alert">
                         <span className="material-symbols-rounded">error</span>
                         {error}
                     </div>
                 )}
 
-                <label className="platform-label" htmlFor="pf-email">Email</label>
-                <input
-                    id="pf-email"
-                    className="platform-input"
-                    type="email"
-                    autoComplete="username"
-                    required
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="you@imboni.com"
-                />
-
-                <label className="platform-label" htmlFor="pf-password">Password</label>
-                <div className="platform-input-wrap">
-                    <input
-                        id="pf-password"
-                        className="platform-input"
-                        type={showPw ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        required
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                    />
-                    <button type="button" className="platform-pw-toggle"
-                            aria-label="Toggle password visibility"
-                            onClick={() => setShowPw(p => !p)}>
-                        <span className="material-symbols-rounded">{showPw ? 'visibility_off' : 'visibility'}</span>
-                    </button>
+                <div className="form-group">
+                    <label className="form-label" htmlFor="pf-email">Email</label>
+                    <input id="pf-email" className="form-input" type="email" autoComplete="username" required
+                           value={email} onChange={e => setEmail(e.target.value)} placeholder="you@imboni.com" />
                 </div>
 
-                <button type="submit" className="platform-btn platform-btn-primary" disabled={loading} style={{ marginTop: '1rem', width: '100%' }}>
+                <div className="form-group">
+                    <label className="form-label" htmlFor="pf-password">Password</label>
+                    <div className="platform-pw-wrap">
+                        <input id="pf-password" className="form-input" type={showPw ? 'text' : 'password'}
+                               autoComplete="current-password" required
+                               value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter your password" />
+                        <button type="button" className="platform-pw-toggle" aria-label="Toggle password visibility" onClick={() => setShowPw(p => !p)}>
+                            <span className="material-symbols-rounded">{showPw ? 'visibility_off' : 'visibility'}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '0.5rem' }}>
                     {loading ? 'Signing in…' : 'Sign in'}
                 </button>
 
-                <p className="platform-auth-note">
-                    Restricted to Imboni platform operators. School staff sign in on their school's own address.
+                <p className="platform-login-note">
+                    Restricted to Imboni platform operators. School staff sign in on their school&apos;s own address.
                 </p>
             </form>
         </div>

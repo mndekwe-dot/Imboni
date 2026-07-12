@@ -10,7 +10,12 @@ import { LogIn } from './pages/login';
 import { NotFound } from './pages/NotFound';
 import { PortalLogin } from './pages/PortalLogin';
 import { PlatformLogin } from './pages/Platform/PlatformLogin';
-import { PlatformDashboard } from './pages/Platform/PlatformDashboard';
+import { PlatformLayout } from './pages/Platform/PlatformLayout';
+import { OverviewSection } from './pages/Platform/sections/OverviewSection';
+import { SchoolsSection } from './pages/Platform/sections/SchoolsSection';
+import { RevenueSection } from './pages/Platform/sections/RevenueSection';
+import { ExpensesSection } from './pages/Platform/sections/ExpensesSection';
+import { TicketsSection } from './pages/Platform/sections/TicketsSection';
 import { ResetPassword } from './pages/ResetPassword';
 import { Signup } from './pages/Signup';
 import { TeacherRegistration } from './pages/TeacherRegistration';
@@ -175,7 +180,11 @@ function App() {
       } />
       {/* ── Platform (vendor) console — all schools; served on the bare domain ── */}
       <Route path="/platform/login" element={<PlatformLogin />} />
-      <Route path="/platform" element={<PlatformDashboard />} />
+      <Route path="/platform" element={<PlatformLayout title="Overview" subtitle="Your platform at a glance"><OverviewSection /></PlatformLayout>} />
+      <Route path="/platform/schools" element={<PlatformLayout title="Schools" subtitle="All tenant schools"><SchoolsSection /></PlatformLayout>} />
+      <Route path="/platform/revenue" element={<PlatformLayout title="Revenue" subtitle="Payments received from schools"><RevenueSection /></PlatformLayout>} />
+      <Route path="/platform/expenses" element={<PlatformLayout title="Expenses" subtitle="Services & bills you pay for"><ExpensesSection /></PlatformLayout>} />
+      <Route path="/platform/support" element={<PlatformLayout title="Support" subtitle="Tickets raised by schools"><TicketsSection /></PlatformLayout>} />
 
       {/* ── Public registration routes ── */}
       <Route path="/register/:uid/:token" element={<TeacherRegistration />} />

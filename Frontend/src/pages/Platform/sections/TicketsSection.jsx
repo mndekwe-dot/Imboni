@@ -13,7 +13,7 @@ export function TicketsSection() {
     const [tickets, setTickets] = useState([])
     const [filter, setFilter]   = useState('')
     const [loading, setLoading] = useState(true)
-    const [selected, setSelected] = useState(null)   // full ticket
+    const [selected, setSelected] = useState(null)
     const [reply, setReply]     = useState('')
     const [busy, setBusy]       = useState(false)
 
@@ -56,73 +56,77 @@ export function TicketsSection() {
 
     return (
         <div className="platform-tickets">
-            {/* Inbox list */}
-            <div className="platform-panel platform-ticket-list">
-                <div className="platform-panel-head">
-                    <h2>Support</h2>
-                    <select className="platform-input platform-input-sm" value={filter} onChange={e => setFilter(e.target.value)}>
-                        {FILTERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                    </select>
+            {/* Inbox */}
+            <div className="card platform-ticket-list">
+                <div className="card-content">
+                    <div className="platform-panel-head">
+                        <h2>Support</h2>
+                        <select className="form-input platform-input-sm" value={filter} onChange={e => setFilter(e.target.value)}>
+                            {FILTERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                        </select>
+                    </div>
+                    {loading ? (
+                        <p className="platform-muted">Loading…</p>
+                    ) : tickets.length === 0 ? (
+                        <p className="platform-muted">No tickets.</p>
+                    ) : tickets.map(t => (
+                        <button key={t.id} className={`platform-ticket-row ${selected?.id === t.id ? 'is-active' : ''}`} onClick={() => open(t.id)}>
+                            <div className="platform-ticket-row-top">
+                                <span className="platform-strong">{t.subject}</span>
+                                <span className={`platform-chip platform-chip-${STATUS_CLS[t.status]}`}>{label(t.status)}</span>
+                            </div>
+                            <div className="platform-ticket-row-sub">
+                                <span className={`platform-chip platform-chip-${PRIORITY_CLS[t.priority]}`} style={{ textTransform: 'capitalize' }}>{t.priority}</span>
+                                <span className="platform-muted">{t.school_name} · {t.reply_count} repl{t.reply_count === 1 ? 'y' : 'ies'}</span>
+                            </div>
+                        </button>
+                    ))}
                 </div>
-                {loading ? (
-                    <p className="platform-muted">Loading…</p>
-                ) : tickets.length === 0 ? (
-                    <p className="platform-muted">No tickets.</p>
-                ) : tickets.map(t => (
-                    <button key={t.id} className={`platform-ticket-row ${selected?.id === t.id ? 'is-active' : ''}`} onClick={() => open(t.id)}>
-                        <div className="platform-ticket-row-top">
-                            <span className="platform-strong">{t.subject}</span>
-                            <span className={`platform-chip platform-chip-${STATUS_CLS[t.status]}`}>{label(t.status)}</span>
-                        </div>
-                        <div className="platform-ticket-row-sub">
-                            <span className={`platform-chip platform-chip-${PRIORITY_CLS[t.priority]}`} style={{ textTransform: 'capitalize' }}>{t.priority}</span>
-                            <span className="platform-muted">{t.school_name} · {t.reply_count} repl{t.reply_count === 1 ? 'y' : 'ies'}</span>
-                        </div>
-                    </button>
-                ))}
             </div>
 
             {/* Detail / thread */}
-            <div className="platform-panel platform-ticket-detail">
-                {!selected ? (
-                    <p className="platform-muted">Select a ticket to view the conversation.</p>
-                ) : (
-                    <>
-                        <div className="platform-panel-head">
-                            <h2>{selected.subject}</h2>
-                            <span className={`platform-chip platform-chip-${STATUS_CLS[selected.status]}`}>{label(selected.status)}</span>
-                        </div>
-                        <p className="platform-muted" style={{ marginTop: '-0.3rem' }}>
-                            {selected.school_name} · {selected.raised_by_name || selected.raised_by_email}
-                            {selected.raised_by_role ? ` (${selected.raised_by_role})` : ''}
-                        </p>
-
-                        <div className="platform-thread">
-                            <div className="platform-msg platform-msg-school">
-                                <div className="platform-msg-who">{selected.raised_by_name || 'School'}</div>
-                                <div className="platform-msg-body">{selected.body}</div>
+            <div className="card platform-ticket-detail">
+                <div className="card-content">
+                    {!selected ? (
+                        <p className="platform-muted">Select a ticket to view the conversation.</p>
+                    ) : (
+                        <>
+                            <div className="platform-panel-head">
+                                <h2>{selected.subject}</h2>
+                                <span className={`platform-chip platform-chip-${STATUS_CLS[selected.status]}`}>{label(selected.status)}</span>
                             </div>
-                            {selected.replies.map(r => (
-                                <div key={r.id} className={`platform-msg platform-msg-${r.author_type}`}>
-                                    <div className="platform-msg-who">{r.author_type === 'operator' ? 'You' : (r.author_name || 'School')}</div>
-                                    <div className="platform-msg-body">{r.body}</div>
-                                </div>
-                            ))}
-                        </div>
+                            <p className="platform-muted" style={{ marginTop: '-0.5rem' }}>
+                                {selected.school_name} · {selected.raised_by_name || selected.raised_by_email}
+                                {selected.raised_by_role ? ` (${selected.raised_by_role})` : ''}
+                            </p>
 
-                        <form onSubmit={sendReply} className="platform-reply">
-                            <textarea className="platform-input" rows={3} placeholder="Write a reply…" value={reply} onChange={e => setReply(e.target.value)} />
-                            <div className="platform-reply-actions">
-                                <div className="platform-status-actions">
-                                    {selected.status !== 'resolved' && <button type="button" className="platform-btn" disabled={busy} onClick={() => changeStatus('resolved')}>Resolve</button>}
-                                    {selected.status !== 'closed'   && <button type="button" className="platform-btn" disabled={busy} onClick={() => changeStatus('closed')}>Close</button>}
-                                    {selected.status !== 'open'     && <button type="button" className="platform-btn" disabled={busy} onClick={() => changeStatus('open')}>Re-open</button>}
+                            <div className="platform-thread">
+                                <div className="platform-msg platform-msg-school">
+                                    <div className="platform-msg-who">{selected.raised_by_name || 'School'}</div>
+                                    <div className="platform-msg-body">{selected.body}</div>
                                 </div>
-                                <button type="submit" className="platform-btn platform-btn-primary" disabled={busy || !reply.trim()}>Send reply</button>
+                                {selected.replies.map(r => (
+                                    <div key={r.id} className={`platform-msg platform-msg-${r.author_type}`}>
+                                        <div className="platform-msg-who">{r.author_type === 'operator' ? 'You' : (r.author_name || 'School')}</div>
+                                        <div className="platform-msg-body">{r.body}</div>
+                                    </div>
+                                ))}
                             </div>
-                        </form>
-                    </>
-                )}
+
+                            <form onSubmit={sendReply}>
+                                <textarea className="form-input" rows={3} placeholder="Write a reply…" value={reply} onChange={e => setReply(e.target.value)} />
+                                <div className="platform-reply-actions">
+                                    <div className="platform-status-actions">
+                                        {selected.status !== 'resolved' && <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => changeStatus('resolved')}>Resolve</button>}
+                                        {selected.status !== 'closed'   && <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => changeStatus('closed')}>Close</button>}
+                                        {selected.status !== 'open'     && <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => changeStatus('open')}>Re-open</button>}
+                                    </div>
+                                    <button type="submit" className="btn btn-primary btn-sm" disabled={busy || !reply.trim()}>Send reply</button>
+                                </div>
+                            </form>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     )

@@ -46,9 +46,8 @@ export function ExpensesSection() {
             toast.success('Bill added.')
             setForm(emptyForm()); setAdding(false)
             load()
-        } catch (err) {
-            toast.error(errorMessage(err, 'Could not add the bill.'))
-        } finally { setSaving(false) }
+        } catch (err) { toast.error(errorMessage(err, 'Could not add the bill.')) }
+        finally { setSaving(false) }
     }
 
     async function markPaid(item) {
@@ -72,70 +71,72 @@ export function ExpensesSection() {
     }
 
     return (
-        <div className="platform-panel">
-            <div className="platform-panel-head">
-                <h2>Services &amp; bills</h2>
-                <button className="platform-btn platform-btn-primary" onClick={() => setAdding(a => !a)}>
-                    {adding ? 'Cancel' : '+ Add bill'}
-                </button>
-            </div>
-
-            {adding && (
-                <form className="platform-form" onSubmit={submit}>
-                    <div className="platform-form-grid">
-                        <label>Name<input className="platform-input" required value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. AWS hosting" /></label>
-                        <label>Vendor<input className="platform-input" value={form.vendor} onChange={e => set('vendor', e.target.value)} placeholder="e.g. Amazon" /></label>
-                        <label>Category
-                            <select className="platform-input" value={form.category} onChange={e => set('category', e.target.value)}>
-                                {CATEGORIES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                            </select>
-                        </label>
-                        <label>Amount<input className="platform-input" type="number" step="0.01" min="0" required value={form.amount} onChange={e => set('amount', e.target.value)} /></label>
-                        <label>Currency<input className="platform-input" maxLength={3} value={form.currency} onChange={e => set('currency', e.target.value.toUpperCase())} /></label>
-                        <label>Recurrence
-                            <select className="platform-input" value={form.recurrence} onChange={e => set('recurrence', e.target.value)}>
-                                {RECURRENCE.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                            </select>
-                        </label>
-                        <label>Due date<input className="platform-input" type="date" required value={form.due_date} onChange={e => set('due_date', e.target.value)} /></label>
-                    </div>
-                    <button className="platform-btn platform-btn-primary" disabled={saving} style={{ marginTop: '0.75rem' }}>
-                        {saving ? 'Saving…' : 'Save bill'}
+        <div className="card">
+            <div className="card-content">
+                <div className="platform-panel-head">
+                    <h2>Services &amp; bills</h2>
+                    <button className="btn btn-primary btn-sm" onClick={() => setAdding(a => !a)}>
+                        {adding ? 'Cancel' : '+ Add bill'}
                     </button>
-                </form>
-            )}
-
-            {loading ? (
-                <p className="platform-muted">Loading…</p>
-            ) : items.length === 0 ? (
-                <p className="platform-muted">No bills tracked yet. Add the services you pay for to see upcoming and overdue amounts.</p>
-            ) : (
-                <div className="platform-table-wrap">
-                    <table className="platform-table">
-                        <thead>
-                            <tr><th>Service</th><th>Vendor</th><th>Amount</th><th>Recurs</th><th>Due date</th><th>Status</th><th className="platform-col-action">Action</th></tr>
-                        </thead>
-                        <tbody>
-                            {items.map(e => (
-                                <tr key={e.id}>
-                                    <td className="platform-strong">{e.name}</td>
-                                    <td className="platform-muted">{e.vendor || '—'}</td>
-                                    <td>{money(e.amount, e.currency)}</td>
-                                    <td className="platform-muted" style={{ textTransform: 'capitalize' }}>{e.recurrence.replace('_', ' ')}</td>
-                                    <td>{e.due_date}</td>
-                                    <td><ExpenseChip e={e} /></td>
-                                    <td className="platform-col-action" style={{ whiteSpace: 'nowrap' }}>
-                                        {e.status !== 'paid' && (
-                                            <button className="platform-btn" disabled={busyId === e.id} onClick={() => markPaid(e)}>Mark paid</button>
-                                        )}
-                                        <button className="platform-btn platform-btn-danger" disabled={busyId === e.id} onClick={() => remove(e)} style={{ marginLeft: '0.4rem' }}>Delete</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
                 </div>
-            )}
+
+                {adding && (
+                    <form className="platform-form" onSubmit={submit}>
+                        <div className="platform-form-grid">
+                            <label>Name<input className="form-input" required value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. AWS hosting" /></label>
+                            <label>Vendor<input className="form-input" value={form.vendor} onChange={e => set('vendor', e.target.value)} placeholder="e.g. Amazon" /></label>
+                            <label>Category
+                                <select className="form-input" value={form.category} onChange={e => set('category', e.target.value)}>
+                                    {CATEGORIES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                                </select>
+                            </label>
+                            <label>Amount<input className="form-input" type="number" step="0.01" min="0" required value={form.amount} onChange={e => set('amount', e.target.value)} /></label>
+                            <label>Currency<input className="form-input" maxLength={3} value={form.currency} onChange={e => set('currency', e.target.value.toUpperCase())} /></label>
+                            <label>Recurrence
+                                <select className="form-input" value={form.recurrence} onChange={e => set('recurrence', e.target.value)}>
+                                    {RECURRENCE.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                                </select>
+                            </label>
+                            <label>Due date<input className="form-input" type="date" required value={form.due_date} onChange={e => set('due_date', e.target.value)} /></label>
+                        </div>
+                        <button className="btn btn-primary btn-sm" disabled={saving} style={{ marginTop: '0.85rem' }}>
+                            {saving ? 'Saving…' : 'Save bill'}
+                        </button>
+                    </form>
+                )}
+
+                {loading ? (
+                    <p className="platform-muted">Loading…</p>
+                ) : items.length === 0 ? (
+                    <p className="platform-muted">No bills tracked yet. Add the services you pay for to see upcoming and overdue amounts.</p>
+                ) : (
+                    <div className="platform-table-wrap">
+                        <table className="platform-table">
+                            <thead>
+                                <tr><th>Service</th><th>Vendor</th><th>Amount</th><th>Recurs</th><th>Due date</th><th>Status</th><th className="platform-col-action">Action</th></tr>
+                            </thead>
+                            <tbody>
+                                {items.map(e => (
+                                    <tr key={e.id}>
+                                        <td className="platform-strong">{e.name}</td>
+                                        <td className="platform-muted">{e.vendor || '—'}</td>
+                                        <td>{money(e.amount, e.currency)}</td>
+                                        <td className="platform-muted" style={{ textTransform: 'capitalize' }}>{e.recurrence.replace('_', ' ')}</td>
+                                        <td>{e.due_date}</td>
+                                        <td><ExpenseChip e={e} /></td>
+                                        <td className="platform-col-action">
+                                            {e.status !== 'paid' && (
+                                                <button className="btn btn-outline btn-sm" disabled={busyId === e.id} onClick={() => markPaid(e)}>Mark paid</button>
+                                            )}
+                                            <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === e.id} onClick={() => remove(e)} style={{ marginLeft: '0.4rem' }}>Delete</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

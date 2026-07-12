@@ -1,25 +1,14 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router'
+import { StatCard } from '../../../components/layout/StatCard'
 import { getPlatformSummary } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 
 const money = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
-function Tile({ icon, value, label, hint, tone, onClick }) {
-    return (
-        <div className={`platform-card ${tone ? `platform-card-${tone}` : ''} ${onClick ? 'platform-card-click' : ''}`}
-             onClick={onClick} role={onClick ? 'button' : undefined}>
-            <span className="material-symbols-rounded platform-card-icon">{icon}</span>
-            <div>
-                <div className="platform-card-value">{value}</div>
-                <div className="platform-card-label">{label}</div>
-                {hint && <div className="platform-card-hint">{hint}</div>}
-            </div>
-        </div>
-    )
-}
-
-export function OverviewSection({ onNavigate }) {
+export function OverviewSection() {
+    const navigate = useNavigate()
     const toast = useToast()
     const [sum, setSum] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -36,31 +25,40 @@ export function OverviewSection({ onNavigate }) {
     if (loading) return <p className="platform-muted">Loading overview…</p>
     if (!sum) return null
 
+    const go = (to) => () => navigate(to)
+
     return (
         <>
-            <h2 className="platform-section-title">Money in</h2>
+            <p className="platform-section-title">Money in</p>
             <div className="platform-cards">
-                <Tile icon="account_balance" value={money(sum.revenue.total)} label="Total revenue"
-                      hint={`${sum.revenue.payments_count} payment(s)`} tone="ok" onClick={() => onNavigate('revenue')} />
-                <Tile icon="trending_up" value={money(sum.revenue.this_month)} label="This month" tone="ok" />
+                <div className="clickable-wrap" onClick={go('/platform/revenue')} style={{ cursor: 'pointer' }}>
+                    <StatCard icon="account_balance" value={money(sum.revenue.total)} label="Total revenue"
+                              trend={`${sum.revenue.payments_count} payment(s)`} colorClass="success" />
+                </div>
+                <StatCard icon="trending_up" value={money(sum.revenue.this_month)} label="Received this month" colorClass="success" />
             </div>
 
-            <h2 className="platform-section-title">Money out</h2>
+            <p className="platform-section-title">Money out</p>
             <div className="platform-cards">
-                <Tile icon="request_quote" value={money(sum.expenses.due_total)} label="Bills due"
-                      onClick={() => onNavigate('expenses')} />
-                <Tile icon="warning" value={sum.expenses.overdue_count} label="Overdue"
-                      hint={money(sum.expenses.overdue_total)} tone={sum.expenses.overdue_count ? 'bad' : undefined}
-                      onClick={() => onNavigate('expenses')} />
-                <Tile icon="event_upcoming" value={sum.expenses.upcoming_30d_count} label="Due in 30 days"
-                      onClick={() => onNavigate('expenses')} />
+                <div onClick={go('/platform/expenses')} style={{ cursor: 'pointer' }}>
+                    <StatCard icon="request_quote" value={money(sum.expenses.due_total)} label="Bills due" />
+                </div>
+                <div onClick={go('/platform/expenses')} style={{ cursor: 'pointer' }}>
+                    <StatCard icon="warning" value={sum.expenses.overdue_count} label="Overdue"
+                              trend={money(sum.expenses.overdue_total)} colorClass={sum.expenses.overdue_count ? 'red' : ''} />
+                </div>
+                <div onClick={go('/platform/expenses')} style={{ cursor: 'pointer' }}>
+                    <StatCard icon="event_upcoming" value={sum.expenses.upcoming_30d_count} label="Due in 30 days" colorClass="info" />
+                </div>
             </div>
 
-            <h2 className="platform-section-title">Support</h2>
+            <p className="platform-section-title">Support</p>
             <div className="platform-cards">
-                <Tile icon="support_agent" value={sum.tickets.unresolved} label="Open tickets"
-                      hint={`${sum.tickets.open} new · ${sum.tickets.in_progress} in progress`}
-                      tone={sum.tickets.unresolved ? 'warn' : undefined} onClick={() => onNavigate('tickets')} />
+                <div onClick={go('/platform/support')} style={{ cursor: 'pointer' }}>
+                    <StatCard icon="support_agent" value={sum.tickets.unresolved} label="Open tickets"
+                              trend={`${sum.tickets.open} new · ${sum.tickets.in_progress} in progress`}
+                              colorClass={sum.tickets.unresolved ? 'warning' : ''} />
+                </div>
             </div>
         </>
     )
