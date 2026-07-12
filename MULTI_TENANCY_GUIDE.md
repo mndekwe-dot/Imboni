@@ -150,11 +150,21 @@ pending a shared-schema platform-auth model (Phase 5).
       in the request and passed to the task as a hash (never persisted). Verified: 202 in ~0.5s,
       worker provisions in ~11s. (`GET /imboni/onboarding/status/<uuid>/`.)
 
-### Phase 3 — Billing & access enforcement (the "rent or buy")
+### Phase 3 — Billing & access enforcement (the "rent or buy") — ✅ SCAFFOLDED (commit 6b02f28)
 
-- [ ] `Client` gains `plan` + `status` (`trial` / `active` / `past_due` / `suspended`).
-- [ ] Stripe: plans/prices, checkout, trials, invoices, **webhooks** that flip `status`.
-- [ ] Middleware that blocks/degrades access when `status ∈ {past_due, suspended}`.
+- [x] `Client` has `plan` + `status` (+ `stripe_customer_id`/`stripe_subscription_id`, migration 0003).
+- [x] Stripe: `CheckoutView` (tenant, admin) starts a subscription Checkout session;
+      `StripeWebhookView` (public/bare domain) maps `checkout.session.completed` /
+      `customer.subscription.*` / `invoice.payment_failed` → `Client.status`.
+      `map_subscription_status()` is a pure, unit-tested map. `BillingStatusView` (tenant)
+      returns plan/status/`stripe_enabled`.
+- [x] Middleware already blocks/degrades on status (`SubscriptionStatusMiddleware`:
+      suspended → 402, past_due → header). Verified end-to-end via a **dev-mode webhook**
+      (trusts payload when `STRIPE_WEBHOOK_SECRET` is unset): `subscription.deleted` → 402,
+      `subscription.updated (active)` → restored.
+- [ ] **To go live:** set real Stripe test keys + `STRIPE_PRICE_BASIC/PREMIUM` price IDs and
+      exercise live Checkout; point a Stripe webhook at `/imboni/billing/webhook/` with a secret.
+- [ ] **Frontend:** admin Billing page (plan cards + upgrade button → checkout redirect).
 
 ### Phase 4 — Plan gating & limits
 
