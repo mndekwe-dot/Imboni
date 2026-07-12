@@ -69,9 +69,11 @@ const asList = (data) => (Array.isArray(data) ? data : (data?.results ?? []))
 export const getPlatformSchools = () => client.get('/imboni/platform/schools/').then(r => asList(r.data))
 export const suspendSchool    = (id) => client.post(`/imboni/platform/schools/${id}/suspend/`).then(r => r.data)
 export const reactivateSchool = (id) => client.post(`/imboni/platform/schools/${id}/reactivate/`).then(r => r.data)
+export const getSchoolOverview = (id) => client.get(`/imboni/platform/schools/${id}/overview/`).then(r => r.data)
 
-// ── Summary (money + support headline numbers) ───────────────────────────────
+// ── Summary + health ─────────────────────────────────────────────────────────
 export const getPlatformSummary = () => client.get('/imboni/platform/summary/').then(r => r.data)
+export const getPlatformHealth  = () => client.get('/imboni/platform/health/').then(r => r.data)
 
 // ── Expenses / bills (money out) ─────────────────────────────────────────────
 export const getExpenses   = ()        => client.get('/imboni/platform/expenses/').then(r => asList(r.data))

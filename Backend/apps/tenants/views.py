@@ -65,3 +65,25 @@ class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
     def reactivate(self, request, pk=None):
         """Reactivate a suspended school. Sets status='active'."""
         return self._set_status(request, pk, 'active')
+
+    @action(detail=True, methods=['get'])
+    def overview(self, request, pk=None):
+        """A 360° profile for one school: its contracts, payments and tickets."""
+        from .models import Contract, Payment, SupportTicket, SchoolApplication
+        from .serializers import (
+            ContractSerializer, PaymentSerializer, SupportTicketListSerializer,
+            SchoolApplicationSerializer,
+        )
+        school = self.get_object()
+        contracts = Contract.objects.filter(client=school)
+        payments = Payment.objects.filter(client=school)[:20]
+        tickets = SupportTicket.objects.filter(schema_name=school.schema_name)[:20]
+        application = (SchoolApplication.objects
+                       .filter(provisioned_client=school).order_by('-created_at').first())
+        return Response({
+            'school': self.get_serializer(school).data,
+            'contracts': ContractSerializer(contracts, many=True).data,
+            'payments': PaymentSerializer(payments, many=True).data,
+            'tickets': SupportTicketListSerializer(tickets, many=True).data,
+            'application': SchoolApplicationSerializer(application).data if application else None,
+        })

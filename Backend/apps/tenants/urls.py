@@ -43,5 +43,6 @@ urlpatterns = [
     path('platform/auth/login/', PlatformLoginView.as_view(), name='platform-login'),
     path('platform/auth/me/', PlatformMeView.as_view(), name='platform-me'),
     path('platform/summary/', platform_ops.PlatformSummaryView.as_view(), name='platform-summary'),
+    path('platform/health/', platform_ops.PlatformHealthView.as_view(), name='platform-health'),
     *router.urls,
 ]

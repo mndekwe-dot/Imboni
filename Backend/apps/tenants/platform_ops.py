@@ -12,16 +12,21 @@ lives on the PUBLIC schema (bare domain), alongside the schools API:
 from datetime import timedelta
 from decimal import Decimal
 
+from django.core.cache import cache
+from django.db import connection
 from django.db.models import Sum
 from django.utils import timezone
+from django.utils.crypto import get_random_string
+from django_tenants.utils import get_public_schema_name
 from rest_framework import viewsets, status as http_status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.utils.crypto import get_random_string
-
-from .models import PlatformExpense, Payment, SupportTicket, TicketReply, SchoolApplication, Contract
+from .models import (
+    PlatformExpense, Payment, SupportTicket, TicketReply, SchoolApplication, Contract,
+    Client, TenantProvision,
+)
 from .platform_auth import IsPlatformAdmin, PlatformJWTAuthentication
 from .serializers import (
     PlatformExpenseSerializer, PaymentSerializer,
@@ -263,5 +268,74 @@ class PlatformSummaryView(APIView):
                 'open': SupportTicket.objects.filter(status='open').count(),
                 'in_progress': SupportTicket.objects.filter(status='in_progress').count(),
                 'unresolved': SupportTicket.objects.filter(status__in=['open', 'in_progress']).count(),
+            },
+        })
+
+
+class PlatformHealthView(APIView):
+    """Health of all of Imboni — infra components + operational queues."""
+    authentication_classes = [PlatformJWTAuthentication]
+    permission_classes = [IsPlatformAdmin]
+
+    def get(self, request):
+        today = timezone.localdate()
+
+        # ── Infra components ──
+        components = []
+
+        db_ok = True
+        try:
+            with connection.cursor() as cur:
+                cur.execute('SELECT 1')
+        except Exception:  # noqa: BLE001
+            db_ok = False
+        components.append({'name': 'Database', 'ok': db_ok, 'detail': 'PostgreSQL'})
+
+        cache_ok = True
+        try:
+            cache.set('imboni_health_probe', '1', 5)
+            cache_ok = cache.get('imboni_health_probe') == '1'
+        except Exception:  # noqa: BLE001
+            cache_ok = False
+        components.append({'name': 'Cache / Redis', 'ok': cache_ok, 'detail': 'broker + cache'})
+
+        workers = None
+        try:
+            from Imboni.celery import app as celery_app
+            replies = celery_app.control.ping(timeout=1)
+            workers = len(replies or [])
+        except Exception:  # noqa: BLE001
+            workers = None
+        components.append({
+            'name': 'Background workers',
+            'ok': bool(workers),
+            'detail': f'{workers} online' if workers is not None else 'unreachable',
+        })
+
+        # ── Operational queues / attention needed ──
+        schools = Client.objects.exclude(schema_name=get_public_schema_name())
+        expiring = Contract.objects.filter(
+            status='active', end_date__gte=today, end_date__lte=today + timedelta(days=30)).count()
+        in_grace = Contract.objects.filter(status='active', end_date__lt=today).count()
+
+        return Response({
+            'components': components,
+            'schools': {
+                'total': schools.count(),
+                'active': schools.filter(status='active').count(),
+                'suspended': schools.filter(status='suspended').count(),
+                'trial': schools.filter(status='trial').count(),
+                'past_due': schools.filter(status='past_due').count(),
+            },
+            'provisioning': {
+                'pending': TenantProvision.objects.filter(status='pending').count(),
+                'failed': TenantProvision.objects.filter(status='failed').count(),
+            },
+            'attention': {
+                'applications_pending': SchoolApplication.objects.filter(status='pending').count(),
+                'contracts_expiring_30d': expiring,
+                'contracts_in_grace': in_grace,
+                'bills_overdue': PlatformExpense.objects.filter(status='due', due_date__lt=today).count(),
+                'tickets_unresolved': SupportTicket.objects.filter(status__in=['open', 'in_progress']).count(),
             },
         })

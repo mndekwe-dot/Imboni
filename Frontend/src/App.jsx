@@ -19,6 +19,7 @@ import { Apply } from './pages/Apply';
 import { RevenueSection } from './pages/Platform/sections/RevenueSection';
 import { ExpensesSection } from './pages/Platform/sections/ExpensesSection';
 import { TicketsSection } from './pages/Platform/sections/TicketsSection';
+import { HealthSection } from './pages/Platform/sections/HealthSection';
 import { ResetPassword } from './pages/ResetPassword';
 import { Signup } from './pages/Signup';
 import { TeacherRegistration } from './pages/TeacherRegistration';
@@ -191,6 +192,7 @@ function App() {
       <Route path="/platform/revenue" element={<PlatformLayout title="Revenue" subtitle="Payments received from schools"><RevenueSection /></PlatformLayout>} />
       <Route path="/platform/expenses" element={<PlatformLayout title="Expenses" subtitle="Services & bills you pay for"><ExpensesSection /></PlatformLayout>} />
       <Route path="/platform/support" element={<PlatformLayout title="Support" subtitle="Tickets raised by schools"><TicketsSection /></PlatformLayout>} />
+      <Route path="/platform/health" element={<PlatformLayout title="Health" subtitle="Health of all of Imboni"><HealthSection /></PlatformLayout>} />
 
       {/* ── Public registration routes ── */}
       <Route path="/register/:uid/:token" element={<TeacherRegistration />} />

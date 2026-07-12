@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { getPlatformSchools, suspendSchool, reactivateSchool } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SchoolOverviewModal } from './SchoolOverviewModal'
 
 const STATUS_META = {
     active:    { label: 'Active',    cls: 'ok'   },
@@ -22,6 +23,9 @@ export function SchoolsSection() {
     const [schools, setSchools] = useState([])
     const [loading, setLoading] = useState(true)
     const [busyId,  setBusyId]  = useState(null)
+    const [openId,  setOpenId]  = useState(null)   // school being viewed in the modal
+
+    const patchRow = (u) => setSchools(list => list.map(s => (s.id === u.id ? { ...s, ...u } : s)))
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -71,17 +75,21 @@ export function SchoolsSection() {
                                     const busy = busyId === s.id
                                     return (
                                         <tr key={s.id}>
-                                            <td className="platform-strong">{s.name}</td>
+                                            <td>
+                                                <button className="platform-linkish" onClick={() => setOpenId(s.id)}>{s.name}</button>
+                                            </td>
                                             <td className="platform-muted">{s.primary_domain || s.schema_name}</td>
                                             <td style={{ textTransform: 'capitalize' }}>{s.plan}</td>
                                             <td><StatusChip status={s.status} /></td>
                                             <td>{num(s.usage?.students)}</td>
                                             <td>{num(s.usage?.staff)}</td>
-                                            <td className="platform-col-action">
+                                            <td className="platform-col-action" style={{ whiteSpace: 'nowrap' }}>
+                                                <button className="btn btn-outline btn-sm" onClick={() => setOpenId(s.id)}>View</button>
                                                 <button
                                                     className={`btn btn-sm ${suspended ? 'btn-primary' : 'btn-outline platform-danger'}`}
                                                     disabled={busy}
                                                     onClick={() => act(s, suspended ? 'reactivate' : 'suspend')}
+                                                    style={{ marginLeft: '0.4rem' }}
                                                 >
                                                     {busy ? '…' : suspended ? 'Reactivate' : 'Suspend'}
                                                 </button>
@@ -94,6 +102,13 @@ export function SchoolsSection() {
                     </div>
                 )}
             </div>
+            {openId && (
+                <SchoolOverviewModal
+                    schoolId={openId}
+                    onClose={() => setOpenId(null)}
+                    onStatusChange={patchRow}
+                />
+            )}
         </div>
     )
 }

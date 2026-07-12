@@ -17,6 +17,7 @@ const NAV = [
     { to: '/platform/revenue',      icon: 'payments',       label: 'Revenue'  },
     { to: '/platform/expenses',     icon: 'receipt_long',   label: 'Expenses' },
     { to: '/platform/support',      icon: 'support_agent',  label: 'Support'  },
+    { to: '/platform/health',       icon: 'monitor_heart',  label: 'Health'   },
 ]
 
 /**

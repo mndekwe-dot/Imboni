@@ -282,3 +282,44 @@ class TestContracts:
         with _public():
             client.refresh_from_db()
         assert client.status == 'active'
+
+
+# ── School overview (Phase 7.3) ───────────────────────────────────────────────
+
+from apps.tenants.views import SchoolViewSet   # noqa: E402
+
+
+class TestSchoolOverview:
+    def test_overview_aggregates_related_records(self):
+        op = platform_admin()
+        with _public():
+            client = Client(name='Ov', schema_name='ovfake')
+            client.auto_create_schema = False
+            client.save()
+            Contract.objects.create(client=client, title='C',
+                                    start_date=timezone.localdate(),
+                                    end_date=timezone.localdate() + timedelta(days=30))
+            Payment.objects.create(client=client, school_name='Ov', amount='10', status='succeeded')
+            SupportTicket.objects.create(schema_name='ovfake', subject='S', body='B')
+        view = SchoolViewSet.as_view({'get': 'overview'})
+        with _public():
+            resp = view(_authed('get', op), pk=str(client.id))
+        assert resp.status_code == 200
+        assert resp.data['school']['name'] == 'Ov'
+        assert len(resp.data['contracts']) == 1
+        assert len(resp.data['payments']) == 1
+        assert len(resp.data['tickets']) == 1
+
+
+# ── Platform health (Phase 7.4) ───────────────────────────────────────────────
+
+class TestHealth:
+    def test_health_reports_components_and_counts(self):
+        op = platform_admin()
+        with _public():
+            resp = platform_ops.PlatformHealthView.as_view()(_authed('get', op))
+        assert resp.status_code == 200
+        names = [c['name'] for c in resp.data['components']]
+        assert 'Database' in names and 'Cache / Redis' in names
+        assert set(resp.data.keys()) >= {'components', 'schools', 'provisioning', 'attention'}
+        assert 'applications_pending' in resp.data['attention']
