@@ -6,6 +6,7 @@ import { AnnouncementsProvider } from './context/AnnouncementsContext'
 import { initSentry, Sentry } from './utils/sentry'
 import { ErrorFallback } from './components/ErrorFallback'
 import './index.css'
+import './styles/utilities.css'
 import App from './App.jsx'
 
 // No-op unless VITE_SENTRY_DSN is set (dev/tests send nothing).

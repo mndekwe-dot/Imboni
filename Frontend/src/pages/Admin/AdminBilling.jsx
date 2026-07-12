@@ -10,79 +10,48 @@ import '../../styles/components.css'
 import '../../styles/admin.css'
 
 // ── Status banners ────────────────────────────────────────────────────────────
-// past_due / suspended / trial each get their own note. Colours come from inline
-// styles so we don't depend on a bespoke stylesheet class for the amber/red look.
+// past_due / suspended / trial each get a coloured banner via the shared
+// .u-banner utility (accent set by the modifier class).
 
-function StatusBanner({ status, onTrial }) {
-    if (status === 'past_due') {
-        return (
-            <div className="card mb-1-5" style={{ borderLeft: '4px solid #d97706', padding: '1rem 1.25rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span className="material-symbols-rounded" style={{ color: '#d97706', fontSize: '1.5rem' }}>warning</span>
-                    <div>
-                        <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Payment overdue</p>
-                        <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-                            We couldn&apos;t process your latest payment. Update your subscription to avoid losing access.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-    if (status === 'suspended') {
-        return (
-            <div className="card mb-1-5" style={{ borderLeft: '4px solid var(--danger, #dc2626)', padding: '1rem 1.25rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span className="material-symbols-rounded" style={{ color: 'var(--danger, #dc2626)', fontSize: '1.5rem' }}>block</span>
-                    <div>
-                        <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Account suspended</p>
-                        <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-                            Subscribe to restore access for your school.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-    if (onTrial) {
-        return (
-            <div className="card mb-1-5" style={{ borderLeft: '4px solid var(--primary)', padding: '1rem 1.25rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '1.5rem' }}>schedule</span>
-                    <div>
-                        <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>You&apos;re on a free trial</p>
-                        <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-                            Subscribe to a plan to keep access once your trial ends.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-    return null
+const BANNERS = {
+    past_due:  { mod: 'warn',    icon: 'warning',  title: 'Payment overdue',
+                 body: 'We couldn’t process your latest payment. Update your subscription to avoid losing access.' },
+    suspended: { mod: 'danger',  icon: 'block',    title: 'Account suspended',
+                 body: 'Subscribe to restore access for your school.' },
+    trial:     { mod: 'primary', icon: 'schedule', title: 'You’re on a free trial',
+                 body: 'Subscribe to a plan to keep access once your trial ends.' },
 }
 
+function StatusBanner({ status, onTrial }) {
+    const key = status === 'past_due' || status === 'suspended' ? status : (onTrial ? 'trial' : null)
+    const b = key && BANNERS[key]
+    if (!b) return null
+    return (
+        <div className={`card u-banner u-banner--${b.mod} u-mb`}>
+            <div className="u-row">
+                <span className="material-symbols-rounded u-banner-icon">{b.icon}</span>
+                <div>
+                    <p className="u-strong u-mb-xs">{b.title}</p>
+                    <p className="u-muted u-sm">{b.body}</p>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// trial/active/past_due/suspended -> a chip tone
 const STATUS_CHIP = {
-    trial:    { label: 'Trial',    bg: 'rgba(79,70,229,0.12)',  fg: 'var(--primary)' },
-    active:   { label: 'Active',   bg: 'rgba(22,163,74,0.12)',  fg: 'var(--success, #16a34a)' },
-    past_due: { label: 'Past due', bg: 'rgba(217,119,6,0.14)',  fg: '#d97706' },
-    suspended:{ label: 'Suspended',bg: 'rgba(220,38,38,0.12)',  fg: 'var(--danger, #dc2626)' },
+    trial:     { label: 'Trial',     tone: 'primary' },
+    active:    { label: 'Active',    tone: 'success' },
+    past_due:  { label: 'Past due',  tone: 'warn' },
+    suspended: { label: 'Suspended', tone: 'danger' },
 }
 
 // ── Usage meters ──────────────────────────────────────────────────────────────
-// Draws a "used / limit" bar per metered resource (students, staff). The bar goes
-// amber past 80% and red once full, nudging the school to upgrade before they're
-// blocked. `unlimited` plans show a full-width neutral bar with an ∞ label.
 
 const USAGE_LABELS = {
     students: { name: 'Students', icon: 'school' },
     staff:    { name: 'Staff',    icon: 'badge' },
-}
-
-function meterColor(pct, full) {
-    if (full) return 'var(--danger, #dc2626)'
-    if (pct >= 80) return '#d97706'
-    return 'var(--primary)'
 }
 
 function UsageMeter({ resourceKey, data }) {
@@ -90,27 +59,22 @@ function UsageMeter({ resourceKey, data }) {
     const { used, limit, remaining, unlimited } = data
     const pct  = unlimited || !limit ? 0 : Math.min(100, Math.round((used / limit) * 100))
     const full = !unlimited && remaining === 0
-    const color = meterColor(pct, full)
+    const fillMod = unlimited ? 'unlimited' : full ? 'full' : pct >= 80 ? 'warn' : ''
 
     return (
-        <div style={{ marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '1.15rem', color: 'var(--muted-foreground)' }}>{meta.icon}</span>
-                <span style={{ fontWeight: 600 }}>{meta.name}</span>
-                <span style={{ marginLeft: 'auto', fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>
+        <div className="u-mb">
+            <div className="u-row-sm u-mb-xs">
+                <span className="material-symbols-rounded u-icon-sm u-muted">{meta.icon}</span>
+                <span className="u-strong">{meta.name}</span>
+                <span className="u-ml-auto u-sm u-muted">
                     {unlimited ? `${used} · Unlimited` : `${used} / ${limit}`}
                 </span>
             </div>
-            <div style={{ height: '8px', borderRadius: '999px', background: 'var(--muted, rgba(0,0,0,0.08))', overflow: 'hidden' }}>
-                <div style={{
-                    height: '100%', borderRadius: '999px',
-                    width: unlimited ? '100%' : `${pct}%`,
-                    background: unlimited ? 'rgba(79,70,229,0.25)' : color,
-                    transition: 'width 0.3s ease',
-                }} />
+            <div className="u-meter">
+                <div className={`u-meter-fill ${fillMod}`} style={{ width: unlimited ? '100%' : `${pct}%` }} />
             </div>
             {!unlimited && (
-                <p style={{ fontSize: '0.78rem', color: full ? 'var(--danger, #dc2626)' : 'var(--muted-foreground)', marginTop: '0.3rem' }}>
+                <p className={`u-xs u-mt-xs ${full ? 'u-danger' : 'u-muted'}`}>
                     {full
                         ? 'Limit reached — upgrade your plan to add more.'
                         : `${remaining} seat${remaining === 1 ? '' : 's'} remaining`}
@@ -125,11 +89,9 @@ function UsageCard({ usage }) {
     const keys = Object.keys(resources)
     if (keys.length === 0) return null
     return (
-        <div className="card" style={{ marginBottom: '1.25rem' }}>
+        <div className="card u-mb-lg">
             <div className="card-content">
-                <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.85rem' }}>
-                    Usage this plan
-                </p>
+                <p className="u-label u-mb-sm">Usage this plan</p>
                 {keys.map(k => <UsageMeter key={k} resourceKey={k} data={resources[k]} />)}
             </div>
         </div>
@@ -145,7 +107,6 @@ export function AdminBilling() {
     const [loading, setLoading] = useState(true)
     const [error,   setError]   = useState('')
 
-    // Which plan's checkout is currently being started (null = none in flight).
     const [checkingOut, setCheckingOut] = useState(null)
     const [actionError, setActionError] = useState('')
 
@@ -165,7 +126,7 @@ export function AdminBilling() {
             const { checkout_url } = await startCheckout(planKey)
             if (checkout_url) {
                 window.location.assign(checkout_url)
-                return   // keep the "redirecting" state while the browser navigates
+                return
             }
             setActionError('No checkout URL was returned.')
             setCheckingOut(null)
@@ -196,13 +157,11 @@ export function AdminBilling() {
                         onNotificationRead={markRead}
                     />
                     <DashboardContent>
-                        {loading && (
-                            <p style={{ color: 'var(--muted-foreground)' }}>Loading billing…</p>
-                        )}
+                        {loading && <p className="u-muted">Loading billing…</p>}
 
                         {!loading && error && (
-                            <div className="card" style={{ borderLeft: '4px solid var(--danger, #dc2626)', padding: '1rem 1.25rem' }}>
-                                <p style={{ color: 'var(--danger, #dc2626)', fontWeight: 500 }}>{error}</p>
+                            <div className="card u-banner u-banner--danger">
+                                <p className="u-danger u-strong">{error}</p>
                             </div>
                         )}
 
@@ -211,38 +170,26 @@ export function AdminBilling() {
                                 <StatusBanner status={billing.status} onTrial={billing.on_trial} />
 
                                 {/* Current plan summary */}
-                                <div className="card" style={{ marginBottom: '1.25rem' }}>
-                                    <div className="card-content" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                                <div className="card u-mb-lg">
+                                    <div className="card-content u-row-between">
                                         <div>
-                                            <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Current plan</p>
-                                            <p style={{ fontSize: '1.35rem', fontWeight: 700, textTransform: 'capitalize' }}>{currentPlan || '—'}</p>
+                                            <p className="u-label">Current plan</p>
+                                            <p className="u-xl u-bold u-capitalize">{currentPlan || '—'}</p>
                                         </div>
-                                        {chip && (
-                                            <span style={{
-                                                marginLeft: 'auto', padding: '0.28rem 0.7rem', borderRadius: '999px',
-                                                fontSize: '0.78rem', fontWeight: 600,
-                                                background: chip.bg, color: chip.fg,
-                                            }}>
-                                                {chip.label}
-                                            </span>
-                                        )}
+                                        {chip && <span className={`u-chip u-chip--${chip.tone} u-ml-auto`}>{chip.label}</span>}
                                     </div>
                                 </div>
 
                                 {billing.usage && <UsageCard usage={billing.usage} />}
 
                                 {!stripeOn && (
-                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginBottom: '1rem' }}>
-                                        Online billing isn&apos;t set up on this server yet.
-                                    </p>
+                                    <p className="u-muted u-sm u-mb">Online billing isn&apos;t set up on this server yet.</p>
                                 )}
 
-                                {actionError && (
-                                    <p style={{ color: 'var(--danger, #dc2626)', fontSize: '0.875rem', marginBottom: '1rem' }}>{actionError}</p>
-                                )}
+                                {actionError && <p className="u-danger u-sm u-mb">{actionError}</p>}
 
                                 {/* Plan cards */}
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                                <div className="u-grid">
                                     {plans.map(plan => {
                                         const isCurrent = plan.key === currentPlan
                                         const isThisCheckingOut = checkingOut === plan.key
@@ -252,10 +199,9 @@ export function AdminBilling() {
                                         return (
                                             <div key={plan.key} className="card">
                                                 <div className="card-content">
-                                                    <p style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>{plan.name}</p>
+                                                    <p className="u-lg u-bold u-mb-sm">{plan.name}</p>
                                                     <button
-                                                        className={`btn ${isCurrent ? 'btn-outline' : 'btn-primary'}`}
-                                                        style={{ width: '100%' }}
+                                                        className={`btn ${isCurrent ? 'btn-outline' : 'btn-primary'} u-full`}
                                                         disabled={!stripeOn || isCurrent || redirecting}
                                                         onClick={() => handleSubscribe(plan.key)}
                                                     >
@@ -265,9 +211,7 @@ export function AdminBilling() {
                                             </div>
                                         )
                                     })}
-                                    {plans.length === 0 && (
-                                        <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No plans available.</p>
-                                    )}
+                                    {plans.length === 0 && <p className="u-muted u-sm">No plans available.</p>}
                                 </div>
                             </>
                         )}

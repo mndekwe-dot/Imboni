@@ -1,0 +1,69 @@
+/*
+  App-wide utilities & small components (imported globally in main.jsx).
+
+  Purpose: give every page a shared vocabulary so new work — and incremental
+  cleanup of the older inline-styled pages — uses classes instead of raw
+  `style={{…}}`. Prefix `u-` = utility. Built on the theme tokens in index.css.
+*/
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+.u-flex         { display: flex; }
+.u-col          { flex-direction: column; }
+.u-items-center { align-items: center; }
+.u-items-start  { align-items: flex-start; }
+.u-wrap         { flex-wrap: wrap; }
+.u-row          { display: flex; align-items: center; gap: 0.75rem; }
+.u-row-sm       { display: flex; align-items: center; gap: 0.5rem; }
+.u-row-between  { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+.u-stack        { display: flex; flex-direction: column; gap: 0.85rem; }
+.u-grid         { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.u-grid-sm      { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.85rem; }
+.u-ml-auto      { margin-left: auto; }
+.u-full         { width: 100%; }
+
+/* ── Spacing ────────────────────────────────────────────────────────────────── */
+.u-mt      { margin-top: 1rem; }
+.u-mt-xs   { margin-top: 0.3rem; }
+.u-mt-sm   { margin-top: 0.5rem; }
+.u-mb      { margin-bottom: 1rem; }
+.u-mb-0    { margin-bottom: 0; }
+.u-mb-xs   { margin-bottom: 0.4rem; }
+.u-mb-sm   { margin-bottom: 0.75rem; }
+.u-mb-lg   { margin-bottom: 1.25rem; }
+
+/* ── Text ───────────────────────────────────────────────────────────────────── */
+.u-muted       { color: var(--muted-foreground); }
+.u-strong      { font-weight: 600; }
+.u-bold        { font-weight: 700; }
+.u-sm          { font-size: 0.875rem; }
+.u-xs          { font-size: 0.78rem; }
+.u-lg          { font-size: 1.1rem; }
+.u-xl          { font-size: 1.35rem; }
+.u-danger      { color: var(--danger, #dc2626); }
+.u-center-text { text-align: center; }
+.u-capitalize  { text-transform: capitalize; }
+.u-label       { font-size: 0.78rem; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; }
+
+/* ── Chips (status pills) ───────────────────────────────────────────────────── */
+.u-chip           { display: inline-block; padding: 0.28rem 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+.u-chip--primary  { background: var(--primary-light); color: var(--primary); }
+.u-chip--success  { background: rgba(22, 163, 74, 0.12); color: var(--success, #16a34a); }
+.u-chip--warn     { background: rgba(217, 119, 6, 0.14); color: #d97706; }
+.u-chip--danger   { background: rgba(220, 38, 38, 0.12); color: var(--danger, #dc2626); }
+
+/* ── Banner (card with a coloured left rule) ────────────────────────────────── */
+.u-banner          { border-left: 4px solid var(--u-accent, var(--primary)); padding: 1rem 1.25rem; }
+.u-banner--warn    { --u-accent: #d97706; }
+.u-banner--danger  { --u-accent: var(--danger, #dc2626); }
+.u-banner--primary { --u-accent: var(--primary); }
+.u-banner-icon     { color: var(--u-accent); font-size: 1.5rem; }
+
+/* ── Meter / progress bar ───────────────────────────────────────────────────── */
+.u-meter        { height: 8px; border-radius: 999px; background: var(--muted, rgba(0, 0, 0, 0.08)); overflow: hidden; }
+.u-meter-fill   { height: 100%; border-radius: 999px; background: var(--primary); transition: width 0.3s ease; }
+.u-meter-fill.warn      { background: #d97706; }
+.u-meter-fill.full      { background: var(--danger, #dc2626); }
+.u-meter-fill.unlimited { background: var(--primary-light); }
+
+/* ── Misc ───────────────────────────────────────────────────────────────────── */
+.u-icon-sm { font-size: 1.15rem; }
