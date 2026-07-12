@@ -67,7 +67,7 @@ export function PlatformLogin() {
                     </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginTop: '0.5rem' }}>
+                <button type="submit" className="btn btn-primary pf-full pf-mt" disabled={loading}>
                     {loading ? 'Signing in…' : 'Sign in'}
                 </button>
 

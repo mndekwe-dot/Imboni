@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Modal } from '../../../components/ui/Modal'
 import {
     getApplications, approveApplication, rejectApplication, provisionApplication,
 } from '../../../api/platform'
@@ -8,6 +9,15 @@ import { errorMessage } from '../../../utils/errors'
 const STATUS_CLS = { pending: 'warn', approved: 'info', rejected: 'bad', provisioned: 'ok' }
 const FILTERS = [['', 'All'], ['pending', 'Pending'], ['approved', 'Approved'], ['provisioned', 'Provisioned'], ['rejected', 'Rejected']]
 const label = s => s.charAt(0).toUpperCase() + s.slice(1)
+
+function Field({ label, value }) {
+    return value ? (
+        <div className="pf-field">
+            <span className="pf-field-label">{label}</span>
+            <span className="pf-field-value">{value}</span>
+        </div>
+    ) : null
+}
 
 function ReviewModal({ app, onClose, onChanged }) {
     const toast = useToast()
@@ -27,71 +37,56 @@ function ReviewModal({ app, onClose, onChanged }) {
         finally { setBusy(false) }
     }
 
-    const row = (k, v) => v ? (
-        <div style={{ marginBottom: '0.5rem' }}>
-            <span className="platform-muted" style={{ fontSize: '0.75rem' }}>{k}</span>
-            <div className="platform-strong">{v}</div>
-        </div>
-    ) : null
+    let footer = null
+    if (!creds) {
+        if (app.status === 'pending') {
+            footer = (
+                <>
+                    <button className="btn btn-outline platform-danger" disabled={busy} onClick={() => run(() => rejectApplication(app.id, notes), 'Application rejected.')}>Reject</button>
+                    <button className="btn btn-primary" disabled={busy} onClick={() => run(() => approveApplication(app.id, notes), 'Application approved.')}>Approve</button>
+                </>
+            )
+        } else if (app.status === 'approved') {
+            footer = (
+                <button className="btn btn-primary" disabled={busy} onClick={() => run(() => provisionApplication(app.id), 'School provisioned.')}>
+                    {busy ? 'Provisioning…' : 'Provision school'}
+                </button>
+            )
+        }
+    }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
-                <div className="modal-header">
-                    <div className="modal-header-left">
-                        <span className="material-symbols-rounded">domain_add</span>
-                        <h2 className="modal-title">{app.school_name}</h2>
-                    </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
-                </div>
+        <Modal title={app.school_name} icon="domain_add" onClose={onClose} footer={footer}>
+            <span className={`platform-chip platform-chip-${STATUS_CLS[app.status]}`}>{label(app.status)}</span>
 
-                <div className="modal-body">
-                    <span className={`platform-chip platform-chip-${STATUS_CLS[app.status]}`}>{label(app.status)}</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 1rem', marginTop: '1rem' }}>
-                        {row('Desired address', `${app.desired_subdomain}`)}
-                        {row('Contact', app.contact_name)}
-                        {row('Email', app.contact_email)}
-                        {row('Phone', app.contact_phone)}
-                        {row('Location', [app.city, app.country].filter(Boolean).join(', '))}
-                        {row('Est. students', app.student_estimate)}
-                        {row('Plan interest', app.plan_interest && label(app.plan_interest))}
-                    </div>
-                    {app.message && <p style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap' }}>{app.message}</p>}
-
-                    {creds ? (
-                        <div className="platform-form" style={{ marginTop: '1rem' }}>
-                            <p className="platform-strong" style={{ marginBottom: '0.5rem' }}>School provisioned ✓ — share these credentials:</p>
-                            {row('Login URL', creds.login_url)}
-                            {row('Admin email', creds.admin_email)}
-                            {row('Temporary password', creds.temp_password)}
-                            <p className="platform-muted" style={{ fontSize: '0.75rem' }}>The school should change this password on first sign-in.</p>
-                        </div>
-                    ) : app.status !== 'provisioned' && app.status !== 'rejected' && (
-                        <label style={{ display: 'block', marginTop: '1rem', fontSize: '0.78rem', fontWeight: 600 }}>
-                            Review notes
-                            <textarea className="form-input" rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional notes…" />
-                        </label>
-                    )}
-                </div>
-
-                {!creds && (
-                    <div className="modal-footer" style={{ gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {app.status === 'pending' && (
-                            <>
-                                <button className="btn btn-outline platform-danger" disabled={busy} onClick={() => run(() => rejectApplication(app.id, notes), 'Application rejected.')}>Reject</button>
-                                <button className="btn btn-primary" disabled={busy} onClick={() => run(() => approveApplication(app.id, notes), 'Application approved.')}>Approve</button>
-                            </>
-                        )}
-                        {app.status === 'approved' && (
-                            <button className="btn btn-primary" disabled={busy} onClick={() => run(() => provisionApplication(app.id), 'School provisioned.')}>
-                                {busy ? 'Provisioning…' : 'Provision school'}
-                            </button>
-                        )}
-                        {app.status === 'rejected' && <p className="platform-muted">This application was rejected.</p>}
-                    </div>
-                )}
+            <div className="pf-grid pf-mt pf-mb">
+                <Field label="Desired address" value={app.desired_subdomain} />
+                <Field label="Contact" value={app.contact_name} />
+                <Field label="Email" value={app.contact_email} />
+                <Field label="Phone" value={app.contact_phone} />
+                <Field label="Location" value={[app.city, app.country].filter(Boolean).join(', ')} />
+                <Field label="Est. students" value={app.student_estimate} />
+                <Field label="Plan interest" value={app.plan_interest && label(app.plan_interest)} />
             </div>
-        </div>
+            {app.message && <p className="pf-pre">{app.message}</p>}
+
+            {creds ? (
+                <div className="pf-callout pf-mt">
+                    <p className="pf-field-value pf-mb">School provisioned ✓ — share these credentials:</p>
+                    <Field label="Login URL" value={creds.login_url} />
+                    <Field label="Admin email" value={creds.admin_email} />
+                    <Field label="Temporary password" value={creds.temp_password} />
+                    <p className="pf-hint">The school should change this password on first sign-in.</p>
+                </div>
+            ) : app.status === 'pending' || app.status === 'approved' ? (
+                <label className="pf-field pf-mt">
+                    <span className="pf-field-label">Review notes</span>
+                    <textarea className="form-input" rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional notes…" />
+                </label>
+            ) : app.status === 'rejected' ? (
+                <p className="platform-muted pf-mt">This application was rejected.</p>
+            ) : null}
+        </Modal>
     )
 }
 
@@ -140,7 +135,7 @@ export function ApplicationsSection() {
                                     <tr key={a.id}>
                                         <td className="platform-strong">{a.school_name}</td>
                                         <td className="platform-muted">{a.desired_subdomain}</td>
-                                        <td>{a.contact_name}<div className="platform-muted" style={{ fontSize: '0.78rem' }}>{a.contact_email}</div></td>
+                                        <td>{a.contact_name}<div className="platform-muted pf-subtle">{a.contact_email}</div></td>
                                         <td className="platform-muted">{new Date(a.created_at).toLocaleDateString()}</td>
                                         <td><span className={`platform-chip platform-chip-${STATUS_CLS[a.status]}`}>{label(a.status)}</span></td>
                                         <td className="platform-col-action">

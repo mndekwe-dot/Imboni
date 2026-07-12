@@ -5,16 +5,16 @@ import { errorMessage } from '../../../utils/errors'
 
 function Component({ c }) {
     return (
-        <div className="card">
-            <div className="card-content" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '1.75rem', color: c.ok ? 'var(--success)' : 'var(--destructive, #dc2626)' }}>
+        <div className="card pf-health-comp">
+            <div className="card-content">
+                <span className={`material-symbols-rounded pf-health-icon ${c.ok ? 'ok' : 'bad'}`}>
                     {c.ok ? 'check_circle' : 'error'}
                 </span>
                 <div>
                     <div className="platform-strong">{c.name}</div>
-                    <div className="platform-muted" style={{ fontSize: '0.8rem' }}>{c.detail}</div>
+                    <div className="platform-muted pf-subtle">{c.detail}</div>
                 </div>
-                <span className={`platform-chip platform-chip-${c.ok ? 'ok' : 'bad'}`} style={{ marginLeft: 'auto' }}>
+                <span className={`platform-chip platform-chip-${c.ok ? 'ok' : 'bad'} pf-right`}>
                     {c.ok ? 'Operational' : 'Down'}
                 </span>
             </div>
@@ -23,12 +23,11 @@ function Component({ c }) {
 }
 
 function Metric({ label, value, tone }) {
-    const color = tone === 'bad' ? 'var(--destructive, #dc2626)' : tone === 'warn' ? '#b45309' : 'var(--foreground)'
     return (
         <div className="card">
             <div className="card-content">
-                <div style={{ fontSize: '1.6rem', fontWeight: 700, color }}>{value}</div>
-                <div className="platform-muted" style={{ fontSize: '0.85rem' }}>{label}</div>
+                <div className={`pf-metric-value${tone ? ' ' + tone : ''}`}>{value}</div>
+                <div className="pf-metric-label">{label}</div>
             </div>
         </div>
     )
@@ -55,7 +54,7 @@ export function HealthSection() {
     return (
         <>
             <div className="platform-panel-head">
-                <p className="platform-section-title" style={{ margin: 0 }}>Infrastructure</p>
+                <p className="platform-section-title">Infrastructure</p>
                 <button className="btn btn-outline btn-sm" onClick={load}>Refresh</button>
             </div>
             <div className="platform-cards">

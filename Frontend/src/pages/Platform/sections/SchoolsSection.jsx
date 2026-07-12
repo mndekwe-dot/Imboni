@@ -79,17 +79,17 @@ export function SchoolsSection() {
                                                 <button className="platform-linkish" onClick={() => setOpenId(s.id)}>{s.name}</button>
                                             </td>
                                             <td className="platform-muted">{s.primary_domain || s.schema_name}</td>
-                                            <td style={{ textTransform: 'capitalize' }}>{s.plan}</td>
+                                            <td className="pf-capitalize">{s.plan}</td>
                                             <td><StatusChip status={s.status} /></td>
                                             <td>{num(s.usage?.students)}</td>
                                             <td>{num(s.usage?.staff)}</td>
-                                            <td className="platform-col-action" style={{ whiteSpace: 'nowrap' }}>
+                                            <td className="platform-col-action pf-nowrap">
                                                 <button className="btn btn-outline btn-sm" onClick={() => setOpenId(s.id)}>View</button>
                                                 <button
                                                     className={`btn btn-sm ${suspended ? 'btn-primary' : 'btn-outline platform-danger'}`}
                                                     disabled={busy}
                                                     onClick={() => act(s, suspended ? 'reactivate' : 'suspend')}
-                                                    style={{ marginLeft: '0.4rem' }}
+                                                   
                                                 >
                                                     {busy ? '…' : suspended ? 'Reactivate' : 'Suspend'}
                                                 </button>

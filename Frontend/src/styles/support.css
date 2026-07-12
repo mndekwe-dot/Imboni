@@ -1,0 +1,33 @@
+/* School-side Support page (Admin > Support) — ticket list + thread modal. */
+
+.support-stack { display: flex; flex-direction: column; gap: 0.85rem; }
+.support-row   { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.support-right { margin-left: auto; }
+.support-muted { color: var(--muted-foreground); }
+.support-h3    { font-weight: 700; margin-bottom: 0.75rem; }
+
+.support-form-row { display: flex; gap: 0.85rem; flex-wrap: wrap; }
+.support-field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; }
+.support-field-subject { flex: 2 1 260px; }
+.support-field-priority { flex: 1 1 140px; }
+
+.support-ticket { cursor: pointer; }
+.support-ticket .card-content { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.support-ticket-meta { font-size: 0.8rem; color: var(--muted-foreground); text-transform: capitalize; }
+
+.support-status { font-size: 0.75rem; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+.support-status-open        { color: #d97706; }
+.support-status-in_progress { color: var(--primary); }
+.support-status-resolved    { color: var(--success, #16a34a); }
+.support-status-closed      { color: var(--muted-foreground); }
+
+/* Thread inside the modal */
+.support-thread { display: flex; flex-direction: column; gap: 0.6rem; }
+.support-msg { border-radius: 10px; padding: 0.65rem 0.85rem; max-width: 90%; }
+.support-msg-you { background: var(--muted, #f3f4f6); align-self: flex-start; }
+.support-msg-operator { background: var(--primary-light); align-self: flex-end; }
+.support-msg-who { font-size: 0.72rem; color: var(--muted-foreground); font-weight: 600; margin-bottom: 0.2rem; }
+.support-msg-body { white-space: pre-wrap; font-size: 0.9rem; }
+.support-reply { margin-top: 0.85rem; }
+
+.support-ticket-title { font-weight: 600; }

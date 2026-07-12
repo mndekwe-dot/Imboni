@@ -16,7 +16,7 @@ function ContractChip({ c }) {
     if (c.status === 'active' && c.is_expired) return <span className="platform-chip platform-chip-bad">Expired (grace)</span>
     if (c.status === 'active' && c.is_expiring_soon) return <span className="platform-chip platform-chip-warn">Expiring soon</span>
     const map = { draft: 'info', active: 'ok', expired: 'bad', terminated: 'info' }
-    return <span className={`platform-chip platform-chip-${map[c.status] || 'info'}`} style={{ textTransform: 'capitalize' }}>{c.status}</span>
+    return <span className={`platform-chip platform-chip-${map[c.status] || 'info'}`}>{c.status}</span>
 }
 
 function remainingLabel(c) {
@@ -113,7 +113,7 @@ export function ContractsSection() {
                             <label>End<input className="form-input" type="date" required value={form.end_date} onChange={e => set('end_date', e.target.value)} /></label>
                             <label>Grace (days)<input className="form-input" type="number" min="0" value={form.grace_days} onChange={e => set('grace_days', e.target.value)} /></label>
                         </div>
-                        <button className="btn btn-primary btn-sm" disabled={saving} style={{ marginTop: '0.85rem' }}>{saving ? 'Saving…' : 'Create contract'}</button>
+                        <button className="btn btn-primary btn-sm" disabled={saving}>{saving ? 'Saving…' : 'Create contract'}</button>
                     </form>
                 )}
 
@@ -131,16 +131,16 @@ export function ContractsSection() {
                                 {items.map(c => (
                                     <tr key={c.id}>
                                         <td className="platform-strong">{c.school_name}</td>
-                                        <td>{c.title}<div className="platform-muted" style={{ fontSize: '0.78rem', textTransform: 'capitalize' }}>{c.plan} · {c.billing_interval.replace('_', ' ')}</div></td>
+                                        <td>{c.title}<div className="platform-muted pf-subtle pf-capitalize">{c.plan} · {c.billing_interval.replace('_', ' ')}</div></td>
                                         <td>{money(c.amount, c.currency)}</td>
                                         <td className="platform-muted">{c.start_date} → {c.end_date}</td>
                                         <td>{remainingLabel(c)}</td>
                                         <td><ContractChip c={c} /></td>
-                                        <td className="platform-col-action" style={{ whiteSpace: 'nowrap' }}>
+                                        <td className="platform-col-action pf-nowrap">
                                             {c.status === 'draft' && <button className="btn btn-primary btn-sm" disabled={busyId === c.id} onClick={() => run(c.id, () => signContract(c.id), 'Contract signed & active.')}>Sign</button>}
                                             {c.status === 'active' && <button className="btn btn-outline btn-sm" disabled={busyId === c.id} onClick={() => run(c.id, () => renewContract(c.id), 'Contract renewed.', { isNew: true })}>Renew</button>}
-                                            {c.status === 'active' && <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === c.id} onClick={() => run(c.id, () => terminateContract(c.id), 'Contract terminated.')} style={{ marginLeft: '0.4rem' }}>Terminate</button>}
-                                            {(c.status === 'draft' || c.status === 'terminated' || c.status === 'expired') && <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === c.id} onClick={() => remove(c)} style={{ marginLeft: '0.4rem' }}>Delete</button>}
+                                            {c.status === 'active' && <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === c.id} onClick={() => run(c.id, () => terminateContract(c.id), 'Contract terminated.')}>Terminate</button>}
+                                            {(c.status === 'draft' || c.status === 'terminated' || c.status === 'expired') && <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === c.id} onClick={() => remove(c)}>Delete</button>}
                                         </td>
                                     </tr>
                                 ))}

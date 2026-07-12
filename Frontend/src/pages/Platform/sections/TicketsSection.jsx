@@ -76,7 +76,7 @@ export function TicketsSection() {
                                 <span className={`platform-chip platform-chip-${STATUS_CLS[t.status]}`}>{label(t.status)}</span>
                             </div>
                             <div className="platform-ticket-row-sub">
-                                <span className={`platform-chip platform-chip-${PRIORITY_CLS[t.priority]}`} style={{ textTransform: 'capitalize' }}>{t.priority}</span>
+                                <span className={`platform-chip platform-chip-${PRIORITY_CLS[t.priority]}`}>{t.priority}</span>
                                 <span className="platform-muted">{t.school_name} · {t.reply_count} repl{t.reply_count === 1 ? 'y' : 'ies'}</span>
                             </div>
                         </button>
@@ -95,7 +95,7 @@ export function TicketsSection() {
                                 <h2>{selected.subject}</h2>
                                 <span className={`platform-chip platform-chip-${STATUS_CLS[selected.status]}`}>{label(selected.status)}</span>
                             </div>
-                            <p className="platform-muted" style={{ marginTop: '-0.5rem' }}>
+                            <p className="platform-muted pf-tight">
                                 {selected.school_name} · {selected.raised_by_name || selected.raised_by_email}
                                 {selected.raised_by_role ? ` (${selected.raised_by_role})` : ''}
                             </p>

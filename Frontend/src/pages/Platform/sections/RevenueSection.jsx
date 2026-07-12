@@ -64,7 +64,7 @@ export function RevenueSection() {
 
     return (
         <>
-            <div className="platform-cards" style={{ marginBottom: '1.25rem' }}>
+            <div className="platform-cards pf-mb">
                 <StatCard icon="account_balance" value={usd(total)} label="Total received" colorClass="success" />
                 <StatCard icon="trending_up" value={usd(monthTotal)} label="This month" colorClass="success" />
             </div>
@@ -101,7 +101,7 @@ export function RevenueSection() {
                                 </label>
                                 <label>Date<input className="form-input" type="date" value={form.received_at} onChange={e => set('received_at', e.target.value)} /></label>
                             </div>
-                            <button className="btn btn-primary btn-sm" disabled={saving} style={{ marginTop: '0.85rem' }}>
+                            <button className="btn btn-primary btn-sm" disabled={saving}>
                                 {saving ? 'Saving…' : 'Record payment'}
                             </button>
                         </form>
@@ -122,9 +122,9 @@ export function RevenueSection() {
                                         <tr key={p.id}>
                                             <td>{(p.received_at || '').slice(0, 10)}</td>
                                             <td className="platform-strong">{p.school_name || '—'}</td>
-                                            <td style={{ textTransform: 'capitalize' }}>{p.plan || '—'}</td>
+                                            <td className="pf-capitalize">{p.plan || '—'}</td>
                                             <td>{money(p.amount, p.currency)}</td>
-                                            <td><span className={`platform-chip platform-chip-${STATUS_CLS[p.status] || 'info'}`} style={{ textTransform: 'capitalize' }}>{p.status}</span></td>
+                                            <td><span className={`platform-chip platform-chip-${STATUS_CLS[p.status] || 'info'}`}>{p.status}</span></td>
                                             <td className="platform-col-action">
                                                 <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === p.id} onClick={() => remove(p)}>Delete</button>
                                             </td>

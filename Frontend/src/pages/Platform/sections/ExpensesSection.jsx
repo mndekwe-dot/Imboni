@@ -99,7 +99,7 @@ export function ExpensesSection() {
                             </label>
                             <label>Due date<input className="form-input" type="date" required value={form.due_date} onChange={e => set('due_date', e.target.value)} /></label>
                         </div>
-                        <button className="btn btn-primary btn-sm" disabled={saving} style={{ marginTop: '0.85rem' }}>
+                        <button className="btn btn-primary btn-sm" disabled={saving}>
                             {saving ? 'Saving…' : 'Save bill'}
                         </button>
                     </form>
@@ -121,14 +121,14 @@ export function ExpensesSection() {
                                         <td className="platform-strong">{e.name}</td>
                                         <td className="platform-muted">{e.vendor || '—'}</td>
                                         <td>{money(e.amount, e.currency)}</td>
-                                        <td className="platform-muted" style={{ textTransform: 'capitalize' }}>{e.recurrence.replace('_', ' ')}</td>
+                                        <td className="platform-muted pf-capitalize">{e.recurrence.replace('_', ' ')}</td>
                                         <td>{e.due_date}</td>
                                         <td><ExpenseChip e={e} /></td>
                                         <td className="platform-col-action">
                                             {e.status !== 'paid' && (
                                                 <button className="btn btn-outline btn-sm" disabled={busyId === e.id} onClick={() => markPaid(e)}>Mark paid</button>
                                             )}
-                                            <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === e.id} onClick={() => remove(e)} style={{ marginLeft: '0.4rem' }}>Delete</button>
+                                            <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === e.id} onClick={() => remove(e)}>Delete</button>
                                         </td>
                                     </tr>
                                 ))}

@@ -33,8 +33,8 @@ export function Apply() {
     }
 
     return (
-        <div className="platform-login" style={{ alignItems: 'flex-start', padding: '2.5rem 1.5rem' }}>
-            <div className="platform-login-card" style={{ maxWidth: 560 }}>
+        <div className="platform-login is-top">
+            <div className="platform-login-card is-wide">
                 <div className="platform-login-brand">
                     <img src={logo} alt="Imboni" />
                     <div>
@@ -45,11 +45,11 @@ export function Apply() {
 
                 {done ? (
                     <div>
-                        <div className="platform-login-error" style={{ background: 'var(--success-light)', borderColor: 'rgba(16,185,129,.3)', color: 'var(--success)' }}>
+                        <div className="pf-callout pf-row">
                             <span className="material-symbols-rounded">check_circle</span>
                             Application received — our team will review it and get back to you.
                         </div>
-                        <Link to="/" className="btn btn-outline" style={{ marginTop: '1rem' }}>Back to home</Link>
+                        <Link to="/" className="btn btn-outline pf-mt">Back to home</Link>
                     </div>
                 ) : (
                     <form onSubmit={submit}>
@@ -77,11 +77,11 @@ export function Apply() {
                                 </select>
                             </label>
                         </div>
-                        <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginTop: '0.85rem' }}>
-                            Anything else?
+                        <label className="pf-field pf-mt">
+                            <span className="pf-field-label">Anything else?</span>
                             <textarea className="form-input" rows={3} value={form.message} onChange={e => set('message', e.target.value)} placeholder="Tell us about your school…" />
                         </label>
-                        <button className="btn btn-primary" disabled={saving} style={{ width: '100%', marginTop: '1rem' }}>
+                        <button className="btn btn-primary pf-full pf-mt" disabled={saving}>
                             {saving ? 'Submitting…' : 'Submit application'}
                         </button>
                         <p className="platform-login-note">

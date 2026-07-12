@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Modal } from '../../../components/ui/Modal'
 import { getSchoolOverview, suspendSchool, reactivateSchool } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
@@ -7,11 +8,11 @@ import { StatusChip } from './SchoolsSection'
 const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
 const num = v => (v === null || v === undefined ? '—' : v)
 
-function Field({ label, value }) {
+function Field({ label, value, capitalize }) {
     return (
-        <div>
-            <div className="platform-muted" style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.03em' }}>{label}</div>
-            <div className="platform-strong" style={{ textTransform: label === 'Plan' ? 'capitalize' : 'none' }}>{value}</div>
+        <div className="pf-field">
+            <span className="pf-field-label">{label}</span>
+            <span className={`pf-field-value${capitalize ? ' pf-capitalize' : ''}`}>{value}</span>
         </div>
     )
 }
@@ -47,63 +48,54 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
     const s = data?.school
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: 640, maxHeight: '88vh', overflowY: 'auto' }}>
-                <div className="modal-header">
-                    <div className="modal-header-left">
-                        <span className="material-symbols-rounded">apartment</span>
-                        <h2 className="modal-title">{s?.name || 'School'}</h2>
+        <Modal title={s?.name || 'School'} icon="apartment" onClose={onClose} size="lg">
+            {loading || !s ? (
+                <p className="platform-muted">Loading…</p>
+            ) : (
+                <>
+                    <div className="pf-row pf-mb">
+                        <StatusChip status={s.status} />
+                        <button
+                            className={`btn btn-sm pf-right ${s.status === 'suspended' ? 'btn-primary' : 'btn-outline platform-danger'}`}
+                            disabled={busy} onClick={toggleStatus}
+                        >
+                            {busy ? '…' : s.status === 'suspended' ? 'Reactivate' : 'Suspend'}
+                        </button>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
-                </div>
 
-                <div className="modal-body">
-                    {loading || !s ? (
-                        <p className="platform-muted">Loading…</p>
-                    ) : (
-                        <>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                                <StatusChip status={s.status} />
-                                <button className={`btn btn-sm ${s.status === 'suspended' ? 'btn-primary' : 'btn-outline platform-danger'}`} disabled={busy} onClick={toggleStatus} style={{ marginLeft: 'auto' }}>
-                                    {busy ? '…' : s.status === 'suspended' ? 'Reactivate' : 'Suspend'}
-                                </button>
-                            </div>
+                    <div className="pf-grid pf-mb">
+                        <Field label="Domain" value={s.primary_domain || s.schema_name} />
+                        <Field label="Plan" value={s.plan} capitalize />
+                        <Field label="Created" value={s.created_on} />
+                        <Field label="Students" value={num(s.usage?.students)} />
+                        <Field label="Staff" value={num(s.usage?.staff)} />
+                    </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.85rem', marginBottom: '1.25rem' }}>
-                                <Field label="Domain" value={s.primary_domain || s.schema_name} />
-                                <Field label="Plan" value={s.plan} />
-                                <Field label="Created" value={s.created_on} />
-                                <Field label="Students" value={num(s.usage?.students)} />
-                                <Field label="Staff" value={num(s.usage?.staff)} />
-                            </div>
+                    <p className="platform-section-title">Contracts</p>
+                    {data.contracts.length === 0 ? <p className="platform-muted">No contracts.</p> : data.contracts.map(c => (
+                        <div key={c.id} className="pf-list-row">
+                            <span>{c.title} <span className="platform-muted">({c.start_date} → {c.end_date})</span></span>
+                            <span className="platform-chip platform-chip-info pf-capitalize">{c.status}</span>
+                        </div>
+                    ))}
 
-                            <p className="platform-section-title">Contracts</p>
-                            {data.contracts.length === 0 ? <p className="platform-muted">No contracts.</p> : data.contracts.map(c => (
-                                <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', padding: '0.4rem 0', borderBottom: '1px solid var(--border)' }}>
-                                    <span>{c.title} <span className="platform-muted">({c.start_date} → {c.end_date})</span></span>
-                                    <span className="platform-chip platform-chip-info" style={{ textTransform: 'capitalize' }}>{c.status}</span>
-                                </div>
-                            ))}
+                    <p className="platform-section-title">Recent payments</p>
+                    {data.payments.length === 0 ? <p className="platform-muted">No payments.</p> : data.payments.map(p => (
+                        <div key={p.id} className="pf-list-row">
+                            <span className="platform-muted">{(p.received_at || '').slice(0, 10)}</span>
+                            <span>{money(p.amount, p.currency)} <span className="platform-muted pf-capitalize">· {p.status}</span></span>
+                        </div>
+                    ))}
 
-                            <p className="platform-section-title">Recent payments</p>
-                            {data.payments.length === 0 ? <p className="platform-muted">No payments.</p> : data.payments.map(p => (
-                                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.35rem 0', borderBottom: '1px solid var(--border)' }}>
-                                    <span className="platform-muted">{(p.received_at || '').slice(0, 10)}</span>
-                                    <span>{money(p.amount, p.currency)} <span className="platform-muted" style={{ textTransform: 'capitalize' }}>· {p.status}</span></span>
-                                </div>
-                            ))}
-
-                            <p className="platform-section-title">Tickets</p>
-                            {data.tickets.length === 0 ? <p className="platform-muted">No tickets.</p> : data.tickets.map(t => (
-                                <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', padding: '0.35rem 0', borderBottom: '1px solid var(--border)' }}>
-                                    <span>{t.subject}</span>
-                                    <span className="platform-muted" style={{ textTransform: 'capitalize' }}>{t.status.replace('_', ' ')}</span>
-                                </div>
-                            ))}
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
+                    <p className="platform-section-title">Tickets</p>
+                    {data.tickets.length === 0 ? <p className="platform-muted">No tickets.</p> : data.tickets.map(t => (
+                        <div key={t.id} className="pf-list-row">
+                            <span>{t.subject}</span>
+                            <span className="platform-muted pf-capitalize">{t.status.replace('_', ' ')}</span>
+                        </div>
+                    ))}
+                </>
+            )}
+        </Modal>
     )
 }

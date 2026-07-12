@@ -10,11 +10,13 @@
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
     background: var(--background); padding: 1.5rem;
 }
+.platform-login.is-top { align-items: flex-start; padding: 2.5rem 1.5rem; }
 .platform-login-card {
     width: 100%; max-width: 400px; background: var(--card);
     border: 1px solid var(--border); border-radius: var(--radius-lg);
     padding: 2rem; box-shadow: var(--card-shadow);
 }
+.platform-login-card.is-wide { max-width: 560px; }
 .platform-login-brand { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem; }
 .platform-login-brand img { width: 46px; height: 46px; border-radius: 12px; object-fit: contain; }
 .platform-login-brand h1 { font-size: 1.15rem; font-weight: 700; color: var(--foreground); }
@@ -41,6 +43,7 @@
 .platform-panel-head h2 { font-size: 1.1rem; font-weight: 700; color: var(--foreground); }
 .platform-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); font-weight: 700; margin: 1.5rem 0 0.75rem; }
 .platform-section-title:first-child { margin-top: 0; }
+.platform-panel-head .platform-section-title { margin: 0; }   /* flush when used as a head label */
 .platform-muted { color: var(--muted-foreground); }
 .platform-strong { font-weight: 600; color: var(--foreground); }
 .platform-muted code { background: var(--muted, #f1f5f9); padding: 0.1rem 0.35rem; border-radius: 5px; }
@@ -62,9 +65,11 @@
 .platform-table tbody tr:last-child td { border-bottom: none; }
 .platform-table tbody tr:hover { background: var(--muted, #f8fafc); }
 .platform-col-action { text-align: right; white-space: nowrap; }
+.platform-col-action .btn + .btn { margin-left: 0.4rem; }   /* space between row actions */
+.platform-form > .btn { margin-top: 0.85rem; }              /* submit button under a form */
 
 /* ── Chips ───────────────────────────────────────────────────────────────────── */
-.platform-chip { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+.platform-chip { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: capitalize; }
 .platform-chip-ok   { background: var(--success-light); color: var(--success); }
 .platform-chip-info { background: var(--primary-light); color: var(--primary); }
 .platform-chip-warn { background: rgba(245, 158, 11, 0.15); color: #b45309; }
@@ -97,6 +102,47 @@
 .platform-reply-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
 .platform-status-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .platform-input-sm { max-width: 180px; }
+
+/* ── Layout utilities (replace ad-hoc inline styles) ─────────────────────────── */
+.pf-row          { display: flex; align-items: center; gap: 0.75rem; }
+.pf-row-between  { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+.pf-stack        { display: flex; flex-direction: column; gap: 0.85rem; }
+.pf-grid         { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.85rem; }
+.pf-mt           { margin-top: 1rem; }
+.pf-mb           { margin-bottom: 1rem; }
+.pf-right        { margin-left: auto; }
+.pf-full         { width: 100%; }
+.pf-nowrap       { white-space: nowrap; }
+.pf-capitalize   { text-transform: capitalize; }
+.pf-pre          { white-space: pre-wrap; }
+.pf-subtle       { font-size: 0.78rem; }
+.pf-hint         { font-size: 0.75rem; color: var(--muted-foreground); }
+.pf-clickable    { cursor: pointer; }
+.pf-ml           { margin-left: 0.4rem; }
+.pf-tight        { margin-top: -0.5rem; }
+.pf-form-submit  { margin-top: 0.85rem; }
+
+/* Field (small label over a value) */
+.pf-field        { display: flex; flex-direction: column; gap: 0.2rem; }
+.pf-field-label  { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted-foreground); }
+.pf-field-value  { font-weight: 600; color: var(--foreground); }
+
+/* Small list rows (overview modal, thread summaries) */
+.pf-list-row     { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
+.pf-list-row:last-child { border-bottom: none; }
+
+/* Provisioned-credentials callout */
+.pf-callout      { background: var(--success-light); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--success); border-radius: var(--radius-sm); padding: 0.7rem 0.85rem; }
+
+/* ── Health section ── */
+.pf-health-comp .card-content { display: flex; align-items: center; gap: 0.75rem; }
+.pf-health-icon { font-size: 1.75rem; }
+.pf-health-icon.ok  { color: var(--success); }
+.pf-health-icon.bad { color: var(--destructive, #dc2626); }
+.pf-metric-value { font-size: 1.6rem; font-weight: 700; color: var(--foreground); }
+.pf-metric-value.warn { color: #b45309; }
+.pf-metric-value.bad  { color: var(--destructive, #dc2626); }
+.pf-metric-label { font-size: 0.85rem; color: var(--muted-foreground); }
 
 /* Link-styled button (e.g. clickable school name) */
 .platform-linkish { background: none; border: none; padding: 0; cursor: pointer; color: var(--primary); font-weight: 600; font: inherit; text-align: left; }
