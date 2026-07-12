@@ -69,6 +69,73 @@ const STATUS_CHIP = {
     suspended:{ label: 'Suspended',bg: 'rgba(220,38,38,0.12)',  fg: 'var(--danger, #dc2626)' },
 }
 
+// ── Usage meters ──────────────────────────────────────────────────────────────
+// Draws a "used / limit" bar per metered resource (students, staff). The bar goes
+// amber past 80% and red once full, nudging the school to upgrade before they're
+// blocked. `unlimited` plans show a full-width neutral bar with an ∞ label.
+
+const USAGE_LABELS = {
+    students: { name: 'Students', icon: 'school' },
+    staff:    { name: 'Staff',    icon: 'badge' },
+}
+
+function meterColor(pct, full) {
+    if (full) return 'var(--danger, #dc2626)'
+    if (pct >= 80) return '#d97706'
+    return 'var(--primary)'
+}
+
+function UsageMeter({ resourceKey, data }) {
+    const meta = USAGE_LABELS[resourceKey] || { name: resourceKey, icon: 'group' }
+    const { used, limit, remaining, unlimited } = data
+    const pct  = unlimited || !limit ? 0 : Math.min(100, Math.round((used / limit) * 100))
+    const full = !unlimited && remaining === 0
+    const color = meterColor(pct, full)
+
+    return (
+        <div style={{ marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: '1.15rem', color: 'var(--muted-foreground)' }}>{meta.icon}</span>
+                <span style={{ fontWeight: 600 }}>{meta.name}</span>
+                <span style={{ marginLeft: 'auto', fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>
+                    {unlimited ? `${used} · Unlimited` : `${used} / ${limit}`}
+                </span>
+            </div>
+            <div style={{ height: '8px', borderRadius: '999px', background: 'var(--muted, rgba(0,0,0,0.08))', overflow: 'hidden' }}>
+                <div style={{
+                    height: '100%', borderRadius: '999px',
+                    width: unlimited ? '100%' : `${pct}%`,
+                    background: unlimited ? 'rgba(79,70,229,0.25)' : color,
+                    transition: 'width 0.3s ease',
+                }} />
+            </div>
+            {!unlimited && (
+                <p style={{ fontSize: '0.78rem', color: full ? 'var(--danger, #dc2626)' : 'var(--muted-foreground)', marginTop: '0.3rem' }}>
+                    {full
+                        ? 'Limit reached — upgrade your plan to add more.'
+                        : `${remaining} seat${remaining === 1 ? '' : 's'} remaining`}
+                </p>
+            )}
+        </div>
+    )
+}
+
+function UsageCard({ usage }) {
+    const resources = usage?.resources || {}
+    const keys = Object.keys(resources)
+    if (keys.length === 0) return null
+    return (
+        <div className="card" style={{ marginBottom: '1.25rem' }}>
+            <div className="card-content">
+                <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.85rem' }}>
+                    Usage this plan
+                </p>
+                {keys.map(k => <UsageMeter key={k} resourceKey={k} data={resources[k]} />)}
+            </div>
+        </div>
+    )
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminBilling() {
@@ -161,6 +228,8 @@ export function AdminBilling() {
                                         )}
                                     </div>
                                 </div>
+
+                                {billing.usage && <UsageCard usage={billing.usage} />}
 
                                 {!stripeOn && (
                                     <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginBottom: '1rem' }}>

@@ -25,6 +25,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .limits import capacity_snapshot
 from .models import Client
 
 logger = logging.getLogger(__name__)
@@ -89,6 +90,8 @@ class BillingStatusView(APIView):
                 {'key': 'basic', 'name': 'Basic'},
                 {'key': 'premium', 'name': 'Premium'},
             ],
+            # Phase 4: current seat usage vs plan caps, for the usage meters.
+            'usage': capacity_snapshot(),
         })
 
 

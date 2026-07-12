@@ -8,6 +8,7 @@ from apps.authentication.models import User  # used for teaching_staff count
 from apps.authentication.permissions import IsDOS,IsDOSOrAdmin,IsTeacherOrDOS,IsDOSOrAdminOrDiscipline
 from apps.results.models import AcademicTerm, Result
 from apps.student.models import Student
+from apps.tenants.limits import enforce_capacity, remaining_seats
 
 from rest_framework import status as http_status
 
@@ -407,6 +408,8 @@ class TeacherListCreateView(APIView):
                 status=http_status.HTTP_400_BAD_REQUEST,
             )
 
+        enforce_capacity('staff')  # plan gating — raises 402 if the staff seats are full
+
         teacher = User.objects.create_user(
             username        = d['email'],
             email           = d['email'],
@@ -708,6 +711,8 @@ class StudentListCreateView(APIView):
                 status=http_status.HTTP_400_BAD_REQUEST,
             )
 
+        enforce_capacity('students')  # plan gating — raises 402 if the roster is full
+
         user = User.objects.create_user(
             username   = d['email'],
             email      = d['email'],
@@ -938,6 +943,7 @@ class BulkCreateStudentsView(APIView):
         created = skipped = failed = 0
         errors  = []
         counter = _next_student_code()
+        slots   = remaining_seats('students')  # None => unlimited; else seats left
 
         for idx, row in enumerate(rows, start=1):
             email = row['email']
@@ -945,6 +951,12 @@ class BulkCreateStudentsView(APIView):
                 if User.objects.filter(email=email).exists():
                     skipped += 1
                     errors.append({'row': idx, 'email': email, 'error': 'Email already exists (skipped)'})
+                    continue
+
+                if slots is not None and slots <= 0:
+                    failed += 1
+                    errors.append({'row': idx, 'email': email,
+                                   'error': 'Plan limit reached — upgrade your plan to add more students.'})
                     continue
 
                 password = row.get('password') or default_password
@@ -968,6 +980,8 @@ class BulkCreateStudentsView(APIView):
                     )
                     counter += 1
                     created += 1
+                    if slots is not None:
+                        slots -= 1
 
             except Exception as exc:
                 failed += 1
@@ -1059,6 +1073,7 @@ class ImportStudentsCSVView(APIView):
         created = skipped = failed = 0
         errors  = []
         counter = _next_student_code()
+        slots   = remaining_seats('students')  # None => unlimited; else seats left
 
         for idx, raw_row in enumerate(reader, start=2):  # row 1 is header
             # Normalise keys
@@ -1106,6 +1121,12 @@ class ImportStudentsCSVView(APIView):
                     errors.append({'row': idx, 'email': email, 'error': 'Email already exists (skipped)'})
                     continue
 
+                if slots is not None and slots <= 0:
+                    failed += 1
+                    errors.append({'row': idx, 'email': email,
+                                   'error': 'Plan limit reached — upgrade your plan to add more students.'})
+                    continue
+
                 with transaction.atomic():
                     user = User.objects.create_user(
                         username   = email,
@@ -1125,6 +1146,8 @@ class ImportStudentsCSVView(APIView):
                     )
                     counter += 1
                     created += 1
+                    if slots is not None:
+                        slots -= 1
 
             except Exception as exc:
                 failed += 1
@@ -2210,6 +2233,10 @@ class StudentInviteView(APIView):
             grade = year[1:] if year.upper().startswith('S') else year
             class_obj = Class.objects.filter(grade=grade, section=stream).first()
 
+        # Plan gating — a pending student invitation reserves a seat, so count it
+        # against the plan before we send one (parent invites are not metered).
+        enforce_capacity('students')
+
         expires_at= timezone.now()+timedelta(days=settings.INVITATION_EXPIRY_DAYS)
         results={}
 
@@ -2308,6 +2335,7 @@ class StudentBulkInviteView(APIView):
         expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
         created = 0
         errors  = []
+        slots   = remaining_seats('students')  # None => unlimited; each row reserves one seat
 
         for row_num, row in enumerate(reader, start=2):
             s_first = row.get('student_first_name', '').strip()
@@ -2337,6 +2365,11 @@ class StudentBulkInviteView(APIView):
             from apps.authentication.models import Invitation as _Inv
             if _Inv.objects.filter(email__iexact=s_email, role='student', is_used=False).exists():
                 errors.append({'row': row_num, 'error': f'{s_email} already has a pending invitation — skipped.'})
+                continue
+
+            if slots is not None and slots <= 0:
+                errors.append({'row': row_num,
+                               'error': 'Plan limit reached — upgrade your plan to invite more students.'})
                 continue
 
             # Resolve year + stream to a Class object
@@ -2383,6 +2416,8 @@ class StudentBulkInviteView(APIView):
                 parent_inv.save()
 
                 created += 1
+                if slots is not None:
+                    slots -= 1
             except Exception as e:
                 errors.append({'row': row_num, 'error': str(e)})
 

@@ -31,6 +31,8 @@ from django.conf import settings
 from datetime import timedelta
 from .service import dispatch_invitation
 from .permissions import CanInvite
+from apps.tenants.limits import enforce_capacity, remaining_seats
+from apps.tenants.plans import resource_for_role
 from .models import User, UserPreferences,Invitation
 from .serializers import (
     UserSerializer, UserRegistrationSerializer,
@@ -518,7 +520,13 @@ class SendInvitationView(APIView):
             )
         serializer =InvitationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
+        # Plan gating — a pending invitation for a metered role (student/staff)
+        # reserves a seat, so enforce the plan cap before sending it.
+        resource = resource_for_role(target_role)
+        if resource:
+            enforce_capacity(resource)   # raises 402 when the plan is full
+
         # Generate token and uid for the invitation link
         expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
         invitation  = serializer.save(
@@ -570,6 +578,9 @@ class BulkInviteView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         results ={'sent':[],'failed':[]}
+        # Plan gating: remaining seats per metered resource, cached and decremented
+        # as we go so one bulk call can't exceed the cap (None => unlimited).
+        slots = {}
 
         for item in invitations:
             target_role = item.get('role')
@@ -585,9 +596,20 @@ class BulkInviteView(APIView):
             if not serializer.is_valid():
                 results['failed'].append({
                   'email':item.get('email',''),
-                  'reason': serializer.errors 
+                  'reason': serializer.errors
                 })
                 continue
+
+            resource = resource_for_role(target_role)
+            if resource:
+                if resource not in slots:
+                    slots[resource] = remaining_seats(resource)
+                if slots[resource] is not None and slots[resource] <= 0:
+                    results['failed'].append({
+                        'email': item.get('email',''),
+                        'reason': 'Plan limit reached — upgrade your plan to invite more.',
+                    })
+                    continue
 
             invitation = serializer.save(invited_by=request.user)
             uid = urlsafe_base64_encode(force_bytes(invitation.pk))
@@ -602,6 +624,9 @@ class BulkInviteView(APIView):
             invitation.channels_sent =channels
             invitation.delivery_status = 'sent' if channels else 'failed'
             invitation.save()
+
+            if resource and slots.get(resource) is not None:
+                slots[resource] -= 1
 
             results['sent'].append({
                 'email': invitation.email,
@@ -733,6 +758,8 @@ class CSVInviteView(APIView):
         reader.fieldnames = [h.strip().lower() for h in (reader.fieldnames or [])]
 
         results = {'sent': [], 'failed': []}
+        # Plan gating: remaining seats per metered resource, decremented as we go.
+        slots = {}
 
         for idx, row in enumerate(reader, start=2):  # start=2 because row 1 is header
             # Strip whitespace from all values
@@ -780,6 +807,19 @@ class CSVInviteView(APIView):
                 })
                 continue
 
+            # Plan gating for metered roles (student/staff) — reserve a seat.
+            resource = resource_for_role(role)
+            if resource:
+                if resource not in slots:
+                    slots[resource] = remaining_seats(resource)
+                if slots[resource] is not None and slots[resource] <= 0:
+                    results['failed'].append({
+                        'row': idx,
+                        'email': email,
+                        'reason': 'Plan limit reached — upgrade your plan to invite more.',
+                    })
+                    continue
+
             # Resolve class if provided (students only)
             class_obj = None
             if class_id and role == 'student':
@@ -820,6 +860,9 @@ class CSVInviteView(APIView):
                 invitation.channels_sent    = channels
                 invitation.delivery_status  = 'sent' if channels else 'failed'
                 invitation.save()
+
+                if resource and slots.get(resource) is not None:
+                    slots[resource] -= 1
 
                 results['sent'].append({
                     'row':      idx,

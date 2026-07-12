@@ -38,12 +38,18 @@ def django_db_setup(django_db_setup, django_db_blocker):
 
         # The tenant every test runs inside. Saving it (auto_create_schema) creates
         # the schema and migrates all TENANT_APPS into it — once, thanks to --reuse-db.
+        # Kept on the 'premium' (unlimited) plan so Phase 4 plan-limit gating never
+        # interferes with unrelated tests; the dedicated limit tests set their own plan.
         tenant = TenantModel.objects.filter(schema_name=TEST_SCHEMA).first()
         if tenant is None:
             tenant = TenantModel(schema_name=TEST_SCHEMA, name='Test School',
-                                 on_trial=True, status='active')
+                                 on_trial=True, status='active', plan='premium')
             tenant.save(verbosity=0)
             DomainModel.objects.create(domain=TEST_DOMAIN, tenant=tenant, is_primary=True)
+        elif tenant.plan != 'premium':
+            # --reuse-db may have created it before Phase 4; force unlimited.
+            TenantModel.objects.filter(pk=tenant.pk).update(plan='premium')
+            tenant.plan = 'premium'
 
         connection.set_tenant(tenant)
     yield
