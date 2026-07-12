@@ -179,10 +179,17 @@ pending a shared-schema platform-auth model (Phase 5).
       shows per-resource usage meters (amber near full, red + upgrade prompt when full).
 - [ ] Future: storage caps and tier-gated feature flags (not yet needed).
 
-### Phase 5 — Platform super-admin console
+### Phase 5 — Platform super-admin console ✅ DONE (commit `228559e`)
 
-- [ ] Vendor-only area (separate from any school's Admin portal): list schools, billing
-      status, suspend non-payers, impersonate for support, usage metrics.
+- [x] Vendor-only console, separate from any school's Admin portal. `PlatformUser`
+      (public schema, own hashed password + JWT stamped with a `platform` claim) is a
+      distinct principal from the per-school `authentication.User` — a school token can't
+      reach the platform API and vice-versa (`PlatformJWTAuthentication` + `IsPlatformAdmin`).
+- [x] `SchoolViewSet` (public schema, bare domain only — 404 on any subdomain): list schools
+      with plan/status + live per-school student/staff usage, suspend/reactivate.
+- [x] Frontend `/platform/login` + `/platform` console (own dark theme, separate token).
+- [x] `create_platform_user` management command seeds operators.
+- [ ] Future: impersonate-for-support (audited), cross-tenant billing/revenue view.
 
 ### Phase 6 — Per-tenant branding, media, backups
 
