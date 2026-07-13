@@ -518,3 +518,53 @@
 .adm-chip-row  { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .adm-tab-count { margin-left: 0.3rem; font-size: 0.68rem; font-weight: 700; border-radius: 10px; padding: 0.05rem 0.35rem; background: var(--muted); color: var(--muted-foreground); }
 .adm-tab-count.on { background: rgba(255, 255, 255, 0.25); color: #fff; }
+
+/* ── Settings (AdminSettings) ── */
+.adm-set-note      { color: var(--muted-foreground); }                 /* inline "Loading…" / small notes */
+.adm-set-hint      { color: var(--muted-foreground); font-size: 0.875rem; margin-top: 0.5rem; }
+.adm-set-count     { font-size: 0.82rem; color: var(--muted-foreground); }
+
+/* Editable container block (structure years / subject types) */
+.adm-editblock     { border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.875rem 1rem; margin-top: 0.75rem; background: var(--background); }
+.adm-editblock-pad { padding: 1rem; }                                    /* TypeBlock uses flat 1rem padding */
+.adm-editblock-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+.adm-editblock-title { font-weight: 600; font-size: 0.9rem; }
+.adm-type-title    { font-weight: 700; font-size: 0.95rem; }
+.adm-icon-muted    { color: var(--muted-foreground); }   /* icon-button colour only; icon font-size stays inline */
+.adm-icon-danger   { color: var(--danger, #dc2626); }
+.adm-spacer        { flex: 1; }
+
+/* Structure stat cards row */
+.adm-struct-stats  { display: flex; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.adm-struct-stat   { flex: 1; min-width: 120px; }
+
+/* Subject-type lesson rows */
+.adm-lesson-row    { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.6rem; border-radius: 0.375rem; margin-bottom: 0.375rem; background: var(--card); border: 1px solid var(--border); }
+.adm-lesson-name   { flex: 1; font-size: 0.875rem; font-weight: 500; }
+.adm-lesson-code   { font-size: 0.7rem; background: var(--primary); color: #fff; padding: 0.1rem 0.45rem; border-radius: 0.25rem; font-weight: 600; }
+.adm-lesson-empty  { color: var(--muted-foreground); font-size: 0.8rem; margin-bottom: 0.5rem; }
+.adm-lesson-add    { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.adm-input-grow    { flex: 1; }
+.adm-input-lesson  { flex: 2; min-width: 9rem; font-size: 0.85rem; }
+.adm-input-code    { flex: 1; min-width: 5rem; font-size: 0.85rem; }
+.adm-input-stream  { flex: 1; max-width: 14rem; font-size: 0.85rem; }
+.adm-input-year    { width: 7rem; }
+.adm-inline-err    { color: var(--danger, #dc2626); font-size: 0.8rem; margin-top: 0.25rem; }
+
+/* Rooms */
+.adm-room-icon     { font-size: 0.85rem; color: var(--muted-foreground); }
+
+/* Term rollover */
+.adm-ro-grid       { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+.adm-ro-panel      { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+.adm-ro-sumrow     { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.adm-ro-warn       { color: var(--warning, #d97706); font-size: 0.8rem; margin-top: 0.75rem; }
+.adm-ro-warn-icon  { font-size: 1rem; vertical-align: middle; }
+.adm-ro-danger     { font-size: 0.82rem; color: #dc2626; margin-bottom: 0.75rem; }
+.adm-ro-err        { font-size: 0.82rem; color: #dc2626; }
+.adm-ro-done       { text-align: center; padding: 1.5rem 0; }
+.adm-ro-done-icon  { font-size: 2.5rem; color: var(--success); }
+.adm-ro-done-title { font-weight: 700; font-size: 1.05rem; margin: 0.5rem 0; }
+
+/* Settings nav "soon" tag */
+.adm-soon-tag      { margin-left: auto; font-size: 0.62rem; color: var(--muted-foreground); font-weight: 400; }
