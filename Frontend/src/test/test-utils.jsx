@@ -1,12 +1,15 @@
 import { render } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { AnnouncementsProvider } from '../context/AnnouncementsContext'
+import { ToastProvider } from '../context/ToastContext'
 
 export function renderWithRouter(ui, { route = '/', ...options } = {}) {
   return render(ui, {
     wrapper: ({ children }) => (
       <MemoryRouter initialEntries={[route]}>
-        <AnnouncementsProvider>{children}</AnnouncementsProvider>
+        <ToastProvider>
+          <AnnouncementsProvider>{children}</AnnouncementsProvider>
+        </ToastProvider>
       </MemoryRouter>
     ),
     ...options,
