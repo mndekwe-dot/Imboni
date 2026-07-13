@@ -39,13 +39,13 @@ function gradeColor(letter) {
 function AttBar({ label, value, color }) {
     const pct = Math.min(100, Math.max(0, value || 0))
     return (
-        <div style={{ marginBottom: '0.6rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '0.2rem' }}>
-                <span style={{ color: 'var(--muted-foreground)' }}>{label}</span>
-                <span style={{ fontWeight: 600 }}>{pct}%</span>
+        <div className="att-bar">
+            <div className="att-bar-head">
+                <span className="u-muted">{label}</span>
+                <span className="u-strong">{pct}%</span>
             </div>
-            <div style={{ height: 6, background: 'var(--border)', borderRadius: 999 }}>
-                <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 999 }} />
+            <div className="att-bar-track">
+                <div className="att-bar-fill" style={{ width: `${pct}%`, background: color }} />
             </div>
         </div>
     )
@@ -85,13 +85,13 @@ function StudentDetailModal({ student, onClose }) {
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box" style={{ maxWidth: 600, width: '95vw' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-box adm-student-modal" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div className="adm-av" style={{ width: 40, height: 40, fontSize: '1rem', flexShrink: 0 }}>{initials(name)}</div>
+                    <div className="u-row">
+                        <div className="adm-av adm-student-av">{initials(name)}</div>
                         <div>
-                            <h2 className="modal-title" style={{ marginBottom: 0 }}>{name}</h2>
-                            <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', margin: 0 }}>{sid} · {cls}</p>
+                            <h2 className="modal-title u-mb-0">{name}</h2>
+                            <p className="adm-student-sub">{sid} · {cls}</p>
                         </div>
                     </div>
                     <button className="modal-close" onClick={onClose}>
@@ -100,25 +100,25 @@ function StudentDetailModal({ student, onClose }) {
                 </div>
 
                 {loading ? (
-                    <div className="modal-body" style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted-foreground)' }}>
+                    <div className="modal-body u-center-text u-muted u-pad">
                         Loading profile…
                     </div>
                 ) : (
-                    <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div className="modal-body adm-student-body">
 
                         {/* Basic info */}
                         <div>
-                            <p style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted-foreground)', marginBottom: '0.6rem' }}>Profile</p>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem 1.5rem' }}>
+                            <p className="adm-modal-label">Profile</p>
+                            <div className="adm-profile-grid">
                                 {[
                                     ['Class',     cls],
                                     ['Dormitory', dorm],
                                     ['Status',    status.charAt(0).toUpperCase() + status.slice(1)],
                                     ['GPA',       gpa != null ? gpa : '—'],
                                 ].map(([label, val]) => (
-                                    <div key={label} style={{ display: 'flex', gap: '0.4rem', alignItems: 'baseline' }}>
-                                        <span style={{ color: 'var(--muted-foreground)', fontSize: '0.8rem', width: 80, flexShrink: 0 }}>{label}</span>
-                                        <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{val}</span>
+                                    <div key={label} className="adm-profile-row">
+                                        <span className="adm-profile-key">{label}</span>
+                                        <span className="adm-profile-val">{val}</span>
                                     </div>
                                 ))}
                             </div>
@@ -126,7 +126,7 @@ function StudentDetailModal({ student, onClose }) {
 
                         {/* Attendance */}
                         <div>
-                            <p style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted-foreground)', marginBottom: '0.6rem' }}>
+                            <p className="adm-modal-label">
                                 Attendance
                                 {attRate != null && (
                                     <span style={{ marginLeft: '0.5rem', color: attRate >= 80 ? '#16a34a' : '#dc2626', fontWeight: 700 }}>
@@ -141,35 +141,35 @@ function StudentDetailModal({ student, onClose }) {
                                     {absentPct != null && <AttBar label="Absent"  value={absentPct} color="#dc2626" />}
                                 </>
                             ) : (
-                                <p style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>No attendance data available.</p>
+                                <p className="adm-empty-note">No attendance data available.</p>
                             )}
                         </div>
 
                         {/* Term Results */}
                         <div>
-                            <p style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted-foreground)', marginBottom: '0.6rem' }}>Term Results</p>
+                            <p className="adm-modal-label">Term Results</p>
                             {results.length === 0 ? (
-                                <p style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>No results submitted yet.</p>
+                                <p className="adm-empty-note">No results submitted yet.</p>
                             ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                                <div className="adm-result-list">
                                     {results.slice(0, 8).map((r, i) => {
                                         const subject = r.subject_name || r.subject?.name || `Subject ${i + 1}`
                                         const score   = r.total_score ?? r.score ?? r.final_score ?? '—'
                                         const grade   = r.letter_grade || r.grade_letter || '—'
                                         return (
-                                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0', borderBottom: '1px solid var(--border)' }}>
-                                                <span style={{ flex: 1, fontSize: '0.82rem', fontWeight: 500 }}>{subject}</span>
-                                                <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)', minWidth: 44, textAlign: 'right' }}>
+                                            <div key={i} className="adm-result-row">
+                                                <span className="adm-result-name">{subject}</span>
+                                                <span className="adm-result-score">
                                                     {score !== '—' ? `${score}%` : '—'}
                                                 </span>
-                                                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: gradeColor(grade), minWidth: 26, textAlign: 'right' }}>
+                                                <span className="adm-result-grade" style={{ color: gradeColor(grade) }}>
                                                     {grade}
                                                 </span>
                                             </div>
                                         )
                                     })}
                                     {results.length > 8 && (
-                                        <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.4rem' }}>
+                                        <p className="adm-result-more">
                                             +{results.length - 8} more subjects
                                         </p>
                                     )}
@@ -304,7 +304,7 @@ export function AdminStudents() {
                         </div>
 
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading students…</p>
+                            <p className="u-muted u-pad">Loading students…</p>
                         ) : (
                             <DataTable
                                 title="All Students"

@@ -30,6 +30,7 @@
 .u-mb-xs   { margin-bottom: 0.4rem; }
 .u-mb-sm   { margin-bottom: 0.75rem; }
 .u-mb-lg   { margin-bottom: 1.25rem; }
+.u-pad     { padding: 2rem; }   /* centred loading / empty-state blocks */
 
 /* ── Text ───────────────────────────────────────────────────────────────────── */
 .u-muted       { color: var(--muted-foreground); }
