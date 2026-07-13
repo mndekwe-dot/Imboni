@@ -39,6 +39,8 @@
 .u-mb-lg   { margin-bottom: 1.25rem; }
 .u-pad     { padding: 2rem; }   /* centred loading / empty-state blocks */
 .u-pad-lg  { padding: 2.5rem; }
+.u-pad-xl  { padding: 3rem; }
+.u-p-0     { padding: 0; }
 .u-pt-xs   { padding-top: 0.25rem; }
 
 /* ── Text ───────────────────────────────────────────────────────────────────── */
@@ -78,3 +80,4 @@
 /* ── Misc ───────────────────────────────────────────────────────────────────── */
 .u-icon-sm    { font-size: 1.15rem; }
 .u-empty-icon { font-size: 2.2rem; display: block; margin-bottom: 0.5rem; }
+.u-pointer    { cursor: pointer; }

@@ -60,8 +60,8 @@ function RejectModal({ result, onClose, onDone }) {
                         <span className="material-symbols-rounded">close</span>
                     </button>
                 </div>
-                <form className="modal-body" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>
+                <form className="modal-body u-stack-1" onSubmit={handleSubmit}>
+                    <p className="u-muted" style={{ fontSize: '0.85rem' }}>
                         Rejecting <strong>{subject}</strong> result for <strong>{studentName}</strong>. Provide a reason for the teacher.
                     </p>
                     <div className="form-group form-group-0">
@@ -75,10 +75,10 @@ function RejectModal({ result, onClose, onDone }) {
                             autoFocus
                         />
                     </div>
-                    {error && <p style={{ color: 'var(--destructive)', fontSize: '0.82rem' }}>{error}</p>}
-                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                    {error && <p className="form-error-text">{error}</p>}
+                    <div className="u-row-sm u-justify-end">
                         <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn btn-primary" disabled={loading} style={{ background: 'var(--destructive)', borderColor: 'var(--destructive)' }}>
+                        <button type="submit" className="btn btn-primary btn-destructive" disabled={loading}>
                             <span className="material-symbols-rounded">cancel</span>
                             {loading ? 'Rejecting…' : 'Reject Result'}
                         </button>
@@ -102,8 +102,8 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
     return (
         <tr>
             {status === 'pending' && (
-                <td style={{ width: 36 }}>
-                    <input type="checkbox" checked={selected} onChange={e => onSelect(result.id, e.target.checked)} style={{ cursor: 'pointer' }} />
+                <td className="adm-check-col">
+                    <input type="checkbox" checked={selected} onChange={e => onSelect(result.id, e.target.checked)} className="u-pointer" />
                 </td>
             )}
             <td>
@@ -111,17 +111,17 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
                 <div className="adm-sub">{cls}</div>
             </td>
             <td>{subject}</td>
-            <td style={{ fontWeight: 600 }}>{score}{score !== '—' ? '%' : ''}</td>
+            <td className="u-strong">{score}{score !== '—' ? '%' : ''}</td>
             <td>
-                <span style={{ fontWeight: 700, color: gradeColor(grade) }}>{grade}</span>
+                <span className="u-bold" style={{ color: gradeColor(grade) }}>{grade}</span>
             </td>
-            <td style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{teacher}</td>
-            <td style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>
+            <td className="adm-cell-sub">{teacher}</td>
+            <td className="u-xs u-muted">
                 {result.submitted_at ? new Date(result.submitted_at).toLocaleDateString() : '—'}
             </td>
             {status === 'pending' && (
                 <td>
-                    <div style={{ display: 'flex', gap: '0.35rem' }}>
+                    <div className="u-flex" style={{ gap: '0.35rem' }}>
                         <button className="adm-btn" style={{ color: 'var(--success, #16a34a)' }} title="Approve" onClick={() => onApprove(result.id)}>
                             <span className="material-symbols-rounded">check_circle</span>
                         </button>
@@ -276,8 +276,8 @@ export function AdminApprovals() {
                         </div>
 
                         {/* Status tabs */}
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                            <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                        <div className="u-row-sm u-justify-between u-wrap">
+                            <div className="u-flex u-wrap" style={{ gap: '0.25rem' }}>
                                 {STATUS_TABS.map(tab => (
                                     <button
                                         key={tab}
@@ -286,7 +286,7 @@ export function AdminApprovals() {
                                     >
                                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                         {tab === 'pending' && counts.pending > 0 && (
-                                            <span style={{ marginLeft: '0.35rem', background: '#f59e0b', color: '#fff', borderRadius: '999px', padding: '0 0.4rem', fontSize: '0.68rem', fontWeight: 700 }}>
+                                            <span className="adm-count-badge">
                                                 {counts.pending}
                                             </span>
                                         )}
@@ -318,13 +318,13 @@ export function AdminApprovals() {
                                 <h2 className="card-title">
                                     {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Results
                                 </h2>
-                                {!loading && <span style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>{results.length} record{results.length !== 1 ? 's' : ''}</span>}
+                                {!loading && <span className="adm-cell-sub">{results.length} record{results.length !== 1 ? 's' : ''}</span>}
                             </div>
-                            <div className="card-content" style={{ padding: 0 }}>
+                            <div className="card-content u-p-0">
                                 {loading ? (
-                                    <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                                    <p className="u-muted u-pad">Loading…</p>
                                 ) : results.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted-foreground)' }}>
+                                    <div className="u-center-text u-muted u-pad-xl">
                                         <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.75rem' }}>
                                             {activeTab === 'pending' ? 'pending_actions' : activeTab === 'approved' ? 'check_circle' : 'cancel'}
                                         </span>
@@ -336,12 +336,12 @@ export function AdminApprovals() {
                                             <thead>
                                                 <tr>
                                                     {activeTab === 'pending' && (
-                                                        <th style={{ width: 36 }}>
+                                                        <th className="adm-check-col">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={allSelected}
                                                                 onChange={e => handleSelectAll(e.target.checked)}
-                                                                style={{ cursor: 'pointer' }}
+                                                                className="u-pointer"
                                                             />
                                                         </th>
                                                     )}

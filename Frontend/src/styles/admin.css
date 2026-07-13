@@ -496,3 +496,25 @@
 
 .adm-count-badge { margin-left: 0.35rem; background: var(--warning, #f59e0b); color: #fff; border-radius: 999px; padding: 0 0.4rem; font-size: 0.68rem; font-weight: 700; }
 .adm-sent-cell   { font-size: 0.8rem; color: var(--muted-foreground); }
+
+/* Compact muted table cell + row-select checkbox column */
+.adm-cell-sub  { font-size: 0.8rem; color: var(--muted-foreground); }
+.adm-check-col { width: 36px; }
+
+/* ── Announcements (AdminAnnouncements) ── */
+/* Category colours flow in as --cat-* CSS vars set inline (data-driven). */
+.adm-ann-card    { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--cat-accent, var(--muted-foreground)); border-radius: 12px; padding: 1rem 1.25rem; display: flex; gap: 1rem; }
+.adm-ann-icon    { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; background: var(--cat-badge, var(--muted)); display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+.adm-ann-icon .material-symbols-rounded { color: var(--cat-text, var(--muted-foreground)); font-size: 1rem; }
+.adm-ann-body    { flex: 1; min-width: 0; }
+.adm-ann-meta    { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
+.adm-ann-cat     { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: var(--cat-badge, var(--muted)); color: var(--cat-text, var(--muted-foreground)); border-radius: 4px; padding: 0.1rem 0.45rem; }
+.adm-ann-time    { font-size: 0.75rem; color: var(--muted-foreground); }
+.adm-ann-title   { margin: 0 0 0.3rem; font-size: 0.95rem; font-weight: 600; color: var(--foreground); }
+.adm-ann-text    { margin: 0 0 0.75rem; font-size: 0.85rem; color: var(--muted-foreground); line-height: 1.55; white-space: pre-wrap; }
+.adm-ann-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.adm-eyebrow   { font-size: 0.78rem; font-weight: 600; color: var(--muted-foreground); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.adm-chip-row  { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.adm-tab-count { margin-left: 0.3rem; font-size: 0.68rem; font-weight: 700; border-radius: 10px; padding: 0.05rem 0.35rem; background: var(--muted); color: var(--muted-foreground); }
+.adm-tab-count.on { background: rgba(255, 255, 255, 0.25); color: #fff; }

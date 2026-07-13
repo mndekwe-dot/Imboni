@@ -90,51 +90,38 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
     const date = ann.published_at || ann.created_at
 
     return (
-        <div style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderLeft: `4px solid ${cat.borderColor}`,
-            borderRadius: 12,
-            padding: '1rem 1.25rem',
-            display: 'flex',
-            gap: '1rem',
-        }}>
-            <div style={{
-                width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                background: cat.badge,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginTop: 2,
-            }}>
-                <span className="material-symbols-rounded" style={{ color: cat.text, fontSize: '1rem' }}>{cat.icon}</span>
+        <div
+            className="adm-ann-card"
+            style={{ '--cat-accent': cat.borderColor, '--cat-badge': cat.badge, '--cat-text': cat.text }}
+        >
+            <div className="adm-ann-icon">
+                <span className="material-symbols-rounded">{cat.icon}</span>
             </div>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem', flexWrap: 'wrap' }}>
-                    <span style={{
-                        fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
-                        background: cat.badge, color: cat.text, borderRadius: 4, padding: '0.1rem 0.45rem',
-                    }}>{ann.category}</span>
+            <div className="adm-ann-body">
+                <div className="adm-ann-meta">
+                    <span className="adm-ann-cat">{ann.category}</span>
 
                     {ann.status === 'draft' && (
                         <span className="adm-badge pending" style={{ fontSize: '0.68rem' }}>Draft</span>
                     )}
 
-                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                    <span className="adm-ann-time">
                         {relDate(date)}
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                    <span className="adm-ann-time">
                         · {audienceLabel(ann)}
                     </span>
                 </div>
 
-                <h4 style={{ margin: '0 0 0.3rem', fontSize: '0.95rem', fontWeight: 600, color: 'var(--foreground)' }}>
+                <h4 className="adm-ann-title">
                     {ann.title}
                 </h4>
-                <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--muted-foreground)', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
+                <p className="adm-ann-text">
                     {ann.content}
                 </p>
 
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div className="adm-ann-actions">
                     <button className="adm-btn" onClick={() => onEdit(ann)}>
                         <span className="material-symbols-rounded">edit</span> Edit
                     </button>
@@ -159,11 +146,11 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
 function TemplateChips({ templates, onSelect }) {
     if (!templates.length) return null
     return (
-        <div style={{ marginBottom: '0.75rem' }}>
-            <p style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--muted-foreground)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <div className="u-mb-sm">
+            <p className="adm-eyebrow">
                 Quick Templates
             </p>
-            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+            <div className="adm-chip-row">
                 {templates.map(t => (
                     <button key={t.key} type="button" className="filter-chip" onClick={() => onSelect(t)}>
                         {t.label}
@@ -176,7 +163,7 @@ function TemplateChips({ templates, onSelect }) {
 
 function AudienceChips({ options, audienceKey, targetGrade, onChange }) {
     return (
-        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+        <div className="adm-chip-row">
             {options.map((o, i) => {
                 const active = audienceKey === o.target_audience && (targetGrade || '') === (o.target_grade || '')
                 return (
@@ -212,7 +199,7 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="u-stack-1">
             <TemplateChips templates={templates} onSelect={applyTemplate} />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem' }}>
@@ -255,9 +242,9 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
                 />
             </div>
 
-            {error && <p style={{ color: 'var(--destructive)', fontSize: '0.85rem' }}>{error}</p>}
+            {error && <p className="form-error-text">{error}</p>}
 
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.25rem' }}>
+            <div className="u-row-sm u-wrap u-pt-xs">
                 <button className="btn btn-primary" disabled={saving} onClick={() => handleSubmit('published')}>
                     <span className="material-symbols-rounded">send</span>
                     {saving ? 'Publishing…' : 'Publish'}
@@ -428,7 +415,7 @@ export function AdminAnnouncements() {
 
                         {/* Compose form */}
                         {composing && (
-                            <div className="card" style={{ marginBottom: '1.25rem' }}>
+                            <div className="card u-mb-lg">
                                 <div className="card-header">
                                     <h2 className="card-title">
                                         {editing ? 'Edit Announcement' : 'New Announcement'}
@@ -462,8 +449,8 @@ export function AdminAnnouncements() {
                         )}
 
                         {/* Toolbar: tabs + search + compose button */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-                            <div className="filter-chips" style={{ marginBottom: 0 }}>
+                        <div className="u-row-between u-mb">
+                            <div className="filter-chips u-mb-0">
                                 {TABS.map(t => (
                                     <button
                                         key={t.key}
@@ -472,12 +459,7 @@ export function AdminAnnouncements() {
                                     >
                                         {t.label}
                                         {t.key === 'drafts' && draftCount > 0 && (
-                                            <span style={{
-                                                marginLeft: '0.3rem', fontSize: '0.68rem', fontWeight: 700,
-                                                background: activeTab === t.key ? 'rgba(255,255,255,0.25)' : 'var(--muted)',
-                                                color: activeTab === t.key ? '#fff' : 'var(--muted-foreground)',
-                                                borderRadius: 10, padding: '0.05rem 0.35rem',
-                                            }}>{draftCount}</span>
+                                            <span className={`adm-tab-count${activeTab === t.key ? ' on' : ''}`}>{draftCount}</span>
                                         )}
                                     </button>
                                 ))}
@@ -495,7 +477,7 @@ export function AdminAnnouncements() {
                         </div>
 
                         {/* Search */}
-                        <div className="toolbar-card" style={{ marginBottom: '1rem' }}>
+                        <div className="toolbar-card u-mb">
                             <div className="toolbar-search">
                                 <span className="material-symbols-rounded">search</span>
                                 <input
@@ -513,7 +495,7 @@ export function AdminAnnouncements() {
 
                         {/* Feed */}
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                            <p className="u-muted u-pad">Loading…</p>
                         ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="campaign"
@@ -521,7 +503,7 @@ export function AdminAnnouncements() {
                                 desc={search ? 'Try a different search term.' : 'Switch tabs or create a new announcement.'}
                             />
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            <div className="u-stack-sm">
                                 {visible.map(a => (
                                     <AnnCard
                                         key={a.id}
