@@ -483,3 +483,16 @@
 .adm-result-grade       { font-weight: 700; font-size: 0.85rem; min-width: 26px; text-align: right; }
 .adm-result-more        { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.4rem; }
 .adm-empty-note         { font-size: 0.82rem; color: var(--muted-foreground); }
+
+/* ── Staff (AdminStaff) ── */
+.adm-invite-success       { text-align: center; padding: 2rem 1rem; }
+.adm-invite-success-icon  { font-size: 2.5rem; color: var(--success, #16a34a); }
+.adm-invite-success-title { font-weight: 600; margin-top: 0.75rem; }
+.adm-invite-success-note  { font-size: 0.83rem; color: var(--muted-foreground); }
+
+.adm-kv-row  { display: flex; gap: 0.5rem; }
+.adm-kv-key  { width: 100px; color: var(--muted-foreground); font-size: 0.85rem; flex-shrink: 0; }
+.adm-kv-val  { font-weight: 500; font-size: 0.85rem; }
+
+.adm-count-badge { margin-left: 0.35rem; background: var(--warning, #f59e0b); color: #fff; border-radius: 999px; padding: 0 0.4rem; font-size: 0.68rem; font-weight: 700; }
+.adm-sent-cell   { font-size: 0.8rem; color: var(--muted-foreground); }

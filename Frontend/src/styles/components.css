@@ -451,6 +451,12 @@ tr:hover td {
   letter-spacing: 0.04em;
 }
 
+/* Inline form validation / submit error message */
+.form-error-text {
+  color: var(--destructive);
+  font-size: 0.82rem;
+}
+
 .filter-section {
   display: flex;
   gap: 1rem;

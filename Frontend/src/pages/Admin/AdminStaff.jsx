@@ -152,16 +152,16 @@ function InviteModal({ onClose, onSent }) {
                     </button>
                 </div>
                 {success ? (
-                    <div className="modal-body" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', color: 'var(--success, #16a34a)' }}>mark_email_read</span>
-                        <p style={{ fontWeight: 600, marginTop: '0.75rem' }}>Invitation sent!</p>
-                        <p style={{ fontSize: '0.83rem', color: 'var(--muted-foreground)' }}>
+                    <div className="modal-body adm-invite-success">
+                        <span className="material-symbols-rounded adm-invite-success-icon">mark_email_read</span>
+                        <p className="adm-invite-success-title">Invitation sent!</p>
+                        <p className="adm-invite-success-note">
                             An invitation link was sent to <strong>{form.email}</strong>
                         </p>
                     </div>
                 ) : (
-                    <form className="modal-body" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <form className="modal-body u-stack-1" onSubmit={handleSubmit}>
+                        <div className="u-grid-2">
                             <div className="form-group form-group-0">
                                 <label className="form-label" htmlFor="invite-first-name">First Name *</label>
                                 <input id="invite-first-name" className="form-input" name="first_name" value={form.first_name} onChange={handleChange} autoFocus />
@@ -183,12 +183,12 @@ function InviteModal({ onClose, onSent }) {
                         </div>
                         <div className="form-group form-group-0">
                             <label className="form-label" htmlFor="invite-phone">
-                                Phone <span style={{ color: 'var(--muted-foreground)', fontWeight: 400 }}>(optional)</span>
+                                Phone <span className="u-muted" style={{ fontWeight: 400 }}>(optional)</span>
                             </label>
                             <input id="invite-phone" className="form-input" name="phone_number" value={form.phone_number} onChange={handleChange} placeholder="+250 7XX XXX XXX" />
                         </div>
-                        {error && <p style={{ color: 'var(--destructive)', fontSize: '0.82rem' }}>{error}</p>}
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', paddingTop: '0.25rem' }}>
+                        {error && <p className="form-error-text">{error}</p>}
+                        <div className="u-row-sm u-justify-end u-pt-xs">
                             <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
                             <button type="submit" className="btn btn-primary" disabled={loading}>
                                 <span className="material-symbols-rounded">send</span>
@@ -289,7 +289,7 @@ export function AdminStaff() {
                                 <span className="material-symbols-rounded">close</span>
                             </button>
                         </div>
-                        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div className="modal-body u-stack-sm">
                             {[
                                 ['Name',     (viewing.name || viewing.full_name || `${viewing.first_name || ''} ${viewing.last_name || ''}`.trim())],
                                 ['Email',    viewing.email],
@@ -298,9 +298,9 @@ export function AdminStaff() {
                                 ['Contract', contractLabel(viewing.employment_type)],
                                 ['Status',   viewing.is_active !== false ? 'Active' : 'Inactive'],
                             ].map(([label, val]) => (
-                                <div key={label} style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <span style={{ width: 100, color: 'var(--muted-foreground)', fontSize: '0.85rem', flexShrink: 0 }}>{label}</span>
-                                    <span style={{ fontWeight: 500, fontSize: '0.85rem' }}>{val}</span>
+                                <div key={label} className="adm-kv-row">
+                                    <span className="adm-kv-key">{label}</span>
+                                    <span className="adm-kv-val">{val}</span>
                                 </div>
                             ))}
                         </div>
@@ -325,8 +325,8 @@ export function AdminStaff() {
                         </div>
 
                         {/* Tab bar + Invite button */}
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                            <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        <div className="u-row-sm u-justify-between u-wrap">
+                            <div className="u-flex" style={{ gap: '0.25rem' }}>
                                 <button
                                     className={`btn btn-sm ${activeTab === 'staff' ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setActiveTab('staff')}
@@ -334,14 +334,13 @@ export function AdminStaff() {
                                     <span className="material-symbols-rounded">badge</span> Staff List
                                 </button>
                                 <button
-                                    className={`btn btn-sm ${activeTab === 'invitations' ? 'btn-primary' : 'btn-outline'}`}
+                                    className={`btn btn-sm u-relative ${activeTab === 'invitations' ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setActiveTab('invitations')}
-                                    style={{ position: 'relative' }}
                                 >
                                     <span className="material-symbols-rounded">mail</span>
                                     Invitations
                                     {pendingCount > 0 && (
-                                        <span style={{ marginLeft: '0.35rem', background: 'var(--warning, #f59e0b)', color: '#fff', borderRadius: '999px', padding: '0 0.4rem', fontSize: '0.68rem', fontWeight: 700 }}>
+                                        <span className="adm-count-badge">
                                             {pendingCount}
                                         </span>
                                     )}
@@ -376,7 +375,7 @@ export function AdminStaff() {
                                 </div>
 
                                 {loading ? (
-                                    <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading staff…</p>
+                                    <p className="u-muted u-pad">Loading staff…</p>
                                 ) : (
                                     <DataTable
                                         title="All Staff"
@@ -402,8 +401,8 @@ export function AdminStaff() {
                                 </div>
                                 <div className="card-content">
                                     {invitations.length === 0 ? (
-                                        <div style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--muted-foreground)' }}>
-                                            <span className="material-symbols-rounded" style={{ fontSize: '2.2rem', display: 'block', marginBottom: '0.5rem' }}>mail_outline</span>
+                                        <div className="u-center-text u-muted u-pad-lg">
+                                            <span className="material-symbols-rounded u-empty-icon">mail_outline</span>
                                             No invitations sent yet. Click <strong>Invite Staff</strong> to get started.
                                         </div>
                                     ) : (
@@ -431,12 +430,12 @@ export function AdminStaff() {
                                                                     {inviteStatusLabel(inv)}
                                                                 </span>
                                                             </td>
-                                                            <td style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                                                            <td className="adm-sent-cell">
                                                                 {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : '—'}
                                                             </td>
                                                             <td>
                                                                 {!inv.is_used && inv.status !== 'cancelled' && (
-                                                                    <div style={{ display: 'flex', gap: '0.35rem' }}>
+                                                                    <div className="u-flex" style={{ gap: '0.35rem' }}>
                                                                         <button className="adm-btn" title="Resend invitation" onClick={() => handleResend(inv.id)}>
                                                                             <span className="material-symbols-rounded">forward_to_inbox</span>
                                                                         </button>
