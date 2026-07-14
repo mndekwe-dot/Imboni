@@ -33,7 +33,7 @@ function ChartCard({ title, desc, children, loading }) {
             </div>
             <div className="card-content">
                 {loading ? (
-                    <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>
+                    <div className="adm-chart-loading">
                         Loading…
                     </div>
                 ) : children}
@@ -43,7 +43,7 @@ function ChartCard({ title, desc, children, loading }) {
 }
 
 function GradePerformanceChart({ data }) {
-    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
     return (
         <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
@@ -61,7 +61,7 @@ function GradePerformanceChart({ data }) {
 }
 
 function WeeklyTrendChart({ data }) {
-    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
     return (
         <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={data} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
@@ -88,7 +88,7 @@ function WeeklyTrendChart({ data }) {
 }
 
 function EnrollmentChart({ data }) {
-    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
     return (
         <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 4 }}>
@@ -106,9 +106,9 @@ function EnrollmentChart({ data }) {
 }
 
 function DistributionChart({ data }) {
-    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="adm-dist-row">
             <ResponsiveContainer width={180} height={180}>
                 <PieChart>
                     <Pie data={data} dataKey="percentage" nameKey="category" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2}>
@@ -119,13 +119,13 @@ function DistributionChart({ data }) {
                     <Tooltip formatter={(v) => [`${v}%`, '']} />
                 </PieChart>
             </ResponsiveContainer>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+            <div className="adm-dist-legend">
                 {data.map((entry, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem' }}>
-                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: PIE_COLORS[entry.category] || GRADE_COLORS[i], flexShrink: 0 }} />
-                        <span style={{ flex: 1, color: 'var(--foreground)' }}>{entry.category}</span>
-                        <span style={{ fontWeight: 700 }}>{entry.percentage}%</span>
-                        <span style={{ color: 'var(--muted-foreground)' }}>({entry.count} students)</span>
+                    <div key={i} className="adm-dist-item">
+                        <span className="adm-dist-dot" style={{ background: PIE_COLORS[entry.category] || GRADE_COLORS[i] }} />
+                        <span className="adm-dist-name">{entry.category}</span>
+                        <span className="u-bold">{entry.percentage}%</span>
+                        <span className="u-muted">({entry.count} students)</span>
                     </div>
                 ))}
             </div>
@@ -134,7 +134,7 @@ function DistributionChart({ data }) {
 }
 
 function SubjectChart({ data }) {
-    if (!data?.length) return <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No data available.</p>
+    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
     const top = data.slice(0, 8)
     return (
         <ResponsiveContainer width="100%" height={Math.max(180, top.length * 36)}>
