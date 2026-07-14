@@ -2835,3 +2835,198 @@ body.tm-panel-open { overflow: hidden; }
 .att-status-select.att-excused  { background: rgba(37,99,235,0.12);  color: #2563eb; border-color: #2563eb; }
 .att-status-select.att-unmarked { opacity: 0.6; }
 
+/* ===============================================
+   STUDENT MANAGEMENT PAGE (DosStudents)
+   Class-based refactor of former inline styles.
+   Colour tokens kept verbatim (incl. var(--danger),
+   var(--surface-2,#f8f9fa)) to preserve exact look.
+   =============================================== */
+
+/* Row avatar dimmed when the student is suspended */
+.dos-av-dim { opacity: 0.5; }
+
+/* Inline "Suspended" tag next to a student name (table row) */
+.dos-suspend-tag {
+  margin-left: 0.4rem;
+  font-size: 0.68rem;
+  background: var(--danger);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+  font-weight: 700;
+}
+
+/* Page-level fatal error text */
+.dos-danger-text { color: var(--danger); }
+
+/* Invite-sent confirmation screen */
+.dos-sent-box   { text-align: center; padding: 1.5rem 0; }
+.dos-sent-icon  { font-size: 3.5rem; color: var(--success); }
+.dos-sent-title { margin-top: 1rem; font-weight: 600; font-size: 1.05rem; }
+.dos-sent-note  { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; }
+
+/* Invite modal tab switcher (Single / Bulk) */
+.dos-tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; gap: 0.25rem; }
+.dos-tab {
+  padding: 0.5rem 1.25rem; border: none; background: none; cursor: pointer;
+  font-weight: 600; font-size: 0.875rem;
+  border-bottom: 2px solid transparent; color: var(--muted);
+}
+.dos-tab.active { border-bottom-color: var(--primary); color: var(--primary); }
+
+/* Info callout (single tab) */
+.dos-info-box {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.75rem 1rem; background: var(--muted);
+  border-radius: 0.5rem; margin-bottom: 1.25rem;
+}
+.dos-info-icon { color: var(--primary); font-size: 1.25rem; flex-shrink: 0; }
+.dos-info-text { font-size: 0.875rem; color: var(--muted-foreground); margin: 0; }
+
+/* two-col form gap (matches former inline gap override on .resp-grid-2) */
+.dos-grid-gap { gap: 0.75rem; }
+
+/* Divider inside invite modal */
+.dos-hr { margin: 1.25rem 0; border-color: var(--border); }
+
+/* Parent contact note */
+.dos-form-note { font-size: 0.8rem; color: var(--muted); margin-top: -0.25rem; }
+
+/* Bulk: step boxes */
+.dos-step-box {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.875rem 1rem; background: var(--surface-2, #f8f9fa);
+  border-radius: 0.5rem; margin-bottom: 1rem;
+}
+.dos-step-title  { margin: 0; font-weight: 600; font-size: 0.9rem; }
+.dos-step-desc   { margin: 0; font-size: 0.8rem; color: var(--muted); }
+.dos-step2-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+/* Bulk: upload dropzone */
+.dos-upload-label {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.875rem 1rem; border: 2px dashed var(--border);
+  border-radius: 0.5rem; cursor: pointer; margin-bottom: 1rem;
+}
+.dos-upload-icon { color: var(--primary); font-size: 1.5rem; }
+.dos-upload-text { font-size: 0.875rem; color: var(--muted); }
+.dos-upload-text.has-file { color: var(--foreground); }
+
+/* Bulk: preview table */
+.dos-preview-label { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--muted); }
+.dos-preview-wrap  { overflow-x: auto; border: 1px solid var(--border); border-radius: 0.5rem; }
+.dos-preview-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.dos-preview-thead { background: var(--surface-2, #f8f9fa); color: var(--muted); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em; }
+.dos-preview-th    { padding: 0.4rem 0.75rem; text-align: left; }
+.dos-preview-tr    { border-top: 1px solid var(--border); }
+.dos-preview-td    { padding: 0.4rem 0.75rem; }
+.dos-preview-td.is-muted { color: var(--muted); }
+
+/* Bulk: result banner */
+.dos-bulk-result { padding: 1rem; border-radius: 0.5rem; border: 1px solid; }
+.dos-bulk-result.ok  { background: rgba(16,185,129,0.08); border-color: var(--success); }
+.dos-bulk-result.err { background: rgba(239,68,68,0.08);  border-color: var(--danger); }
+.dos-bulk-result-title { margin: 0 0 0.5rem; font-weight: 700; font-size: 0.95rem; }
+.dos-bulk-result.ok  .dos-bulk-result-title { color: var(--success); }
+.dos-bulk-result.err .dos-bulk-result-title { color: var(--danger); }
+.dos-bulk-errors { margin: 0; padding: 0 0 0 1.25rem; font-size: 0.8rem; color: var(--danger); }
+
+/* Detail drawer: footer buttons */
+.dos-btn-inline { display: flex; align-items: center; gap: 0.35rem; }
+.dos-btn-inline.suspend   { background: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; }
+.dos-btn-inline.reinstate { background: var(--success); color: #fff; border: none; }
+
+/* Detail drawer: loading text */
+.dos-drawer-loading { text-align: center; color: var(--muted); padding: 1.5rem 0; }
+
+/* Detail drawer: profile row */
+.dos-profile-row  { display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1rem; }
+.dos-profile-av   { width: 46px; height: 46px; border-radius: 50%; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+.dos-flex-min     { flex: 1; min-width: 0; }
+.dos-profile-name { font-weight: 700; font-size: 0.95rem; }
+.dos-profile-meta { color: var(--muted); font-size: 0.78rem; }
+.dos-badge-row    { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.2rem; }
+
+/* Status + role pills (profile header) */
+.dos-status-pill { font-size: 0.68rem; font-weight: 700; border-radius: 999px; padding: 0.05rem 0.5rem; color: #fff; }
+.dos-status-pill.suspended { background: var(--danger); }
+.dos-status-pill.active    { background: var(--success); }
+.dos-role-pill   { font-size: 0.68rem; font-weight: 600; border-radius: 999px; padding: 0.05rem 0.5rem; background: var(--primary); color: #fff; }
+
+/* Stat pills (perf / att) — accent supplied inline via --dos-accent */
+.dos-stat-pills { display: flex; gap: 0.4rem; flex-shrink: 0; }
+.dos-stat-pill  { text-align: center; padding: 0.3rem 0.55rem; background: var(--surface-2, #f8f9fa);
+  border-radius: 6px; min-width: 52px; border-top: 3px solid var(--dos-accent); }
+.dos-stat-pill-value { font-size: 0.95rem; font-weight: 700; color: var(--dos-accent); }
+.dos-stat-pill-label { font-size: 0.65rem; color: var(--muted); }
+
+/* Detail drawer: action error box */
+.dos-action-err { padding: 0.5rem 0.75rem; background: #fef2f2; border: 1px solid #fca5a5;
+  border-radius: 6px; font-size: 0.8rem; color: var(--danger); margin-bottom: 0.75rem; }
+
+/* Detail drawer: info rows */
+.dos-info-row       { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0; border-bottom: 1px solid var(--border); }
+.dos-info-row-label { font-size: 0.8rem; color: var(--muted); }
+.dos-info-row-value { font-size: 0.875rem; font-weight: 500; }
+
+/* Detail drawer: leadership list */
+.dos-empty-note  { color: var(--muted); font-size: 0.82rem; margin-bottom: 0.5rem; }
+.dos-role-item   { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0.6rem; background: var(--surface-2, #f8f9fa); border-radius: 6px; margin-bottom: 0.3rem; }
+.dos-role-name   { font-weight: 600; font-size: 0.85rem; }
+.dos-role-since  { color: var(--muted); font-weight: 400; font-size: 0.75rem; }
+.dos-role-remove { background: none; border: none; cursor: pointer; color: var(--danger); font-size: 0.75rem; font-weight: 600; }
+.dos-appoint-btn { width: 100%; padding: 0.4rem; font-size: 0.82rem; color: var(--primary); background: none; border: 1px dashed var(--primary); border-radius: 6px; cursor: pointer; margin-bottom: 0.75rem; }
+
+/* Inline edit panels (appoint / change class) */
+.dos-inline-panel { border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; }
+.dos-mb-half      { margin-bottom: 0.5rem; }
+.dos-optional     { color: var(--muted); font-weight: 400; }
+.dos-btn-full     { width: 100%; justify-content: center; }
+.dos-class-row    { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+
+/* Invitation history card */
+.dos-inv-card        { margin-bottom: 1.25rem; overflow: hidden; }
+.dos-inv-header      { display: flex; align-items: center; gap: 0.5rem; padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border); }
+.dos-inv-header-icon { color: var(--primary); font-size: 1.2rem; }
+.dos-inv-title       { font-weight: 600; font-size: 0.95rem; }
+.dos-inv-count       { background: var(--primary); color: #fff; border-radius: 999px; font-size: 0.72rem; padding: 0.1rem 0.55rem; font-weight: 700; }
+
+.dos-inv-tabs      { display: flex; border-bottom: 1px solid var(--border); background: var(--surface-2, #f8f9fa); }
+.dos-inv-tab       { padding: 0.5rem 1.1rem; font-size: 0.82rem; background: none; border: none;
+  border-bottom: 2px solid transparent; font-weight: 400; color: var(--muted); cursor: pointer;
+  display: flex; align-items: center; gap: 0.35rem; }
+.dos-inv-tab.active { border-bottom-color: var(--primary); font-weight: 700; color: var(--primary); }
+.dos-inv-tab-count  { background: var(--border); color: var(--muted); border-radius: 999px; font-size: 0.68rem; padding: 0.05rem 0.45rem; font-weight: 700; }
+.dos-inv-tab.active .dos-inv-tab-count { background: var(--primary); color: #fff; }
+
+.dos-inv-empty { padding: 1.5rem; color: var(--muted); font-size: 0.875rem; text-align: center; }
+
+.dos-inv-table  { width: 100%; border-collapse: collapse; }
+.dos-inv-thead  { font-size: 0.78rem; color: var(--muted); background: var(--surface-2, #f8f9fa); text-transform: uppercase; letter-spacing: 0.04em; }
+.dos-inv-th     { padding: 0.55rem 1rem; text-align: left; font-weight: 600; }
+.dos-inv-th.wide  { padding-left: 1.25rem; padding-right: 1.25rem; }
+.dos-inv-th.right { text-align: right; }
+
+.dos-inv-tr     { border-top: 1px solid var(--border); }
+.dos-inv-td     { padding: 0.75rem 1rem; }
+.dos-inv-td.wide   { padding-left: 1.25rem; padding-right: 1.25rem; }
+.dos-inv-td.sm     { font-size: 0.875rem; }
+.dos-inv-td.xs     { font-size: 0.8rem; }
+.dos-inv-td.muted  { color: var(--muted); }
+.dos-inv-td.danger { color: var(--danger); }
+
+.dos-inv-student { display: flex; align-items: center; gap: 0.6rem; }
+.dos-inv-name    { font-weight: 500; font-size: 0.9rem; }
+
+.dos-inv-status      { font-weight: 600; font-size: 0.8rem; }
+.dos-inv-status.ok   { color: var(--success); }
+.dos-inv-status.warn { color: var(--warning); }
+.dos-inv-status.err  { color: var(--danger); }
+.dos-inv-status-flex { display: flex; align-items: center; gap: 0.25rem; }
+.dos-inv-status-icon { font-size: 0.95rem; }
+
+.dos-inv-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
+.dos-btn-cancel  { color: var(--danger); border: 1px solid var(--danger); background: transparent; }
+

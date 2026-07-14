@@ -58,21 +58,13 @@ function relDate(dateStr) {
 
 function StatBox({ icon, value, label, color }) {
     return (
-        <div style={{
-            background: '#fff', borderRadius: 12, padding: '1rem 1.25rem',
-            display: 'flex', alignItems: 'center', gap: '0.9rem',
-            border: '1px solid var(--border)', flex: 1, minWidth: 130,
-        }}>
-            <div style={{
-                width: 40, height: 40, borderRadius: 10,
-                background: color + '18', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            }}>
-                <span className="material-symbols-rounded" style={{ color, fontSize: '1.2rem' }}>{icon}</span>
+        <div className="pann-stat" style={{ '--stat-color': color, '--stat-bg': color + '18' }}>
+            <div className="pann-stat-icon">
+                <span className="material-symbols-rounded">{icon}</span>
             </div>
             <div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 700, lineHeight: 1.1 }}>{value}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: 2 }}>{label}</div>
+                <div className="pann-stat-value">{value}</div>
+                <div className="pann-stat-label">{label}</div>
             </div>
         </div>
     )
@@ -85,94 +77,47 @@ function AnnouncementCard({ ann, onMarkRead }) {
     const audience = ann.target_grade || AUDIENCE_LABEL[ann.target_audience] || ann.target_audience
 
     return (
-        <div style={{
-            background: isRead ? '#fff' : cat.bg,
-            border: `1px solid ${isRead ? 'var(--border)' : cat.border + '60'}`,
-            borderLeft: `4px solid ${cat.border}`,
-            borderRadius: 12,
-            padding: '1.1rem 1.25rem',
-            display: 'flex',
-            gap: '1rem',
-            transition: 'box-shadow 0.15s',
-            opacity: isRead ? 0.82 : 1,
-        }}>
+        <div
+            className={`pann-card${isRead ? ' pann-card--read' : ''}`}
+            style={{
+                '--cat-bg': cat.bg,
+                '--cat-border': cat.border,
+                '--cat-border-soft': cat.border + '60',
+                '--cat-badge': cat.badge,
+                '--cat-text': cat.text,
+            }}
+        >
             {/* Icon */}
-            <div style={{
-                width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                background: cat.badge,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginTop: 2,
-            }}>
-                <span className="material-symbols-rounded" style={{ color: cat.text, fontSize: '1.1rem' }}>
-                    {cat.icon}
-                </span>
+            <div className="pann-card-icon">
+                <span className="material-symbols-rounded">{cat.icon}</span>
             </div>
 
             {/* Body */}
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="pann-card-body">
                 {/* Meta row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.35rem' }}>
-                    <span style={{
-                        fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.06em',
-                        background: cat.badge, color: cat.text,
-                        borderRadius: 5, padding: '0.15rem 0.5rem', textTransform: 'uppercase',
-                    }}>
-                        {ann.category}
-                    </span>
+                <div className="pann-card-meta">
+                    <span className="pann-cat-badge">{ann.category}</span>
                     {audience && (
-                        <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
-                            · {audience}
-                        </span>
+                        <span className="pann-meta-text">· {audience}</span>
                     )}
-                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
-                        · {relDate(date)}
-                    </span>
-                    {!isRead && (
-                        <span style={{
-                            width: 7, height: 7, borderRadius: '50%',
-                            background: cat.border, display: 'inline-block', marginLeft: 2,
-                        }} />
-                    )}
+                    <span className="pann-meta-text">· {relDate(date)}</span>
+                    {!isRead && <span className="pann-unread-dot" />}
                 </div>
 
                 {/* Title */}
-                <h4 style={{
-                    margin: '0 0 0.35rem',
-                    fontSize: '0.95rem',
-                    fontWeight: isRead ? 500 : 700,
-                    color: 'var(--foreground)',
-                    lineHeight: 1.3,
-                }}>
-                    {ann.title}
-                </h4>
+                <h4 className="pann-card-title">{ann.title}</h4>
 
                 {/* Content */}
-                <p style={{
-                    margin: '0 0 0.6rem',
-                    fontSize: '0.85rem',
-                    color: 'var(--muted-foreground)',
-                    lineHeight: 1.55,
-                }}>
-                    {ann.content}
-                </p>
+                <p className="pann-card-content">{ann.content}</p>
 
                 {/* Footer */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>
+                <div className="pann-card-footer">
+                    <span className="pann-card-author">
                         — {ann.author_name || 'Administration'}
                     </span>
                     {!isRead && (
-                        <button
-                            onClick={() => onMarkRead(ann.id)}
-                            style={{
-                                fontSize: '0.75rem', padding: '0.2rem 0.65rem',
-                                borderRadius: 6, border: `1px solid ${cat.border}`,
-                                background: 'transparent', color: cat.text,
-                                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem',
-                                fontWeight: 500,
-                            }}
-                        >
-                            <span className="material-symbols-rounded" style={{ fontSize: '0.85rem' }}>done</span>
+                        <button onClick={() => onMarkRead(ann.id)} className="pann-mark-btn">
+                            <span className="material-symbols-rounded">done</span>
                             Mark as read
                         </button>
                     )}
@@ -253,7 +198,7 @@ export function ParentAnnouncements() {
                     />
                     <DashboardContent>
                         {/* Stats row */}
-                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+                        <div className="pann-stats-row">
                             <StatBox icon="inbox"             value={loading ? '—' : announcements.length} label="Total"          color="#3b82f6" />
                             <StatBox icon="mark_email_unread" value={loading ? '—' : unreadCount}          label="Unread"         color="#f59e0b" />
                             <StatBox icon="priority_high"     value={loading ? '—' : urgentCount}          label="Urgent"         color="#ef4444" />
@@ -261,33 +206,17 @@ export function ParentAnnouncements() {
                         </div>
 
                         {/* Toolbar: chips + mark all */}
-                        <div style={{
-                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem',
-                        }}>
-                            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <div className="u-row-between u-mb">
+                            <div className="pann-chip-row">
                                 {CHIPS.map(c => {
                                     const active = chip === c.key
                                     return (
                                         <button key={c.key}
                                             onClick={() => setChip(c.key)}
-                                            style={{
-                                                display: 'flex', alignItems: 'center', gap: '0.35rem',
-                                                padding: '0.35rem 0.85rem', borderRadius: 20,
-                                                border: active ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
-                                                background: active ? 'var(--primary)' : '#fff',
-                                                color: active ? '#fff' : 'var(--foreground)',
-                                                fontSize: '0.82rem', fontWeight: active ? 600 : 400,
-                                                cursor: 'pointer', transition: 'all 0.15s',
-                                            }}
+                                            className={`pann-chip${active ? ' active' : ''}`}
                                         >
                                             {c.label}
-                                            <span style={{
-                                                fontSize: '0.7rem', fontWeight: 600,
-                                                background: active ? 'rgba(255,255,255,0.25)' : 'var(--muted)',
-                                                color: active ? '#fff' : 'var(--muted-foreground)',
-                                                borderRadius: 10, padding: '0.05rem 0.4rem',
-                                            }}>
+                                            <span className="pann-chip-count">
                                                 {chipCounts[c.key] ?? 0}
                                             </span>
                                         </button>
@@ -299,15 +228,9 @@ export function ParentAnnouncements() {
                                 <button
                                     onClick={handleMarkAll}
                                     disabled={markingAll}
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: '0.4rem',
-                                        padding: '0.4rem 1rem', borderRadius: 8,
-                                        border: '1px solid var(--border)', background: '#fff',
-                                        color: 'var(--primary)', fontSize: '0.82rem',
-                                        fontWeight: 500, cursor: 'pointer',
-                                    }}
+                                    className="pann-markall-btn"
                                 >
-                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>done_all</span>
+                                    <span className="material-symbols-rounded">done_all</span>
                                     {markingAll ? 'Marking…' : 'Mark all as read'}
                                 </button>
                             )}
@@ -315,14 +238,14 @@ export function ParentAnnouncements() {
 
                         {/* Feed */}
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading announcements…</p>
+                            <p className="u-pad u-muted">Loading announcements…</p>
                         ) : visible.length === 0 ? (
-                            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--muted-foreground)' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>inbox</span>
+                            <div className="u-pad-xl u-center-text u-muted">
+                                <span className="material-symbols-rounded pann-empty-icon">inbox</span>
                                 No announcements in this category.
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            <div className="u-stack-sm">
                                 {visible.map(a => (
                                     <AnnouncementCard key={a.id} ann={a} onMarkRead={handleMarkRead} />
                                 ))}

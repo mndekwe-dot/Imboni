@@ -108,7 +108,7 @@ function AssignmentCard({ assignment, onSubmit }) {
                     <span className={`assignment-status-tag ${tagClass}`}>{status}</span>
                 </div>
                 {feedback && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.3rem' }}>
+                    <div className="assignment-feedback">
                         <em>{feedback}</em>
                     </div>
                 )}
@@ -125,7 +125,7 @@ function AssignmentCard({ assignment, onSubmit }) {
                     </button>
                 )}
                 {gs && (
-                    <span className="badge" style={{ ...gs, padding: '0.3rem 0.7rem' }}>
+                    <span className="badge assignment-grade-badge" style={gs}>
                         {grade != null ? `${parseFloat(grade).toFixed(0)}%` : '—'}
                     </span>
                 )}
@@ -223,8 +223,7 @@ export function StudentAssignments() {
                             {STATUS_TABS.map(tab => (
                                 <button
                                     key={tab}
-                                    className={`btn ${statusFilter === tab ? 'btn-primary' : 'btn-outline'}`}
-                                    style={{ fontSize: '0.82rem', padding: '0.35rem 0.85rem' }}
+                                    className={`btn assignment-tab-btn ${statusFilter === tab ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setStatusFilter(tab)}
                                 >
                                     {tab}
@@ -235,33 +234,25 @@ export function StudentAssignments() {
 
                         {/* Online quizzes section */}
                         {quizzes.length > 0 && (
-                            <div className="act-list-card" style={{ marginBottom: '1.25rem' }}>
+                            <div className="act-list-card u-mb-lg">
                                 <div className="act-list-header">
-                                    <div className="act-list-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '1.1rem', color: 'var(--success)' }}>quiz</span>
+                                    <div className="act-list-title quiz-title-row">
+                                        <span className="material-symbols-rounded quiz-title-icon">quiz</span>
                                         Online Quizzes
                                     </div>
                                     <span className="act-list-count">{quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''}</span>
                                 </div>
                                 <div>
                                     {quizzes.map((q, i) => (
-                                        <div key={q.id} style={{
-                                            display: 'flex', alignItems: 'center', gap: '0.75rem',
-                                            padding: '0.75rem 1rem',
-                                            borderBottom: i < quizzes.length - 1 ? '1px solid var(--border)' : 'none',
-                                        }}>
-                                            <div style={{
-                                                width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                background: q.submitted ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
-                                            }}>
-                                                <span className="material-symbols-rounded" style={{ fontSize: '1.2rem', color: q.submitted ? 'var(--success)' : '#6366f1' }}>
+                                        <div key={q.id} className={`quiz-row ${i < quizzes.length - 1 ? 'border-bottom-sep' : ''}`}>
+                                            <div className={`quiz-icon-box ${q.submitted ? 'submitted' : 'pending'}`}>
+                                                <span className="material-symbols-rounded">
                                                     {q.submitted ? 'check_circle' : 'quiz'}
                                                 </span>
                                             </div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{q.title}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.1rem' }}>
+                                            <div className="quiz-info">
+                                                <div className="quiz-title">{q.title}</div>
+                                                <div className="quiz-meta">
                                                     {q.subject_name} · {q.question_count} question{q.question_count !== 1 ? 's' : ''}
                                                     {q.time_limit_minutes ? ` · ${q.time_limit_minutes} min` : ''}
                                                     {' · Due '}
@@ -269,12 +260,12 @@ export function StudentAssignments() {
                                                 </div>
                                             </div>
                                             {q.submitted ? (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-                                                    <div style={{ textAlign: 'right' }}>
-                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: q.percentage >= 50 ? 'var(--success)' : '#dc2626' }}>
+                                                <div className="u-row u-shrink-0">
+                                                    <div className="quiz-score-box">
+                                                        <div className="quiz-score-value" style={{ color: q.percentage >= 50 ? 'var(--success)' : '#dc2626' }}>
                                                             {q.percentage}%
                                                         </div>
-                                                        <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>Completed</div>
+                                                        <div className="quiz-score-label">Completed</div>
                                                     </div>
                                                     <button className="btn btn-outline btn-sm"
                                                         onClick={() => navigate(`/student/quiz/${q.id}/review`)}>
@@ -283,8 +274,7 @@ export function StudentAssignments() {
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <button className="btn btn-primary btn-sm"
-                                                    style={{ flexShrink: 0 }}
+                                                <button className="btn btn-primary btn-sm u-shrink-0"
                                                     onClick={() => navigate(`/student/quiz/${q.id}`)}>
                                                     <span className="material-symbols-rounded icon-sm">play_arrow</span>
                                                     Take Quiz
@@ -298,7 +288,7 @@ export function StudentAssignments() {
 
                         {/* Paper assignments */}
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading assignments…</p>
+                            <p className="u-pad u-muted">Loading assignments…</p>
                         ) : filtered.length === 0 ? (
                             <EmptyState
                                 icon="assignment"

@@ -89,7 +89,6 @@ function FormSelect({ value, onChange, options, placeholder, disabled }) {
                 disabled={disabled}
                 onClick={() => !disabled && setOpen(o => !o)}
                 className={`form-select-btn${selected ? ' has-value' : ''}`}
-                style={disabled ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
                 <span>{selected ? selected.label : placeholder}</span>
                 <span className="material-symbols-rounded">{open ? 'expand_less' : 'expand_more'}</span>
@@ -138,14 +137,14 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
     const imgRef = useRef()
 
     return (
-        <div className="quiz-q" style={{ position: 'relative' }}>
+        <div className="quiz-q u-relative">
             {/* Question header row */}
-            <div className="quiz-q-header" style={{ alignItems: 'flex-start', gap: '0.5rem' }}>
+            <div className="quiz-q-header top">
                 <span className="quiz-q-num">{qi + 1}</span>
 
                 {/* Type selector */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
-                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
+                <div className="quiz-q-type-col">
+                    <div className="quiz-q-type-row">
                         {QUESTION_TYPES.map(t => (
                             <button key={t.value} type="button"
                                 onClick={() => {
@@ -155,15 +154,8 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                                     else if (t.value === 'short_answer' || t.value === 'fill_blank') { updated.options = []; updated.correct = '' }
                                     onChange(updated)
                                 }}
-                                style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.3rem',
-                                    padding: '0.2rem 0.55rem', borderRadius: '6px', fontSize: '0.73rem',
-                                    border: `1px solid ${q.type === t.value ? 'var(--primary)' : 'var(--border)'}`,
-                                    background: q.type === t.value ? 'var(--primary-light, #e8f2ff)' : 'transparent',
-                                    color: q.type === t.value ? 'var(--primary)' : 'var(--muted-foreground)',
-                                    cursor: 'pointer',
-                                }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.85rem' }}>{t.icon}</span>
+                                className={`quiz-q-type-btn${q.type === t.value ? ' active' : ''}`}>
+                                <span className="material-symbols-rounded">{t.icon}</span>
                                 {t.label}
                             </button>
                         ))}
@@ -178,7 +170,7 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                                 value={q.text}
                                 onChange={e => set('text', e.target.value)}
                             />
-                            <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '0.25rem' }}>
+                            <div className="quiz-q-hint">
                                 Use ____ (four underscores) to mark the blank position.
                             </div>
                         </div>
@@ -193,15 +185,15 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                 </div>
 
                 {/* Move + delete */}
-                <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
+                <div className="quiz-q-tools">
                     {!isFirst && (
-                        <button type="button" className="quiz-q-delete" onClick={onMoveUp} title="Move up">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>arrow_upward</span>
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveUp} title="Move up">
+                            <span className="material-symbols-rounded">arrow_upward</span>
                         </button>
                     )}
                     {!isLast && (
-                        <button type="button" className="quiz-q-delete" onClick={onMoveDown} title="Move down">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>arrow_downward</span>
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveDown} title="Move down">
+                            <span className="material-symbols-rounded">arrow_downward</span>
                         </button>
                     )}
                     <button type="button" className="quiz-q-delete" onClick={onRemove} title="Delete question">
@@ -211,19 +203,18 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
             </div>
 
             {/* Image attachment */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.4rem 0' }}>
-                <input ref={imgRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImage} />
+            <div className="quiz-q-image-row">
+                <input ref={imgRef} type="file" accept="image/*" className="quiz-q-file-input" onChange={handleImage} />
                 {q.image ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <img src={q.image} alt="question" style={{ maxHeight: 80, borderRadius: 6, border: '1px solid var(--border)' }} />
-                        <button type="button" className="quiz-q-delete" onClick={() => set('image', '')} title="Remove image">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>close</span>
+                    <div className="u-row-sm">
+                        <img src={q.image} alt="question" className="quiz-q-image" />
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={() => set('image', '')} title="Remove image">
+                            <span className="material-symbols-rounded">close</span>
                         </button>
                     </div>
                 ) : (
-                    <button type="button" onClick={() => imgRef.current.click()}
-                        style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', background: 'none', border: '1px dashed var(--border)', borderRadius: 6, padding: '0.2rem 0.6rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>add_photo_alternate</span>
+                    <button type="button" onClick={() => imgRef.current.click()} className="quiz-q-add-image">
+                        <span className="material-symbols-rounded">add_photo_alternate</span>
                         Add image
                     </button>
                 )}
@@ -241,16 +232,15 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                                     placeholder={`Option ${String.fromCharCode(65 + oi)}`}
                                     value={opt} onChange={e => setOption(oi, e.target.value)} />
                                 {q.options.length > 2 && (
-                                    <button type="button" className="quiz-q-delete" onClick={() => removeOption(oi)}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>remove</span>
+                                    <button type="button" className="quiz-q-delete quiz-q-delete-sm" onClick={() => removeOption(oi)}>
+                                        <span className="material-symbols-rounded">remove</span>
                                     </button>
                                 )}
                             </div>
                         ))}
                         {q.options.length < 6 && (
-                            <button type="button" onClick={addOption}
-                                style={{ fontSize: '0.75rem', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.2rem 0' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>add</span>
+                            <button type="button" onClick={addOption} className="quiz-q-add-option">
+                                <span className="material-symbols-rounded">add</span>
                                 Add option
                             </button>
                         )}
@@ -267,7 +257,7 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                             <div key={oi} className={`quiz-q-option${q.correct === oi ? ' correct' : ''}`}>
                                 <input type="radio" name={`correct-${q.id}`}
                                     checked={q.correct === oi} onChange={() => set('correct', oi)} />
-                                <span style={{ fontWeight: 500 }}>{label}</span>
+                                <span className="quiz-q-tf-label">{label}</span>
                             </div>
                         ))}
                         <div className="quiz-q-help">
@@ -278,10 +268,10 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                 )}
 
                 {(q.type === 'short_answer' || q.type === 'fill_blank') && (
-                    <div style={{ marginTop: '0.4rem' }}>
-                        <label className="form-label" style={{ fontSize: '0.78rem' }}>
+                    <div className="quiz-q-answer">
+                        <label className="form-label">
                             {q.type === 'fill_blank' ? 'Expected answer (for the blank)' : 'Model answer'}{' '}
-                            <span style={{ color: 'var(--muted-foreground)', fontWeight: 400 }}>(used for auto-grading)</span>
+                            <span className="label-muted">(used for auto-grading)</span>
                         </label>
                         <input className="form-control"
                             placeholder={q.type === 'fill_blank' ? 'e.g. Paris' : 'e.g. Newton\'s first law of motion'}
@@ -293,25 +283,23 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
             </div>
 
             {/* Points + explanation row */}
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.6rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-                    <label style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', whiteSpace: 'nowrap' }}>Points:</label>
+            <div className="quiz-q-foot">
+                <div className="quiz-q-points">
+                    <label className="quiz-q-points-label">Points:</label>
                     <input type="number" min="1" max="100"
-                        className="form-control"
-                        style={{ width: 70, padding: '0.25rem 0.4rem', fontSize: '0.85rem' }}
+                        className="form-control quiz-q-points-input"
                         value={q.points} onChange={e => set('points', Math.max(1, parseInt(e.target.value) || 1))} />
                 </div>
-                <div style={{ flex: 1, minWidth: 200 }}>
-                    <input className="form-control"
+                <div className="quiz-q-expl">
+                    <input className="form-control quiz-q-expl-input"
                         placeholder="Explanation (shown to students after submission, optional)…"
-                        style={{ fontSize: '0.82rem' }}
                         value={q.explanation} onChange={e => set('explanation', e.target.value)} />
                 </div>
                 <button type="button"
                     onClick={() => onSaveToBank(q)}
                     title="Save to question bank"
-                    style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', background: 'none', border: '1px solid var(--border)', borderRadius: 6, padding: '0.25rem 0.55rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.85rem' }}>bookmark_add</span>
+                    className="quiz-q-bank-btn">
+                    <span className="material-symbols-rounded">bookmark_add</span>
                     Save to bank
                 </button>
             </div>
@@ -360,7 +348,7 @@ function QuizBuilder({ questions, onChange, subjects, onOpenBank }) {
                 <div className="quiz-q-empty">No questions yet. Add a question type below or import from your bank.</div>
             ) : (
                 <>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.4rem' }}>
+                    <div className="u-flex u-justify-end u-mb-xs">
                         <span className="quiz-section-count">{questions.length} question{questions.length !== 1 ? 's' : ''} · {totalPoints} mark{totalPoints !== 1 ? 's' : ''} total</span>
                     </div>
                     {questions.map((q, qi) => (
@@ -378,7 +366,7 @@ function QuizBuilder({ questions, onChange, subjects, onOpenBank }) {
             )}
 
             {/* Add buttons */}
-            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+            <div className="quiz-add-row">
                 {QUESTION_TYPES.map(t => (
                     <button key={t.value} type="button"
                         className="btn btn-outline btn-sm"
@@ -387,8 +375,7 @@ function QuizBuilder({ questions, onChange, subjects, onOpenBank }) {
                         + {t.label}
                     </button>
                 ))}
-                <button type="button" className="btn btn-outline btn-sm" onClick={onOpenBank}
-                    style={{ marginLeft: 'auto' }}>
+                <button type="button" className="btn btn-outline btn-sm u-ml-auto" onClick={onOpenBank}>
                     <span className="material-symbols-rounded icon-sm">library_books</span>
                     Import from Bank
                 </button>
@@ -468,39 +455,33 @@ function QuestionBankModal({ onClose, onImport }) {
                     </button>
                 </div>
             }>
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                <input className="form-control" placeholder="Search questions…" style={{ flex: 1, minWidth: 180 }}
+            <div className="bank-filter-row">
+                <input className="form-control bank-search-input" placeholder="Search questions…"
                     value={search} onChange={e => setSearch(e.target.value)} />
-                <select className="form-control" style={{ width: 150 }} value={scope} onChange={e => setScope(e.target.value)}
+                <select className="form-control bank-select-scope" value={scope} onChange={e => setScope(e.target.value)}
                     aria-label="Question scope">
                     <option value="">All questions</option>
                     <option value="mine">My questions</option>
                     <option value="shared">Shared with me</option>
                 </select>
-                <select className="form-control" style={{ width: 160 }} value={typeF} onChange={e => setTypeF(e.target.value)}>
+                <select className="form-control bank-select-type" value={typeF} onChange={e => setTypeF(e.target.value)}>
                     <option value="">All types</option>
                     {QUESTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
             </div>
             {loading ? (
-                <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                <p className="u-muted">Loading…</p>
             ) : filtered.length === 0 ? (
-                <p style={{ color: 'var(--muted-foreground)' }}>No saved questions{search || typeF ? ' matching your filters' : ' yet'}.</p>
+                <p className="u-muted">No saved questions{search || typeF ? ' matching your filters' : ' yet'}.</p>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: 400, overflowY: 'auto' }}>
+                <div className="bank-list">
                     {filtered.map(q => (
                         <div key={q.id} onClick={() => toggle(q.id)}
-                            style={{
-                                display: 'flex', alignItems: 'flex-start', gap: '0.6rem',
-                                padding: '0.6rem 0.75rem', borderRadius: 8, cursor: 'pointer',
-                                border: `1px solid ${selected.has(q.id) ? 'var(--primary)' : 'var(--border)'}`,
-                                background: selected.has(q.id) ? 'var(--primary-light, #e8f2ff)' : 'var(--card)',
-                            }}>
-                            <input type="checkbox" readOnly checked={selected.has(q.id)}
-                                style={{ width: '1rem', height: '1rem', marginTop: '0.1rem', flexShrink: 0 }} />
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>{q.text || '(no text)'}</div>
-                                <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '0.15rem' }}>
+                            className={`bank-item${selected.has(q.id) ? ' selected' : ''}`}>
+                            <input type="checkbox" readOnly checked={selected.has(q.id)} className="bank-item-check" />
+                            <div className="bank-item-body">
+                                <div className="bank-item-text">{q.text || '(no text)'}</div>
+                                <div className="bank-item-meta">
                                     {typeLabel[q.question_type] || q.question_type} · {q.points} pt{q.points !== 1 ? 's' : ''}
                                     {q.subject_name ? ` · ${q.subject_name}` : ''}
                                     {q.is_mine === false && q.teacher_name ? ` · Shared by ${q.teacher_name}` : ''}
@@ -511,16 +492,16 @@ function QuestionBankModal({ onClose, onImport }) {
                                 <button type="button"
                                     onClick={e => { e.stopPropagation(); toggleShare(q) }}
                                     title={q.is_shared ? 'Stop sharing with other teachers' : 'Share with other teachers'}
-                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: q.is_shared ? 'var(--primary)' : 'var(--muted-foreground)', flexShrink: 0 }}>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>
+                                    className={`bank-item-icon-btn${q.is_shared ? ' shared' : ''}`}>
+                                    <span className="material-symbols-rounded">
                                         {q.is_shared ? 'group' : 'group_off'}
                                     </span>
                                 </button>
                             )}
                             {q.is_mine !== false && (
                                 <button type="button" onClick={e => { e.stopPropagation(); handleDelete(q.id) }}
-                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', flexShrink: 0 }}>
-                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                                    className="bank-item-icon-btn">
+                                    <span className="material-symbols-rounded">delete</span>
                                 </button>
                             )}
                         </div>
@@ -556,7 +537,7 @@ function PreviewModal({ assignment, questions, onClose }) {
         <Modal title={`Preview: ${assignment.title}`} icon="preview" onClose={onClose} size="wide"
             footer={
                 <div className="modal-footer-row">
-                    <span className="modal-footer-hint" style={{ color: 'var(--muted-foreground)' }}>
+                    <span className="modal-footer-hint">
                         This is how students will see the quiz. Correct answers are hidden.
                     </span>
                     <button className="btn btn-outline" onClick={() => setRevealed(r => !r)}>
@@ -567,12 +548,12 @@ function PreviewModal({ assignment, questions, onClose }) {
                 </div>
             }>
             {/* Quiz header */}
-            <div style={{ background: 'var(--muted)', borderRadius: 10, padding: '0.875rem', marginBottom: '1rem' }}>
-                <div style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '0.25rem' }}>{assignment.title}</div>
+            <div className="preview-head">
+                <div className="preview-title">{assignment.title}</div>
                 {assignment.instructions && (
-                    <div style={{ fontSize: '0.83rem', color: 'var(--muted-foreground)', whiteSpace: 'pre-wrap' }}>{assignment.instructions}</div>
+                    <div className="preview-instructions">{assignment.instructions}</div>
                 )}
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', fontSize: '0.78rem', color: 'var(--muted-foreground)', flexWrap: 'wrap' }}>
+                <div className="preview-meta">
                     <span><strong>{calcMaxScore(questions)}</strong> marks total</span>
                     <span><strong>{questions.length}</strong> questions</span>
                     {assignment.time_limit_minutes && <span><strong>{assignment.time_limit_minutes}</strong> min limit</span>}
@@ -581,7 +562,7 @@ function PreviewModal({ assignment, questions, onClose }) {
             </div>
 
             {/* Questions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="u-stack-1">
                 {displayQ.map((q, qi) => {
                     const studentAns = answers[q.id]
                     const isCorrect = revealed && studentAns !== undefined && studentAns !== '' && (() => {
@@ -590,42 +571,36 @@ function PreviewModal({ assignment, questions, onClose }) {
                     })()
 
                     return (
-                        <div key={q.id} style={{
-                            border: `1px solid ${revealed && studentAns !== undefined ? (isCorrect ? 'var(--success)' : '#dc2626') : 'var(--border)'}`,
-                            borderRadius: 10, padding: '0.875rem',
-                        }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{qi + 1}. {q.text || '(empty question)'}</span>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', flexShrink: 0 }}>{q.points} pt{q.points !== 1 ? 's' : ''}</span>
+                        <div key={q.id} className="preview-q"
+                            style={{ '--preview-q-border': revealed && studentAns !== undefined ? (isCorrect ? 'var(--success)' : '#dc2626') : 'var(--border)' }}>
+                            <div className="preview-q-head">
+                                <span className="preview-q-title">{qi + 1}. {q.text || '(empty question)'}</span>
+                                <span className="preview-q-points">{q.points} pt{q.points !== 1 ? 's' : ''}</span>
                             </div>
-                            {q.image && <img src={q.image} alt="question" style={{ maxHeight: 120, borderRadius: 6, marginBottom: '0.5rem', display: 'block' }} />}
+                            {q.image && <img src={q.image} alt="question" className="preview-q-image" />}
 
                             {(q.type === 'mcq') && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                                <div className="preview-opts">
                                     {q.options.map((opt, oi) => (
-                                        <label key={oi} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer',
-                                            color: revealed && oi === parseInt(q.correct) ? 'var(--success)' : 'inherit',
-                                            fontWeight: revealed && oi === parseInt(q.correct) ? 600 : 400 }}>
+                                        <label key={oi} className={`preview-opt${revealed && oi === parseInt(q.correct) ? ' correct' : ''}`}>
                                             <input type="radio" name={`prev-${q.id}`}
                                                 checked={answers[q.id] === oi}
                                                 onChange={() => setAnswers(a => ({ ...a, [q.id]: oi }))} />
                                             {opt || `Option ${String.fromCharCode(65 + oi)}`}
-                                            {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', color: 'var(--success)' }}>check</span>}
+                                            {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded preview-check">check</span>}
                                         </label>
                                     ))}
                                 </div>
                             )}
                             {q.type === 'true_false' && (
-                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                <div className="preview-tf">
                                     {['True', 'False'].map((label, oi) => (
-                                        <label key={oi} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer',
-                                            color: revealed && oi === parseInt(q.correct) ? 'var(--success)' : 'inherit',
-                                            fontWeight: revealed && oi === parseInt(q.correct) ? 600 : 400 }}>
+                                        <label key={oi} className={`preview-opt-tf${revealed && oi === parseInt(q.correct) ? ' correct' : ''}`}>
                                             <input type="radio" name={`prev-${q.id}`}
                                                 checked={answers[q.id] === oi}
                                                 onChange={() => setAnswers(a => ({ ...a, [q.id]: oi }))} />
                                             {label}
-                                            {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', color: 'var(--success)' }}>check</span>}
+                                            {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded preview-check">check</span>}
                                         </label>
                                     ))}
                                 </div>
@@ -636,14 +611,14 @@ function PreviewModal({ assignment, questions, onClose }) {
                                         value={answers[q.id] || ''}
                                         onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))} />
                                     {revealed && q.correct && (
-                                        <div style={{ fontSize: '0.78rem', color: 'var(--success)', marginTop: '0.25rem' }}>
+                                        <div className="preview-model-answer">
                                             Model answer: <strong>{q.correct}</strong>
                                         </div>
                                     )}
                                 </div>
                             )}
                             {revealed && q.explanation && (
-                                <div style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: 'var(--muted-foreground)', background: 'var(--muted)', padding: '0.4rem 0.6rem', borderRadius: 6 }}>
+                                <div className="preview-explanation">
                                     {q.explanation}
                                 </div>
                             )}
@@ -652,7 +627,7 @@ function PreviewModal({ assignment, questions, onClose }) {
                 })}
             </div>
             {revealed && Object.keys(answers).length > 0 && (
-                <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--muted)', borderRadius: 8, fontWeight: 600, fontSize: '0.9rem' }}>
+                <div className="preview-score">
                     Preview score: {score()} / {calcMaxScore(questions)}
                 </div>
             )}
@@ -726,30 +701,29 @@ function GradeModal({ assignment, onClose }) {
                 </div>
             }>
             {loading ? (
-                <p style={{ color: 'var(--muted-foreground)' }}>Loading roster…</p>
+                <p className="u-muted">Loading roster…</p>
             ) : !sheet?.students?.length ? (
-                <p style={{ color: 'var(--muted-foreground)' }}>No students found in {assignment.class_name}.</p>
+                <p className="u-muted">No students found in {assignment.class_name}.</p>
             ) : (
                 <div className="table-responsive">
                     <table>
                         <thead>
                             <tr>
                                 <th>Student</th>
-                                <th style={{ width: 140 }}>Score (/{maxScore})</th>
+                                <th className="grade-score-col">Score (/{maxScore})</th>
                             </tr>
                         </thead>
                         <tbody>
                             {sheet.students.map(s => (
                                 <tr key={s.student_id}>
                                     <td>
-                                        <div style={{ fontWeight: 500 }}>{s.full_name}</div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{s.student_code}</div>
+                                        <div className="cell-name">{s.full_name}</div>
+                                        <div className="cell-sub">{s.student_code}</div>
                                     </td>
                                     <td>
                                         <input
                                             type="number" min="0" max={maxScore}
-                                            className="form-control"
-                                            style={{ width: 110, padding: '0.3rem 0.5rem' }}
+                                            className="form-control grade-input"
                                             aria-label={`Score for ${s.full_name}`}
                                             value={scores[s.student_id] ?? ''}
                                             onChange={e => setScore(s.student_id, e.target.value)}
@@ -782,9 +756,9 @@ function SubmissionsModal({ assignment, onClose }) {
         <Modal title={`Submissions — ${assignment.title}`} icon="fact_check" onClose={onClose} size="wide"
             footer={<div className="modal-footer-row"><button className="btn btn-outline" onClick={onClose}>Close</button></div>}>
             {loading ? (
-                <p style={{ color: 'var(--muted-foreground)' }}>Loading submissions…</p>
+                <p className="u-muted">Loading submissions…</p>
             ) : subs.length === 0 ? (
-                <p style={{ color: 'var(--muted-foreground)' }}>No submissions yet.</p>
+                <p className="u-muted">No submissions yet.</p>
             ) : (
                 <div className="table-responsive">
                     <table>
@@ -801,18 +775,15 @@ function SubmissionsModal({ assignment, onClose }) {
                             {subs.map(s => (
                                 <tr key={s.id}>
                                     <td>
-                                        <div style={{ fontWeight: 500 }}>{s.student_name}</div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{s.student_code}</div>
+                                        <div className="cell-name">{s.student_name}</div>
+                                        <div className="cell-sub">{s.student_code}</div>
                                     </td>
                                     <td>{s.score} / {s.max_score}</td>
                                     <td>
-                                        <span style={{
-                                            fontWeight: 600,
-                                            color: s.percentage >= 50 ? 'var(--success)' : '#dc2626'
-                                        }}>{s.percentage}%</span>
+                                        <span className={`sub-pct ${s.percentage >= 50 ? 'pass' : 'low'}`}>{s.percentage}%</span>
                                     </td>
-                                    <td style={{ fontSize: '0.8rem' }}>{new Date(s.submitted_at).toLocaleString()}</td>
-                                    <td>{s.is_late ? <span style={{ color: '#dc2626', fontSize: '0.75rem' }}>Late</span> : '—'}</td>
+                                    <td className="cell-date">{new Date(s.submitted_at).toLocaleString()}</td>
+                                    <td>{s.is_late ? <span className="sub-late">Late</span> : '—'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -919,7 +890,7 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                 size="wide"
                 footer={
                     <div className="modal-footer-row">
-                        <span className="modal-footer-hint" style={{ color: saveError ? '#dc2626' : undefined }}>
+                        <span className={`modal-footer-hint${saveError ? ' has-error' : ''}`}>
                             {saveError || (!isValid && '* Fill in all required fields') || (form.mode === 'online' && questions.length === 0 && '* Add at least one question')}
                         </span>
                         {form.mode === 'online' && questions.length > 0 && (
@@ -939,17 +910,13 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                 }
             >
                 {/* Mode toggle */}
-                <div className="resp-grid-2" style={{ gap: '0.75rem', marginBottom: '1.5rem' }}>
+                <div className="resp-grid-2 grid-gap-sm mb-1-5">
                     {[
                         { key: 'paper',  icon: 'assignment', label: 'Paper Assignment', sub: 'Manual grading' },
                         { key: 'online', icon: 'quiz',        label: 'Online Quiz',      sub: 'Auto-marked'   },
                     ].map(m => (
                         <button key={m.key} onClick={() => setForm(p => ({ ...p, mode: m.key }))}
-                            className={`mode-toggle-btn${form.mode === m.key ? ' active' : ''}`}
-                            style={{
-                                border:     `2px solid ${form.mode === m.key ? 'var(--primary)' : 'var(--border)'}`,
-                                background: form.mode === m.key ? 'var(--primary-light, #e8f2ff)' : 'var(--card)',
-                            }}>
+                            className={`mode-toggle-btn${form.mode === m.key ? ' active' : ''}`}>
                             <div className="mode-toggle-btn-header">
                                 <span className="material-symbols-rounded mode-toggle-btn-icon">{m.icon}</span>
                                 <span className="mode-toggle-btn-label">{m.label}</span>
@@ -961,7 +928,7 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
 
                 <div className="section-label-sm">Assignment Details</div>
 
-                <div className="resp-grid-2" style={{ gap: '0.75rem', marginBottom: '1rem' }}>
+                <div className="resp-grid-2 grid-gap-sm mb-1">
                     <div className="form-group col-full">
                         <label className="form-label">Title *</label>
                         <input className="form-control" name="title" value={form.title} onChange={handle}
@@ -999,11 +966,11 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                                 <input className="form-control" type="number" min="1" name="time_limit_minutes"
                                     value={form.time_limit_minutes} onChange={handle} placeholder="e.g. 30 (leave blank for unlimited)" />
                             </div>
-                            <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingTop: '1.6rem' }}>
+                            <div className="form-group shuffle-row">
                                 <input type="checkbox" id="shuffle" name="shuffle_questions"
                                     checked={form.shuffle_questions} onChange={handle}
-                                    style={{ width: '1rem', height: '1rem', cursor: 'pointer' }} />
-                                <label htmlFor="shuffle" style={{ cursor: 'pointer', fontSize: '0.875rem' }}>
+                                    className="checkbox-sm" />
+                                <label htmlFor="shuffle" className="u-pointer u-sm">
                                     Shuffle question order per student
                                 </label>
                             </div>
@@ -1032,7 +999,7 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                 {form.mode === 'online' && (
                     <>
                         <div className="quiz-section-header">
-                            <div className="section-label-sm" style={{ marginBottom: 0 }}>Quiz Questions</div>
+                            <div className="section-label-sm flush">Quiz Questions</div>
                         </div>
                         <QuizBuilder
                             questions={questions}
@@ -1084,7 +1051,7 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                         {a.mode === 'online' ? 'Online' : 'Paper'}
                     </span>
                     {a.shuffle_questions && (
-                        <span className="asgn-chip" style={{ background: 'rgba(245,158,11,0.1)', color: 'var(--warning)' }}>
+                        <span className="asgn-chip shuffled">
                             Shuffled
                         </span>
                     )}
@@ -1137,7 +1104,7 @@ function ClassDropdown({ value, onChange, options }) {
     }, [])
     return (
         <div ref={ref} className="class-dd-wrap">
-            <button className="btn btn-outline" style={{ fontSize: '0.82rem', gap: '0.4rem', minWidth: 120 }} onClick={() => setOpen(o => !o)}>
+            <button className="btn btn-outline class-dd-btn" onClick={() => setOpen(o => !o)}>
                 <span className="material-symbols-rounded icon-md">class</span>
                 {value === 'all' ? 'All Classes' : value}
                 <span className="material-symbols-rounded icon-md ml-auto">{open ? 'expand_less' : 'expand_more'}</span>
@@ -1305,8 +1272,8 @@ export function TeacherAssignments() {
                     />
                     <DashboardContent>
                         {loadError && (
-                            <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.4rem' }}>error</span>
+                            <div className="alert alert-danger u-mb">
+                                <span className="material-symbols-rounded alert-icon">error</span>
                                 {loadError}
                             </div>
                         )}

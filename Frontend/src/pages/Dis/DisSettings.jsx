@@ -71,7 +71,7 @@ function SectionModal({ section, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>
+                        <span className="material-symbols-rounded disc-modal-icon">
                             {isEditing ? 'edit' : 'add_circle'}
                         </span>
                         <h2 className="modal-title">{isEditing ? 'Edit Section' : 'Add Section'}</h2>
@@ -86,10 +86,10 @@ function SectionModal({ section, onClose, onSave }) {
                     </div>
                     <div className="form-group">
                         <label className="form-label">Gender</label>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <div className="disc-gender-options">
                             {GENDER_OPTIONS.map(g => (
-                                <label key={g.value} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.875rem', padding: '0.35rem 0.75rem', borderRadius: '6px', border: `1px solid ${form.gender === g.value ? 'var(--primary)' : 'var(--border)'}`, background: form.gender === g.value ? 'var(--primary-light, #ede9fe)' : 'transparent' }}>
-                                    <input type="radio" value={g.value} checked={form.gender === g.value} onChange={() => setForm(p => ({ ...p, gender: g.value }))} style={{ accentColor: 'var(--primary)' }} />
+                                <label key={g.value} className={`disc-gender-opt${form.gender === g.value ? ' active' : ''}`}>
+                                    <input type="radio" value={g.value} checked={form.gender === g.value} onChange={() => setForm(p => ({ ...p, gender: g.value }))} className="disc-gender-radio" />
                                     {g.label}
                                 </label>
                             ))}
@@ -99,7 +99,7 @@ function SectionModal({ section, onClose, onSave }) {
                         <label className="form-label">Description (optional)</label>
                         <textarea className="form-input form-textarea" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows="2" placeholder="Brief description…" />
                     </div>
-                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+                    {error && <p className="form-error-text">{error}</p>}
                 </div>
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
@@ -120,26 +120,26 @@ function SectionCard({ section, dormCount, onEdit, onDelete }) {
     const gBadge = GENDER_BADGE[section.gender] || GENDER_BADGE.na
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '10px' }}>
-            <div className="staff-card-avatar patron" style={{ width: '2.25rem', height: '2.25rem', minWidth: '2.25rem' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>meeting_room</span>
+        <div className="disc-section-row">
+            <div className="staff-card-avatar patron disc-avatar-sm">
+                <span className="material-symbols-rounded u-lg">meeting_room</span>
             </div>
-            <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{section.name}</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>
+            <div className="disc-fill">
+                <div className="disc-row-title">{section.name}</div>
+                <div className="u-xs u-muted">
                     {dormCount} dormitor{dormCount === 1 ? 'y' : 'ies'}
                     {section.description && ` · ${section.description}`}
                 </div>
             </div>
             {gBadge.label && <span className={`pub-badge ${gBadge.cls}`}>{gBadge.label}</span>}
             {confirm ? (
-                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Delete?</span>
+                <div className="disc-confirm-row">
+                    <span className="text-xs-muted">Delete?</span>
                     <button className="btn btn-primary btn-sm" onClick={() => onDelete(section.id)}>Yes</button>
                     <button className="btn btn-outline btn-sm" onClick={() => setConfirm(false)}>No</button>
                 </div>
             ) : (
-                <div style={{ display: 'flex', gap: '0.35rem' }}>
+                <div className="disc-btn-row">
                     <button className="btn btn-outline btn-sm" onClick={() => setConfirm(true)}>
                         <span className="material-symbols-rounded icon-sm">delete</span>
                     </button>
@@ -200,7 +200,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>
+                        <span className="material-symbols-rounded disc-modal-icon">
                             {isEditing ? 'edit' : 'add_circle'}
                         </span>
                         <h2 className="modal-title">{isEditing ? 'Edit Facility' : 'Add Facility'}</h2>
@@ -243,10 +243,10 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                             )}
                             <div className="form-group">
                                 <label className="form-label">Gender Designation</label>
-                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                <div className="disc-gender-options">
                                     {GENDER_OPTIONS.filter(g => g.value !== 'na').map(g => (
-                                        <label key={g.value} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.875rem', padding: '0.35rem 0.75rem', borderRadius: '6px', border: `1px solid ${form.gender === g.value ? 'var(--primary)' : 'var(--border)'}`, background: form.gender === g.value ? 'var(--primary-light, #ede9fe)' : 'transparent' }}>
-                                            <input type="radio" name="gender" value={g.value} checked={form.gender === g.value} onChange={handleChange} style={{ accentColor: 'var(--primary)' }} />
+                                        <label key={g.value} className={`disc-gender-opt${form.gender === g.value ? ' active' : ''}`}>
+                                            <input type="radio" name="gender" value={g.value} checked={form.gender === g.value} onChange={handleChange} className="disc-gender-radio" />
                                             {g.label}
                                         </label>
                                     ))}
@@ -259,7 +259,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                         <label className="form-label">Description (optional)</label>
                         <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="2" placeholder="Brief description or notes…" />
                     </div>
-                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+                    {error && <p className="form-error-text">{error}</p>}
                 </div>
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
@@ -285,7 +285,7 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
         <div className="staff-card">
             <div className="staff-card-top">
                 <div className="staff-card-avatar patron">
-                    <span className="material-symbols-rounded" style={{ fontSize: '1.2rem' }}>{typeInfo?.icon || 'category'}</span>
+                    <span className="material-symbols-rounded disc-facility-icon">{typeInfo?.icon || 'category'}</span>
                 </div>
                 <div>
                     <div className="staff-card-name">{facility.name}</div>
@@ -309,7 +309,7 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
             <div className="staff-card-actions">
                 {confirmDelete ? (
                     <>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Delete?</span>
+                        <span className="u-xs u-muted">Delete?</span>
                         <button className="btn btn-primary btn-sm" onClick={() => onDelete(facility.id)}>Yes</button>
                         <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>No</button>
                     </>
@@ -386,7 +386,7 @@ function YearInput({ onAdd }) {
         setInput('')
     }
     return (
-        <div className="settings-block-input-row" style={{ marginTop: '0.5rem' }}>
+        <div className="settings-block-input-row u-mt-sm">
             <input className="disc-picker-select flex-1" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handle()} placeholder="e.g. S1" />
             <button className="btn btn-primary btn-sm" onClick={handle}><span className="material-symbols-rounded icon-sm">add</span> Add Year</button>
         </div>
@@ -411,31 +411,31 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
     }
 
     return (
-        <div style={{ border: '1px solid var(--border)', borderRadius: '0.5rem', padding: '0.875rem 1rem', marginTop: '0.75rem', background: 'var(--background)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+        <div className="disc-year-block">
+            <div className="u-row-sm u-mb-sm">
                 {editing ? (
                     <>
-                        <input className="disc-picker-select" style={{ width: '7rem' }} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setEditing(false); setDraft(year.name) } }} autoFocus />
+                        <input className="disc-picker-select disc-year-name-input" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setEditing(false); setDraft(year.name) } }} autoFocus />
                         <button className="btn btn-primary btn-sm" onClick={commitRename}>Save</button>
                         <button className="btn btn-outline btn-sm" onClick={() => { setEditing(false); setDraft(year.name) }}>Cancel</button>
                     </>
                 ) : (
                     <>
-                        <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{year.name}</span>
-                        <button className="btn-icon-clean" onClick={() => setEditing(true)} style={{ color: 'var(--muted-foreground)' }}><span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>edit</span></button>
-                        <div style={{ flex: 1 }} />
-                        <button className="btn-icon-clean" onClick={onRemove} style={{ color: 'var(--danger)' }}><span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span></button>
+                        <span className="disc-row-title">{year.name}</span>
+                        <button className="btn-icon-clean u-muted" onClick={() => setEditing(true)}><span className="material-symbols-rounded disc-icon-1">edit</span></button>
+                        <div className="disc-fill" />
+                        <button className="btn-icon-clean disc-danger" onClick={onRemove}><span className="material-symbols-rounded disc-icon-1">delete</span></button>
                     </>
                 )}
             </div>
-            <div className="tag-list" style={{ marginBottom: '0.5rem' }}>
+            <div className="tag-list mb-2">
                 {year.streams.map(s => (
                     <span key={s} className="tag-chip">{s}<button className="tag-chip-remove" onClick={() => onRemoveStream(s)}><span className="material-symbols-rounded">close</span></button></span>
                 ))}
                 {year.streams.length === 0 && <span className="tag-chip-empty">No streams yet</span>}
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <input className="disc-picker-select" style={{ flex: 1, maxWidth: '14rem', fontSize: '0.85rem' }} value={streamInput} onChange={e => setStreamInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddStream()} placeholder="Add stream e.g. A, MPG" />
+            <div className="u-row-sm">
+                <input className="disc-picker-select disc-stream-input" value={streamInput} onChange={e => setStreamInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddStream()} placeholder="Add stream e.g. A, MPG" />
                 <button className="btn btn-outline btn-sm" onClick={handleAddStream}><span className="material-symbols-rounded icon-sm">add</span> Stream</button>
             </div>
         </div>
@@ -638,7 +638,7 @@ export function DisSettings() {
                                 )}
 
                                 {facLoading ? (
-                                    <p style={{ color: 'var(--muted-foreground)', padding: '2rem 0' }}>Loading facilities…</p>
+                                    <p className="disc-loading-text">Loading facilities…</p>
                                 ) : (
                                     <>
                                         {/* ── Dormitory Sections ── */}
@@ -651,11 +651,11 @@ export function DisSettings() {
                                             </div>
                                             <div className="card-content">
                                                 {sections.length === 0 ? (
-                                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>
+                                                    <p className="disc-empty-text">
                                                         No sections yet. Create sections like "Boys Section" or "Girls Wing" to organise your dormitories.
                                                     </p>
                                                 ) : (
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                    <div className="disc-col-sm">
                                                         {sections.map(sec => (
                                                             <SectionCard
                                                                 key={sec.id}
@@ -680,16 +680,16 @@ export function DisSettings() {
                                             </div>
                                             <div className="card-content">
                                                 {dormitories.length === 0 ? (
-                                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No dormitories configured yet.</p>
+                                                    <p className="disc-empty-text">No dormitories configured yet.</p>
                                                 ) : (
                                                     <>
                                                         {/* Grouped by section */}
                                                         {dormsBySection.filter(g => g.dorms.length > 0).map(({ section: sec, dorms }) => (
-                                                            <div key={sec.id} style={{ marginBottom: '1rem' }}>
-                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
-                                                                    <span style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{sec.name}</span>
+                                                            <div key={sec.id} className="u-mb">
+                                                                <div className="u-row-sm disc-mb-mid">
+                                                                    <span className="disc-group-label">{sec.name}</span>
                                                                     {GENDER_BADGE[sec.gender]?.label && (
-                                                                        <span className={`pub-badge ${GENDER_BADGE[sec.gender].cls}`} style={{ fontSize: '0.7rem' }}>{GENDER_BADGE[sec.gender].label}</span>
+                                                                        <span className={`pub-badge ${GENDER_BADGE[sec.gender].cls} disc-badge-xs`}>{GENDER_BADGE[sec.gender].label}</span>
                                                                     )}
                                                                 </div>
                                                                 <div className="staff-cards-grid">
@@ -704,7 +704,7 @@ export function DisSettings() {
                                                         {unsectionedDorms.length > 0 && (
                                                             <div>
                                                                 {dormsBySection.some(g => g.dorms.length > 0) && (
-                                                                    <div style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.625rem' }}>No Section</div>
+                                                                    <div className="disc-group-label disc-mb-mid">No Section</div>
                                                                 )}
                                                                 <div className="staff-cards-grid">
                                                                     {unsectionedDorms.map(f => (
@@ -728,7 +728,7 @@ export function DisSettings() {
                                             </div>
                                             <div className="card-content">
                                                 {diningHalls.length === 0 ? (
-                                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No dining halls configured yet.</p>
+                                                    <p className="disc-empty-text">No dining halls configured yet.</p>
                                                 ) : (
                                                     <div className="staff-cards-grid">
                                                         {diningHalls.map(f => (
@@ -743,7 +743,7 @@ export function DisSettings() {
                                         <div className="card">
                                             <div className="card-header">
                                                 <h2 className="card-title"><span className="material-symbols-rounded">category</span> Other Rooms &amp; Facilities</h2>
-                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                <div className="disc-btn-inline-group">
                                                     {['common_room','medical','sports','library','other'].map(type => {
                                                         const t = FACILITY_TYPES.find(x => x.key === type)
                                                         return (
@@ -759,7 +759,7 @@ export function DisSettings() {
                                             </div>
                                             <div className="card-content">
                                                 {otherRooms.length === 0 ? (
-                                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No other rooms configured yet.</p>
+                                                    <p className="disc-empty-text">No other rooms configured yet.</p>
                                                 ) : (
                                                     <div className="staff-cards-grid">
                                                         {otherRooms.map(f => (
@@ -778,9 +778,9 @@ export function DisSettings() {
                         {activeTab === 'structure' && (
                             <>
                                 {loading ? (
-                                    <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                                    <p className="u-pad u-muted">Loading…</p>
                                 ) : error ? (
-                                    <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+                                    <p className="u-pad disc-danger">Error: {error}</p>
                                 ) : (
                                     <>
                                         {(config || []).length > 0 && (
@@ -833,7 +833,7 @@ export function DisSettings() {
                                                                     />
                                                                 ))}
                                                                 {sec.years.length === 0 && (
-                                                                    <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>No year groups yet — add one above</p>
+                                                                    <p className="disc-empty-year">No year groups yet — add one above</p>
                                                                 )}
                                                             </div>
                                                         ))}

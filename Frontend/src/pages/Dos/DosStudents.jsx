@@ -60,11 +60,11 @@ function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, stan
         <tr>
             <td>
                 <div className="tm-teacher-cell">
-                    <div className="tm-av" style={{ opacity: status === 'suspended' ? 0.5 : 1 }}>{initials}</div>
+                    <div className={'tm-av' + (status === 'suspended' ? ' dos-av-dim' : '')}>{initials}</div>
                     <div>
                         <span>{name}</span>
                         {status === 'suspended' && (
-                            <span style={{ marginLeft: '0.4rem', fontSize: '0.68rem', background: 'var(--danger)', color: '#fff', borderRadius: '999px', padding: '0.05rem 0.45rem', fontWeight: 700 }}>Suspended</span>
+                            <span className="dos-suspend-tag">Suspended</span>
                         )}
                     </div>
                 </div>
@@ -156,11 +156,11 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
 
     if (sent) return (
         <Modal title="Invitations Sent" icon="mark_email_read" onClose={onClose}
-            footer={<div className="modal-confirm-actions" style={{ width: '100%' }}><button className="btn btn-primary" onClick={onClose}>Done</button></div>}>
-            <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '3.5rem', color: 'var(--success)' }}>check_circle</span>
-                <p style={{ marginTop: '1rem', fontWeight: 600, fontSize: '1.05rem' }}>Invitations sent successfully</p>
-                <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+            footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>Done</button></div>}>
+            <div className="dos-sent-box">
+                <span className="material-symbols-rounded dos-sent-icon">check_circle</span>
+                <p className="dos-sent-title">Invitations sent successfully</p>
+                <p className="dos-sent-note">
                     {student.first_name} will receive a link to create their student account.<br />
                     {parent.first_name} will receive a link to set up their parent account.
                 </p>
@@ -168,16 +168,12 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
         </Modal>
     )
 
-    const tabStyle = (t) => ({
-        padding: '0.5rem 1.25rem', border: 'none', background: 'none', cursor: 'pointer',
-        fontWeight: 600, fontSize: '0.875rem', borderBottom: tab === t ? '2px solid var(--primary)' : '2px solid transparent',
-        color: tab === t ? 'var(--primary)' : 'var(--muted)',
-    })
+    const tabClass = (t) => 'dos-tab' + (tab === t ? ' active' : '')
 
     return (
         <Modal title="Invite Student" icon="person_add" onClose={onClose} size="wide"
             footer={
-                <div className="modal-confirm-actions" style={{ width: '100%' }}>
+                <div className="modal-confirm-actions u-full">
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
                     {tab === 'single'
                         ? <button className="btn btn-primary" disabled={!isValid || sending} onClick={handleSingleSend}>
@@ -193,23 +189,23 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
             }
         >
             {/* Tab switcher */}
-            <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:'1.25rem', gap:'0.25rem' }}>
-                <button style={tabStyle('single')} onClick={() => setTab('single')}>Single Student</button>
-                <button style={tabStyle('bulk')}   onClick={() => setTab('bulk')}>Bulk Upload (CSV)</button>
+            <div className="dos-tab-bar">
+                <button className={tabClass('single')} onClick={() => setTab('single')}>Single Student</button>
+                <button className={tabClass('bulk')}   onClick={() => setTab('bulk')}>Bulk Upload (CSV)</button>
             </div>
 
             {/* ── Single tab ── */}
             {tab === 'single' && <>
-                <div style={{ display:'flex', alignItems:'flex-start', gap:'0.75rem', padding:'0.75rem 1rem', background:'var(--muted)', borderRadius:'0.5rem', marginBottom:'1.25rem' }}>
-                    <span className="material-symbols-rounded" style={{ color:'var(--primary)', fontSize:'1.25rem', flexShrink:0 }}>info</span>
-                    <p style={{ fontSize:'0.875rem', color:'var(--muted-foreground)', margin:0 }}>
+                <div className="dos-info-box">
+                    <span className="material-symbols-rounded dos-info-icon">info</span>
+                    <p className="dos-info-text">
                         Two invitation emails will be sent — one for the student to create their account, and one for the parent/guardian.
                     </p>
                 </div>
 
                 <p className="teacher-modal-section-label">Student Details</p>
                 <div className="settings-form">
-                    <div className="resp-grid-2" style={{ gap:'0.75rem' }}>
+                    <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
                             <label className="form-label">First Name *</label>
                             <input className="form-control" placeholder="e.g. Amina" autoFocus
@@ -226,7 +222,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                         <input className="form-control" type="email" placeholder="student@example.com"
                             value={student.email} onChange={e => setStudent(p => ({ ...p, email: e.target.value }))} />
                     </div>
-                    <div className="resp-grid-2" style={{ gap:'0.75rem' }}>
+                    <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
                             <label className="form-label">Year *</label>
                             <select className="form-control" value={student.year} onChange={e => setStudent(p => ({ ...p, year: e.target.value }))}>
@@ -242,11 +238,11 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                     </div>
                 </div>
 
-                <hr style={{ margin:'1.25rem 0', borderColor:'var(--border)' }} />
+                <hr className="dos-hr" />
 
                 <p className="teacher-modal-section-label">Parent / Guardian Details</p>
                 <div className="settings-form">
-                    <div className="resp-grid-2" style={{ gap:'0.75rem' }}>
+                    <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
                             <label className="form-label">First Name *</label>
                             <input className="form-control" placeholder="e.g. Chantal"
@@ -258,7 +254,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                                 value={parent.last_name} onChange={e => setParent(p => ({ ...p, last_name: e.target.value }))} />
                         </div>
                     </div>
-                    <div className="resp-grid-2" style={{ gap:'0.75rem' }}>
+                    <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
                             <label className="form-label">Email Address</label>
                             <input className="form-control" type="email" placeholder="parent@example.com"
@@ -270,21 +266,21 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                                 value={parent.phone_number} onChange={e => setParent(p => ({ ...p, phone_number: e.target.value }))} />
                         </div>
                     </div>
-                    <p style={{ fontSize:'0.8rem', color:'var(--muted)', marginTop:'-0.25rem' }}>
+                    <p className="dos-form-note">
                         At least one of email or phone is required for the parent.
                     </p>
                 </div>
 
-                {error && <p style={{ color:'var(--danger)', marginTop:'0.75rem', fontSize:'0.875rem' }}>{error}</p>}
+                {error && <p className="dos-danger-text u-sm" style={{ marginTop: '0.75rem' }}>{error}</p>}
             </>}
 
             {/* ── Bulk tab ── */}
             {tab === 'bulk' && <>
                 {/* Step 1 – download template */}
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0.875rem 1rem', background:'var(--surface-2,#f8f9fa)', borderRadius:'0.5rem', marginBottom:'1rem' }}>
+                <div className="dos-step-box">
                     <div>
-                        <p style={{ margin:0, fontWeight:600, fontSize:'0.9rem' }}>Step 1 — Download the template</p>
-                        <p style={{ margin:0, fontSize:'0.8rem', color:'var(--muted)' }}>Fill in student and parent details, one row per student.</p>
+                        <p className="dos-step-title">Step 1 — Download the template</p>
+                        <p className="dos-step-desc">Fill in student and parent details, one row per student.</p>
                     </div>
                     <button className="btn btn-outline btn-sm" onClick={downloadTemplate}>
                         <span className="material-symbols-rounded icon-sm">download</span> Template
@@ -292,40 +288,40 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                 </div>
 
                 {/* Step 2 – upload CSV */}
-                <p style={{ fontWeight:600, fontSize:'0.9rem', marginBottom:'0.5rem' }}>Step 2 — Upload completed CSV</p>
-                <label style={{ display:'flex', alignItems:'center', gap:'0.75rem', padding:'0.875rem 1rem', border:'2px dashed var(--border)', borderRadius:'0.5rem', cursor:'pointer', marginBottom:'1rem' }}>
-                    <span className="material-symbols-rounded" style={{ color:'var(--primary)', fontSize:'1.5rem' }}>upload_file</span>
-                    <span style={{ fontSize:'0.875rem', color: file ? 'var(--foreground)' : 'var(--muted)' }}>
+                <p className="dos-step2-label">Step 2 — Upload completed CSV</p>
+                <label className="dos-upload-label">
+                    <span className="material-symbols-rounded dos-upload-icon">upload_file</span>
+                    <span className={'dos-upload-text' + (file ? ' has-file' : '')}>
                         {file ? file.name : 'Click to choose a CSV file…'}
                     </span>
-                    <input type="file" accept=".csv" style={{ display:'none' }} onChange={handleFileChange} />
+                    <input type="file" accept=".csv" className="tm-hidden" onChange={handleFileChange} />
                 </label>
 
                 {/* Preview */}
                 {preview.length > 0 && !bulkResult && (
-                    <div style={{ marginBottom:'1rem' }}>
-                        <p style={{ fontWeight:600, fontSize:'0.85rem', marginBottom:'0.4rem', color:'var(--muted)' }}>
+                    <div className="u-mb">
+                        <p className="dos-preview-label">
                             Preview (first {preview.length} rows)
                         </p>
-                        <div style={{ overflowX:'auto', border:'1px solid var(--border)', borderRadius:'0.5rem' }}>
-                            <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'0.8rem' }}>
+                        <div className="dos-preview-wrap">
+                            <table className="dos-preview-table">
                                 <thead>
-                                    <tr style={{ background:'var(--surface-2,#f8f9fa)', color:'var(--muted)', textTransform:'uppercase', fontSize:'0.72rem', letterSpacing:'0.04em' }}>
-                                        <th style={{ padding:'0.4rem 0.75rem', textAlign:'left' }}>Student</th>
-                                        <th style={{ padding:'0.4rem 0.75rem', textAlign:'left' }}>Email</th>
-                                        <th style={{ padding:'0.4rem 0.75rem', textAlign:'left' }}>Year/Stream</th>
-                                        <th style={{ padding:'0.4rem 0.75rem', textAlign:'left' }}>Parent</th>
-                                        <th style={{ padding:'0.4rem 0.75rem', textAlign:'left' }}>Parent Contact</th>
+                                    <tr className="dos-preview-thead">
+                                        <th className="dos-preview-th">Student</th>
+                                        <th className="dos-preview-th">Email</th>
+                                        <th className="dos-preview-th">Year/Stream</th>
+                                        <th className="dos-preview-th">Parent</th>
+                                        <th className="dos-preview-th">Parent Contact</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {preview.map((row, i) => (
-                                        <tr key={i} style={{ borderTop:'1px solid var(--border)' }}>
-                                            <td style={{ padding:'0.4rem 0.75rem' }}>{row.student_first_name} {row.student_last_name}</td>
-                                            <td style={{ padding:'0.4rem 0.75rem', color:'var(--muted)' }}>{row.student_email}</td>
-                                            <td style={{ padding:'0.4rem 0.75rem' }}>{row.year}{row.stream}</td>
-                                            <td style={{ padding:'0.4rem 0.75rem' }}>{row.parent_first_name} {row.parent_last_name}</td>
-                                            <td style={{ padding:'0.4rem 0.75rem', color:'var(--muted)' }}>{row.parent_email || row.parent_phone || '—'}</td>
+                                        <tr key={i} className="dos-preview-tr">
+                                            <td className="dos-preview-td">{row.student_first_name} {row.student_last_name}</td>
+                                            <td className="dos-preview-td is-muted">{row.student_email}</td>
+                                            <td className="dos-preview-td">{row.year}{row.stream}</td>
+                                            <td className="dos-preview-td">{row.parent_first_name} {row.parent_last_name}</td>
+                                            <td className="dos-preview-td is-muted">{row.parent_email || row.parent_phone || '—'}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -336,13 +332,13 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
 
                 {/* Results after upload */}
                 {bulkResult && (
-                    <div style={{ padding:'1rem', background: bulkResult.created > 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', borderRadius:'0.5rem', border:`1px solid ${bulkResult.created > 0 ? 'var(--success)' : 'var(--danger)'}` }}>
-                        <p style={{ margin:'0 0 0.5rem', fontWeight:700, fontSize:'0.95rem', color: bulkResult.created > 0 ? 'var(--success)' : 'var(--danger)' }}>
+                    <div className={'dos-bulk-result ' + (bulkResult.created > 0 ? 'ok' : 'err')}>
+                        <p className="dos-bulk-result-title">
                             {bulkResult.created > 0 ? `${bulkResult.created} student${bulkResult.created > 1 ? 's' : ''} invited successfully` : 'No invitations sent'}
                             {bulkResult.failed > 0 && ` — ${bulkResult.failed} row${bulkResult.failed > 1 ? 's' : ''} failed`}
                         </p>
                         {bulkResult.errors.length > 0 && (
-                            <ul style={{ margin:0, padding:'0 0 0 1.25rem', fontSize:'0.8rem', color:'var(--danger)' }}>
+                            <ul className="dos-bulk-errors">
                                 {bulkResult.errors.map((e, i) => <li key={i}>Row {e.row}: {e.error}</li>)}
                             </ul>
                         )}
@@ -466,9 +462,9 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
     const standingColor = (p) => p >= 80 ? 'var(--success)' : p >= 60 ? 'var(--warning)' : 'var(--danger)'
 
     const infoRow = (label, value) => (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.35rem 0', borderBottom: '1px solid var(--border)' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{label}</span>
-            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{value ?? '—'}</span>
+        <div className="dos-info-row">
+            <span className="dos-info-row-label">{label}</span>
+            <span className="dos-info-row-value">{value ?? '—'}</span>
         </div>
     )
 
@@ -478,24 +474,17 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
             icon="person"
             onClose={onClose}
             footer={
-                <div className="modal-confirm-actions" style={{ width: '100%' }}>
+                <div className="modal-confirm-actions u-full">
                     <button
-                        className="btn btn-sm"
+                        className={'btn btn-sm dos-btn-inline ' + (isSuspended ? 'reinstate' : 'suspend')}
                         onClick={handleSuspend}
                         disabled={suspending || !student}
-                        style={{
-                            background: isSuspended ? 'var(--success)' : '#fef2f2',
-                            color:      isSuspended ? '#fff'           : 'var(--danger)',
-                            border:     isSuspended ? 'none'           : '1px solid #fca5a5',
-                            display: 'flex', alignItems: 'center', gap: '0.35rem',
-                        }}
                     >
                         <span className="material-symbols-rounded icon-sm">{isSuspended ? 'check_circle' : 'block'}</span>
                         {suspending ? '…' : isSuspended ? 'Reinstate' : 'Suspend'}
                     </button>
-                    <button className="btn btn-outline btn-sm" onClick={handleDownloadReportCard}
-                        disabled={downloading || !student}
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <button className="btn btn-outline btn-sm dos-btn-inline" onClick={handleDownloadReportCard}
+                        disabled={downloading || !student}>
                         <span className="material-symbols-rounded icon-sm">picture_as_pdf</span>
                         {downloading ? 'Generating…' : 'Report Card'}
                     </button>
@@ -503,38 +492,38 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                 </div>
             }
         >
-            {loading && <p style={{ textAlign: 'center', color: 'var(--muted)', padding: '1.5rem 0' }}>Loading…</p>}
+            {loading && <p className="dos-drawer-loading">Loading…</p>}
 
             {!loading && student && (
                 <>
                     {/* ── Profile row ── */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1rem' }}>
-                        <div style={{ width: 46, height: 46, borderRadius: '50%', background: avatarColor(student.full_name), color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', flexShrink: 0 }}>
+                    <div className="dos-profile-row">
+                        <div className="dos-profile-av" style={{ background: avatarColor(student.full_name) }}>
                             {initials(student.full_name)}
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{student.full_name}</div>
-                            <div style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{student.student_code} · {classLabel}</div>
-                            <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
-                                <span style={{ fontSize: '0.68rem', fontWeight: 700, borderRadius: '999px', padding: '0.05rem 0.5rem', background: isSuspended ? 'var(--danger)' : 'var(--success)', color: '#fff' }}>
+                        <div className="dos-flex-min">
+                            <div className="dos-profile-name">{student.full_name}</div>
+                            <div className="dos-profile-meta">{student.student_code} · {classLabel}</div>
+                            <div className="dos-badge-row">
+                                <span className={'dos-status-pill ' + (isSuspended ? 'suspended' : 'active')}>
                                     {isSuspended ? 'Suspended' : 'Active'}
                                 </span>
                                 {(student.leadership || []).map(l => (
-                                    <span key={l.role} style={{ fontSize: '0.68rem', fontWeight: 600, borderRadius: '999px', padding: '0.05rem 0.5rem', background: 'var(--primary)', color: '#fff' }}>
+                                    <span key={l.role} className="dos-role-pill">
                                         {l.role_display}
                                     </span>
                                 ))}
                             </div>
                         </div>
                         {/* Stat pills */}
-                        <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                        <div className="dos-stat-pills">
                             {[
                                 { label: 'Perf', val: student.avg_performance },
                                 { label: 'Att',  val: student.attendance_rate  },
                             ].map(({ label, val }) => (
-                                <div key={label} style={{ textAlign: 'center', padding: '0.3rem 0.55rem', background: 'var(--surface-2,#f8f9fa)', borderRadius: 6, minWidth: 52, borderTop: `3px solid ${standingColor(val ?? 0)}` }}>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: standingColor(val ?? 0) }}>{val != null ? `${val}%` : '—'}</div>
-                                    <div style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>{label}</div>
+                                <div key={label} className="dos-stat-pill" style={{ '--dos-accent': standingColor(val ?? 0) }}>
+                                    <div className="dos-stat-pill-value">{val != null ? `${val}%` : '—'}</div>
+                                    <div className="dos-stat-pill-label">{label}</div>
                                 </div>
                             ))}
                         </div>
@@ -542,14 +531,14 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
 
                     {/* ── Error ── */}
                     {actionErr && (
-                        <div style={{ padding: '0.5rem 0.75rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 6, fontSize: '0.8rem', color: 'var(--danger)', marginBottom: '0.75rem' }}>
+                        <div className="dos-action-err">
                             {actionErr}
                         </div>
                     )}
 
                     {/* ── Info ── */}
                     <p className="teacher-modal-section-label">Information</p>
-                    <div style={{ marginBottom: '1rem' }}>
+                    <div className="u-mb">
                         {infoRow('Email',       student.email)}
                         {infoRow('Class',       classLabel)}
                         {infoRow('Student ID',  student.student_code)}
@@ -560,25 +549,24 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     {/* ── Leadership ── */}
                     <p className="teacher-modal-section-label">Leadership Roles</p>
                     {(student.leadership || []).length === 0 && !appointOpen && (
-                        <p style={{ color: 'var(--muted)', fontSize: '0.82rem', marginBottom: '0.5rem' }}>No roles this term.</p>
+                        <p className="dos-empty-note">No roles this term.</p>
                     )}
                     {(student.leadership || []).map(l => (
-                        <div key={l.role} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.4rem 0.6rem', background: 'var(--surface-2,#f8f9fa)', borderRadius: 6, marginBottom: '0.3rem' }}>
-                            <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{l.role_display} <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '0.75rem' }}>since {l.appointed_date}</span></span>
+                        <div key={l.role} className="dos-role-item">
+                            <span className="dos-role-name">{l.role_display} <span className="dos-role-since">since {l.appointed_date}</span></span>
                             <button onClick={() => handleRemoveLeader(l.role)} disabled={removing === l.role}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '0.75rem', fontWeight: 600 }}>
+                                className="dos-role-remove">
                                 {removing === l.role ? '…' : 'Remove'}
                             </button>
                         </div>
                     ))}
                     {!appointOpen ? (
-                        <button onClick={() => setAppointOpen(true)}
-                            style={{ width: '100%', padding: '0.4rem', fontSize: '0.82rem', color: 'var(--primary)', background: 'none', border: '1px dashed var(--primary)', borderRadius: 6, cursor: 'pointer', marginBottom: '0.75rem' }}>
+                        <button onClick={() => setAppointOpen(true)} className="dos-appoint-btn">
                             + Appoint Role
                         </button>
                     ) : (
-                        <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '0.75rem', marginBottom: '0.75rem' }}>
-                            <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                        <div className="dos-inline-panel u-mb-sm">
+                            <div className="form-group dos-mb-half">
                                 <label className="form-label">Role</label>
                                 <select className="form-control" value={leaderRole} onChange={e => setLeaderRole(e.target.value)}>
                                     <option value="">— Select a role —</option>
@@ -587,8 +575,8 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                                     ))}
                                 </select>
                             </div>
-                            <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                                <label className="form-label">Notes <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></label>
+                            <div className="form-group dos-mb-half">
+                                <label className="form-label">Notes <span className="dos-optional">(optional)</span></label>
                                 <input className="form-control" placeholder="e.g. Elected by class vote" value={leaderNotes} onChange={e => setLeaderNotes(e.target.value)} />
                             </div>
                             <div className="modal-confirm-actions">
@@ -603,19 +591,19 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     {/* ── Change Class ── */}
                     <p className="teacher-modal-section-label">Class Management</p>
                     {!changeClassOpen ? (
-                        <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setChangeClassOpen(true)}>
+                        <button className="btn btn-outline btn-sm dos-btn-full" onClick={() => setChangeClassOpen(true)}>
                             <span className="material-symbols-rounded icon-sm">swap_horiz</span> Change Class
                         </button>
                     ) : (
-                        <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '0.75rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                <div style={{ flex: 1 }}>
+                        <div className="dos-inline-panel">
+                            <div className="dos-class-row">
+                                <div className="flex-1">
                                     <label className="form-label">Year</label>
                                     <select className="form-control" value={newYear} onChange={e => setNewYear(e.target.value)}>
                                         {availYears.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
                                 </div>
-                                <div style={{ flex: 1 }}>
+                                <div className="flex-1">
                                     <label className="form-label">Stream</label>
                                     <select className="form-control" value={newStream} onChange={e => setNewStream(e.target.value)}>
                                         {availStreams.map(s => <option key={s} value={s}>{s}</option>)}
@@ -671,51 +659,42 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                   : invitations
 
     return (
-        <div className="card" style={{ marginBottom: '1.25rem', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)' }}>
-                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>mark_email_read</span>
-                <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>Student Invitation History</span>
-                <span style={{ background: 'var(--primary)', color: '#fff', borderRadius: '999px', fontSize: '0.72rem', padding: '0.1rem 0.55rem', fontWeight: 700 }}>
+        <div className="card dos-inv-card">
+            <div className="dos-inv-header">
+                <span className="material-symbols-rounded dos-inv-header-icon">mark_email_read</span>
+                <span className="dos-inv-title">Student Invitation History</span>
+                <span className="dos-inv-count">
                     {invitations.length}
                 </span>
             </div>
 
-            <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', background: 'var(--surface-2,#f8f9fa)' }}>
+            <div className="dos-inv-tabs">
                 {INV_TABS.map(tab => (
-                    <button key={tab.key} onClick={() => setFilter(tab.key)} style={{
-                        padding: '0.5rem 1.1rem', fontSize: '0.82rem', background: 'none', border: 'none',
-                        borderBottom: filter === tab.key ? '2px solid var(--primary)' : '2px solid transparent',
-                        fontWeight: filter === tab.key ? 700 : 400,
-                        color: filter === tab.key ? 'var(--primary)' : 'var(--muted)',
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem',
-                    }}>
+                    <button key={tab.key} onClick={() => setFilter(tab.key)}
+                        className={'dos-inv-tab' + (filter === tab.key ? ' active' : '')}>
                         {tab.label}
                         {counts[tab.key] > 0 && (
-                            <span style={{
-                                background: filter === tab.key ? 'var(--primary)' : 'var(--border)',
-                                color: filter === tab.key ? '#fff' : 'var(--muted)',
-                                borderRadius: '999px', fontSize: '0.68rem', padding: '0.05rem 0.45rem', fontWeight: 700,
-                            }}>{counts[tab.key]}</span>
+                            <span className="dos-inv-tab-count">{counts[tab.key]}</span>
                         )}
                     </button>
                 ))}
             </div>
 
             {visible.length === 0 ? (
-                <div style={{ padding: '1.5rem', color: 'var(--muted)', fontSize: '0.875rem', textAlign: 'center' }}>
+                <div className="dos-inv-empty">
                     No {filter === 'all' ? '' : filter} invitations
                 </div>
             ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table className="dos-inv-table">
                     <thead>
-                        <tr style={{ fontSize: '0.78rem', color: 'var(--muted)', background: 'var(--surface-2,#f8f9fa)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                            <th style={{ padding: '0.55rem 1.25rem', textAlign: 'left', fontWeight: 600 }}>Student</th>
-                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Email</th>
-                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Class</th>
-                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Status</th>
-                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Invited</th>
-                            <th style={{ padding: '0.55rem 1rem',    textAlign: 'left', fontWeight: 600 }}>Expires</th>
-                            <th style={{ padding: '0.55rem 1.25rem', textAlign: 'right', fontWeight: 600 }}>Actions</th>
+                        <tr className="dos-inv-thead">
+                            <th className="dos-inv-th wide">Student</th>
+                            <th className="dos-inv-th">Email</th>
+                            <th className="dos-inv-th">Class</th>
+                            <th className="dos-inv-th">Status</th>
+                            <th className="dos-inv-th">Invited</th>
+                            <th className="dos-inv-th">Expires</th>
+                            <th className="dos-inv-th wide right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -724,42 +703,41 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                             let statusEl
                             if (inv.is_used) {
                                 statusEl = (
-                                    <span style={{ color: 'var(--success)', fontWeight: 600, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>check_circle</span>Registered
+                                    <span className="dos-inv-status ok dos-inv-status-flex">
+                                        <span className="material-symbols-rounded dos-inv-status-icon">check_circle</span>Registered
                                     </span>
                                 )
                             } else if (inv.is_expired) {
-                                statusEl = <span style={{ color: 'var(--danger)',  fontWeight: 600, fontSize: '0.8rem' }}>Expired</span>
+                                statusEl = <span className="dos-inv-status err">Expired</span>
                             } else if (inv.delivery_status === 'sent') {
-                                statusEl = <span style={{ color: 'var(--warning)', fontWeight: 600, fontSize: '0.8rem' }}>Pending</span>
+                                statusEl = <span className="dos-inv-status warn">Pending</span>
                             } else {
-                                statusEl = <span style={{ color: 'var(--danger)',  fontWeight: 600, fontSize: '0.8rem' }}>Failed</span>
+                                statusEl = <span className="dos-inv-status err">Failed</span>
                             }
 
                             return (
-                                <tr key={inv.id} style={{ borderTop: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '0.75rem 1.25rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                <tr key={inv.id} className="dos-inv-tr">
+                                    <td className="dos-inv-td wide">
+                                        <div className="dos-inv-student">
                                             <div className="dt-avatar" style={{ background: avatarColor(fullName) }}>{initials(fullName)}</div>
-                                            <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{fullName}</span>
+                                            <span className="dos-inv-name">{fullName}</span>
                                         </div>
                                     </td>
-                                    <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.875rem' }}>{inv.email || '—'}</td>
-                                    <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.875rem' }}>{inv.class_obj_name || '—'}</td>
-                                    <td style={{ padding: '0.75rem 1rem' }}>{statusEl}</td>
-                                    <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.8rem' }}>{daysAgo(inv.created_at)}</td>
-                                    <td style={{ padding: '0.75rem 1rem', color: inv.is_expired && !inv.is_used ? 'var(--danger)' : 'var(--muted)', fontSize: '0.8rem' }}>
+                                    <td className="dos-inv-td sm muted">{inv.email || '—'}</td>
+                                    <td className="dos-inv-td sm muted">{inv.class_obj_name || '—'}</td>
+                                    <td className="dos-inv-td">{statusEl}</td>
+                                    <td className="dos-inv-td xs muted">{daysAgo(inv.created_at)}</td>
+                                    <td className={'dos-inv-td xs ' + (inv.is_expired && !inv.is_used ? 'danger' : 'muted')}>
                                         {inv.is_used ? '—' : new Date(inv.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                                     </td>
-                                    <td style={{ padding: '0.75rem 1.25rem' }}>
+                                    <td className="dos-inv-td wide">
                                         {!inv.is_used && (
-                                            <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                                            <div className="dos-inv-actions">
                                                 <button className="btn btn-outline btn-sm" disabled={resending === inv.id} onClick={() => doResend(inv.id)}>
                                                     <span className="material-symbols-rounded icon-sm">send</span>
                                                     {resending === inv.id ? 'Sending…' : 'Resend'}
                                                 </button>
-                                                <button className="btn btn-sm"
-                                                    style={{ color: 'var(--danger)', border: '1px solid var(--danger)', background: 'transparent' }}
+                                                <button className="btn btn-sm dos-btn-cancel"
                                                     disabled={cancelling === inv.id} onClick={() => doCancel(inv.id)}>
                                                     <span className="material-symbols-rounded icon-sm">cancel</span>
                                                     {cancelling === inv.id ? '…' : 'Cancel'}
@@ -860,7 +838,7 @@ export function DosStudents() {
     }
 
     if (loading) return <Loading fullPage />
-    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error)   return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     // search and year are already applied server-side (see the debounced effect above) —
     // only section/classLetter still needs filtering here, since the backend doesn't

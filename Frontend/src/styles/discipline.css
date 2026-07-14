@@ -1356,3 +1356,81 @@ td .class-chip { margin-left: 4px; }
 .es-session-chip-new { border-style:dashed; color:var(--muted-foreground); }
 .es-session-chip-new:hover { border-color:var(--primary); color:var(--primary); border-style:solid; }
 .es-session-add-input { display:inline-flex; align-items:center; gap:.35rem; }
+
+/* ══════════════════════════════════════
+   SETTINGS: FACILITIES + SCHOOL STRUCTURE
+══════════════════════════════════════ */
+
+/* Modal header accent icon */
+.disc-modal-icon { color: var(--discipline, #7c3aed); }
+
+/* Gender radio option pills */
+.disc-gender-options { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.disc-gender-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+.disc-gender-opt.active { border-color: var(--primary); background: var(--primary-light, #ede9fe); }
+.disc-gender-radio { accent-color: var(--primary); }
+
+/* Dormitory-section row (list item) */
+.disc-section-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.disc-avatar-sm { width: 2.25rem; height: 2.25rem; min-width: 2.25rem; }
+.disc-fill { flex: 1; }
+.disc-row-title { font-weight: 600; font-size: 0.9rem; }
+.disc-confirm-row { display: flex; align-items: center; gap: 0.4rem; }
+.disc-btn-row { display: flex; gap: 0.35rem; }
+.disc-btn-inline-group { display: flex; gap: 0.5rem; }
+
+/* Facility card icon */
+.disc-facility-icon { font-size: 1.2rem; }
+
+/* Year block (school structure) */
+.disc-year-block {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  margin-top: 0.75rem;
+  background: var(--background);
+}
+.disc-year-name-input { width: 7rem; }
+.disc-icon-1 { font-size: 1rem; }
+.disc-stream-input { flex: 1; max-width: 14rem; font-size: 0.85rem; }
+
+/* Bare danger colour — matches original inline var(--danger) (token undefined project-wide) */
+.disc-danger { color: var(--danger); }
+
+/* Empty / loading text */
+.disc-loading-text { color: var(--muted-foreground); padding: 2rem 0; }
+.disc-empty-text { color: var(--muted-foreground); font-size: 0.85rem; }
+.disc-empty-year { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; }
+
+/* Dormitory group headers */
+.disc-col-sm { display: flex; flex-direction: column; gap: 0.5rem; }
+.disc-group-label {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.disc-badge-xs { font-size: 0.7rem; }
+
+/* Spacing helpers (match existing mb-3 / mb-5 naming) */
+.mb-2 { margin-bottom: 0.5rem; }
+.disc-mb-mid { margin-bottom: 0.625rem; }
