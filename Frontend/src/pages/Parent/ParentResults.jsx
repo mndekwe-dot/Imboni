@@ -69,7 +69,7 @@ function ReviewBubble({ teacher_name, teacher_role, teacher_comment, updated_at 
     return (
         <div className="review-bubble">
             <div className="review-header">
-                <div className="avatar avatar-sm" style={{ background: 'var(--primary)' }}>{ini}</div>
+                <div className="avatar avatar-sm pr-avatar-primary">{ini}</div>
                 <div>
                     <p className="text-sm"><strong>{teacher_name}</strong></p>
                     <p className="text-xs text-muted">{teacher_role}{timeAgo ? ` · ${timeAgo}` : ''}</p>
@@ -169,9 +169,9 @@ export function ParentResults() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                            <p className="u-pad u-muted">Loading…</p>
                         ) : !child ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked.</p>
+                            <p className="u-pad u-muted">No children linked.</p>
                         ) : (
                             <>
                                 {/* Recent Assessments table */}
@@ -181,9 +181,9 @@ export function ParentResults() {
                                     </div>
                                     <div className="card-content">
                                         {loadingData ? (
-                                            <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                                            <p className="u-muted">Loading…</p>
                                         ) : assessments.length === 0 ? (
-                                            <p style={{ color: 'var(--muted-foreground)' }}>No assessments recorded yet.</p>
+                                            <p className="u-muted">No assessments recorded yet.</p>
                                         ) : (
                                             <div className="table-responsive">
                                                 <table>
@@ -245,7 +245,7 @@ export function ParentResults() {
                                         </div>
                                         <div className="card-content">
                                             {assessments.length === 0 ? (
-                                                <p style={{ color: 'var(--muted-foreground)' }}>No assessments yet.</p>
+                                                <p className="u-muted">No assessments yet.</p>
                                             ) : (
                                                 <div className="assessment-list">
                                                     {assessments.slice(0, 4).map((a, i) => (
@@ -262,7 +262,7 @@ export function ParentResults() {
                                         </div>
                                         <div className="card-content">
                                             {reviews.length === 0 ? (
-                                                <p style={{ color: 'var(--muted-foreground)' }}>No reviews yet.</p>
+                                                <p className="u-muted">No reviews yet.</p>
                                             ) : (
                                                 <div className="review-timeline">
                                                     {reviews.map((r, i) => (

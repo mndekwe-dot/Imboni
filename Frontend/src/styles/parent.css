@@ -1909,3 +1909,6 @@
     display: flex;
     gap: 0.4rem;
 }
+
+/* ── Parent Results — review-bubble avatar (always primary) ── */
+.pr-avatar-primary { background: var(--primary); }
