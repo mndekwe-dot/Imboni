@@ -2394,6 +2394,18 @@ body.tm-panel-open { overflow: hidden; }
 .es-detail-value     { font-size:.875rem; color:var(--foreground); font-weight:500; }
 .es-detail-actions   { display:flex; gap:.75rem; justify-content:flex-end; padding-top:1rem;
                         border-top:1px solid var(--border); }
+.es-detail-session .material-symbols-rounded { font-size:.85rem; vertical-align:middle; }
+.es-detail-duration  { color:var(--muted-foreground); margin-left:.4rem; }
+/* Reschedule inline row (inside detail actions) */
+.es-reschedule-row   { display:flex; align-items:center; gap:.5rem; flex:1; flex-wrap:wrap; }
+.es-reschedule-label { font-size:.8rem; color:var(--muted-foreground); white-space:nowrap; }
+.es-reschedule-date  { height:2rem; font-size:.85rem; flex:1; min-width:120px; }
+/* Exam notes textarea — vertical resize only */
+.es-textarea-v       { resize:vertical; }
+/* Hidden print-target iframe */
+.es-print-frame      { display:none; width:0; height:0; position:absolute; left:-9999px; }
+/* Timetable class <select> sized to its content (generic: width:auto — promote candidate) */
+.dos-select-auto     { width:auto; }
 
 /* Class picker */
 .es-class-picker { display:flex; align-items:flex-end; gap:.75rem; flex-wrap:wrap;
@@ -3133,3 +3145,8 @@ body.tm-panel-open { overflow: hidden; }
 .dos-task-title  { flex: 1; font-size: 0.875rem; font-weight: 500; }
 .dos-task-title.done { text-decoration: line-through; color: var(--muted-foreground); }
 .dos-task-due    { font-size: 0.75rem; color: var(--muted-foreground); flex-shrink: 0; }
+/* Exam-session inline add controls (completing the DosScheduling migration) */
+.es-session-input    { height: 1.75rem; font-size: 0.8rem; padding: 0 0.4rem; width: 160px; }
+.es-session-btn      { height: 1.75rem; padding: 0 0.6rem; }
+.es-session-btn-x    { height: 1.75rem; padding: 0 0.5rem; }
+.es-new-session-icon { font-size: 0.9rem; }

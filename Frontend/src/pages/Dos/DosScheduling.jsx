@@ -143,7 +143,7 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                             {exam.title && <>
                                 <span className="es-detail-sep">·</span>
                                 <span className="es-detail-session">
-                                    <span className="material-symbols-rounded" style={{fontSize:'.85rem',verticalAlign:'middle'}}>folder_open</span>
+                                    <span className="material-symbols-rounded">folder_open</span>
                                     {exam.title}
                                 </span>
                             </>}
@@ -163,7 +163,7 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                             <div className="es-detail-label">Time</div>
                             <div className="es-detail-value">
                                 {fmtTime(exam.start_time)} – {fmtTime(exam.end_time)}
-                                {duration && <span style={{color:'var(--muted-foreground)',marginLeft:'.4rem'}}>({duration})</span>}
+                                {duration && <span className="es-detail-duration">({duration})</span>}
                             </div>
                         </div>
                     </div>
@@ -193,11 +193,11 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
 
                 <div className="es-detail-actions">
                     {rescheduling ? (
-                        <div style={{display:'flex',alignItems:'center',gap:'.5rem',flex:1,flexWrap:'wrap'}}>
-                            <span style={{fontSize:'.8rem',color:'var(--muted-foreground)',whiteSpace:'nowrap'}}>Move to:</span>
-                            <input type="date" className="form-input" style={{height:'2rem',fontSize:'.85rem',flex:1,minWidth:'120px'}}
+                        <div className="es-reschedule-row">
+                            <span className="es-reschedule-label">Move to:</span>
+                            <input type="date" className="form-input es-reschedule-date"
                                 value={moveDate} onChange={e => setMoveDate(e.target.value)}/>
-                            <button className="btn btn-primary btn-sm" style={{whiteSpace:'nowrap'}}
+                            <button className="btn btn-primary btn-sm u-nowrap"
                                 onClick={() => { if(moveDate){ onReschedule(exam.id, moveDate); onClose() } }}>
                                 Confirm
                             </button>
@@ -205,7 +205,7 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                         </div>
                     ) : (
                         <>
-                            <button className="btn btn-outline" style={{color:'#ef4444',borderColor:'#ef4444'}}
+                            <button className="btn btn-outline btn-destructive-outline"
                                 onClick={() => { if(window.confirm('Delete this exam?')){ onDelete(exam.id); onClose() } }}>
                                 <span className="material-symbols-rounded icon-sm">delete</span> Delete
                             </button>
@@ -249,7 +249,7 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
     return (
         <Modal title={editing ? 'Edit Exam' : 'Add Exam'} icon="edit_calendar" onClose={onCancel} wide>
             <div className="tt-form">
-                <div className="form-group" style={{marginBottom:'.75rem'}}>
+                <div className="form-group u-mb-sm">
                     <label className="form-label"><span className="material-symbols-rounded icon-sm">folder_open</span> Session / Group Name</label>
                     <input className="form-input" list="es-session-list" value={form.session} onChange={set('session')} placeholder="e.g. Term 2 Final Exams" />
                     <datalist id="es-session-list">{sessions.map(s => <option key={s} value={s}/>)}</datalist>
@@ -308,7 +308,7 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
                 </div>
                 <div className="form-group">
                     <label className="form-label">Notes</label>
-                    <textarea className="form-input" rows={2} value={form.notes} onChange={set('notes')} placeholder="Optional notes..." style={{resize:'vertical'}}/>
+                    <textarea className="form-input es-textarea-v" rows={2} value={form.notes} onChange={set('notes')} placeholder="Optional notes..."/>
                 </div>
                 <div className="tt-form-actions">
                     <button className="btn btn-outline" onClick={onCancel}>Cancel</button>
@@ -673,7 +673,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         <div className="flex-row-gap">
                                             <div className="flex-row-gap-sm">
                                                 <label className="form-label mb-0" htmlFor="timetable-class-select">Class:</label>
-                                                <select id="timetable-class-select" className="form-input" style={{width:'auto'}} value={classId} onChange={e=>setClassId(e.target.value)}>
+                                                <select id="timetable-class-select" className="form-input dos-select-auto" value={classId} onChange={e=>setClassId(e.target.value)}>
                                                     {allClasses.map(c => <option key={c} value={c}>{c}</option>)}
                                                 </select>
                                             </div>
@@ -730,17 +730,17 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                 ))}
                                                 {addingSession ? (
                                                     <span className="es-session-add-input">
-                                                        <input autoFocus className="form-input" style={{height:'1.75rem',fontSize:'.8rem',padding:'0 .4rem',width:'160px'}}
+                                                        <input autoFocus className="form-input es-session-input"
                                                             placeholder="Session name…" value={newSessionName}
                                                             onChange={e => setNewSessionName(e.target.value)}
                                                             onKeyDown={e => { if (e.key==='Enter') handleAddSession(); if (e.key==='Escape') {setAddingSession(false);setNewSessionName('')} }}
                                                         />
-                                                        <button className="btn btn-primary btn-sm" style={{height:'1.75rem',padding:'0 .6rem'}} onClick={handleAddSession}>Add</button>
-                                                        <button className="btn btn-outline btn-sm" style={{height:'1.75rem',padding:'0 .5rem'}} onClick={() => {setAddingSession(false);setNewSessionName('')}}>✕</button>
+                                                        <button className="btn btn-primary btn-sm es-session-btn" onClick={handleAddSession}>Add</button>
+                                                        <button className="btn btn-outline btn-sm es-session-btn-x" onClick={() => {setAddingSession(false);setNewSessionName('')}}>✕</button>
                                                     </span>
                                                 ) : (
                                                     <button className="es-session-chip es-session-chip-new" onClick={() => setAddingSession(true)}>
-                                                        <span className="material-symbols-rounded" style={{fontSize:'.9rem'}}>add</span> New Session
+                                                        <span className="material-symbols-rounded es-new-session-icon">add</span> New Session
                                                     </button>
                                                 )}
                                             </div>
@@ -749,7 +749,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         {/* Level */}
                                         <div className="es-filter-section">
                                             <div className="es-filter-section-label"><span className="material-symbols-rounded">layers</span> Level</div>
-                                            <div className="att-mode-bar" style={{marginBottom:0}}>
+                                            <div className="att-mode-bar u-mb-0">
                                                 <button className={`att-mode-btn${sectionFilter==='all'?' active':''}`} onClick={() => {setSectionFilter('all');setClassFilter('all')}}>All Levels</button>
                                                 {(config||[]).map(sec => (
                                                     <button key={sec.id||sec.name} className={`att-mode-btn${sectionFilter===sec.name?' active':''}`} onClick={() => {setSectionFilter(sec.name);setClassFilter('all')}}>
@@ -894,7 +894,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
             {/* Hidden iframe used as print target — avoids popup blockers */}
             <iframe ref={printFrameRef} title="exam-print"
-                style={{display:'none',width:0,height:0,position:'absolute',left:'-9999px'}}
+                className="es-print-frame"
                 aria-hidden="true"/>
         </>
     )
