@@ -89,11 +89,10 @@ export function AdminAuditLog() {
                             <div className="card-header">
                                 <h2 className="card-title">Activity ({total})</h2>
                                 <input
-                                    className="input input-auto"
+                                    className="input input-auto adm-search-input"
                                     placeholder="Search by person or target…"
                                     value={search}
                                     onChange={e => { setSearch(e.target.value); setPage(1) }}
-                                    style={{ maxWidth: 260 }}
                                 />
                             </div>
                             <div className="card-content">
@@ -108,9 +107,9 @@ export function AdminAuditLog() {
                                 </div>
 
                                 {loading ? (
-                                    <p style={{ color: 'var(--muted-foreground)', padding: '1.5rem 0' }}>Loading audit log…</p>
+                                    <p className="adm-audit-note">Loading audit log…</p>
                                 ) : entries.length === 0 ? (
-                                    <p style={{ color: 'var(--muted-foreground)', padding: '1.5rem 0' }}>
+                                    <p className="adm-audit-note">
                                         No audit entries yet. Actions like sending invitations, approving results
                                         and suspending students will appear here.
                                     </p>
@@ -130,7 +129,7 @@ export function AdminAuditLog() {
                                                     const badge = ACTION_BADGE[e.action] || { label: e.action, cls: 'partial' }
                                                     return (
                                                         <tr key={e.id}>
-                                                            <td style={{ whiteSpace: 'nowrap' }}>{formatWhen(e.created_at)}</td>
+                                                            <td className="u-nowrap">{formatWhen(e.created_at)}</td>
                                                             <td>
                                                                 <div className="adm-name">{e.actor_name || 'System'}</div>
                                                                 <div className="adm-sub">{e.actor_role}</div>
@@ -146,10 +145,10 @@ export function AdminAuditLog() {
                                 )}
 
                                 {totalPages > 1 && (
-                                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center', marginTop: '0.75rem' }}>
+                                    <div className="adm-pager">
                                         <button className="btn btn-outline btn-sm" disabled={page <= 1}
                                             onClick={() => setPage(p => p - 1)}>Previous</button>
-                                        <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)' }}>
+                                        <span className="adm-pager-info">
                                             Page {page} of {totalPages}
                                         </span>
                                         <button className="btn btn-outline btn-sm" disabled={page >= totalPages}
