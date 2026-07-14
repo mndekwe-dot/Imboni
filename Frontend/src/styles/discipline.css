@@ -1509,3 +1509,13 @@ td .class-chip { margin-left: 4px; }
 /* Filter bar */
 .dis-filter-bar    { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .dis-filter-select { max-width: 260px; }
+
+/* ── Discipline DINING page (DisDining) — reuses the DisBoarding dis-search-*
+   / dis-student-box / dis-modal-err / dis-btn-del / dis-filter-bar classes.
+   These are dining-only extras. ── */
+.dis-filter-select-sm { max-width: 220px; }
+.dis-id-inline   { font-weight: 400; margin-left: 0.5rem; }
+.dis-modal-note  { font-size: 0.78rem; color: var(--muted-foreground); margin: 0; }
+.dis-radio       { accent-color: var(--primary); }
+.dis-plan-opt    { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; font-size: 0.875rem; padding: 0.45rem 0.875rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; font-weight: 400; }
+.dis-plan-opt.on { border-color: var(--primary); background: var(--primary-light, #ede9fe); font-weight: 600; }

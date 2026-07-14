@@ -94,7 +94,7 @@ function DiningModal({ plan, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>
+                        <span className="material-symbols-rounded disc-modal-icon">
                             {isEditing ? 'edit' : 'restaurant'}
                         </span>
                         <h2 className="modal-title">{isEditing ? 'Edit Dining Plan' : 'Add Dining Plan'}</h2>
@@ -107,15 +107,15 @@ function DiningModal({ plan, onClose, onSave }) {
                     {isEditing ? (
                         <div className="form-group">
                             <label className="form-label">Student</label>
-                            <div style={{ padding: '0.5rem 0.75rem', background: 'var(--muted)', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 600 }}>
+                            <div className="dis-student-box">
                                 {plan.student_name}
-                                <span className="text-muted" style={{ fontWeight: 400, marginLeft: '0.5rem' }}>{plan.student_id}</span>
+                                <span className="text-muted dis-id-inline">{plan.student_id}</span>
                             </div>
                         </div>
                     ) : (
-                        <div className="form-group" ref={searchRef} style={{ position: 'relative' }}>
+                        <div className="form-group u-relative" ref={searchRef}>
                             <label className="form-label">Student *</label>
-                            <div style={{ position: 'relative' }}>
+                            <div className="u-relative">
                                 <input
                                     className="form-input"
                                     value={query}
@@ -124,32 +124,28 @@ function DiningModal({ plan, onClose, onSave }) {
                                     autoComplete="off"
                                 />
                                 {searching && (
-                                    <span className="material-symbols-rounded" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', fontSize: '1rem', color: 'var(--muted-foreground)' }}>
+                                    <span className="material-symbols-rounded dis-search-spin">
                                         progress_activity
                                     </span>
                                 )}
                             </div>
                             {dropdownOpen && searchResults.length > 0 && (
-                                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', maxHeight: '220px', overflowY: 'auto', marginTop: '2px' }}>
+                                <div className="dis-search-menu">
                                     {searchResults.map(s => (
-                                        <div key={s.id} onClick={() => selectStudent(s)}
-                                            style={{ padding: '0.625rem 0.875rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.625rem', borderBottom: '1px solid var(--border)' }}
-                                            onMouseEnter={e => e.currentTarget.style.background = 'var(--muted)'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                        >
-                                            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                                        <div key={s.id} onClick={() => selectStudent(s)} className="dis-search-item">
+                                            <div className="dis-search-av">
                                                 {s.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
                                             </div>
                                             <div>
-                                                <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{s.name}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{s.student_id} · {s.grade}{s.section}</div>
+                                                <div className="dis-search-name">{s.name}</div>
+                                                <div className="dis-search-sub">{s.student_id} · {s.grade}{s.section}</div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
                             {selectedStudent && (
-                                <div style={{ marginTop: '0.35rem', fontSize: '0.78rem', color: '#15803d', fontWeight: 600 }}>
+                                <div className="dis-selected-ok">
                                     ✓ {selectedStudent.name} — {selectedStudent.student_id}
                                 </div>
                             )}
@@ -159,10 +155,10 @@ function DiningModal({ plan, onClose, onSave }) {
                     {/* Plan type */}
                     <div className="form-group">
                         <label className="form-label">Dining Plan *</label>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <div className="u-row-sm u-wrap">
                             {PLAN_TYPES.map(pt => (
-                                <label key={pt.value} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.875rem', padding: '0.45rem 0.875rem', borderRadius: '8px', border: `1px solid ${planType === pt.value ? 'var(--primary)' : 'var(--border)'}`, background: planType === pt.value ? 'var(--primary-light, #ede9fe)' : 'transparent', fontWeight: planType === pt.value ? 600 : 400 }}>
-                                    <input type="radio" value={pt.value} checked={planType === pt.value} onChange={() => setPlanType(pt.value)} style={{ accentColor: 'var(--primary)' }} />
+                                <label key={pt.value} className={`dis-plan-opt${planType === pt.value ? ' on' : ''}`}>
+                                    <input type="radio" value={pt.value} checked={planType === pt.value} onChange={() => setPlanType(pt.value)} className="dis-radio" />
                                     {pt.label}
                                 </label>
                             ))}
@@ -170,12 +166,12 @@ function DiningModal({ plan, onClose, onSave }) {
                     </div>
 
                     {!isEditing && (
-                        <p style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', margin: 0 }}>
+                        <p className="dis-modal-note">
                             Plan will be assigned to the current academic term.
                         </p>
                     )}
 
-                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+                    {error && <p className="dis-modal-err">{error}</p>}
                 </div>
 
                 <div className="modal-footer">
@@ -216,7 +212,7 @@ function DiningRow({ plan, onEdit, onDelete }) {
                         <button className="btn btn-outline btn-sm" onClick={() => onEdit(plan)}>
                             <span className="material-symbols-rounded icon-sm">edit</span>
                         </button>
-                        <button className="btn btn-outline btn-sm" style={{ color: '#dc2626', borderColor: '#dc2626' }} onClick={() => setConfirmDelete(true)}>
+                        <button className="btn btn-outline btn-sm dis-btn-del" onClick={() => setConfirmDelete(true)}>
                             <span className="material-symbols-rounded icon-sm">delete</span>
                         </button>
                     </>
@@ -302,10 +298,9 @@ export function DisDining() {
                         </div>
 
                         <div className="card mb-1-5">
-                            <div className="card-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                            <div className="card-content dis-filter-bar">
                                 <select
-                                    className="form-input"
-                                    style={{ maxWidth: '220px' }}
+                                    className="form-input dis-filter-select-sm"
                                     value={filter}
                                     onChange={e => setFilter(e.target.value)}
                                 >
@@ -321,7 +316,7 @@ export function DisDining() {
                         </div>
 
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading dining plans…</p>
+                            <p className="u-pad u-muted">Loading dining plans…</p>
                         ) : (
                             <DataTable
                                 title="Dining Plans"
