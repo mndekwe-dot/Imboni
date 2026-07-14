@@ -25,15 +25,8 @@ function Timer({ seconds, onExpire }) {
     const isWarning = left <= 60
 
     return (
-        <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.4rem',
-            padding: '0.4rem 0.75rem', borderRadius: 8,
-            background: isWarning ? 'rgba(239,68,68,0.1)' : 'var(--muted)',
-            color: isWarning ? '#dc2626' : 'var(--foreground)',
-            fontWeight: 700, fontVariantNumeric: 'tabular-nums', fontSize: '1rem',
-            animation: isWarning && left <= 10 ? 'pulse 1s infinite' : 'none',
-        }}>
-            <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>timer</span>
+        <div className={`sqz-timer${isWarning ? ' warn' : ''}${isWarning && left <= 10 ? ' pulse' : ''}`}>
+            <span className="material-symbols-rounded sqz-timer-icon">timer</span>
             {String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
         </div>
     )
@@ -44,26 +37,22 @@ function Timer({ seconds, onExpire }) {
 function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
     const isGraded     = submitted && result !== undefined
     const isCorrect    = isGraded && result?.is_correct
-    const borderColor  = !isGraded ? 'var(--border)' : isCorrect ? 'var(--success)' : '#dc2626'
+    const gradedMod    = !isGraded ? '' : isCorrect ? ' correct' : ' incorrect'
 
     return (
-        <div style={{
-            border: `1.5px solid ${borderColor}`,
-            borderRadius: 12, padding: '1rem 1.125rem', marginBottom: '1rem',
-            background: 'var(--card)',
-        }}>
+        <div className={`sqz-qcard${gradedMod}`}>
             {/* Question header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.6rem', gap: '0.5rem' }}>
-                <div style={{ fontWeight: 600, fontSize: '0.95rem', flex: 1 }}>
-                    <span style={{ color: 'var(--muted-foreground)', marginRight: '0.4rem' }}>{qi + 1}.</span>
+            <div className="sqz-q-head">
+                <div className="sqz-q-text">
+                    <span className="sqz-q-num">{qi + 1}.</span>
                     {q.type === 'fill_blank'
                         ? q.text.replace('____', '________')
                         : q.text || '(empty question)'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{q.points} pt{q.points !== 1 ? 's' : ''}</span>
+                <div className="sqz-q-meta">
+                    <span className="sqz-q-points">{q.points} pt{q.points !== 1 ? 's' : ''}</span>
                     {isGraded && (
-                        <span className="material-symbols-rounded" style={{ fontSize: '1.1rem', color: isCorrect ? 'var(--success)' : '#dc2626' }}>
+                        <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }}>
                             {isCorrect ? 'check_circle' : 'cancel'}
                         </span>
                     )}
@@ -71,28 +60,23 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
             </div>
 
             {/* Image */}
-            {q.image && <img src={q.image} alt="question" style={{ maxHeight: 160, borderRadius: 8, marginBottom: '0.6rem', display: 'block' }} />}
+            {q.image && <img src={q.image} alt="question" className="sqz-q-image" />}
 
             {/* Answer area */}
             {q.type === 'mcq' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <div className="sqz-mcq">
                     {(q.options || []).map((opt, oi) => {
                         const isSelected = answer === oi
                         const isCorrectOpt = isGraded && result?.correct_answer === oi
+                        const optMod = `${isSelected ? ' selected' : ''}${isCorrectOpt && isGraded ? ' correct' : ''}${submitted ? ' locked' : ''}`
                         return (
-                            <label key={oi} style={{
-                                display: 'flex', alignItems: 'center', gap: '0.6rem',
-                                padding: '0.5rem 0.75rem', borderRadius: 8, cursor: submitted ? 'default' : 'pointer',
-                                border: `1px solid ${isCorrectOpt && isGraded ? 'var(--success)' : isSelected ? 'var(--primary)' : 'var(--border)'}`,
-                                background: isCorrectOpt && isGraded ? 'rgba(16,185,129,0.08)' : isSelected ? 'var(--primary-light, #e8f2ff)' : 'transparent',
-                                fontWeight: isCorrectOpt && isGraded ? 600 : 400,
-                            }}>
+                            <label key={oi} className={`sqz-opt${optMod}`}>
                                 <input type="radio" name={`q-${q.id}`} disabled={submitted}
                                     checked={isSelected} onChange={() => !submitted && onChange(oi)}
-                                    style={{ accentColor: 'var(--primary)', cursor: submitted ? 'default' : 'pointer' }} />
+                                    className={`sqz-radio${submitted ? ' locked' : ''}`} />
                                 {opt}
                                 {isCorrectOpt && isGraded && (
-                                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', color: 'var(--success)', marginLeft: 'auto' }}>check</span>
+                                    <span className="material-symbols-rounded sqz-opt-check">check</span>
                                 )}
                             </label>
                         )
@@ -101,24 +85,19 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
             )}
 
             {q.type === 'true_false' && (
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <div className="sqz-tf">
                     {['True', 'False'].map((label, oi) => {
                         const isSelected = answer === oi
                         const isCorrectOpt = isGraded && result?.correct_answer === oi
+                        const optMod = `${isSelected ? ' selected' : ''}${isCorrectOpt && isGraded ? ' correct' : ''}${submitted ? ' locked' : ''}`
                         return (
-                            <label key={oi} style={{
-                                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                padding: '0.5rem 1rem', borderRadius: 8, cursor: submitted ? 'default' : 'pointer',
-                                border: `1px solid ${isCorrectOpt && isGraded ? 'var(--success)' : isSelected ? 'var(--primary)' : 'var(--border)'}`,
-                                background: isCorrectOpt && isGraded ? 'rgba(16,185,129,0.08)' : isSelected ? 'var(--primary-light, #e8f2ff)' : 'transparent',
-                                fontWeight: isCorrectOpt && isGraded ? 600 : 400,
-                            }}>
+                            <label key={oi} className={`sqz-opt tf${optMod}`}>
                                 <input type="radio" name={`q-${q.id}`} disabled={submitted}
                                     checked={isSelected} onChange={() => !submitted && onChange(oi)}
-                                    style={{ accentColor: 'var(--primary)', cursor: submitted ? 'default' : 'pointer' }} />
+                                    className={`sqz-radio${submitted ? ' locked' : ''}`} />
                                 {label}
                                 {isCorrectOpt && isGraded && (
-                                    <span className="material-symbols-rounded" style={{ fontSize: '0.9rem', color: 'var(--success)', marginLeft: 'auto' }}>check</span>
+                                    <span className="material-symbols-rounded sqz-opt-check">check</span>
                                 )}
                             </label>
                         )
@@ -136,7 +115,7 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
                         onChange={e => !submitted && onChange(e.target.value)}
                     />
                     {isGraded && result?.correct_answer && (
-                        <div style={{ fontSize: '0.78rem', marginTop: '0.35rem', color: isCorrect ? 'var(--success)' : '#dc2626' }}>
+                        <div className="sqz-sa-feedback" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }}>
                             {isCorrect ? 'Correct!' : `Model answer: ${result.correct_answer}`}
                         </div>
                     )}
@@ -145,8 +124,8 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
 
             {/* Explanation (shown after submission) */}
             {isGraded && q.explanation && (
-                <div style={{ marginTop: '0.6rem', fontSize: '0.78rem', color: 'var(--muted-foreground)', background: 'var(--muted)', padding: '0.4rem 0.6rem', borderRadius: 6 }}>
-                    <span style={{ fontWeight: 600 }}>Explanation: </span>{q.explanation}
+                <div className="sqz-expl">
+                    <span className="sqz-expl-label">Explanation: </span>{q.explanation}
                 </div>
             )}
         </div>
@@ -161,25 +140,25 @@ function ResultsPanel({ results, quiz, isLate, onBack }) {
     const gradeColor = { A: 'var(--success)', B: '#22c55e', C: '#f59e0b', D: '#f97316', F: '#dc2626' }[grade]
 
     return (
-        <div style={{ maxWidth: 680, margin: '0 auto', padding: '1.5rem 1rem' }}>
-            <div className="card" style={{ padding: '1.75rem', marginBottom: '1rem', textAlign: 'center' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: gradeColor, display: 'block', marginBottom: '0.5rem' }}>
+        <div className="sqz-results">
+            <div className="card sqz-result-card">
+                <span className="material-symbols-rounded sqz-result-icon" style={{ color: gradeColor }}>
                     {percentage >= 50 ? 'emoji_events' : 'sentiment_dissatisfied'}
                 </span>
-                <div style={{ fontSize: '3rem', fontWeight: 800, color: gradeColor, lineHeight: 1 }}>{grade}</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 600, marginTop: '0.5rem' }}>{score} / {max_score}</div>
-                <div style={{ color: 'var(--muted-foreground)', fontSize: '0.9rem', marginTop: '0.25rem' }}>{percentage}%</div>
+                <div className="sqz-result-grade" style={{ color: gradeColor }}>{grade}</div>
+                <div className="sqz-result-score">{score} / {max_score}</div>
+                <div className="sqz-result-pct">{percentage}%</div>
                 {isLate && (
-                    <div style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: '#dc2626', background: 'rgba(239,68,68,0.1)', borderRadius: 6, padding: '0.25rem 0.75rem', display: 'inline-block' }}>
+                    <div className="sqz-late-badge">
                         Submitted late
                     </div>
                 )}
-                <div style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginTop: '0.75rem' }}>
+                <div className="sqz-result-sub">
                     {quiz.title} · {quiz.subject_name}
                 </div>
             </div>
 
-            <div style={{ fontWeight: 600, marginBottom: '0.75rem' }}>Question Review</div>
+            <div className="sqz-review-title">Question Review</div>
 
             {quiz.questions.map((q, qi) => {
                 const ans = answers?.find(a => String(a.question_id) === String(q.id))
@@ -190,7 +169,7 @@ function ResultsPanel({ results, quiz, isLate, onBack }) {
                 )
             })}
 
-            <button className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} onClick={onBack}>
+            <button className="btn btn-primary sqz-back-btn" onClick={onBack}>
                 <span className="material-symbols-rounded icon-sm">arrow_back</span>
                 Back to Assignments
             </button>
@@ -259,18 +238,18 @@ export function StudentQuizPage() {
     // ── Loading ────────────────────────────────────────────────────────────────
     if (loading) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', flexDirection: 'column', gap: '1rem' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', color: 'var(--muted-foreground)', animation: 'spin 1s linear infinite' }}>progress_activity</span>
-                <p style={{ color: 'var(--muted-foreground)' }}>Loading quiz…</p>
+            <div className="sqz-center">
+                <span className="material-symbols-rounded sqz-spinner">progress_activity</span>
+                <p className="u-muted">Loading quiz…</p>
             </div>
         )
     }
 
     if (loadError) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', flexDirection: 'column', gap: '1rem', padding: '1rem' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', color: '#dc2626' }}>error</span>
-                <p style={{ fontWeight: 600 }}>{loadError}</p>
+            <div className="sqz-center pad">
+                <span className="material-symbols-rounded sqz-error-icon">error</span>
+                <p className="sqz-error-title">{loadError}</p>
                 <button className="btn btn-outline" onClick={() => navigate('/student/assignments')}>
                     <span className="material-symbols-rounded icon-sm">arrow_back</span>
                     Back to Assignments
@@ -286,24 +265,20 @@ export function StudentQuizPage() {
 
     // ── Quiz taking view ───────────────────────────────────────────────────────
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--background)' }}>
+        <div className="sqz-page">
             {/* Header */}
-            <div style={{
-                position: 'sticky', top: 0, zIndex: 100,
-                background: 'var(--card)', borderBottom: '1px solid var(--border)',
-                padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap',
-            }}>
+            <div className="sqz-header">
                 <button className="btn btn-outline btn-sm" onClick={() => navigate('/student/assignments')}
                     disabled={submitting}>
                     <span className="material-symbols-rounded icon-sm">arrow_back</span>
                     Exit
                 </button>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: '1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{quiz.title}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{quiz.subject_name} · {quiz.class_name}</div>
+                <div className="sqz-header-titlewrap">
+                    <div className="sqz-header-title">{quiz.title}</div>
+                    <div className="sqz-header-sub">{quiz.subject_name} · {quiz.class_name}</div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                <div className="sqz-header-right">
+                    <span className="sqz-answered">
                         {answeredCount}/{quiz.question_count} answered
                     </span>
                     {quiz.time_limit_minutes && (
@@ -313,18 +288,18 @@ export function StudentQuizPage() {
             </div>
 
             {/* Body */}
-            <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.5rem 1rem' }}>
+            <div className="sqz-body">
                 {timedOut && (
-                    <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.4rem' }}>timer_off</span>
+                    <div className="alert alert-danger u-mb">
+                        <span className="material-symbols-rounded sqz-alert-icon">timer_off</span>
                         Time is up! Your answers have been submitted automatically.
                     </div>
                 )}
 
                 {/* Instructions */}
                 {quiz.instructions && (
-                    <div style={{ background: 'var(--muted)', borderRadius: 10, padding: '0.875rem', marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--muted-foreground)', whiteSpace: 'pre-wrap' }}>
-                        <span style={{ fontWeight: 600, color: 'var(--foreground)' }}>Instructions: </span>
+                    <div className="sqz-instructions">
+                        <span className="sqz-instructions-label">Instructions: </span>
                         {quiz.instructions}
                     </div>
                 )}
@@ -341,16 +316,16 @@ export function StudentQuizPage() {
 
                 {/* Submit error */}
                 {submitError && (
-                    <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.4rem' }}>error</span>
+                    <div className="alert alert-danger u-mb">
+                        <span className="material-symbols-rounded sqz-alert-icon">error</span>
                         {submitError}
                     </div>
                 )}
 
                 {/* Submit button */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <div className="sqz-submit-row">
                     {answeredCount < quiz.question_count && (
-                        <span style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)', alignSelf: 'center' }}>
+                        <span className="sqz-unanswered">
                             {quiz.question_count - answeredCount} question{quiz.question_count - answeredCount !== 1 ? 's' : ''} unanswered
                         </span>
                     )}
