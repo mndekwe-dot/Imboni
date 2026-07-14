@@ -1834,3 +1834,78 @@
 .pann-mark-btn .material-symbols-rounded {
     font-size: 0.85rem;
 }
+
+/* ===============================================
+   MY CHILDREN PAGE (ParentChildren)
+   =============================================== */
+
+/* Loading placeholder card */
+.pchild-loading-card {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Consent card title icon */
+.pchild-title-icon {
+    vertical-align: middle;
+    margin-right: 0.4rem;
+}
+
+/* Consent request item + its inner shapes */
+.pchild-consent-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+}
+.pchild-consent-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.pchild-consent-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.pchild-consent-sub {
+    font-size: 0.78rem;
+    color: var(--muted-foreground);
+    margin-top: 0.15rem;
+}
+.pchild-consent-desc {
+    font-size: 0.83rem;
+    margin: 0.5rem 0 0.75rem;
+}
+.pchild-consent-children {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.pchild-consent-child {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+.pchild-consent-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    min-width: 140px;
+}
+.pchild-consent-status {
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--pchild-status);   /* data-driven via inline custom prop */
+}
+.pchild-status-icon {
+    font-size: 1rem;
+}
+.pchild-consent-actions {
+    display: flex;
+    gap: 0.4rem;
+}

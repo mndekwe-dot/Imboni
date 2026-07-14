@@ -871,6 +871,94 @@
   color: #8b5cf6;
 }
 
+/* ── Sick-bay bed actions ── */
+.bed-card-actions {
+  margin-top: 0.75rem;
+}
+.btn-discharge {
+  background: var(--success-light);
+  color: var(--success);
+  border: none;
+}
+
+/* ── Log-form / medication save errors ── */
+.health-form-error {
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+/* ── Today's Medication checklist ── */
+.med-add-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--muted);
+  border-radius: 10px;
+}
+.med-add-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.med-add-error {
+  color: #dc2626;
+  font-size: 0.8rem;
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.med-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.med-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+.med-item.overdue {
+  border-color: #dc2626;
+}
+.med-item.given {
+  background: rgba(16, 185, 129, 0.06);
+}
+.med-time {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+}
+.med-info {
+  flex: 1;
+  min-width: 160px;
+}
+.med-sub {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.med-given {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--success);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.med-given .material-symbols-rounded {
+  font-size: 1rem;
+}
+.med-overdue-label {
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 /* Matron parent communications */
 
 /* ── Parent comms extras ── */

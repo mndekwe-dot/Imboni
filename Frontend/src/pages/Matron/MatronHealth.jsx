@@ -58,10 +58,9 @@ function BedCard({ bed, badgeClass, badge, student, condition, since, isEmpty, r
                     <div className="bed-student">{student}</div>
                     <div className="bed-condition">{condition}</div>
                     <div className="bed-since">{since}</div>
-                    <div className="btn-row-sm" style={{ marginTop: '0.75rem' }}>
+                    <div className="btn-row-sm bed-card-actions">
                         <button
-                            className="btn btn-sm"
-                            style={{ background: 'var(--success-light)', color: 'var(--success)', border: 'none' }}
+                            className="btn btn-sm btn-discharge"
                             onClick={() => onDischarge(recordId)}
                             disabled={discharging}
                         >
@@ -161,12 +160,12 @@ function MedicationChecklist({ students }) {
         <div className="card mb-1-5">
             <div className="card-header">
                 <h3 className="card-title"><span className="material-symbols-rounded">medication</span> Today&apos;s Medication</h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div className="u-row">
                     <OfflineIndicator />
                     {checklist && (
                         <span className="settings-info-text align-self-center">
                             {checklist.given}/{checklist.total} given
-                            {checklist.overdue > 0 && <span style={{ color: '#dc2626' }}> &middot; {checklist.overdue} overdue</span>}
+                            {checklist.overdue > 0 && <span className="u-danger"> &middot; {checklist.overdue} overdue</span>}
                         </span>
                     )}
                     <button className="btn btn-outline btn-sm" onClick={() => setShowAdd(s => !s)}>
@@ -177,7 +176,7 @@ function MedicationChecklist({ students }) {
             </div>
             <div className="card-content">
                 {showAdd && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.6rem', marginBottom: '1rem', padding: '0.75rem', background: 'var(--muted)', borderRadius: 10 }}>
+                    <div className="med-add-grid">
                         <div>
                             <label className="form-label" htmlFor="med-student">Student</label>
                             <select id="med-student" className="form-input" value={form.student_id}
@@ -211,46 +210,41 @@ function MedicationChecklist({ students }) {
                             <input id="med-end" type="date" className="form-input"
                                 value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <div className="med-add-actions">
                             <button className="btn btn-primary btn-sm" onClick={handleAdd} disabled={saving}>
                                 {saving ? 'Saving…' : 'Save Schedule'}
                             </button>
                         </div>
-                        {saveError && <p style={{ color: '#dc2626', fontSize: '0.8rem', gridColumn: '1/-1', margin: 0 }}>{saveError}</p>}
+                        {saveError && <p className="med-add-error">{saveError}</p>}
                     </div>
                 )}
 
                 {!checklist ? (
-                    <p style={{ color: 'var(--muted-foreground)' }}>Loading medication checklist…</p>
+                    <p className="u-muted">Loading medication checklist…</p>
                 ) : items.length === 0 ? (
-                    <p style={{ color: 'var(--muted-foreground)' }}>No medications scheduled for today.</p>
+                    <p className="u-muted">No medications scheduled for today.</p>
                 ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <div className="med-list">
                         {items.map(item => {
                             const key = `${item.schedule_id}|${item.time}`
                             return (
-                                <div key={key} style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
-                                    padding: '0.55rem 0.8rem', borderRadius: 10,
-                                    border: `1px solid ${item.overdue ? '#dc2626' : 'var(--border)'}`,
-                                    background: item.given ? 'rgba(16,185,129,0.06)' : 'transparent',
-                                }}>
-                                    <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums', minWidth: 48 }}>{item.time}</span>
-                                    <div style={{ flex: 1, minWidth: 160 }}>
-                                        <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.student_name}</div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                <div key={key} className={`med-item ${item.overdue ? 'overdue' : ''} ${item.given ? 'given' : ''}`}>
+                                    <span className="med-time">{item.time}</span>
+                                    <div className="med-info">
+                                        <div className="u-strong u-sm">{item.student_name}</div>
+                                        <div className="med-sub">
                                             {item.medicine_name} · {item.dosage} · S{item.grade}{item.section}
                                         </div>
                                     </div>
                                     {item.given ? (
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--success)', fontSize: '0.8rem', fontWeight: 600 }}>
-                                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>check_circle</span>
+                                        <span className="med-given">
+                                            <span className="material-symbols-rounded">check_circle</span>
                                             Given
                                         </span>
                                     ) : (
                                         <>
                                             {item.overdue && (
-                                                <span style={{ color: '#dc2626', fontSize: '0.75rem', fontWeight: 600 }}>Overdue</span>
+                                                <span className="med-overdue-label">Overdue</span>
                                             )}
                                             <button className="btn btn-primary btn-sm"
                                                 disabled={giving === key}
@@ -343,7 +337,7 @@ export const MatronHealth = () => {
     }
 
     if (loading) return <Loading fullPage />
-    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     const healthStats = [
         { iconClass: 'sick',     icon: 'sick',          value: data.stats.in_sick_bay_now,    label: 'In Sick Bay Now'    },
@@ -476,7 +470,7 @@ export const MatronHealth = () => {
                                         </select>
                                     </div>
                                 </div>
-                                {saveError && <p style={{ color: '#dc2626', fontSize: '0.85rem' }}>{saveError}</p>}
+                                {saveError && <p className="health-form-error">{saveError}</p>}
                                 <div className="btn-row mt-1-5">
                                     <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !studentId || !complaint.trim()}>
                                         <span className="material-symbols-rounded">save</span> {saving ? 'Saving…' : 'Save Record'}

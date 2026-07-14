@@ -111,8 +111,8 @@ function ChildCard({ card, fees, docs }) {
 
 function LoadingCard() {
     return (
-        <div className="card student-card" style={{ minHeight: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+        <div className="card student-card pchild-loading-card">
+            <p className="u-muted">Loading…</p>
         </div>
     )
 }
@@ -151,48 +151,45 @@ function ConsentCard() {
         <div className="card mb-1-5">
             <div className="card-header">
                 <h2 className="card-title">
-                    <span className="material-symbols-rounded" style={{ verticalAlign: 'middle', marginRight: '0.4rem' }}>approval</span>
+                    <span className="material-symbols-rounded pchild-title-icon">approval</span>
                     Consent Requests
                 </h2>
                 {pendingCount > 0 && <span className="badge">{pendingCount} pending</span>}
             </div>
             <div className="card-content">
                 {loading ? (
-                    <p style={{ color: 'var(--muted-foreground)' }}>Loading consent requests…</p>
+                    <p className="u-muted">Loading consent requests…</p>
                 ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div className="u-stack-sm">
                         {requests.map(req => (
-                            <div key={req.id} style={{ border: '1px solid var(--border)', borderRadius: 10, padding: '0.75rem 1rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+                            <div key={req.id} className="pchild-consent-item">
+                                <div className="pchild-consent-row">
                                     <div>
-                                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{req.title}</div>
-                                        <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '0.15rem' }}>
+                                        <div className="pchild-consent-title">{req.title}</div>
+                                        <div className="pchild-consent-sub">
                                             {req.event_date}
                                             {req.response_deadline && ` · respond by ${req.response_deadline}`}
                                             {req.created_by && ` · from ${req.created_by}`}
                                         </div>
                                     </div>
                                 </div>
-                                <p style={{ fontSize: '0.83rem', margin: '0.5rem 0 0.75rem' }}>{req.description}</p>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                <p className="pchild-consent-desc">{req.description}</p>
+                                <div className="pchild-consent-children">
                                     {(req.children || []).map(child => {
                                         const key = `${req.id}|${child.student_id}`
                                         return (
-                                            <div key={child.student_id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                                                <span style={{ fontSize: '0.85rem', fontWeight: 500, minWidth: 140 }}>{child.student_name}</span>
+                                            <div key={child.student_id} className="pchild-consent-child">
+                                                <span className="pchild-consent-name">{child.student_name}</span>
                                                 {child.status ? (
-                                                    <span style={{
-                                                        fontSize: '0.78rem', fontWeight: 600,
-                                                        color: child.status === 'approved' ? 'var(--success)' : '#dc2626',
-                                                        display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-                                                    }}>
-                                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>
+                                                    <span className="pchild-consent-status"
+                                                        style={{ '--pchild-status': child.status === 'approved' ? 'var(--success)' : '#dc2626' }}>
+                                                        <span className="material-symbols-rounded pchild-status-icon">
                                                             {child.status === 'approved' ? 'check_circle' : 'cancel'}
                                                         </span>
                                                         {child.status === 'approved' ? 'Approved' : 'Declined'}
                                                     </span>
                                                 ) : (
-                                                    <span style={{ display: 'flex', gap: '0.4rem' }}>
+                                                    <span className="pchild-consent-actions">
                                                         <button className="btn btn-primary btn-sm"
                                                             disabled={busy === key}
                                                             onClick={() => respond(req.id, child.student_id, 'approved')}>
@@ -263,9 +260,9 @@ export function ParentChildren() {
                     <DashboardContent>
                         <ConsentCard />
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading children…</p>
+                            <p className="u-pad u-muted">Loading children…</p>
                         ) : children.length === 0 ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked to your account.</p>
+                            <p className="u-pad u-muted">No children linked to your account.</p>
                         ) : (
                             <div className="student-grid">
                                 {children.map(c => (

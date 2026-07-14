@@ -115,7 +115,7 @@ function ConsentRequestsPanel() {
         <div className="card mb-1-5">
             <div className="card-header">
                 <h2 className="card-title">
-                    <span className="material-symbols-rounded" style={{ verticalAlign: 'middle', marginRight: '0.4rem' }}>approval</span>
+                    <span className="material-symbols-rounded dis-inline-icon">approval</span>
                     Parent Consent Requests
                 </h2>
                 <button className="btn btn-outline btn-sm" onClick={() => setShowForm(s => !s)}>
@@ -125,13 +125,13 @@ function ConsentRequestsPanel() {
             </div>
             <div className="card-content">
                 {showForm && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '0.6rem', marginBottom: '1rem', padding: '0.75rem', background: 'var(--muted)', borderRadius: 10 }}>
-                        <div style={{ gridColumn: '1/-1' }}>
+                    <div className="cr-form">
+                        <div className="cr-col-full">
                             <label className="form-label" htmlFor="cr-title">Title</label>
                             <input id="cr-title" className="form-input" placeholder="e.g. Museum Trip"
                                 value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
                         </div>
-                        <div style={{ gridColumn: '1/-1' }}>
+                        <div className="cr-col-full">
                             <label className="form-label" htmlFor="cr-desc">Description</label>
                             <textarea id="cr-desc" className="form-input form-textarea" rows="2"
                                 placeholder="What are parents consenting to?"
@@ -154,39 +154,36 @@ function ConsentRequestsPanel() {
                                 {GRADE_OPTIONS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
                             </select>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                        <div className="cr-actions">
                             <button className="btn btn-primary btn-sm" onClick={handleCreate} disabled={saving}>
                                 {saving ? 'Sending…' : 'Send to Parents'}
                             </button>
                         </div>
-                        {error && <p style={{ color: '#dc2626', fontSize: '0.8rem', gridColumn: '1/-1', margin: 0 }}>{error}</p>}
+                        {error && <p className="cr-error">{error}</p>}
                     </div>
                 )}
 
                 {loading ? (
-                    <p style={{ color: 'var(--muted-foreground)' }}>Loading consent requests…</p>
+                    <p className="u-muted">Loading consent requests…</p>
                 ) : requests.length === 0 ? (
-                    <p style={{ color: 'var(--muted-foreground)' }}>
+                    <p className="u-muted">
                         No consent requests yet. Create one to collect parent approvals for a trip or activity.
                     </p>
                 ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div className="cr-list">
                         {requests.map(req => (
-                            <div key={req.id} style={{
-                                display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
-                                padding: '0.6rem 0.9rem', border: '1px solid var(--border)', borderRadius: 10,
-                            }}>
-                                <div style={{ flex: 1, minWidth: 180 }}>
-                                    <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{req.title}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                            <div key={req.id} className="cr-req">
+                                <div className="cr-req-main">
+                                    <div className="u-strong u-sm">{req.title}</div>
+                                    <div className="text-xs-muted">
                                         {req.event_date} · {req.grade ? `S${req.grade}` : 'All grades'}
                                         {req.response_deadline && ` · respond by ${req.response_deadline}`}
                                     </div>
                                 </div>
-                                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--success)' }}>
+                                <span className="cr-count-approved">
                                     {req.approved ?? 0} approved
                                 </span>
-                                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#dc2626' }}>
+                                <span className="cr-count-declined">
                                     {req.declined ?? 0} declined
                                 </span>
                             </div>
@@ -285,7 +282,7 @@ export function DisActivities() {
                         </div>
 
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading activities…</p>
+                            <p className="u-pad u-muted">Loading activities…</p>
                         ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="sports_soccer"
