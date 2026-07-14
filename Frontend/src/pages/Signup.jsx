@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import '../styles/components.css'
+import '../styles/signup.css'
 
 const SIGNUP_URL = '/imboni/onboarding/signup/'
 
@@ -136,33 +137,33 @@ export function Signup() {
     // ── Success confirmation ──
     if (result) {
         return (
-            <div style={pageStyle}>
-                <div style={{ width: '100%', maxWidth: '480px', textAlign: 'center' }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '4rem', color: 'var(--success)' }}>check_circle</span>
-                    <h1 style={{ marginTop: '0.5rem', fontSize: '1.6rem', fontWeight: 700 }}>
+            <div className="sgn-page">
+                <div className="sgn-wrap-center">
+                    <span className="material-symbols-rounded sgn-success-icon">check_circle</span>
+                    <h1 className="sgn-success-title">
                         {result.school_name} is ready!
                     </h1>
-                    <p style={{ color: 'var(--muted)', marginTop: '0.5rem' }}>
+                    <p className="sgn-success-sub">
                         {result.message || 'School created. You can now sign in.'}
                     </p>
 
-                    <div className="card" style={{ padding: '1.5rem', marginTop: '1.5rem', textAlign: 'left' }}>
-                        <div style={{ marginBottom: '1rem' }}>
-                            <div className="form-label" style={{ marginBottom: '0.35rem' }}>Your school address</div>
-                            <a href={result.url} style={{ color: 'var(--primary)', fontWeight: 600, wordBreak: 'break-all' }}>
+                    <div className="card sgn-detail-card">
+                        <div className="u-mb">
+                            <div className="form-label sgn-detail-label">Your school address</div>
+                            <a href={result.url} className="sgn-detail-link">
                                 {result.url}
                             </a>
                         </div>
                         <div>
-                            <div className="form-label" style={{ marginBottom: '0.35rem' }}>Administrator email</div>
-                            <div style={{ wordBreak: 'break-all' }}>{result.admin_email}</div>
+                            <div className="form-label sgn-detail-label">Administrator email</div>
+                            <div className="sgn-break">{result.admin_email}</div>
                         </div>
                     </div>
 
-                    <a href={result.url} className="btn btn-primary" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center' }}>
+                    <a href={result.url} className="btn btn-primary sgn-btn mt-1-5">
                         Go to {result.subdomain} and sign in
                     </a>
-                    <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginTop: '1rem' }}>
+                    <p className="sgn-note">
                         Sign in there with the administrator email and password you just set.
                     </p>
                 </div>
@@ -174,18 +175,18 @@ export function Signup() {
     const previewHost = form.subdomain ? `${form.subdomain}.${BASE_DOMAIN}` : `yourschool.${BASE_DOMAIN}`
 
     return (
-        <div style={pageStyle}>
-            <div style={{ width: '100%', maxWidth: '480px' }}>
+        <div className="sgn-page">
+            <div className="sgn-wrap">
 
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', color: 'var(--primary)' }}>add_business</span>
-                    <h1 style={{ marginTop: '0.5rem', fontSize: '1.5rem', fontWeight: 700 }}>Sign up your school</h1>
-                    <p style={{ color: 'var(--muted)', marginTop: '0.25rem', fontSize: '0.9rem' }}>
+                <div className="sgn-header">
+                    <span className="material-symbols-rounded sgn-header-icon">add_business</span>
+                    <h1 className="sgn-header-title">Sign up your school</h1>
+                    <p className="sgn-header-sub">
                         Create your school's own Imboni space in a couple of minutes.
                     </p>
                 </div>
 
-                <div className="card" style={{ padding: '1.75rem' }}>
+                <div className="card sgn-card">
                     <form onSubmit={handleSubmit} noValidate>
 
                         <Field label="School name *" error={fieldErrors.school_name}>
@@ -203,13 +204,13 @@ export function Signup() {
                                 value={form.subdomain}
                                 onChange={e => update('subdomain', sanitizeSubdomain(e.target.value))}
                                 autoCapitalize="none" autoCorrect="off" spellCheck="false" />
-                            <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.35rem' }}>
+                            <div className="sgn-preview">
                                 Your school will live at{' '}
-                                <strong style={{ color: 'var(--primary)' }}>{previewHost}</strong>
+                                <strong className="sgn-primary">{previewHost}</strong>
                             </div>
                         </Field>
 
-                        <div className="form-row-2" style={{ marginBottom: '1rem' }}>
+                        <div className="form-row-2 u-mb">
                             <Field label="Admin first name *" error={fieldErrors.admin_first_name} noMargin>
                                 <input className="form-control" placeholder="Jane"
                                     value={form.admin_first_name}
@@ -237,51 +238,42 @@ export function Signup() {
                         </Field>
 
                         {generalError && (
-                            <p style={{ color: 'var(--danger)', fontSize: '0.875rem', margin: '0 0 0.75rem' }}>
+                            <p className="sgn-error">
                                 {generalError}
                             </p>
                         )}
 
-                        <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} type="submit" disabled={submitting}>
+                        <button className="btn btn-primary sgn-btn" type="submit" disabled={submitting}>
                             {submitting ? 'Creating your school…' : 'Create school'}
                         </button>
 
                         {submitting && (
-                            <p style={{ color: 'var(--muted)', fontSize: '0.8rem', textAlign: 'center', marginTop: '0.75rem' }}>
+                            <p className="sgn-submitting">
                                 This can take a moment while we set everything up.
                             </p>
                         )}
                     </form>
                 </div>
 
-                <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem', marginTop: '1rem' }}>
-                    Already have a school on Imboni? <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 600 }}>Sign in</Link>
+                <p className="sgn-signin">
+                    Already have a school on Imboni? <Link to="/login" className="sgn-link">Sign in</Link>
                 </p>
             </div>
         </div>
     )
 }
 
-const pageStyle = {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'var(--background)',
-    padding: '2rem',
-}
-
 // Small labelled field wrapper that renders an inline error underneath.
 function Field({ label, error, help, noMargin, children }) {
     return (
-        <div className="form-group" style={{ marginBottom: noMargin ? 0 : '1rem' }}>
+        <div className={`form-group ${noMargin ? 'u-mb-0' : 'u-mb'}`}>
             <label className="form-label">{label}</label>
             {children}
             {help && !error && (
-                <div style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>{help}</div>
+                <div className="sgn-help">{help}</div>
             )}
             {error && (
-                <div style={{ fontSize: '0.8rem', color: 'var(--danger)' }}>
+                <div className="sgn-field-err">
                     {Array.isArray(error) ? error.join(' ') : String(error)}
                 </div>
             )}
