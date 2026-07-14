@@ -57,6 +57,10 @@
   --destructive-foreground: #ffffff;
   --destructive-light: rgba(239, 68, 68, 0.1);
 
+  /* Danger — used bare by ~45 delete-icons/errors/warnings that were previously
+     undefined (rendered non-red). Defined here so they show their intended red. */
+  --danger: #dc2626;
+
   /* Info Color */
   --info: #0284c7;
   --info-hover: #0369a1;
