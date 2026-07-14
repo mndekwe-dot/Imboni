@@ -620,3 +620,12 @@
 .portal-forgot-link:hover {
   opacity: 0.8;
 }
+
+/* ── Forgot-password modal + 2FA form helpers (login page migration) ── */
+.lg-forgot-intro  { margin-bottom: 1rem; line-height: 1.6; }
+.lg-contact-row   { display: flex; align-items: center; gap: 0.75rem; background: var(--muted); border-radius: 8px; padding: 0.75rem 1rem; }
+.lg-contact-icon  { color: var(--primary); }
+.lg-contact-label { font-weight: 600; font-size: 0.85rem; }
+.lg-contact-value { font-size: 0.85rem; }
+.lg-mt-0          { margin-top: 0; }
+.lg-back-link     { margin-top: 0.75rem; }

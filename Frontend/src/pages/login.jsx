@@ -16,28 +16,28 @@ function ForgotPasswordModal({ onClose }) {
                     <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
                 <div className="modal-body">
-                    <p style={{ marginBottom: '1rem', lineHeight: 1.6 }}>
+                    <p className="lg-forgot-intro">
                         Password resets are handled by the school administration. Please contact the school office using one of the options below:
                     </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--muted)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
-                            <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>mail</span>
+                    <div className="u-stack-sm">
+                        <div className="lg-contact-row">
+                            <span className="material-symbols-rounded lg-contact-icon">mail</span>
                             <div>
-                                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Email</div>
-                                <div style={{ fontSize: '0.85rem' }}>admin@imboni.edu</div>
+                                <div className="lg-contact-label">Email</div>
+                                <div className="lg-contact-value">admin@imboni.edu</div>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--muted)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
-                            <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>phone</span>
+                        <div className="lg-contact-row">
+                            <span className="material-symbols-rounded lg-contact-icon">phone</span>
                             <div>
-                                <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>School Extension</div>
-                                <div style={{ fontSize: '0.85rem' }}>Extension 100</div>
+                                <div className="lg-contact-label">School Extension</div>
+                                <div className="lg-contact-value">Extension 100</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div className="modal-footer">
-                    <button className="btn btn-primary" onClick={onClose} style={{ width: '100%' }}>Got it</button>
+                    <button className="btn btn-primary u-full" onClick={onClose}>Got it</button>
                 </div>
             </div>
         </div>
@@ -171,7 +171,7 @@ export function LogIn() {
 
                 {challenge ? (
                     <form className="login-form" onSubmit={handleVerify} autoComplete="off">
-                        <p className="login-subheading" style={{ marginTop: 0 }}>
+                        <p className="login-subheading lg-mt-0">
                             Enter the 6-digit code from your authenticator app (or a backup
                             code) to finish signing in.
                         </p>
@@ -201,8 +201,7 @@ export function LogIn() {
                         </button>
                         <button
                             type="button"
-                            className="forgot-link"
-                            style={{ marginTop: '0.75rem' }}
+                            className="forgot-link lg-back-link"
                             onClick={() => { setChallenge(null); setCode(''); setError('') }}
                         >
                             Back to sign in
