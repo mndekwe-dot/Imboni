@@ -531,7 +531,8 @@
 .adm-editblock-title { font-weight: 600; font-size: 0.9rem; }
 .adm-type-title    { font-weight: 700; font-size: 0.95rem; }
 .adm-icon-muted    { color: var(--muted-foreground); }   /* icon-button colour only; icon font-size stays inline */
-.adm-icon-danger   { color: var(--danger, #dc2626); }
+.adm-icon-danger   { color: var(--danger); }             /* bare, matching originals — see note: --danger is undefined project-wide */
+.adm-danger        { color: var(--danger); }
 .adm-spacer        { flex: 1; }
 
 /* Structure stat cards row */
@@ -549,7 +550,7 @@
 .adm-input-code    { flex: 1; min-width: 5rem; font-size: 0.85rem; }
 .adm-input-stream  { flex: 1; max-width: 14rem; font-size: 0.85rem; }
 .adm-input-year    { width: 7rem; }
-.adm-inline-err    { color: var(--danger, #dc2626); font-size: 0.8rem; margin-top: 0.25rem; }
+.adm-inline-err    { color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem; }
 
 /* Rooms */
 .adm-room-icon     { font-size: 0.85rem; color: var(--muted-foreground); }

@@ -399,7 +399,7 @@ function SchoolStructureSection() {
     const [saved,  setSaved]  = useState(false)
 
     if (loading) return <p className="adm-set-note">Loading…</p>
-    if (error)   return <p className="u-danger">Error: {error}</p>
+    if (error)   return <p className="adm-danger">Error: {error}</p>
 
     const totalYears   = config.reduce((sum, sec) => sum + sec.years.length, 0)
     const totalStreams  = config.reduce((sum, sec) => sum + sec.years.reduce((s, y) => s + y.streams.length, 0), 0)
