@@ -31,6 +31,7 @@
 .u-flex-min     { flex: 1; min-width: 0; }   /* truncatable flex child */
 .u-full         { width: 100%; }
 .u-nowrap       { white-space: nowrap; }
+.u-hidden       { display: none; }
 
 /* ── Spacing ────────────────────────────────────────────────────────────────── */
 .u-mt      { margin-top: 1rem; }

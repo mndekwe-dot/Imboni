@@ -2805,3 +2805,20 @@
 .sqz-late-inline  { color: #dc2626; }
 .sqz-review-score { font-size: 1.6rem; font-weight: 800; }   /* colour inline (data-driven) */
 .sqz-review-pct   { font-size: 0.8rem; font-weight: 600; }   /* colour inline (data-driven) */
+
+/* ── Teacher RESULTS page (TeacherResults) — enter-results modal score table
+   + trend chart. Reuses modal-footer-hint(.has-error), cell-name/cell-sub,
+   alert-icon, resp-grid-2, u-gap-sm. Row-skip opacity is a modifier. ── */
+.tr-scores-label { margin-bottom: 0.5rem; }
+.tr-empty-pad    { color: var(--muted-foreground); padding: 1rem 0; }
+.tr-score-scroll { max-height: 340px; overflow-y: auto; }
+.tr-sticky-head  { position: sticky; top: 0; background: var(--card); z-index: 1; }
+.tr-th-score     { width: 110px; }
+.tr-th-absent    { width: 80px; text-align: center; }
+.tr-optional     { font-weight: 400; color: var(--muted-foreground); }
+.tr-row-skip     { opacity: 0.45; }
+.tr-stud-cell    { display: flex; align-items: center; gap: 0.6rem; }
+.tr-input-sm     { padding: 0.3rem 0.5rem; font-size: 0.875rem; }
+.tr-checkbox     { width: 1rem; height: 1rem; cursor: pointer; }
+.tr-chart-body   { height: 220px; }
+.tr-inline-link  { color: var(--primary); background: none; border: none; cursor: pointer; padding: 0; font-size: inherit; }

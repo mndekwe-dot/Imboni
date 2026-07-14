@@ -166,7 +166,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
             size="wide"
             footer={
                 <div className="modal-footer-row">
-                    <span className="modal-footer-hint" style={{ color: saveError ? '#dc2626' : 'var(--muted-foreground)' }}>
+                    <span className={`modal-footer-hint${saveError ? ' has-error' : ''}`}>
                         {saveError || (filledCount > 0 ? `${filledCount} student${filledCount !== 1 ? 's' : ''} with scores` : '* Fill in all fields and at least one score')}
                     </span>
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
@@ -178,7 +178,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
             }
         >
             {/* Assessment details */}
-            <div className="resp-grid-2" style={{ gap: '0.75rem', marginBottom: '1.25rem' }}>
+            <div className="resp-grid-2 u-gap-sm u-mb-lg">
                 <div className="form-group col-full">
                     <label className="form-label">Assessment Title *</label>
                     <input
@@ -220,33 +220,33 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
             </div>
 
             {/* Student score entry table */}
-            <div className="section-label-sm" style={{ marginBottom: '0.5rem' }}>
+            <div className="section-label-sm tr-scores-label">
                 Student Scores — {classObj.class_name}
             </div>
             {loadingStud ? (
-                <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0' }}>Loading students…</p>
+                <p className="tr-empty-pad">Loading students…</p>
             ) : students.length === 0 ? (
-                <p style={{ color: 'var(--muted-foreground)' }}>No students found for this class.</p>
+                <p className="u-muted">No students found for this class.</p>
             ) : (
-                <div className="table-responsive" style={{ maxHeight: 340, overflowY: 'auto' }}>
+                <div className="table-responsive tr-score-scroll">
                     <table>
-                        <thead style={{ position: 'sticky', top: 0, background: 'var(--card)', zIndex: 1 }}>
+                        <thead className="tr-sticky-head">
                             <tr>
                                 <th>Student</th>
-                                <th style={{ width: 110 }}>Score {form.max_score ? `/ ${form.max_score}` : ''}</th>
-                                <th>Comment <span style={{ fontWeight: 400, color: 'var(--muted-foreground)' }}>(optional)</span></th>
-                                <th style={{ width: 80, textAlign: 'center' }}>Absent</th>
+                                <th className="tr-th-score">Score {form.max_score ? `/ ${form.max_score}` : ''}</th>
+                                <th>Comment <span className="tr-optional">(optional)</span></th>
+                                <th className="tr-th-absent">Absent</th>
                             </tr>
                         </thead>
                         <tbody>
                             {students.map(s => (
-                                <tr key={s.student_id} style={{ opacity: skipped[s.student_id] ? 0.45 : 1 }}>
+                                <tr key={s.student_id} className={skipped[s.student_id] ? 'tr-row-skip' : ''}>
                                     <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                                            <div className="dt-avatar" style={{ flexShrink: 0 }}>{s.initials}</div>
+                                        <div className="tr-stud-cell">
+                                            <div className="dt-avatar u-shrink-0">{s.initials}</div>
                                             <div>
-                                                <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{s.full_name}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{s.student_code}</div>
+                                                <div className="cell-name u-sm">{s.full_name}</div>
+                                                <div className="cell-sub">{s.student_code}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -256,8 +256,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                                             min="0"
                                             max={form.max_score || undefined}
                                             step="0.5"
-                                            className="form-control"
-                                            style={{ padding: '0.3rem 0.5rem', fontSize: '0.875rem' }}
+                                            className="form-control tr-input-sm"
                                             placeholder="—"
                                             value={scores[s.student_id] ?? ''}
                                             disabled={skipped[s.student_id]}
@@ -267,20 +266,19 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                                     <td>
                                         <input
                                             type="text"
-                                            className="form-control"
-                                            style={{ padding: '0.3rem 0.5rem', fontSize: '0.875rem' }}
+                                            className="form-control tr-input-sm"
                                             placeholder="e.g. Good effort, needs revision…"
                                             value={notes[s.student_id] ?? ''}
                                             disabled={skipped[s.student_id]}
                                             onChange={e => setNotes(prev => ({ ...prev, [s.student_id]: e.target.value }))}
                                         />
                                     </td>
-                                    <td style={{ textAlign: 'center' }}>
+                                    <td className="u-center-text">
                                         <input
                                             type="checkbox"
                                             checked={!!skipped[s.student_id]}
                                             onChange={e => setSkipped(prev => ({ ...prev, [s.student_id]: e.target.checked }))}
-                                            style={{ width: '1rem', height: '1rem', cursor: 'pointer' }}
+                                            className="tr-checkbox"
                                         />
                                     </td>
                                 </tr>
@@ -427,8 +425,8 @@ export function TeacherResults() {
                     />
                     <DashboardContent>
                         {loadError && (
-                            <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.4rem' }}>error</span>
+                            <div className="alert alert-danger u-mb">
+                                <span className="material-symbols-rounded alert-icon">error</span>
                                 {loadError}
                             </div>
                         )}
@@ -457,7 +455,7 @@ export function TeacherResults() {
                                             {titles.map(t => <option key={t} value={t}>{t}</option>)}
                                         </select>
                                     ) : (
-                                        <span className="settings-info-text" style={{ color: 'var(--muted-foreground)' }}>
+                                        <span className="settings-info-text u-muted">
                                             {selectedClass ? 'No assessments yet' : 'Select a class first'}
                                         </span>
                                     )}
@@ -466,7 +464,7 @@ export function TeacherResults() {
                                         ref={fileInputRef}
                                         type="file"
                                         accept=".csv"
-                                        style={{ display: 'none' }}
+                                        className="u-hidden"
                                     />
                                     <button
                                         className="btn btn-primary select-xs"
@@ -510,11 +508,11 @@ export function TeacherResults() {
                                         )}
 
                                         {trend.length >= 2 && (
-                                            <div className="card" style={{ marginBottom: '1rem' }}>
+                                            <div className="card u-mb">
                                                 <div className="card-header">
                                                     <h2 className="card-title">Class Average Over Time — {classKey}</h2>
                                                 </div>
-                                                <div className="card-content" style={{ height: 220 }}>
+                                                <div className="card-content tr-chart-body">
                                                     <ResponsiveContainer width="100%" height="100%">
                                                         <LineChart data={trend} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -565,8 +563,7 @@ export function TeacherResults() {
                                                 <span>
                                                     No results recorded{assessment ? ` for "${assessment}"` : ''} in {classKey} yet.{' '}
                                                     <button
-                                                        className="btn-link"
-                                                        style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}
+                                                        className="tr-inline-link"
                                                         onClick={() => setShowEnterModal(true)}
                                                     >
                                                         Enter the first results now.
