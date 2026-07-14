@@ -138,14 +138,14 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
             </div>
 
             {panelError && (
-                <p style={{ color: '#dc2626', fontSize: '0.82rem', padding: '0.5rem 0' }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.3rem' }}>error</span>
+                <p className="tc-panel-err">
+                    <span className="material-symbols-rounded tc-err-icon">error</span>
                     {panelError}
                 </p>
             )}
 
             {loading ? (
-                <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0' }}>Loading students…</p>
+                <p className="tr-empty-pad">Loading students…</p>
             ) : filtered.length === 0 ? (
                 <div className="stu-empty">No students found.</div>
             ) : (
@@ -289,7 +289,7 @@ function ResultsModal({ cls, onClose }) {
         <Modal title={`Enter Results — ${cls.class_name}`} icon="edit_note" onClose={onClose} size="wide">
             <p className="modal-desc">Select an existing assessment or create a new one for <strong>{cls.class_name}</strong>.</p>
             {loadingInit ? (
-                <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                <p className="u-muted">Loading…</p>
             ) : (
                 <div className="asgn-pick-list">
                     <button className="asgn-pick-btn" onClick={openNew}>
@@ -309,7 +309,7 @@ function ResultsModal({ cls, onClose }) {
                         </button>
                     ))}
                     {titles.length === 0 && (
-                        <p style={{ color: 'var(--muted-foreground)', padding: '0.5rem 0' }}>No assessments recorded yet. Click "New Assessment" to start.</p>
+                        <p className="tc-note-pad">No assessments recorded yet. Click "New Assessment" to start.</p>
                     )}
                 </div>
             )}
@@ -332,7 +332,7 @@ function ResultsModal({ cls, onClose }) {
                             Back
                         </button>
                         {error && <span className="results-warning">{error}</span>}
-                        {savedMsg && <span style={{ color: 'var(--success)', fontSize: '0.85rem' }}>Saved!</span>}
+                        {savedMsg && <span className="tc-saved">Saved!</span>}
                         <button className="btn btn-outline" onClick={onClose}>Close</button>
                         <button className="btn btn-primary" onClick={handleSaveExisting} disabled={saving}>
                             {saving ? 'Saving…' : 'Save Changes'}
@@ -346,7 +346,7 @@ function ResultsModal({ cls, onClose }) {
                     </div>
                 </div>
                 {loadingRows ? (
-                    <p style={{ color: 'var(--muted-foreground)' }}>Loading scores…</p>
+                    <p className="u-muted">Loading scores…</p>
                 ) : (
                     <div className="score-table-body">
                         <div className="score-table-head score-grid-2">
@@ -366,7 +366,7 @@ function ResultsModal({ cls, onClose }) {
                                             <div className="score-student-code">{student.student_code}</div>
                                         </div>
                                     </div>
-                                    <div className="score-input-cell" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <div className="score-input-cell u-row-sm">
                                         <input
                                             type="number" min="0" max={max} placeholder="—"
                                             className="score-input"
@@ -374,7 +374,7 @@ function ResultsModal({ cls, onClose }) {
                                             onChange={e => setScores(prev => ({ ...prev, [student.student_id]: e.target.value }))}
                                         />
                                         {grade && (
-                                            <span className="grade-badge" style={{ color: grade.color, background: `${grade.color}18`, padding: '0.15rem 0.5rem', borderRadius: 4 }}>
+                                            <span className="grade-badge tc-grade-badge" style={{ color: grade.color, background: `${grade.color}18` }}>
                                                 {grade.label}
                                             </span>
                                         )}
@@ -402,7 +402,7 @@ function ResultsModal({ cls, onClose }) {
                         Back
                     </button>
                     {error && <span className="results-warning">{error}</span>}
-                    {savedMsg && <span style={{ color: 'var(--success)', fontSize: '0.85rem' }}>Saved!</span>}
+                    {savedMsg && <span className="tc-saved">Saved!</span>}
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
                     <button
                         className="btn btn-primary"
@@ -414,7 +414,7 @@ function ResultsModal({ cls, onClose }) {
                 </div>
             }
         >
-            <div className="resp-grid-2" style={{ gap: '0.75rem', marginBottom: '1.25rem' }}>
+            <div className="resp-grid-2 u-gap-sm u-mb-lg">
                 <div className="form-group col-full">
                     <label className="form-label">Assessment Title *</label>
                     <input
@@ -460,7 +460,7 @@ function ResultsModal({ cls, onClose }) {
                                     <div className="score-student-code">{student.student_code}</div>
                                 </div>
                             </div>
-                            <div className="score-input-cell" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div className="score-input-cell u-row-sm">
                                 <input
                                     type="number" min="0" max={newForm.max_score || undefined} placeholder="—"
                                     className="score-input"
@@ -468,7 +468,7 @@ function ResultsModal({ cls, onClose }) {
                                     onChange={e => setScores(prev => ({ ...prev, [student.student_id]: e.target.value }))}
                                 />
                                 {grade && (
-                                    <span className="grade-badge" style={{ color: grade.color, background: `${grade.color}18`, padding: '0.15rem 0.5rem', borderRadius: 4 }}>
+                                    <span className="grade-badge tc-grade-badge" style={{ color: grade.color, background: `${grade.color}18` }}>
                                         {grade.label}
                                     </span>
                                 )}
@@ -477,7 +477,7 @@ function ResultsModal({ cls, onClose }) {
                     )
                 })}
                 {students.length === 0 && (
-                    <p style={{ color: 'var(--muted-foreground)', padding: '0.5rem 0' }}>No students found in this class.</p>
+                    <p className="tc-note-pad">No students found in this class.</p>
                 )}
             </div>
         </Modal>
@@ -583,10 +583,10 @@ export function TeacherClasses() {
                             </div>
                             <div className="classes-wrap-body">
                                 {loadingClasses ? (
-                                    <p style={{ color: 'var(--muted-foreground)', padding: '1.5rem' }}>Loading classes…</p>
+                                    <p className="tc-load-pad">Loading classes…</p>
                                 ) : loadError ? (
-                                    <div style={{ padding: '1.5rem', color: '#dc2626', fontSize: '0.875rem' }}>
-                                        <span className="material-symbols-rounded" style={{ verticalAlign: 'middle', marginRight: '0.4rem', fontSize: '1.1rem' }}>error</span>
+                                    <div className="tc-load-err">
+                                        <span className="material-symbols-rounded tc-load-err-icon">error</span>
                                         {loadError}
                                     </div>
                                 ) : visible.length === 0 ? (
