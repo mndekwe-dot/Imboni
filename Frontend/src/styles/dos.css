@@ -3108,3 +3108,28 @@ body.tm-panel-open { overflow: hidden; }
 .pinv-status.failed  { color: var(--warning); }
 .pinv-actions   { display: flex; gap: 0.4rem; justify-content: flex-end; }
 .pinv-cancel    { color: var(--danger); border: 1px solid var(--danger); background: transparent; }
+
+/* ============================================================
+   DOS DASHBOARD PAGE (DosDashboard) — recent-activity list +
+   My Tasks widget (DOS/primary-themed twin of the discipline one).
+   Chart dot colours + progress width stay inline (data-driven).
+   ============================================================ */
+.dos-count-note      { font-size: 0.78rem; color: var(--muted-foreground); }
+.dos-activity-scroll { max-height: 320px; overflow-y: auto; }
+.dos-loadmore        { width: 100%; margin-top: 0.75rem; font-size: 0.8rem; }
+.dos-all-loaded      { text-align: center; font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.75rem; }
+
+.dos-task-form   { background: var(--muted); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.dos-prio-opt    { display: flex; align-items: center; gap: 0.3rem; cursor: pointer; font-size: 0.82rem; padding: 0.3rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); text-transform: capitalize; }
+.dos-prio-opt.on { border-color: var(--primary); background: var(--primary-light, #e0e7ff); }
+.dos-radio       { accent-color: var(--primary); }
+.dos-task-date   { flex: 1; min-width: 140px; }
+.dos-task-err    { color: #dc2626; font-size: 0.8rem; margin: 0; }
+.dos-note-sm     { color: var(--muted-foreground); font-size: 0.875rem; }
+.dos-task-list   { display: flex; flex-direction: column; gap: 0.5rem; }
+.dos-task-item   { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 8px; background: var(--card); border: 1px solid var(--border); }
+.dos-task-item.done { background: var(--muted); opacity: 0.6; }
+.dos-task-check  { accent-color: var(--primary); cursor: pointer; width: 1rem; height: 1rem; flex-shrink: 0; }
+.dos-task-title  { flex: 1; font-size: 0.875rem; font-weight: 500; }
+.dos-task-title.done { text-decoration: line-through; color: var(--muted-foreground); }
+.dos-task-due    { font-size: 0.75rem; color: var(--muted-foreground); flex-shrink: 0; }

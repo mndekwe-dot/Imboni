@@ -192,7 +192,7 @@ export function DosDashboard() {
     const gradePerformance = gradeData
 
     if (loading) return <Loading fullPage />
-    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     return (
         <>
@@ -252,15 +252,14 @@ export function DosDashboard() {
                                 <div className="card">
                                     <div className="card-header">
                                         <h2 className="card-title">Recent Activity</h2>
-                                        <span style={{ fontSize: '.78rem', color: 'var(--muted-foreground)' }}>
+                                        <span className="dos-count-note">
                                             {activities.length} of {activityTotal}
                                         </span>
                                     </div>
                                     <div className="card-content">
                                         <div
-                                            className="activity-list"
+                                            className="activity-list dos-activity-scroll"
                                             ref={activityListRef}
-                                            style={{ maxHeight: '320px', overflowY: 'auto' }}
                                         >
                                             {recentActivities.map((item, i) => (
                                                 <ActivityItem key={i} {...item} />
@@ -268,8 +267,7 @@ export function DosDashboard() {
                                         </div>
                                         {activityHasMore && (
                                             <button
-                                                className="btn btn-secondary"
-                                                style={{ width: '100%', marginTop: '.75rem', fontSize: '.8rem' }}
+                                                className="btn btn-secondary dos-loadmore"
                                                 onClick={() => fetchActivityPage(activities.length, true)}
                                                 disabled={activityLoadingMore}
                                             >
@@ -279,7 +277,7 @@ export function DosDashboard() {
                                             </button>
                                         )}
                                         {!activityHasMore && activities.length > 0 && (
-                                            <p style={{ textAlign: 'center', fontSize: '.75rem', color: 'var(--muted-foreground)', marginTop: '.75rem' }}>
+                                            <p className="dos-all-loaded">
                                                 All {activityTotal} activities loaded
                                             </p>
                                         )}
@@ -361,7 +359,7 @@ export function DosDashboard() {
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">My Tasks</h2>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div className="u-row-sm">
                                     <span className="badge badge-secondary">{tasks.filter(t => !t.is_completed).length} pending</span>
                                     <button className="btn btn-outline btn-sm" onClick={() => setShowTaskForm(v => !v)}>
                                         <span className="material-symbols-rounded icon-sm">{showTaskForm ? 'expand_less' : 'add'}</span>
@@ -371,7 +369,7 @@ export function DosDashboard() {
                             </div>
                             <div className="card-content">
                                 {showTaskForm && (
-                                    <div style={{ background: 'var(--muted)', borderRadius: '10px', padding: '1rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    <div className="dos-task-form">
                                         <input
                                             className="form-input"
                                             placeholder="Task title…"
@@ -380,22 +378,16 @@ export function DosDashboard() {
                                             onKeyDown={e => e.key === 'Enter' && handleCreateTask()}
                                             autoFocus
                                         />
-                                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                        <div className="u-row-sm u-wrap">
                                             {['low', 'medium', 'high'].map(p => (
-                                                <label key={p} style={{
-                                                    display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer',
-                                                    fontSize: '0.82rem', padding: '0.3rem 0.7rem', borderRadius: '8px',
-                                                    border: `1px solid ${taskPriority === p ? 'var(--primary)' : 'var(--border)'}`,
-                                                    background: taskPriority === p ? 'var(--primary-light, #e0e7ff)' : 'transparent',
-                                                    textTransform: 'capitalize',
-                                                }}>
-                                                    <input type="radio" value={p} checked={taskPriority === p} onChange={() => setTaskPriority(p)} style={{ accentColor: 'var(--primary)' }} />
+                                                <label key={p} className={`dos-prio-opt${taskPriority === p ? ' on' : ''}`}>
+                                                    <input type="radio" value={p} checked={taskPriority === p} onChange={() => setTaskPriority(p)} className="dos-radio" />
                                                     {p}
                                                 </label>
                                             ))}
-                                            <input type="date" className="form-input" style={{ flex: 1, minWidth: '140px' }} value={taskDue} onChange={e => setTaskDue(e.target.value)} />
+                                            <input type="date" className="form-input dos-task-date" value={taskDue} onChange={e => setTaskDue(e.target.value)} />
                                         </div>
-                                        {taskError && <p style={{ color: '#dc2626', fontSize: '0.8rem', margin: 0 }}>{taskError}</p>}
+                                        {taskError && <p className="dos-task-err">{taskError}</p>}
                                         <button className="btn btn-primary btn-sm" onClick={handleCreateTask} disabled={taskSaving || !taskTitle.trim()}>
                                             <span className="material-symbols-rounded icon-sm">save</span>
                                             {taskSaving ? 'Saving…' : 'Save Task'}
@@ -403,34 +395,24 @@ export function DosDashboard() {
                                     </div>
                                 )}
                                 {tasks.length === 0 ? (
-                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No tasks yet. Click Add to create one.</p>
+                                    <p className="dos-note-sm">No tasks yet. Click Add to create one.</p>
                                 ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <div className="dos-task-list">
                                         {tasks.slice(0, 6).map(task => (
-                                            <div key={task.id} style={{
-                                                display: 'flex', alignItems: 'center', gap: '0.75rem',
-                                                padding: '0.5rem 0.75rem', borderRadius: '8px',
-                                                background: task.is_completed ? 'var(--muted)' : 'var(--card)',
-                                                border: '1px solid var(--border)',
-                                                opacity: task.is_completed ? 0.6 : 1,
-                                            }}>
+                                            <div key={task.id} className={`dos-task-item${task.is_completed ? ' done' : ''}`}>
                                                 <input
                                                     type="checkbox"
                                                     checked={task.is_completed}
                                                     onChange={() => toggleTaskDone(task)}
-                                                    style={{ accentColor: 'var(--primary)', cursor: 'pointer', width: '1rem', height: '1rem', flexShrink: 0 }}
+                                                    className="dos-task-check"
                                                 />
-                                                <span style={{
-                                                    flex: 1, fontSize: '0.875rem', fontWeight: 500,
-                                                    textDecoration: task.is_completed ? 'line-through' : 'none',
-                                                    color: task.is_completed ? 'var(--muted-foreground)' : 'inherit',
-                                                }}>{task.title}</span>
+                                                <span className={`dos-task-title${task.is_completed ? ' done' : ''}`}>{task.title}</span>
                                                 {task.due_date && (
-                                                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', flexShrink: 0 }}>
+                                                    <span className="dos-task-due">
                                                         {task.due_date}
                                                     </span>
                                                 )}
-                                                <span className={`badge ${task.priority === 'high' ? 'badge-high' : task.priority === 'medium' ? 'badge-medium' : 'badge-low'}`} style={{ flexShrink: 0 }}>
+                                                <span className={`badge ${task.priority === 'high' ? 'badge-high' : task.priority === 'medium' ? 'badge-medium' : 'badge-low'} u-shrink-0`}>
                                                     {task.priority}
                                                 </span>
                                             </div>
