@@ -63,19 +63,14 @@ const TYPE_FILTER_OPTIONS = [
 ]
 
 const STATUS_META = {
-    pending_review: { label: 'Pending Review', style: { background: '#fef3c7', color: '#92400e', border: '1px solid #f59e0b' } },
-    approved:       { label: 'Approved',       style: { background: '#dcfce7', color: '#15803d', border: '1px solid #86efac' } },
-    rejected:       { label: 'Rejected',       style: { background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5' } },
+    pending_review: { label: 'Pending Review', cls: 'pending'  },
+    approved:       { label: 'Approved',       cls: 'approved' },
+    rejected:       { label: 'Rejected',       cls: 'rejected' },
 }
 
 function StatusBadge({ status }) {
-    const meta = STATUS_META[status] || { label: status, style: {} }
-    return (
-        <span style={{
-            fontSize: '0.72rem', fontWeight: 600, padding: '0.2rem 0.6rem',
-            borderRadius: '9px', whiteSpace: 'nowrap', ...meta.style,
-        }}>{meta.label}</span>
-    )
+    const meta = STATUS_META[status] || { label: status, cls: '' }
+    return <span className={`dis-status-badge ${meta.cls}`}>{meta.label}</span>
 }
 
 function PendingCard({ report, onReview }) {
@@ -92,54 +87,54 @@ function PendingCard({ report, onReview }) {
     }
 
     return (
-        <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1.5px solid #f59e0b', overflow: 'hidden' }}>
-            <div style={{ padding: '1rem 1.25rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                <div className={`disc-activity-icon ${typeInfo.cls}`} style={{ flexShrink: 0 }}>
+        <div className="dis-pending-card">
+            <div className="dis-pending-hd">
+                <div className={`disc-activity-icon ${typeInfo.cls}`}>
                     <span className="material-symbols-rounded">
                         {report.report_type === 'incident' ? 'warning' : report.report_type === 'warning' ? 'error' : 'thumb_up'}
                     </span>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{report.title}</span>
+                <div className="u-flex-min">
+                    <div className="u-row-sm u-wrap">
+                        <span className="dis-pending-title">{report.title}</span>
                         <span className={`incident-type-tag ${typeInfo.cls}`}>{typeInfo.label}</span>
                         {report.severity && (
-                            <span style={{ fontSize: '0.7rem', fontWeight: 600, padding: '0.1rem 0.45rem', borderRadius: '8px', background: '#fee2e2', color: '#b91c1c' }}>
+                            <span className="dis-sev-tag">
                                 {report.severity}
                             </span>
                         )}
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.2rem' }}>
+                    <div className="dis-meta">
                         <strong>{report.student}</strong>
-                        {cls && <> &nbsp;·&nbsp; <span className="class-chip" style={{ fontSize: '0.72rem' }}>{cls}</span></>}
+                        {cls && <> &nbsp;·&nbsp; <span className="class-chip dis-chip-sm">{cls}</span></>}
                         &nbsp;·&nbsp; {report.date}
                     </div>
                     {report.description && (
-                        <div style={{ fontSize: '0.82rem', marginTop: '0.4rem' }}>{report.description}</div>
+                        <div className="dis-desc">{report.description}</div>
                     )}
-                    <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.5rem', display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div className="dis-foot-meta">
                         <span>Filed by <strong>{report.reported_by || 'Unknown'}</strong></span>
                         {report.location && <span>· {report.location}</span>}
                         {report.marks_deducted != null && (
-                            <span style={{ background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: '8px', padding: '0.1rem 0.5rem', fontWeight: 600, fontSize: '0.72rem' }}>
+                            <span className="dis-marks-tag">
                                 −{report.marks_deducted} marks
                             </span>
                         )}
                     </div>
                 </div>
-                <button className="btn btn-sm btn-outline" onClick={() => setOpen(o => !o)} style={{ flexShrink: 0 }}>
+                <button className="btn btn-sm btn-outline u-shrink-0" onClick={() => setOpen(o => !o)}>
                     <span className="material-symbols-rounded icon-sm">{open ? 'expand_less' : 'rate_review'}</span>
                     Review
                 </button>
             </div>
             {open && (
-                <div style={{ borderTop: '1px solid var(--border)', padding: '1rem 1.25rem', background: 'var(--muted)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <div className="form-group" style={{ margin: 0 }}>
+                <div className="dis-review-panel">
+                    <div className="form-group u-m-0">
                         <label className="form-label">Notes (optional)</label>
                         <textarea className="form-input form-textarea" rows="2" placeholder="Add a note…" value={notes} onChange={e => setNotes(e.target.value)} />
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                        <button className="btn btn-sm" style={{ background: '#fee2e2', color: '#b91c1c', border: '1.5px solid #fca5a5' }} onClick={() => handle('reject')} disabled={saving}>
+                    <div className="u-row-sm u-justify-end">
+                        <button className="btn btn-sm dis-btn-reject" onClick={() => handle('reject')} disabled={saving}>
                             <span className="material-symbols-rounded icon-sm">cancel</span> Reject
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => handle('approve')} disabled={saving}>
@@ -172,7 +167,7 @@ function StudentRow({ student, onView }) {
             <td>
                 {student.conduct_grade
                     ? <span className={`conduct-badge ${conductCls}`}>{label}</span>
-                    : <span style={{ color: 'var(--muted-foreground)', fontSize: '.8rem' }}>—</span>
+                    : <span className="dis-dash">—</span>
                 }
             </td>
             <td>
@@ -203,18 +198,18 @@ function ReportRow({ report, onMarkComplete }) {
             <td><span className="class-chip">{cls}</span></td>
             <td><span className={`incident-type-tag ${typeInfo.cls}`}>{typeInfo.label}</span></td>
             <td>
-                <div style={{ fontWeight: 500, fontSize: '.85rem' }}>{report.title}</div>
+                <div className="dis-rep-title">{report.title}</div>
                 {report.description && (
-                    <div style={{ color: 'var(--muted-foreground)', fontSize: '.78rem', marginTop: '.1rem' }}>
+                    <div className="dis-rep-desc">
                         {report.description}
                     </div>
                 )}
             </td>
-            <td className="text-muted" style={{ whiteSpace: 'nowrap' }}>{report.date}</td>
+            <td className="text-muted u-nowrap">{report.date}</td>
             <td className="text-muted">{report.reported_by || '—'}</td>
             <td>
                 {fuStatus.label === '—'
-                    ? <span style={{ color: 'var(--muted-foreground)' }}>—</span>
+                    ? <span className="u-muted">—</span>
                     : <span className={`badge ${fuStatus.cls}`}>{fuStatus.label}</span>
                 }
             </td>
@@ -372,7 +367,7 @@ export function DisStudents() {
                                 </div>
 
                                 {studLoading ? (
-                                    <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading students…</p>
+                                    <p className="u-pad u-muted">Loading students…</p>
                                 ) : (
                                     <DataTable
                                         title="Student Conduct Records"
@@ -406,7 +401,7 @@ export function DisStudents() {
                                         <span className="material-symbols-rounded">cancel</span>
                                         Rejected
                                         {rejected.length > 0 && (
-                                            <span style={{ marginLeft: '0.3rem', fontSize: '0.7rem', fontWeight: 600, background: '#fee2e2', color: '#b91c1c', borderRadius: '9px', padding: '0 5px' }}>
+                                            <span className="dis-rej-count">
                                                 {rejected.length}
                                             </span>
                                         )}
@@ -414,13 +409,13 @@ export function DisStudents() {
                                 </div>
 
                                 {repLoading ? (
-                                    <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading reports…</p>
+                                    <p className="u-pad u-muted">Loading reports…</p>
                                 ) : reportSubTab === 'pending' ? (
                                     pending.length === 0 ? (
-                                        <p style={{ color: 'var(--muted-foreground)', padding: '2rem 0', textAlign: 'center' }}>No pending reports — all matron reports have been reviewed.</p>
+                                        <p className="dis-empty-center">No pending reports — all matron reports have been reviewed.</p>
                                     ) : (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                            <p style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)', margin: 0 }}>
+                                        <div className="u-stack-sm">
+                                            <p className="dis-hint">
                                                 {pending.length} report{pending.length !== 1 ? 's' : ''} awaiting review.
                                             </p>
                                             {pending.map(r => <PendingCard key={r.id} report={r} onReview={handleReview} />)}
@@ -436,7 +431,7 @@ export function DisStudents() {
                                         emptyTitle="No approved reports"
                                         emptyDesc="No approved behavior reports on record."
                                         filterBar={
-                                            <div className="filter-tabs-bar mt-0" style={{ marginBottom: '0.75rem' }}>
+                                            <div className="filter-tabs-bar mt-0 u-mb-sm">
                                                 {TYPE_FILTER_OPTIONS.map(o => (
                                                     <button key={o.key} className={`filter-tab${typeFilter === o.key ? ' active' : ''}`} onClick={() => setTypeFilter(o.key)}>
                                                         {o.label}
@@ -448,32 +443,32 @@ export function DisStudents() {
                                     />
                                 ) : (
                                     rejected.length === 0 ? (
-                                        <p style={{ color: 'var(--muted-foreground)', padding: '2rem 0', textAlign: 'center' }}>No rejected reports.</p>
+                                        <p className="dis-empty-center">No rejected reports.</p>
                                     ) : (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                                        <div className="dis-stack-mid">
                                             {rejected.map(r => {
                                                 const typeInfo = REPORT_TYPE_LABELS[r.report_type] || { label: r.report_type, cls: '' }
                                                 const cls = `${r.grade || ''}${r.section || ''}`
                                                 return (
-                                                    <div key={r.id} style={{ background: 'var(--card)', borderRadius: '12px', border: '1.5px solid #fca5a5', padding: '1rem 1.25rem', display: 'flex', gap: '0.75rem' }}>
-                                                        <div className="disc-activity-icon warning" style={{ flexShrink: 0 }}>
+                                                    <div key={r.id} className="dis-rejected-card">
+                                                        <div className="disc-activity-icon warning">
                                                             <span className="material-symbols-rounded">cancel</span>
                                                         </div>
-                                                        <div style={{ flex: 1 }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                                                <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{r.title}</span>
+                                                        <div className="u-flex-1">
+                                                            <div className="u-row-sm u-wrap">
+                                                                <span className="dis-rej-title">{r.title}</span>
                                                                 <span className={`incident-type-tag ${typeInfo.cls}`}>{typeInfo.label}</span>
                                                                 <StatusBadge status="rejected" />
                                                             </div>
-                                                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.2rem' }}>
+                                                            <div className="dis-meta">
                                                                 <strong>{r.student}</strong>
-                                                                {cls && <> &nbsp;·&nbsp; <span className="class-chip" style={{ fontSize: '0.72rem' }}>{cls}</span></>}
+                                                                {cls && <> &nbsp;·&nbsp; <span className="class-chip dis-chip-sm">{cls}</span></>}
                                                                 &nbsp;·&nbsp; {r.date}
                                                             </div>
                                                             {r.review_notes && (
-                                                                <div style={{ fontSize: '0.8rem', marginTop: '0.4rem', color: '#b91c1c' }}>Reason: {r.review_notes}</div>
+                                                                <div className="dis-reason">Reason: {r.review_notes}</div>
                                                             )}
-                                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.3rem' }}>
+                                                            <div className="dis-filed">
                                                                 Filed by <strong>{r.reported_by || '—'}</strong>
                                                                 {r.reviewed_by && <> &nbsp;·&nbsp; Rejected by <strong>{r.reviewed_by}</strong></>}
                                                             </div>

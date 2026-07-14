@@ -27,7 +27,10 @@
 .u-ml-auto      { margin-left: auto; }
 .u-relative     { position: relative; }
 .u-shrink-0     { flex-shrink: 0; }
+.u-flex-1       { flex: 1; }
+.u-flex-min     { flex: 1; min-width: 0; }   /* truncatable flex child */
 .u-full         { width: 100%; }
+.u-nowrap       { white-space: nowrap; }
 
 /* ── Spacing ────────────────────────────────────────────────────────────────── */
 .u-mt      { margin-top: 1rem; }
@@ -38,6 +41,7 @@
 .u-mb-xs   { margin-bottom: 0.4rem; }
 .u-mb-sm   { margin-bottom: 0.75rem; }
 .u-mb-lg   { margin-bottom: 1.25rem; }
+.u-m-0     { margin: 0; }
 .u-pad     { padding: 2rem; }   /* centred loading / empty-state blocks */
 .u-pad-lg  { padding: 2.5rem; }
 .u-pad-xl  { padding: 3rem; }

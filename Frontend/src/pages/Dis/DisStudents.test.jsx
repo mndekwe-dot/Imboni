@@ -72,7 +72,7 @@ describe('DisStudents', () => {
     fireEvent.click(screen.getByRole('button', { name: /Behavior Reports/ }))
     await waitFor(() => expect(screen.getByText('Late')).toBeInTheDocument())
 
-    const card = screen.getByText('Late').closest('div[style*="border"]')
+    const card = screen.getByText('Late').closest('.dis-pending-card')
     fireEvent.click(within(card).getByRole('button', { name: /Review/ }))
     fireEvent.click(screen.getByRole('button', { name: /Approve & Notify/ }))
 
