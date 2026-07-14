@@ -104,12 +104,12 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
     }
 
     return (
-        <div style={{ border: '1px solid var(--border)', borderRadius: '0.5rem', padding: '1rem', marginTop: '0.75rem', background: 'var(--background)' }}>
+        <div className="dset-editblock flat">
             {/* Type header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <div className="dset-head">
                 {editingType ? (
                     <>
-                        <input className="form-input" style={{ flex: 1 }} value={typeDraft}
+                        <input className="form-input dset-input-grow" value={typeDraft}
                             onChange={e => setTypeDraft(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') commitTypeRename(); if (e.key === 'Escape') { setEditingType(false); setTypeDraft(typeName) } }}
                             autoFocus />
@@ -118,13 +118,13 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                     </>
                 ) : (
                     <>
-                        <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{typeName}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{subjects.length} lesson{subjects.length !== 1 ? 's' : ''}</span>
-                        <button className="btn-icon-clean" onClick={() => setEditingType(true)} title="Rename type" style={{ color: 'var(--muted-foreground)' }}>
+                        <span className="dset-type-title">{typeName}</span>
+                        <span className="dset-type-count">{subjects.length} lesson{subjects.length !== 1 ? 's' : ''}</span>
+                        <button className="btn-icon-clean dset-icon-muted" onClick={() => setEditingType(true)} title="Rename type">
                             <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>edit</span>
                         </button>
-                        <div style={{ flex: 1 }} />
-                        <button className="btn-icon-clean" onClick={() => onDeleteType(typeName)} title="Delete type and all its lessons" style={{ color: 'var(--danger)' }}>
+                        <div className="dset-spacer" />
+                        <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteType(typeName)} title="Delete type and all its lessons">
                             <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
                         </button>
                     </>
@@ -133,10 +133,10 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
 
             {/* Lesson list */}
             {subjects.map(s => (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.6rem', borderRadius: '0.375rem', marginBottom: '0.375rem', background: 'var(--card)', border: '1px solid var(--border)' }}>
+                <div key={s.id} className="dset-lesson-row">
                     {editingLesson === s.id ? (
                         <>
-                            <input className="form-input" style={{ flex: 1 }} value={lessonDraft}
+                            <input className="form-input dset-input-grow" value={lessonDraft}
                                 onChange={e => setLessonDraft(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') commitLessonRename(s.id); if (e.key === 'Escape') setEditingLesson(null) }}
                                 autoFocus />
@@ -145,12 +145,12 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                         </>
                     ) : (
                         <>
-                            <span style={{ flex: 1, fontSize: '0.875rem', fontWeight: 500 }}>{s.name}</span>
-                            <span style={{ fontSize: '0.7rem', background: 'var(--primary)', color: '#fff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', fontWeight: 600 }}>{s.code}</span>
-                            <button className="btn-icon-clean" onClick={() => startEditLesson(s)} title="Rename" style={{ color: 'var(--muted-foreground)' }}>
+                            <span className="dset-lesson-name">{s.name}</span>
+                            <span className="dset-lesson-code">{s.code}</span>
+                            <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title="Rename">
                                 <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>edit</span>
                             </button>
-                            <button className="btn-icon-clean" onClick={() => onDeleteLesson(s.id)} title="Delete" style={{ color: 'var(--danger)' }}>
+                            <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteLesson(s.id)} title="Delete">
                                 <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>delete</span>
                             </button>
                         </>
@@ -158,15 +158,15 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 </div>
             ))}
 
-            {subjects.length === 0 && <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>No lessons yet</p>}
+            {subjects.length === 0 && <p className="dset-lesson-empty">No lessons yet</p>}
 
             {/* Add lesson */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                <input className="form-input" style={{ flex: 2, minWidth: '9rem', fontSize: '0.85rem' }}
+            <div className="dset-lesson-add">
+                <input className="form-input dset-input-lesson"
                     value={lessonName} onChange={e => setLessonName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
                     placeholder="Lesson name e.g. Mathematics" />
-                <input className="form-input" style={{ flex: 1, minWidth: '5rem', fontSize: '0.85rem' }}
+                <input className="form-input dset-input-code"
                     value={lessonCode} onChange={e => setLessonCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
                     placeholder="Code e.g. MAT" />
@@ -174,7 +174,7 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                     <span className="material-symbols-rounded icon-sm">add</span> Lesson
                 </button>
             </div>
-            {lessonErr && <p style={{ color: 'var(--danger)', fontSize: '0.8rem', marginTop: '0.25rem' }}>{lessonErr}</p>}
+            {lessonErr && <p className="dset-inline-err">{lessonErr}</p>}
         </div>
     )
 }
@@ -189,7 +189,7 @@ function YearInput({ onAdd }) {
         setInput('')
     }
     return (
-        <div className="settings-block-input-row" style={{ marginTop: '0.5rem' }}>
+        <div className="settings-block-input-row u-mt-sm">
             <input
                 className="form-input flex-1"
                 value={input}
@@ -224,14 +224,13 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
     }
 
     return (
-        <div style={{ border: '1px solid var(--border)', borderRadius: '0.5rem', padding: '0.875rem 1rem', marginTop: '0.75rem', background: 'var(--background)' }}>
+        <div className="dset-editblock">
             {/* Year header — name + edit + delete */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <div className="dset-head">
                 {editing ? (
                     <>
                         <input
-                            className="form-input"
-                            style={{ width: '7rem' }}
+                            className="form-input dset-input-year"
                             value={draft}
                             onChange={e => setDraft(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setEditing(false); setDraft(year.name) } }}
@@ -242,21 +241,19 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                     </>
                 ) : (
                     <>
-                        <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{year.name}</span>
+                        <span className="dset-year-title">{year.name}</span>
                         <button
-                            className="btn-icon-clean"
+                            className="btn-icon-clean dset-icon-muted"
                             onClick={() => setEditing(true)}
                             title="Rename year"
-                            style={{ color: 'var(--muted-foreground)' }}
                         >
                             <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>edit</span>
                         </button>
-                        <div style={{ flex: 1 }} />
+                        <div className="dset-spacer" />
                         <button
-                            className="btn-icon-clean"
+                            className="btn-icon-clean dos-danger-text"
                             onClick={onRemove}
                             title="Remove year"
-                            style={{ color: 'var(--danger)' }}
                         >
                             <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
                         </button>
@@ -278,10 +275,9 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
             </div>
 
             {/* Add stream */}
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <div className="dset-stream-row">
                 <input
-                    className="form-input"
-                    style={{ flex: 1, maxWidth: '14rem', fontSize: '0.85rem' }}
+                    className="form-input dset-input-stream"
                     value={streamInput}
                     onChange={e => setStreamInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddStream()}
@@ -399,7 +395,7 @@ export function DosSettings() {
     // ── Loading / error / empty states ───────────────────────────────────────
 
     if (loading) return <Loading fullPage />
-    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error)   return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     // ── Derived stat counts ───────────────────────────────────────────────────
 
@@ -528,12 +524,12 @@ export function DosSettings() {
 
                         {/* Onboarding notice — only when no sections yet */}
                         {config.length === 0 && (
-                            <div className="card mb-1-5" style={{ borderLeft: '4px solid var(--primary)', padding: '1rem 1.25rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                    <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '1.5rem' }}>info</span>
+                            <div className="card mb-1-5 u-banner u-banner--primary">
+                                <div className="u-row">
+                                    <span className="material-symbols-rounded u-banner-icon">info</span>
                                     <div>
-                                        <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Getting started</p>
-                                        <p style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>
+                                        <p className="u-strong" style={{ marginBottom: '0.25rem' }}>Getting started</p>
+                                        <p className="dset-notice-desc">
                                             Add your first section below (e.g. O-Level or A-Level), then add year groups and stream classes to it.
                                         </p>
                                     </div>
@@ -588,7 +584,7 @@ export function DosSettings() {
                                                 ))}
 
                                                 {sec.years.length === 0 && (
-                                                    <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                                                    <p className="dset-note">
                                                         No year groups yet — add one above
                                                     </p>
                                                 )}
@@ -612,7 +608,7 @@ export function DosSettings() {
                         </div>
 
                         {/* Subjects / Lessons card */}
-                        <div className="card" style={{ marginTop: '1.5rem' }}>
+                        <div className="card mt-1-5">
                             <div className="card-header">
                                 <h2 className="card-title">Academic Subjects</h2>
                                 <span className="settings-info-text">{Object.keys(subjectsByType).length} type{Object.keys(subjectsByType).length !== 1 ? 's' : ''} · {subjects.filter(s => !s._placeholder).length} lessons</span>
@@ -624,7 +620,7 @@ export function DosSettings() {
                                         <p className="settings-block-title">Add Subject Type</p>
                                         <p className="settings-block-desc">e.g. Sciences, Languages, Humanities</p>
                                     </div>
-                                    <div className="settings-block-input-row" style={{ marginTop: '0.5rem' }}>
+                                    <div className="settings-block-input-row u-mt-sm">
                                         <input
                                             className="form-input flex-1"
                                             value={newTypeName}
@@ -653,7 +649,7 @@ export function DosSettings() {
                                 ))}
 
                                 {Object.keys(subjectsByType).length === 0 && (
-                                    <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                                    <p className="dset-note">
                                         No subject types yet — add one above
                                     </p>
                                 )}
@@ -661,7 +657,7 @@ export function DosSettings() {
                         </div>
 
                         {/* Rooms card */}
-                        <div className="card" style={{ marginTop: '1.5rem' }}>
+                        <div className="card mt-1-5">
                             <div className="card-header">
                                 <h2 className="card-title">Rooms &amp; Venues</h2>
                                 <span className="settings-info-text">{rooms.length} room{rooms.length !== 1 ? 's' : ''} configured</span>
@@ -672,7 +668,7 @@ export function DosSettings() {
                                         <p className="settings-block-title">Add Room</p>
                                         <p className="settings-block-desc">Classrooms, labs, halls — used when scheduling timetable slots</p>
                                     </div>
-                                    <div className="settings-block-input-row" style={{ marginTop: '0.5rem' }}>
+                                    <div className="settings-block-input-row u-mt-sm">
                                         <input
                                             className="form-input flex-1"
                                             value={roomInput}
@@ -684,13 +680,13 @@ export function DosSettings() {
                                             <span className="material-symbols-rounded icon-sm">add</span> Add
                                         </button>
                                     </div>
-                                    {roomErr && <p style={{ color: 'var(--danger)', fontSize: '0.8rem', marginTop: '0.25rem' }}>{roomErr}</p>}
+                                    {roomErr && <p className="dset-inline-err">{roomErr}</p>}
                                 </div>
 
                                 <div className="tag-list" style={{ marginTop: '0.75rem' }}>
                                     {rooms.map(r => (
                                         <span key={r.id} className="tag-chip">
-                                            <span className="material-symbols-rounded" style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)' }}>meeting_room</span>
+                                            <span className="material-symbols-rounded dset-room-icon">meeting_room</span>
                                             {r.name}
                                             <button className="tag-chip-remove" onClick={() => handleDeleteRoom(r.id)}>
                                                 <span className="material-symbols-rounded">close</span>
@@ -705,7 +701,7 @@ export function DosSettings() {
                         </div>
 
                         {/* Timezone card */}
-                        <div className="card" style={{ marginTop: '1.5rem' }}>
+                        <div className="card mt-1-5">
                             <div className="card-header">
                                 <h2 className="card-title">School Settings</h2>
                                 <span className="settings-info-text">Timezone used for all dates and times</span>

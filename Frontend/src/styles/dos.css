@@ -3030,3 +3030,36 @@ body.tm-panel-open { overflow: hidden; }
 .dos-inv-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
 .dos-btn-cancel  { color: var(--danger); border: 1px solid var(--danger); background: transparent; }
 
+
+/* ============================================================
+   DOS SETTINGS PAGE (DosSettings) — sections/years/subjects/rooms
+   Mirrors the Admin settings blocks. NB: several notes use bare
+   var(--muted) as a TEXT colour (faithful to the original inline).
+   Bare danger colours reuse .dos-danger-text.
+   ============================================================ */
+.dset-editblock      { border: 1px solid var(--border); border-radius: 0.5rem; margin-top: 0.75rem; background: var(--background); padding: 0.875rem 1rem; }
+.dset-editblock.flat { padding: 1rem; }                     /* TypeBlock */
+.dset-head        { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+.dset-year-title  { font-weight: 600; font-size: 0.9rem; }
+.dset-type-title  { font-weight: 700; font-size: 0.95rem; }
+.dset-type-count  { font-size: 0.75rem; color: var(--muted); }
+.dset-icon-muted  { color: var(--muted-foreground); }       /* icon-button colour; icon font-size stays inline */
+.dset-spacer      { flex: 1; }
+
+.dset-lesson-row  { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.6rem; border-radius: 0.375rem; margin-bottom: 0.375rem; background: var(--card); border: 1px solid var(--border); }
+.dset-lesson-name { flex: 1; font-size: 0.875rem; font-weight: 500; }
+.dset-lesson-code { font-size: 0.7rem; background: var(--primary); color: #fff; padding: 0.1rem 0.45rem; border-radius: 0.25rem; font-weight: 600; }
+.dset-lesson-empty{ color: var(--muted); font-size: 0.8rem; margin-bottom: 0.5rem; }
+.dset-lesson-add  { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.dset-inline-err  { color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem; }
+
+.dset-input-grow  { flex: 1; }
+.dset-input-lesson{ flex: 2; min-width: 9rem; font-size: 0.85rem; }
+.dset-input-code  { flex: 1; min-width: 5rem; font-size: 0.85rem; }
+.dset-input-year  { width: 7rem; }
+.dset-input-stream{ flex: 1; max-width: 14rem; font-size: 0.85rem; }
+.dset-stream-row  { display: flex; gap: 0.5rem; align-items: center; }
+
+.dset-note        { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; }
+.dset-notice-desc { color: var(--muted); font-size: 0.875rem; }
+.dset-room-icon   { font-size: 0.85rem; color: var(--muted-foreground); }
