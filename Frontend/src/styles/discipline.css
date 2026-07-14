@@ -1519,3 +1519,26 @@ td .class-chip { margin-left: 4px; }
 .dis-radio       { accent-color: var(--primary); }
 .dis-plan-opt    { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; font-size: 0.875rem; padding: 0.45rem 0.875rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; font-weight: 400; }
 .dis-plan-opt.on { border-color: var(--primary); background: var(--primary-light, #ede9fe); font-weight: 600; }
+
+/* ── Discipline DASHBOARD page (DisDashboard) — My Tasks widget + card
+   empty states. Completed-task styling is a .done modifier. ── */
+.dis-skel        { height: 90px; }
+.dis-card-empty  { color: var(--muted-foreground); padding: 1rem; }
+.dis-note-sm     { color: var(--muted-foreground); font-size: 0.875rem; }
+
+.dis-task-form   { background: var(--muted); border-radius: 10px; padding: 0.875rem; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.dis-prio-row    { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.dis-prio-opt    { display: flex; align-items: center; gap: 0.3rem; cursor: pointer; font-size: 0.8rem; padding: 0.3rem 0.6rem; border-radius: 8px; border: 1px solid var(--border); text-transform: capitalize; }
+.dis-prio-opt.on { border-color: var(--discipline, #7c3aed); background: #ede9fe; }
+.dis-radio-disc  { accent-color: var(--discipline, #7c3aed); }
+.dis-task-date   { flex: 1; min-width: 130px; }
+.dis-task-err    { color: #dc2626; font-size: 0.78rem; margin: 0; }
+.dis-btn-disc    { background: var(--discipline, #7c3aed); border-color: var(--discipline, #7c3aed); }
+
+.dis-task-list   { display: flex; flex-direction: column; gap: 0.4rem; }
+.dis-task-item   { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.65rem; border-radius: 8px; background: var(--card); border: 1px solid var(--border); }
+.dis-task-item.done { background: var(--muted); opacity: 0.6; }
+.dis-task-check  { accent-color: var(--discipline, #7c3aed); cursor: pointer; width: 1rem; height: 1rem; flex-shrink: 0; }
+.dis-task-title  { flex: 1; font-size: 0.85rem; font-weight: 500; }
+.dis-task-title.done { text-decoration: line-through; color: var(--muted-foreground); }
+.dis-task-due    { font-size: 0.72rem; color: var(--muted-foreground); flex-shrink: 0; }
