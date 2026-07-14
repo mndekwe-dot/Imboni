@@ -147,8 +147,8 @@ function StudentAttendanceTab({ sections }) {
                 onClassChange={setClassVal}
             />
 
-            <div className="toolbar-card" style={{ marginTop: '0.75rem' }}>
-                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div className="toolbar-card att-toolbar">
+                <label className="att-week-label">
                     Week of
                 </label>
                 <input
@@ -180,10 +180,10 @@ function StudentAttendanceTab({ sections }) {
                 </div>
 
                 <div className="card-content">
-                    {error   && <p style={{ padding: '1rem', color: 'var(--danger)' }}>{error}</p>}
-                    {!error && loading && <p style={{ padding: '1rem', color: 'var(--text-muted)' }}>Loading…</p>}
+                    {error   && <p className="att-state-error">{error}</p>}
+                    {!error && loading && <p className="att-state">Loading…</p>}
                     {!error && !loading && students.length === 0 && (
-                        <p style={{ padding: '1rem', color: 'var(--text-muted)' }}>
+                        <p className="att-state">
                             No students enrolled for the selected class and term.
                         </p>
                     )}
@@ -209,7 +209,7 @@ function StudentAttendanceTab({ sections }) {
                                                     </div>
                                                 </td>
                                                 {showClassCol && (
-                                                    <td style={{ fontWeight: 500, color: 'var(--primary)' }}>
+                                                    <td className="att-class-cell">
                                                         {student.class_name}
                                                     </td>
                                                 )}
@@ -321,8 +321,8 @@ function TeacherAttendanceTab() {
 
     return (
         <>
-            <div className="toolbar-card" style={{ marginTop: '0.75rem' }}>
-                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div className="toolbar-card att-toolbar">
+                <label className="att-week-label">
                     Week of
                 </label>
                 <input
@@ -332,15 +332,15 @@ function TeacherAttendanceTab() {
                     max={todayISO()}
                     onChange={e => setWeekOf(e.target.value)}
                 />
-                <div style={{ flex: 1 }} />
+                <div className="u-flex-1" />
                 <button className="btn btn-primary select-xs" onClick={handleSave} disabled={saving || loading || teachers.length === 0}>
                     <span className="material-symbols-rounded icon-sm">save</span>
                     {saving ? 'Saving…' : 'Save'}
                 </button>
             </div>
 
-            {saved  && <div className="alert alert-success" style={{ marginTop: '0.5rem' }}>Attendance saved.</div>}
-            {error  && <div className="alert alert-danger"  style={{ marginTop: '0.5rem' }}>{error}</div>}
+            {saved  && <div className="alert alert-success u-mt-sm">Attendance saved.</div>}
+            {error  && <div className="alert alert-danger u-mt-sm">{error}</div>}
 
             <div className="card mt-1-5">
                 <div className="card-header">
@@ -357,9 +357,9 @@ function TeacherAttendanceTab() {
                 </div>
 
                 <div className="card-content">
-                    {!error && loading && <p style={{ padding: '1rem', color: 'var(--text-muted)' }}>Loading…</p>}
+                    {!error && loading && <p className="att-state">Loading…</p>}
                     {!error && !loading && teachers.length === 0 && (
-                        <p style={{ padding: '1rem', color: 'var(--text-muted)' }}>No teachers found.</p>
+                        <p className="att-state">No teachers found.</p>
                     )}
                     {!error && !loading && teachers.length > 0 && (
                         <>

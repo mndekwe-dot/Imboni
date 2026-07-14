@@ -255,6 +255,11 @@
   color: white;
 }
 
+/* Term-tabs toolbar hugs its buttons; trend chart is a fixed-height box.
+   .w-fit is a generic width utility — promote to utilities.css if reused. */
+.w-fit { width: fit-content; }
+.results-chart-body { height: 200px; }
+
 .results-summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

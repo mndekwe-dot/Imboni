@@ -1254,6 +1254,16 @@ td .class-chip { margin-left: 4px; }
 .house-stat-value { font-size: 1.2rem; font-weight: 800; line-height: 1; }
 .house-stat-label { font-size: 0.58rem; color: var(--muted-foreground); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
 
+/* ══════════════════════════════════════
+   ANNOUNCEMENTS PAGE (DisAnnouncements)
+══════════════════════════════════════ */
+.ann-badge-inline   { margin-left: 0.25rem; }        /* second badge beside another */
+.ann-textarea       { resize: vertical; }            /* generic: promotable to .resize-v */
+.ann-form-error     { color: #ef4444; font-size: 0.85rem; margin-bottom: 0.75rem; }
+.ann-chip-count-gap { margin-left: 0.3rem; }         /* count chip inside filter pill */
+.ann-load-more      { text-align: center; padding: 0.75rem 0; }
+.ann-all-loaded     { text-align: center; font-size: 0.75rem; color: var(--muted-foreground); padding: 0.5rem 0; }
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .disc-two-col { grid-template-columns: 1fr; }

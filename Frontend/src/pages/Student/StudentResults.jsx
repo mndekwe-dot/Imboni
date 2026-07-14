@@ -159,13 +159,13 @@ export function StudentResults() {
                     <DashboardContent>
 
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading results…</p>
+                            <p className="u-pad u-muted">Loading results…</p>
                         ) : terms.length === 0 ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No results available yet.</p>
+                            <p className="u-pad u-muted">No results available yet.</p>
                         ) : (
                             <>
                                 {/* Term tabs */}
-                                <div className="toolbar-card" style={{ width: 'fit-content' }}>
+                                <div className="toolbar-card w-fit">
                                     {terms.map(t => (
                                         <button
                                             key={t.term_id}
@@ -186,11 +186,11 @@ export function StudentResults() {
 
                                 {/* Term-over-term trend */}
                                 {trendData.length >= 2 && (
-                                    <div className="card" style={{ marginBottom: '1rem' }}>
+                                    <div className="card u-mb">
                                         <div className="card-header">
                                             <h3 className="card-title">My Average Over Time</h3>
                                         </div>
-                                        <div className="card-content" style={{ height: 200 }}>
+                                        <div className="card-content results-chart-body">
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <LineChart data={trendData} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
                                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -229,7 +229,7 @@ export function StudentResults() {
                                     </div>
                                     <div className="card-content">
                                         {termAssessments.length === 0 ? (
-                                            <p style={{ color: 'var(--muted-foreground)' }}>No individual assessments recorded.</p>
+                                            <p className="u-muted">No individual assessments recorded.</p>
                                         ) : (
                                             <div className="table-responsive">
                                                 <table>

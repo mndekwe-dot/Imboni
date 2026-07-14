@@ -2895,6 +2895,24 @@ body.tm-panel-open { overflow: hidden; }
 .att-status-select.att-excused  { background: rgba(37,99,235,0.12);  color: #2563eb; border-color: #2563eb; }
 .att-status-select.att-unmarked { opacity: 0.6; }
 
+/* ── Attendance toolbar / week label ── */
+.att-toolbar { margin-top: 0.75rem; }
+
+.att-week-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Attendance card-content state messages ── */
+.att-state       { padding: 1rem; color: var(--text-muted); }
+.att-state-error { padding: 1rem; color: var(--danger); }
+
+/* Student "Class" column cell */
+.att-class-cell { font-weight: 500; color: var(--primary); }
+
 /* ===============================================
    STUDENT MANAGEMENT PAGE (DosStudents)
    Class-based refactor of former inline styles.

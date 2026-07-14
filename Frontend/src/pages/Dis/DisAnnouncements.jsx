@@ -81,7 +81,7 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
                     </div>
                 </div>
                 <span className={`ann-badge ${ann.category}`}>{cat.label}</span>
-                {isArch && <span className="ann-badge general" style={{ marginLeft: '.25rem' }}>Archived</span>}
+                {isArch && <span className="ann-badge general ann-badge-inline">Archived</span>}
             </div>
             <p className="ann-excerpt">{ann.content}</p>
             <div className="ann-item-footer">
@@ -291,14 +291,13 @@ export function DisAnnouncements() {
                                     {/* Content */}
                                     <div className="form-group ann-content-group">
                                         <label className="form-label" htmlFor="disContent">Announcement Content *</label>
-                                        <textarea className="form-input" id="disContent" rows={6}
+                                        <textarea className="form-input ann-textarea" id="disContent" rows={6}
                                             placeholder="Type the full announcement details here..."
-                                            value={form.content} onChange={set('content')}
-                                            style={{ resize: 'vertical' }} />
+                                            value={form.content} onChange={set('content')} />
                                     </div>
 
                                     {formError && (
-                                        <p style={{ color: '#ef4444', fontSize: '.85rem', marginBottom: '.75rem' }}>{formError}</p>
+                                        <p className="ann-form-error">{formError}</p>
                                     )}
 
                                     {/* Actions */}
@@ -334,7 +333,7 @@ export function DisAnnouncements() {
                                                 onClick={() => setActiveFilter(f)}>
                                                 {f.charAt(0).toUpperCase() + f.slice(1)}
                                                 {f !== 'all' && (
-                                                    <span className="es-chip-count" style={{ marginLeft: '.3rem' }}>
+                                                    <span className="es-chip-count ann-chip-count-gap">
                                                         {countByStatus(f)}
                                                     </span>
                                                 )}
@@ -364,7 +363,7 @@ export function DisAnnouncements() {
                                             ))}
 
                                             {hasMore && activeFilter === 'all' && (
-                                                <div style={{ textAlign: 'center', padding: '.75rem 0' }}>
+                                                <div className="ann-load-more">
                                                     <button className="btn btn-outline btn-sm" onClick={loadMore} disabled={loadingMore}>
                                                         <span className="material-symbols-rounded icon-sm">expand_more</span>
                                                         {loadingMore ? 'Loading…' : `Load more (${total - announcements.length} remaining)`}
@@ -373,7 +372,7 @@ export function DisAnnouncements() {
                                             )}
 
                                             {!hasMore && announcements.length > 0 && (
-                                                <p style={{ textAlign: 'center', fontSize: '.75rem', color: 'var(--muted-foreground)', padding: '.5rem 0' }}>
+                                                <p className="ann-all-loaded">
                                                     All {total} announcement{total !== 1 ? 's' : ''} loaded
                                                 </p>
                                             )}
