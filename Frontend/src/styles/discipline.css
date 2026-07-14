@@ -161,6 +161,7 @@
 .staff-card-meta span { display: flex; align-items: center; gap: 5px; }
 .staff-card-meta .material-symbols-rounded { font-size: 0.9rem; }
 .staff-card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; }
+.staff-card.inactive { opacity: 0.6; }
 
 /* ── Progress bars ── */
 .disc-progress-group { display: flex; flex-direction: column; gap: 1rem; }

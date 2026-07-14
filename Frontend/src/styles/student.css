@@ -390,6 +390,23 @@
 .att-dot.late     { background: var(--warning); }
 .att-dot.excused  { background: var(--muted-foreground); }
 
+/* Calendar month label (React StudentAttendance) */
+.cal-month-label { font-weight: 600; min-width: 9rem; text-align: center; }
+
+/* Calendar legend — compound selector wins over dos.css .att-legend */
+.att-legend.att-cal-legend {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+.att-cal-legend > span { display: flex; align-items: center; gap: 0.3rem; }
+.att-cal-legend .att-dot { width: 10px; height: 10px; }
+
+/* Empty-state message inside the records table */
+.att-empty { padding: 1rem; color: var(--muted-foreground); }
+
 /* ===============================================
    ASSIGNMENTS - Student/student-assignments.html
    =============================================== */

@@ -164,7 +164,7 @@ export function StudentAttendance() {
                             <div>
                                 <div className="attendance-big-number">{loading ? '—' : `${overallRate}%`}</div>
                                 <div className="attendance-big-label">Overall Attendance Rate</div>
-                                {stats?.attendance_label && <small style={{ color: 'var(--muted-foreground)' }}>{stats.attendance_label}</small>}
+                                {stats?.attendance_label && <small className="u-muted">{stats.attendance_label}</small>}
                             </div>
                             <div className="attendance-breakdown">
                                 <div className="att-breakdown-item"><span>{loading ? '—' : daysPresent}</span><small>Days Present</small></div>
@@ -193,11 +193,11 @@ export function StudentAttendance() {
                                 <h3 className="card-title">
                                     <span className="material-symbols-rounded">calendar_month</span> Monthly Calendar
                                 </h3>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div className="u-row-sm">
                                     <button className="btn btn-outline btn-icon" onClick={prevMonth}>
                                         <span className="material-symbols-rounded">chevron_left</span>
                                     </button>
-                                    <span style={{ fontWeight: 600, minWidth: '9rem', textAlign: 'center' }}>
+                                    <span className="cal-month-label">
                                         {MONTH_NAMES[month]} {year}
                                     </span>
                                     <button className="btn btn-outline btn-icon" onClick={nextMonth}>
@@ -207,7 +207,7 @@ export function StudentAttendance() {
                             </div>
                             <div className="card-content">
                                 {calLoading ? (
-                                    <p style={{ color: 'var(--muted-foreground)' }}>Loading calendar…</p>
+                                    <p className="u-muted">Loading calendar…</p>
                                 ) : (
                                     <div className="att-calendar-grid">
                                         {DAY_LABELS.map(d => (
@@ -218,10 +218,10 @@ export function StudentAttendance() {
                                         ))}
                                     </div>
                                 )}
-                                <div className="att-legend" style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem', flexWrap: 'wrap', fontSize: '0.8rem' }}>
+                                <div className="att-legend att-cal-legend">
                                     {[['present','Present'],['absent','Absent'],['late','Late'],['excused','Excused'],['weekend','Weekend']].map(([s,l]) => (
-                                        <span key={s} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                            <span className={`att-dot ${s}`} style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%' }}></span>{l}
+                                        <span key={s}>
+                                            <span className={`att-dot ${s}`}></span>{l}
                                         </span>
                                     ))}
                                 </div>
@@ -235,7 +235,7 @@ export function StudentAttendance() {
                             </div>
                             <div className="card-content">
                                 {tableRecords.length === 0 ? (
-                                    <p style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>No records for this month.</p>
+                                    <p className="att-empty">No records for this month.</p>
                                 ) : (
                                     <div className="table-responsive">
                                         <table>

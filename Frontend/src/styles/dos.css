@@ -2781,6 +2781,24 @@ body.tm-panel-open { overflow: hidden; }
 .view-stat-label { font-size: 0.82rem; color: var(--muted-foreground); }
 .view-stat-value { font-weight: 700; font-size: 1.1rem; }
 
+/* ── DosResults: status pill (ResultCard + View modal); bg/color set inline per status ── */
+.dos-result-pill { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; }
+
+/* ── Grade badge in Student Marks table; bg/color set inline per grade ── */
+.dos-grade-badge { font-weight: 700; font-size: 0.82rem; padding: 2px 10px; border-radius: 20px; }
+
+/* ── Count badge on the main Approval / Analytics tab buttons ── */
+.dos-tab-badge { margin-left: 0.3rem; background: rgba(255,255,255,0.25); border-radius: 999px; padding: 0 6px; font-size: 0.72rem; font-weight: 700; }
+
+/* ── Approval toolbar: stack search over filters, stretch full width ── */
+.dos-toolbar-col { flex-direction: column; align-items: stretch; }
+
+/* ── Analytics tab loading note ── */
+.dos-analytics-loading { padding: 1.5rem; color: var(--muted-foreground); }
+
+/* generic: margin-top 0.25rem (promote candidate) */
+.dos-mt-2xs { margin-top: 0.25rem; }
+
 /* ── Analytics chart section ── */
 .analytics-section       { display: flex; flex-direction: column; gap: 1rem; }
 .analytics-chart-grid    { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }

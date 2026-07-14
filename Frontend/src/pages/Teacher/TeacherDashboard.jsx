@@ -152,7 +152,7 @@ function CreateTaskModal({ onClose, onCreated }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--primary)' }}>task_alt</span>
+                        <span className="material-symbols-rounded text-primary">task_alt</span>
                         <h2 className="modal-title">New Task</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}>
@@ -174,18 +174,10 @@ function CreateTaskModal({ onClose, onCreated }) {
 
                     <div className="form-group">
                         <label className="form-label">Priority</label>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div className="td-priority-row">
                             {['low', 'medium', 'high'].map(p => (
-                                <label key={p} style={{
-                                    display: 'flex', alignItems: 'center', gap: '0.35rem',
-                                    cursor: 'pointer', fontSize: '0.875rem',
-                                    padding: '0.45rem 0.875rem', borderRadius: '8px',
-                                    border: `1px solid ${priority === p ? 'var(--primary)' : 'var(--border)'}`,
-                                    background: priority === p ? 'var(--primary-light, #ede9fe)' : 'transparent',
-                                    fontWeight: priority === p ? 600 : 400,
-                                    textTransform: 'capitalize',
-                                }}>
-                                    <input type="radio" value={p} checked={priority === p} onChange={() => setPriority(p)} style={{ accentColor: 'var(--primary)' }} />
+                                <label key={p} className={`td-priority-opt${priority === p ? ' selected' : ''}`}>
+                                    <input type="radio" value={p} checked={priority === p} onChange={() => setPriority(p)} />
                                     {p}
                                 </label>
                             ))}
@@ -202,7 +194,7 @@ function CreateTaskModal({ onClose, onCreated }) {
                         />
                     </div>
 
-                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+                    {error && <p className="td-form-error">{error}</p>}
                 </div>
 
                 <div className="modal-footer">
@@ -334,7 +326,7 @@ export function TeacherDashboard() {
 
                         {loading ? (
                             <div className="dash-card">
-                                <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                                <p className="u-muted">Loading…</p>
                             </div>
                         ) : (
                             <>
@@ -354,7 +346,7 @@ export function TeacherDashboard() {
                                         </div>
                                         <div className="card-content">
                                             {schedule.length === 0 ? (
-                                                <p style={{ color: 'var(--muted-foreground)' }}>No classes scheduled for today.</p>
+                                                <p className="u-muted">No classes scheduled for today.</p>
                                             ) : schedule.map((slot, i) => {
                                                 const meta  = slotMeta(slot.status)
                                                 const start = slot.start_time?.slice(0, 5) || ''
@@ -382,7 +374,7 @@ export function TeacherDashboard() {
                                     <div className="card">
                                         <div className="card-header">
                                             <h3 className="card-title">Pending Tasks</h3>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <div className="u-row-sm">
                                                 <span className="badge badge-secondary">{pendingTasks.length}</span>
                                                 <button
                                                     className="btn btn-outline btn-sm"
@@ -396,7 +388,7 @@ export function TeacherDashboard() {
                                         </div>
                                         <div className="card-content">
                                             {pendingTasks.length === 0 ? (
-                                                <p style={{ color: 'var(--muted-foreground)' }}>No pending tasks.</p>
+                                                <p className="u-muted">No pending tasks.</p>
                                             ) : pendingTasks.map((task, i) => (
                                                 <TaskCard
                                                     key={i}
@@ -417,7 +409,7 @@ export function TeacherDashboard() {
                                         </div>
                                         <div className="card-content">
                                             {performance.length === 0 ? (
-                                                <p style={{ color: 'var(--muted-foreground)' }}>No performance data yet.</p>
+                                                <p className="u-muted">No performance data yet.</p>
                                             ) : (
                                                 <>
                                                     <ResponsiveContainer width="100%" height={220}>
@@ -456,13 +448,13 @@ export function TeacherDashboard() {
                                         </div>
                                         <div className="card-content">
                                             {loadError && (
-                                                <p style={{ color: '#dc2626', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
-                                                    <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.3rem' }}>error</span>
+                                                <p className="td-load-error">
+                                                    <span className="material-symbols-rounded td-load-error-icon">error</span>
                                                     {loadError}
                                                 </p>
                                             )}
                                             {activities.length === 0 && !loadError ? (
-                                                <p style={{ color: 'var(--muted-foreground)' }}>No recent activities.</p>
+                                                <p className="u-muted">No recent activities.</p>
                                             ) : activities.map((a, i) => {
                                                 const { iconClass, icon } = ACTIVITY_ICONS[a.activity_type] || { iconClass: '', icon: 'notifications' }
                                                 return (
@@ -477,8 +469,7 @@ export function TeacherDashboard() {
                                             })}
                                             {hasMore && (
                                                 <button
-                                                    className="btn btn-outline btn-sm"
-                                                    style={{ width: '100%', marginTop: '0.75rem' }}
+                                                    className="btn btn-outline btn-sm td-load-more"
                                                     onClick={loadMore}
                                                     disabled={loadingMore}
                                                 >

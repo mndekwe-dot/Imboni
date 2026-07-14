@@ -2713,6 +2713,33 @@
 /* ── Inline alert icon ── */
 .alert-icon { font-size: 1rem; vertical-align: middle; margin-right: 0.4rem; }
 
+/* ── Teacher Dashboard (TeacherDashboard) — new-task modal + activities ── */
+.td-priority-row { display: flex; gap: 0.5rem; }
+.td-priority-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.45rem 0.875rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-weight: 400;
+  text-transform: capitalize;
+}
+.td-priority-opt.selected {
+  border-color: var(--primary);
+  background: var(--primary-light, #ede9fe);
+  font-weight: 600;
+}
+.td-priority-opt input { accent-color: var(--primary); }
+
+.td-form-error      { color: var(--danger); font-size: 0.82rem; margin: 0; }
+.td-load-error      { color: var(--danger); font-size: 0.82rem; margin-bottom: 0.5rem; }
+.td-load-error-icon { font-size: 1rem; vertical-align: middle; margin-right: 0.3rem; }
+.td-load-more       { width: 100%; margin-top: 0.75rem; }
+
 /* ============================================================
    STUDENT QUIZ PAGE (StudentQuizPage) — take + review a quiz
    State-driven colours (correct/incorrect/selected) are CSS

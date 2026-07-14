@@ -60,7 +60,7 @@ function ActivityCard({ activity, onEdit, onDelete }) {
     const cat = CATEGORY_LABELS[activity.category] || activity.category
 
     return (
-        <div className="staff-card" style={{ opacity: activity.is_active ? 1 : 0.6 }}>
+        <div className={`staff-card${activity.is_active ? '' : ' inactive'}`}>
             <div className="staff-card-top">
                 <div className="staff-card-avatar patron">{initials(activity.name)}</div>
                 <div>
@@ -77,12 +77,12 @@ function ActivityCard({ activity, onEdit, onDelete }) {
                 <span><span className="material-symbols-rounded">groups</span>{activity.enrolled_count ?? 0} / {activity.max_members} members</span>
                 {activity.schedule && <span><span className="material-symbols-rounded">schedule</span>{activity.schedule}</span>}
                 {activity.venue    && <span><span className="material-symbols-rounded">location_on</span>{activity.venue}</span>}
-                {activity.is_full  && <span style={{ color: '#dc2626', fontSize: '0.78rem', fontWeight: 600 }}>Full</span>}
+                {activity.is_full  && <span className="u-danger u-xs u-strong">Full</span>}
             </div>
             <div className="staff-card-actions">
                 {confirmDelete ? (
                     <>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Delete?</span>
+                        <span className="remove-confirm-text">Delete?</span>
                         <button className="btn btn-primary btn-sm" onClick={() => onDelete(activity.id)}>Yes</button>
                         <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>No</button>
                     </>
@@ -125,7 +125,7 @@ function PrefectCard({ leader, onEdit, onRemove }) {
             <div className="staff-card-actions">
                 {confirmDelete ? (
                     <>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Remove?</span>
+                        <span className="remove-confirm-text">Remove?</span>
                         <button className="btn btn-primary btn-sm" onClick={() => onRemove(leader.id)}>Yes</button>
                         <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>No</button>
                     </>
@@ -390,9 +390,9 @@ export function DisStudentLife() {
                                 </div>
 
                                 {actLoading ? (
-                                    <p style={{ color: 'var(--muted-foreground)', padding: '2rem 0' }}>Loading activities…</p>
+                                    <p className="disc-loading-text">Loading activities…</p>
                                 ) : visibleActivities.length === 0 ? (
-                                    <p style={{ color: 'var(--muted-foreground)', padding: '2rem 0', textAlign: 'center' }}>No activities found.</p>
+                                    <p className="dis-empty-center">No activities found.</p>
                                 ) : (
                                     <div className="staff-cards-grid">
                                         {visibleActivities.map(a => (
@@ -459,7 +459,7 @@ export function DisStudentLife() {
                                         active={leaderFilter}
                                         onChange={setLeaderFilter}
                                     />
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <div className="disc-btn-inline-group">
                                         <button className="btn btn-outline btn-sm" onClick={() => setShowAddLeader('captain')}>
                                             <span className="material-symbols-rounded icon-sm">add</span> Add Captain
                                         </button>
@@ -470,13 +470,13 @@ export function DisStudentLife() {
                                 </div>
 
                                 {leadLoading ? (
-                                    <p style={{ color: 'var(--muted-foreground)', padding: '2rem 0' }}>Loading leaders…</p>
+                                    <p className="disc-loading-text">Loading leaders…</p>
                                 ) : (
                                     <>
                                         {(leaderFilter === 'all' || leaderFilter === 'prefects') && (
                                             <div className="staff-cards-grid">
                                                 {prefects.length === 0
-                                                    ? <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No prefects appointed this term.</p>
+                                                    ? <p className="disc-empty-text">No prefects appointed this term.</p>
                                                     : prefects.map(l => (
                                                         <PrefectCard key={l.id} leader={l} onEdit={setEditingLeader} onRemove={handleRemoveLeader} />
                                                     ))
