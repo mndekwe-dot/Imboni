@@ -72,21 +72,21 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
         : ann.target_audience === 'parents' ? 'Parents' : 'All Classes'
 
     return (
-        <div className="ann-item" style={{ borderLeft: `3px solid ${isDraft ? '#f59e0b' : color}` }}>
+        <div className="ann-item ta-item" style={{ '--ta-accent': isDraft ? '#f59e0b' : color }}>
             <div className="ann-item-top">
                 <div className="ann-item-icon" style={{ background: `${isDraft ? '#f59e0b' : color}18`, color: isDraft ? '#f59e0b' : color }}>
                     <span className="material-symbols-rounded">{isDraft ? 'draft' : icon}</span>
                 </div>
-                <div className="ann-item-head" style={{ flex: 1, minWidth: 0 }}>
+                <div className="ann-item-head">
                     <div className="ann-item-title">{ann.title}</div>
                     <div className="ann-item-meta">
                         {isDraft
-                            ? <span style={{ color: '#f59e0b', fontWeight: 600 }}>Draft</span>
-                            : <span style={{ color, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.72rem' }}>{cat}</span>
+                            ? <span className="ta-tag-draft">Draft</span>
+                            : <span className="ta-tag-cat" style={{ color }}>{cat}</span>
                         }
                         <span>·</span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                            <span className="material-symbols-rounded" style={{ fontSize: '0.85rem' }}>group</span>
+                        <span className="ta-meta-group">
+                            <span className="material-symbols-rounded ta-meta-icon">group</span>
                             {audience}
                         </span>
                         <span>·</span>
@@ -95,7 +95,7 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
                 </div>
 
                 {/* Action buttons */}
-                <div style={{ display: 'flex', gap: '0.3rem', flexShrink: 0 }}>
+                <div className="ta-item-actions">
                     {isDraft && (
                         <button
                             className="btn btn-sm btn-primary"
@@ -292,13 +292,8 @@ export function TeacherAnnouncement() {
 
                         {/* Success toast */}
                         {successMsg && (
-                            <div style={{
-                                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                background: 'rgba(16,185,129,0.1)', border: '1px solid var(--success)',
-                                borderRadius: 8, padding: '0.6rem 1rem', marginBottom: '1rem',
-                                color: 'var(--success)', fontWeight: 500, fontSize: '0.875rem',
-                            }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>check_circle</span>
+                            <div className="ta-toast">
+                                <span className="material-symbols-rounded">check_circle</span>
                                 {successMsg}
                             </div>
                         )}
@@ -320,7 +315,7 @@ export function TeacherAnnouncement() {
                                 <div className="flex-column-gap">
 
                                     {/* Row 1: category + audience */}
-                                    <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
+                                    <div className="resp-grid-2 grid-gap-sm">
                                         <div className="form-group">
                                             <label className="label" htmlFor="teacher-ann-category">Category *</label>
                                             <select id="teacher-ann-category" className="input" name="category" value={form.category} onChange={handleChange}>
@@ -359,9 +354,9 @@ export function TeacherAnnouncement() {
 
                                     {/* Message + char count */}
                                     <div className="form-group">
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.35rem' }}>
-                                            <label className="label" style={{ margin: 0 }}>Message *</label>
-                                            <span style={{ fontSize: '0.75rem', color: charCount > 800 ? 'var(--destructive)' : 'var(--muted-foreground)' }}>
+                                        <div className="ta-msg-labelrow">
+                                            <label className="label u-m-0">Message *</label>
+                                            <span className="ta-charcount" style={{ color: charCount > 800 ? 'var(--destructive)' : 'var(--muted-foreground)' }}>
                                                 {charCount} / 1000
                                             </span>
                                         </div>
@@ -374,7 +369,7 @@ export function TeacherAnnouncement() {
                                     </div>
 
                                     {error && (
-                                        <p style={{ color: 'var(--destructive)', fontSize: '0.85rem', margin: 0 }}>{error}</p>
+                                        <p className="ta-form-error">{error}</p>
                                     )}
 
                                     {/* Actions */}
@@ -431,7 +426,7 @@ export function TeacherAnnouncement() {
                                 >
                                     {c}
                                     {c === 'Drafts' && draftCount > 0 && (
-                                        <span style={{ marginLeft: '0.25rem', background: 'rgba(0,0,0,0.15)', borderRadius: 9, padding: '0 5px', fontSize: '0.7rem' }}>
+                                        <span className="ta-chip-count">
                                             {draftCount}
                                         </span>
                                     )}
@@ -441,7 +436,7 @@ export function TeacherAnnouncement() {
 
                         {/* List */}
                         {loading ? (
-                            <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0' }}>Loading announcements…</p>
+                            <p className="ta-loading">Loading announcements…</p>
                         ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="campaign"

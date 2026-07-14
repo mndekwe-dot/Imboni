@@ -63,20 +63,20 @@ function DisciplineRow({ report }) {
 function ActivityCard({ activity, enrolled, onJoin, onWithdraw, joining }) {
     const { id, name, description, category, schedule, venue, max_members, enrolled_count, teacher_name, is_full } = activity
     return (
-        <div className="card mb-1" style={{ padding: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+        <div className="card mb-1 actcard">
+            <div className="actcard-row">
                 <div>
-                    <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{name}</div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
+                    <div className="actcard-name">{name}</div>
+                    <div className="actcard-cat">
                         {category} {schedule ? `· ${schedule}` : ''} {venue ? `· ${venue}` : ''}
                     </div>
-                    {description && <p style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>{description}</p>}
-                    <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                    {description && <p className="actcard-desc">{description}</p>}
+                    <div className="actcard-meta">
                         {teacher_name && <span>Coordinator: {teacher_name}</span>}
-                        {max_members && <span style={{ marginLeft: '1rem' }}>{enrolled_count}/{max_members} members</span>}
+                        {max_members && <span className="actcard-meta-count">{enrolled_count}/{max_members} members</span>}
                     </div>
                 </div>
-                <div style={{ flexShrink: 0 }}>
+                <div className="u-shrink-0">
                     {enrolled ? (
                         <button
                             className="btn btn-sm btn-outline"
@@ -232,8 +232,7 @@ export function StudentActivities() {
                             {MAIN_TABS.map(tab => (
                                 <button
                                     key={tab}
-                                    className={`btn ${mainTab === tab ? 'btn-primary' : 'btn-outline'}`}
-                                    style={{ fontSize: '0.82rem', padding: '0.35rem 0.85rem' }}
+                                    className={`btn ${mainTab === tab ? 'btn-primary' : 'btn-outline'} act-main-tab`}
                                     onClick={() => setMainTab(tab)}
                                 >
                                     {tab}
@@ -245,8 +244,7 @@ export function StudentActivities() {
                                     {TYPE_TABS.map(t => (
                                         <button
                                             key={t}
-                                            className={`btn ${typeFilter === t ? 'btn-primary' : 'btn-outline'}`}
-                                            style={{ fontSize: '0.78rem', padding: '0.3rem 0.75rem' }}
+                                            className={`btn ${typeFilter === t ? 'btn-primary' : 'btn-outline'} act-type-tab`}
                                             onClick={() => setTypeFilter(t)}
                                         >
                                             {t}
@@ -260,7 +258,7 @@ export function StudentActivities() {
                         {/* Tab: Discipline Records */}
                         {mainTab === 'Discipline Records' && (
                             loading ? (
-                                <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading records…</p>
+                                <p className="u-pad u-muted">Loading records…</p>
                             ) : filteredReports.length === 0 ? (
                                 <EmptyState
                                     icon="verified_user"
@@ -294,7 +292,7 @@ export function StudentActivities() {
                         {/* Tab: Extracurricular Activities */}
                         {mainTab === 'Extracurricular Activities' && (
                             loading ? (
-                                <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading activities…</p>
+                                <p className="u-pad u-muted">Loading activities…</p>
                             ) : (enrolled.length === 0 && available.length === 0) ? (
                                 <EmptyState
                                     icon="sports_soccer"
@@ -332,7 +330,7 @@ export function StudentActivities() {
                         {/* Tab: Upcoming Events */}
                         {mainTab === 'Upcoming Events' && (
                             loading ? (
-                                <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading events…</p>
+                                <p className="u-pad u-muted">Loading events…</p>
                             ) : events.length === 0 ? (
                                 <EmptyState
                                     icon="event"
@@ -350,7 +348,7 @@ export function StudentActivities() {
                                             ? new Date(ev.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
                                             : '—'
                                         return (
-                                            <div key={ev.id} className="assign-item" style={{ padding: '0.85rem 1rem' }}>
+                                            <div key={ev.id} className="assign-item act-event-item">
                                                 <span className="assign-subject-dot schedule-dot-teal"></span>
                                                 <div className="assign-info">
                                                     <div className="assign-title">{ev.title || ev.activity_name}</div>

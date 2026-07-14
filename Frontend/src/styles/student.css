@@ -979,6 +979,27 @@
   flex-shrink: 0;
 }
 
+/* Activities tab toolbar buttons (React StudentActivities) */
+.act-main-tab { font-size: 0.82rem; padding: 0.35rem 0.85rem; }
+.act-type-tab { font-size: 0.78rem; padding: 0.3rem 0.75rem; }
+
+/* Activity card (React ActivityCard) */
+.actcard { padding: 1rem; }
+.actcard-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.actcard-name { font-weight: 600; margin-bottom: 0.25rem; }
+.actcard-cat { font-size: 0.82rem; color: var(--muted-foreground); margin-bottom: 0.5rem; }
+.actcard-desc { font-size: 0.85rem; margin-bottom: 0.5rem; }
+.actcard-meta { font-size: 0.8rem; color: var(--muted-foreground); }
+.actcard-meta-count { margin-left: 1rem; }
+
+/* Upcoming event row (reuses .assign-item with tighter padding) */
+.act-event-item { padding: 0.85rem 1rem; }
+
 /* ===============================================
    IMPROVED ANNOUNCEMENTS - student-announcements.html
    =============================================== */

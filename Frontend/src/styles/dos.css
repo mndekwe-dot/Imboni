@@ -2787,6 +2787,34 @@ body.tm-panel-open { overflow: hidden; }
 .analytics-chart-card    { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
 .analytics-chart-title   { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; }
 
+/* ── Students Needing Attention (DosAnalytics) ── */
+/* Empty / "no data" note under a card (muted, 0.85rem) */
+.dos-empty-hint { color: var(--muted-foreground); font-size: 0.85rem; }
+
+.dos-attention-flag-icon { color: var(--warning); vertical-align: middle; margin-right: 0.4rem; }
+
+.dos-attention-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.dos-attention-row {
+  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 10px;
+}
+
+.dos-attention-name-col { min-width: 180px; }
+
+.dos-attention-code { font-size: 0.75rem; color: var(--muted-foreground); }
+
+.dos-attention-reasons { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+/* Reason pill; colour variant chosen by student reason type */
+.dos-reason-chip {
+  font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 0.25rem;
+}
+.dos-reason-chip.score   { background: rgba(239,68,68,0.1);  color: #dc2626; }
+.dos-reason-chip.absence { background: rgba(245,158,11,0.12); color: #b45309; }
+.dos-reason-chip-icon { font-size: 0.85rem; }
+
 
 /* ── Attendance pagination ── */
 .pagination-bar {

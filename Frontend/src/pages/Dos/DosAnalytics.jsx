@@ -113,8 +113,8 @@ export function DosAnalytics() {
         },
     ] : []
 
-    if (loading) return <p style={{ padding: '2rem' }}>Loading analytics…</p>
-    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (loading) return <p className="u-pad">Loading analytics…</p>
+    if (error)   return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     return (
         <>
@@ -143,7 +143,7 @@ export function DosAnalytics() {
                                 </div>
                                 <div className="card-content">
                                     {data.grade_performance.length === 0
-                                        ? <p style={{ color: 'var(--muted-foreground)', fontSize: '.85rem' }}>No approved results yet.</p>
+                                        ? <p className="dos-empty-hint">No approved results yet.</p>
                                         : (
                                             <div className="perf-list">
                                                 {data.grade_performance.map((row, i) => (
@@ -161,7 +161,7 @@ export function DosAnalytics() {
                                 </div>
                                 <div className="card-content">
                                     {data.subject_averages.length === 0
-                                        ? <p style={{ color: 'var(--muted-foreground)', fontSize: '.85rem' }}>No approved results yet.</p>
+                                        ? <p className="dos-empty-hint">No approved results yet.</p>
                                         : (
                                             <div className="perf-list">
                                                 {data.subject_averages.map((row, i) => (
@@ -174,41 +174,33 @@ export function DosAnalytics() {
                             </div>
                         </div>
 
-                        <div className="card" style={{ marginTop: '1rem' }}>
+                        <div className="card u-mt">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded" style={{ color: 'var(--warning)', verticalAlign: 'middle', marginRight: '0.4rem' }}>flag</span>
+                                    <span className="material-symbols-rounded dos-attention-flag-icon">flag</span>
                                     Students Needing Attention
                                 </h3>
                                 <span className="badge">{attention.length}</span>
                             </div>
                             <div className="card-content">
                                 {attention.length === 0 ? (
-                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '.85rem' }}>
+                                    <p className="dos-empty-hint">
                                         No students flagged — averages are above 50% and attendance above 80%.
                                     </p>
                                 ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <div className="dos-attention-list">
                                         {attention.map(s => (
-                                            <div key={s.student_code} style={{
-                                                display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
-                                                padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: 10,
-                                            }}>
-                                                <div style={{ minWidth: 180 }}>
-                                                    <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{s.student_name}</div>
-                                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                            <div key={s.student_code} className="dos-attention-row">
+                                                <div className="dos-attention-name-col">
+                                                    <div className="u-strong u-sm">{s.student_name}</div>
+                                                    <div className="dos-attention-code">
                                                         {s.student_code} · S{s.grade}
                                                     </div>
                                                 </div>
-                                                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                                <div className="dos-attention-reasons">
                                                     {s.reasons.map((r, i) => (
-                                                        <span key={i} style={{
-                                                            fontSize: '0.72rem', padding: '0.2rem 0.55rem', borderRadius: 999,
-                                                            background: r.type === 'score' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.12)',
-                                                            color: r.type === 'score' ? '#dc2626' : '#b45309',
-                                                            display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-                                                        }}>
-                                                            <span className="material-symbols-rounded" style={{ fontSize: '0.85rem' }}>
+                                                        <span key={i} className={`dos-reason-chip ${r.type}`}>
+                                                            <span className="material-symbols-rounded dos-reason-chip-icon">
                                                                 {r.type === 'score' ? 'trending_down' : 'event_busy'}
                                                             </span>
                                                             {r.label}
