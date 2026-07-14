@@ -1,0 +1,22 @@
+/* ============================================================
+   TEACHER REGISTRATION PAGE (TeacherRegistration.jsx) — public
+   invitation-completion card. Centred, single column. Mirrors the
+   signup page pattern; kept as its own file (like login/signup css).
+   NB: bare var(--muted) as text colour is faithful to the original.
+   ============================================================ */
+.reg-center { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center; padding: 2rem; }
+.reg-icon-danger  { font-size: 3rem; color: var(--danger); }
+.reg-icon-success { font-size: 4rem; color: var(--success); }
+.reg-msg     { color: var(--muted); max-width: 24rem; }
+.reg-msg-sm  { color: var(--muted); font-size: 0.875rem; }
+
+.reg-page   { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--background); padding: 2rem; }
+.reg-wrap   { width: 100%; max-width: 440px; }
+.reg-header { text-align: center; margin-bottom: 2rem; }
+.reg-header-icon { font-size: 2.5rem; color: var(--primary); }
+.reg-title  { margin-top: 0.5rem; font-size: 1.5rem; font-weight: 700; }
+.reg-sub    { color: var(--muted); margin-top: 0.25rem; font-size: 0.9rem; }
+.reg-card   { padding: 1.75rem; }
+.reg-hr     { margin: 1rem 0; border-color: var(--border); }
+.reg-error  { color: var(--danger); font-size: 0.875rem; margin-bottom: 0.75rem; }
+.reg-note   { text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 1rem; }
