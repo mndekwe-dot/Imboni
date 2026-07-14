@@ -1470,3 +1470,42 @@ td .class-chip { margin-left: 4px; }
 .dis-rej-title     { font-weight: 700; font-size: 0.875rem; }
 .dis-reason        { font-size: 0.8rem; margin-top: 0.4rem; color: #b91c1c; }
 .dis-filed         { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.3rem; }
+
+/* ============================================================
+   DISCIPLINE BOARDING PAGE (DisBoarding) — assign modal (student
+   search) + dormitory occupancy grid. Data-driven occupancy bar
+   colour/width stay inline.
+   ============================================================ */
+/* Assign modal — student search */
+.dis-student-box  { padding: 0.5rem 0.75rem; background: var(--muted); border-radius: 8px; font-size: 0.875rem; font-weight: 600; }
+.dis-chip-inline    { margin-left: 0.5rem; font-size: 0.72rem; }
+.dis-chip-inline-sm { margin-left: 0.4rem; font-size: 0.7rem; }
+.dis-search-spin  { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1rem; color: var(--muted-foreground); }
+.dis-search-menu  { position: absolute; top: 100%; left: 0; right: 0; z-index: 50; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); max-height: 220px; overflow-y: auto; margin-top: 2px; }
+.dis-search-item  { padding: 0.625rem 0.875rem; cursor: pointer; display: flex; align-items: center; gap: 0.625rem; border-bottom: 1px solid var(--border); }
+.dis-search-item:hover { background: var(--muted); }
+.dis-search-av    { width: 2rem; height: 2rem; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+.dis-search-name  { font-weight: 600; font-size: 0.875rem; }
+.dis-search-sub   { font-size: 0.75rem; color: var(--muted-foreground); }
+.dis-selected-ok  { margin-top: 0.35rem; font-size: 0.78rem; color: #15803d; font-weight: 600; }
+.dis-modal-err    { color: #dc2626; font-size: 0.82rem; margin: 0; }
+
+/* Boarding table */
+.dis-dorm-sec  { font-size: 0.7rem; color: var(--muted-foreground); margin-top: 0.2rem; }
+.dis-btn-del   { color: #dc2626; border-color: #dc2626; }
+
+/* Occupancy card */
+.dis-inline-icon { vertical-align: middle; margin-right: 0.4rem; }
+.dis-occ-note  { font-size: 0.8rem; color: var(--muted-foreground); }
+.dis-occ-grid  { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.75rem; }
+.dis-occ-card  { border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 0.9rem; }
+.dis-occ-row   { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; }
+.dis-occ-name  { font-weight: 600; font-size: 0.9rem; }
+.dis-occ-sec   { font-size: 0.72rem; color: var(--muted-foreground); margin-left: 0.4rem; }
+.dis-occ-count { font-size: 0.82rem; font-weight: 700; }   /* colour inline (data-driven) */
+.dis-occ-bar   { height: 8px; }
+.dis-occ-free  { font-size: 0.72rem; color: var(--muted-foreground); margin-top: 0.35rem; }
+
+/* Filter bar */
+.dis-filter-bar    { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.dis-filter-select { max-width: 260px; }

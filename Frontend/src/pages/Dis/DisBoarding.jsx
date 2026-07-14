@@ -127,7 +127,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>
+                        <span className="material-symbols-rounded disc-modal-icon">
                             {isEditing ? 'edit' : 'hotel'}
                         </span>
                         <h2 className="modal-title">{isEditing ? 'Edit Boarding Record' : 'Assign to Boarding'}</h2>
@@ -141,15 +141,15 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                     {isEditing ? (
                         <div className="form-group">
                             <label className="form-label">Student</label>
-                            <div style={{ padding: '0.5rem 0.75rem', background: 'var(--muted)', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 600 }}>
+                            <div className="dis-student-box">
                                 {record.student_name}
-                                {cls && <span className="class-chip" style={{ marginLeft: '0.5rem', fontSize: '0.72rem' }}>{cls}</span>}
+                                {cls && <span className="class-chip dis-chip-inline">{cls}</span>}
                             </div>
                         </div>
                     ) : (
-                        <div className="form-group" ref={searchRef} style={{ position: 'relative' }}>
+                        <div className="form-group u-relative" ref={searchRef}>
                             <label className="form-label">Student *</label>
-                            <div style={{ position: 'relative' }}>
+                            <div className="u-relative">
                                 <input
                                     className="form-input"
                                     value={query}
@@ -158,34 +158,30 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                                     autoComplete="off"
                                 />
                                 {searching && (
-                                    <span className="material-symbols-rounded" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', fontSize: '1rem', color: 'var(--muted-foreground)' }}>
+                                    <span className="material-symbols-rounded dis-search-spin">
                                         progress_activity
                                     </span>
                                 )}
                             </div>
                             {dropdownOpen && searchResults.length > 0 && (
-                                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', maxHeight: '220px', overflowY: 'auto', marginTop: '2px' }}>
+                                <div className="dis-search-menu">
                                     {searchResults.map(s => (
-                                        <div key={s.id} onClick={() => selectStudent(s)}
-                                            style={{ padding: '0.625rem 0.875rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.625rem', borderBottom: '1px solid var(--border)' }}
-                                            onMouseEnter={e => e.currentTarget.style.background = 'var(--muted)'}
-                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                        >
-                                            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                                        <div key={s.id} onClick={() => selectStudent(s)} className="dis-search-item">
+                                            <div className="dis-search-av">
                                                 {s.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
                                             </div>
                                             <div>
-                                                <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{s.name}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{s.student_id} · {s.grade}{s.section}</div>
+                                                <div className="dis-search-name">{s.name}</div>
+                                                <div className="dis-search-sub">{s.student_id} · {s.grade}{s.section}</div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
                             {selectedStudent && (
-                                <div style={{ marginTop: '0.35rem', fontSize: '0.78rem', color: '#15803d', fontWeight: 600 }}>
+                                <div className="dis-selected-ok">
                                     ✓ {selectedStudent.name} — {selectedStudent.student_id}
-                                    {cls && <span className="class-chip" style={{ marginLeft: '0.4rem', fontSize: '0.7rem' }}>{cls}</span>}
+                                    {cls && <span className="class-chip dis-chip-inline-sm">{cls}</span>}
                                 </div>
                             )}
                         </div>
@@ -259,7 +255,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                         <input className="form-input" name="notes" value={form.notes} onChange={handleChange} placeholder="Any relevant notes…" />
                     </div>
 
-                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+                    {error && <p className="dis-modal-err">{error}</p>}
                 </div>
 
                 <div className="modal-footer">
@@ -289,7 +285,7 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
             <td className="text-muted">{student_id}</td>
             <td>
                 <span className="disc-badge">{dormitory}</span>
-                {sectionName && <div style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', marginTop: '0.2rem' }}>{sectionName}</div>}
+                {sectionName && <div className="dis-dorm-sec">{sectionName}</div>}
             </td>
             <td className="text-muted">Room {room_number}{bed_number ? ` · Bed ${bed_number}` : ''}</td>
             <td>{BOARDING_TYPE_LABEL[boarding_type] || boarding_type}</td>
@@ -306,7 +302,7 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
                         <button className="btn btn-outline btn-sm" onClick={() => onEdit(record)}>
                             <span className="material-symbols-rounded icon-sm">edit</span>
                         </button>
-                        <button className="btn btn-outline btn-sm" style={{ color: '#dc2626', borderColor: '#dc2626' }} onClick={() => setConfirmDelete(true)}>
+                        <button className="btn btn-outline btn-sm dis-btn-del" onClick={() => setConfirmDelete(true)}>
                             <span className="material-symbols-rounded icon-sm">delete</span>
                         </button>
                     </>
@@ -423,16 +419,16 @@ export function DisBoarding() {
                             <div className="card mb-1-5">
                                 <div className="card-header">
                                     <h2 className="card-title">
-                                        <span className="material-symbols-rounded" style={{ verticalAlign: 'middle', marginRight: '0.4rem' }}>hotel</span>
+                                        <span className="material-symbols-rounded dis-inline-icon">hotel</span>
                                         Dormitory Occupancy
                                     </h2>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                                    <span className="dis-occ-note">
                                         {occupancy.total_boarders} boarders / {occupancy.total_capacity} beds
                                         {occupancy.unassigned > 0 && ` · ${occupancy.unassigned} unassigned`}
                                     </span>
                                 </div>
                                 <div className="card-content">
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: '0.75rem' }}>
+                                    <div className="dis-occ-grid">
                                         {occupancy.dormitories.map(d => {
                                             const pct = d.occupancy_pct
                                             const barColor = pct == null ? 'var(--muted-foreground)'
@@ -440,25 +436,25 @@ export function DisBoarding() {
                                                 : pct >= 80 ? 'var(--warning, #d97706)'
                                                 : 'var(--success, #16a34a)'
                                             return (
-                                                <div key={d.id} style={{ border: '1px solid var(--border)', borderRadius: 10, padding: '0.75rem 0.9rem' }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem' }}>
+                                                <div key={d.id} className="dis-occ-card">
+                                                    <div className="dis-occ-row">
                                                         <div>
-                                                            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{d.name}</span>
+                                                            <span className="dis-occ-name">{d.name}</span>
                                                             {d.section_name && (
-                                                                <span style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginLeft: '0.4rem' }}>{d.section_name}</span>
+                                                                <span className="dis-occ-sec">{d.section_name}</span>
                                                             )}
                                                         </div>
-                                                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: barColor }}>
+                                                        <span className="dis-occ-count" style={{ color: barColor }}>
                                                             {d.capacity ? `${d.occupied}/${d.capacity}` : `${d.occupied}`}
                                                         </span>
                                                     </div>
-                                                    <div className="progress" style={{ height: 8 }}>
+                                                    <div className="progress dis-occ-bar">
                                                         <div className="progress-bar" style={{
                                                             width: pct != null ? `${Math.min(100, pct)}%` : '0%',
                                                             background: barColor,
                                                         }} />
                                                     </div>
-                                                    <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', marginTop: '0.35rem' }}>
+                                                    <div className="dis-occ-free">
                                                         {d.capacity
                                                             ? d.available === 0 ? 'Full' : `${d.available} bed${d.available !== 1 ? 's' : ''} free`
                                                             : 'No capacity set'}
@@ -472,10 +468,9 @@ export function DisBoarding() {
                         )}
 
                         <div className="card mb-1-5">
-                            <div className="card-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                            <div className="card-content dis-filter-bar">
                                 <select
-                                    className="form-input"
-                                    style={{ maxWidth: '260px' }}
+                                    className="form-input dis-filter-select"
                                     value={filter}
                                     onChange={e => setFilter(e.target.value)}
                                 >
@@ -502,7 +497,7 @@ export function DisBoarding() {
                         </div>
 
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading boarding records…</p>
+                            <p className="u-pad u-muted">Loading boarding records…</p>
                         ) : (
                             <DataTable
                                 title="Boarding Students"
