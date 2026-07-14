@@ -2610,6 +2610,7 @@ body.tm-panel-open { overflow: hidden; }
   color: var(--foreground);
 }
 .inline-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
+.inline-select-opt:hover:not(.active) { background: var(--muted); }
 
 /* ── Form select (modal) ── */
 .form-select-wrap { position: relative; }
@@ -2654,6 +2655,7 @@ body.tm-panel-open { overflow: hidden; }
   color: var(--foreground);
 }
 .form-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
+.form-select-opt:hover:not(.active) { background: var(--muted); }
 
 /* ── Assign class grid ── */
 .teacher-modal-section-label {
@@ -3063,3 +3065,46 @@ body.tm-panel-open { overflow: hidden; }
 .dset-note        { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; }
 .dset-notice-desc { color: var(--muted); font-size: 0.875rem; }
 .dset-room-icon   { font-size: 0.85rem; color: var(--muted-foreground); }
+
+/* ============================================================
+   DOS TEACHERS PAGE (DosTeachers) — invite success/info + the
+   pending-invitations table. Data-driven colours (avatar bg,
+   per-status text) stay inline. NB: --surface-2 undefined
+   project-wide → its literal fallback #f8f9fa is kept verbatim.
+   ============================================================ */
+/* Invite modal — success + info + error */
+.dt-modal-success { text-align: center; padding: 1.5rem 0; }
+.dt-success-icon  { font-size: 3.5rem; color: var(--success); }
+.dt-success-title { margin-top: 1rem; font-weight: 600; font-size: 1.05rem; }
+.dt-success-note  { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; }
+.dt-info-box   { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--muted); border-radius: 0.5rem; margin-bottom: 1.25rem; }
+.dt-info-icon  { color: var(--primary); font-size: 1.25rem; flex-shrink: 0; }
+.dt-info-text  { font-size: 0.875rem; color: var(--muted-foreground); margin: 0; }
+.dt-form-err   { color: var(--danger); margin-top: 0.75rem; font-size: 0.875rem; }
+
+/* Pending invitations table */
+.pinv-card      { margin-bottom: 1.25rem; overflow: hidden; }
+.pinv-hdr       { display: flex; align-items: center; gap: 0.5rem; padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border); }
+.pinv-hdr-icon  { color: var(--warning); font-size: 1.2rem; }
+.pinv-hdr-title { font-weight: 600; font-size: 0.95rem; }
+.pinv-count     { background: var(--warning); color: #fff; border-radius: 999px; font-size: 0.72rem; padding: 0.1rem 0.55rem; font-weight: 700; margin-left: 0.1rem; }
+.pinv-hdr-note  { color: var(--muted); font-size: 0.8rem; margin-left: 0.25rem; }
+.pinv-table     { width: 100%; border-collapse: collapse; }
+.pinv-thead     { font-size: 0.78rem; color: var(--muted); background: var(--surface-2, #f8f9fa); text-transform: uppercase; letter-spacing: 0.04em; }
+.pinv-th        { padding: 0.55rem 1rem; text-align: left; font-weight: 600; }
+.pinv-th.first  { padding-left: 1.25rem; }
+.pinv-th.last   { padding-right: 1.25rem; text-align: right; }
+.pinv-tr        { border-top: 1px solid var(--border); }
+.pinv-td        { padding: 0.75rem 1rem; }
+.pinv-td.first  { padding-left: 1.25rem; }
+.pinv-td.last   { padding-right: 1.25rem; }
+.pinv-user      { display: flex; align-items: center; gap: 0.6rem; }
+.pinv-name      { font-weight: 500; font-size: 0.9rem; }
+.pinv-email     { color: var(--muted); font-size: 0.875rem; }
+.pinv-muted     { color: var(--muted); font-size: 0.8rem; }
+.pinv-status         { font-weight: 600; font-size: 0.8rem; }
+.pinv-status.expired { color: var(--danger); }
+.pinv-status.sent    { color: var(--success); }
+.pinv-status.failed  { color: var(--warning); }
+.pinv-actions   { display: flex; gap: 0.4rem; justify-content: flex-end; }
+.pinv-cancel    { color: var(--danger); border: 1px solid var(--danger); background: transparent; }

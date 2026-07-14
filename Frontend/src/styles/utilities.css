@@ -21,6 +21,7 @@
 .u-grid         { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
 .u-grid-sm      { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.85rem; }
 .u-grid-2       { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.u-gap-sm       { gap: 0.75rem; }   /* override a grid/flex gap to 0.75rem */
 .u-justify-end     { justify-content: flex-end; }
 .u-justify-between { justify-content: space-between; }
 .u-ml-auto      { margin-left: auto; }

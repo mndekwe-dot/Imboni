@@ -51,8 +51,6 @@ function InlineSelect({ value, onChange, options, placeholder }) {
                         <button key={opt} type="button"
                             onClick={() => { onChange(opt === placeholder ? '' : opt); setOpen(false) }}
                             className={`inline-select-opt${value === opt ? ' active' : ''}`}
-                            onMouseEnter={e => { if (value !== opt) e.currentTarget.style.background = 'var(--muted)' }}
-                            onMouseLeave={e => { if (value !== opt) e.currentTarget.style.background = 'transparent' }}
                         >{opt}</button>
                     ))}
                 </div>
@@ -84,8 +82,6 @@ function FormSelect({ value, onChange, options, placeholder }) {
                         <button key={opt.value} type="button"
                             onClick={() => { onChange(opt.value); setOpen(false) }}
                             className={`form-select-opt${value === opt.value ? ' active' : ''}`}
-                            onMouseEnter={e => { if (value !== opt.value) e.currentTarget.style.background = 'var(--muted)' }}
-                            onMouseLeave={e => { if (value !== opt.value) e.currentTarget.style.background = 'transparent' }}
                         >{opt.label}</button>
                     ))}
                 </div>
@@ -151,7 +147,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
             onClose={onClose}
             size="wide"
             footer={
-                <div className="modal-confirm-actions" style={{ width: '100%' }}>
+                <div className="modal-confirm-actions u-full">
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
                     <button className="btn btn-primary" disabled={!isValid} onClick={handleSave}>
                         <span className="material-symbols-rounded icon-sm">{isEdit ? 'save' : 'person_add'}</span>
@@ -168,7 +164,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                     <input className="form-control" placeholder="e.g. Jean-Pierre Habimana"
                         value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} autoFocus />
                 </div>
-                <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
+                <div className="resp-grid-2 u-gap-sm">
                     <div className="form-group">
                         <label className="form-label">Subject *</label>
                         <FormSelect value={form.subject} onChange={v => setForm(p => ({ ...p, subject: v }))}
@@ -191,7 +187,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                     </div>
                 )}
                 {!isEdit && (
-                    <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
+                    <div className="resp-grid-2 u-gap-sm">
                         <div className="form-group">
                             <label className="form-label">Email *</label>
                             <input className="form-control" type="email" placeholder="teacher@school.rw"
@@ -292,11 +288,11 @@ function InviteTeacherModal({ onClose, onInvite }) {
 
     if (sent) return (
         <Modal title="Invitation Sent" icon="mark_email_read" onClose={onClose}
-            footer={<div className="modal-confirm-actions" style={{ width: '100%' }}><button className="btn btn-primary" onClick={onClose}>Done</button></div>}>
-            <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: '3.5rem', color: 'var(--success)' }}>check_circle</span>
-                <p style={{ marginTop: '1rem', fontWeight: 600, fontSize: '1.05rem' }}>Invitation sent to {form.email}</p>
-                <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+            footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>Done</button></div>}>
+            <div className="dt-modal-success">
+                <span className="material-symbols-rounded dt-success-icon">check_circle</span>
+                <p className="dt-success-title">Invitation sent to {form.email}</p>
+                <p className="dt-success-note">
                     {form.first_name} will receive an email with a secure link to set up their account.
                     They will appear in the teacher list after completing registration.
                 </p>
@@ -307,7 +303,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
     return (
         <Modal title="Invite Teacher" icon="person_add" onClose={onClose} size="wide"
             footer={
-                <div className="modal-confirm-actions" style={{ width: '100%' }}>
+                <div className="modal-confirm-actions u-full">
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
                     <button className="btn btn-primary" disabled={!isValid || sending} onClick={handleSend}>
                         <span className="material-symbols-rounded icon-sm">send</span>
@@ -316,15 +312,15 @@ function InviteTeacherModal({ onClose, onInvite }) {
                 </div>
             }
         >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem 1rem', background: 'var(--muted)', borderRadius: '0.5rem', marginBottom: '1.25rem' }}>
-                <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '1.25rem', flexShrink: 0 }}>info</span>
-                <p style={{ fontSize: '0.875rem', color: 'var(--muted-foreground)', margin: 0 }}>
+            <div className="dt-info-box">
+                <span className="material-symbols-rounded dt-info-icon">info</span>
+                <p className="dt-info-text">
                     An email will be sent with a secure registration link. The teacher sets their own password — you never need to share credentials.
                 </p>
             </div>
 
             <div className="settings-form">
-                <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
+                <div className="resp-grid-2 u-gap-sm">
                     <div className="form-group">
                         <label className="form-label">First Name *</label>
                         <input className="form-control" placeholder="e.g. Jean-Pierre"
@@ -347,7 +343,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
                         placeholder="" options={TYPES.map(t => ({ value: t, label: t }))} />
                 </div>
             </div>
-            {error && <p style={{ color: 'var(--danger)', marginTop: '0.75rem', fontSize: '0.875rem' }}>{error}</p>}
+            {error && <p className="dt-form-err">{error}</p>}
         </Modal>
     )
 }
@@ -378,26 +374,26 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
     }
 
     return (
-        <div className="card" style={{ marginBottom: '1.25rem', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)' }}>
-                <span className="material-symbols-rounded" style={{ color: 'var(--warning)', fontSize: '1.2rem' }}>schedule_send</span>
-                <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>Pending Invitations</span>
-                <span style={{ background: 'var(--warning)', color: '#fff', borderRadius: '999px', fontSize: '0.72rem', padding: '0.1rem 0.55rem', fontWeight: 700, marginLeft: '0.1rem' }}>
+        <div className="card pinv-card">
+            <div className="pinv-hdr">
+                <span className="material-symbols-rounded pinv-hdr-icon">schedule_send</span>
+                <span className="pinv-hdr-title">Pending Invitations</span>
+                <span className="pinv-count">
                     {invitations.length}
                 </span>
-                <span style={{ color: 'var(--muted)', fontSize: '0.8rem', marginLeft: '0.25rem' }}>
+                <span className="pinv-hdr-note">
                     — teachers who have not yet completed registration
                 </span>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="pinv-table">
                 <thead>
-                    <tr style={{ fontSize: '0.78rem', color: 'var(--muted)', background: 'var(--surface-2, #f8f9fa)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        <th style={{ padding: '0.55rem 1.25rem', textAlign: 'left', fontWeight: 600 }}>Teacher</th>
-                        <th style={{ padding: '0.55rem 1rem', textAlign: 'left', fontWeight: 600 }}>Email</th>
-                        <th style={{ padding: '0.55rem 1rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
-                        <th style={{ padding: '0.55rem 1rem', textAlign: 'left', fontWeight: 600 }}>Invited</th>
-                        <th style={{ padding: '0.55rem 1rem', textAlign: 'left', fontWeight: 600 }}>Expires</th>
-                        <th style={{ padding: '0.55rem 1.25rem', textAlign: 'right', fontWeight: 600 }}>Actions</th>
+                    <tr className="pinv-thead">
+                        <th className="pinv-th first">Teacher</th>
+                        <th className="pinv-th">Email</th>
+                        <th className="pinv-th">Status</th>
+                        <th className="pinv-th">Invited</th>
+                        <th className="pinv-th">Expires</th>
+                        <th className="pinv-th last">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -405,34 +401,33 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
                         const expired = inv.is_expired
                         const fullName = `${inv.first_name} ${inv.last_name}`
                         return (
-                            <tr key={inv.id} style={{ borderTop: '1px solid var(--border)' }}>
-                                <td style={{ padding: '0.75rem 1.25rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                            <tr key={inv.id} className="pinv-tr">
+                                <td className="pinv-td first">
+                                    <div className="pinv-user">
                                         <div className="dt-avatar" style={{ background: avatarColor(fullName) }}>{initials(fullName)}</div>
-                                        <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{fullName}</span>
+                                        <span className="pinv-name">{fullName}</span>
                                     </div>
                                 </td>
-                                <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.875rem' }}>{inv.email || '—'}</td>
-                                <td style={{ padding: '0.75rem 1rem' }}>
+                                <td className="pinv-td pinv-email">{inv.email || '—'}</td>
+                                <td className="pinv-td">
                                     {expired
-                                        ? <span style={{ color: 'var(--danger)', fontWeight: 600, fontSize: '0.8rem' }}>Expired</span>
+                                        ? <span className="pinv-status expired">Expired</span>
                                         : inv.delivery_status === 'sent'
-                                            ? <span style={{ color: 'var(--success)', fontWeight: 600, fontSize: '0.8rem' }}>Sent</span>
-                                            : <span style={{ color: 'var(--warning)', fontWeight: 600, fontSize: '0.8rem' }}>Failed</span>
+                                            ? <span className="pinv-status sent">Sent</span>
+                                            : <span className="pinv-status failed">Failed</span>
                                     }
                                 </td>
-                                <td style={{ padding: '0.75rem 1rem', color: 'var(--muted)', fontSize: '0.8rem' }}>{daysAgo(inv.created_at)}</td>
-                                <td style={{ padding: '0.75rem 1rem', color: expired ? 'var(--danger)' : 'var(--muted)', fontSize: '0.8rem' }}>
+                                <td className="pinv-td pinv-muted">{daysAgo(inv.created_at)}</td>
+                                <td className="pinv-td pinv-muted" style={expired ? { color: 'var(--danger)' } : undefined}>
                                     {new Date(inv.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                                 </td>
-                                <td style={{ padding: '0.75rem 1.25rem' }}>
-                                    <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                                <td className="pinv-td last">
+                                    <div className="pinv-actions">
                                         <button className="btn btn-outline btn-sm" disabled={resending === inv.id} onClick={() => doResend(inv.id)}>
                                             <span className="material-symbols-rounded icon-sm">send</span>
                                             {resending === inv.id ? 'Sending…' : 'Resend'}
                                         </button>
-                                        <button className="btn btn-sm"
-                                            style={{ color: 'var(--danger)', border: '1px solid var(--danger)', background: 'transparent' }}
+                                        <button className="btn btn-sm pinv-cancel"
                                             disabled={cancelling === inv.id}
                                             onClick={() => doCancel(inv.id)}>
                                             <span className="material-symbols-rounded icon-sm">cancel</span>
@@ -553,7 +548,7 @@ export function DosTeachers() {
     })
 
     if (loading) return <Loading fullPage />
-    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     return (
         <>
