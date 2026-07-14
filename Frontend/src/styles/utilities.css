@@ -58,6 +58,7 @@
 .u-xl          { font-size: 1.35rem; }
 .u-danger      { color: var(--danger, #dc2626); }
 .u-center-text { text-align: center; }
+.u-text-right  { text-align: right; }
 .u-capitalize  { text-transform: capitalize; }
 .u-label       { font-size: 0.78rem; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; }
 
