@@ -710,6 +710,17 @@
   margin-top: 0.125rem;
 }
 
+/* ── Student Leaders page — inline-style migration ── */
+.dos-form-err   { font-size: 0.75rem; margin-bottom: 0.5rem; }   /* pairs with .text-destructive for colour */
+.dos-club-dim   { opacity: 0.6; }
+.dos-fs-08      { font-size: 0.8rem; }   /* generic 0.8rem — promotable to a u-* utility */
+.dos-btn-danger-outline { color: var(--danger) !important; border-color: var(--danger) !important; }  /* #dc2626 outline btn */
+.dos-btn-danger-solid   { background: var(--destructive); color: #fff; }
+.dos-mr-035     { margin-right: 0.35rem; }   /* generic — promotable */
+.dos-badge-ml   { margin-left: 0.4rem; }
+.dos-empty-cell { padding: 1rem; }   /* pair with .dos-empty-hint on an empty table cell */
+.dos-clubs-msg  { color: var(--muted-foreground); padding: 1rem 0; }
+
 /* ===============================================
    BOARDING — Houses & Room Assignments
    =============================================== */

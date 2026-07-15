@@ -69,7 +69,7 @@ function CaptainRow({ leader }) {
             <td><span className="text-muted text-sm-muted">{student_id}</span></td>
             <td>{ROLE_DISPLAY[role] || role}</td>
             <td className="text-muted">{appointed_date || '—'}</td>
-            <td>{notes || <span style={{ color: 'var(--muted-foreground)' }}>—</span>}</td>
+            <td>{notes || <span className="text-muted">—</span>}</td>
         </tr>
     )
 }
@@ -120,7 +120,7 @@ export function DisStudentLeaders() {
                         </div>
 
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading leaders…</p>
+                            <p className="dis-leaders-loading">Loading leaders…</p>
                         ) : (
                             <>
                                 {/* Prefects */}
@@ -129,7 +129,7 @@ export function DisStudentLeaders() {
                                     <span className="badge">{prefects.length}</span>
                                 </div>
                                 {prefects.length === 0 ? (
-                                    <p style={{ color: 'var(--muted-foreground)', marginBottom: '1.5rem' }}>No prefects appointed this term.</p>
+                                    <p className="text-muted mb-1-5">No prefects appointed this term.</p>
                                 ) : (
                                     <div className="staff-cards-grid mb-1-5">
                                         {prefects.map(l => <PrefectCard key={l.id} leader={l} />)}
@@ -144,7 +144,7 @@ export function DisStudentLeaders() {
                                     </div>
                                     <div className="card-content">
                                         {captains.length === 0 ? (
-                                            <p style={{ color: 'var(--muted-foreground)' }}>No house captains appointed this term.</p>
+                                            <p className="text-muted">No house captains appointed this term.</p>
                                         ) : (
                                             <div className="disc-table-wrap">
                                                 <table className="disc-table">

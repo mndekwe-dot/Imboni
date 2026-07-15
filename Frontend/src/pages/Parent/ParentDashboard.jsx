@@ -179,9 +179,9 @@ export function ParentDashboard() {
                     />
                     <DashboardContent>
                         {loadingChildren ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                            <p className="u-pad u-muted">Loading…</p>
                         ) : children.length === 0 ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked to your account yet.</p>
+                            <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
                             <div className="tabs">
                                 <div className="tabs-list">
@@ -208,9 +208,9 @@ export function ParentDashboard() {
                                             </div>
                                             <div className="card-content">
                                                 {loadingData ? (
-                                                    <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                                                    <p className="u-muted">Loading…</p>
                                                 ) : assessments.length === 0 ? (
-                                                    <p style={{ color: 'var(--muted-foreground)' }}>No assessments recorded yet.</p>
+                                                    <p className="u-muted">No assessments recorded yet.</p>
                                                 ) : (
                                                     <div className="assessment-list">
                                                         {assessments.slice(0, 4).map(a => (

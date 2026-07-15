@@ -1429,6 +1429,8 @@ td .class-chip { margin-left: 4px; }
 /* Empty / loading text */
 .disc-loading-text { color: var(--muted-foreground); padding: 2rem 0; }
 .disc-empty-text { color: var(--muted-foreground); font-size: 0.85rem; }
+/* Student Leaders loading text — padded on all sides (differs from disc-loading-text's 2rem 0) */
+.dis-leaders-loading { color: var(--muted-foreground); padding: 2rem; }
 .disc-empty-year { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; }
 
 /* Dormitory group headers */

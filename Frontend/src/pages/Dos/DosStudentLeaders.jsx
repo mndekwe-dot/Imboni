@@ -73,7 +73,7 @@ function LeaderFormModal({ leader, onClose, onSave, allClasses }) {
                     <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
                 <div className="modal-body">
-                    {err && <p className="text-destructive" style={{ fontSize: '0.75rem', marginBottom: '0.5rem' }}>{err}</p>}
+                    {err && <p className="text-destructive dos-form-err">{err}</p>}
                     <div className="form-group">
                         <label className="form-label">Type</label>
                         <select className="form-input" value={type} onChange={e => setType(e.target.value)} disabled={isEdit}>
@@ -143,9 +143,9 @@ function ClubCard({ club, onToggle, onDelete }) {
     }
 
     return (
-        <div className="staff-card" style={{ opacity: club.is_active ? 1 : 0.6 }}>
+        <div className={`staff-card${club.is_active ? '' : ' dos-club-dim'}`}>
             <div className="staff-card-top">
-                <div className="staff-card-avatar dos-av" style={{ fontSize: '0.8rem' }}>
+                <div className="staff-card-avatar dos-av dos-fs-08">
                     {(club.name || '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()}
                 </div>
                 <div>
@@ -164,13 +164,13 @@ function ClubCard({ club, onToggle, onDelete }) {
             <div className="staff-card-actions">
                 {confirmDelete ? (
                     <>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)' }}>Delete permanently?</span>
+                        <span className="u-xs u-muted">Delete permanently?</span>
                         <button className="btn btn-primary btn-sm" onClick={() => onDelete(club.id)}>Yes, delete</button>
                         <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>Cancel</button>
                     </>
                 ) : (
                     <>
-                        <button className="btn btn-outline btn-sm" style={{ color: '#dc2626', borderColor: '#dc2626' }} onClick={() => setConfirmDelete(true)}>
+                        <button className="btn btn-outline btn-sm dos-btn-danger-outline" onClick={() => setConfirmDelete(true)}>
                             <span className="material-symbols-rounded icon-sm">delete</span>
                         </button>
                         <button className="btn btn-outline btn-sm" onClick={handleToggle} disabled={toggling}>
@@ -195,7 +195,7 @@ function PrefectCard({ initials, name, roleTag, role, form, since, editMode, onE
                 {editMode ? (
                     <>
                         <button className="btn btn-secondary btn-sm" onClick={onEdit}>Edit</button>
-                        <button className="btn btn-sm" style={{ background: 'var(--destructive)', color: '#fff' }} onClick={onRemove}>Remove</button>
+                        <button className="btn btn-sm dos-btn-danger-solid" onClick={onRemove}>Remove</button>
                     </>
                 ) : (
                     <>
@@ -219,8 +219,8 @@ function HouseCaptainRow({ initials, name, house, form, since, editMode, onEdit,
             <td>
                 {editMode ? (
                     <>
-                        <button className="btn btn-secondary btn-sm" onClick={onEdit} style={{ marginRight: '0.35rem' }}>Edit</button>
-                        <button className="btn btn-sm" style={{ background: 'var(--destructive)', color: '#fff' }} onClick={onRemove}>Remove</button>
+                        <button className="btn btn-secondary btn-sm dos-mr-035" onClick={onEdit}>Edit</button>
+                        <button className="btn btn-sm dos-btn-danger-solid" onClick={onRemove}>Remove</button>
                     </>
                 ) : (
                     <button className="btn btn-secondary btn-sm" onClick={onEdit}>View</button>
@@ -356,7 +356,7 @@ export function DosStudentLeaders() {
                             </button>
                             <button className={`filter-tab${activeTab === 'clubs' ? ' active' : ''}`} onClick={() => setActiveTab('clubs')}>
                                 <span className="material-symbols-rounded">emoji_events</span> Clubs &amp; Activities
-                                {clubs.length > 0 && <span className="badge-count" style={{ marginLeft: '0.4rem' }}>{clubs.length}</span>}
+                                {clubs.length > 0 && <span className="badge-count dos-badge-ml">{clubs.length}</span>}
                             </button>
                         </div>
 
@@ -374,7 +374,7 @@ export function DosStudentLeaders() {
                                     <div className="card-content">
                                         <div className="leaders-grid">
                                             {prefectList.length === 0
-                                                ? <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No prefects appointed this term.</p>
+                                                ? <p className="dos-empty-hint">No prefects appointed this term.</p>
                                                 : prefectList.map((p, index) => (
                                                     <PrefectCard
                                                         key={index} {...p}
@@ -411,7 +411,7 @@ export function DosStudentLeaders() {
                                                 </thead>
                                                 <tbody>
                                                     {captainList.length === 0
-                                                        ? <tr><td colSpan={6} style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', padding: '1rem' }}>No captains assigned this term.</td></tr>
+                                                        ? <tr><td colSpan={6} className="dos-empty-hint dos-empty-cell">No captains assigned this term.</td></tr>
                                                         : captainList.map((hc, index) => (
                                                             <HouseCaptainRow
                                                                 key={index} {...hc}
@@ -434,15 +434,15 @@ export function DosStudentLeaders() {
                             <div className="card">
                                 <div className="card-header">
                                     <h2 className="card-title">Clubs &amp; Activities</h2>
-                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>
+                                    <div className="u-row-sm u-muted dos-fs-08">
                                         <span>{clubs.filter(c => c.is_active).length} active · {clubs.filter(c => !c.is_active).length} inactive</span>
                                     </div>
                                 </div>
                                 <div className="card-content">
                                     {clubLoading ? (
-                                        <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0' }}>Loading clubs…</p>
+                                        <p className="dos-clubs-msg">Loading clubs…</p>
                                     ) : clubs.length === 0 ? (
-                                        <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0', textAlign: 'center' }}>No clubs found.</p>
+                                        <p className="dos-clubs-msg u-center-text">No clubs found.</p>
                                     ) : (
                                         <div className="staff-cards-grid">
                                             {clubs.map(club => (

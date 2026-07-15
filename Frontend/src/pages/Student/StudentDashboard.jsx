@@ -191,9 +191,9 @@ export function StudentDashboard() {
                                 </div>
                                 <div className="section-card-body">
                                     {loading ? (
-                                        <p style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                                        <p className="att-empty">Loading…</p>
                                     ) : todaySchedule.length === 0 ? (
-                                        <p style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>No classes scheduled today.</p>
+                                        <p className="att-empty">No classes scheduled today.</p>
                                     ) : (
                                         todaySchedule.map((slot, i) => <ScheduleSlot key={i} {...slot} />)
                                     )}
@@ -207,9 +207,9 @@ export function StudentDashboard() {
                                     <Link to="/student/assignments" className="btn btn-outline btn-sm">View All</Link>
                                 </div>
                                 {loading ? (
-                                    <p style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                                    <p className="att-empty">Loading…</p>
                                 ) : upcomingAssignments.length === 0 ? (
-                                    <p style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>No upcoming assignments.</p>
+                                    <p className="att-empty">No upcoming assignments.</p>
                                 ) : (
                                     upcomingAssignments.map((item, i) => <AssignItem key={i} {...item} />)
                                 )}
@@ -225,9 +225,9 @@ export function StudentDashboard() {
                             </div>
                             <div className="card-content">
                                 {loading ? (
-                                    <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                                    <p className="u-muted">Loading…</p>
                                 ) : recentGrades.length === 0 ? (
-                                    <p style={{ color: 'var(--muted-foreground)' }}>No results yet.</p>
+                                    <p className="u-muted">No results yet.</p>
                                 ) : (
                                     <div className="table-responsive">
                                         <table>
