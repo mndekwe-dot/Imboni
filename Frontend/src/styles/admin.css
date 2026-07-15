@@ -590,3 +590,7 @@
 /* ── Admin Dashboard (AdminDashboard) ── */
 .adm-dash-note { color: var(--muted-foreground); padding: 1rem 0; }
 .adm-legend-mt { margin-top: 0.75rem; }
+
+/* ── Misc: publish-button ghost + 1fr/auto title grid (AdminAnnouncements) ── */
+.adm-btn.primary { color: var(--primary); border-color: var(--primary); }
+.adm-title-grid  { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; }

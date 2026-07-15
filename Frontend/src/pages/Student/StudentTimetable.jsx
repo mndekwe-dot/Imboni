@@ -50,9 +50,9 @@ export function StudentTimetable() {
                     />
                     <DashboardContent>
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                            <p className="u-pad u-muted">Loading…</p>
                         ) : !gradeSection ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Could not load class information.</p>
+                            <p className="u-pad u-muted">Could not load class information.</p>
                         ) : (
                             <div className="card">
                                 <div className="card-header">

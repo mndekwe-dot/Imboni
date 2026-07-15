@@ -125,7 +125,7 @@ export function DisStaff() {
                     <DashboardContent>
 
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading staff…</p>
+                            <p className="u-pad u-muted">Loading staff…</p>
                         ) : (
                             <>
                                 <div className="disc-section-header">
@@ -137,7 +137,7 @@ export function DisStaff() {
                                 </button>
                                 <div className="staff-cards-grid mb-1-5">
                                     {matrons.length === 0
-                                        ? <p style={{ color: 'var(--muted-foreground)', gridColumn: '1/-1' }}>No matrons on record.</p>
+                                        ? <p className="u-muted u-col-span-all">No matrons on record.</p>
                                         : matrons.map(s => (
                                             <MatronCard key={s.id} staff={s} onEdit={() => setEditingStaff(s)} />
                                         ))
@@ -150,7 +150,7 @@ export function DisStaff() {
                                 </div>
                                 <div className="staff-cards-grid">
                                     {patrons.length === 0
-                                        ? <p style={{ color: 'var(--muted-foreground)', gridColumn: '1/-1' }}>No patrons on record.</p>
+                                        ? <p className="u-muted u-col-span-all">No patrons on record.</p>
                                         : patrons.map(s => (
                                             <PatronCard key={s.id} staff={s} onEdit={() => setEditingStaff(s)} />
                                         ))

@@ -188,7 +188,7 @@ export function Account() {
                                                 type="file"
                                                 accept="image/*"
                                                 ref={avatarInputRef}
-                                                style={{ display: 'none' }}
+                                                className="u-hidden"
                                                 onChange={handleAvatarChange}
                                             />
                                             {/* Clicking this button opens the file picker */}
@@ -250,7 +250,7 @@ export function Account() {
                                     </div>
                                     <div className="card-content">
                                         {pwError && (
-                                            <p style={{ color: 'var(--danger)', marginBottom: '1rem' }}>{pwError}</p>
+                                            <p className="u-danger u-mb">{pwError}</p>
                                         )}
                                         <div className="form-row">
                                             <div className="form-group">
@@ -349,7 +349,7 @@ export function Account() {
                                             </div>
                                             <div className="linked-child-item">
                                                 <div className="child-brief">
-                                                    <div className="avatar-sm" style={{ background: 'var(--accent)' }}>IJ</div>
+                                                    <div className="avatar-sm u-bg-accent">IJ</div>
                                                     <div>
                                                         <p className="name">Ishimwe Jean</p>
                                                         <p className="id-tag">S1B Â· ID: 2024-042</p>

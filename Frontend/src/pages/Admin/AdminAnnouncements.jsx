@@ -103,7 +103,7 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
                     <span className="adm-ann-cat">{ann.category}</span>
 
                     {ann.status === 'draft' && (
-                        <span className="adm-badge pending" style={{ fontSize: '0.68rem' }}>Draft</span>
+                        <span className="adm-badge pending u-fs-068">Draft</span>
                     )}
 
                     <span className="adm-ann-time">
@@ -127,8 +127,7 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
                     </button>
                     {ann.status === 'draft' && (
                         <button
-                            className="adm-btn"
-                            style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }}
+                            className="adm-btn primary"
                             onClick={() => onPublish(ann)}
                         >
                             <span className="material-symbols-rounded">send</span> Publish
@@ -202,7 +201,7 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
         <div className="u-stack-1">
             <TemplateChips templates={templates} onSelect={applyTemplate} />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem' }}>
+            <div className="adm-title-grid">
                 <div className="form-group form-group-0">
                     <label className="form-label">Title *</label>
                     <input

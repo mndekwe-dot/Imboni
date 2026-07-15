@@ -160,7 +160,7 @@ export function TeacherStudent() {
                             <div className="student-profile-code">{selected.student_code}</div>
                         </div>
                     </div>
-                    <div className="resp-grid-2" style={{ gap: '0.75rem' }}>
+                    <div className="resp-grid-2 u-gap-sm">
                         <div>
                             <div className="detail-label">Class</div>
                             <div className="detail-value">{selected.class_name}</div>
@@ -204,8 +204,8 @@ export function TeacherStudent() {
                         />
 
                         {error && (
-                            <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.4rem' }}>error</span>
+                            <div className="alert alert-danger u-mb">
+                                <span className="material-symbols-rounded alert-icon">error</span>
                                 {error}
                             </div>
                         )}

@@ -62,7 +62,7 @@ export function MatronDashboard() {
     }, [])
 
     if (loading) return <Loading fullPage />
-    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     const dormitory = dashboard.stats.dormitory || 'your dormitory'
 
@@ -124,7 +124,7 @@ export function MatronDashboard() {
                                 <div className="card-content">
                                     <div className="roll-call-list">
                                         {rollCall.length === 0
-                                            ? <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No boarders found.</p>
+                                            ? <p className="u-muted u-sm">No boarders found.</p>
                                             : rollCall.map((r, i) => <RollCallRow key={i} {...r} />)}
                                     </div>
                                 </div>
@@ -139,7 +139,7 @@ export function MatronDashboard() {
                                     <div className="card-content">
                                         <div className="matron-report-list">
                                             {recentReports.length === 0
-                                                ? <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No reports filed yet.</p>
+                                                ? <p className="u-muted u-sm">No reports filed yet.</p>
                                                 : recentReports.map((r, i) => <ReportRow key={i} {...r} />)}
                                         </div>
                                     </div>

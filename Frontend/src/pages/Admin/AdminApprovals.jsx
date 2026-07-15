@@ -61,7 +61,7 @@ function RejectModal({ result, onClose, onDone }) {
                     </button>
                 </div>
                 <form className="modal-body u-stack-1" onSubmit={handleSubmit}>
-                    <p className="u-muted" style={{ fontSize: '0.85rem' }}>
+                    <p className="u-muted u-fs-085">
                         Rejecting <strong>{subject}</strong> result for <strong>{studentName}</strong>. Provide a reason for the teacher.
                     </p>
                     <div className="form-group form-group-0">
@@ -121,11 +121,11 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
             </td>
             {status === 'pending' && (
                 <td>
-                    <div className="u-flex" style={{ gap: '0.35rem' }}>
-                        <button className="adm-btn" style={{ color: 'var(--success, #16a34a)' }} title="Approve" onClick={() => onApprove(result.id)}>
+                    <div className="u-flex u-gap-035">
+                        <button className="adm-btn u-success" title="Approve" onClick={() => onApprove(result.id)}>
                             <span className="material-symbols-rounded">check_circle</span>
                         </button>
-                        <button className="adm-btn" style={{ color: 'var(--destructive)' }} title="Reject" onClick={() => onReject(result)}>
+                        <button className="adm-btn u-destructive" title="Reject" onClick={() => onReject(result)}>
                             <span className="material-symbols-rounded">cancel</span>
                         </button>
                     </div>
@@ -277,7 +277,7 @@ export function AdminApprovals() {
 
                         {/* Status tabs */}
                         <div className="u-row-sm u-justify-between u-wrap">
-                            <div className="u-flex u-wrap" style={{ gap: '0.25rem' }}>
+                            <div className="u-flex u-wrap u-gap-025">
                                 {STATUS_TABS.map(tab => (
                                     <button
                                         key={tab}
@@ -325,7 +325,7 @@ export function AdminApprovals() {
                                     <p className="u-muted u-pad">Loading…</p>
                                 ) : results.length === 0 ? (
                                     <div className="u-center-text u-muted u-pad-xl">
-                                        <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.75rem' }}>
+                                        <span className="material-symbols-rounded u-empty-icon-lg">
                                             {activeTab === 'pending' ? 'pending_actions' : activeTab === 'approved' ? 'check_circle' : 'cancel'}
                                         </span>
                                         No {activeTab} results.

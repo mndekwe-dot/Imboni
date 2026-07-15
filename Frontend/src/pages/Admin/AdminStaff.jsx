@@ -183,7 +183,7 @@ function InviteModal({ onClose, onSent }) {
                         </div>
                         <div className="form-group form-group-0">
                             <label className="form-label" htmlFor="invite-phone">
-                                Phone <span className="u-muted" style={{ fontWeight: 400 }}>(optional)</span>
+                                Phone <span className="u-muted u-fw-400">(optional)</span>
                             </label>
                             <input id="invite-phone" className="form-input" name="phone_number" value={form.phone_number} onChange={handleChange} placeholder="+250 7XX XXX XXX" />
                         </div>
@@ -326,7 +326,7 @@ export function AdminStaff() {
 
                         {/* Tab bar + Invite button */}
                         <div className="u-row-sm u-justify-between u-wrap">
-                            <div className="u-flex" style={{ gap: '0.25rem' }}>
+                            <div className="u-flex u-gap-025">
                                 <button
                                     className={`btn btn-sm ${activeTab === 'staff' ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setActiveTab('staff')}
@@ -435,11 +435,11 @@ export function AdminStaff() {
                                                             </td>
                                                             <td>
                                                                 {!inv.is_used && inv.status !== 'cancelled' && (
-                                                                    <div className="u-flex" style={{ gap: '0.35rem' }}>
+                                                                    <div className="u-flex u-gap-035">
                                                                         <button className="adm-btn" title="Resend invitation" onClick={() => handleResend(inv.id)}>
                                                                             <span className="material-symbols-rounded">forward_to_inbox</span>
                                                                         </button>
-                                                                        <button className="adm-btn" style={{ color: 'var(--destructive)' }} title="Cancel invitation" onClick={() => handleCancel(inv.id)}>
+                                                                        <button className="adm-btn u-destructive" title="Cancel invitation" onClick={() => handleCancel(inv.id)}>
                                                                             <span className="material-symbols-rounded">cancel</span>
                                                                         </button>
                                                                     </div>

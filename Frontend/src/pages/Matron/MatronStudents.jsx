@@ -52,7 +52,7 @@ function StudentRow({ initials, name, studentCode, year, classBadge, room, dormi
             <td><span className="class-badge">{classBadge}</span></td>
             <td>{room}</td>
             <td>{dormitory}</td>
-            <td style={{ textTransform: 'capitalize' }}>{boardingType}</td>
+            <td className="u-capitalize">{boardingType}</td>
         </tr>
     )
 }
@@ -107,7 +107,7 @@ export function MatronStudents() {
     ]
 
     if (loading) return <Loading fullPage />
-    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     return (
         <>

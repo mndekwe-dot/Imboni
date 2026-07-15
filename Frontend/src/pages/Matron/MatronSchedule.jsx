@@ -106,7 +106,7 @@ export function MatronSchedule() {
     }, [])
 
     if (loading) return <Loading fullPage />
-    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     const scheduleStats = [
         { iconClass: 'info',     icon: 'calendar_view_week', value: data.stats.days_in_schedule,                label: 'Days in Schedule'  },
@@ -141,7 +141,7 @@ export function MatronSchedule() {
                     <DashboardContent>
 
                         <div className="disc-welcome-banner mb-5">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1.5rem' }}>verified</span>
+                            <span className="material-symbols-rounded u-fs-15">verified</span>
                             <div>
                                 <div className="banner-title">Standing boarding routine — issued by the Discipline Office</div>
                                 <div className="banner-sub">{data.stats.current_term} &middot; Read-only &mdash; contact the Discipline Master to request changes</div>

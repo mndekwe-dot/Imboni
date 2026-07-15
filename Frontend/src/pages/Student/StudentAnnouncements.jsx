@@ -111,7 +111,7 @@ export function StudentAnnouncements() {
                         </div>
 
                         {/* Filter chips */}
-                        <div className="ann-chips-row" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                        <div className="ann-chips-row u-flex u-gap-05 u-wrap u-mb">
                             {CHIPS.map(c => (
                                 <button
                                     key={c}
@@ -124,9 +124,9 @@ export function StudentAnnouncements() {
                         </div>
 
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading announcements…</p>
+                            <p className="u-pad u-muted">Loading announcements…</p>
                         ) : visible.length === 0 ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No announcements found.</p>
+                            <p className="u-pad u-muted">No announcements found.</p>
                         ) : (
                             <div className="ann-feed">
                                 {visible.map(a => <AnnouncementItem key={a.id} ann={a} />)}

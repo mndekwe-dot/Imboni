@@ -271,7 +271,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                     </p>
                 </div>
 
-                {error && <p className="dos-danger-text u-sm" style={{ marginTop: '0.75rem' }}>{error}</p>}
+                {error && <p className="dos-danger-text u-sm u-mt-075">{error}</p>}
             </>}
 
             {/* ── Bulk tab ── */}

@@ -94,7 +94,20 @@
 .u-fs-095  { font-size: 0.95rem; }
 .u-fs-085  { font-size: 0.85rem; }
 .u-fs-075  { font-size: 0.75rem; }
+.u-fs-068  { font-size: 0.68rem; }
+.u-fs-15   { font-size: 1.5rem; }
+.u-fw-400  { font-weight: 400; }
 .u-mb-05   { margin-bottom: 0.5rem; }
 .u-mb-025  { margin-bottom: 0.25rem; }
 .u-mt-075  { margin-top: 0.75rem; }
+.u-gap-025 { gap: 0.25rem; }
+.u-gap-035 { gap: 0.35rem; }
 .u-gap-125 { gap: 1.25rem; }
+.u-success     { color: var(--success); }
+.u-destructive { color: var(--destructive); }
+.u-min-h-60    { min-height: 60px; }
+.u-gap-05      { gap: 0.5rem; }
+.u-w-auto      { width: auto; }
+.u-col-span-all { grid-column: 1 / -1; }
+.u-bg-accent   { background: var(--accent); }
+.u-empty-icon-lg { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }

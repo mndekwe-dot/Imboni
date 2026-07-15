@@ -139,7 +139,7 @@ export function MatronParentComms() {
     }
 
     if (loading) return <Loading fullPage />
-    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     const commsStats = [
         { iconClass: 'calls',   icon: 'call',    value: data.stats.calls_this_month, label: 'Calls This Month' },
@@ -258,7 +258,7 @@ export function MatronParentComms() {
                                         </select>
                                     </div>
                                 </div>
-                                {saveError && <p style={{ color: '#dc2626', fontSize: '0.85rem' }}>{saveError}</p>}
+                                {saveError && <p className="u-danger u-fs-085">{saveError}</p>}
                                 <div className="btn-row mt-1-5">
                                     <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !studentId || !parentContact.trim() || !subject.trim()}>
                                         <span className="material-symbols-rounded">save</span> {saving ? 'Saving…' : 'Save Log'}
@@ -305,7 +305,7 @@ export function MatronParentComms() {
 
                                 <div className="comms-list">
                                     {commLog.length === 0
-                                        ? <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>No communications logged yet.</p>
+                                        ? <p className="u-muted u-sm">No communications logged yet.</p>
                                         : commLog.map((entry, index) => <CommEntry key={index} {...entry} />)}
                                 </div>
                             </div>

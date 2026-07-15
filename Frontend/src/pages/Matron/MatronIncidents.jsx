@@ -117,7 +117,7 @@ export function MatronIncidents() {
         : pastReports.filter(r => r.statusClass === filter)
 
     if (loading) return <Loading fullPage />
-    if (error) return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     return (
         <>
@@ -188,13 +188,13 @@ export function MatronIncidents() {
                                     <label>Action Taken (if any)</label>
                                     <textarea
                                         placeholder="What immediate action did you take? (e.g. verbal warning, parent called, student confined to dorm)"
-                                        style={{ minHeight: '60px' }}
+                                        className="u-min-h-60"
                                         value={actionTaken}
                                         onChange={e => setActionTaken(e.target.value)}
                                     />
                                 </div>
                             </div>
-                            {saveError && <p style={{ color: '#dc2626', fontSize: '0.85rem' }}>{saveError}</p>}
+                            {saveError && <p className="u-danger u-fs-085">{saveError}</p>}
                             <div className="btn-row">
                                 <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !studentId || !description.trim()}>
                                     <span className="material-symbols-rounded">send</span> {saving ? 'Submitting…' : 'Submit to Discipline'}

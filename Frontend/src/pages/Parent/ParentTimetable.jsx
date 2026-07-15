@@ -45,9 +45,9 @@ export function ParentTimetable() {
                     />
                     <DashboardContent>
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                            <p className="u-pad u-muted">Loading…</p>
                         ) : children.length === 0 ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked to your account.</p>
+                            <p className="u-pad u-muted">No children linked to your account.</p>
                         ) : (
                             <div className="card">
                                 <div className="card-header">
@@ -59,8 +59,7 @@ export function ParentTimetable() {
                                             <label className="form-label mb-0" htmlFor="parent-timetable-child">Child:</label>
                                             <select
                                                 id="parent-timetable-child"
-                                                className="form-input"
-                                                style={{ width: 'auto' }}
+                                                className="form-input u-w-auto"
                                                 value={selectedIndex}
                                                 onChange={e => setSelectedIndex(Number(e.target.value))}
                                             >

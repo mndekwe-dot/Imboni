@@ -95,7 +95,7 @@ export function DosExamSchedule() {
     }
 
     if (loading) return <Loading fullPage />
-    if (error)   return <p style={{ padding: '2rem', color: 'var(--danger)' }}>Error: {error}</p>
+    if (error)   return <p className="u-pad u-danger">Error: {error}</p>
 
     return (
         <>
