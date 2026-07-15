@@ -1912,3 +1912,6 @@
 
 /* ── Parent Results — review-bubble avatar (always primary) ── */
 .pr-avatar-primary { background: var(--primary); }
+
+/* ── Parent Attendance page (ParentAttendance) ── */
+.par-att-note { padding: 1rem; color: var(--muted-foreground); }

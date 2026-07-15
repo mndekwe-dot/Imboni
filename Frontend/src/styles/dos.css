@@ -3235,3 +3235,10 @@ body.tm-panel-open { overflow: hidden; }
 .dos-chip-count-ml  { margin-left: 0.3rem; }
 .dos-ann-loadmore   { text-align: center; padding: 0.75rem 0; }
 .dos-ann-allloaded  { text-align: center; font-size: 0.75rem; color: var(--muted-foreground); padding: 0.5rem 0; }
+
+/* ── DOS Timetable page (DosTimetable) — loading + conflict warning ── */
+.dos-tt-note           { color: var(--muted-foreground); padding: 1rem; }
+.dos-tt-warn-icon      { color: var(--warning, #d97706); }
+.dos-tt-conflict-title { font-size: 0.875rem; margin-bottom: 0.75rem; }
+.dos-tt-conflict-list  { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.dos-tt-conflict-item  { font-size: 0.84rem; }

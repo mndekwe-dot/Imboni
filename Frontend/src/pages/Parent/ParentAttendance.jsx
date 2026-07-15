@@ -106,7 +106,7 @@ function AttendancePanel({ childId, childName, loading }) {
         else setMonth(m => m + 1)
     }
 
-    if (loadingPanel) return <p style={{ padding: '1rem', color: 'var(--muted-foreground)' }}>Loading attendance…</p>
+    if (loadingPanel) return <p className="par-att-note">Loading attendance…</p>
 
     return (
         <>
@@ -117,7 +117,7 @@ function AttendancePanel({ childId, childName, loading }) {
             <div className="card">
                 <div className="card-header">
                     <h3 className="card-title">{childName} — {MONTH_NAMES[month - 1]} {year}</h3>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className="u-row-sm">
                         <button className="btn btn-outline btn-sm" onClick={prevMonth}>
                             <span className="material-symbols-rounded">chevron_left</span>
                         </button>
@@ -197,9 +197,9 @@ export function ParentAttendance() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                            <p className="u-pad u-muted">Loading…</p>
                         ) : !child ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked.</p>
+                            <p className="u-pad u-muted">No children linked.</p>
                         ) : (
                             <AttendancePanel
                                 key={child.id}

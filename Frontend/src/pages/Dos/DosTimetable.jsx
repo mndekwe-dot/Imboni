@@ -299,7 +299,7 @@ export function DosTimetable() {
                             </div>
                             <div className="card-content">
                                 {loading ? (
-                                    <p style={{ color: 'var(--muted-foreground)', padding: '1rem' }}>Loading timetable…</p>
+                                    <p className="dos-tt-note">Loading timetable…</p>
                                 ) : (
                                     <Timetable
                                         type="academic"
@@ -342,7 +342,7 @@ export function DosTimetable() {
                                 <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                                     <div className="modal-header">
                                         <div className="modal-header-left">
-                                            <span className="material-symbols-rounded" style={{ color: 'var(--warning, #d97706)' }}>warning</span>
+                                            <span className="material-symbols-rounded dos-tt-warn-icon">warning</span>
                                             <h2 className="modal-title">Scheduling Conflict</h2>
                                         </div>
                                         <button className="btn-icon-clean" onClick={() => setConflict(null)}>
@@ -350,12 +350,12 @@ export function DosTimetable() {
                                         </button>
                                     </div>
                                     <div className="modal-body">
-                                        <p style={{ fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                                        <p className="dos-tt-conflict-title">
                                             This slot clashes with the existing timetable:
                                         </p>
-                                        <ul style={{ margin: 0, paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                        <ul className="dos-tt-conflict-list">
                                             {conflict.conflicts.map((c, i) => (
-                                                <li key={i} style={{ fontSize: '0.84rem' }}>{c.message}</li>
+                                                <li key={i} className="dos-tt-conflict-item">{c.message}</li>
                                             ))}
                                         </ul>
                                     </div>

@@ -44,18 +44,18 @@ function ForgotPasswordModal({ onClose }) {
                 <div className="modal-body">
                     {/* After sending — show success message instead of the form */}
                     {sent ? (
-                        <p style={{ lineHeight: 1.6 }}>
+                        <p className="lg-line16">
                             A password reset link has been sent to <strong>{email}</strong>.
                             Check your email and follow the instructions.
                         </p>
                     ) : (
                         <>
-                            <p style={{ marginBottom: '1rem', lineHeight: 1.6 }}>
+                            <p className="lg-forgot-intro">
                                 Enter your email address and we will send you a reset link.
                             </p>
                             {/* Show server error if request failed */}
                             {error && (
-                                <p style={{ color: 'var(--danger)', marginBottom: '0.75rem' }}>{error}</p>
+                                <p className="lg-modal-err">{error}</p>
                             )}
                             <div className="form-group">
                                 <label className="form-label">Email address</label>
@@ -74,7 +74,7 @@ function ForgotPasswordModal({ onClose }) {
                 <div className="modal-footer">
                     {/* After sending — only show Done button */}
                     {sent ? (
-                        <button className="btn btn-primary" onClick={onClose} style={{ width: '100%' }}>
+                        <button className="btn btn-primary u-full" onClick={onClose}>
                             Done
                         </button>
                     ) : (
@@ -231,7 +231,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
 
                 {challenge ? (
                     <form className="login-form" onSubmit={handleVerify} autoComplete="off">
-                        <p className="login-subheading" style={{ marginTop: 0 }}>
+                        <p className="login-subheading lg-mt-0">
                             Enter the 6-digit code from your authenticator app
                             (or a backup code) to finish signing in.
                         </p>
@@ -261,8 +261,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                         </button>
                         <button
                             type="button"
-                            className="forgot-link portal-forgot-link"
-                            style={{ marginTop: '0.75rem' }}
+                            className="forgot-link portal-forgot-link lg-back-link"
                             onClick={() => { setChallenge(null); setCode(''); setError('') }}
                         >
                             Back to sign in
