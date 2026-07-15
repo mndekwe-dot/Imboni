@@ -83,7 +83,7 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
                     </div>
                 </div>
                 <span className={`ann-badge ${ann.category}`}>{cat.label}</span>
-                {isArch && <span className="ann-badge general" style={{marginLeft:'.25rem'}}>Archived</span>}
+                {isArch && <span className="ann-badge general ann-badge-inline">Archived</span>}
             </div>
             <p className="ann-excerpt">{ann.content}</p>
             <div className="ann-item-footer">
@@ -328,7 +328,7 @@ export function DosAnnouncement() {
                                     {form.target_audience === 'grade_specific' && (
                                         <div className="form-group ann-form-group">
                                             {yearNames.length === 0 ? (
-                                                <p style={{fontSize:'.8rem',color:'var(--muted-foreground)'}}>
+                                                <p className="dos-ann-note">
                                                     No year groups found. Please configure them in
                                                     <strong> School Settings → Sections</strong>.
                                                 </p>
@@ -336,7 +336,7 @@ export function DosAnnouncement() {
                                                 <>
                                                     {/* Step 1 — pick year */}
                                                     <label className="form-label">Year Group</label>
-                                                    <div className="es-class-chips" style={{marginBottom:'.65rem'}}>
+                                                    <div className="es-class-chips dos-chips-mb">
                                                         {yearNames.map(y => (
                                                             <button key={y} type="button"
                                                                 className={`es-class-chip-btn${selectedYear===y?' active':''}`}
@@ -352,7 +352,7 @@ export function DosAnnouncement() {
                                                     {/* Step 2 — pick class within that year */}
                                                     {selectedYear && (yearClassMap[selectedYear]||[]).length > 0 && (
                                                         <>
-                                                            <label className="form-label">Class <span style={{color:'var(--muted-foreground)',fontWeight:400}}>(optional — leave on year to target all)</span></label>
+                                                            <label className="form-label">Class <span className="dos-optional">(optional — leave on year to target all)</span></label>
                                                             <div className="es-class-chips">
                                                                 <button type="button"
                                                                     className={`es-class-chip-btn${form.target_grade===selectedYear?' active':''}`}
@@ -377,14 +377,13 @@ export function DosAnnouncement() {
                                     {/* Content */}
                                     <div className="form-group ann-content-group">
                                         <label className="form-label" htmlFor="annContent">Announcement Content *</label>
-                                        <textarea className="form-input" id="annContent" rows={6}
+                                        <textarea className="form-input es-textarea-v" id="annContent" rows={6}
                                             placeholder="Type the full announcement details here..."
-                                            value={form.content} onChange={set('content')}
-                                            style={{resize:'vertical'}} />
+                                            value={form.content} onChange={set('content')} />
                                     </div>
 
                                     {formError && (
-                                        <p style={{color:'#ef4444',fontSize:'.85rem',marginBottom:'.75rem'}}>{formError}</p>
+                                        <p className="dos-ann-err">{formError}</p>
                                     )}
 
                                     {/* Actions */}
@@ -419,7 +418,7 @@ export function DosAnnouncement() {
                                                 onClick={() => setActiveFilter(f)}>
                                                 {f.charAt(0).toUpperCase()+f.slice(1)}
                                                 {f !== 'all' && (
-                                                    <span className="es-chip-count" style={{marginLeft:'.3rem'}}>
+                                                    <span className="es-chip-count dos-chip-count-ml">
                                                         {countByStatus(f)}
                                                     </span>
                                                 )}
@@ -450,7 +449,7 @@ export function DosAnnouncement() {
 
                                             {/* Load more */}
                                             {hasMore && activeFilter === 'all' && (
-                                                <div style={{textAlign:'center',padding:'.75rem 0'}}>
+                                                <div className="dos-ann-loadmore">
                                                     <button className="btn btn-outline btn-sm" onClick={loadMore} disabled={loadingMore}>
                                                         <span className="material-symbols-rounded icon-sm">expand_more</span>
                                                         {loadingMore ? 'Loading…' : `Load more (${total - announcements.length} remaining)`}
@@ -459,7 +458,7 @@ export function DosAnnouncement() {
                                             )}
 
                                             {!hasMore && announcements.length > 0 && (
-                                                <p style={{textAlign:'center',fontSize:'.75rem',color:'var(--muted-foreground)',padding:'.5rem 0'}}>
+                                                <p className="dos-ann-allloaded">
                                                     All {total} announcement{total!==1?'s':''} loaded
                                                 </p>
                                             )}

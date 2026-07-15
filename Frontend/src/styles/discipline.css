@@ -1264,6 +1264,22 @@ td .class-chip { margin-left: 4px; }
 .ann-load-more      { text-align: center; padding: 0.75rem 0; }
 .ann-all-loaded     { text-align: center; font-size: 0.75rem; color: var(--muted-foreground); padding: 0.5rem 0; }
 
+/* ══════════════════════════════════════
+   TIMETABLE PAGE (DisTimetable) — week re-fetch overlay
+══════════════════════════════════════ */
+.dis-fetch-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: rgba(255,255,255,.65);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+}
+.dis-fetch-overlay-label { font-size: 0.85rem; color: var(--muted-foreground); }
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .disc-two-col { grid-template-columns: 1fr; }

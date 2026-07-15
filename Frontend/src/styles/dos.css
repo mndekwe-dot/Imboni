@@ -3225,3 +3225,13 @@ body.tm-panel-open { overflow: hidden; }
 .es-session-btn      { height: 1.75rem; padding: 0 0.6rem; }
 .es-session-btn-x    { height: 1.75rem; padding: 0 0.5rem; }
 .es-new-session-icon { font-size: 0.9rem; }
+
+/* ── DOS Announcements page (DosAnnouncement) — compose form + broadcasts list ── */
+.ann-badge-inline   { margin-left: 0.25rem; }
+.dos-ann-note       { font-size: 0.8rem; color: var(--muted-foreground); }
+.dos-chips-mb       { margin-bottom: 0.65rem; }
+.dos-optional       { color: var(--muted-foreground); font-weight: 400; }
+.dos-ann-err        { color: #ef4444; font-size: 0.85rem; margin-bottom: 0.75rem; }
+.dos-chip-count-ml  { margin-left: 0.3rem; }
+.dos-ann-loadmore   { text-align: center; padding: 0.75rem 0; }
+.dos-ann-allloaded  { text-align: center; font-size: 0.75rem; color: var(--muted-foreground); padding: 0.5rem 0; }

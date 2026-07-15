@@ -152,9 +152,9 @@ export function ParentBehaviour() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                            <p className="u-pad u-muted">Loading…</p>
                         ) : !child ? (
-                            <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>No children linked.</p>
+                            <p className="u-pad u-muted">No children linked.</p>
                         ) : (
                             <>
                                 {/* Conduct hero */}
@@ -203,9 +203,9 @@ export function ParentBehaviour() {
                                             </button>
                                         </div>
                                         {loadingData ? (
-                                            <p style={{ color: 'var(--muted-foreground)', marginTop: '1rem' }}>Loading…</p>
+                                            <p className="u-muted u-mt">Loading…</p>
                                         ) : visible.length === 0 ? (
-                                            <p style={{ color: 'var(--muted-foreground)', marginTop: '1rem' }}>No reports found.</p>
+                                            <p className="u-muted u-mt">No reports found.</p>
                                         ) : (
                                             <div className="behavior-grid">
                                                 {visible.map((r, i) => <BehaviourCard key={r.id || i} {...r} />)}

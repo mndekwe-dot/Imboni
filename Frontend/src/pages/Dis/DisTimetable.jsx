@@ -212,17 +212,12 @@ export function DisTimetable() {
                             </div>
                             <div className="card-content">
                                 {loading ? (
-                                    <p style={{ padding: '2rem', color: 'var(--muted-foreground)' }}>Loading schedule…</p>
+                                    <p className="u-pad u-muted">Loading schedule…</p>
                                 ) : (
-                                    <div style={{ position: 'relative' }}>
+                                    <div className="u-relative">
                                         {fetching && (
-                                            <div style={{
-                                                position: 'absolute', inset: 0, zIndex: 2,
-                                                background: 'rgba(255,255,255,.65)', backdropFilter: 'blur(2px)',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                borderRadius: 'var(--radius)',
-                                            }}>
-                                                <span style={{ fontSize: '.85rem', color: 'var(--muted-foreground)' }}>
+                                            <div className="dis-fetch-overlay">
+                                                <span className="dis-fetch-overlay-label">
                                                     Loading {activeWeek}…
                                                 </span>
                                             </div>

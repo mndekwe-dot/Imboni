@@ -1090,6 +1090,9 @@
 .staff-meta-item .material-symbols-rounded { font-size: 0.95rem; }
 .staff-profile-actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
 
+/* Code of Conduct section heading (StudentDiscipline) */
+.disc-section-heading { font-weight: 700; font-size: 1rem; }
+
 /* Code of conduct */
 .conduct-rules-grid {
   display: grid;

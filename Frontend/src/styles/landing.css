@@ -1120,3 +1120,7 @@
 }
 
 .cta-strip-label { color: #fb923c; margin-bottom: 1rem; }
+
+/* ── section-subtitle bottom-margin overrides (boarding/contact intros) ── */
+.lp-sub-mb-175 { margin-bottom: 1.75rem; }
+.lp-sub-mb-2   { margin-bottom: 2rem; }

@@ -338,7 +338,7 @@ export function LandingPage() {
                     <div>
                         <div className="section-label">Residential Life</div>
                         <h2 className="section-title">Complete boarding school oversight</h2>
-                        <p className="section-subtitle" style={{ marginBottom: '1.75rem' }}>
+                        <p className="section-subtitle lp-sub-mb-175">
                             Every boarding house, every student, every incident — tracked and
                             communicated clearly between staff and parents.
                         </p>
@@ -362,7 +362,7 @@ export function LandingPage() {
                     <div>
                         <div className="section-label">Get In Touch</div>
                         <h2 className="section-title">We're here to help</h2>
-                        <p className="section-subtitle" style={{ marginBottom: '2rem' }}>
+                        <p className="section-subtitle lp-sub-mb-2">
                             Have a question about accessing your portal, or need support with your
                             school-issued credentials? Reach out to the school office and we'll assist you.
                         </p>

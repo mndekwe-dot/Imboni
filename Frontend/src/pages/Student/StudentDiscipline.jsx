@@ -235,9 +235,9 @@ export function StudentDiscipline() {
                             </div>
                             <div className="card-content">
                                 {loading ? (
-                                    <p style={{ color: 'var(--muted-foreground)' }}>Loading records…</p>
+                                    <p className="u-muted">Loading records…</p>
                                 ) : filteredReports.length === 0 ? (
-                                    <p style={{ color: 'var(--muted-foreground)' }}>
+                                    <p className="u-muted">
                                         No {typeFilter.toLowerCase() !== 'all' ? typeFilter.toLowerCase() + ' ' : ''}records found.
                                     </p>
                                 ) : (
@@ -260,7 +260,7 @@ export function StudentDiscipline() {
 
                         {/* Code of conduct — static school policy */}
                         <div className="mb-3">
-                            <h3 className="flex-row-gap-sm" style={{ fontWeight: 700, fontSize: '1rem' }}>
+                            <h3 className="flex-row-gap-sm disc-section-heading">
                                 <span className="material-symbols-rounded">menu_book</span> Code of Conduct
                             </h3>
                         </div>
