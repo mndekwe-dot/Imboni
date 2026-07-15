@@ -586,3 +586,7 @@
 .adm-audit-note   { color: var(--muted-foreground); padding: 1.5rem 0; }
 .adm-pager        { display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center; margin-top: 0.75rem; }
 .adm-pager-info   { font-size: 0.82rem; color: var(--muted-foreground); }
+
+/* ── Admin Dashboard (AdminDashboard) ── */
+.adm-dash-note { color: var(--muted-foreground); padding: 1rem 0; }
+.adm-legend-mt { margin-top: 0.75rem; }

@@ -25,7 +25,7 @@ function OverviewTooltip({ active, payload }) {
     return (
         <div className="chart-tooltip">
             <div className="chart-tooltip-label">{d.label}</div>
-            <div style={{ color: barColor(d.value), fontWeight: 700 }}>{d.value}%</div>
+            <div className="u-bold" style={{ color: barColor(d.value) }}>{d.value}%</div>
         </div>
     )
 }
@@ -108,9 +108,9 @@ export function AdminDashboard() {
                                 </div>
                                 <div className="card-content">
                                     {loading ? (
-                                        <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0' }}>Loading…</p>
+                                        <p className="adm-dash-note">Loading…</p>
                                     ) : activities.length === 0 ? (
-                                        <p style={{ color: 'var(--muted-foreground)', padding: '1rem 0' }}>No recent activity.</p>
+                                        <p className="adm-dash-note">No recent activity.</p>
                                     ) : (
                                         activities.map((item, i) => {
                                             const meta = ACTIVITY_ICON[item.type] || { icon: 'info', cls: 'info' }
@@ -152,7 +152,7 @@ export function AdminDashboard() {
                                                 </Bar>
                                             </BarChart>
                                         </ResponsiveContainer>
-                                        <div className="chart-legend-row" style={{ marginTop: '0.75rem' }}>
+                                        <div className="chart-legend-row adm-legend-mt">
                                             {[['#10b981', '≥ 90% Excellent'], ['#003d7a', '75–89% Good'], ['#f59e0b', '< 75% Needs attention']].map(([color, label]) => (
                                                 <div key={label} className="chart-legend-item">
                                                     <span className="chart-legend-dot-sq" style={{ background: color }} />
