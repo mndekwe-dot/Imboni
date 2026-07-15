@@ -121,11 +121,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                         <span className="dset-type-title">{typeName}</span>
                         <span className="dset-type-count">{subjects.length} lesson{subjects.length !== 1 ? 's' : ''}</span>
                         <button className="btn-icon-clean dset-icon-muted" onClick={() => setEditingType(true)} title="Rename type">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>edit</span>
+                            <span className="material-symbols-rounded u-fs-1">edit</span>
                         </button>
                         <div className="dset-spacer" />
                         <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteType(typeName)} title="Delete type and all its lessons">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                            <span className="material-symbols-rounded u-fs-1">delete</span>
                         </button>
                     </>
                 )}
@@ -148,10 +148,10 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                             <span className="dset-lesson-name">{s.name}</span>
                             <span className="dset-lesson-code">{s.code}</span>
                             <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title="Rename">
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>edit</span>
+                                <span className="material-symbols-rounded u-fs-095">edit</span>
                             </button>
                             <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteLesson(s.id)} title="Delete">
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>delete</span>
+                                <span className="material-symbols-rounded u-fs-095">delete</span>
                             </button>
                         </>
                     )}
@@ -247,7 +247,7 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                             onClick={() => setEditing(true)}
                             title="Rename year"
                         >
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>edit</span>
+                            <span className="material-symbols-rounded u-fs-1">edit</span>
                         </button>
                         <div className="dset-spacer" />
                         <button
@@ -255,14 +255,14 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                             onClick={onRemove}
                             title="Remove year"
                         >
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                            <span className="material-symbols-rounded u-fs-1">delete</span>
                         </button>
                     </>
                 )}
             </div>
 
             {/* Stream chips */}
-            <div className="tag-list" style={{ marginBottom: '0.5rem' }}>
+            <div className="tag-list u-mb-05">
                 {year.streams.map(s => (
                     <span key={s} className="tag-chip">
                         {s}
@@ -528,7 +528,7 @@ export function DosSettings() {
                                 <div className="u-row">
                                     <span className="material-symbols-rounded u-banner-icon">info</span>
                                     <div>
-                                        <p className="u-strong" style={{ marginBottom: '0.25rem' }}>Getting started</p>
+                                        <p className="u-strong u-mb-025">Getting started</p>
                                         <p className="dset-notice-desc">
                                             Add your first section below (e.g. O-Level or A-Level), then add year groups and stream classes to it.
                                         </p>
@@ -683,7 +683,7 @@ export function DosSettings() {
                                     {roomErr && <p className="dset-inline-err">{roomErr}</p>}
                                 </div>
 
-                                <div className="tag-list" style={{ marginTop: '0.75rem' }}>
+                                <div className="tag-list u-mt-075">
                                     {rooms.map(r => (
                                         <span key={r.id} className="tag-chip">
                                             <span className="material-symbols-rounded dset-room-icon">meeting_room</span>

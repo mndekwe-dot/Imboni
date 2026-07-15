@@ -150,17 +150,17 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                     <>
                         <span className="adm-editblock-title">{year.name}</span>
                         <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditing(true)} title="Rename year">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>edit</span>
+                            <span className="material-symbols-rounded u-fs-1">edit</span>
                         </button>
                         <div className="adm-spacer" />
                         <button className="btn-icon-clean adm-icon-danger" onClick={onRemove} title="Remove year">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                            <span className="material-symbols-rounded u-fs-1">delete</span>
                         </button>
                     </>
                 )}
             </div>
 
-            <div className="tag-list" style={{ marginBottom: '0.5rem' }}>
+            <div className="tag-list u-mb-05">
                 {year.streams.map(s => (
                     <span key={s} className="tag-chip">
                         {s}
@@ -231,13 +231,13 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 ) : (
                     <>
                         <span className="adm-type-title">{typeName}</span>
-                        <span className="adm-set-count" style={{ fontSize: '0.75rem' }}>{subjects.length} lesson{subjects.length !== 1 ? 's' : ''}</span>
+                        <span className="adm-set-count u-fs-075">{subjects.length} lesson{subjects.length !== 1 ? 's' : ''}</span>
                         <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title="Rename type">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>edit</span>
+                            <span className="material-symbols-rounded u-fs-1">edit</span>
                         </button>
                         <div className="adm-spacer" />
                         <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title="Delete type">
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>delete</span>
+                            <span className="material-symbols-rounded u-fs-1">delete</span>
                         </button>
                     </>
                 )}
@@ -259,10 +259,10 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                             <span className="adm-lesson-name">{s.name}</span>
                             <span className="adm-lesson-code">{s.code}</span>
                             <button className="btn-icon-clean adm-icon-muted" onClick={() => { setEditingLesson(s.id); setLessonDraft(s.name) }} title="Rename">
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>edit</span>
+                                <span className="material-symbols-rounded u-fs-095">edit</span>
                             </button>
                             <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteLesson(s.id)} title="Delete">
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.95rem' }}>delete</span>
+                                <span className="material-symbols-rounded u-fs-095">delete</span>
                             </button>
                         </>
                     )}
@@ -321,7 +321,7 @@ function SchoolInfoSection() {
     if (settingsLoading) return <p className="adm-set-note">Loading…</p>
 
     return (
-        <div className="u-flex u-col" style={{ gap: '1.25rem' }}>
+        <div className="u-flex u-col u-gap-125">
             <div className="settings-block">
                 <div className="settings-block-label">
                     <p className="settings-block-title">School Name</p>
@@ -476,7 +476,7 @@ function SchoolStructureSection() {
                     <div className="u-row">
                         <span className="material-symbols-rounded u-banner-icon">info</span>
                         <div>
-                            <p className="u-strong" style={{ marginBottom: '0.25rem' }}>Getting started</p>
+                            <p className="u-strong u-mb-025">Getting started</p>
                             <p className="u-muted u-sm">
                                 Add your first section (e.g. O-Level or A-Level), then add year groups and stream classes to it.
                             </p>
@@ -630,7 +630,7 @@ function SubjectsSection() {
             ))}
 
             {typeCount === 0 && (
-                <p className="u-muted u-sm" style={{ marginTop: '0.75rem' }}>
+                <p className="u-muted u-sm u-mt-075">
                     No subject types yet — add one above.
                 </p>
             )}
@@ -693,7 +693,7 @@ function RoomsSection() {
                 {roomErr && <p className="adm-inline-err">{roomErr}</p>}
             </div>
 
-            <div className="tag-list" style={{ marginTop: '0.75rem' }}>
+            <div className="tag-list u-mt-075">
                 {rooms.map(r => (
                     <span key={r.id} className="tag-chip">
                         <span className="material-symbols-rounded adm-room-icon">meeting_room</span>
@@ -773,7 +773,7 @@ function TermRolloverSection() {
 
     return (
         <div>
-            <p className="u-muted u-mb" style={{ fontSize: '0.85rem' }}>
+            <p className="u-muted u-mb u-fs-085">
                 Current term: <strong>{currentTerm?.name || '—'}</strong>.
                 Rolling over ends the current term, creates the next one and — when a new
                 academic year starts — promotes every active student one grade (S6 graduates).
@@ -858,7 +858,7 @@ function TermRolloverSection() {
                     <p className="adm-ro-done-title">
                         {result.new_term} is now the current term
                     </p>
-                    <p className="u-muted" style={{ fontSize: '0.85rem' }}>
+                    <p className="u-muted u-fs-085">
                         {result.students_promoted} promoted · {result.students_graduated} graduated ·{' '}
                         {result.rosters_created} rosters created
                     </p>

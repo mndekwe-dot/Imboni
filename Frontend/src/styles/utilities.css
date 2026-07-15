@@ -88,3 +88,13 @@
 .u-icon-sm    { font-size: 1.15rem; }
 .u-empty-icon { font-size: 2.2rem; display: block; margin-bottom: 0.5rem; }
 .u-pointer    { cursor: pointer; }
+
+/* ── Exact-value helpers (for otherwise-inline one-offs) ───────────────────── */
+.u-fs-1    { font-size: 1rem; }
+.u-fs-095  { font-size: 0.95rem; }
+.u-fs-085  { font-size: 0.85rem; }
+.u-fs-075  { font-size: 0.75rem; }
+.u-mb-05   { margin-bottom: 0.5rem; }
+.u-mb-025  { margin-bottom: 0.25rem; }
+.u-mt-075  { margin-top: 0.75rem; }
+.u-gap-125 { gap: 1.25rem; }
