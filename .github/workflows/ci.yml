@@ -15,16 +15,19 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        # django-tenants requires PostgreSQL (schema-per-tenant); matches the
+        # docker-compose stack (postgres:16).
+        image: postgres:16
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: imboni_test
+          POSTGRES_USER: imboni
+          POSTGRES_PASSWORD: imboni
+          POSTGRES_DB: imboni
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
-          --health-interval=10s
+          --health-cmd="pg_isready -U imboni -d imboni"
+          --health-interval=5s
           --health-timeout=5s
           --health-retries=10
 
@@ -33,9 +36,11 @@ jobs:
       THE_SECRET_KEY: ci-not-a-real-secret-key-for-tests-only-0123456789
       MY_DEBUG: "False"
       ALLOWED_HOSTS: localhost,127.0.0.1,testserver
-      DATABASE_NAME: imboni_test
-      DATABASE_USER: root
-      DATABASE_PASSWORD: root
+      DATABASE_NAME: imboni
+      DATABASE_USER: imboni
+      DATABASE_PASSWORD: imboni
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: "5432"
       CELERY_TASK_ALWAYS_EAGER: "True"
 
     steps:
@@ -47,9 +52,9 @@ jobs:
           python-version: "3.13"
           cache: pip
 
-      - name: Install system deps for mysqlclient + weasyprint/pycairo
+      - name: Install system deps for weasyprint/pycairo
         # pycairo needs libcairo2-dev headers; weasyprint needs pango/gdk-pixbuf/ffi at runtime.
-        run: sudo apt-get update && sudo apt-get install -y pkg-config default-libmysqlclient-dev build-essential libcairo2-dev libpango1.0-dev libgdk-pixbuf2.0-dev libffi-dev
+        run: sudo apt-get update && sudo apt-get install -y pkg-config build-essential libcairo2-dev libpango1.0-dev libgdk-pixbuf2.0-dev libffi-dev
 
       - name: Install Python dependencies
         working-directory: Backend
@@ -66,14 +71,17 @@ jobs:
           pip install pip-audit
           pip-audit -r requirements.txt
 
-      - name: Point Django at the MySQL service host
+      - name: Django sanity check
         working-directory: Backend
-        # settings.py hardcodes HOST 127.0.0.1 which matches the mapped service port
-        run: python -c "import django; print('Django', django.get_version())"
+        run: |
+          python -c "import django; print('Django', django.get_version())"
+          python manage.py check
 
       - name: Run migrations check
         working-directory: Backend
-        run: python manage.py migrate --noinput
+        # django-tenants disables plain `migrate`; shared-schema migrations
+        # verify the migration graph, and pytest builds the tenant schema itself.
+        run: python manage.py migrate_schemas --shared
 
       - name: Run backend tests
         working-directory: Backend
