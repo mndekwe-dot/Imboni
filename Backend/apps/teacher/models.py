@@ -70,6 +70,9 @@ class SubjectTeacherAssignment(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     class_obj = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='subject_assignments')
     term = models.ForeignKey(AcademicTerm, on_delete=models.CASCADE)
+    # How many weekly timetable periods this subject needs for this class.
+    # Consumed by the timetable auto-generator; 0 = don't schedule automatically.
+    periods_per_week = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         db_table = 'subject_teacher_assignments'

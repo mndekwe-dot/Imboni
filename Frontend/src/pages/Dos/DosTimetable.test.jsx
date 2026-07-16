@@ -4,6 +4,7 @@ import { DosTimetable, periodTimes, buildMovePayload } from './DosTimetable'
 import {
   getDosClasses, getDosTimetable, saveDosSlot, updateDosSlot, deleteDosSlot,
   getSubjects, getDosTeachersBySubjectAndClass, getDosRooms,
+  getTerms, generateDosTimetable, commitDosTimetable,
 } from '../../api/dos'
 import { getNotifications } from '../../api/notifications'
 
@@ -16,6 +17,9 @@ vi.mock('../../api/dos', () => ({
   getSubjects: vi.fn(),
   getDosTeachersBySubjectAndClass: vi.fn(),
   getDosRooms: vi.fn(),
+  getTerms: vi.fn(),
+  generateDosTimetable: vi.fn(),
+  commitDosTimetable: vi.fn(),
 }))
 
 vi.mock('../../api/notifications', () => ({
@@ -170,6 +174,39 @@ describe('DosTimetable', () => {
 
     await waitFor(() => expect(getDosTimetable).toHaveBeenCalledWith('c2'))
     expect(screen.getByText('Class S3B — Weekly Timetable')).toBeInTheDocument()
+  })
+
+  it('generates a preview then commits it via the Generate modal', async () => {
+    getDosTimetable.mockResolvedValue({ slots: [] })
+    getTerms.mockResolvedValue([{ id: 't1', name: 'Term 1', year: 2026, is_current: true }])
+    generateDosTimetable.mockResolvedValue({
+      assignments: [{
+        subject_name: 'Geography', class_name: 'S3A', day: 'Monday',
+        start_time: '08:00', end_time: '08:40', teacher_name: 'Ms. Ingabire', room: 'Room 9',
+      }],
+      unscheduled: [],
+      summary: { total_lessons: 1, scheduled: 1, unscheduled: 0, slots_available: 10, venues: 2 },
+      warnings: [],
+    })
+    commitDosTimetable.mockResolvedValue({ created: 1, unscheduled: [], summary: {}, warnings: [] })
+
+    renderWithRouter(<DosTimetable />)
+    await waitFor(() => expect(screen.getByText('Class S3A — Weekly Timetable')).toBeInTheDocument())
+
+    // Open the modal.
+    fireEvent.click(screen.getByRole('button', { name: /Generate/i }))
+    await waitFor(() => expect(getTerms).toHaveBeenCalled())
+
+    // Preview the generated plan.
+    fireEvent.click(screen.getByRole('button', { name: /Preview/i }))
+    await waitFor(() => expect(generateDosTimetable).toHaveBeenCalled())
+    // Preview table renders the proposed lesson.
+    await waitFor(() => expect(screen.getByText('Geography')).toBeInTheDocument())
+    expect(screen.getByText('Ms. Ingabire')).toBeInTheDocument()
+
+    // Commit persists it.
+    fireEvent.click(screen.getByRole('button', { name: /Save 1 lesson/i }))
+    await waitFor(() => expect(commitDosTimetable).toHaveBeenCalled())
   })
 })
 

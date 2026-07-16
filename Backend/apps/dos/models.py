@@ -79,6 +79,30 @@ class Room(models.Model):
         return self.name
 
 
+class TimetablePeriod(models.Model):
+    """One period in the school's daily bell schedule (shared by all classes).
+
+    The timetable auto-generator places lessons into the cartesian product of
+    school days x these (non-break) periods. Breaks are stored so the grid the
+    DOS sees matches reality, but they are not schedulable slots.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    order = models.PositiveSmallIntegerField(help_text="Sort order within the day")
+    label = models.CharField(max_length=50, blank=True)  # e.g. "Period 1", "Break"
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_break = models.BooleanField(default=False)  # break/lunch — not schedulable
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'timetable_periods'
+        ordering = ['order']
+
+    def __str__(self):
+        return self.label or f"Period {self.order} ({self.start_time}-{self.end_time})"
+
+
 class SchoolSetting(models.Model):
     timezone = models.CharField(max_length=50 ,default='Africa/Kigali')
     school_name = models.CharField(max_length=100,blank=True,default='')

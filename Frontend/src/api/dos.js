@@ -89,6 +89,9 @@ export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
 export const updateDosSlot = (id,data) => client.patch(`/imboni/dos/timetable/${id}/`,data)
 export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}/`)
 export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('/imboni/dos/teachers/',{params:{subject_id:subjectId,class_id:classId}})
+// Auto-generator: preview (no persist) then commit the weekly timetable.
+export const generateDosTimetable = (data) => client.post('/imboni/dos/timetable/generate/', data)
+export const commitDosTimetable   = (data) => client.post('/imboni/dos/timetable/generate/commit/', data)
 
 // Report cards (PDF / ZIP downloads)
 export const downloadStudentReportCard = (id, termId) =>
