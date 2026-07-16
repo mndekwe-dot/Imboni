@@ -1,8 +1,8 @@
 # Imboni — School Management System
 
-> **Status: Active Development** — Authentication complete. Portals being connected to backend API (May–July 2026).
+> **Status: Active Development** — All seven portals built and wired to the backend API. Now a multi-tenant SaaS: schema-per-tenant isolation, self-serve onboarding, subscription billing, and a vendor platform console. Backed by an automated test suite and CI (2026).
 
-**Imboni Education Connects** is a full-stack, multi-role school management platform built to digitise academic operations for secondary schools. It provides dedicated portals for every stakeholder — from the Director of Studies down to students and parents — each with role-appropriate data, actions, and workflows.
+**Imboni Education Connects** is a full-stack, multi-role, **multi-tenant** school management platform built to digitise academic operations for secondary schools. It provides dedicated portals for every stakeholder — from the Director of Studies down to students and parents — each with role-appropriate data, actions, and workflows. A single deployment serves many schools, each isolated in its own database schema and reachable on its own subdomain.
 
 ---
 
@@ -32,6 +32,8 @@
 | Parent | Monitor children's results, attendance, behaviour, announcements |
 | Discipline Master | Behaviour records, boarding, dining, student leaders, activities |
 | Matron | Student welfare, health, incidents, schedule, messaging |
+| Admin | Per-school administration — staff, students, announcements, approvals, reports, settings, billing, support |
+| Platform (vendor) | Cross-school operator console — onboarding applications, contracts, revenue, expenses, support, health |
 
 ---
 
@@ -92,6 +94,26 @@
 - Daily schedule management
 - Messaging with parents
 
+### Cross-Cutting Features
+- **Internal messaging** — one shared messaging system across all seven portals (contacts, conversations, live updates)
+- **Notifications** — a generic notification backend feeding the header bell in every portal
+- **Audit log** — tracked administrative actions
+- **Session-aware identity** — every portal derives the real logged-in user; role-validated login per portal
+
+---
+
+## Multi-Tenant SaaS Platform
+
+Imboni runs as a single deployment serving many schools, using **`django-tenants` schema-per-tenant isolation on PostgreSQL**. Each school lives in its own database schema and is routed by subdomain (`school1.imboni.app`), so no query can leak one school's data into another.
+
+- **Self-serve onboarding** — a public `/signup` provisions a new school asynchronously (Celery): a schema is created, migrated, and seeded with an admin account in the background while the client polls to ready. Prospects can also `/apply` for operator review.
+- **Subscription billing (Stripe)** — checkout, subscription lifecycle webhooks, and automatic suspend/restore. A suspended school is blocked at the middleware layer (HTTP 402) while still allowing login.
+- **Plan limits & usage metering** — per-plan caps on students/staff (seats count active users *and* pending invitations, so mass-inviting can't bypass the cap); per-resource usage meters surface in the Admin billing page.
+- **Platform super-admin console** — a separate vendor control plane (its own principal, JWT, and login) for onboarding applications, contracts (with auto-suspend lifecycle), revenue/expense tracking, a cross-school support inbox, and a live health dashboard. Isolated to the bare domain — 404s on any school subdomain.
+- **Containerized** — `docker compose up --build` brings up Postgres, Redis, the API (Gunicorn), Celery worker + beat, and an Nginx front that serves the SPA and reverse-proxies the API with tenant-aware Host forwarding.
+
+Full design and runbook: [`MULTI_TENANCY_GUIDE.md`](MULTI_TENANCY_GUIDE.md).
+
 ---
 
 ## Tech Stack
@@ -99,11 +121,15 @@
 ### Backend
 | Layer | Technology |
 |---|---|
-| Framework | Django (Python 3.13) |
+| Framework | Django 6 (Python 3.13) |
 | API | Django REST Framework |
-| Authentication | JWT (SimpleJWT) |
-| Database | PostgreSQL (SQLite for development) |
-| Email | Django email with SMTP |
+| Authentication | JWT (SimpleJWT); social auth (djoser + social-auth) |
+| Database | PostgreSQL — schema-per-tenant multi-tenancy via `django-tenants` |
+| Background jobs | Celery + Redis (provisioning, scheduled lifecycle tasks) |
+| Payments | Stripe (subscriptions, webhooks) |
+| PDF / documents | WeasyPrint, xhtml2pdf, ReportLab |
+| Monitoring | Sentry |
+| Email / SMS | Django SMTP email; Africa's Talking (SMS) |
 
 ### Frontend
 | Layer | Technology |
@@ -117,14 +143,17 @@
 | Typography | Inter (Google Fonts) |
 | Build tool | Vite |
 
-### Infrastructure (recommended)
+### Infrastructure
 | Component | Tool |
 |---|---|
-| Web server | Nginx |
+| Orchestration | Docker Compose (`docker-compose.yml`, `docker-compose.prod.yml`) |
+| Web server / reverse proxy | Nginx (serves the SPA, proxies the API, forwards Host for tenant routing) |
 | Application server | Gunicorn |
-| Database | PostgreSQL 15 |
-| CDN & DDoS protection | Cloudflare |
-| SSL | Let's Encrypt via Certbot |
+| Task queue | Celery worker + beat, Redis broker |
+| Database | PostgreSQL 16 |
+| CI | GitHub Actions (tests + dependency vulnerability audits) |
+| CDN & DDoS protection | Cloudflare (recommended) |
+| SSL | Let's Encrypt via Certbot (recommended) |
 
 ---
 
@@ -132,18 +161,25 @@
 
 ```
 Imboni/
+├── docker-compose.yml       # Full local stack: db, redis, backend, worker, beat, web
+├── MULTI_TENANCY_GUIDE.md   # SaaS design + runbook
 ├── Backend/
-│   ├── Imboni/              # Django project settings & URL routing
+│   ├── Dockerfile
+│   ├── Imboni/              # Django project settings & URL routing (tenant + public URLconfs)
 │   └── apps/
+│       ├── tenants/         # Multi-tenancy: Client/Domain, onboarding, Stripe billing,
+│       │                    #   plan limits, platform super-admin console, contracts
 │       ├── authentication/  # User models, JWT auth, invitation system, password reset
 │       ├── analytics/       # School-wide analytics endpoints
 │       ├── announcements/   # Announcement CRUD and audience targeting
 │       ├── attendance/      # Student and teacher attendance records
+│       ├── audit/           # Administrative audit log
 │       ├── behavior/        # Discipline and behaviour incidents
 │       ├── discipline/      # Discipline master app
 │       ├── dos/             # Director of Studies views and reports
 │       ├── matron/          # Matron portal views
-│       ├── messages/        # Internal messaging system
+│       ├── messages/        # Internal messaging system (all portals)
+│       ├── notifications/   # Generic notification backend (header bell)
 │       ├── parents/         # Parent portal and child linking
 │       ├── results/         # Academic results and approval workflow
 │       ├── student/         # Student portal views
@@ -168,10 +204,15 @@ Imboni/
     │   │   ├── Dos/         # Director of Studies
     │   │   ├── Matron/
     │   │   ├── Parent/
+    │   │   ├── Platform/    # Vendor super-admin console (+ sections/)
     │   │   ├── Student/
-    │   │   └── Teacher/
-    │   └── styles/          # Per-portal and shared CSS files
+    │   │   ├── Teacher/
+    │   │   ├── Signup.jsx   # Public self-serve school onboarding
+    │   │   └── Apply.jsx    # Public prospect application
+    │   └── styles/          # Per-portal and shared CSS files (utility-class based)
+    ├── e2e/                 # Playwright end-to-end specs
     └── index.html
+└── .github/workflows/ci.yml # Backend + frontend + E2E pipeline
 ```
 
 ---
@@ -179,43 +220,57 @@ Imboni/
 ## Getting Started
 
 ### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- pip, npm
+- Python 3.13
+- Node.js 20+ (24 in CI)
+- PostgreSQL 16 (required — `django-tenants` uses schemas; SQLite/MySQL won't work)
+- Redis (for Celery background jobs)
+- Docker + Docker Compose (optional, for the one-command stack)
 
-### Backend
+### Option A — Docker (recommended)
+
+Brings up Postgres, Redis, the API, Celery worker + beat, and Nginx in one command:
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/mndekwe-dot/Imboni.git
 cd Imboni
+docker compose up --build
 
-# 2. Create and activate virtual environment
+# In another terminal, provision your first school (creates its schema + admin):
+docker compose exec backend python manage.py provision_school --help
+```
+
+The app is served through Nginx on `http://localhost/`. Because it's multi-tenant, each
+school is reached on its own subdomain (e.g. `http://school1.localhost/`) — for local dev
+without DNS, send a `Host: school1.localhost` header or add a hosts-file entry.
+
+### Option B — Run services directly
+
+**Backend**
+
+```bash
+# 1. Create and activate a virtual environment
 python -m venv venv
 source venv/bin/activate        # Linux/macOS
 venv\Scripts\activate           # Windows
 
-# 3. Install dependencies
+# 2. Install dependencies
 pip install -r Backend/requirements.txt
 
-# 4. Set up environment variables
-cp .env.example .env
-# Edit .env with your values
+# 3. Configure environment (python-decouple reads Backend/Imboni/.env)
+#    Point DATABASE_* at your local PostgreSQL; set THE_SECRET_KEY, etc.
 
-# 5. Run migrations
+# 4. Apply migrations across schemas, then provision a school
 cd Backend
-python manage.py migrate
+python manage.py migrate_schemas --shared
+python manage.py provision_school --help
 
-# 6. Create a superuser
-python manage.py createsuperuser
-
-# 7. Start the development server
+# 5. Start the API (plus `celery -A Imboni worker` and `beat` for background jobs)
 python manage.py runserver
 ```
 
 API available at `http://127.0.0.1:8000/`
 
-### Frontend
+**Frontend**
 
 ```bash
 cd Frontend
@@ -224,6 +279,33 @@ npm run dev
 ```
 
 App available at `http://localhost:5173/`
+
+---
+
+## Testing & CI
+
+Every push and pull request runs the full pipeline in **GitHub Actions** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)):
+
+| Suite | Stack | What it covers |
+|---|---|---|
+| Backend | `pytest` + `pytest-django` + coverage | Models, views, permissions, multi-tenant isolation, billing/plan gating |
+| Frontend | Vitest + React Testing Library | Per-page component and integration tests |
+| End-to-end | Playwright | Public flows (login, smoke) against a live dev server |
+
+The pipeline also **fails the build on any known dependency vulnerability** — `pip-audit`
+against `requirements.txt` (backend) and `npm audit --audit-level=high` (frontend) — and a
+weekly scheduled run catches newly-disclosed CVEs in unchanged dependencies.
+
+```bash
+# Backend
+cd Backend && python -m pytest -q
+
+# Frontend unit/integration
+cd Frontend && npm test
+
+# Frontend end-to-end
+cd Frontend && npm run e2e
+```
 
 ---
 
@@ -241,20 +323,24 @@ App available at `http://localhost:5173/`
 - [x] Portal-specific login pages with role validation
 - [x] Profile page — load real user, edit profile, change password, avatar upload
 - [x] Forgot password — sends real reset email via backend
+- [x] **All seven portals connected to the backend API** (DOS, Teacher, Student, Parent, Discipline, Matron, Admin)
+- [x] Internal messaging across all portals; header notification bell
+- [x] School config management (subjects, rooms, timezone) via Admin settings
+- [x] **Multi-tenancy** — schema-per-tenant isolation with `django-tenants`
+- [x] Self-serve onboarding with async (Celery) school provisioning
+- [x] Stripe subscription billing, plan limits, and usage metering
+- [x] Platform super-admin console (applications, contracts, revenue, expenses, support, health)
+- [x] Docker Compose stack (Postgres, Redis, API, worker, beat, Nginx)
+- [x] Automated test suite + CI with dependency vulnerability auditing
 
-### In Progress (May–July 2026)
-- [ ] Connect DOS portal to backend API
-- [ ] Connect Teacher portal to backend API
-- [ ] Connect Student and Parent portals to backend API
-- [ ] Connect Discipline and Matron portals to backend API
-- [ ] School config management (sections, years, streams)
+### In Progress / Next
+- [ ] Wire the shared messaging backend into the remaining `*Messages` pages
 - [ ] Academic term tracking
+- [ ] Auto-generators (class timetable, exam schedule) — queued via Celery
 
 ### Planned
 - [ ] Real-time notifications (WebSockets)
-- [ ] PDF report generation
-- [ ] Multi-tenant support (one platform, multiple schools)
-- [ ] MTN Mobile Money billing integration
+- [ ] School branding / media / backups per tenant
 - [ ] Switch token storage from localStorage to httpOnly cookies
 
 ---
@@ -268,7 +354,10 @@ A school is a closed community. Teachers, students, and parents should be added 
 Django's ORM and DRF together make it easy to write clean, testable, permission-aware API endpoints. The permission system maps cleanly onto the multi-role structure of a school.
 
 **Why custom CSS instead of Tailwind or a UI library?**
-The design system uses CSS variables throughout, giving full control over every token (color, spacing, radius, shadow) per portal. No third-party class names leak into the markup, and the bundle stays small.
+The design system uses CSS variables throughout, giving full control over every token (color, spacing, radius, shadow) per portal. Styling is applied through a shared utility-class layer plus per-portal stylesheets (rather than inline styles), so the look stays consistent and the bundle stays small — with no third-party class names leaking into the markup.
+
+**Why schema-per-tenant instead of a `school_id` column?**
+Row-level isolation would mean auditing every query and every singleton for a missing tenant filter — a permanent leak risk, especially with children's data. `django-tenants` gives each school its own PostgreSQL schema, so isolation is enforced by the database and routing, not by remembering to filter. It suits the target scale (a modest number of schools) and keeps per-school data cleanly separable for backups and export.
 
 **Why axios instead of fetch?**
 Axios interceptors allow attaching the JWT token to every request in one place and handling 401 errors globally — no repetition across 50+ API calls. When the project scales to React Query, axios works seamlessly as the fetcher.
