@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import report_views
+from .scheduling import api as scheduling_api
 
 urlpatterns = [
     # ── Bulk enrollment (term-start) ─────────────────────────────────────────
@@ -52,6 +53,10 @@ urlpatterns = [
 
     # ── Exam Schedule ───────────────────────────────────────────────────────
     path('dos/exam-schedule/',             views.ExamScheduleListView.as_view(),   name='dos-exam-schedule-list'),
+    # Auto-generator (DSatur) — preview then commit. Keep BEFORE the <uuid:pk>
+    # detail route so 'generate' isn't captured as a primary key.
+    path('dos/exam-schedule/generate/',        scheduling_api.ExamScheduleGenerateView.as_view(),       name='dos-exam-generate'),
+    path('dos/exam-schedule/generate/commit/', scheduling_api.ExamScheduleGenerateCommitView.as_view(), name='dos-exam-generate-commit'),
     path('dos/exam-schedule/<uuid:pk>/',   views.ExamScheduleDetailView.as_view(), name='dos-exam-schedule-detail'),
 
     # ── Class List (for pickers) ────────────────────────────────────────────

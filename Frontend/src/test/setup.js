@@ -8,6 +8,23 @@ import { cleanup } from '@testing-library/react'
 if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
 if (!window.scrollTo) window.scrollTo = () => {}
 
+// jsdom doesn't implement the native <dialog> methods our shared Modal uses.
+// Polyfill them so any component that opens a Modal can be tested.
+if (typeof HTMLDialogElement !== 'undefined') {
+  if (!HTMLDialogElement.prototype.showModal) {
+    HTMLDialogElement.prototype.showModal = function () { this.open = true }
+  }
+  if (!HTMLDialogElement.prototype.show) {
+    HTMLDialogElement.prototype.show = function () { this.open = true }
+  }
+  if (!HTMLDialogElement.prototype.close) {
+    HTMLDialogElement.prototype.close = function () {
+      this.open = false
+      this.dispatchEvent(new Event('close'))
+    }
+  }
+}
+
 afterEach(() => {
   cleanup()
   localStorage.clear()

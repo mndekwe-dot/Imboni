@@ -1,13 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, screen, waitFor, fireEvent, within } from '../../test/test-utils'
 import { DosExamSchedule } from './DosExamSchedule'
-import { getDosExamSchedule, deleteDosExamSchedule } from '../../api/dos'
-import { getSchoolSettings } from '../../api/dos'
+import {
+  getDosExamSchedule, deleteDosExamSchedule, getSchoolSettings,
+  getTerms, generateDosExamSchedule, commitDosExamSchedule,
+} from '../../api/dos'
 
 vi.mock('../../api/dos', () => ({
   getDosExamSchedule: vi.fn(),
   deleteDosExamSchedule: vi.fn(),
   getSchoolSettings: vi.fn(),
+  getTerms: vi.fn(),
+  generateDosExamSchedule: vi.fn(),
+  commitDosExamSchedule: vi.fn(),
 }))
 
 const examData = [
@@ -96,5 +101,40 @@ describe('DosExamSchedule', () => {
     await waitFor(() => expect(deleteDosExamSchedule).toHaveBeenCalledWith(11))
     await waitFor(() => expect(screen.queryByText('Mathematics')).not.toBeInTheDocument())
     expect(screen.getByText('Physics')).toBeInTheDocument()
+  })
+
+  it('generates a preview then commits it via the Generate modal', async () => {
+    getDosExamSchedule.mockResolvedValue([])
+    getTerms.mockResolvedValue([{ id: 't1', name: 'Term 1', year: 2026, is_current: true }])
+    generateDosExamSchedule.mockResolvedValue({
+      assignments: [{
+        subject_name: 'Geography', class_name: 'S4A', exam_date: '2026-08-10',
+        start_time: '09:00', end_time: '11:00', venue: 'Hall A', invigilator_name: 'Ms. Ingabire',
+      }],
+      unscheduled: [],
+      summary: { total_exams: 1, scheduled: 1, unscheduled: 0, slots_available: 10, venues: 2 },
+      warnings: [],
+    })
+    commitDosExamSchedule.mockResolvedValue({ created: 1, unscheduled: [], summary: {}, warnings: [] })
+
+    renderWithRouter(<DosExamSchedule />)
+    await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument())
+
+    // Open the modal.
+    fireEvent.click(screen.getByRole('button', { name: /Generate/i }))
+    await waitFor(() => expect(getTerms).toHaveBeenCalled())
+
+    // Fill the required start date, then Preview.
+    const dateInput = document.querySelector('input[type="date"]')
+    fireEvent.change(dateInput, { target: { value: '2026-08-10' } })
+    fireEvent.click(screen.getByRole('button', { name: /Preview/i }))
+
+    await waitFor(() => expect(generateDosExamSchedule).toHaveBeenCalled())
+    // Preview table renders the proposed exam.
+    await waitFor(() => expect(screen.getByText('Geography')).toBeInTheDocument())
+
+    // Commit persists it.
+    fireEvent.click(screen.getByRole('button', { name: /Save 1 exam/i }))
+    await waitFor(() => expect(commitDosExamSchedule).toHaveBeenCalled())
   })
 })

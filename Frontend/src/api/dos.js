@@ -28,6 +28,9 @@ export const getDosExamSchedule    = ()         => client.get('/imboni/dos/exam-
 export const createDosExamSchedule = (data)     => client.post('/imboni/dos/exam-schedule/', data)
 export const updateDosExamSchedule = (id, data) => client.patch(`/imboni/dos/exam-schedule/${id}/`, data)
 export const deleteDosExamSchedule = (id)       => client.delete(`/imboni/dos/exam-schedule/${id}/`)
+// Auto-generator: preview (no persist) then commit.
+export const generateDosExamSchedule       = (data) => client.post('/imboni/dos/exam-schedule/generate/', data)
+export const commitDosExamSchedule         = (data) => client.post('/imboni/dos/exam-schedule/generate/commit/', data)
 
 //  Student Leaders 
 export const getDosStudentLeaders = () => client.get("/imboni/dos/student-leaders/");

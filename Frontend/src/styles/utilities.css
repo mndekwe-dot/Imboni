@@ -107,6 +107,7 @@
 .u-destructive { color: var(--destructive); }
 .u-min-h-60    { min-height: 60px; }
 .u-gap-05      { gap: 0.5rem; }
+.u-gap-1       { gap: 1rem; }
 .u-w-auto      { width: auto; }
 .u-col-span-all { grid-column: 1 / -1; }
 .u-bg-accent   { background: var(--accent); }
