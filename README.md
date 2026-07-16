@@ -162,6 +162,7 @@ Full design and runbook: [`MULTI_TENANCY_GUIDE.md`](MULTI_TENANCY_GUIDE.md).
 ```
 Imboni/
 ├── docker-compose.yml       # Full local stack: db, redis, backend, worker, beat, web
+├── DOCUMENTATION.md         # Full project documentation (start here)
 ├── MULTI_TENANCY_GUIDE.md   # SaaS design + runbook
 ├── Backend/
 │   ├── Dockerfile
