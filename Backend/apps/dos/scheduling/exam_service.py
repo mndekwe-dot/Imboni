@@ -18,7 +18,7 @@ from apps.authentication.models import User
 from apps.results.models import AcademicTerm
 from apps.teacher.models import SubjectTeacherAssignment
 from ..models import ExamSchedule, Room
-from .exam_solver import Exam, solve_exam_schedule
+from .exam_solver import Exam, SlotMeta, solve_exam_schedule
 
 # Sensible defaults if the caller doesn't specify a bell pattern for exam days.
 DEFAULT_DAILY_SLOTS = [("09:00", "11:00"), ("13:00", "15:00")]
@@ -151,8 +151,23 @@ def plan_exam_schedule(
         .order_by("first_name", "last_name", "id")
     )
 
-    exams = [Exam(key=key, group=key[0]) for key in units]  # group = class id
-    result = solve_exam_schedule(exams, num_slots=len(slots), slot_capacity=slot_capacity)
+    # Calendar coordinates per slot, so subject weights can steer placement
+    # (morning preference + rest gaps). day = ordinal exam day, pos = rank
+    # of the slot within its day.
+    day_rank = {d: i for i, d in enumerate(sorted({s["date"] for s in slots}))}
+    slot_meta, pos_within_day = [], {}
+    for s in slots:
+        pos = pos_within_day.get(s["date"], 0)
+        pos_within_day[s["date"]] = pos + 1
+        slot_meta.append(SlotMeta(day=day_rank[s["date"]], pos=pos))
+
+    exams = [
+        Exam(key=key, group=key[0], weight=unit["subject"].exam_weight)
+        for key, unit in units.items()
+    ]  # group = class id
+    result = solve_exam_schedule(
+        exams, num_slots=len(slots), slot_capacity=slot_capacity, slot_meta=slot_meta,
+    )
 
     # Group placed exams by slot so venue/invigilator assignment can dedupe
     # within a slot.
@@ -177,6 +192,7 @@ def plan_exam_schedule(
                 "class_name": _class_label(unit["class_obj"]),
                 "subject_id": key[1],
                 "subject_name": unit["subject"].name,
+                "weight": unit["subject"].exam_weight,
                 "title": title_template.format(subject=unit["subject"].name,
                                                klass=_class_label(unit["class_obj"])),
                 "exam_type": exam_type,

@@ -41,10 +41,36 @@ class Exam:
     `group` is the conflict key — exams sharing a group cannot be concurrent
     (for a school, the class id). Exams with no group (``None``) never conflict
     with anyone on that basis.
+
+    `weight` (1-10, 5 = neutral) expresses importance. Heavier exams are
+    placed earlier in the DSatur order (so when the window is too tight, the
+    *light* exams are the ones left unscheduled), prefer earlier slots within
+    a day, and repel other heavy exams of the same group on adjacent days.
     """
 
     key: Hashable
     group: Hashable | None = None
+    weight: int = 5
+
+
+@dataclass(frozen=True)
+class SlotMeta:
+    """Position of a slot in the calendar, for weighted preferences.
+
+    `day` is an ordinal day index (0 = first exam day); `pos` is the slot's
+    rank within that day (0 = first/morning). Without metadata the solver
+    falls back to first-fit and weights only affect placement order.
+    """
+
+    day: int
+    pos: int
+
+
+# Cost of a heavy exam sitting on a day adjacent to another exam of the same
+# class, per point of combined weight. Scaled to dominate the morning
+# preference (whose cost is weight * pos, pos typically 0-3) so rest gaps for
+# important exams win over slot-of-day niceties.
+GAP_PENALTY = 4
 
 
 @dataclass
@@ -80,6 +106,7 @@ def solve_exam_schedule(
     exams: Sequence[Exam],
     num_slots: int,
     slot_capacity: int,
+    slot_meta: Sequence[SlotMeta] | None = None,
 ) -> ScheduleResult:
     """Assign each exam a slot index in ``[0, num_slots)`` via DSatur.
 
@@ -92,25 +119,34 @@ def solve_exam_schedule(
     slot_capacity:
         Maximum exams that may occupy one slot at once (typically the number of
         available venues). Must be >= 1 to place anything.
+    slot_meta:
+        Optional calendar position per slot (same length/order as the slot
+        indices). When provided, exam weights steer *which* feasible slot an
+        exam takes: heavier exams prefer earlier positions in the day, and
+        avoid days adjacent to their class's other heavy exams. When omitted,
+        placement is first-fit (weights still control placement order).
 
     Returns
     -------
     ScheduleResult with the chosen slot per exam and any exams that did not fit.
 
     Determinism: for a given input the output is identical every run — ties in
-    saturation/degree are broken by a stable ordering key, so previews and
-    commits agree.
+    saturation/weight/degree are broken by a stable ordering key and cost ties
+    by lowest slot index, so previews and commits agree.
     """
     if num_slots < 0:
         raise ValueError("num_slots must be non-negative")
     if slot_capacity < 1:
         raise ValueError("slot_capacity must be at least 1")
+    if slot_meta is not None and len(slot_meta) != num_slots:
+        raise ValueError("slot_meta must have exactly num_slots entries")
 
     keys = [e.key for e in exams]
     if len(set(keys)) != len(keys):
         raise ValueError("exam keys must be unique")
 
     adjacency = _conflict_map(exams)
+    exam_by_key = {e.key: e for e in exams}
 
     placements: dict[Hashable, int] = {}
     unscheduled: list[Hashable] = []
@@ -126,29 +162,60 @@ def solve_exam_schedule(
         used = {placements[n] for n in adjacency[key] if n in placements}
         return len(used)
 
+    def slot_cost(exam: Exam, slot: int) -> int:
+        """Weighted preference cost of a feasible slot (lower is better).
+
+        Two terms, both scaled by weight so a neutral exam barely cares and a
+        weight-10 exam cares a lot:
+        - morning preference: weight * position-in-day;
+        - rest gap: GAP_PENALTY * combined weight for each same-group exam
+          already sitting on an adjacent day.
+        """
+        if slot_meta is None:
+            return 0
+        meta = slot_meta[slot]
+        cost = exam.weight * meta.pos
+        if exam.group is not None:
+            for other_key in adjacency[exam.key]:
+                other_slot = placements.get(other_key)
+                if other_slot is None:
+                    continue
+                if abs(slot_meta[other_slot].day - meta.day) == 1:
+                    cost += GAP_PENALTY * (exam.weight + exam_by_key[other_key].weight)
+        return cost
+
     remaining = set(keys)
     while remaining:
-        # Pick the most-saturated, then highest-degree, then lowest order index.
+        # Most-saturated first (colouring quality), then heaviest (so when the
+        # window is tight, LIGHT exams are the ones that overflow), then
+        # highest-degree, then stable input order.
         chosen = max(
             remaining,
-            key=lambda k: (saturation(k), len(adjacency[k]), -order[k]),
+            key=lambda k: (
+                saturation(k), exam_by_key[k].weight, len(adjacency[k]), -order[k],
+            ),
         )
         remaining.discard(chosen)
 
         forbidden = {placements[n] for n in adjacency[chosen] if n in placements}
-        placed = False
+        best_slot = None
+        best_cost = None
         for slot in range(num_slots):
             if slot in forbidden:
                 continue
             if slot_load[slot] >= slot_capacity:
                 continue
-            placements[chosen] = slot
-            slot_load[slot] += 1
-            placed = True
-            break
+            cost = slot_cost(exam_by_key[chosen], slot)
+            if best_cost is None or cost < best_cost:
+                best_slot, best_cost = slot, cost
+                if slot_meta is None:
+                    break   # no scoring signal → first fit, as before
 
-        if not placed:
+        if best_slot is None:
             unscheduled.append(chosen)
+        else:
+            placements[chosen] = best_slot
+            slot_load[best_slot] += 1
 
     # Preserve caller order in the unscheduled list for stable output.
     unscheduled.sort(key=lambda k: order[k])

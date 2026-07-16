@@ -70,7 +70,7 @@ function ConfigSection({ title, description, items, onAdd, onRemove, placeholder
 }
 
 // ── TypeBlock — one subject type with its lessons ────────────────────────────
-function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson, onRenameLesson, onDeleteLesson }) {
+function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson, onRenameLesson, onDeleteLesson, onLessonWeight }) {
     const [editingType,  setEditingType]  = useState(false)
     const [typeDraft,    setTypeDraft]    = useState(typeName)
     const [lessonName,   setLessonName]   = useState('')
@@ -147,6 +147,15 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                         <>
                             <span className="dset-lesson-name">{s.name}</span>
                             <span className="dset-lesson-code">{s.code}</span>
+                            <select
+                                className="dset-weight-select"
+                                value={s.exam_weight ?? 5}
+                                onChange={e => onLessonWeight(s.id, Number(e.target.value))}
+                                title="Exam weight (1–10): heavier subjects are scheduled first, get morning slots and rest gaps"
+                                aria-label={`Exam weight for ${s.name}`}
+                            >
+                                {[1,2,3,4,5,6,7,8,9,10].map(w => <option key={w} value={w}>w{w}</option>)}
+                            </select>
                             <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title="Rename">
                                 <span className="material-symbols-rounded u-fs-095">edit</span>
                             </button>
@@ -373,6 +382,11 @@ export function DosSettings() {
 
     async function handleRenameLesson(id, name) {
         const updated = await updateSubject(id, { name })
+        setSubjects(prev => prev.map(s => s.id === id ? updated : s))
+    }
+
+    async function handleLessonWeight(id, exam_weight) {
+        const updated = await updateSubject(id, { exam_weight })
         setSubjects(prev => prev.map(s => s.id === id ? updated : s))
     }
 
@@ -645,6 +659,7 @@ export function DosSettings() {
                                         onAddLesson={handleAddLesson}
                                         onRenameLesson={handleRenameLesson}
                                         onDeleteLesson={handleDeleteLesson}
+                                        onLessonWeight={handleLessonWeight}
                                     />
                                 ))}
 

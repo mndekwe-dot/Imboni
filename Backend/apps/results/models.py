@@ -15,6 +15,10 @@ class Subject(models.Model):
     category     = models.CharField(max_length=100, blank=True, default='')
     description  = models.TextField(blank=True)
     credit_hours = models.IntegerField(default=1)
+    # Exam-scheduler weight (1-10). Heavier subjects are placed first when the
+    # window is tight, prefer earlier (morning) slots, and get rest gaps
+    # between other heavy exams of the same class. 5 = neutral.
+    exam_weight = models.PositiveSmallIntegerField(default=5)
     is_active    = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     

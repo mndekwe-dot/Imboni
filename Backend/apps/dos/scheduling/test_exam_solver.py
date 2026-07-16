@@ -2,7 +2,7 @@
 
 import pytest
 
-from apps.dos.scheduling.exam_solver import Exam, solve_exam_schedule
+from apps.dos.scheduling.exam_solver import Exam, SlotMeta, solve_exam_schedule
 
 
 def _placed_groups_per_slot(exams, result):
@@ -93,6 +93,72 @@ def test_rejects_duplicate_keys():
 def test_rejects_bad_capacity():
     with pytest.raises(ValueError):
         solve_exam_schedule([Exam("e", "g")], num_slots=3, slot_capacity=0)
+
+
+# ── weights ──────────────────────────────────────────────────────────────────
+
+def test_heavy_exam_survives_when_window_is_tight():
+    # 4 same-class exams, only 3 slots: the LIGHTEST must be the one dropped.
+    exams = [
+        Exam("math", "c1", weight=10),
+        Exam("eng",  "c1", weight=7),
+        Exam("phy",  "c1", weight=6),
+        Exam("art",  "c1", weight=1),
+    ]
+    result = solve_exam_schedule(exams, num_slots=3, slot_capacity=5)
+
+    assert result.unscheduled == ["art"]
+    assert "math" in result.placements
+
+
+def test_heavy_exam_prefers_morning_slot():
+    # Two slots on one day (pos 0 = morning, pos 1 = afternoon), two exams of
+    # different classes: the heavy one must take the morning.
+    meta = [SlotMeta(day=0, pos=0), SlotMeta(day=0, pos=1)]
+    exams = [Exam("art", "c1", weight=1), Exam("math", "c2", weight=10)]
+    result = solve_exam_schedule(exams, num_slots=2, slot_capacity=1, slot_meta=meta)
+
+    assert result.is_complete
+    assert result.placements["math"] == 0   # morning
+    assert result.placements["art"] == 1
+
+
+def test_heavy_exams_of_same_class_get_a_rest_gap():
+    # One slot per day over 3 days; two heavy exams for the same class should
+    # land on days 0 and 2 (skipping the adjacent day), not back-to-back.
+    meta = [SlotMeta(day=d, pos=0) for d in range(3)]
+    exams = [Exam("math", "c1", weight=10), Exam("phy", "c1", weight=10)]
+    result = solve_exam_schedule(exams, num_slots=3, slot_capacity=1, slot_meta=meta)
+
+    assert result.is_complete
+    days = sorted(meta[s].day for s in result.placements.values())
+    assert days == [0, 2]
+
+
+def test_light_exams_still_pack_tightly():
+    # Weight-1 exams: the gap penalty is small but nonzero, yet with only two
+    # days available they must still both be placed (constraints beat prefs).
+    meta = [SlotMeta(day=d, pos=0) for d in range(2)]
+    exams = [Exam("a", "c1", weight=1), Exam("b", "c1", weight=1)]
+    result = solve_exam_schedule(exams, num_slots=2, slot_capacity=1, slot_meta=meta)
+
+    assert result.is_complete   # adjacent days accepted when there's no choice
+
+
+def test_slot_meta_length_validated():
+    with pytest.raises(ValueError):
+        solve_exam_schedule([Exam("e", "g")], num_slots=2, slot_capacity=1,
+                            slot_meta=[SlotMeta(0, 0)])
+
+
+def test_weighted_still_deterministic():
+    meta = [SlotMeta(day=d, pos=p) for d in range(4) for p in range(2)]
+    exams = [Exam(f"c{c}-s{s}", f"c{c}", weight=(s % 3) * 4 + 1)
+             for c in range(3) for s in range(3)]
+    r1 = solve_exam_schedule(exams, 8, 2, slot_meta=meta)
+    r2 = solve_exam_schedule(exams, 8, 2, slot_meta=meta)
+    assert r1.placements == r2.placements
+    assert r1.unscheduled == r2.unscheduled
 
 
 def test_larger_instance_is_conflict_free():

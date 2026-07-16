@@ -91,6 +91,28 @@ def test_no_venues_warns_and_uses_blank_venue():
     assert plan["assignments"][0]["venue"] == ""
 
 
+def test_subject_weight_prioritises_and_prefers_morning(scenario):
+    # Make one subject maximally heavy and shrink the window so only two of
+    # the three exams fit (1 day x 2 slots, capacity limited by 2 rooms but
+    # same class => 2 distinct slots max). The heavy subject must survive and
+    # take the morning slot.
+    heavy = scenario["subjects"][2]
+    heavy.exam_weight = 10
+    heavy.save(update_fields=["exam_weight"])
+
+    plan = plan_exam_schedule(
+        scenario["term"], start_date="2026-08-10", num_days=1,
+        daily_slots=[("09:00", "11:00"), ("13:00", "15:00")],
+    )
+
+    assert plan["summary"]["unscheduled"] == 1
+    scheduled_names = {a["subject_name"] for a in plan["assignments"]}
+    assert heavy.name in scheduled_names
+    heavy_row = next(a for a in plan["assignments"] if a["subject_name"] == heavy.name)
+    assert heavy_row["start_time"] == "09:00"   # morning slot
+    assert heavy_row["weight"] == 10
+
+
 def test_commit_persists_and_replaces(scenario):
     term = scenario["term"]
     first = commit_exam_schedule(term, start_date="2026-08-10")
