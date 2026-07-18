@@ -2235,6 +2235,9 @@ body.tm-panel-open { overflow: hidden; }
 /* Auto-generate preview summary */
 .es-gen-summary { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
 
+/* Narrow numeric input (duty-post staff count) */
+.dset-input-narrow { width:5rem; flex:0 0 auto; }
+
 /* Table */
 .es-table-wrap { overflow-x:auto; }
 .es-table { width:100%; border-collapse:collapse; font-size:.875rem; }

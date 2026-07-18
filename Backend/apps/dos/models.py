@@ -103,6 +103,60 @@ class TimetablePeriod(models.Model):
         return self.label or f"Period {self.order} ({self.start_time}-{self.end_time})"
 
 
+DUTY_DAY_CHOICES = [
+    ('monday', 'Monday'), ('tuesday', 'Tuesday'), ('wednesday', 'Wednesday'),
+    ('thursday', 'Thursday'), ('friday', 'Friday'),
+    ('saturday', 'Saturday'), ('sunday', 'Sunday'),
+]
+
+
+class DutyPost(models.Model):
+    """A recurring staff supervision duty (assembly, break, prep, dorm check).
+
+    A post is a *template*: it describes one duty and how many staff it needs.
+    The roster generator repeats every active post across the days it is asked
+    to cover, so a school configures "Break Supervision, 10:00-10:30, 2 staff"
+    once rather than once per weekday.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+    order = models.PositiveSmallIntegerField(default=0, help_text="Display/rotation order")
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    staff_required = models.PositiveSmallIntegerField(default=1)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'duty_posts'
+        ordering = ['order', 'start_time']
+
+    def __str__(self):
+        return f"{self.name} ({self.start_time}-{self.end_time})"
+
+
+class DutyAssignment(models.Model):
+    """One staff member on one duty post for one day of a term's roster."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    post = models.ForeignKey(DutyPost, on_delete=models.CASCADE, related_name='assignments')
+    term = models.ForeignKey('results.AcademicTerm', on_delete=models.CASCADE,
+                             related_name='duty_assignments')
+    day = models.CharField(max_length=10, choices=DUTY_DAY_CHOICES)
+    staff = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='duty_assignments',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'duty_assignments'
+        ordering = ['day', 'post__order']
+        # One person cannot hold the same post twice on the same day.
+        unique_together = ['post', 'term', 'day', 'staff']
+
+    def __str__(self):
+        return f"{self.staff} — {self.post.name} ({self.day})"
+
+
 class SchoolSetting(models.Model):
     timezone = models.CharField(max_length=50 ,default='Africa/Kigali')
     school_name = models.CharField(max_length=100,blank=True,default='')

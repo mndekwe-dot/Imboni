@@ -89,6 +89,16 @@ export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
 export const updateDosSlot = (id,data) => client.patch(`/imboni/dos/timetable/${id}/`,data)
 export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}/`)
 export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('/imboni/dos/teachers/',{params:{subject_id:subjectId,class_id:classId}})
+//  Duty Roster
+export const getDutyPosts    = ()         => client.get('/imboni/dos/duty-posts/')
+export const createDutyPost  = (data)     => client.post('/imboni/dos/duty-posts/', data)
+export const updateDutyPost  = (id, data) => client.patch(`/imboni/dos/duty-posts/${id}/`, data)
+export const deleteDutyPost  = (id)       => client.delete(`/imboni/dos/duty-posts/${id}/`)
+export const getDutyRoster   = (params)   => client.get('/imboni/dos/duty-roster/', { params })
+// Auto-generator: preview (no persist) then commit the duty roster.
+export const generateDutyRoster = (data) => client.post('/imboni/dos/duty-roster/generate/', data)
+export const commitDutyRoster   = (data) => client.post('/imboni/dos/duty-roster/generate/commit/', data)
+
 // Auto-generator: preview (no persist) then commit the weekly timetable.
 export const generateDosTimetable = (data) => client.post('/imboni/dos/timetable/generate/', data)
 export const commitDosTimetable   = (data) => client.post('/imboni/dos/timetable/generate/commit/', data)

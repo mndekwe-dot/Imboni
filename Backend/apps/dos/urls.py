@@ -3,6 +3,7 @@ from . import views
 from . import report_views
 from .scheduling import api as scheduling_api
 from .scheduling import timetable_api
+from .scheduling import duty_api
 
 urlpatterns = [
     # ── Bulk enrollment (term-start) ─────────────────────────────────────────
@@ -117,6 +118,13 @@ urlpatterns = [
     path('dos/timetable/<uuid:pk>/', views.DosTimetableSlotView.as_view(), name='dos-timetable-slot'),
     path('dos/rooms/',               views.DosRoomListView.as_view(),      name='dos-rooms'),
     path('dos/rooms/<uuid:pk>/',     views.DosRoomDetailView.as_view(),    name='dos-room-detail'),
+
+    # ── Duty Roster ───────────────────────────────────────────────────────────
+    path('dos/duty-posts/',                    duty_api.DutyPostListView.as_view(),           name='dos-duty-posts'),
+    path('dos/duty-posts/<uuid:pk>/',          duty_api.DutyPostDetailView.as_view(),         name='dos-duty-post-detail'),
+    path('dos/duty-roster/',                   duty_api.DutyRosterListView.as_view(),         name='dos-duty-roster'),
+    path('dos/duty-roster/generate/',          duty_api.DutyRosterGenerateView.as_view(),     name='dos-duty-generate'),
+    path('dos/duty-roster/generate/commit/',   duty_api.DutyRosterGenerateCommitView.as_view(), name='dos-duty-generate-commit'),
 
     # ── Activity (Club) Management ────────────────────────────────────────────
     path('dos/activities/',           views.DosActivityListView.as_view(),   name='dos-activities'),

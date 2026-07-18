@@ -7,6 +7,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { StatCard } from '../../components/layout/StatCard'
+import { DutyRosterTab } from './DutyRosterTab'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
 import { PeriodManager } from '../../components/timetable/PeriodManager'
@@ -658,7 +659,13 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                             <button className={`filter-tab${activeTab==='exams'?' active':''}`} onClick={() => setActiveTab('exams')}>
                                 <span className="material-symbols-rounded">school</span> Exam Schedule
                             </button>
+                            <button className={`filter-tab${activeTab==='duty'?' active':''}`} onClick={() => setActiveTab('duty')}>
+                                <span className="material-symbols-rounded">assignment_ind</span> Duty Roster
+                            </button>
                         </div>
+
+                        {/* ── DUTY ROSTER TAB ── */}
+                        {activeTab==='duty' && <DutyRosterTab />}
 
                         {/* ── TIMETABLE TAB ── */}
                         {activeTab==='timetable' && (
