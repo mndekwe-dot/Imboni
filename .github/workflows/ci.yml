@@ -71,6 +71,14 @@ jobs:
           pip install pip-audit
           pip-audit -r requirements.txt
 
+      - name: Lint (ruff)
+        working-directory: Backend
+        # Gates on bug-indicating rules only (see ruff.toml); the pre-existing
+        # stylistic backlog is tracked there and burned down separately.
+        run: |
+          pip install ruff
+          python -m ruff check .
+
       - name: Django sanity check
         working-directory: Backend
         run: |
@@ -85,7 +93,10 @@ jobs:
 
       - name: Run backend tests
         working-directory: Backend
-        run: python -m pytest -q --create-db
+        # Coverage is a ratchet: measured at 71% on 2026-07-18, gated a few
+        # points below so ordinary churn doesn't fail the build. Raise the
+        # floor when coverage climbs; never lower it to make a build pass.
+        run: python -m pytest -q --create-db --cov=apps --cov-report=term --cov-fail-under=68
 
   frontend:
     name: Frontend (Vitest)
@@ -107,6 +118,12 @@ jobs:
         # Linux-only optional deps (@emnapi/*), which makes strict `npm ci` fail
         # on the Linux runner. `npm install` resolves those on the fly.
         run: npm install
+
+      - name: Lint (eslint)
+        working-directory: Frontend
+        # Fails on errors (undefined names, bad hook usage). The pre-existing
+        # backlog is configured as warnings in eslint.config.js.
+        run: npm run lint
 
       - name: Audit npm dependencies for known CVEs
         working-directory: Frontend

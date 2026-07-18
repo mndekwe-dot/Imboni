@@ -202,7 +202,7 @@ class AuthViewSet(viewsets.ViewSet):
         if portal and user.role not in self.PORTAL_ROLES[portal]:
             portal_label = self.PORTAL_LABELS.get(portal, portal)
             return Response(
-                {'error': f'Your account does not have access.'},
+                {'error': f'Your account does not have access to the {portal_label} portal.'},
                 status=status.HTTP_403_FORBIDDEN,
             )
 

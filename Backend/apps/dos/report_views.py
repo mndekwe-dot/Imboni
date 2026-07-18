@@ -43,10 +43,6 @@ def _get_rank(student, term):
     scores.sort(key=lambda x: x[1], reverse=True)
     class_size = len(scores)
 
-    student_total = Result.objects.filter(
-        student=student, term=term, status='approved'
-    ).aggregate(t=Sum('final_score'))['t'] or 0
-
     rank = None
     for i, (sid, score) in enumerate(scores, start=1):
         if str(sid) == str(student.id):

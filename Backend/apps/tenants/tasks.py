@@ -41,7 +41,7 @@ def provision_school_task(provision_id, admin_password_hash, domain_base, scheme
             rec.detail = str(exc)
             rec.save(update_fields=['status', 'detail', 'updated_at'])
             return
-        except Exception as exc:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             logger.exception('Provisioning failed for %r', rec.subdomain)
             rec.status = 'failed'
             rec.detail = 'Provisioning failed. Please try again.'

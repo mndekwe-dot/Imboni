@@ -526,9 +526,6 @@ class StudentDisciplineView(APIView):
         if report_type:
             reports_qs = reports_qs.filter(report_type=report_type)
 
-        grade_labels = {'A': 'Excellent', 'B': 'Good', 'C': 'Satisfactory',
-                        'D': 'Needs Improvement', 'F': 'Unsatisfactory'}
-
         reports = []
         for r in reports_qs[:30]:
             reports.append({

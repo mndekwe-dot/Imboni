@@ -151,9 +151,6 @@ class TeacherDashboardStatsView(APIView):
             student__class_assignments__class_obj_id__in=class_ids,
             student__class_assignments__term=term,
         ) if term else AttendanceSummary.objects.none()
-        att_agg = att_qs.aggregate(
-            total=Count('id'), present=Count('present_days')
-        )
         # Compute a simple average of attendance_percentage
         avg_att = att_qs.aggregate(avg=Avg('attendance_percentage'))['avg'] or 0
 

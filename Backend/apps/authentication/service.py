@@ -37,7 +37,7 @@ def send_invitation_sms(invitation, registration_link):
         f"you have been invited to Imboni School System as \
         {invitation.get_role_display()}. "
         f"Register here:{registration_link}"
-        f"Link expires in {setting.INVITATION_EXPIRY_DAYS}days."
+        f"Link expires in {settings.INVITATION_EXPIRY_DAYS} days."
     )
     sms.send(message,[invitation.phone_number])
 

@@ -1300,7 +1300,6 @@ class ExamScheduleListView(APIView):
     """GET /imboni/dos/exam-schedule/  |  POST /imboni/dos/exam-schedule/"""
 
     def get(self, request):
-        from .models import ExamSchedule
         term_id = request.query_params.get('term_id')
         qs = ExamSchedule.objects.select_related(
             'subject', 'class_obj', 'term', 'invigilator'
@@ -1333,7 +1332,6 @@ class ExamScheduleListView(APIView):
         return Response(ExamScheduleSerializer(data, many=True).data)
 
     def post(self, request):
-        from .models import ExamSchedule
         from apps.results.models import Subject, AcademicTerm
         from apps.teacher.models import Class
         d = request.data
@@ -1366,7 +1364,6 @@ class ExamScheduleDetailView(APIView):
     """GET|PATCH|DELETE /imboni/dos/exam-schedule/<pk>/"""
 
     def _get_obj(self, pk):
-        from .models import ExamSchedule
         try:
             return ExamSchedule.objects.select_related(
                 'subject', 'class_obj', 'term', 'invigilator'
@@ -2202,7 +2199,6 @@ class StudentInviteView(APIView):
             )
 
         # Block if an active unused invitation already exists for this email
-        from apps.authentication.models import Invitation
         if Invitation.objects.filter(email__iexact=s_email, role='student', is_used=False).exists():
             return Response(
                 {'error': f'A pending invitation already exists for {s_email}. Use Resend from Invitation History instead.'},

@@ -349,7 +349,6 @@ class AnnouncementStatsView(APIView):
     """GET /imboni/announcements/stats/"""
 
     def get(self, request):
-        from django.utils import timezone
 
         role  = getattr(request.user, 'role', None) if request.user.is_authenticated else None
         today = timezone.localdate()

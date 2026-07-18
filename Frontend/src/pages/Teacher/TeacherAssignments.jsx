@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -309,7 +309,7 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
 
 // ── Quiz Builder ──────────────────────────────────────────────────────────────
 
-function QuizBuilder({ questions, onChange, subjects, onOpenBank }) {
+function QuizBuilder({ questions, onChange, onOpenBank }) {
     function update(id, updated) { onChange(questions.map(q => q.id === id ? updated : q)) }
     function remove(id)          { onChange(questions.filter(q => q.id !== id)) }
     function moveUp(idx) {
@@ -514,12 +514,36 @@ function QuestionBankModal({ onClose, onImport }) {
 
 // ── Teacher Preview Modal ─────────────────────────────────────────────────────
 
+// Deterministic shuffle. Math.random() during render re-ordered the questions
+// on every keystroke; seeding from the assignment id keeps the order stable
+// across re-renders while still differing per assignment.
+function seededShuffle(items, seed) {
+    let h = 2166136261
+    for (const ch of String(seed)) {
+        h = Math.imul(h ^ ch.charCodeAt(0), 16777619)
+    }
+    const next = () => {
+        h = Math.imul(h ^ (h >>> 15), h | 1)
+        h ^= h + Math.imul(h ^ (h >>> 7), h | 61)
+        return ((h ^ (h >>> 14)) >>> 0) / 4294967296
+    }
+    const out = [...items]
+    for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(next() * (i + 1))
+        ;[out[i], out[j]] = [out[j], out[i]]
+    }
+    return out
+}
+
 function PreviewModal({ assignment, questions, onClose }) {
     const [answers,  setAnswers]  = useState({})
     const [revealed, setRevealed] = useState(false)
-    const displayQ = assignment.shuffle_questions
-        ? [...questions].sort(() => Math.random() - 0.5)
-        : questions
+    const displayQ = useMemo(
+        () => (assignment.shuffle_questions
+            ? seededShuffle(questions, assignment.id ?? 'preview')
+            : questions),
+        [assignment.shuffle_questions, assignment.id, questions],
+    )
 
     function score() {
         return displayQ.reduce((total, q) => {
@@ -1004,7 +1028,6 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                         <QuizBuilder
                             questions={questions}
                             onChange={setQuestions}
-                            subjects={subjects}
                             onOpenBank={() => setShowBank(true)}
                         />
                     </>
