@@ -43,12 +43,35 @@ class Lesson:
     Several lessons of the same (class, subject) simply appear as several
     Lesson objects with distinct ``key``s; they share ``class_id`` so the
     class-clash constraint already forces them into different slots.
+
+    ``weight`` (1-10, 5 = neutral) tunes the *soft* preferences only — it never
+    overrides a hard clash. It does two things:
+
+    * **First pick.** Among lessons that are equally constrained (same MRV
+      count), heavier lessons are assigned first and therefore choose from a
+      fuller set of slots. This is the main effect: when subjects compete for a
+      scarce free day or an early period, the heavy one wins and the light one
+      takes what is left. In a grid too tight to fit everything it also makes
+      heavy lessons likelier to be placed at all.
+    * **Spread strength.** The cost of putting two lessons of the same subject
+      on one day scales with weight, so a heavy subject will accept a much
+      later period to keep its lessons on separate days. (With a free day
+      available, spreading is cheap enough that any weight prefers it; the
+      scaling decides who yields when days are contested.)
     """
 
     key: Hashable
     class_id: Hashable
     teacher_id: Hashable
     subject_id: Hashable | None = None  # only used for the soft day-spread
+    weight: int = 5
+
+
+# How much one same-day repeat of a subject costs, per point of lesson weight,
+# relative to one step of period-lateness. High enough that a weight-5 subject
+# prefers a much later period over doubling up, while a weight-1 subject does
+# not. See Lesson.weight.
+SPREAD_COST = 10
 
 
 @dataclass
@@ -65,9 +88,13 @@ class TimetableResult:
 class _Booking:
     """Mutable slot bookkeeping for forward checking (fast legality checks)."""
 
-    def __init__(self, num_slots, capacity, slot_day):
+    def __init__(self, num_slots, capacity, slot_day, slot_pos=None):
         self.capacity = capacity
         self.slot_day = slot_day                       # slot index -> day id
+        # slot index -> position within its day (0 = first period). All zero
+        # when the caller supplies no positions, which disables the morning
+        # preference and leaves only the day-spread.
+        self.slot_pos = list(slot_pos) if slot_pos is not None else [0] * num_slots
         self.class_busy = [set() for _ in range(num_slots)]
         self.teacher_busy = [set() for _ in range(num_slots)]
         self.load = [0] * num_slots
@@ -100,17 +127,23 @@ class _Booking:
     def legal_slots(self, lesson, num_slots):
         return [s for s in range(num_slots) if self.legal(lesson, s)]
 
-    def ordered_slots(self, lesson, num_slots):
-        """Legal slots, preferring days where this subject isn't already taught
-        to the class (soft spread), then earlier slots for stable output."""
-        legal = self.legal_slots(lesson, num_slots)
-        return sorted(
-            legal,
-            key=lambda s: (
-                self.subject_day.get((lesson.class_id, lesson.subject_id, self.slot_day[s]), 0),
-                s,
-            ),
+    def slot_cost(self, lesson, slot):
+        """Soft-preference cost of a legal slot (lower is better).
+
+        ``SPREAD_COST * weight`` per lesson of the same subject already on that
+        day, plus the slot's position in the day. Scaling only the spread term
+        by weight is what makes weight meaningful: a heavy subject trades a
+        later period for a clear day, a light one does the opposite.
+        """
+        same_day = self.subject_day.get(
+            (lesson.class_id, lesson.subject_id, self.slot_day[slot]), 0
         )
+        return SPREAD_COST * lesson.weight * same_day + self.slot_pos[slot]
+
+    def ordered_slots(self, lesson, num_slots):
+        """Legal slots ordered by soft-preference cost, then index for stability."""
+        legal = self.legal_slots(lesson, num_slots)
+        return sorted(legal, key=lambda s: (self.slot_cost(lesson, s), s))
 
 
 def solve_timetable(
@@ -119,6 +152,7 @@ def solve_timetable(
     slot_days: Sequence[Hashable],
     slot_capacity: int,
     max_backtracks: int = 50_000,
+    slot_positions: Sequence[int] | None = None,
 ) -> TimetableResult:
     """Place every lesson into a slot in ``[0, num_slots)`` via backtracking.
 
@@ -136,6 +170,9 @@ def solve_timetable(
     max_backtracks:
         Safety bound on search effort; on exhaustion the best partial assignment
         is returned rather than looping forever.
+    slot_positions:
+        Optional position of each slot within its day (0 = first period). Gives
+        heavier lessons an earlier-period preference; omit to disable it.
 
     Determinism: identical input yields identical output.
     """
@@ -145,11 +182,13 @@ def solve_timetable(
         raise ValueError("slot_capacity must be at least 1")
     if len(slot_days) != num_slots:
         raise ValueError("slot_days must have length num_slots")
+    if slot_positions is not None and len(slot_positions) != num_slots:
+        raise ValueError("slot_positions must have length num_slots")
     keys = [l.key for l in lessons]
     if len(set(keys)) != len(keys):
         raise ValueError("lesson keys must be unique")
 
-    booking = _Booking(num_slots, slot_capacity, list(slot_days))
+    booking = _Booking(num_slots, slot_capacity, list(slot_days), slot_positions)
     order = {l.key: i for i, l in enumerate(lessons)}
     placements: dict[Hashable, int] = {}
     remaining = list(lessons)
@@ -165,11 +204,15 @@ def solve_timetable(
             best["placements"] = dict(placements)
 
     def select_unassigned(unassigned):
-        # MRV: fewest legal slots first; tie-break by higher degree-ish (more
-        # already-constrained) then stable order.
+        # MRV first (fewest legal slots) — that's the performance-critical
+        # heuristic. Among equally-constrained lessons the heavier one is
+        # assigned first, so it picks from a fuller set of slots and, in a
+        # grid too tight to fit everything, is likelier to be placed at all.
         return min(
             unassigned,
-            key=lambda l: (len(booking.legal_slots(l, num_slots)), order[l.key]),
+            key=lambda l: (
+                len(booking.legal_slots(l, num_slots)), -l.weight, order[l.key],
+            ),
         )
 
     def backtrack(unassigned):

@@ -267,10 +267,11 @@ class SchoolSectionSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     """Add / rename / list subjects from DosSettings."""
     exam_weight = serializers.IntegerField(min_value=1, max_value=10, required=False)
+    timetable_weight = serializers.IntegerField(min_value=1, max_value=10, required=False)
 
     class Meta:
         model  = Subject
-        fields = ['id', 'name', 'code', 'category', 'exam_weight']
+        fields = ['id', 'name', 'code', 'category', 'exam_weight', 'timetable_weight']
 
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:

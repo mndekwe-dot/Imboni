@@ -194,12 +194,13 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
                     <div className="es-table-wrap mt-1">
                         <table className="es-table">
                             <thead>
-                                <tr><th>Subject</th><th>Class</th><th>Day</th><th>Time</th><th>Teacher</th><th>Room</th></tr>
+                                <tr><th>Subject</th><th>Wt</th><th>Class</th><th>Day</th><th>Time</th><th>Teacher</th><th>Room</th></tr>
                             </thead>
                             <tbody>
                                 {preview.assignments.map((a, i) => (
                                     <tr key={i}>
                                         <td>{a.subject_name}</td>
+                                        <td className="u-muted">{a.weight ?? '—'}</td>
                                         <td>{a.class_name}</td>
                                         <td className="es-nowrap">{a.day}</td>
                                         <td className="es-nowrap">{a.start_time}–{a.end_time}</td>

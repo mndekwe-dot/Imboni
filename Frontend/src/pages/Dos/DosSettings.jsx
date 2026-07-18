@@ -69,6 +69,24 @@ function ConfigSection({ title, description, items, onAdd, onRemove, placeholder
     )
 }
 
+// Compact 1–10 picker for a scheduling weight. `prefix` distinguishes the two
+// (E = exam scheduler, T = timetable generator) without widening the row.
+function WeightSelect({ prefix, value, onChange, title }) {
+    return (
+        <select
+            className="dset-weight-select"
+            value={value ?? 5}
+            onChange={e => onChange(Number(e.target.value))}
+            title={title}
+            aria-label={title}
+        >
+            {[1,2,3,4,5,6,7,8,9,10].map(w => (
+                <option key={w} value={w}>{prefix}{w}</option>
+            ))}
+        </select>
+    )
+}
+
 // ── TypeBlock — one subject type with its lessons ────────────────────────────
 function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson, onRenameLesson, onDeleteLesson, onLessonWeight }) {
     const [editingType,  setEditingType]  = useState(false)
@@ -147,15 +165,18 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                         <>
                             <span className="dset-lesson-name">{s.name}</span>
                             <span className="dset-lesson-code">{s.code}</span>
-                            <select
-                                className="dset-weight-select"
-                                value={s.exam_weight ?? 5}
-                                onChange={e => onLessonWeight(s.id, Number(e.target.value))}
-                                title="Exam weight (1–10): heavier subjects are scheduled first, get morning slots and rest gaps"
-                                aria-label={`Exam weight for ${s.name}`}
-                            >
-                                {[1,2,3,4,5,6,7,8,9,10].map(w => <option key={w} value={w}>w{w}</option>)}
-                            </select>
+                            <WeightSelect
+                                prefix="E"
+                                value={s.exam_weight}
+                                onChange={v => onLessonWeight(s.id, { exam_weight: v })}
+                                title={`Exam weight for ${s.name} (1–10): heavier subjects are scheduled first, get morning slots and rest gaps between exams`}
+                            />
+                            <WeightSelect
+                                prefix="T"
+                                value={s.timetable_weight}
+                                onChange={v => onLessonWeight(s.id, { timetable_weight: v })}
+                                title={`Timetable weight for ${s.name} (1–10): heavier subjects get first pick of periods and spread more strictly across the week`}
+                            />
                             <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title="Rename">
                                 <span className="material-symbols-rounded u-fs-095">edit</span>
                             </button>
@@ -385,8 +406,9 @@ export function DosSettings() {
         setSubjects(prev => prev.map(s => s.id === id ? updated : s))
     }
 
-    async function handleLessonWeight(id, exam_weight) {
-        const updated = await updateSubject(id, { exam_weight })
+    // patch is { exam_weight } or { timetable_weight }
+    async function handleLessonWeight(id, patch) {
+        const updated = await updateSubject(id, patch)
         setSubjects(prev => prev.map(s => s.id === id ? updated : s))
     }
 

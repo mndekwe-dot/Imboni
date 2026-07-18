@@ -43,6 +43,9 @@ def build_slots(days, periods):
                 "index": len(slots),
                 "day": day,
                 "period": period,
+                # Position within the day (0 = first period), so heavier
+                # subjects can prefer earlier periods.
+                "pos": len(slots) % max(len(periods), 1),
                 "start_time": period.start_time,
                 "end_time": period.end_time,
             })
@@ -75,6 +78,7 @@ def gather_lessons(term, class_ids=None):
                 class_id=str(a.class_obj_id),
                 teacher_id=str(a.teacher_id),
                 subject_id=str(a.subject_id),
+                weight=a.subject.timetable_weight,
             ))
             meta[key] = {
                 "class_obj": a.class_obj,
@@ -127,6 +131,7 @@ def plan_timetable(term, *, class_ids=None, days=None):
         num_slots=len(slots),
         slot_days=[s["day"] for s in slots],
         slot_capacity=slot_capacity,
+        slot_positions=[s["pos"] for s in slots],
     )
 
     # Group placed lessons by slot so room assignment can dedupe within a slot.
@@ -146,6 +151,7 @@ def plan_timetable(term, *, class_ids=None, days=None):
                 "class_name": _class_label(info["class_obj"]),
                 "subject_id": key[1],
                 "subject_name": info["subject"].name,
+                "weight": info["subject"].timetable_weight,
                 "teacher_id": str(teacher.id) if teacher else None,
                 "teacher_name": teacher.full_name if teacher else None,
                 "day": slot["day"],

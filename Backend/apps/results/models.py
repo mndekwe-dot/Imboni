@@ -19,6 +19,10 @@ class Subject(models.Model):
     # window is tight, prefer earlier (morning) slots, and get rest gaps
     # between other heavy exams of the same class. 5 = neutral.
     exam_weight = models.PositiveSmallIntegerField(default=5)
+    # Timetable-generator weight (1-10). Heavier subjects spread their weekly
+    # periods more strictly across different days and get first pick of slots
+    # (so they tend to land in earlier periods). 5 = neutral.
+    timetable_weight = models.PositiveSmallIntegerField(default=5)
     is_active    = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
