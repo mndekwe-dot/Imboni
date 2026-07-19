@@ -89,6 +89,16 @@ export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
 export const updateDosSlot = (id,data) => client.patch(`/imboni/dos/timetable/${id}/`,data)
 export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}/`)
 export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('/imboni/dos/teachers/',{params:{subject_id:subjectId,class_id:classId}})
+//  Dining Planner
+export const getDiningSittings   = ()         => client.get('/imboni/dos/dining-sittings/')
+export const createDiningSitting = (data)     => client.post('/imboni/dos/dining-sittings/', data)
+export const updateDiningSitting = (id, data) => client.patch(`/imboni/dos/dining-sittings/${id}/`, data)
+export const deleteDiningSitting = (id)       => client.delete(`/imboni/dos/dining-sittings/${id}/`)
+export const getDiningPlan       = (params)   => client.get('/imboni/dos/dining-plan/', { params })
+// Auto-generator: preview (no persist) then commit the dining plan.
+export const generateDiningPlan  = (data) => client.post('/imboni/dos/dining-plan/generate/', data)
+export const commitDiningPlan    = (data) => client.post('/imboni/dos/dining-plan/generate/commit/', data)
+
 //  Duty Roster
 export const getDutyPosts    = ()         => client.get('/imboni/dos/duty-posts/')
 export const createDutyPost  = (data)     => client.post('/imboni/dos/duty-posts/', data)

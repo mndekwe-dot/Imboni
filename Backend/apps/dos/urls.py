@@ -4,6 +4,7 @@ from . import report_views
 from .scheduling import api as scheduling_api
 from .scheduling import timetable_api
 from .scheduling import duty_api
+from .scheduling import dining_api
 
 urlpatterns = [
     # ── Bulk enrollment (term-start) ─────────────────────────────────────────
@@ -125,6 +126,13 @@ urlpatterns = [
     path('dos/duty-roster/',                   duty_api.DutyRosterListView.as_view(),         name='dos-duty-roster'),
     path('dos/duty-roster/generate/',          duty_api.DutyRosterGenerateView.as_view(),     name='dos-duty-generate'),
     path('dos/duty-roster/generate/commit/',   duty_api.DutyRosterGenerateCommitView.as_view(), name='dos-duty-generate-commit'),
+
+    # ── Dining Planner ────────────────────────────────────────────────────────
+    path('dos/dining-sittings/',              dining_api.DiningSittingListView.as_view(),   name='dos-dining-sittings'),
+    path('dos/dining-sittings/<uuid:pk>/',    dining_api.DiningSittingDetailView.as_view(), name='dos-dining-sitting-detail'),
+    path('dos/dining-plan/',                  dining_api.DiningPlanListView.as_view(),      name='dos-dining-plan'),
+    path('dos/dining-plan/generate/',         dining_api.DiningGenerateView.as_view(),      name='dos-dining-generate'),
+    path('dos/dining-plan/generate/commit/',  dining_api.DiningGenerateCommitView.as_view(), name='dos-dining-generate-commit'),
 
     # ── Activity (Club) Management ────────────────────────────────────────────
     path('dos/activities/',           views.DosActivityListView.as_view(),   name='dos-activities'),

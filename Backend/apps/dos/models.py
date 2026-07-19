@@ -157,6 +157,60 @@ class DutyAssignment(models.Model):
         return f"{self.staff} — {self.post.name} ({self.day})"
 
 
+MEAL_CHOICES = [
+    ('breakfast', 'Breakfast'),
+    ('lunch', 'Lunch'),
+    ('supper', 'Supper'),
+]
+
+
+class DiningSitting(models.Model):
+    """One seating of a meal in the dining hall.
+
+    A hall that seats fewer students than the school has runs each meal in
+    several sittings; the planner assigns whole classes to a sitting whose
+    remaining seats can hold them.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+    meal = models.CharField(max_length=20, choices=MEAL_CHOICES, default='lunch')
+    order = models.PositiveSmallIntegerField(default=0)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    capacity = models.PositiveIntegerField(help_text="Seats available in this sitting")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'dining_sittings'
+        ordering = ['meal', 'order', 'start_time']
+
+    def __str__(self):
+        return f"{self.name} ({self.get_meal_display()})"
+
+
+class DiningAssignment(models.Model):
+    """A class seated in a given sitting for a term."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sitting = models.ForeignKey(DiningSitting, on_delete=models.CASCADE,
+                                related_name='assignments')
+    term = models.ForeignKey('results.AcademicTerm', on_delete=models.CASCADE,
+                             related_name='dining_assignments')
+    class_obj = models.ForeignKey('teacher.Class', on_delete=models.CASCADE,
+                                  related_name='dining_assignments')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'dining_assignments'
+        ordering = ['sitting__meal', 'sitting__order']
+        # A class eats once per sitting; one sitting per meal is enforced by
+        # the generator replacing a term's rows for the meals it covers.
+        unique_together = ['sitting', 'term', 'class_obj']
+
+    def __str__(self):
+        return f"{self.class_obj} — {self.sitting.name}"
+
+
 class SchoolSetting(models.Model):
     timezone = models.CharField(max_length=50 ,default='Africa/Kigali')
     school_name = models.CharField(max_length=100,blank=True,default='')

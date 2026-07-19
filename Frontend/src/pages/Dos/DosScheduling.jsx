@@ -8,6 +8,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { StatCard } from '../../components/layout/StatCard'
 import { DutyRosterTab } from './DutyRosterTab'
+import { DiningPlannerTab } from './DiningPlannerTab'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
 import { PeriodManager } from '../../components/timetable/PeriodManager'
@@ -662,10 +663,16 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                             <button className={`filter-tab${activeTab==='duty'?' active':''}`} onClick={() => setActiveTab('duty')}>
                                 <span className="material-symbols-rounded">assignment_ind</span> Duty Roster
                             </button>
+                            <button className={`filter-tab${activeTab==='dining'?' active':''}`} onClick={() => setActiveTab('dining')}>
+                                <span className="material-symbols-rounded">restaurant</span> Dining
+                            </button>
                         </div>
 
                         {/* ── DUTY ROSTER TAB ── */}
                         {activeTab==='duty' && <DutyRosterTab />}
+
+                        {/* ── DINING PLANNER TAB ── */}
+                        {activeTab==='dining' && <DiningPlannerTab />}
 
                         {/* ── TIMETABLE TAB ── */}
                         {activeTab==='timetable' && (
