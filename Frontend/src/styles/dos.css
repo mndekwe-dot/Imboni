@@ -2238,6 +2238,21 @@ body.tm-panel-open { overflow: hidden; }
 /* Narrow numeric input (duty-post staff count) */
 .dset-input-narrow { width:5rem; flex:0 0 auto; }
 
+/* Drag-and-drop exam calendar */
+.exam-cal td { vertical-align:top; }
+.exam-cal-day { font-weight:600; white-space:nowrap; }
+.exam-cal-cell { min-width:9rem; height:3.5rem; transition:background .12s ease; }
+.exam-cal-cell.is-over { background:var(--primary-light); outline:2px dashed var(--primary); outline-offset:-3px; }
+.exam-cal-card {
+    display:flex; flex-direction:column; gap:.1rem;
+    background:var(--card); border:1px solid var(--card-border); border-left:3px solid var(--primary);
+    border-radius:.3rem; padding:.3rem .45rem; margin-bottom:.3rem; cursor:grab;
+}
+.exam-cal-card:active { cursor:grabbing; }
+.exam-cal-card.is-dragging { opacity:.45; }
+.exam-cal-subject { font-size:.78rem; font-weight:600; }
+.exam-cal-class { font-size:.68rem; color:var(--muted-foreground); }
+
 /* Table */
 .es-table-wrap { overflow-x:auto; }
 .es-table { width:100%; border-collapse:collapse; font-size:.875rem; }

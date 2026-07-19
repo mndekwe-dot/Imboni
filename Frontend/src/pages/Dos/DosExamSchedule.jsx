@@ -2,9 +2,10 @@
 import { Sidebar } from '../../components/layout/Sidebar'
 import { Link } from 'react-router'
 import {
-    getDosExamSchedule, deleteDosExamSchedule,
+    getDosExamSchedule, deleteDosExamSchedule, updateDosExamSchedule,
     getTerms, generateDosExamSchedule, commitDosExamSchedule,
 } from '../../api/dos'
+import { ExamCalendar } from './ExamCalendar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -228,10 +229,14 @@ export function DosExamSchedule() {
     const [loading, setLoading] = useState(true)
     const [error,   setError]   = useState(null)
     const [showGenerate, setShowGenerate] = useState(false)
+    const [rawExams, setRawExams] = useState([])   // API shape, for the calendar
+    const [view, setView] = useState('table')      // 'table' | 'calendar'
+    const toast = useToast()
 
     function loadExams() {
         return getDosExamSchedule()
             .then(data => {
+                setRawExams(Array.isArray(data) ? data : [])
                 if (data.length > 0) {
                     setExams(data.map((e, i) => ({
                         num:         i + 1,
@@ -261,7 +266,22 @@ export function DosExamSchedule() {
         try {
             await deleteDosExamSchedule(id)
             setExams(prev => prev.filter(e => e.id !== id))
+            setRawExams(prev => prev.filter(e => e.id !== id))
         } catch (err) { console.error(err) }
+    }
+
+    // Drag-and-drop reschedule: move optimistically, roll back if the PATCH fails.
+    async function handleReschedule(id, patch) {
+        const before = rawExams
+        setRawExams(prev => prev.map(e => (e.id === id ? { ...e, ...patch } : e)))
+        try {
+            await updateDosExamSchedule(id, patch)
+            await loadExams()
+            toast.success('Exam rescheduled.')
+        } catch (err) {
+            setRawExams(before)
+            toast.error(err.response?.data?.detail || 'Could not reschedule that exam.')
+        }
     }
 
     if (loading) return <Loading fullPage />
@@ -312,6 +332,18 @@ export function DosExamSchedule() {
                                 <h2 className="card-title">Term 1 &middot; 2026 Exam Schedule</h2>
                                 <div className="es-card-actions">
                                     <span className="badge badge-published">Published</span>
+                                    <button
+                                        className={`btn btn-sm ${view === 'table' ? 'btn-primary' : 'btn-secondary'}`}
+                                        onClick={() => setView('table')}
+                                    >
+                                        <span className="material-symbols-rounded">table_rows</span> Table
+                                    </button>
+                                    <button
+                                        className={`btn btn-sm ${view === 'calendar' ? 'btn-primary' : 'btn-secondary'}`}
+                                        onClick={() => setView('calendar')}
+                                    >
+                                        <span className="material-symbols-rounded">calendar_month</span> Calendar
+                                    </button>
                                     <button className="btn btn-secondary btn-sm">
                                         <span className="material-symbols-rounded">download</span> Export CSV
                                     </button>
@@ -332,29 +364,33 @@ export function DosExamSchedule() {
                                     </button>
                                 </div>
 
-                                <div className="es-table-wrap">
-                                    <table className="es-table">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Subject</th>
-                                                <th>Class(es)</th>
-                                                <th>Date</th>
-                                                <th>Time</th>
-                                                <th>Duration</th>
-                                                <th>Room(s)</th>
-                                                <th>Invigilator</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {exams.map((row, index) => (
-                                                <ExamRow key={index} {...row} onDelete={handleDelete} />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                {view === 'calendar' ? (
+                                    <ExamCalendar exams={rawExams} onReschedule={handleReschedule} />
+                                ) : (
+                                    <div className="es-table-wrap">
+                                        <table className="es-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Subject</th>
+                                                    <th>Class(es)</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Duration</th>
+                                                    <th>Room(s)</th>
+                                                    <th>Invigilator</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {exams.map((row, index) => (
+                                                    <ExamRow key={index} {...row} onDelete={handleDelete} />
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </DashboardContent>
