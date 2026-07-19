@@ -18,12 +18,21 @@ from django_tenants.utils import (
     schema_context,
 )
 
-# Schema A is the suite-wide 'test' tenant created by the root conftest.
-SCHEMA_A = 'test'
-HOST_A = 'testserver'
+# Both schools get their OWN schema. School A deliberately does NOT reuse the
+# suite-wide 'test' tenant: this fixture is session-scoped and writes through
+# django_db_blocker.unblock(), so anything it creates escapes per-test rollback
+# and lives for the whole run. A stray user in the shared schema silently
+# inflates every other app's counts — it broke the plan-limit tests in
+# apps/tenants, which assert exact staff/student totals. Keeping both schools
+# self-contained means this file can never perturb another app's fixtures.
+SCHEMA_A = 'wsschoola'
+HOST_A = 'wsschoola.testserver'
 
 SCHEMA_B = 'wsschoolb'
 HOST_B = 'wsschoolb.testserver'
+
+# The schema the rest of the suite runs in; restored before the fixture returns.
+ROOT_TEST_SCHEMA = 'test'
 
 # Deliberately used as the primary key of a user in BOTH schemas — see ws_tenants.
 SHARED_USER_ID = '5f9c2a10-0000-4000-8000-00000000beef'
@@ -67,14 +76,18 @@ def ws_tenants(django_db_setup, django_db_blocker):
         # django-tenants refuses to create a tenant from inside a tenant schema,
         # and the root conftest leaves the connection pinned to 'test'.
         with schema_context(get_public_schema_name()):
-            tenant_b = TenantModel.objects.filter(schema_name=SCHEMA_B).first()
-            if tenant_b is None:
-                tenant_b = TenantModel(schema_name=SCHEMA_B, name='WS School B',
-                                       on_trial=True, status='active', plan='premium')
-                # auto_create_schema=True -> creates the schema and migrates TENANT_APPS
-                tenant_b.save(verbosity=0)
-            DomainModel.objects.get_or_create(
-                domain=HOST_B, defaults={'tenant': tenant_b, 'is_primary': True})
+            for schema, host, label in (
+                (SCHEMA_A, HOST_A, 'WS School A'),
+                (SCHEMA_B, HOST_B, 'WS School B'),
+            ):
+                tenant = TenantModel.objects.filter(schema_name=schema).first()
+                if tenant is None:
+                    tenant = TenantModel(schema_name=schema, name=label,
+                                         on_trial=True, status='active', plan='premium')
+                    # auto_create_schema=True -> creates the schema, migrates TENANT_APPS
+                    tenant.save(verbosity=0)
+                DomainModel.objects.get_or_create(
+                    domain=host, defaults={'tenant': tenant, 'is_primary': True})
 
         user_a = _ensure_user(SCHEMA_A, 'ws_user_a', 'ws_a@example.com', pk=SHARED_USER_ID)
 
@@ -100,7 +113,8 @@ def ws_tenants(django_db_setup, django_db_blocker):
                        'token': _access_token(SCHEMA_B, user_b_only)},
         }
 
-        # Leave the connection where the rest of the suite expects it.
-        connection.set_tenant(TenantModel.objects.get(schema_name=SCHEMA_A))
+        # Leave the connection where the rest of the suite expects it — the root
+        # 'test' tenant, NOT one of this file's schools.
+        connection.set_tenant(TenantModel.objects.get(schema_name=ROOT_TEST_SCHEMA))
 
     return data
