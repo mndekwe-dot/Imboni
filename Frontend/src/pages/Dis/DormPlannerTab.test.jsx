@@ -33,7 +33,7 @@ const PLAN = {
         { room_id: 'r2', dormitory: 'Bisoke', room_number: '102', gender: 'male', capacity: 4, occupied: 3, free: 1, groups: ['2B'] },
     ],
     unplaced: [
-        { boarding_id: 'b9', student_name: 'Iris N.', group: '3C', reason: 'All matching rooms are full — no free beds left.' },
+        { boarding_id: 'b9', student_name: 'Iris N.', group: '3C', reason: 'All matching rooms are full, no free beds left.' },
     ],
     summary: { students: 8, placed: 7, unplaced: 1, rooms: 2, rooms_used: 2, free_beds: 1, capacity: 8 },
     warnings: [],

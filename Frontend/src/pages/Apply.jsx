@@ -47,7 +47,7 @@ export function Apply() {
                     <div>
                         <div className="pf-callout pf-row">
                             <span className="material-symbols-rounded">check_circle</span>
-                            Application received — our team will review it and get back to you.
+                            Application received. Our team will review it and get back to you.
                         </div>
                         <Link to="/" className="btn btn-outline pf-mt">Back to home</Link>
                     </div>
@@ -72,7 +72,7 @@ export function Apply() {
                             <label>Approx. students<input className="form-input" type="number" min="0" value={form.student_estimate} onChange={e => set('student_estimate', e.target.value)} /></label>
                             <label>Plan interest
                                 <select className="form-input" value={form.plan_interest} onChange={e => set('plan_interest', e.target.value)}>
-                                    <option value="">— not sure —</option>
+                                    <option value="">Not sure</option>
                                     <option value="basic">Basic</option><option value="premium">Premium</option>
                                 </select>
                             </label>

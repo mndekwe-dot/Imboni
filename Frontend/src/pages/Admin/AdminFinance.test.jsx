@@ -57,7 +57,7 @@ describe('AdminFinance', () => {
     expect(sendFeeReminders).toHaveBeenCalled()
 
     act(() => { vi.advanceTimersByTime(4000) })
-    expect(reminderBtn).toHaveTextContent('Send Fee Reminder — All Overdue')
+    expect(reminderBtn).toHaveTextContent('Send Fee Reminder to All Overdue')
   })
 
   it('shows an error label when sending reminders fails', async () => {

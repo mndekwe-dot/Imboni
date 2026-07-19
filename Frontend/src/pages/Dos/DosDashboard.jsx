@@ -425,7 +425,7 @@ export function DosDashboard() {
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">Performance by Grade</h2>
-                                <p className="card-subtitle">Average score per grade — current term</p>
+                                <p className="card-subtitle">Average score per grade, current term</p>
                             </div>
                             <div className="card-content">
                                 <ResponsiveContainer width="100%" height={260}>

@@ -45,7 +45,7 @@ describe('ParentAttendance', () => {
 
     await waitFor(() => expect(screen.getByText('95%')).toBeInTheDocument())
     expect(screen.getByText('90')).toBeInTheDocument()
-    expect(screen.getByText(/Eric N\. —/)).toBeInTheDocument()
+    expect(screen.getByText(/Eric N\.:/)).toBeInTheDocument()
   })
 
   it('switching the child tab re-fetches attendance scoped to that child only', async () => {

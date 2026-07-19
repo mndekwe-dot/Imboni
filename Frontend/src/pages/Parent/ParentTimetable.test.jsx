@@ -36,23 +36,23 @@ describe('ParentTimetable', () => {
     getMyChildren.mockResolvedValue([CHILDREN[0]])
     renderWithRouter(<ParentTimetable />)
 
-    await waitFor(() => expect(screen.getByText('Eric N. — Class 4A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Eric N. (Class 4A)')).toBeInTheDocument())
     expect(screen.queryByLabelText('Child:')).not.toBeInTheDocument()
   })
 
   it('shows a child switcher and updates the timetable heading when multiple children are linked', async () => {
     getMyChildren.mockResolvedValue(CHILDREN)
     renderWithRouter(<ParentTimetable />)
-    await waitFor(() => expect(screen.getByText('Eric N. — Class 4A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Eric N. (Class 4A)')).toBeInTheDocument())
 
     fireEvent.change(screen.getByLabelText('Child:'), { target: { value: '1' } })
 
-    expect(screen.getByText('Alice M. — Class 5B')).toBeInTheDocument()
+    expect(screen.getByText('Alice M. (Class 5B)')).toBeInTheDocument()
   })
 
   it('handles a paginated {results:[]} response shape from getMyChildren', async () => {
     getMyChildren.mockResolvedValue({ results: [CHILDREN[0]] })
     renderWithRouter(<ParentTimetable />)
-    await waitFor(() => expect(screen.getByText('Eric N. — Class 4A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Eric N. (Class 4A)')).toBeInTheDocument())
   })
 })

@@ -7,7 +7,7 @@ describe('DormitoryModal', () => {
     render(<DormitoryModal onClose={() => {}} onSave={() => {}} />)
     expect(screen.getAllByText('Add Dormitory').length).toBeGreaterThan(0)
     expect(screen.getByPlaceholderText('e.g. Kigoma')).toHaveValue('')
-    expect(screen.getByText('No chambers yet — add one below.')).toBeInTheDocument()
+    expect(screen.getByText('No chambers yet. Add one below.')).toBeInTheDocument()
   })
 
   it('disables save until name and staff are filled', () => {

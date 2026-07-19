@@ -55,7 +55,7 @@ function avatarClass(role) {
 function contractLabel(empType) {
     if (empType === 'full_time') return 'Full-Time'
     if (empType === 'part_time') return 'Part-Time'
-    return '—'
+    return '-'
 }
 function contractClass(empType) {
     if (empType === 'full_time') return 'fulltime'
@@ -97,7 +97,7 @@ function StaffRow({ member, onView }) {
             <td>
                 {empType ? (
                     <span className={`adm-badge ${contractClass(empType)}`}>{contractLabel(empType)}</span>
-                ) : '—'}
+                ) : '-'}
             </td>
             <td>
                 <span className={`adm-badge ${active ? 'active' : 'pending'}`}>{active ? 'Active' : 'Inactive'}</span>
@@ -258,12 +258,12 @@ export function AdminStaff() {
         { icon: 'badge',    value: stats.total_teachers,  label: 'Total Teachers',  trend: 'All active',              colorClass: ''        },
         { icon: 'work',     value: stats.full_time_count, label: 'Full-Time',        trend: `${stats.full_time_pct}%`, colorClass: 'info'    },
         { icon: 'schedule', value: stats.part_time_count, label: 'Part-Time',        trend: `${stats.part_time_pct}%`, colorClass: 'success' },
-        { icon: 'group',    value: stats.student_teacher_ratio || '—', label: 'Student:Teacher', trend: stats.ratio_label || '', colorClass: 'warning' },
+        { icon: 'group',    value: stats.student_teacher_ratio || '-', label: 'Student:Teacher', trend: stats.ratio_label || '', colorClass: 'warning' },
     ] : [
-        { icon: 'badge',    value: '—', label: 'Total Teachers',  trend: 'Loading…', colorClass: ''        },
-        { icon: 'work',     value: '—', label: 'Full-Time',        trend: 'Loading…', colorClass: 'info'    },
-        { icon: 'schedule', value: '—', label: 'Part-Time',        trend: 'Loading…', colorClass: 'success' },
-        { icon: 'group',    value: '—', label: 'Student:Teacher',  trend: 'Loading…', colorClass: 'warning' },
+        { icon: 'badge',    value: '-', label: 'Total Teachers',  trend: 'Loading…', colorClass: ''        },
+        { icon: 'work',     value: '-', label: 'Full-Time',        trend: 'Loading…', colorClass: 'info'    },
+        { icon: 'schedule', value: '-', label: 'Part-Time',        trend: 'Loading…', colorClass: 'success' },
+        { icon: 'group',    value: '-', label: 'Student:Teacher',  trend: 'Loading…', colorClass: 'warning' },
     ]
 
     const filtered = staffList.filter(s => {
@@ -293,7 +293,7 @@ export function AdminStaff() {
                             {[
                                 ['Name',     (viewing.name || viewing.full_name || `${viewing.first_name || ''} ${viewing.last_name || ''}`.trim())],
                                 ['Email',    viewing.email],
-                                ['Phone',    viewing.phone_number || '—'],
+                                ['Phone',    viewing.phone_number || '-'],
                                 ['Role',     ROLE_LABEL[viewing.role] || viewing.role],
                                 ['Contract', contractLabel(viewing.employment_type)],
                                 ['Status',   viewing.is_active !== false ? 'Active' : 'Inactive'],
@@ -421,17 +421,17 @@ export function AdminStaff() {
                                                     {invitations.map(inv => (
                                                         <tr key={inv.id}>
                                                             <td>
-                                                                <div className="adm-name">{`${inv.first_name || ''} ${inv.last_name || ''}`.trim() || '—'}</div>
+                                                                <div className="adm-name">{`${inv.first_name || ''} ${inv.last_name || ''}`.trim() || '-'}</div>
                                                                 <div className="adm-sub">{inv.email}</div>
                                                             </td>
-                                                            <td>{ROLE_LABEL[inv.role] || inv.role || '—'}</td>
+                                                            <td>{ROLE_LABEL[inv.role] || inv.role || '-'}</td>
                                                             <td>
                                                                 <span className={`adm-badge ${inviteStatusClass(inv)}`}>
                                                                     {inviteStatusLabel(inv)}
                                                                 </span>
                                                             </td>
                                                             <td className="adm-sent-cell">
-                                                                {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : '—'}
+                                                                {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : '-'}
                                                             </td>
                                                             <td>
                                                                 {!inv.is_used && inv.status !== 'cancelled' && (

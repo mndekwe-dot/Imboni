@@ -117,7 +117,7 @@ export function LogIn() {
 
                     <p>
                         One unified platform for students, teachers, parents,
-                        and boarding staff — keeping every part of school life
+                        and boarding staff, keeping every part of school life
                         connected and running smoothly.
                     </p>
 
@@ -286,7 +286,7 @@ export function LogIn() {
                 </div>
 
                 <div className="login-footer">
-                    Imboni Education Connects &copy; {new Date().getFullYear()} &mdash;{' '}
+                    Imboni Education Connects &copy; {new Date().getFullYear()}.{' '}
                     <a href="#">Privacy Policy</a>
                 </div>
 

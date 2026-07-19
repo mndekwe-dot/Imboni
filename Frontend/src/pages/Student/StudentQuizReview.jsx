@@ -6,7 +6,7 @@ import '../../styles/teacher.css'
 import { getQuizReview } from '../../api/teacher'
 
 function answerLabel(q, value) {
-    if (value === null || value === undefined || value === '') return '—'
+    if (value === null || value === undefined || value === '') return '-'
     if (q.type === 'mcq') {
         const idx = parseInt(value)
         return q.options?.[idx] ?? String(value)

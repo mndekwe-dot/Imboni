@@ -49,7 +49,7 @@ function todayISO() {
 function fmtWeek(start, end) {
     if (!start || !end) return ''
     const f = d => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    return `Week: ${f(start)} — ${f(end)}`
+    return `Week: ${f(start)} - ${f(end)}`
 }
 
 function buildSections(classes) {
@@ -73,7 +73,7 @@ function buildSections(classes) {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function AttendancePip({ status }) {
-    if (!status) return <span className="att-pip unmarked">—</span>
+    if (!status) return <span className="att-pip unmarked">-</span>
     return <span className={`att-pip ${status}`}>{STATUS_MAP[status] ?? status[0].toUpperCase()}</span>
 }
 
@@ -81,7 +81,7 @@ function PaginationBar({ page, totalPages, totalCount, label, onPage }) {
     if (totalPages <= 1) return null
     return (
         <div className="pagination-bar">
-            <span className="pagination-info">{totalCount} {label} — Page {page} of {totalPages}</span>
+            <span className="pagination-info">{totalCount} {label} (Page {page} of {totalPages})</span>
             <div className="pagination-controls">
                 <button className="pagination-btn" disabled={page === 1} onClick={() => onPage(1)}>
                     <span className="material-symbols-rounded">first_page</span>
@@ -164,7 +164,7 @@ function StudentAttendanceTab({ sections }) {
                 <div className="card-header">
                     <div>
                         <h2 className="card-title">
-                            {weekData?.class_name || 'All Classes'} — Weekly Attendance
+                            {weekData?.class_name || 'All Classes'}: Weekly Attendance
                         </h2>
                         <p className="dos-class-meta">
                             {fmtWeek(weekData?.week_start, weekData?.week_end)}
@@ -345,7 +345,7 @@ function TeacherAttendanceTab() {
             <div className="card mt-1-5">
                 <div className="card-header">
                     <div>
-                        <h2 className="card-title">Teacher Attendance — Weekly</h2>
+                        <h2 className="card-title">Teacher Attendance (Weekly)</h2>
                         <p className="dos-class-meta">{fmtWeek(weekData?.week_start, weekData?.week_end)}</p>
                     </div>
                     <div className="att-legend">
@@ -392,7 +392,7 @@ function TeacherAttendanceTab() {
                                                                 value={tEdits[day] ?? ''}
                                                                 onChange={e => setStatus(t.teacher_id, day, e.target.value || null)}
                                                             >
-                                                                <option value="">—</option>
+                                                                <option value="">-</option>
                                                                 {STATUS_OPTS.map(s => (
                                                                     <option key={s} value={s}>{STATUS_MAP[s]}</option>
                                                                 ))}
@@ -457,10 +457,10 @@ export function DosAttendance() {
 
                         <div className="portal-stat-grid">
                             {[
-                                { icon: 'how_to_reg',         colorClass: 'success', value: attStats ? `${attStats.attendance_rate}%` : '—', label: 'Student Attendance',  trend: 'Current term',    trendClass: attStats?.attendance_rate >= 90 ? 'positive' : 'negative' },
-                                { icon: 'person_off',         colorClass: 'warning', value: attStats ? attStats.absent_today           : '—', label: 'Absent Today',        trend: 'Needs follow-up', trendClass: 'negative' },
-                                { icon: 'schedule',           colorClass: 'info',    value: attStats ? attStats.late_this_week         : '—', label: 'Late Arrivals',       trend: 'This week',       trendClass: '' },
-                                { icon: 'supervisor_account', colorClass: 'success', value: attStats ? `${attStats.teacher_rate}%`     : '—', label: 'Teacher Attendance',  trend: 'Today',           trendClass: attStats?.teacher_rate >= 90 ? 'positive' : 'negative' },
+                                { icon: 'how_to_reg',         colorClass: 'success', value: attStats ? `${attStats.attendance_rate}%` : '-', label: 'Student Attendance',  trend: 'Current term',    trendClass: attStats?.attendance_rate >= 90 ? 'positive' : 'negative' },
+                                { icon: 'person_off',         colorClass: 'warning', value: attStats ? attStats.absent_today           : '-', label: 'Absent Today',        trend: 'Needs follow-up', trendClass: 'negative' },
+                                { icon: 'schedule',           colorClass: 'info',    value: attStats ? attStats.late_this_week         : '-', label: 'Late Arrivals',       trend: 'This week',       trendClass: '' },
+                                { icon: 'supervisor_account', colorClass: 'success', value: attStats ? `${attStats.teacher_rate}%`     : '-', label: 'Teacher Attendance',  trend: 'Today',           trendClass: attStats?.teacher_rate >= 90 ? 'positive' : 'negative' },
                             ].map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 

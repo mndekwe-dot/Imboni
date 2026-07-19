@@ -39,10 +39,10 @@ function groupResults(raw) {
                 key,          // used later to identify which card to update
                 ids: [],  // collect all result IDs in this group (needed for bulk approve/reject)
                 title: `${cls} - ${r.subject}`,
-                submittedBy: r.teacher || '—',
+                submittedBy: r.teacher || '-',
                 date: r.submitted_at
                     ? new Date(r.submitted_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-                    : '—',
+                    : '-',
                 subject: r.subject,
                 class: cls,
                 status,
@@ -70,9 +70,9 @@ function groupResults(raw) {
         ...g,
         students: g.studentMarks.length,
         //Average: sum all scores ÷ count, rounded to nearest whole number
-        avg:     g.scores.length ? `${Math.round(g.scores.reduce((a, b) => a + b, 0) / g.scores.length)}%` : '—',
-        highest: g.scores.length ? Math.max(...g.scores) : '—',
-        lowest:  g.scores.length ? Math.min(...g.scores) : '—',
+        avg:     g.scores.length ? `${Math.round(g.scores.reduce((a, b) => a + b, 0) / g.scores.length)}%` : '-',
+        highest: g.scores.length ? Math.max(...g.scores) : '-',
+        lowest:  g.scores.length ? Math.min(...g.scores) : '-',
     }))
 }
 
@@ -241,7 +241,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                     <div className="form-group">
                         <label className="form-label">Review Comment (optional)</label>
                         <textarea className="form-control es-textarea-v" rows={3}
-                            placeholder="Add a note for the teacher — required if rejecting..."
+                            placeholder="Add a note for the teacher (required if rejecting)..."
                             value={comment} onChange={e => setComment(e.target.value)}
                         />
                     </div>

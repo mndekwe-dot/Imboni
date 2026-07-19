@@ -57,7 +57,7 @@ function statusTextClass(status) {
     }
 }
 function statusLabel(status) {
-    if (!status || status === 'no-record' || status === 'weekend') return '—'
+    if (!status || status === 'no-record' || status === 'weekend') return '-'
     return status.charAt(0).toUpperCase() + status.slice(1)
 }
 
@@ -149,7 +149,7 @@ export function StudentAttendance() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Attendance"
-                        subtitle={`Your attendance record${gradeSection ? ` — ${gradeSection}` : ''}`}
+                        subtitle={`Your attendance record${gradeSection ? ` for ${gradeSection}` : ''}`}
                         userName={fullName}
                         userRole={userRole}
                         userInitials={initials}
@@ -162,15 +162,15 @@ export function StudentAttendance() {
                         {/* Hero */}
                         <div className="attendance-hero">
                             <div>
-                                <div className="attendance-big-number">{loading ? '—' : `${overallRate}%`}</div>
+                                <div className="attendance-big-number">{loading ? '-' : `${overallRate}%`}</div>
                                 <div className="attendance-big-label">Overall Attendance Rate</div>
                                 {stats?.attendance_label && <small className="u-muted">{stats.attendance_label}</small>}
                             </div>
                             <div className="attendance-breakdown">
-                                <div className="att-breakdown-item"><span>{loading ? '—' : daysPresent}</span><small>Days Present</small></div>
-                                <div className="att-breakdown-item"><span>{loading ? '—' : daysAbsent}</span><small>Days Absent</small></div>
-                                <div className="att-breakdown-item"><span>{loading ? '—' : lateArrivals}</span><small>Late Arrivals</small></div>
-                                <div className="att-breakdown-item"><span>{loading ? '—' : totalDays}</span><small>Total School Days</small></div>
+                                <div className="att-breakdown-item"><span>{loading ? '-' : daysPresent}</span><small>Days Present</small></div>
+                                <div className="att-breakdown-item"><span>{loading ? '-' : daysAbsent}</span><small>Days Absent</small></div>
+                                <div className="att-breakdown-item"><span>{loading ? '-' : lateArrivals}</span><small>Late Arrivals</small></div>
+                                <div className="att-breakdown-item"><span>{loading ? '-' : totalDays}</span><small>Total School Days</small></div>
                             </div>
                         </div>
 
@@ -180,7 +180,7 @@ export function StudentAttendance() {
                                 <div key={i} className="student-stat-card">
                                     <div className="stat-icon green"><span className="material-symbols-rounded">{row.materialSymbols}</span></div>
                                     <div className="stat-body">
-                                        <div className="stat-value" style={{ color: row.statValueColor }}>{loading ? '—' : row.statValue}</div>
+                                        <div className="stat-value" style={{ color: row.statValueColor }}>{loading ? '-' : row.statValue}</div>
                                         <div className="stat-label">{row.statLabel}</div>
                                     </div>
                                 </div>
@@ -231,7 +231,7 @@ export function StudentAttendance() {
                         {/* Records table */}
                         <div className="attendance-table-card">
                             <div className="section-card-header">
-                                <h3><span className="material-symbols-rounded">table_view</span> Attendance Records — {MONTH_NAMES[month]} {year}</h3>
+                                <h3><span className="material-symbols-rounded">table_view</span> Attendance Records: {MONTH_NAMES[month]} {year}</h3>
                             </div>
                             <div className="card-content">
                                 {tableRecords.length === 0 ? (
@@ -247,7 +247,7 @@ export function StudentAttendance() {
                                                     const d = new Date(r.date)
                                                     const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                                                     const dayStr  = d.toLocaleDateString('en-US', { weekday: 'long' })
-                                                    const timeStr = r.time_in ? r.time_in.slice(0, 5) : '—'
+                                                    const timeStr = r.time_in ? r.time_in.slice(0, 5) : '-'
                                                     return (
                                                         <tr key={i}>
                                                             <td>{dateStr}</td>

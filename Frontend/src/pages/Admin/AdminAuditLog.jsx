@@ -76,7 +76,7 @@ export function AdminAuditLog() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Audit Log"
-                        subtitle="Who did what, and when — sensitive administrative actions"
+                        subtitle="Who did what, and when: sensitive administrative actions"
                         userName={adminUser.userName}
                         userRole={adminUser.userRole}
                         userInitials={adminUser.userInitials}

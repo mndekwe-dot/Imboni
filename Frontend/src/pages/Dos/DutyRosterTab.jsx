@@ -45,14 +45,14 @@ function PostManager({ posts, onCreate, onUpdate, onDelete }) {
             <div className="card-content">
                 {posts.length === 0 && (
                     <p className="u-muted u-sm">
-                        No duty posts yet. Add one below — the generator rotates staff through
+                        No duty posts yet. Add one below. The generator rotates staff through
                         every active post on each selected day.
                     </p>
                 )}
                 {posts.map(p => (
                     <div key={p.id} className="dset-lesson-row">
                         <span className="dset-lesson-name">{p.name}</span>
-                        <span className="u-muted u-sm">{p.start_time?.slice(0,5)}–{p.end_time?.slice(0,5)}</span>
+                        <span className="u-muted u-sm">{p.start_time?.slice(0,5)}-{p.end_time?.slice(0,5)}</span>
                         <span className="es-room-chip">{p.staff_required} staff</span>
                         <label className="u-flex u-gap-05 u-items-center u-sm u-muted">
                             <input type="checkbox" checked={p.is_active}
@@ -207,7 +207,7 @@ function GenerateModal({ onClose, onCommitted }) {
                                     <tr key={i}>
                                         <td className="es-nowrap">{DAY_LABEL[a.day] || a.day}</td>
                                         <td>{a.post_name}</td>
-                                        <td className="es-nowrap">{a.start_time}–{a.end_time}</td>
+                                        <td className="es-nowrap">{a.start_time}-{a.end_time}</td>
                                         <td>{a.staff_name}</td>
                                     </tr>
                                 ))}
@@ -311,7 +311,7 @@ export function DutyRosterTab() {
                                         {byDay[day].map(r => (
                                             <tr key={r.id}>
                                                 <td>{r.post_name}</td>
-                                                <td className="es-nowrap">{r.start_time}–{r.end_time}</td>
+                                                <td className="es-nowrap">{r.start_time}-{r.end_time}</td>
                                                 <td>{r.staff_name}</td>
                                                 <td className="u-muted u-capitalize">{r.staff_role}</td>
                                             </tr>

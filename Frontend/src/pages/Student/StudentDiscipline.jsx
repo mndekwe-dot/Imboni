@@ -16,12 +16,12 @@ const conductCategories = [
     { cardClass: 'uniform',  iconClass: 'orange', icon: 'checkroom',  title: 'Uniform & Appearance',     rules: [
         'Full school uniform must be worn every school day',
         'School tie required from Monday to Friday',
-        'Hair must be natural — no dye, extensions, or elaborate styles',
+        'Hair must be natural: no dye, extensions, or elaborate styles',
         'No jewellery except a plain wristwatch',
         'Shoes must be plain black and well-polished',
     ]},
     { cardClass: 'attend',   iconClass: 'amber',  icon: 'schedule',   title: 'Attendance & Punctuality', rules: [
-        'Gates close at 7:25 AM — late arrival requires a late pass',
+        'Gates close at 7:25 AM; late arrival requires a late pass',
         'All absences must be explained by a signed parent/guardian note',
         'Minimum 85% attendance required per term',
         'Leaving school grounds requires written permission from administration',
@@ -33,7 +33,7 @@ const conductCategories = [
         'All work submitted must be original and the student\'s own',
     ]},
     { cardClass: 'boarding', iconClass: 'purple', icon: 'home',       title: 'Dormitory & Boarding',     rules: [
-        'Lights out at 10:15 PM — no exceptions',
+        'Lights out at 10:15 PM, no exceptions',
         'No visitors of the opposite gender in dormitories at any time',
         'Students are responsible for cleanliness of their rooms',
         'All personal valuables must be stored in locked trunks',
@@ -83,7 +83,7 @@ function pointsDisplay(type) {
     if (type === 'positive' || type === 'achievement') return { label: '+', cls: 'disc-points-pos' }
     if (type === 'incident')                            return { label: '-', cls: 'disc-points-neg' }
     if (type === 'warning')                             return { label: 'W', cls: ''               }
-    return { label: '—', cls: '' }
+    return { label: '-', cls: '' }
 }
 
 function DisciplineRow({ report }) {
@@ -91,13 +91,13 @@ function DisciplineRow({ report }) {
     const points = pointsDisplay(report.report_type)
     const dateStr = report.date
         ? new Date(report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-        : '—'
+        : '-'
     return (
         <tr>
             <td>{dateStr}</td>
             <td><span className="badge" style={{ background: badge.bg, color: badge.color }}>{badge.label}</span></td>
             <td>{report.description}</td>
-            <td>{report.reported_by || '—'}</td>
+            <td>{report.reported_by || '-'}</td>
             <td>
                 {points.cls
                     ? <span className={points.cls}>{points.label}</span>
@@ -164,7 +164,7 @@ export function StudentDiscipline() {
     const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
 
     const reports      = discipline?.reports      || []
-    const conductGrade = discipline?.conduct_grade || '—'
+    const conductGrade = discipline?.conduct_grade || '-'
     const conductLabel = discipline?.conduct_label || 'No grade yet'
 
     const positiveCount = reports.filter(r => r.report_type === 'positive' || r.report_type === 'achievement').length
@@ -172,10 +172,10 @@ export function StudentDiscipline() {
     const warningCount  = reports.filter(r => r.report_type === 'warning').length
 
     const conductStats = [
-        { iconClass: 'teal',  icon: 'verified',   value: loading ? '—' : conductGrade,    valueColor: 'var(--student)',     label: 'Conduct Grade'   },
-        { iconClass: 'green', icon: 'thumb_up',   value: loading ? '—' : `+${positiveCount}`, valueColor: 'var(--success)',  label: 'Positive Points' },
-        { iconClass: 'red',   icon: 'thumb_down', value: loading ? '—' : `-${negativeCount}`, valueColor: 'var(--destructive)', label: 'Negative Points' },
-        { iconClass: 'blue',  icon: 'shield',     value: loading ? '—' : conductLabel,    valueColor: 'var(--primary)',     label: 'Current Standing'},
+        { iconClass: 'teal',  icon: 'verified',   value: loading ? '-' : conductGrade,    valueColor: 'var(--student)',     label: 'Conduct Grade'   },
+        { iconClass: 'green', icon: 'thumb_up',   value: loading ? '-' : `+${positiveCount}`, valueColor: 'var(--success)',  label: 'Positive Points' },
+        { iconClass: 'red',   icon: 'thumb_down', value: loading ? '-' : `-${negativeCount}`, valueColor: 'var(--destructive)', label: 'Negative Points' },
+        { iconClass: 'blue',  icon: 'shield',     value: loading ? '-' : conductLabel,    valueColor: 'var(--primary)',     label: 'Current Standing'},
     ]
 
     const filteredReports = reports.filter(r => typeMatch(r, typeFilter))

@@ -16,7 +16,7 @@ export function StatusChip({ status }) {
     return <span className={`platform-chip platform-chip-${m.cls}`}>{m.label}</span>
 }
 
-const num = v => (v === null || v === undefined ? '—' : v)
+const num = v => (v === null || v === undefined ? '-' : v)
 
 export function SchoolsSection() {
     const toast = useToast()

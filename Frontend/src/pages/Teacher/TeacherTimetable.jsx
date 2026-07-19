@@ -43,7 +43,7 @@ export function TeacherTimetable() {
                         <div className="tt-notice">
                             <span className="material-symbols-rounded">lock</span>
                             <div>
-                                <strong>Read-only</strong> — Your timetable is set by the Director of Studies. Contact DOS to request changes.
+                                <strong>Read-only.</strong> Your timetable is set by the Director of Studies. Contact DOS to request changes.
                             </div>
                         </div>
 

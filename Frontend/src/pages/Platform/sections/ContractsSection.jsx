@@ -21,7 +21,7 @@ function ContractChip({ c }) {
 }
 
 function remainingLabel(c) {
-    if (c.status !== 'active') return '—'
+    if (c.status !== 'active') return '-'
     const d = c.days_remaining
     if (d === 0) return 'Ends today'
     if (d > 0) return `${d} day${d === 1 ? '' : 's'} left`
@@ -98,11 +98,11 @@ export function ContractsSection() {
                         <form id="contract-form" className="platform-form-grid" onSubmit={submit}>
                             <label>School
                                 <select className="form-input" value={form.client} onChange={e => set('client', e.target.value)} required>
-                                    <option value="">— select —</option>
+                                    <option value="">Select</option>
                                     {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                 </select>
                             </label>
-                            <label>Title<input className="form-input" required value={form.title} onChange={e => set('title', e.target.value)} placeholder="2026 Annual — Basic" /></label>
+                            <label>Title<input className="form-input" required value={form.title} onChange={e => set('title', e.target.value)} placeholder="2026 Annual, Basic" /></label>
                             <label>Plan
                                 <select className="form-input" value={form.plan} onChange={e => set('plan', e.target.value)}>
                                     <option value="basic">Basic</option><option value="premium">Premium</option><option value="free">Free</option>

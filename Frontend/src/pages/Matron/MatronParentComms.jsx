@@ -172,7 +172,7 @@ export function MatronParentComms() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Parent Communications"
-                        subtitle={`Log and track all parent contact — ${matronUser.userRole.split('—').pop().trim()}`}
+                        subtitle={`Log and track all parent contact for ${matronUser.userRole.split(',').pop().trim()}`}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -195,7 +195,7 @@ export function MatronParentComms() {
                                     <div>
                                         <label>Student</label>
                                         <select value={studentId} onChange={e => setStudentId(e.target.value)}>
-                                            <option value="">— Select student —</option>
+                                            <option value="">Select student...</option>
                                             {students.map(s => (
                                                 <option key={s.student_pk} value={s.student_pk}>
                                                     {s.full_name} (S{s.grade}{s.section})
@@ -228,8 +228,8 @@ export function MatronParentComms() {
                                     <div>
                                         <label>Outcome / Status</label>
                                         <select value={outcome} onChange={e => setOutcome(e.target.value)}>
-                                            <option value="completed">Completed &mdash; parent informed</option>
-                                            <option value="no_answer">No Answer &mdash; will retry</option>
+                                            <option value="completed">Completed (parent informed)</option>
+                                            <option value="no_answer">No Answer (will retry)</option>
                                             <option value="message_left">Message Left</option>
                                             <option value="awaiting_reply">Awaiting Parent Reply</option>
                                             <option value="sms_sent">SMS Sent</option>
@@ -244,9 +244,9 @@ export function MatronParentComms() {
                                         <label>Follow-up Required?</label>
                                         <select value={followUp} onChange={e => setFollowUp(e.target.value)}>
                                             <option value="no">No</option>
-                                            <option value="1day">Yes &mdash; follow up in 1 day</option>
-                                            <option value="3days">Yes &mdash; follow up in 3 days</option>
-                                            <option value="nextweek">Yes &mdash; follow up next week</option>
+                                            <option value="1day">Yes (follow up in 1 day)</option>
+                                            <option value="3days">Yes (follow up in 3 days)</option>
+                                            <option value="nextweek">Yes (follow up next week)</option>
                                         </select>
                                     </div>
                                     <div>

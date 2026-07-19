@@ -116,7 +116,7 @@ function AttendancePanel({ childId, childName, loading }) {
 
             <div className="card">
                 <div className="card-header">
-                    <h3 className="card-title">{childName} — {MONTH_NAMES[month - 1]} {year}</h3>
+                    <h3 className="card-title">{childName}: {MONTH_NAMES[month - 1]} {year}</h3>
                     <div className="u-row-sm">
                         <button className="btn btn-outline btn-sm" onClick={prevMonth}>
                             <span className="material-symbols-rounded">chevron_left</span>

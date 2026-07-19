@@ -428,7 +428,7 @@ export function TeacherDashboard() {
                                                     <div className="chart-legend-row">
                                                         {[
                                                             ['#10b981', '≥ 80% Excellent'],
-                                                            ['#003d7a', '70–79% Good'],
+                                                            ['#003d7a', '70-79% Good'],
                                                             ['#f59e0b', '< 70% Needs attention'],
                                                         ].map(([color, label]) => (
                                                             <div key={label} className="chart-legend-item">

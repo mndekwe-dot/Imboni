@@ -34,7 +34,7 @@ describe('AdminDashboard', () => {
     getAdminRecentActivity.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<AdminDashboard />)
 
-    expect(screen.getAllByText('—').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('-').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Loading…').length).toBeGreaterThan(0)
   })
 
@@ -72,6 +72,6 @@ describe('AdminDashboard', () => {
     renderWithRouter(<AdminDashboard />)
 
     await waitFor(() => expect(screen.getByText('No recent activity.')).toBeInTheDocument())
-    expect(screen.getAllByText('—').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('-').length).toBeGreaterThan(0)
   })
 })

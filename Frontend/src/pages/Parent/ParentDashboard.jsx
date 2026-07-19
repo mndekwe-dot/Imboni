@@ -79,7 +79,7 @@ function ChildStats({ stats, loading }) {
     const cards = [
         {
             icon: 'trending_up',
-            value: loading ? '—' : perf != null ? `${perf}%` : '—',
+            value: loading ? '-' : perf != null ? `${perf}%` : '-',
             label: 'Overall Performance',
             trend: perf != null ? (perf >= 70 ? 'Above average' : 'Below average') : 'No data yet',
             trendClass: perf != null && perf >= 70 ? 'positive' : '',
@@ -87,7 +87,7 @@ function ChildStats({ stats, loading }) {
         },
         {
             icon: 'event_available',
-            value: loading ? '—' : att ? `${att.percentage}%` : '—',
+            value: loading ? '-' : att ? `${att.percentage}%` : '-',
             label: 'Attendance Rate',
             trend: att ? `${att.present_days} present, ${att.absent_days} absent` : 'No records yet',
             trendClass: '',
@@ -95,7 +95,7 @@ function ChildStats({ stats, loading }) {
         },
         {
             icon: 'campaign',
-            value: loading ? '—' : ann != null ? ann.unread_count : '—',
+            value: loading ? '-' : ann != null ? ann.unread_count : '-',
             label: 'Unread Announcements',
             trend: ann ? `${ann.urgent_count} urgent` : '',
             trendClass: ann?.urgent_count > 0 ? 'negative' : '',
@@ -103,7 +103,7 @@ function ChildStats({ stats, loading }) {
         },
         {
             icon: 'shield_person',
-            value: loading ? '—' : beh != null ? beh.positive_count : '—',
+            value: loading ? '-' : beh != null ? beh.positive_count : '-',
             label: 'Positive Reports',
             trend: 'This term',
             trendClass: 'positive',

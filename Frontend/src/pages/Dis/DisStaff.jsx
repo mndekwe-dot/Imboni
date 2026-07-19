@@ -25,7 +25,7 @@ function MatronCard({ staff, onEdit }) {
                 <div className="staff-card-avatar matron">{initials(full_name)}</div>
                 <div>
                     <div className="staff-card-name">{full_name}</div>
-                    <div className="staff-card-role">{roleLabel} — {dormLabel}</div>
+                    <div className="staff-card-role">{roleLabel} ({dormLabel})</div>
                 </div>
             </div>
             <div className="staff-card-meta">
@@ -50,7 +50,7 @@ function PatronCard({ staff, onEdit }) {
                 <div className="staff-card-avatar patron">{initials(full_name)}</div>
                 <div>
                     <div className="staff-card-name">{full_name}</div>
-                    <div className="staff-card-role">Patron — {dormLabel}</div>
+                    <div className="staff-card-role">Patron ({dormLabel})</div>
                 </div>
             </div>
             <div className="staff-card-meta">

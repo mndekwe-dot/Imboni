@@ -32,8 +32,8 @@ export function OfflineIndicator() {
             <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>
                 {online ? 'cloud_sync' : 'cloud_off'}
             </span>
-            {!online && pending === 0 && 'Offline — changes will be saved locally'}
-            {!online && pending > 0 && `Offline — ${pending} change${pending !== 1 ? 's' : ''} waiting to sync`}
+            {!online && pending === 0 && 'Offline: changes will be saved locally'}
+            {!online && pending > 0 && `Offline: ${pending} change${pending !== 1 ? 's' : ''} waiting to sync`}
             {online && pending > 0 && `Syncing ${pending} change${pending !== 1 ? 's' : ''}…`}
         </span>
     )

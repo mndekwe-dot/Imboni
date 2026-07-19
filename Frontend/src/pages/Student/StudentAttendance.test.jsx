@@ -26,7 +26,7 @@ describe('StudentAttendance', () => {
     getStudentAttendanceStats.mockReturnValue(new Promise(() => {}))
     getStudentAttendanceCalendar.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<StudentAttendance />)
-    expect(screen.getAllByText('—').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('-').length).toBeGreaterThan(0)
   })
 
   it('renders the overall rate, breakdown stats and calendar once loaded', async () => {

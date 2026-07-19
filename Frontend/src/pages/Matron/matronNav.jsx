@@ -17,7 +17,7 @@ import { notifications } from '../../data/notifications'
 
 export const matronUser = {
     userName:      'Mrs. Gloriose Hakizimana',
-    userRole:      'Matron — Karisimbi House',
+    userRole:      'Matron, Karisimbi House',
     userInitials:  'GH',
     avatarClass:   'matron-av',
     notifications: notifications.matron,

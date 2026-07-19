@@ -140,13 +140,13 @@ export function MatronIncidents() {
 
                         <div className="incident-form-card">
                             <div className="incident-form-title">
-                                <span className="material-symbols-rounded">report</span> New Incident Report &mdash; {matronUser.userRole.split('—').pop().trim()} &rarr; Discipline Master
+                                <span className="material-symbols-rounded">report</span> New Incident Report: {matronUser.userRole.split(',').pop().trim()} &rarr; Discipline Master
                             </div>
                             <div className="incident-form-grid">
                                 <div className="form-field">
                                     <label>Student</label>
                                     <select value={studentId} onChange={e => setStudentId(e.target.value)}>
-                                        <option value="">— Select student —</option>
+                                        <option value="">Select student...</option>
                                         {students.map(s => (
                                             <option key={s.student_pk} value={s.student_pk}>
                                                 {s.full_name} (S{s.grade}{s.section})
@@ -169,7 +169,7 @@ export function MatronIncidents() {
                                         <option value="minor">Minor</option>
                                         <option value="moderate">Moderate</option>
                                         <option value="serious">Serious</option>
-                                        <option value="critical">Critical &mdash; Requires Immediate Action</option>
+                                        <option value="critical">Critical (Requires Immediate Action)</option>
                                     </select>
                                 </div>
                                 <div className="form-field">
@@ -179,7 +179,7 @@ export function MatronIncidents() {
                                 <div className="form-field form-field-full">
                                     <label>Description</label>
                                     <textarea
-                                        placeholder="Describe the incident in detail — what happened, where, who was involved, any witnesses..."
+                                        placeholder="Describe the incident in detail: what happened, where, who was involved, any witnesses..."
                                         value={description}
                                         onChange={e => setDescription(e.target.value)}
                                     />

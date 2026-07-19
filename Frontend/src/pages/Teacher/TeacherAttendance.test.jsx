@@ -43,7 +43,7 @@ describe('TeacherAttendance', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: /Mark Attendance/ })).toBeInTheDocument())
   })
 
-  it('shows O-Level as a section option once classes with grade 1–3 load', async () => {
+  it('shows O-Level as a section option once classes with grade 1-3 load', async () => {
     getTeacherMyClasses.mockResolvedValue(CLASSES)
     renderWithRouter(<TeacherAttendance />)
     // ClassPicker renders a <select> with options, not buttons
@@ -72,7 +72,7 @@ describe('TeacherAttendance', () => {
     fireEvent.click(screen.getByRole('button', { name: /Save Attendance/ }))
 
     await waitFor(() =>
-      expect(screen.getByText(/saved offline — it will sync automatically/i)).toBeInTheDocument())
+      expect(screen.getByText(/saved offline\. It will sync automatically/i)).toBeInTheDocument())
     expect(markTeacherAttendance).toHaveBeenCalledWith(expect.objectContaining({
       records: [expect.objectContaining({ student_id: 's1' })],
     }))

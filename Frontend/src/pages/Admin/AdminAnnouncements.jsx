@@ -377,10 +377,10 @@ export function AdminAnnouncements() {
         : announcements
 
     const statCards = [
-        { icon: 'campaign',      value: loading ? '—' : publishedCount,         label: 'Published',  trend: 'Live announcements',   colorClass: 'info'    },
-        { icon: 'draft',         value: loading ? '—' : draftCount,             label: 'Drafts',     trend: 'Saved, not sent',      colorClass: 'warning' },
-        { icon: 'priority_high', value: loading ? '—' : urgentCount,            label: 'Urgent',     trend: 'Requires attention',   colorClass: ''        },
-        { icon: 'feed',          value: loading ? '—' : announcements.length,   label: 'Total',      trend: 'This view',            colorClass: 'success' },
+        { icon: 'campaign',      value: loading ? '-' : publishedCount,         label: 'Published',  trend: 'Live announcements',   colorClass: 'info'    },
+        { icon: 'draft',         value: loading ? '-' : draftCount,             label: 'Drafts',     trend: 'Saved, not sent',      colorClass: 'warning' },
+        { icon: 'priority_high', value: loading ? '-' : urgentCount,            label: 'Urgent',     trend: 'Requires attention',   colorClass: ''        },
+        { icon: 'feed',          value: loading ? '-' : announcements.length,   label: 'Total',      trend: 'This view',            colorClass: 'success' },
     ]
 
     return (

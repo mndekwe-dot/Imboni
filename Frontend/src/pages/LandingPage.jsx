@@ -5,7 +5,7 @@ import logo from '../assets/images/imboni-logo.png'
 const portals = [
     {
         title: 'Student Portal',
-        desc: 'Access your timetable, results, assignments, attendance record, and school announcements — all in one place.',
+        desc: 'Access your timetable, results, assignments, attendance record, and school announcements, all in one place.',
         icon: 'school',
         color: '#0d9488',
         bg: 'rgba(13,148,136,0.1)',
@@ -35,7 +35,7 @@ const portals = [
     },
     {
         title: 'Director of Studies',
-        desc: 'Full academic oversight — manage timetables, exam schedules, analytics, and school-wide announcements.',
+        desc: 'Full academic oversight: manage timetables, exam schedules, analytics, and school-wide announcements.',
         icon: 'manage_accounts',
         color: '#003d7a',
         bg: 'rgba(0,61,122,0.09)',
@@ -68,14 +68,14 @@ const portals = [
 const features = [
     { icon: 'sync', title: 'Real-Time Information', desc: 'Results, attendance, and announcements update instantly across all portals.' },
     { icon: 'lock', title: 'Secure Role-Based Access', desc: 'Every user sees only what they need. School-issued credentials keep data private.' },
-    { icon: 'forum', title: 'Integrated Messaging', desc: 'Direct messaging between teachers, parents, and boarding staff — no outside apps needed.' },
+    { icon: 'forum', title: 'Integrated Messaging', desc: 'Direct messaging between teachers, parents, and boarding staff, with no outside apps needed.' },
     { icon: 'bar_chart', title: 'Academic Analytics', desc: 'A live picture of performance trends, attendance rates, and exam outcomes.' },
-    { icon: 'phone_iphone', title: 'Mobile-Friendly', desc: 'Full experience on any device — phone, tablet, or desktop. No app install needed.' },
+    { icon: 'phone_iphone', title: 'Mobile-Friendly', desc: 'Full experience on any device: phone, tablet, or desktop. No app install needed.' },
     { icon: 'notifications', title: 'Smart Announcements', desc: 'Important notices reach students, teachers, and parents simultaneously.' },
 ]
 
 const aboutPoints = [
-    { icon: 'emoji_objects', title: 'Our Mission', desc: 'To simplify school life by connecting every stakeholder — students, teachers, parents, and boarding staff — on one clear and reliable platform.' },
+    { icon: 'emoji_objects', title: 'Our Mission', desc: 'To simplify school life by connecting every stakeholder (students, teachers, parents, and boarding staff) on one clear and reliable platform.' },
     { icon: 'groups', title: 'Who We Serve', desc: 'Imboni is built for boarding schools that want to bring clarity, transparency, and efficiency to every part of school operations.' },
     { icon: 'verified', title: 'Our Commitment', desc: 'We are committed to data privacy, secure access, and building tools that actually match how schools work every day.' },
 ]
@@ -94,14 +94,14 @@ const boardingPills = ['Karisimbi (Girls)', 'Muhabura (Boys)', 'Bisoke (Girls)',
 const mockNotifs = [
     { icon: 'priority_high', color: '#ef4444', text: 'Physics Exam moved to Mar 14', time: '2m ago' },
     { icon: 'school', color: '#0d9488', text: 'Term 2 results now published', time: '1h ago' },
-    { icon: 'event', color: '#f97316', text: 'Parent-Teacher Conf — Mar 20', time: '3h ago' },
+    { icon: 'event', color: '#f97316', text: 'Parent-Teacher Conf, Mar 20', time: '3h ago' },
 ]
 
 const contactItems = [
     { icon: 'location_on', label: 'Address', value: 'Musanze, Northern Province, Rwanda' },
     { icon: 'mail', label: 'Email', value: 'ndekwe22@gmail.com' },
     { icon: 'phone', label: 'Phone', value: '+250 798 650 0692' },
-    { icon: 'schedule', label: 'Hours', value: 'Mon – Fri, 7:30 AM – 5:00 PM' },
+    { icon: 'schedule', label: 'Hours', value: 'Mon - Fri, 7:30 AM - 5:00 PM' },
 ]
 
 export function LandingPage() {
@@ -152,7 +152,7 @@ export function LandingPage() {
 
                         <p className="hero-subtitle">
                             Imboni brings students, teachers, parents, and boarding staff together
-                            on one unified platform — keeping communication clear and school life running smoothly.
+                            on one unified platform, keeping communication clear and school life running smoothly.
                         </p>
 
                         <div className="hero-actions">
@@ -229,7 +229,7 @@ export function LandingPage() {
                     <div className="section-label">About Imboni</div>
                     <h2 className="section-title">Built around your school community</h2>
                     <p className="section-subtitle">
-                        Imboni was designed from the ground up for boarding schools —
+                        Imboni was designed from the ground up for boarding schools,
                         where students, teachers, parents, and residential staff all need
                         to stay connected and informed every single day.
                     </p>
@@ -252,7 +252,7 @@ export function LandingPage() {
                     <div className="about-photo-content">
                         <blockquote className="about-quote">
                             "A school runs on communication. Imboni makes sure that communication
-                            is clear, timely, and reaches the right people — every time."
+                            is clear, timely, and reaches the right people, every time."
                         </blockquote>
                         <div className="about-quote-source">School Administration Team</div>
                     </div>
@@ -326,7 +326,7 @@ export function LandingPage() {
                         </div>
                         <p className="boarding-visual-desc">
                             The Matron and Discipline portals give boarding staff complete oversight
-                            of residential life — from health records to house activities.
+                            of residential life, from health records to house activities.
                         </p>
                         <div className="boarding-pill-row">
                             {boardingPills.map(h => (
@@ -339,7 +339,7 @@ export function LandingPage() {
                         <div className="section-label">Residential Life</div>
                         <h2 className="section-title">Complete boarding school oversight</h2>
                         <p className="section-subtitle lp-sub-mb-175">
-                            Every boarding house, every student, every incident — tracked and
+                            Every boarding house, every student, every incident: tracked and
                             communicated clearly between staff and parents.
                         </p>
                         <ul className="boarding-list">

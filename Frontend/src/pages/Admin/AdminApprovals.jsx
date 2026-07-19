@@ -34,7 +34,7 @@ function RejectModal({ result, onClose, onDone }) {
 
     const studentName = result.student_name || result.student?.name ||
         `${result.student?.first_name || ''} ${result.student?.last_name || ''}`.trim() || 'Student'
-    const subject = result.subject_name || result.subject?.name || '—'
+    const subject = result.subject_name || result.subject?.name || '-'
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -91,13 +91,13 @@ function RejectModal({ result, onClose, onDone }) {
 
 function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) {
     const studentName = result.student_name || result.student?.name ||
-        `${result.student?.first_name || ''} ${result.student?.last_name || ''}`.trim() || '—'
-    const subject     = result.subject_name || result.subject?.name || '—'
+        `${result.student?.first_name || ''} ${result.student?.last_name || ''}`.trim() || '-'
+    const subject     = result.subject_name || result.subject?.name || '-'
     const teacher     = result.teacher_name || result.submitted_by?.name ||
-        `${result.submitted_by?.first_name || ''} ${result.submitted_by?.last_name || ''}`.trim() || '—'
-    const score       = result.total_score ?? result.score ?? result.final_score ?? '—'
-    const grade       = result.letter_grade || result.grade_letter || '—'
-    const cls         = result.grade ? `S${result.grade}${result.section || ''}` : (result.class_name || '—')
+        `${result.submitted_by?.first_name || ''} ${result.submitted_by?.last_name || ''}`.trim() || '-'
+    const score       = result.total_score ?? result.score ?? result.final_score ?? '-'
+    const grade       = result.letter_grade || result.grade_letter || '-'
+    const cls         = result.grade ? `S${result.grade}${result.section || ''}` : (result.class_name || '-')
 
     return (
         <tr>
@@ -111,13 +111,13 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
                 <div className="adm-sub">{cls}</div>
             </td>
             <td>{subject}</td>
-            <td className="u-strong">{score}{score !== '—' ? '%' : ''}</td>
+            <td className="u-strong">{score}{score !== '-' ? '%' : ''}</td>
             <td>
                 <span className="u-bold" style={{ color: gradeColor(grade) }}>{grade}</span>
             </td>
             <td className="adm-cell-sub">{teacher}</td>
             <td className="u-xs u-muted">
-                {result.submitted_at ? new Date(result.submitted_at).toLocaleDateString() : '—'}
+                {result.submitted_at ? new Date(result.submitted_at).toLocaleDateString() : '-'}
             </td>
             {status === 'pending' && (
                 <td>

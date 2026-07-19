@@ -269,7 +269,7 @@ export function DisAnnouncements() {
                                     <div className="form-group ann-form-group">
                                         <label className="form-label" htmlFor="disTitle">Announcement Title *</label>
                                         <input type="text" className="form-input" id="disTitle"
-                                            placeholder="e.g. Curfew Reminder — All Boarders"
+                                            placeholder="e.g. Curfew Reminder for All Boarders"
                                             value={form.title} onChange={set('title')} />
                                     </div>
 

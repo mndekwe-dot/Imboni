@@ -49,7 +49,7 @@ function dueDateColor(dateStr, status) {
 }
 
 function formatDueDate(dateStr, status) {
-    if (!dateStr) return '—'
+    if (!dateStr) return '-'
     const today = new Date()
     const due = new Date(dateStr)
     today.setHours(0, 0, 0, 0)
@@ -59,7 +59,7 @@ function formatDueDate(dateStr, status) {
     }
     const diff = Math.round((due - today) / 86400000)
     if (diff < 0) return `Was due ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-    if (diff === 0) return `Due today — ${due.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
+    if (diff === 0) return `Due today: ${due.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
     return `Due ${due.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
 }
 
@@ -126,7 +126,7 @@ function AssignmentCard({ assignment, onSubmit }) {
                 )}
                 {gs && (
                     <span className="badge assignment-grade-badge" style={gs}>
-                        {grade != null ? `${parseFloat(grade).toFixed(0)}%` : '—'}
+                        {grade != null ? `${parseFloat(grade).toFixed(0)}%` : '-'}
                     </span>
                 )}
             </div>
@@ -227,7 +227,7 @@ export function StudentAssignments() {
                                     onClick={() => setStatusFilter(tab)}
                                 >
                                     {tab}
-                                    <span className="tab-count">{loading ? '—' : countFor(tab)}</span>
+                                    <span className="tab-count">{loading ? '-' : countFor(tab)}</span>
                                 </button>
                             ))}
                         </div>

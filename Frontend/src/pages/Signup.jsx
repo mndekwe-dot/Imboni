@@ -130,7 +130,7 @@ export function Signup() {
         }
         return {
             ok: false,
-            detail: 'This is taking longer than expected. Your school may still be finishing setup — try signing in shortly.',
+            detail: 'This is taking longer than expected. Your school may still be finishing setup. Try signing in shortly.',
         }
     }
 

@@ -66,9 +66,9 @@ describe('MatronDashboard', () => {
         expect(screen.getByText('Not Checked')).toBeInTheDocument()
 
         // recent reports
-        expect(screen.getByText(/Iris N\. — Late return/)).toBeInTheDocument()
+        expect(screen.getByText(/Iris N\.: Late return/)).toBeInTheDocument()
         expect(screen.getByText('Flagged')).toBeInTheDocument()
-        expect(screen.getByText(/Peter N\. — Helped a sick friend/)).toBeInTheDocument()
+        expect(screen.getByText(/Peter N\.: Helped a sick friend/)).toBeInTheDocument()
         expect(screen.getByText('Positive')).toBeInTheDocument()
 
         // welcome banner uses dormitory

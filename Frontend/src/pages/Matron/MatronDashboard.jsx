@@ -83,7 +83,7 @@ export function MatronDashboard() {
         const positive = r.report_type === 'positive' || r.report_type === 'achievement'
         return {
             dotClass: positive ? 'reviewed' : 'pending',
-            title: `${r.student} — ${r.title}`,
+            title: `${r.student}: ${r.title}`,
             meta: `${r.date} • ${r.severity ? r.severity[0].toUpperCase() + r.severity.slice(1) : r.report_type}`,
             statusClass: positive ? 'reviewed' : 'pending',
             status: positive ? 'Positive' : 'Flagged',
@@ -99,13 +99,13 @@ export function MatronDashboard() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dashboard" subtitle={`${dormitory} — Overview`} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title="Dashboard" subtitle={`${dormitory} Overview`} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 
                         <WelcomeBanner
                             name={sessionUser.userName}
-                            role={`${dormitory} Matron — ${boarders.length} students in your care`}
+                            role={`${dormitory} Matron, ${boarders.length} students in your care`}
                         />
 
                         <div className="portal-stat-grid">

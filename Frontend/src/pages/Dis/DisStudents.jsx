@@ -32,7 +32,7 @@ function conductInfo(grade) {
 }
 
 function followUpStatus(report) {
-    if (!report.follow_up_required) return { label: '—',         cls: '' }
+    if (!report.follow_up_required) return { label: '-',         cls: '' }
     if (report.follow_up_completed)  return { label: 'Completed', cls: 'badge-success' }
     return                                  { label: 'Pending',   cls: 'badge-upcoming' }
 }
@@ -167,7 +167,7 @@ function StudentRow({ student, onView }) {
             <td>
                 {student.conduct_grade
                     ? <span className={`conduct-badge ${conductCls}`}>{label}</span>
-                    : <span className="dis-dash">—</span>
+                    : <span className="dis-dash">-</span>
                 }
             </td>
             <td>
@@ -206,10 +206,10 @@ function ReportRow({ report, onMarkComplete }) {
                 )}
             </td>
             <td className="text-muted u-nowrap">{report.date}</td>
-            <td className="text-muted">{report.reported_by || '—'}</td>
+            <td className="text-muted">{report.reported_by || '-'}</td>
             <td>
-                {fuStatus.label === '—'
-                    ? <span className="u-muted">—</span>
+                {fuStatus.label === '-'
+                    ? <span className="u-muted">-</span>
                     : <span className={`badge ${fuStatus.cls}`}>{fuStatus.label}</span>
                 }
             </td>
@@ -412,7 +412,7 @@ export function DisStudents() {
                                     <p className="u-pad u-muted">Loading reports…</p>
                                 ) : reportSubTab === 'pending' ? (
                                     pending.length === 0 ? (
-                                        <p className="dis-empty-center">No pending reports — all matron reports have been reviewed.</p>
+                                        <p className="dis-empty-center">No pending reports. All matron reports have been reviewed.</p>
                                     ) : (
                                         <div className="u-stack-sm">
                                             <p className="dis-hint">
@@ -423,7 +423,7 @@ export function DisStudents() {
                                     )
                                 ) : reportSubTab === 'approved' ? (
                                     <DataTable
-                                        title={`Approved Reports${pendingFollowUp > 0 ? ` — ${pendingFollowUp} follow-up pending` : ''}`}
+                                        title={`Approved Reports${pendingFollowUp > 0 ? ` (${pendingFollowUp} follow-up pending)` : ''}`}
                                         data={visibleApproved}
                                         columns={['Student', 'Class', 'Type', 'Description', 'Date', 'Reported By', 'Follow-up', 'Actions']}
                                         renderRow={(r, i) => <ReportRow key={r.id || i} report={r} onMarkComplete={handleMarkComplete} />}
@@ -469,7 +469,7 @@ export function DisStudents() {
                                                                 <div className="dis-reason">Reason: {r.review_notes}</div>
                                                             )}
                                                             <div className="dis-filed">
-                                                                Filed by <strong>{r.reported_by || '—'}</strong>
+                                                                Filed by <strong>{r.reported_by || '-'}</strong>
                                                                 {r.reviewed_by && <> &nbsp;·&nbsp; Rejected by <strong>{r.reviewed_by}</strong></>}
                                                             </div>
                                                         </div>

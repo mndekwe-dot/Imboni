@@ -81,7 +81,7 @@ describe('DosTimetable', () => {
 
     await waitFor(() => expect(getDosTimetable).toHaveBeenCalledWith('c1'))
     await waitFor(() => expect(screen.getByText('Mathematics')).toBeInTheDocument())
-    expect(screen.getByText('Class S3A — Weekly Timetable')).toBeInTheDocument()
+    expect(screen.getByText('Class S3A: Weekly Timetable')).toBeInTheDocument()
   })
 
   it('renders an empty timetable without crashing when classes/subjects load correctly (regression for the res.data unwrap bug)', async () => {
@@ -89,7 +89,7 @@ describe('DosTimetable', () => {
     // client.js response interceptor strips axios's `.data` envelope) — the page
     // must consume them directly rather than reaching for a non-existent `.data`.
     renderWithRouter(<DosTimetable />)
-    await waitFor(() => expect(screen.getByText('Class S3A — Weekly Timetable')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Class S3A: Weekly Timetable')).toBeInTheDocument())
   })
 
   it('opens the add-slot form and saves a new slot with the correct payload', async () => {
@@ -98,7 +98,7 @@ describe('DosTimetable', () => {
     getDosTeachersBySubjectAndClass.mockResolvedValue([])
     renderWithRouter(<DosTimetable />)
 
-    await waitFor(() => expect(screen.getByText('Class S3A — Weekly Timetable')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Class S3A: Weekly Timetable')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /Add Slot/ }))
     expect(screen.getByText('Add Slot', { selector: 'h2' })).toBeInTheDocument()
@@ -165,7 +165,7 @@ describe('DosTimetable', () => {
     getDosTimetable.mockResolvedValue({ slots: [] })
     renderWithRouter(<DosTimetable />)
 
-    await waitFor(() => expect(screen.getByText('Class S3A — Weekly Timetable')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Class S3A: Weekly Timetable')).toBeInTheDocument())
 
     // The class Select auto-selects the first class on load, so its trigger
     // shows the current label ("S3A"), not the "Select class" placeholder.
@@ -173,7 +173,7 @@ describe('DosTimetable', () => {
     fireEvent.click(screen.getByText('S3B'))
 
     await waitFor(() => expect(getDosTimetable).toHaveBeenCalledWith('c2'))
-    expect(screen.getByText('Class S3B — Weekly Timetable')).toBeInTheDocument()
+    expect(screen.getByText('Class S3B: Weekly Timetable')).toBeInTheDocument()
   })
 
   it('generates a preview then commits it via the Generate modal', async () => {
@@ -191,7 +191,7 @@ describe('DosTimetable', () => {
     commitDosTimetable.mockResolvedValue({ created: 1, unscheduled: [], summary: {}, warnings: [] })
 
     renderWithRouter(<DosTimetable />)
-    await waitFor(() => expect(screen.getByText('Class S3A — Weekly Timetable')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Class S3A: Weekly Timetable')).toBeInTheDocument())
 
     // Open the modal.
     fireEvent.click(screen.getByRole('button', { name: /Generate/i }))
@@ -211,14 +211,14 @@ describe('DosTimetable', () => {
 })
 
 describe('drag-to-move helpers', () => {
-  it('periodTimes zero-pads a "8:00 – 8:40" label into HH:MM', () => {
-    expect(periodTimes({ time: '8:00 – 8:40' })).toEqual({ start_time: '08:00', end_time: '08:40' })
-    expect(periodTimes({ time: '10:20 – 11:00' })).toEqual({ start_time: '10:20', end_time: '11:00' })
+  it('periodTimes zero-pads a "8:00 - 8:40" label into HH:MM', () => {
+    expect(periodTimes({ time: '8:00 - 8:40' })).toEqual({ start_time: '08:00', end_time: '08:40' })
+    expect(periodTimes({ time: '10:20 - 11:00' })).toEqual({ start_time: '10:20', end_time: '11:00' })
   })
 
   it('buildMovePayload keeps subject/teacher/room and targets the new day + period', () => {
     const cell = { _id: 's1', subject: 'Maths', subjectId: 'sub1', teacherId: 't1', room: 'R101' }
-    const targetPeriod = { id: 3, time: '11:10 – 11:50' }
+    const targetPeriod = { id: 3, time: '11:10 - 11:50' }
 
     const payload = buildMovePayload(cell, targetPeriod, 'Tuesday')
 
@@ -234,7 +234,7 @@ describe('drag-to-move helpers', () => {
 
   it('buildMovePayload sends null teacher and empty room when absent', () => {
     const cell = { _id: 's2', subjectId: 'sub2' }
-    const payload = buildMovePayload(cell, { id: 1, time: '8:00 – 8:40' }, 'Monday')
+    const payload = buildMovePayload(cell, { id: 1, time: '8:00 - 8:40' }, 'Monday')
     expect(payload.teacher_id).toBeNull()
     expect(payload.room_number).toBe('')
   })

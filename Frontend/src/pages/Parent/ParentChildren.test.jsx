@@ -37,7 +37,7 @@ describe('ParentChildren', () => {
     await waitFor(() => expect(screen.getByText('No children linked to your account.')).toBeInTheDocument())
   })
 
-  it('fetches per-child data only for the ids returned by getMyChildren — never an arbitrary id', async () => {
+  it('fetches per-child data only for the ids returned by getMyChildren, never an arbitrary id', async () => {
     getMyChildren.mockResolvedValue(CHILDREN)
     getChildCard.mockImplementation(id => Promise.resolve(id === 1 ? CARD_1 : CARD_2))
     getChildFees.mockResolvedValue([])

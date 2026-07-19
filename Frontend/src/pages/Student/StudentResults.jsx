@@ -50,29 +50,29 @@ function SubjectGradeCard({ subject, grade, final_score }) {
         <div className={`subject-grade-card ${gc}`}>
             <div className="subject-grade-top">
                 <span className="subject-name-label">{subject}</span>
-                <span className="grade-badge">{grade || '—'}</span>
+                <span className="grade-badge">{grade || '-'}</span>
             </div>
             <div className="grade-bar-wrap">
                 <div className="grade-bar" style={{ width }}></div>
             </div>
             <div className="grade-meta">
-                <span>{`${final_score != null ? `${final_score}%` : '—'}`}</span>
+                <span>{`${final_score != null ? `${final_score}%` : '-'}`}</span>
             </div>
         </div>
     )
 }
 
 function AssessmentRow({ subject_name, title, max_score, score_obtained, percentage, grade, date }) {
-    const pct = percentage != null ? `${parseFloat(percentage).toFixed(0)}%` : '—'
-    const dateStr = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'
+    const pct = percentage != null ? `${parseFloat(percentage).toFixed(0)}%` : '-'
+    const dateStr = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-'
     return (
         <tr>
             <td><strong>{subject_name}</strong></td>
             <td>{title}</td>
-            <td>{max_score != null ? parseInt(max_score) : '—'}</td>
-            <td>{score_obtained != null ? parseInt(score_obtained) : '—'}</td>
+            <td>{max_score != null ? parseInt(max_score) : '-'}</td>
+            <td>{score_obtained != null ? parseInt(score_obtained) : '-'}</td>
             <td>{pct}</td>
-            <td><span className="badge" style={gradeBadgeStyle(grade)}>{grade || '—'}</span></td>
+            <td><span className="badge" style={gradeBadgeStyle(grade)}>{grade || '-'}</span></td>
             <td>{dateStr}</td>
         </tr>
     )
@@ -120,10 +120,10 @@ export function StudentResults() {
     const numSubjects = subjects.length
 
     const summaryStats = [
-        { value: avgScore != null ? `${avgScore}%` : '—', label: 'Average Score',   color: 'var(--student)' },
-        { value: numSubjects || '—',                        label: 'Subjects Taken',  color: 'var(--accent)'  },
-        { value: activeTData?.term || '—',                  label: 'Term',            color: null             },
-        { value: activeTData?.year || '—',                  label: 'Year',            color: 'var(--success)' },
+        { value: avgScore != null ? `${avgScore}%` : '-', label: 'Average Score',   color: 'var(--student)' },
+        { value: numSubjects || '-',                        label: 'Subjects Taken',  color: 'var(--accent)'  },
+        { value: activeTData?.term || '-',                  label: 'Term',            color: null             },
+        { value: activeTData?.year || '-',                  label: 'Year',            color: 'var(--success)' },
     ]
 
     const termAssessments = activeTData
@@ -148,7 +148,7 @@ export function StudentResults() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="My Results"
-                        subtitle={gradeSection ? `Academic performance — ${gradeSection}` : 'Academic performance'}
+                        subtitle={gradeSection ? `Academic performance for ${gradeSection}` : 'Academic performance'}
                         userName={fullName}
                         userRole={userRole}
                         userInitials={initials}

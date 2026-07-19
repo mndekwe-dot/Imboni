@@ -169,13 +169,13 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                                 prefix="E"
                                 value={s.exam_weight}
                                 onChange={v => onLessonWeight(s.id, { exam_weight: v })}
-                                title={`Exam weight for ${s.name} (1–10): heavier subjects are scheduled first, get morning slots and rest gaps between exams`}
+                                title={`Exam weight for ${s.name} (1-10): heavier subjects are scheduled first, get morning slots and rest gaps between exams`}
                             />
                             <WeightSelect
                                 prefix="T"
                                 value={s.timetable_weight}
                                 onChange={v => onLessonWeight(s.id, { timetable_weight: v })}
-                                title={`Timetable weight for ${s.name} (1–10): heavier subjects get first pick of periods and spread more strictly across the week`}
+                                title={`Timetable weight for ${s.name} (1-10): heavier subjects get first pick of periods and spread more strictly across the week`}
                             />
                             <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title="Rename">
                                 <span className="material-symbols-rounded u-fs-095">edit</span>
@@ -533,7 +533,7 @@ export function DosSettings() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="School Settings"
-                        subtitle="Configure school structure — sections, year groups and stream classes"
+                        subtitle="Configure school structure: sections, year groups and stream classes"
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -621,7 +621,7 @@ export function DosSettings() {
 
                                                 {sec.years.length === 0 && (
                                                     <p className="dset-note">
-                                                        No year groups yet — add one above
+                                                        No year groups yet. Add one above
                                                     </p>
                                                 )}
                                             </div>
@@ -687,7 +687,7 @@ export function DosSettings() {
 
                                 {Object.keys(subjectsByType).length === 0 && (
                                     <p className="dset-note">
-                                        No subject types yet — add one above
+                                        No subject types yet. Add one above
                                     </p>
                                 )}
                             </div>
@@ -703,7 +703,7 @@ export function DosSettings() {
                                 <div className="settings-block">
                                     <div className="settings-block-label">
                                         <p className="settings-block-title">Add Room</p>
-                                        <p className="settings-block-desc">Classrooms, labs, halls — used when scheduling timetable slots</p>
+                                        <p className="settings-block-desc">Classrooms, labs, halls (used when scheduling timetable slots)</p>
                                     </div>
                                     <div className="settings-block-input-row u-mt-sm">
                                         <input
@@ -731,7 +731,7 @@ export function DosSettings() {
                                         </span>
                                     ))}
                                     {rooms.length === 0 && (
-                                        <span className="tag-chip-empty">No rooms yet — add one above</span>
+                                        <span className="tag-chip-empty">No rooms yet. Add one above</span>
                                     )}
                                 </div>
                             </div>
@@ -756,38 +756,38 @@ export function DosSettings() {
                                             onChange={e => setTimezone(e.target.value)}
                                         >
                                             <optgroup label="East Africa">
-                                                <option value="Africa/Kigali">Africa/Kigali — Rwanda (UTC+3)</option>
-                                                <option value="Africa/Nairobi">Africa/Nairobi — Kenya, Uganda, Tanzania (UTC+3)</option>
-                                                <option value="Africa/Kampala">Africa/Kampala — Uganda (UTC+3)</option>
-                                                <option value="Africa/Dar_es_Salaam">Africa/Dar_es_Salaam — Tanzania (UTC+3)</option>
-                                                <option value="Africa/Addis_Ababa">Africa/Addis_Ababa — Ethiopia (UTC+3)</option>
+                                                <option value="Africa/Kigali">Africa/Kigali (Rwanda, UTC+3)</option>
+                                                <option value="Africa/Nairobi">Africa/Nairobi (Kenya, Uganda, Tanzania, UTC+3)</option>
+                                                <option value="Africa/Kampala">Africa/Kampala (Uganda, UTC+3)</option>
+                                                <option value="Africa/Dar_es_Salaam">Africa/Dar_es_Salaam (Tanzania, UTC+3)</option>
+                                                <option value="Africa/Addis_Ababa">Africa/Addis_Ababa (Ethiopia, UTC+3)</option>
                                             </optgroup>
                                             <optgroup label="West Africa">
-                                                <option value="Africa/Lagos">Africa/Lagos — Nigeria (UTC+1)</option>
-                                                <option value="Africa/Accra">Africa/Accra — Ghana (UTC+0)</option>
-                                                <option value="Africa/Abidjan">Africa/Abidjan — Ivory Coast (UTC+0)</option>
-                                                <option value="Africa/Dakar">Africa/Dakar — Senegal (UTC+0)</option>
+                                                <option value="Africa/Lagos">Africa/Lagos (Nigeria, UTC+1)</option>
+                                                <option value="Africa/Accra">Africa/Accra (Ghana, UTC+0)</option>
+                                                <option value="Africa/Abidjan">Africa/Abidjan (Ivory Coast, UTC+0)</option>
+                                                <option value="Africa/Dakar">Africa/Dakar (Senegal, UTC+0)</option>
                                             </optgroup>
                                             <optgroup label="Southern Africa">
-                                                <option value="Africa/Johannesburg">Africa/Johannesburg — South Africa (UTC+2)</option>
-                                                <option value="Africa/Harare">Africa/Harare — Zimbabwe (UTC+2)</option>
-                                                <option value="Africa/Lusaka">Africa/Lusaka — Zambia (UTC+2)</option>
+                                                <option value="Africa/Johannesburg">Africa/Johannesburg (South Africa, UTC+2)</option>
+                                                <option value="Africa/Harare">Africa/Harare (Zimbabwe, UTC+2)</option>
+                                                <option value="Africa/Lusaka">Africa/Lusaka (Zambia, UTC+2)</option>
                                             </optgroup>
                                             <optgroup label="North Africa">
-                                                <option value="Africa/Cairo">Africa/Cairo — Egypt (UTC+2)</option>
-                                                <option value="Africa/Casablanca">Africa/Casablanca — Morocco (UTC+1)</option>
+                                                <option value="Africa/Cairo">Africa/Cairo (Egypt, UTC+2)</option>
+                                                <option value="Africa/Casablanca">Africa/Casablanca (Morocco, UTC+1)</option>
                                             </optgroup>
                                             <optgroup label="Europe">
-                                                <option value="Europe/London">Europe/London — UK (UTC+0/+1)</option>
-                                                <option value="Europe/Paris">Europe/Paris — France, Belgium (UTC+1/+2)</option>
-                                                <option value="Europe/Brussels">Europe/Brussels — Belgium (UTC+1/+2)</option>
+                                                <option value="Europe/London">Europe/London (UK, UTC+0/+1)</option>
+                                                <option value="Europe/Paris">Europe/Paris (France, Belgium, UTC+1/+2)</option>
+                                                <option value="Europe/Brussels">Europe/Brussels (Belgium, UTC+1/+2)</option>
                                             </optgroup>
                                             <optgroup label="Middle East">
-                                                <option value="Asia/Dubai">Asia/Dubai — UAE (UTC+4)</option>
+                                                <option value="Asia/Dubai">Asia/Dubai (UAE, UTC+4)</option>
                                             </optgroup>
                                             <optgroup label="Americas">
-                                                <option value="America/New_York">America/New_York — US East (UTC-5/-4)</option>
-                                                <option value="America/Los_Angeles">America/Los_Angeles — US West (UTC-8/-7)</option>
+                                                <option value="America/New_York">America/New_York (US East, UTC-5/-4)</option>
+                                                <option value="America/Los_Angeles">America/Los_Angeles (US West, UTC-8/-7)</option>
                                             </optgroup>
                                         </select>
                                         <button className="btn btn-primary btn-sm" onClick={handleTimezoneSave} disabled={tzSaving}>

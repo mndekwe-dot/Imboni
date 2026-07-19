@@ -72,7 +72,7 @@ describe('DosSettings', () => {
     getSchoolConfig.mockResolvedValue([])
     createDosRoom.mockResolvedValue({ id: 1, name: 'Lab 1' })
     renderWithRouter(<DosSettings />)
-    await waitFor(() => expect(screen.getByText('No subject types yet — add one above')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No subject types yet. Add one above')).toBeInTheDocument())
 
     fireEvent.change(screen.getByPlaceholderText('e.g. Sciences'), { target: { value: 'Sciences' } })
     fireEvent.click(screen.getByRole('button', { name: /Add Type/ }))

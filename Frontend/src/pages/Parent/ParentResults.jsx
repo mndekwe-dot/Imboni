@@ -31,13 +31,13 @@ function gradeClass(g) {
 }
 
 function scoreLabel(obtained, max) {
-    if (obtained == null) return '—'
+    if (obtained == null) return '-'
     return max ? `${Math.round(obtained)}/${Math.round(max)}` : `${Math.round(obtained)}`
 }
 
 function AssessmentRow({ title, assessment_type, date, score_display, grade, subject_name }) {
     const typeLabel = (assessment_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    const dateStr   = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'
+    const dateStr   = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'
     return (
         <tr>
             <td>{subject_name}</td>
@@ -177,7 +177,7 @@ export function ParentResults() {
                                 {/* Recent Assessments table */}
                                 <div className="card">
                                     <div className="card-header">
-                                        <h3 className="card-title">Recent Results — {child.student_name}</h3>
+                                        <h3 className="card-title">Recent Results for {child.student_name}</h3>
                                     </div>
                                     <div className="card-content">
                                         {loadingData ? (

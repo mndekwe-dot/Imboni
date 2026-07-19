@@ -40,7 +40,7 @@ export function StudentTimetable() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="My Timetable"
-                        subtitle={gradeSection ? `Class ${gradeSection} — Weekly Schedule` : 'Weekly Schedule'}
+                        subtitle={gradeSection ? `Class ${gradeSection} Weekly Schedule` : 'Weekly Schedule'}
                         userName={fullName}
                         userRole={userRole}
                         userInitials={initials}
@@ -56,7 +56,7 @@ export function StudentTimetable() {
                         ) : (
                             <div className="card">
                                 <div className="card-header">
-                                    <h2 className="card-title">Class {gradeSection} — Weekly Schedule</h2>
+                                    <h2 className="card-title">Class {gradeSection} Weekly Schedule</h2>
                                 </div>
                                 <div className="card-content">
                                     <Timetable type="academic" classId={gradeSection} />

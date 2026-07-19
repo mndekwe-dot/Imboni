@@ -7,7 +7,7 @@ const sections = [
   { name: 'A-Level', years: [{ name: 'S5', streams: ['Sci'] }] },
 ]
 
-describe('ClassPicker — dropdown variant (default)', () => {
+describe('ClassPicker: dropdown variant (default)', () => {
   it('renders section/year/class selects with "All" defaults', () => {
     render(
       <ClassPicker
@@ -71,7 +71,7 @@ describe('ClassPicker — dropdown variant (default)', () => {
   })
 })
 
-describe('ClassPicker — chips variant', () => {
+describe('ClassPicker: chips variant', () => {
   it('renders an "All" chip plus a chip per derived class', () => {
     render(<ClassPicker sections={sections} variant="chips" value="" onChange={() => {}} />)
     expect(screen.getByText('All')).toBeInTheDocument()

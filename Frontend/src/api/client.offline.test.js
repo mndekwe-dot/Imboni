@@ -96,7 +96,7 @@ describe('client.js offline behaviour', () => {
     expect(items[0].dedupeKey).toBe('attendance|c1|2026-07-05')
   })
 
-  it('does not queue non-offline endpoints — they fail normally', async () => {
+  it('does not queue non-offline endpoints: they fail normally', async () => {
     await expect(responseRejected({
       config: { method: 'post', url: '/imboni/dos/results/bulk-approve/', data: '{}' },
     })).rejects.toThrow('Something went wrong')

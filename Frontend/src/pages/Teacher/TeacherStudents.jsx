@@ -32,14 +32,14 @@ function buildSections(classes) {
 }
 
 function performanceBadge(pct) {
-    if (pct == null) return { label: '—',        cls: 'badge-soft-warning' }
+    if (pct == null) return { label: '-',        cls: 'badge-soft-warning' }
     if (pct >= 75)   return { label: 'Excellent', cls: 'badge-soft-success' }
     if (pct >= 50)   return { label: 'Good',      cls: 'badge-soft-info'    }
     return                  { label: 'Fair',      cls: 'badge-soft-warning' }
 }
 
 function attendanceBadge(pct) {
-    if (pct == null) return { label: '—',    cls: 'badge-soft-warning' }
+    if (pct == null) return { label: '-',    cls: 'badge-soft-warning' }
     if (pct >= 85)   return { label: `${pct}%`, cls: 'badge-soft-success' }
     if (pct >= 70)   return { label: `${pct}%`, cls: 'badge-soft-warning' }
     return                  { label: `${pct}%`, cls: 'badge-soft-error'   }
@@ -168,13 +168,13 @@ export function TeacherStudent() {
                         <div>
                             <div className="detail-label">Attendance</div>
                             <span className={`badge ${attendanceBadge(selected.attendance_rate).cls}`}>
-                                {selected.attendance_rate != null ? `${selected.attendance_rate}%` : '—'}
+                                {selected.attendance_rate != null ? `${selected.attendance_rate}%` : '-'}
                             </span>
                         </div>
                         <div>
                             <div className="detail-label">Performance</div>
                             <span className={`badge ${performanceBadge(selected.performance_rate).cls}`}>
-                                {selected.performance_rate != null ? `${selected.performance_rate}%` : '—'}
+                                {selected.performance_rate != null ? `${selected.performance_rate}%` : '-'}
                             </span>
                         </div>
                     </div>
@@ -225,7 +225,7 @@ export function TeacherStudent() {
                                 <select className="input input-auto" value={perfFilter} onChange={e => setPerfFilter(e.target.value)}>
                                     <option value="all">All Performance</option>
                                     <option value="high">Excellent (75%+)</option>
-                                    <option value="medium">Good (50–74%)</option>
+                                    <option value="medium">Good (50-74%)</option>
                                     <option value="low">Fair (below 50%)</option>
                                 </select>
                             </div>

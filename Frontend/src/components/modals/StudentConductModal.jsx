@@ -51,7 +51,7 @@ function fmtDate(d) {
 function ProfileTab({ student, stats, history, histLoading }) {
     const grade     = student.grade || ''
     const section   = student.section || ''
-    const cls       = grade && section ? `${grade}${section}` : (grade || section || '—')
+    const cls       = grade && section ? `${grade}${section}` : (grade || section || '-')
     const conductG  = stats?.conduct_grade
     const conductMeta = conductG ? CONDUCT_COLORS[conductG] : null
 
@@ -72,7 +72,7 @@ function ProfileTab({ student, stats, history, histLoading }) {
                     color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontWeight: 800, fontSize: '1.4rem',
                 }}>
-                    {conductG || '—'}
+                    {conductG || '-'}
                 </div>
                 <div>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
@@ -112,7 +112,7 @@ function ProfileTab({ student, stats, history, histLoading }) {
                     { label: 'Full Name',   value: student.name       },
                     { label: 'Adm Number',  value: student.student_id },
                     { label: 'Class',       value: cls                },
-                    { label: 'Incidents',   value: student.incident_count ?? '—' },
+                    { label: 'Incidents',   value: student.incident_count ?? '-' },
                 ].map(({ label, value }) => (
                     <div key={label} style={{
                         background: 'var(--muted)', borderRadius: '10px',
@@ -445,7 +445,7 @@ export function StudentConductModal({ student, onClose }) {
                             <div style={{ fontWeight: 700, fontSize: '1rem' }}>{student.name}</div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
                                 {cls && <span style={{ background: 'var(--primary)', color: '#fff', borderRadius: '5px', padding: '0.05rem 0.4rem', fontSize: '0.7rem', fontWeight: 600 }}>{cls}</span>}
-                                <span>Adm: {student.student_id || '—'}</span>
+                                <span>Adm: {student.student_id || '-'}</span>
                             </div>
                         </div>
                     </div>

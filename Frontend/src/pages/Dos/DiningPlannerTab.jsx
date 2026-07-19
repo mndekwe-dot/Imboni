@@ -43,7 +43,7 @@ function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
             <div className="card-content">
                 {sittings.length === 0 && (
                     <p className="u-muted u-sm">
-                        No sittings yet. Add one below — the planner seats whole classes into
+                        No sittings yet. Add one below. The planner seats whole classes into
                         sittings without exceeding the seats available.
                     </p>
                 )}
@@ -51,7 +51,7 @@ function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
                     <div key={s.id} className="dset-lesson-row">
                         <span className="dset-lesson-name">{s.name}</span>
                         <span className="es-room-chip">{MEAL_LABEL[s.meal] || s.meal}</span>
-                        <span className="u-muted u-sm">{s.start_time?.slice(0,5)}–{s.end_time?.slice(0,5)}</span>
+                        <span className="u-muted u-sm">{s.start_time?.slice(0,5)}-{s.end_time?.slice(0,5)}</span>
                         <span className="es-room-chip">{s.capacity} seats</span>
                         <label className="u-flex u-gap-05 u-items-center u-sm u-muted">
                             <input type="checkbox" checked={s.is_active}
@@ -226,7 +226,7 @@ function GenerateModal({ onClose, onCommitted }) {
                                     <tr key={i}>
                                         <td>{MEAL_LABEL[a.meal] || a.meal}</td>
                                         <td>{a.sitting_name}</td>
-                                        <td className="es-nowrap">{a.start_time}–{a.end_time}</td>
+                                        <td className="es-nowrap">{a.start_time}-{a.end_time}</td>
                                         <td>{a.class_name}</td>
                                         <td>{a.students}</td>
                                     </tr>
@@ -240,7 +240,7 @@ function GenerateModal({ onClose, onCommitted }) {
                             <h3 className="section-label-sm mt-1-5">Could not seat</h3>
                             <ul className="u-sm u-danger">
                                 {preview.unassigned.map((u, i) => (
-                                    <li key={i}>{u.class_name} ({MEAL_LABEL[u.meal] || u.meal}) — {u.reason}</li>
+                                    <li key={i}>{u.class_name} ({MEAL_LABEL[u.meal] || u.meal}): {u.reason}</li>
                                 ))}
                             </ul>
                         </>
@@ -329,7 +329,7 @@ export function DiningPlannerTab() {
                                         {byMeal[meal].map(r => (
                                             <tr key={r.id}>
                                                 <td>{r.sitting_name}</td>
-                                                <td className="es-nowrap">{r.start_time}–{r.end_time}</td>
+                                                <td className="es-nowrap">{r.start_time}-{r.end_time}</td>
                                                 <td>{r.class_name}</td>
                                             </tr>
                                         ))}

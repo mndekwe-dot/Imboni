@@ -128,7 +128,7 @@ export function ExamCalendar({ exams, onReschedule }) {
                             <th>Day</th>
                             {slots.map(s => (
                                 <th key={s.start} className="es-nowrap">
-                                    {s.start?.slice(0, 5)}–{s.end?.slice(0, 5)}
+                                    {s.start?.slice(0, 5)}-{s.end?.slice(0, 5)}
                                 </th>
                             ))}
                         </tr>
@@ -156,7 +156,7 @@ export function ExamCalendar({ exams, onReschedule }) {
                                                     draggable
                                                     onDragStart={() => { setDragId(e.id); setNotice('') }}
                                                     onDragEnd={() => { setDragId(null); setOverCell(null) }}
-                                                    title={`${e.subject} — ${e.class_name || 'All classes'}`}
+                                                    title={`${e.subject} (${e.class_name || 'All classes'})`}
                                                 >
                                                     <span className="exam-cal-subject">{e.subject}</span>
                                                     {e.class_name && (

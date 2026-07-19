@@ -40,9 +40,9 @@ describe('DisStaff', () => {
         renderWithRouter(<DisStaff />)
 
         await waitFor(() => expect(screen.getByText('Mrs. G. Hakizimana')).toBeInTheDocument())
-        expect(screen.getByText(/Matron — Bisoke/)).toBeInTheDocument()
+        expect(screen.getByText(/Matron \(Bisoke\)/)).toBeInTheDocument()
         expect(screen.getByText('Mr. G. Nkurunziza')).toBeInTheDocument()
-        expect(screen.getByText(/Patron — S2/)).toBeInTheDocument()
+        expect(screen.getByText(/Patron \(S2\)/)).toBeInTheDocument()
         expect(screen.getByText('1 Matrons')).toBeInTheDocument()
         expect(screen.getByText('1 Patrons')).toBeInTheDocument()
     })
@@ -66,7 +66,7 @@ describe('DisStaff', () => {
         await waitFor(() => expect(screen.getByText('Add Staff Member')).toBeInTheDocument())
 
         fireEvent.change(screen.getByPlaceholderText('e.g. Ms. J. Kamau'), { target: { value: 'Mr. X' } })
-        fireEvent.change(screen.getByPlaceholderText('e.g. Matron — Kigoma Dormitory'), { target: { value: 'Patron' } })
+        fireEvent.change(screen.getByPlaceholderText(/e\.g\. Matron/), { target: { value: 'Patron' } })
         const modal = screen.getByText('Add Staff Member').closest('.modal-box')
         fireEvent.click(within(modal).getByText('Add Staff').closest('button'))
 

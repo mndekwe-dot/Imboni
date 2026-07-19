@@ -156,7 +156,7 @@ export function LeaderModal({ leader, onClose, onSave }) {
                             )}
                             {selectedStudent && (
                                 <div style={{ marginTop: '0.35rem', fontSize: '0.78rem', color: '#15803d', fontWeight: 600 }}>
-                                    ✓ {selectedStudent.name} — {selectedStudent.student_id}
+                                    ✓ {selectedStudent.name} ({selectedStudent.student_id})
                                     {cls && <span className="class-chip" style={{ marginLeft: '0.4rem', fontSize: '0.7rem' }}>{cls}</span>}
                                 </div>
                             )}

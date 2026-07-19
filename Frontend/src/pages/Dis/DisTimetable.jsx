@@ -34,7 +34,7 @@ function entriesToSchedules(entries, weekKey) {
         if (!result[week]) result[week] = {}
         if (!result[week][e.slot_id]) result[week][e.slot_id] = {}
         result[week][e.slot_id][e.day] = e.activity_type === 'empty'
-            ? { type: 'empty', label: e.label || '—' }
+            ? { type: 'empty', label: e.label || '-' }
             : { type: e.activity_type, subject: e.subject, teacher: e.teacher, room: e.room }
     })
     return result
@@ -118,7 +118,7 @@ export function DisTimetable() {
             subject:       subject || '',
             teacher:       teacher || '',
             room:          room    || '',
-            label:         subject ? '' : '—',
+            label:         subject ? '' : '-',
         }
 
         try {
@@ -163,10 +163,10 @@ export function DisTimetable() {
     }
 
     const timetableStats = [
-        { colorClass: 'info',    icon: 'calendar_view_week', value: stats ? stats.scheduled : '—', label: 'Scheduled Slots', trend: activeWeek      },
-        { colorClass: 'success', icon: 'emoji_events',       value: stats ? stats.clubs     : '—', label: 'Active Clubs',     trend: 'All assigned' },
-        { colorClass: 'warning', icon: 'supervisor_account', value: stats ? stats.patrons   : '—', label: 'Patron Teachers',  trend: 'Fully staffed'},
-        { colorClass: '',        icon: 'location_on',        value: stats ? stats.venues    : '—', label: 'Venues Allocated', trend: 'No conflicts' },
+        { colorClass: 'info',    icon: 'calendar_view_week', value: stats ? stats.scheduled : '-', label: 'Scheduled Slots', trend: activeWeek      },
+        { colorClass: 'success', icon: 'emoji_events',       value: stats ? stats.clubs     : '-', label: 'Active Clubs',     trend: 'All assigned' },
+        { colorClass: 'warning', icon: 'supervisor_account', value: stats ? stats.patrons   : '-', label: 'Patron Teachers',  trend: 'Fully staffed'},
+        { colorClass: '',        icon: 'location_on',        value: stats ? stats.venues    : '-', label: 'Venues Allocated', trend: 'No conflicts' },
     ]
 
     return (

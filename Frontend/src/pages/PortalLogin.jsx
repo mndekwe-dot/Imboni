@@ -183,7 +183,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                     <div className="portal-login-info">
                         <div className="portal-login-info-row">
                             <span className="material-symbols-rounded">verified_user</span>
-                            <span>Secure — your data is encrypted</span>
+                            <span>Secure: your data is encrypted</span>
                         </div>
                         <div className="portal-login-info-row">
                             <span className="material-symbols-rounded">lock</span>
@@ -332,7 +332,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                 )}
 
                 <div className="login-footer">
-                    Imboni Education Connects &copy; {new Date().getFullYear()} &mdash;{' '}
+                    Imboni Education Connects &copy; {new Date().getFullYear()}.{' '}
                     <a href="#">Privacy Policy</a>
                 </div>
             </div>

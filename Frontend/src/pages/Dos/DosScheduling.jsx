@@ -27,7 +27,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const timetableStats = [
-    { colorClass: 'info',    icon: 'calendar_view_week', value: '8',      label: 'Periods per Day',   trend: 'Mon – Sat'    },
+    { colorClass: 'info',    icon: 'calendar_view_week', value: '8',      label: 'Periods per Day',   trend: 'Mon - Sat'    },
     { colorClass: 'success', icon: 'menu_book',          value: '9',      label: 'Subjects',          trend: 'All classes'  },
     { colorClass: 'warning', icon: 'school',             value: '7',      label: 'Teachers Assigned', trend: 'Fully staffed'},
     { colorClass: '',        icon: 'event_available',    value: 'Term 2', label: 'Current Term',      trend: '2026'         },
@@ -79,7 +79,7 @@ function getCalendarDays(year, month) {
 }
 
 function fmtDate(str) {
-    if (!str) return '—'
+    if (!str) return '-'
     return new Date(str + 'T00:00:00').toLocaleDateString('en-GB', {
         weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
     })
@@ -164,7 +164,7 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                         <div>
                             <div className="es-detail-label">Time</div>
                             <div className="es-detail-value">
-                                {fmtTime(exam.start_time)} – {fmtTime(exam.end_time)}
+                                {fmtTime(exam.start_time)} - {fmtTime(exam.end_time)}
                                 {duration && <span className="es-detail-duration">({duration})</span>}
                             </div>
                         </div>
@@ -175,15 +175,15 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                     </div>
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">meeting_room</span>
-                        <div><div className="es-detail-label">Venue</div><div className="es-detail-value">{exam.venue||'—'}</div></div>
+                        <div><div className="es-detail-label">Venue</div><div className="es-detail-value">{exam.venue||'-'}</div></div>
                     </div>
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">person</span>
-                        <div><div className="es-detail-label">Invigilator</div><div className="es-detail-value">{exam.invigilator||'—'}</div></div>
+                        <div><div className="es-detail-label">Invigilator</div><div className="es-detail-value">{exam.invigilator||'-'}</div></div>
                     </div>
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">school</span>
-                        <div><div className="es-detail-label">Term</div><div className="es-detail-value">{exam.term||'—'}</div></div>
+                        <div><div className="es-detail-label">Term</div><div className="es-detail-value">{exam.term||'-'}</div></div>
                     </div>
                     {exam.notes && (
                         <div className="es-detail-item es-detail-span2">
@@ -509,7 +509,7 @@ export function DosScheduling() {
                 if (!exs.length) return '<td></td>'
                 const content = exs.map(e => `
                     <div class="cs">${e.subject}</div>
-                    <div class="ct">${fmtTime(e.start_time)}&ndash;${fmtTime(e.end_time)}</div>
+                    <div class="ct">${fmtTime(e.start_time)}-${fmtTime(e.end_time)}</div>
                     ${e.venue      ? `<div class="cv">${e.venue}</div>`      : ''}
                     ${e.invigilator? `<div class="ci">${e.invigilator}</div>`:''}
                 `).join('<div class="sep"></div>')
@@ -769,7 +769,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                     <button key={sec.id||sec.name} className={`att-mode-btn${sectionFilter===sec.name?' active':''}`} onClick={() => {setSectionFilter(sec.name);setClassFilter('all')}}>
                                                         <span className="material-symbols-rounded">school</span>
                                                         {sec.name}
-                                                        {(sec.years||[]).length>0 && <span className="es-section-range">{sec.years[0].name}–{sec.years[sec.years.length-1].name}</span>}
+                                                        {(sec.years||[]).length>0 && <span className="es-section-range">{sec.years[0].name}-{sec.years[sec.years.length-1].name}</span>}
                                                     </button>
                                                 ))}
                                             </div>

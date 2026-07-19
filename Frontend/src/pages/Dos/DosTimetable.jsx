@@ -19,7 +19,7 @@ import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 
 const timetableStats = [
-    { colorClass: 'info',    icon: 'calendar_view_week', value: '8',      label: 'Periods per Day',   trend: 'Mon – Sat'    },
+    { colorClass: 'info',    icon: 'calendar_view_week', value: '8',      label: 'Periods per Day',   trend: 'Mon - Sat'    },
     { colorClass: 'success', icon: 'menu_book',          value: '9',      label: 'Subjects',          trend: 'All classes'  },
     { colorClass: 'warning', icon: 'school',             value: '7',      label: 'Teachers Assigned', trend: 'Fully staffed'},
     { colorClass: '',        icon: 'event_available',    value: 'Term 1', label: 'Current Term',      trend: '2026'         },
@@ -33,12 +33,12 @@ function toMinutes(t) {
 }
 
 function periodStartMinutes(period) {
-    return toMinutes(period.time.split(/[–-]/)[0])
+    return toMinutes(period.time.split(/[–—-]/)[0])
 }
 
 /* Parse a period's "8:00 – 8:40" label into zero-padded start/end times. */
 export function periodTimes(period) {
-    const [startRaw, endRaw] = period.time.split(/[–-]/).map(s => s.trim())
+    const [startRaw, endRaw] = period.time.split(/[–—-]/).map(s => s.trim())
     const toHHMM = t => t.length === 4 ? '0' + t : t
     return { start_time: toHHMM(startRaw), end_time: toHHMM(endRaw) }
 }
@@ -200,12 +200,12 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
                                 {preview.assignments.map((a, i) => (
                                     <tr key={i}>
                                         <td>{a.subject_name}</td>
-                                        <td className="u-muted">{a.weight ?? '—'}</td>
+                                        <td className="u-muted">{a.weight ?? '-'}</td>
                                         <td>{a.class_name}</td>
                                         <td className="es-nowrap">{a.day}</td>
-                                        <td className="es-nowrap">{a.start_time}–{a.end_time}</td>
-                                        <td>{a.teacher_name || '—'}</td>
-                                        <td>{a.room || '—'}</td>
+                                        <td className="es-nowrap">{a.start_time}-{a.end_time}</td>
+                                        <td>{a.teacher_name || '-'}</td>
+                                        <td>{a.room || '-'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -287,7 +287,7 @@ export function DosTimetable() {
         if (!period) return
 
         // Parse "8:00 – 8:40" → "08:00" and "08:40"
-        const [startRaw, endRaw] = period.time.split('–').map(s => s.trim())
+        const [startRaw, endRaw] = period.time.split(/[–—-]/).map(s => s.trim())
         const toHHMM = t => t.length === 4 ? '0' + t : t
 
         const payload = {
@@ -404,7 +404,7 @@ export function DosTimetable() {
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">
-                                    {classLabel ? `Class ${classLabel} — Weekly Timetable` : 'Weekly Timetable'}
+                                    {classLabel ? `Class ${classLabel}: Weekly Timetable` : 'Weekly Timetable'}
                                 </h2>
                                 <div className="flex-row-gap">
                                     <div className="flex-row-gap">

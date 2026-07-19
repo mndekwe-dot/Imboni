@@ -76,7 +76,7 @@ function UsageMeter({ resourceKey, data }) {
             {!unlimited && (
                 <p className={`u-xs u-mt-xs ${full ? 'u-danger' : 'u-muted'}`}>
                     {full
-                        ? 'Limit reached — upgrade your plan to add more.'
+                        ? 'Limit reached. Upgrade your plan to add more.'
                         : `${remaining} seat${remaining === 1 ? '' : 's'} remaining`}
                 </p>
             )}
@@ -174,7 +174,7 @@ export function AdminBilling() {
                                     <div className="card-content u-row-between">
                                         <div>
                                             <p className="u-label">Current plan</p>
-                                            <p className="u-xl u-bold u-capitalize">{currentPlan || '—'}</p>
+                                            <p className="u-xl u-bold u-capitalize">{currentPlan || '-'}</p>
                                         </div>
                                         {chip && <span className={`u-chip u-chip--${chip.tone} u-ml-auto`}>{chip.label}</span>}
                                     </div>

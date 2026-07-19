@@ -38,7 +38,7 @@ function AnnouncementItem({ ann }) {
                 </div>
                 <h4 className="ann-title">{ann.title}</h4>
                 <p className="ann-body">{ann.content}</p>
-                <p className="ann-author">— {ann.author || 'Administration'}</p>
+                <p className="ann-author">By {ann.author || 'Administration'}</p>
             </div>
         </div>
     )
@@ -71,10 +71,10 @@ export function StudentAnnouncements() {
     const eventCount  = announcements.filter(a => a.category === 'event').length
 
     const statCards = [
-        { colorClass: 'info',    icon: 'inbox',             value: loading ? '—' : announcements.length,      label: 'Total',           trend: 'Published'     },
-        { colorClass: 'warning', icon: 'mark_email_unread', value: loading ? '—' : (stats?.unread ?? '—'),    label: 'Unread',          trend: 'New'           },
-        { colorClass: 'danger',  icon: 'priority_high',     value: loading ? '—' : urgentCount,               label: 'Urgent',          trend: 'Action needed' },
-        { colorClass: 'success', icon: 'event',             value: loading ? '—' : eventCount,                label: 'Upcoming Events', trend: 'This month'    },
+        { colorClass: 'info',    icon: 'inbox',             value: loading ? '-' : announcements.length,      label: 'Total',           trend: 'Published'     },
+        { colorClass: 'warning', icon: 'mark_email_unread', value: loading ? '-' : (stats?.unread ?? '-'),    label: 'Unread',          trend: 'New'           },
+        { colorClass: 'danger',  icon: 'priority_high',     value: loading ? '-' : urgentCount,               label: 'Urgent',          trend: 'Action needed' },
+        { colorClass: 'success', icon: 'event',             value: loading ? '-' : eventCount,                label: 'Upcoming Events', trend: 'This month'    },
     ]
 
     const visible = chip === 'All'

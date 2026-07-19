@@ -98,8 +98,8 @@ function GradeRow({ subject, grade, final_score, term }) {
         <tr>
             <td><strong>{subject}</strong></td>
             <td>{term}</td>
-            <td>{final_score != null ? `${final_score}%` : '—'}</td>
-            <td><span className={`badge ${gradeColor(grade)}`}>{grade || '—'}</span></td>
+            <td>{final_score != null ? `${final_score}%` : '-'}</td>
+            <td><span className={`badge ${gradeColor(grade)}`}>{grade || '-'}</span></td>
         </tr>
     )
 }
@@ -136,10 +136,10 @@ export function StudentDashboard() {
     const recentGrades        = dashboard?.recent_grades       || []
 
     const statCards = [
-        { icon: 'fact_check', value: loading ? '—' : `${stats.attendance_percentage ?? '—'}%`, label: 'Attendance',          trend: 'This term',     trendClass: 'positive', colorClass: 'success' },
-        { icon: 'shield',     value: loading ? '—' : (stats.conduct_grade || '—'),              label: 'Conduct Grade',       trend: 'Current term',  trendClass: '',         colorClass: 'info'    },
-        { icon: 'assignment', value: loading ? '—' : (stats.pending_assignments ?? '—'),         label: 'Pending Assignments', trend: 'Due upcoming',  trendClass: 'negative', colorClass: 'warning' },
-        { icon: 'grade',      value: loading ? '—' : (stats.recent_grade || '—'),               label: 'Latest Grade',        trend: 'Most recent',   trendClass: 'positive', colorClass: ''        },
+        { icon: 'fact_check', value: loading ? '-' : `${stats.attendance_percentage ?? '-'}%`, label: 'Attendance',          trend: 'This term',     trendClass: 'positive', colorClass: 'success' },
+        { icon: 'shield',     value: loading ? '-' : (stats.conduct_grade || '-'),              label: 'Conduct Grade',       trend: 'Current term',  trendClass: '',         colorClass: 'info'    },
+        { icon: 'assignment', value: loading ? '-' : (stats.pending_assignments ?? '-'),         label: 'Pending Assignments', trend: 'Due upcoming',  trendClass: 'negative', colorClass: 'warning' },
+        { icon: 'grade',      value: loading ? '-' : (stats.recent_grade || '-'),               label: 'Latest Grade',        trend: 'Most recent',   trendClass: 'positive', colorClass: ''        },
     ]
 
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })

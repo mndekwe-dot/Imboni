@@ -6,7 +6,7 @@ import { errorMessage } from '../../../utils/errors'
 import { StatusChip } from './SchoolsSection'
 
 const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
-const num = v => (v === null || v === undefined ? '—' : v)
+const num = v => (v === null || v === undefined ? '-' : v)
 
 function Field({ label, value, capitalize }) {
     return (

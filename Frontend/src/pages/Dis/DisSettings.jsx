@@ -234,7 +234,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                                 <div className="form-group">
                                     <label className="form-label">Section</label>
                                     <select className="form-input" name="section" value={form.section || ''} onChange={handleChange}>
-                                        <option value="">— No section —</option>
+                                        <option value="">No section</option>
                                         {sections.map(s => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}
@@ -833,7 +833,7 @@ export function DisSettings() {
                                                                     />
                                                                 ))}
                                                                 {sec.years.length === 0 && (
-                                                                    <p className="disc-empty-year">No year groups yet — add one above</p>
+                                                                    <p className="disc-empty-year">No year groups yet. Add one above.</p>
                                                                 )}
                                                             </div>
                                                         ))}

@@ -24,10 +24,10 @@ function isCaptain(role) {
 function toLeaderCard(sl) {
     const words    = (sl.full_name || '').trim().split(/\s+/)
     const initials = words.slice(0, 2).map(w => w[0] || '').join('').toUpperCase()
-    const form     = sl.grade && sl.section ? `S${sl.grade}${sl.section}` : '—'
+    const form     = sl.grade && sl.section ? `S${sl.grade}${sl.section}` : '-'
     const since    = sl.appointed_date
         ? new Date(sl.appointed_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-        : '—'
+        : '-'
     return { initials, name: sl.full_name, role: sl.role, roleTag: /deputy/i.test(sl.role) ? 'deputy' : 'prefect', form, since, house: sl.role }
 }
 
@@ -243,10 +243,10 @@ export function DosStudentLeaders() {
     const [clubsLoaded,    setClubsLoaded]    = useState(false)
     const [clubLoading,    setClubLoading]    = useState(false)
     const [leaderStats,    setLeaderStats]    = useState([
-        { icon: 'military_tech', value: '—', label: 'Prefects',          trend: 'School-wide',  trendClass: '',         colorClass: 'info'    },
-        { icon: 'home',          value: '—', label: 'Dormitory Captains',trend: 'By house',     trendClass: '',         colorClass: 'success' },
-        { icon: 'groups',        value: '—', label: 'Other Leaders',     trend: 'Active',       trendClass: '',         colorClass: 'warning' },
-        { icon: 'person',        value: '—', label: 'Total Leaders',     trend: 'This term',    trendClass: 'positive', colorClass: 'info'    },
+        { icon: 'military_tech', value: '-', label: 'Prefects',          trend: 'School-wide',  trendClass: '',         colorClass: 'info'    },
+        { icon: 'home',          value: '-', label: 'Dormitory Captains',trend: 'By house',     trendClass: '',         colorClass: 'success' },
+        { icon: 'groups',        value: '-', label: 'Other Leaders',     trend: 'Active',       trendClass: '',         colorClass: 'warning' },
+        { icon: 'person',        value: '-', label: 'Total Leaders',     trend: 'This term',    trendClass: 'positive', colorClass: 'info'    },
     ])
 
     useEffect(() => {

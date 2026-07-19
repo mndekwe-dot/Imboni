@@ -43,7 +43,7 @@ export function AdminPaymentModal({ onClose, onSave }) {
         onSave({
             initials,
             name:      form.studentName,
-            adm:       form.adm || '—',
+            adm:       form.adm || '-',
             amount:    amountFormatted,
             date:      new Date(form.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             type:      form.type,

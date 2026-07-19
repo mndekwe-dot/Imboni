@@ -86,13 +86,13 @@ describe('AdminSettings', () => {
     renderWithRouter(<AdminSettings />)
     fireEvent.click(screen.getByRole('button', { name: /Subjects/ }))
 
-    await waitFor(() => expect(screen.getByText('No subject types yet — add one above.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No subject types yet. Add one above.')).toBeInTheDocument())
   })
 
   it('adds a subject type', async () => {
     renderWithRouter(<AdminSettings />)
     fireEvent.click(screen.getByRole('button', { name: /Subjects/ }))
-    await waitFor(() => expect(screen.getByText('No subject types yet — add one above.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No subject types yet. Add one above.')).toBeInTheDocument())
 
     fireEvent.change(screen.getByPlaceholderText('e.g. Sciences'), { target: { value: 'Sciences' } })
     fireEvent.click(screen.getByRole('button', { name: /Add Type/ }))
@@ -105,7 +105,7 @@ describe('AdminSettings', () => {
     deleteDosRoom.mockResolvedValue({})
     renderWithRouter(<AdminSettings />)
     fireEvent.click(screen.getByRole('button', { name: /Rooms/ }))
-    await waitFor(() => expect(screen.getByText('No rooms yet — add one above')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No rooms yet. Add one above')).toBeInTheDocument())
 
     fireEvent.change(screen.getByPlaceholderText('e.g. Lab 1, Room 12, Hall A'), { target: { value: 'Lab 1' } })
     fireEvent.click(screen.getByRole('button', { name: /Add/ }))

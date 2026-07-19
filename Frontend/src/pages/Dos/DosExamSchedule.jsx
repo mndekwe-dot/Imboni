@@ -22,13 +22,13 @@ import { useToast } from '../../context/ToastContext'
 
 
 const examRows = [
-    { num: 1, subject: 'Mathematics',          code: 'MAT 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Mon, 16 Mar 2026', time: '8:00 \u2013 11:00', duration: '3 hrs',   rooms: ['Hall A', 'Hall B'],   invigilator: 'Mr. Rurangwa',    statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 2, subject: 'English Language',     code: 'ENG 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Tue, 17 Mar 2026', time: '8:00 \u2013 10:30', duration: '2.5 hrs', rooms: ['Hall A', 'Hall B'],   invigilator: 'Ms. Uwera',       statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 3, subject: 'Physics',              code: 'PHY 401', classes: 'S4A \u00b7 S4B',             date: 'Wed, 18 Mar 2026', time: '8:00 \u2013 11:00', duration: '3 hrs',   rooms: ['Room 8', 'Room 9'],   invigilator: 'Mr. Ntakirutimana', statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 4, subject: 'Chemistry',            code: 'CHE 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Thu, 19 Mar 2026', time: '8:00 \u2013 11:00', duration: '3 hrs',   rooms: ['Hall A', 'Lab 2'],    invigilator: 'Ms. Umutoni',     statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 5, subject: 'Biology',              code: 'BIO 401', classes: 'S4A \u00b7 S4C',             date: 'Fri, 20 Mar 2026', time: '8:00 \u2013 11:00', duration: '3 hrs',   rooms: ['Hall B', 'Lab 3'],    invigilator: 'Ms. Ingabire',    statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 6, subject: 'Kinyarwanda',          code: 'KIN 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Mon, 23 Mar 2026', time: '8:00 \u2013 10:30', duration: '2.5 hrs', rooms: ['Hall A', 'Hall B'],   invigilator: 'Mr. Bizimana',    statusClass: 'badge-draft',    status: 'Draft'    },
-    { num: 7, subject: 'History',              code: 'HIS 301', classes: 'S3A \u00b7 S3B \u00b7 S3C', date: 'Tue, 17 Mar 2026', time: '2:00 \u2013 4:30',  duration: '2.5 hrs', rooms: ['Room 10', 'Room 11'], invigilator: 'Mr. Nsabimana',   statusClass: 'badge-upcoming', status: 'Upcoming' },
+    { num: 1, subject: 'Mathematics',          code: 'MAT 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Mon, 16 Mar 2026', time: '8:00 - 11:00', duration: '3 hrs',   rooms: ['Hall A', 'Hall B'],   invigilator: 'Mr. Rurangwa',    statusClass: 'badge-upcoming', status: 'Upcoming' },
+    { num: 2, subject: 'English Language',     code: 'ENG 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Tue, 17 Mar 2026', time: '8:00 - 10:30', duration: '2.5 hrs', rooms: ['Hall A', 'Hall B'],   invigilator: 'Ms. Uwera',       statusClass: 'badge-upcoming', status: 'Upcoming' },
+    { num: 3, subject: 'Physics',              code: 'PHY 401', classes: 'S4A \u00b7 S4B',             date: 'Wed, 18 Mar 2026', time: '8:00 - 11:00', duration: '3 hrs',   rooms: ['Room 8', 'Room 9'],   invigilator: 'Mr. Ntakirutimana', statusClass: 'badge-upcoming', status: 'Upcoming' },
+    { num: 4, subject: 'Chemistry',            code: 'CHE 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Thu, 19 Mar 2026', time: '8:00 - 11:00', duration: '3 hrs',   rooms: ['Hall A', 'Lab 2'],    invigilator: 'Ms. Umutoni',     statusClass: 'badge-upcoming', status: 'Upcoming' },
+    { num: 5, subject: 'Biology',              code: 'BIO 401', classes: 'S4A \u00b7 S4C',             date: 'Fri, 20 Mar 2026', time: '8:00 - 11:00', duration: '3 hrs',   rooms: ['Hall B', 'Lab 3'],    invigilator: 'Ms. Ingabire',    statusClass: 'badge-upcoming', status: 'Upcoming' },
+    { num: 6, subject: 'Kinyarwanda',          code: 'KIN 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Mon, 23 Mar 2026', time: '8:00 - 10:30', duration: '2.5 hrs', rooms: ['Hall A', 'Hall B'],   invigilator: 'Mr. Bizimana',    statusClass: 'badge-draft',    status: 'Draft'    },
+    { num: 7, subject: 'History',              code: 'HIS 301', classes: 'S3A \u00b7 S3B \u00b7 S3C', date: 'Tue, 17 Mar 2026', time: '2:00 - 4:30',  duration: '2.5 hrs', rooms: ['Room 10', 'Room 11'], invigilator: 'Mr. Nsabimana',   statusClass: 'badge-upcoming', status: 'Upcoming' },
 ]
 
 function ExamRow({ num, subject, code, classes, date, time, duration, rooms, invigilator, statusClass, status, id, onDelete }) {
@@ -204,12 +204,12 @@ function ExamGenerateModal({ onClose, onCommitted }) {
                                 {preview.assignments.map((a, i) => (
                                     <tr key={i}>
                                         <td>{a.subject_name}</td>
-                                        <td className="u-muted">{a.weight ?? '—'}</td>
+                                        <td className="u-muted">{a.weight ?? '-'}</td>
                                         <td>{a.class_name}</td>
                                         <td className="es-nowrap">{a.exam_date}</td>
-                                        <td className="es-nowrap">{a.start_time}–{a.end_time}</td>
-                                        <td>{a.venue || '—'}</td>
-                                        <td>{a.invigilator_name || '—'}</td>
+                                        <td className="es-nowrap">{a.start_time}-{a.end_time}</td>
+                                        <td>{a.venue || '-'}</td>
+                                        <td>{a.invigilator_name || '-'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -242,12 +242,12 @@ export function DosExamSchedule() {
                         num:         i + 1,
                         subject:     e.subject,
                         code:        e.exam_type,
-                        classes:     e.class_name || '—',
+                        classes:     e.class_name || '-',
                         date:        e.exam_date,
-                        time:        `${e.start_time} – ${e.end_time}`,
-                        duration:    '—',
-                        rooms:       e.venue ? [e.venue] : ['—'],
-                        invigilator: e.invigilator || '—',
+                        time:        `${e.start_time} - ${e.end_time}`,
+                        duration:    '-',
+                        rooms:       e.venue ? [e.venue] : ['-'],
+                        invigilator: e.invigilator || '-',
                         statusClass: 'badge-upcoming',
                         status:      'Upcoming',
                         id:          e.id,
@@ -357,10 +357,10 @@ export function DosExamSchedule() {
                                 <div className="att-mode-bar">
                                     <button className="att-mode-btn active">All Levels</button>
                                     <button className="att-mode-btn">
-                                        <span className="material-symbols-rounded">school</span> Ordinary (S1\u2013S3)
+                                        <span className="material-symbols-rounded">school</span> Ordinary (S1-S3)
                                     </button>
                                     <button className="att-mode-btn">
-                                        <span className="material-symbols-rounded">workspace_premium</span> Advanced (S4\u2013S6)
+                                        <span className="material-symbols-rounded">workspace_premium</span> Advanced (S4-S6)
                                     </button>
                                 </div>
 

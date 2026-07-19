@@ -9,7 +9,7 @@ describe('WeekPicker', () => {
   it('renders the formatted week label', () => {
     const monday = new Date('2026-04-13T00:00:00')
     render(<WeekPicker currentMonday={monday} onChange={() => {}} />)
-    expect(screen.getByText('Apr 13 – Apr 19, 2026')).toBeInTheDocument()
+    expect(screen.getByText('Apr 13 - Apr 19, 2026')).toBeInTheDocument()
   })
 
   it('calls onChange with the previous week on prev click', () => {

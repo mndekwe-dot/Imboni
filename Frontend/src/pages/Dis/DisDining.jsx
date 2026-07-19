@@ -146,7 +146,7 @@ function DiningModal({ plan, onClose, onSave }) {
                             )}
                             {selectedStudent && (
                                 <div className="dis-selected-ok">
-                                    ✓ {selectedStudent.name} — {selectedStudent.student_id}
+                                    ✓ {selectedStudent.name} ({selectedStudent.student_id})
                                 </div>
                             )}
                         </div>
@@ -199,7 +199,7 @@ function DiningRow({ plan, onEdit, onDelete }) {
             <td><strong>{student_name}</strong></td>
             <td className="text-muted">{student_id}</td>
             <td><span className={`badge${cls ? ' badge-' + cls : ''}`}>{label}</span></td>
-            <td className="text-muted">{term_name || '—'}</td>
+            <td className="text-muted">{term_name || '-'}</td>
             <td className="action-cell">
                 {confirmDelete ? (
                     <>
@@ -290,7 +290,7 @@ export function DisDining() {
                                 <div key={i} className="disc-stat-card">
                                     <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
                                     <div>
-                                        <div className="disc-stat-value">{loading ? '—' : s.value}</div>
+                                        <div className="disc-stat-value">{loading ? '-' : s.value}</div>
                                         <div className="disc-stat-label">{s.label}</div>
                                     </div>
                                 </div>

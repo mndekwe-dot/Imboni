@@ -14,9 +14,9 @@ describe('dateUtils', () => {
     expect(monday.getDate()).toBe(13)
   })
 
-  it('formatWeekLabel builds a "Mon D – Mon D, YYYY" label', () => {
+  it('formatWeekLabel builds a "Mon D - Mon D, YYYY" label', () => {
     const monday = new Date('2026-04-13T00:00:00')
-    expect(formatWeekLabel(monday)).toBe('Apr 13 – Apr 19, 2026')
+    expect(formatWeekLabel(monday)).toBe('Apr 13 - Apr 19, 2026')
   })
 
   it('isThisWeek is true for a date within the current week and false otherwise', () => {

@@ -37,7 +37,7 @@ function BehaviourCard({ title, reported_by_display, badge, report_type, descrip
     const type      = report_type === 'positive' || report_type === 'achievement' ? 'positive' : 'warning'
     const badgeCls  = type === 'positive' ? 'positive' : 'neutral'
     const badgeIcon = type === 'positive' ? 'sentiment_satisfied' : 'warning'
-    const dateStr   = date ? new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—'
+    const dateStr   = date ? new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '-'
 
     return (
         <div className={`behavior-card type-${type}`}>
@@ -110,7 +110,7 @@ export function ParentBehaviour() {
     const statCards = stats ? [
         { cardClass: 'success', value: stats.positive_reports, label: 'Positive Reports', trend: 'This term',      trendClass: '',   icon: 'thumb_up',     iconClass: 'success' },
         { cardClass: 'warning', value: stats.warnings,          label: 'Warnings',         trend: 'Minor incidents', trendClass: '',   icon: 'warning',      iconClass: 'warning' },
-        { cardClass: 'info',    value: stats.conduct_grade || '—', label: 'Conduct Grade', trend: stats.conduct_label || '', trendClass: 'up', icon: 'grade', iconClass: 'info' },
+        { cardClass: 'info',    value: stats.conduct_grade || '-', label: 'Conduct Grade', trend: stats.conduct_label || '', trendClass: 'up', icon: 'grade', iconClass: 'info' },
         { cardClass: 'success', value: stats.achievements,      label: 'Achievements',     trend: 'Awards earned',   trendClass: 'up', icon: 'emoji_events', iconClass: 'success' },
     ] : []
 
@@ -168,7 +168,7 @@ export function ParentBehaviour() {
                                             </div>
                                         </div>
                                         <div className="conduct-hero-stats">
-                                            <div className="conduct-stat"><span className="label">Conduct</span><span className="value grade-a">{stats.conduct_grade || '—'}</span></div>
+                                            <div className="conduct-stat"><span className="label">Conduct</span><span className="value grade-a">{stats.conduct_grade || '-'}</span></div>
                                             <div className="conduct-stat"><span className="label">Positive</span><span className="value">{stats.positive_reports}</span></div>
                                             <div className="conduct-stat"><span className="label">Warnings</span><span className="value">{stats.warnings}</span></div>
                                             <div className="conduct-stat"><span className="label">Awards</span><span className="value">{stats.achievements}</span></div>

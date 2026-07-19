@@ -162,7 +162,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                             )}
                             {selectedStudent && (
                                 <div style={{ marginTop: '0.35rem', fontSize: '0.78rem', color: '#15803d', fontWeight: 600 }}>
-                                    ✓ {selectedStudent.name} — {selectedStudent.student_id}
+                                    ✓ {selectedStudent.name} ({selectedStudent.student_id})
                                     {cls && <span className="class-chip" style={{ marginLeft: '0.4rem', fontSize: '0.7rem' }}>{cls}</span>}
                                 </div>
                             )}
@@ -173,7 +173,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                     <div className="form-group">
                         <label className="form-label">Dormitory *</label>
                         <select className="form-input" value={dormKey} onChange={e => setDormKey(e.target.value)} disabled={isEditing}>
-                            <option value="">— Select dormitory —</option>
+                            <option value="">Select dormitory</option>
                             <optgroup label="Girls Dormitories">
                                 {DORMITORIES.filter(d => d.gender === 'Girls').map(d => (
                                     <option key={d.key} value={d.key}>{d.name}</option>

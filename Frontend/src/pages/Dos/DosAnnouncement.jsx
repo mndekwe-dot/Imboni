@@ -352,7 +352,7 @@ export function DosAnnouncement() {
                                                     {/* Step 2 — pick class within that year */}
                                                     {selectedYear && (yearClassMap[selectedYear]||[]).length > 0 && (
                                                         <>
-                                                            <label className="form-label">Class <span className="dos-optional">(optional — leave on year to target all)</span></label>
+                                                            <label className="form-label">Class <span className="dos-optional">(optional, leave on year to target all)</span></label>
                                                             <div className="es-class-chips">
                                                                 <button type="button"
                                                                     className={`es-class-chip-btn${form.target_grade===selectedYear?' active':''}`}

@@ -65,7 +65,7 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
                     <div className="stat-label">Students</div>
                 </div>
                 <div className="stat-item">
-                    <div className="stat-value">{cls.avg_score != null ? `${cls.avg_score}%` : '—'}</div>
+                    <div className="stat-value">{cls.avg_score != null ? `${cls.avg_score}%` : '-'}</div>
                     <div className="stat-label">Avg Score</div>
                 </div>
             </div>
@@ -121,7 +121,7 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
     )
 
     return (
-        <Modal title={`${cls.class_name} — Students`} icon="group" onClose={onClose} size="wide">
+        <Modal title={`${cls.class_name} Students`} icon="group" onClose={onClose} size="wide">
             <div className="modal-search">
                 <span className="material-symbols-rounded">search</span>
                 <input
@@ -286,7 +286,7 @@ function ResultsModal({ cls, onClose }) {
 
     // ── Step: Pick assessment ─────────────────────────────────────────────────
     if (step === 'pick') return (
-        <Modal title={`Enter Results — ${cls.class_name}`} icon="edit_note" onClose={onClose} size="wide">
+        <Modal title={`Enter Results for ${cls.class_name}`} icon="edit_note" onClose={onClose} size="wide">
             <p className="modal-desc">Select an existing assessment or create a new one for <strong>{cls.class_name}</strong>.</p>
             {loadingInit ? (
                 <p className="u-muted">Loading…</p>
@@ -368,7 +368,7 @@ function ResultsModal({ cls, onClose }) {
                                     </div>
                                     <div className="score-input-cell u-row-sm">
                                         <input
-                                            type="number" min="0" max={max} placeholder="—"
+                                            type="number" min="0" max={max} placeholder="-"
                                             className="score-input"
                                             value={scoreVal}
                                             onChange={e => setScores(prev => ({ ...prev, [student.student_id]: e.target.value }))}
@@ -440,7 +440,7 @@ function ResultsModal({ cls, onClose }) {
                 </div>
             </div>
 
-            <div className="section-label-sm">Enter Scores — {cls.class_name}</div>
+            <div className="section-label-sm">Enter Scores for {cls.class_name}</div>
             <div className="score-table-body">
                 <div className="score-table-head score-grid-2">
                     <span>Student</span>
@@ -462,7 +462,7 @@ function ResultsModal({ cls, onClose }) {
                             </div>
                             <div className="score-input-cell u-row-sm">
                                 <input
-                                    type="number" min="0" max={newForm.max_score || undefined} placeholder="—"
+                                    type="number" min="0" max={newForm.max_score || undefined} placeholder="-"
                                     className="score-input"
                                     value={scoreVal}
                                     onChange={e => setScores(prev => ({ ...prev, [student.student_id]: e.target.value }))}

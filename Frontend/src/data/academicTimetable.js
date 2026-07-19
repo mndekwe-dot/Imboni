@@ -1,15 +1,15 @@
 // 9 entries: 3 periods → break → 5 periods → lunch break implicit (no row)
 // Each data array must have exactly 9 entries to match PERIODS by index
 export const PERIODS = [
-    { id: 1,       label: 'Period 1', time: '8:00 – 8:40'   },
-    { id: 2,       label: 'Period 2', time: '8:40 – 9:20'   },
-    { id: 3,       label: 'Period 3', time: '9:20 – 10:00'  },
-    { id: 'break', label: 'Break',    time: '10:00 – 10:20' },
-    { id: 4,       label: 'Period 4', time: '10:20 – 11:00' },
-    { id: 5,       label: 'Period 5', time: '11:00 – 11:40' },
-    { id: 6,       label: 'Period 6', time: '11:40 – 12:20' },
-    { id: 7,       label: 'Period 7', time: '2:00 – 2:40'   },
-    { id: 8,       label: 'Period 8', time: '2:40 – 3:20'   },
+    { id: 1,       label: 'Period 1', time: '8:00 - 8:40'   },
+    { id: 2,       label: 'Period 2', time: '8:40 - 9:20'   },
+    { id: 3,       label: 'Period 3', time: '9:20 - 10:00'  },
+    { id: 'break', label: 'Break',    time: '10:00 - 10:20' },
+    { id: 4,       label: 'Period 4', time: '10:20 - 11:00' },
+    { id: 5,       label: 'Period 5', time: '11:00 - 11:40' },
+    { id: 6,       label: 'Period 6', time: '11:40 - 12:20' },
+    { id: 7,       label: 'Period 7', time: '2:00 - 2:40'   },
+    { id: 8,       label: 'Period 8', time: '2:40 - 3:20'   },
 ]
 
 // Shorthand for break row — reused in every day array at index 3

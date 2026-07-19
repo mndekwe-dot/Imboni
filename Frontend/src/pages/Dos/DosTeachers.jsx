@@ -168,7 +168,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                     <div className="form-group">
                         <label className="form-label">Subject *</label>
                         <FormSelect value={form.subject} onChange={v => setForm(p => ({ ...p, subject: v }))}
-                            placeholder="— Select subject —"
+                            placeholder="Select subject"
                             options={subjectOptions.map(s => ({ value: s, label: s }))} />
                     </div>
                     <div className="form-group">
@@ -257,7 +257,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                     })}
                     <div className="teacher-assign-hint">
                         {selected.size === 0
-                            ? 'No classes selected — teacher will not appear on any timetable'
+                            ? 'No classes selected: teacher will not appear on any timetable'
                             : `${selected.size} class${selected.size !== 1 ? 'es' : ''} selected · ${[...selected].sort().join(', ')}`
                         }
                     </div>
@@ -315,7 +315,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
             <div className="dt-info-box">
                 <span className="material-symbols-rounded dt-info-icon">info</span>
                 <p className="dt-info-text">
-                    An email will be sent with a secure registration link. The teacher sets their own password — you never need to share credentials.
+                    An email will be sent with a secure registration link. The teacher sets their own password. You never need to share credentials.
                 </p>
             </div>
 
@@ -382,7 +382,7 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
                     {invitations.length}
                 </span>
                 <span className="pinv-hdr-note">
-                    — teachers who have not yet completed registration
+                    (teachers who have not yet completed registration)
                 </span>
             </div>
             <table className="pinv-table">
@@ -408,7 +408,7 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
                                         <span className="pinv-name">{fullName}</span>
                                     </div>
                                 </td>
-                                <td className="pinv-td pinv-email">{inv.email || '—'}</td>
+                                <td className="pinv-td pinv-email">{inv.email || '-'}</td>
                                 <td className="pinv-td">
                                     {expired
                                         ? <span className="pinv-status expired">Expired</span>
@@ -474,7 +474,7 @@ export function DosTeachers() {
                 const teacherList = list.map(t => ({
                     id: t.teacher_id,
                     name: t.full_name,
-                    subject: t.subjects[0] || '—',
+                    subject: t.subjects[0] || '-',
                     type: typeMap[t.employment_type] || 'Full-Time',
                     classes: [],
                     status: 'Active',

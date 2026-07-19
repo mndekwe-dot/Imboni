@@ -27,7 +27,7 @@ describe('StaffModal', () => {
     render(<StaffModal onClose={onClose} onSave={onSave} />)
 
     fireEvent.change(screen.getByPlaceholderText('e.g. Ms. J. Kamau'), { target: { value: 'Mr. X' } })
-    fireEvent.change(screen.getByPlaceholderText('e.g. Matron — Kigoma Dormitory'), { target: { value: 'Patron' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Matron, Kigoma Dormitory'), { target: { value: 'Patron' } })
     fireEvent.click(screen.getByText('Add Staff').closest('button'))
 
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Mr. X', role: 'Patron' }))

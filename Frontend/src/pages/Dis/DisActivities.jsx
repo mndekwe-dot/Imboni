@@ -46,7 +46,7 @@ function ActivityCard({ activity, onEdit }) {
                 <div className={`staff-card-avatar ${avClass(category)}`}>{initials(name)}</div>
                 <div>
                     <div className="staff-card-name">{name}</div>
-                    <div className="staff-card-role">{catLabel} &bull; Patron: {teacher_name || '—'}</div>
+                    <div className="staff-card-role">{catLabel} &bull; Patron: {teacher_name || '-'}</div>
                 </div>
                 <span className={`pub-badge ${badgeCls} ml-auto`}>{badge}</span>
             </div>
@@ -264,7 +264,7 @@ export function DisActivities() {
                                 <div key={i} className="disc-stat-card">
                                     <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
                                     <div>
-                                        <div className="disc-stat-value">{loading ? '—' : s.value}</div>
+                                        <div className="disc-stat-value">{loading ? '-' : s.value}</div>
                                         <div className="disc-stat-label">{s.label}</div>
                                     </div>
                                 </div>

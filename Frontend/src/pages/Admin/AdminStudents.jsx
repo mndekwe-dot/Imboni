@@ -23,7 +23,7 @@ function initials(name = '') {
 }
 
 function gradeLabel(grade, section) {
-    if (!grade) return '—'
+    if (!grade) return '-'
     return `S${grade}${section || ''}`
 }
 
@@ -73,8 +73,8 @@ function StudentDetailModal({ student, onClose }) {
     }, [id])
 
     const cls    = gradeLabel(detail?.grade ?? student.grade, detail?.section ?? student.section)
-    const sid    = detail?.student_id || detail?.student_code || student.student_id || student.student_code || '—'
-    const dorm   = detail?.dormitory || detail?.house || student.dormitory || student.house || '—'
+    const sid    = detail?.student_id || detail?.student_code || student.student_id || student.student_code || '-'
+    const dorm   = detail?.dormitory || detail?.house || student.dormitory || student.house || '-'
     const status = detail?.status || (student.is_active !== false ? 'active' : 'inactive')
     const gpa    = detail?.current_gpa ?? student.current_gpa
 
@@ -114,7 +114,7 @@ function StudentDetailModal({ student, onClose }) {
                                     ['Class',     cls],
                                     ['Dormitory', dorm],
                                     ['Status',    status.charAt(0).toUpperCase() + status.slice(1)],
-                                    ['GPA',       gpa != null ? gpa : '—'],
+                                    ['GPA',       gpa != null ? gpa : '-'],
                                 ].map(([label, val]) => (
                                     <div key={label} className="adm-profile-row">
                                         <span className="adm-profile-key">{label}</span>
@@ -154,13 +154,13 @@ function StudentDetailModal({ student, onClose }) {
                                 <div className="adm-result-list">
                                     {results.slice(0, 8).map((r, i) => {
                                         const subject = r.subject_name || r.subject?.name || `Subject ${i + 1}`
-                                        const score   = r.total_score ?? r.score ?? r.final_score ?? '—'
-                                        const grade   = r.letter_grade || r.grade_letter || '—'
+                                        const score   = r.total_score ?? r.score ?? r.final_score ?? '-'
+                                        const grade   = r.letter_grade || r.grade_letter || '-'
                                         return (
                                             <div key={i} className="adm-result-row">
                                                 <span className="adm-result-name">{subject}</span>
                                                 <span className="adm-result-score">
-                                                    {score !== '—' ? `${score}%` : '—'}
+                                                    {score !== '-' ? `${score}%` : '-'}
                                                 </span>
                                                 <span className="adm-result-grade" style={{ color: gradeColor(grade) }}>
                                                     {grade}
@@ -188,7 +188,7 @@ function StudentRow({ student, onView }) {
     const name   = student.name || `${student.first_name || ''} ${student.last_name || ''}`.trim()
     const cls    = gradeLabel(student.grade, student.section)
     const active = student.status === 'active' || student.is_active !== false
-    const id     = student.student_id || student.student_code || '—'
+    const id     = student.student_id || student.student_code || '-'
 
     return (
         <tr>
@@ -202,7 +202,7 @@ function StudentRow({ student, onView }) {
                 </div>
             </td>
             <td>{cls}</td>
-            <td>{student.dormitory || student.house || '—'}</td>
+            <td>{student.dormitory || student.house || '-'}</td>
             <td>
                 <span className={`adm-badge ${active ? 'active' : 'pending'}`}>
                     {student.status ? student.status.charAt(0).toUpperCase() + student.status.slice(1) : (active ? 'Active' : 'Inactive')}
@@ -247,10 +247,10 @@ export function AdminStudents() {
         { icon: 'check_circle', value: stats.active_students || 0, label: 'Active',          trend: `${stats.enrollment_pct || 0}% enrollment`, colorClass: 'success' },
         { icon: 'trending_up',  value: `${stats.avg_performance || 0}%`, label: 'Avg Performance', trend: stats.avg_performance_change >= 0 ? `+${stats.avg_performance_change}%` : `${stats.avg_performance_change}%`, colorClass: 'warning' },
     ] : [
-        { icon: 'groups',       value: '—', label: 'Total Students',   trend: 'Loading…', colorClass: ''        },
-        { icon: 'person_add',   value: '—', label: 'New Admissions',   trend: 'Loading…', colorClass: 'info'    },
-        { icon: 'check_circle', value: '—', label: 'Active',           trend: 'Loading…', colorClass: 'success' },
-        { icon: 'trending_up',  value: '—', label: 'Avg Performance',  trend: 'Loading…', colorClass: 'warning' },
+        { icon: 'groups',       value: '-', label: 'Total Students',   trend: 'Loading…', colorClass: ''        },
+        { icon: 'person_add',   value: '-', label: 'New Admissions',   trend: 'Loading…', colorClass: 'info'    },
+        { icon: 'check_circle', value: '-', label: 'Active',           trend: 'Loading…', colorClass: 'success' },
+        { icon: 'trending_up',  value: '-', label: 'Avg Performance',  trend: 'Loading…', colorClass: 'warning' },
     ]
 
     const filtered = studentList.filter(s => {

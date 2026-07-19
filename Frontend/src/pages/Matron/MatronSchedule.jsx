@@ -132,7 +132,7 @@ export function MatronSchedule() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Boarding Schedule"
-                        subtitle="Timetable sent by the Discipline Master — Karisimbi House"
+                        subtitle="Timetable sent by the Discipline Master for Karisimbi House"
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -143,8 +143,8 @@ export function MatronSchedule() {
                         <div className="disc-welcome-banner mb-5">
                             <span className="material-symbols-rounded u-fs-15">verified</span>
                             <div>
-                                <div className="banner-title">Standing boarding routine — issued by the Discipline Office</div>
-                                <div className="banner-sub">{data.stats.current_term} &middot; Read-only &mdash; contact the Discipline Master to request changes</div>
+                                <div className="banner-title">Standing boarding routine, issued by the Discipline Office</div>
+                                <div className="banner-sub">{data.stats.current_term} &middot; Read-only, contact the Discipline Master to request changes</div>
                             </div>
                         </div>
 

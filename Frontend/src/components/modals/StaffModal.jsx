@@ -53,7 +53,7 @@ export function StaffModal({ staff, onClose, onSave }) {
                         </div>
                         <div className="form-group">
                             <label className="form-label">Role / Dormitory</label>
-                            <input className="form-input" name="role" value={form.role} onChange={handleChange} placeholder="e.g. Matron — Kigoma Dormitory" />
+                            <input className="form-input" name="role" value={form.role} onChange={handleChange} placeholder="e.g. Matron, Kigoma Dormitory" />
                         </div>
                     </div>
                     <div className="form-row-2">
@@ -68,7 +68,7 @@ export function StaffModal({ staff, onClose, onSave }) {
                     </div>
                     <div className="form-group">
                         <label className="form-label">Duty Hours</label>
-                        <input className="form-input" name="duty" value={form.duty} onChange={handleChange} placeholder="e.g. 6:00 PM – 7:00 AM" />
+                        <input className="form-input" name="duty" value={form.duty} onChange={handleChange} placeholder="e.g. 6:00 PM - 7:00 AM" />
                     </div>
                 </div>
 

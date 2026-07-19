@@ -240,7 +240,7 @@ export function LiveMessages({
                                                 {loadingThread && messages.length === 0 ? (
                                                     <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
                                                 ) : messages.length === 0 ? (
-                                                    <p style={{ color: 'var(--muted-foreground)' }}>No messages yet — say hello.</p>
+                                                    <p style={{ color: 'var(--muted-foreground)' }}>No messages yet. Say hello.</p>
                                                 ) : messages.map(m => (
                                                     <ChatBubble
                                                         key={m.id}

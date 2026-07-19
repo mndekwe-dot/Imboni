@@ -76,7 +76,7 @@ describe('MatronParentComms', () => {
         expect(saveBtn).toBeDisabled()
 
         const formCard = screen.getByText('Log New Communication').closest('.card')
-        fireEvent.change(within(formCard).getByDisplayValue('— Select student —'), { target: { value: '1' } })
+        fireEvent.change(within(formCard).getByDisplayValue('Select student...'), { target: { value: '1' } })
         expect(saveBtn).toBeDisabled()
 
         fireEvent.change(screen.getByPlaceholderText('e.g. Mr. John Doe (father)'), { target: { value: 'Mr. Niyomugabo' } })
@@ -93,7 +93,7 @@ describe('MatronParentComms', () => {
         await waitFor(() => expect(screen.getByText('Log New Communication')).toBeInTheDocument())
 
         const formCard = screen.getByText('Log New Communication').closest('.card')
-        fireEvent.change(within(formCard).getByDisplayValue('— Select student —'), { target: { value: '1' } })
+        fireEvent.change(within(formCard).getByDisplayValue('Select student...'), { target: { value: '1' } })
         fireEvent.change(screen.getByPlaceholderText('e.g. Mr. John Doe (father)'), { target: { value: 'Mr. Niyomugabo' } })
         fireEvent.change(screen.getByPlaceholderText(/Health update, Conduct concern/), { target: { value: 'Health update' } })
 
@@ -117,7 +117,7 @@ describe('MatronParentComms', () => {
         await waitFor(() => expect(screen.getByText('Log New Communication')).toBeInTheDocument())
 
         const formCard = screen.getByText('Log New Communication').closest('.card')
-        fireEvent.change(within(formCard).getByDisplayValue('— Select student —'), { target: { value: '1' } })
+        fireEvent.change(within(formCard).getByDisplayValue('Select student...'), { target: { value: '1' } })
         fireEvent.change(screen.getByPlaceholderText('e.g. Mr. John Doe (father)'), { target: { value: 'Mr. Niyomugabo' } })
         fireEvent.change(screen.getByPlaceholderText(/Health update, Conduct concern/), { target: { value: 'Health update' } })
         fireEvent.click(screen.getByRole('button', { name: /Save Log/ }))

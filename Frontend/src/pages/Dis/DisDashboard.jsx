@@ -26,18 +26,18 @@ function IncidentRow({ student, grade, section, title, report_type, date, report
     const cls  = `${grade || ''}${section || ''}`
     const fuLabel = follow_up_required
         ? (follow_up_completed ? 'Done' : 'Pending')
-        : '—'
+        : '-'
     return (
         <tr>
             <td><strong>{student}</strong></td>
             <td><span className="class-chip">{cls}</span></td>
             <td><span className={`incident-type-tag ${meta.cls}`}>{meta.label}</span> {title}</td>
             <td className="text-muted">{date}</td>
-            <td className="text-muted">{reported_by || '—'}</td>
+            <td className="text-muted">{reported_by || '-'}</td>
             <td>
                 {follow_up_required
                     ? <span className={`badge ${follow_up_completed ? 'badge-success' : 'badge-upcoming'}`}>{fuLabel}</span>
-                    : <span className="u-muted">—</span>
+                    : <span className="u-muted">-</span>
                 }
             </td>
         </tr>
@@ -48,8 +48,8 @@ function StaffItem({ full_name, staff_type, assigned_dormitory, assigned_grade }
     const isMatron = ['matron', 'head_matron'].includes(staff_type)
     const icon     = isMatron ? 'home' : 'emoji_events'
     const meta     = assigned_dormitory
-        ? `${staff_type === 'matron' ? 'Matron' : 'Head Matron'} — ${assigned_dormitory}`
-        : `Patron${assigned_grade ? ' — ' + assigned_grade : ''}`
+        ? `${staff_type === 'matron' ? 'Matron' : 'Head Matron'} (${assigned_dormitory})`
+        : `Patron${assigned_grade ? ' (' + assigned_grade + ')' : ''}`
     return (
         <div className="disc-activity-item">
             <div className={`disc-activity-icon ${isMatron ? 'purple' : 'green'}`}>
@@ -132,7 +132,7 @@ export function DisDashboard() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Dashboard"
-                        subtitle="Director of Discipline — Overview"
+                        subtitle="Director of Discipline Overview"
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

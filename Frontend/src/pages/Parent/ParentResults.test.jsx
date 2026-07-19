@@ -44,7 +44,7 @@ describe('ParentResults', () => {
     renderWithRouter(<ParentResults />)
 
     await waitFor(() => expect(screen.getAllByText('Mathematics').length).toBeGreaterThan(0))
-    expect(screen.getByText('Recent Results — Eric N.')).toBeInTheDocument()
+    expect(screen.getByText('Recent Results for Eric N.')).toBeInTheDocument()
     expect(screen.getByText('Summative Performance')).toBeInTheDocument()
     expect(screen.getByText('Mr. Habimana')).toBeInTheDocument()
     expect(screen.getByText('"Great improvement."')).toBeInTheDocument()

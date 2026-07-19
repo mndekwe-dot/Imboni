@@ -65,7 +65,7 @@ describe('DosExamSchedule', () => {
     await waitFor(() => expect(screen.getByText('Mathematics')).toBeInTheDocument())
     expect(screen.getByText('MAT 401')).toBeInTheDocument()
     expect(screen.getByText('S4A')).toBeInTheDocument()
-    expect(screen.getByText('08:00 – 11:00')).toBeInTheDocument()
+    expect(screen.getByText('08:00 - 11:00')).toBeInTheDocument()
     expect(screen.getByText('Hall A')).toBeInTheDocument()
     expect(screen.getByText('Mr. Rurangwa')).toBeInTheDocument()
 
@@ -73,7 +73,7 @@ describe('DosExamSchedule', () => {
     expect(screen.getByText('Physics')).toBeInTheDocument()
     const rows = screen.getAllByRole('row')
     const physicsRow = rows.find(r => within(r).queryByText('Physics'))
-    expect(within(physicsRow).getAllByText('—').length).toBeGreaterThan(0)
+    expect(within(physicsRow).getAllByText('-').length).toBeGreaterThan(0)
   })
 
   it('keeps the default/fallback exam rows when the API returns an empty array', async () => {

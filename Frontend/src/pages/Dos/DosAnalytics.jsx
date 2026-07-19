@@ -185,7 +185,7 @@ export function DosAnalytics() {
                             <div className="card-content">
                                 {attention.length === 0 ? (
                                     <p className="dos-empty-hint">
-                                        No students flagged — averages are above 50% and attendance above 80%.
+                                        No students flagged: averages are above 50% and attendance above 80%.
                                     </p>
                                 ) : (
                                     <div className="dos-attention-list">

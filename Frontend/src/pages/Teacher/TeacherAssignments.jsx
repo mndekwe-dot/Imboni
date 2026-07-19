@@ -696,7 +696,7 @@ function GradeModal({ assignment, onClose }) {
                 .map(([student_id, score]) => ({ student_id, score }))
             const res = await saveAssignmentGrades(assignment.id, records)
             if (res.errors?.length) {
-                setMessage({ type: 'error', text: `${res.saved} saved, ${res.errors.length} rejected (check scores are 0–${maxScore}).` })
+                setMessage({ type: 'error', text: `${res.saved} saved, ${res.errors.length} rejected (check scores are 0-${maxScore}).` })
             } else {
                 setMessage({ type: 'success', text: `Saved ${res.saved} score${res.saved !== 1 ? 's' : ''}.` })
             }
@@ -710,7 +710,7 @@ function GradeModal({ assignment, onClose }) {
     const gradedCount = Object.values(scores).filter(v => v !== '').length
 
     return (
-        <Modal title={`Grade — ${assignment.title}`} icon="edit_note" onClose={onClose} size="wide"
+        <Modal title={`Grade: ${assignment.title}`} icon="edit_note" onClose={onClose} size="wide"
             footer={
                 <div className="modal-footer-row">
                     <span className="modal-footer-hint"
@@ -777,7 +777,7 @@ function SubmissionsModal({ assignment, onClose }) {
     }, [assignment.id])
 
     return (
-        <Modal title={`Submissions — ${assignment.title}`} icon="fact_check" onClose={onClose} size="wide"
+        <Modal title={`Submissions: ${assignment.title}`} icon="fact_check" onClose={onClose} size="wide"
             footer={<div className="modal-footer-row"><button className="btn btn-outline" onClick={onClose}>Close</button></div>}>
             {loading ? (
                 <p className="u-muted">Loading submissions…</p>
@@ -807,7 +807,7 @@ function SubmissionsModal({ assignment, onClose }) {
                                         <span className={`sub-pct ${s.percentage >= 50 ? 'pass' : 'low'}`}>{s.percentage}%</span>
                                     </td>
                                     <td className="cell-date">{new Date(s.submitted_at).toLocaleString()}</td>
-                                    <td>{s.is_late ? <span className="sub-late">Late</span> : '—'}</td>
+                                    <td>{s.is_late ? <span className="sub-late">Late</span> : '-'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -962,13 +962,13 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                         <label className="form-label">Class *</label>
                         <FormSelect value={form.class_obj}
                             onChange={handleClassChange}
-                            placeholder="— Select class —" options={classOptions} />
+                            placeholder="Select class..." options={classOptions} />
                     </div>
                     <div className="form-group">
                         <label className="form-label">Subject *</label>
                         <FormSelect value={form.subject}
                             onChange={v => setForm(p => ({ ...p, subject: v }))}
-                            placeholder={form.class_obj ? '— Select subject —' : '— Select a class first —'}
+                            placeholder={form.class_obj ? 'Select subject...' : 'Select a class first'}
                             disabled={!form.class_obj || subjectOptions.length === 0}
                             options={subjectOptions} />
                     </div>

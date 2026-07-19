@@ -185,10 +185,10 @@ export function AdminReports() {
         { icon: 'badge',        value: stats.teaching_staff    || 0,     label: 'Teaching Staff',   trend: 'Active',                                colorClass: 'info'    },
         { icon: 'pending_actions', value: stats.pending_approvals || 0,  label: 'Pending Approvals',trend: 'Awaiting review',                       colorClass: 'warning' },
     ] : [
-        { icon: 'groups',       value: '—', label: 'Total Students',    trend: 'Loading…', colorClass: ''        },
-        { icon: 'trending_up',  value: '—', label: 'Avg Performance',   trend: 'Loading…', colorClass: 'success' },
-        { icon: 'badge',        value: '—', label: 'Teaching Staff',    trend: 'Loading…', colorClass: 'info'    },
-        { icon: 'pending_actions', value: '—', label: 'Pending Approvals', trend: 'Loading…', colorClass: 'warning' },
+        { icon: 'groups',       value: '-', label: 'Total Students',    trend: 'Loading…', colorClass: ''        },
+        { icon: 'trending_up',  value: '-', label: 'Avg Performance',   trend: 'Loading…', colorClass: 'success' },
+        { icon: 'badge',        value: '-', label: 'Teaching Staff',    trend: 'Loading…', colorClass: 'info'    },
+        { icon: 'pending_actions', value: '-', label: 'Pending Approvals', trend: 'Loading…', colorClass: 'warning' },
     ]
 
     return (

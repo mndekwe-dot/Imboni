@@ -9,8 +9,8 @@ beforeEach(() => {
 })
 
 const periods = [
-  { id: 1, label: 'Period 1', time: '8:00 – 8:40' },
-  { id: 2, label: 'Period 2', time: '8:40 – 9:20' },
+  { id: 1, label: 'Period 1', time: '8:00 - 8:40' },
+  { id: 2, label: 'Period 2', time: '8:40 - 9:20' },
 ]
 
 describe('PeriodManager', () => {
@@ -25,7 +25,7 @@ describe('PeriodManager', () => {
     render(<PeriodManager periods={periods} onChange={onChange} onClose={() => {}} />)
     fireEvent.change(screen.getByDisplayValue('Period 1'), { target: { value: 'Morning Period' } })
     expect(onChange).toHaveBeenCalledWith([
-      { id: 1, label: 'Morning Period', time: '8:00 – 8:40' },
+      { id: 1, label: 'Morning Period', time: '8:00 - 8:40' },
       periods[1],
     ])
   })

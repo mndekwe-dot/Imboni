@@ -5,7 +5,7 @@ import { TimetableCell } from './TimetableCell'
 describe('TimetableCell', () => {
   it('renders a dash placeholder when cell is null', () => {
     render(<table><tbody><tr><TimetableCell cell={null} colIndex={0} /></tr></tbody></table>)
-    expect(screen.getByText('—')).toBeInTheDocument()
+    expect(screen.getByText('-')).toBeInTheDocument()
   })
 
   it('renders a label for an explicitly empty slot', () => {
@@ -15,7 +15,7 @@ describe('TimetableCell', () => {
 
   it('falls back to a dash for an empty slot without a label', () => {
     render(<table><tbody><tr><TimetableCell cell={{ type: 'empty' }} colIndex={0} /></tr></tbody></table>)
-    expect(screen.getByText('—')).toBeInTheDocument()
+    expect(screen.getByText('-')).toBeInTheDocument()
   })
 
   it('renders "Break" for a break-type cell', () => {

@@ -120,7 +120,7 @@ describe('DiningPlannerTab', () => {
                            reason: 'group of 200 exceeds every lunch sitting (largest holds 120)' }],
             occupancy: [],
             summary: { meals: 1, classes: 1, students: 200, sittings: 1, seated: 0, unassigned: 1 },
-            warnings: ['1 class-meal(s) could not be seated — add a sitting or raise capacity.'],
+            warnings: ['1 class-meal(s) could not be seated: add a sitting or raise capacity.'],
         })
 
         renderWithRouter(<DiningPlannerTab />)

@@ -67,7 +67,7 @@ function ComposeModal({ onClose, onPublish, authorName }) {
                     name="title"
                     value={form.title}
                     onChange={handle}
-                    placeholder="e.g. School closed — Public Holiday, April 28"
+                    placeholder="e.g. School closed for Public Holiday, April 28"
                 />
             </div>
 

@@ -29,7 +29,7 @@ describe('DormitoryCaptainModal', () => {
 
     expect(screen.getByText('Add Captain').closest('button')).toBeDisabled()
 
-    fireEvent.change(screen.getByDisplayValue('— Select dormitory —'), { target: { value: 'bisoke' } })
+    fireEvent.change(screen.getByDisplayValue('Select dormitory'), { target: { value: 'bisoke' } })
     expect(screen.getByText('Add Captain').closest('button')).not.toBeDisabled()
 
     fireEvent.click(screen.getByText('Add Captain').closest('button'))

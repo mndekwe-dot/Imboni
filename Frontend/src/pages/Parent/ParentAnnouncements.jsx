@@ -113,7 +113,7 @@ function AnnouncementCard({ ann, onMarkRead }) {
                 {/* Footer */}
                 <div className="pann-card-footer">
                     <span className="pann-card-author">
-                        — {ann.author_name || 'Administration'}
+                        By {ann.author_name || 'Administration'}
                     </span>
                     {!isRead && (
                         <button onClick={() => onMarkRead(ann.id)} className="pann-mark-btn">
@@ -199,10 +199,10 @@ export function ParentAnnouncements() {
                     <DashboardContent>
                         {/* Stats row */}
                         <div className="pann-stats-row">
-                            <StatBox icon="inbox"             value={loading ? '—' : announcements.length} label="Total"          color="#3b82f6" />
-                            <StatBox icon="mark_email_unread" value={loading ? '—' : unreadCount}          label="Unread"         color="#f59e0b" />
-                            <StatBox icon="priority_high"     value={loading ? '—' : urgentCount}          label="Urgent"         color="#ef4444" />
-                            <StatBox icon="event"             value={loading ? '—' : eventCount}           label="Upcoming Events" color="#8b5cf6" />
+                            <StatBox icon="inbox"             value={loading ? '-' : announcements.length} label="Total"          color="#3b82f6" />
+                            <StatBox icon="mark_email_unread" value={loading ? '-' : unreadCount}          label="Unread"         color="#f59e0b" />
+                            <StatBox icon="priority_high"     value={loading ? '-' : urgentCount}          label="Urgent"         color="#ef4444" />
+                            <StatBox icon="event"             value={loading ? '-' : eventCount}           label="Upcoming Events" color="#8b5cf6" />
                         </div>
 
                         {/* Toolbar: chips + mark all */}

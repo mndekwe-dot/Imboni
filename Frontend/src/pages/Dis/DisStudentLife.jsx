@@ -146,7 +146,7 @@ function PrefectCard({ leader, onEdit, onRemove }) {
 
 function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCancelRemove }) {
     const cls = `${leader.grade || ''}${leader.section || ''}`
-    const dorm = leader.notes || '—'
+    const dorm = leader.notes || '-'
     const isConfirming = confirmId === leader.id
 
     return (

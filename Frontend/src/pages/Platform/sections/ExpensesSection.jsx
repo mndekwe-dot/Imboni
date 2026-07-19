@@ -120,7 +120,7 @@ export function ExpensesSection() {
                                 {items.map(e => (
                                     <tr key={e.id}>
                                         <td className="platform-strong">{e.name}</td>
-                                        <td className="platform-muted">{e.vendor || '—'}</td>
+                                        <td className="platform-muted">{e.vendor || '-'}</td>
                                         <td>{money(e.amount, e.currency)}</td>
                                         <td className="platform-muted pf-capitalize">{e.recurrence.replace('_', ' ')}</td>
                                         <td>{e.due_date}</td>

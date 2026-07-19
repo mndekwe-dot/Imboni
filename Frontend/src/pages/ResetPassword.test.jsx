@@ -19,7 +19,7 @@ function renderResetPassword() {
   )
 }
 
-describe('ResetPassword (confirm step — uid/token from URL)', () => {
+describe('ResetPassword (confirm step: uid/token from URL)', () => {
   beforeEach(() => {
     confirmPasswordReset.mockReset()
   })

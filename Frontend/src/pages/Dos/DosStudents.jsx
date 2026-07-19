@@ -45,9 +45,9 @@ function apiToStudent(s) {
         year:        gradeMap[s.grade] || s.grade,
         classLetter: s.section,
         status:      s.status,
-        house:       '—',
-        t1:          '—',
-        t2:          '—',
+        house:       '-',
+        t1:          '-',
+        t2:          '-',
         curr:        s.avg_performance != null ? `${s.avg_performance}%` : 'N/A',
         standClass,
         standing,
@@ -199,7 +199,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                 <div className="dos-info-box">
                     <span className="material-symbols-rounded dos-info-icon">info</span>
                     <p className="dos-info-text">
-                        Two invitation emails will be sent — one for the student to create their account, and one for the parent/guardian.
+                        Two invitation emails will be sent: one for the student to create their account, and one for the parent/guardian.
                     </p>
                 </div>
 
@@ -279,7 +279,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                 {/* Step 1 – download template */}
                 <div className="dos-step-box">
                     <div>
-                        <p className="dos-step-title">Step 1 — Download the template</p>
+                        <p className="dos-step-title">Step 1: Download the template</p>
                         <p className="dos-step-desc">Fill in student and parent details, one row per student.</p>
                     </div>
                     <button className="btn btn-outline btn-sm" onClick={downloadTemplate}>
@@ -288,7 +288,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                 </div>
 
                 {/* Step 2 – upload CSV */}
-                <p className="dos-step2-label">Step 2 — Upload completed CSV</p>
+                <p className="dos-step2-label">Step 2: Upload completed CSV</p>
                 <label className="dos-upload-label">
                     <span className="material-symbols-rounded dos-upload-icon">upload_file</span>
                     <span className={'dos-upload-text' + (file ? ' has-file' : '')}>
@@ -321,7 +321,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                                             <td className="dos-preview-td is-muted">{row.student_email}</td>
                                             <td className="dos-preview-td">{row.year}{row.stream}</td>
                                             <td className="dos-preview-td">{row.parent_first_name} {row.parent_last_name}</td>
-                                            <td className="dos-preview-td is-muted">{row.parent_email || row.parent_phone || '—'}</td>
+                                            <td className="dos-preview-td is-muted">{row.parent_email || row.parent_phone || '-'}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -335,7 +335,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                     <div className={'dos-bulk-result ' + (bulkResult.created > 0 ? 'ok' : 'err')}>
                         <p className="dos-bulk-result-title">
                             {bulkResult.created > 0 ? `${bulkResult.created} student${bulkResult.created > 1 ? 's' : ''} invited successfully` : 'No invitations sent'}
-                            {bulkResult.failed > 0 && ` — ${bulkResult.failed} row${bulkResult.failed > 1 ? 's' : ''} failed`}
+                            {bulkResult.failed > 0 && `, ${bulkResult.failed} row${bulkResult.failed > 1 ? 's' : ''} failed`}
                         </p>
                         {bulkResult.errors.length > 0 && (
                             <ul className="dos-bulk-errors">
@@ -457,14 +457,14 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
     }
 
     const isSuspended = student?.status === 'suspended'
-    const classLabel  = student ? `S${student.grade}${student.section}` : '—'
+    const classLabel  = student ? `S${student.grade}${student.section}` : '-'
 
     const standingColor = (p) => p >= 80 ? 'var(--success)' : p >= 60 ? 'var(--warning)' : 'var(--danger)'
 
     const infoRow = (label, value) => (
         <div className="dos-info-row">
             <span className="dos-info-row-label">{label}</span>
-            <span className="dos-info-row-value">{value ?? '—'}</span>
+            <span className="dos-info-row-value">{value ?? '-'}</span>
         </div>
     )
 
@@ -522,7 +522,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                                 { label: 'Att',  val: student.attendance_rate  },
                             ].map(({ label, val }) => (
                                 <div key={label} className="dos-stat-pill" style={{ '--dos-accent': standingColor(val ?? 0) }}>
-                                    <div className="dos-stat-pill-value">{val != null ? `${val}%` : '—'}</div>
+                                    <div className="dos-stat-pill-value">{val != null ? `${val}%` : '-'}</div>
                                     <div className="dos-stat-pill-label">{label}</div>
                                 </div>
                             ))}
@@ -569,7 +569,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                             <div className="form-group dos-mb-half">
                                 <label className="form-label">Role</label>
                                 <select className="form-control" value={leaderRole} onChange={e => setLeaderRole(e.target.value)}>
-                                    <option value="">— Select a role —</option>
+                                    <option value="">Select a role</option>
                                     {LEADER_ROLES.filter(r => !(student.leadership || []).some(l => l.role === r.value)).map(r => (
                                         <option key={r.value} value={r.value}>{r.label}</option>
                                     ))}
@@ -723,12 +723,12 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                                             <span className="dos-inv-name">{fullName}</span>
                                         </div>
                                     </td>
-                                    <td className="dos-inv-td sm muted">{inv.email || '—'}</td>
-                                    <td className="dos-inv-td sm muted">{inv.class_obj_name || '—'}</td>
+                                    <td className="dos-inv-td sm muted">{inv.email || '-'}</td>
+                                    <td className="dos-inv-td sm muted">{inv.class_obj_name || '-'}</td>
                                     <td className="dos-inv-td">{statusEl}</td>
                                     <td className="dos-inv-td xs muted">{daysAgo(inv.created_at)}</td>
                                     <td className={'dos-inv-td xs ' + (inv.is_expired && !inv.is_used ? 'danger' : 'muted')}>
-                                        {inv.is_used ? '—' : new Date(inv.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        {inv.is_used ? '-' : new Date(inv.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                                     </td>
                                     <td className="dos-inv-td wide">
                                         {!inv.is_used && (
@@ -908,7 +908,7 @@ export function DosStudents() {
                         />
 
                         <DataTable
-                            title={`${classLabel} — Students`}
+                            title={`${classLabel}: Students`}
                             data={filtered}
                             columns={['Student','Adm No.','Dormitory','Term 1','Term 2','Current','Standing','Actions']}
                             renderRow={s => <StudentRow key={s.adm} {...s} onView={() => setSelectedStudentId(s.id)} />}

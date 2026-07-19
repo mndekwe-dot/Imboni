@@ -32,7 +32,7 @@ export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEd
                 ref={setRef}
                 className={`tt-cell tt-empty tt-col-${colIndex}${drop.isOver ? ' tt-drop-over' : ''}`}
             >
-                {cell?.label || '—'}
+                {cell?.label || '-'}
             </td>
         )
     }

@@ -158,7 +158,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                         {/* Existing chambers */}
                         {chambers.length === 0 ? (
                             <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontStyle: 'italic', marginBottom: '0.75rem' }}>
-                                No chambers yet — add one below.
+                                No chambers yet. Add one below.
                             </p>
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.75rem' }}>
@@ -166,7 +166,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                                     <div key={ch.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', borderRadius: 'var(--radius-sm)', padding: '0.45rem 0.75rem' }}>
                                         <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--muted-foreground)' }}>meeting_room</span>
                                         <span style={{ flex: 1, fontWeight: 600, fontSize: '0.85rem' }}>{ch.name}</span>
-                                        <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Rooms {ch.roomStart}–{ch.roomEnd}</span>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Rooms {ch.roomStart}-{ch.roomEnd}</span>
                                         <button
                                             className="btn-icon-clean"
                                             onClick={() => removeChamber(ch.id)}

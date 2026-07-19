@@ -16,7 +16,7 @@ export function getThisMonday() {
 // Builds label like "Apr 14 – Apr 20, 2026"
 export function formatWeekLabel(monday) {
     const sunday = endOfWeek(monday, { weekStartsOn: 1 })
-    return `${format(monday, 'MMM d')} – ${format(sunday, 'MMM d, yyyy')}`
+    return `${format(monday, 'MMM d')} - ${format(sunday, 'MMM d, yyyy')}`
 }
 
 // Returns true if two dates fall in the same week (Monday start)

@@ -120,7 +120,7 @@ export function MatronStudents() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="My Students"
-                        subtitle={`${matronUser.userRole.split('—').pop().trim()} — ${visibleStudents.length} students`}
+                        subtitle={`${matronUser.userRole.split(',').pop().trim()}, ${visibleStudents.length} students`}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -157,7 +157,7 @@ export function MatronStudents() {
                         </div>
 
                         <DataTable
-                            title={`${matronUser.userRole.split('—').pop().trim()} Students`}
+                            title={`${matronUser.userRole.split(',').pop().trim()} Students`}
                             data={visibleStudents}
                             columns={['Student','Class','Room','Dormitory','Boarding Type']}
                             renderRow={(student, index) => <StudentRow key={index} {...student} />}

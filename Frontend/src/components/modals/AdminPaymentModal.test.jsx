@@ -31,7 +31,7 @@ describe('AdminPaymentModal', () => {
       name: 'Aisha Kamau',
       amount: 'KES 58,000',
       initials: 'AK',
-      adm: '—',
+      adm: '-',
       typeClass: 'paid',
     }))
     expect(onClose).toHaveBeenCalled()

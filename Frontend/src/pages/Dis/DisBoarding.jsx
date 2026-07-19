@@ -181,7 +181,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                             )}
                             {selectedStudent && (
                                 <div className="dis-selected-ok">
-                                    ✓ {selectedStudent.name} — {selectedStudent.student_id}
+                                    ✓ {selectedStudent.name} ({selectedStudent.student_id})
                                     {cls && <span className="class-chip dis-chip-inline-sm">{cls}</span>}
                                 </div>
                             )}
@@ -193,7 +193,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                         <div className="form-group">
                             <label className="form-label">Dormitory *</label>
                             <select className="form-input" name="dormitory" value={form.dormitory} onChange={handleChange}>
-                                <option value="">— Select dormitory —</option>
+                                <option value="">Select dormitory...</option>
                                 {dormitories.length > 0 ? (() => {
                                     // Group by section_name; fall back to flat list if no sections
                                     const sectionNames = [...new Set(dormitories.map(d => d.section_name).filter(Boolean))]
@@ -219,7 +219,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                                         </>
                                     )
                                 })() : (
-                                    <option value="" disabled>No dormitories configured — add them in Settings</option>
+                                    <option value="" disabled>No dormitories configured. Add them in Settings</option>
                                 )}
                             </select>
                         </div>
@@ -290,7 +290,7 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
             </td>
             <td className="text-muted">Room {room_number}{bed_number ? ` · Bed ${bed_number}` : ''}</td>
             <td>{BOARDING_TYPE_LABEL[boarding_type] || boarding_type}</td>
-            <td className="text-muted">{check_in_date || '—'}</td>
+            <td className="text-muted">{check_in_date || '-'}</td>
             <td className="action-cell">
                 {confirmDelete ? (
                     <>
@@ -414,7 +414,7 @@ export function DisBoarding() {
                                 <div key={i} className="disc-stat-card">
                                     <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
                                     <div>
-                                        <div className="disc-stat-value">{loading ? '—' : s.value}</div>
+                                        <div className="disc-stat-value">{loading ? '-' : s.value}</div>
                                         <div className="disc-stat-label">{s.label}</div>
                                     </div>
                                 </div>

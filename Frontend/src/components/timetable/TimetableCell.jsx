@@ -20,12 +20,12 @@ export function TimetableCell({ cell, editable, onEdit, colIndex }) {
 
     /* No data — render an empty dash placeholder */
     if (!cell) {
-        return <td className={`tt-cell tt-empty tt-col-${colIndex}`}>&mdash;</td>
+        return <td className={`tt-cell tt-empty tt-col-${colIndex}`}>{'-'}</td>
     }
 
     /* Explicitly empty slot (e.g. free period with optional label) */
     if (cell.type === 'empty') {
-        return <td className={`tt-cell tt-empty tt-col-${colIndex}`}>{cell.label || '—'}</td>
+        return <td className={`tt-cell tt-empty tt-col-${colIndex}`}>{cell.label || '-'}</td>
     }
 
     /* Break row — matches either by type field or legacy subject string */

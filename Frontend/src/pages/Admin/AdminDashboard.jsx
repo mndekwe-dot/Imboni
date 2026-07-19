@@ -60,10 +60,10 @@ export function AdminDashboard() {
         { icon: 'trending_up',     value: `${stats.avg_performance}%`, label: 'Avg Performance', trend: stats.avg_performance_change >= 0 ? `+${stats.avg_performance_change}% vs prev term` : `${stats.avg_performance_change}% vs prev term`, trendClass: stats.avg_performance_change >= 0 ? 'positive' : 'negative', colorClass: 'success' },
         { icon: 'pending_actions', value: stats.pending_approvals, label: 'Pending Approvals', trend: 'Requires action',                  trendClass: stats.pending_approvals > 0 ? 'negative' : 'positive', colorClass: 'warning' },
     ] : [
-        { icon: 'groups',          value: '—', label: 'Total Students',    trend: 'Loading…', trendClass: 'neutral', colorClass: ''        },
-        { icon: 'badge',           value: '—', label: 'Teaching Staff',    trend: 'Loading…', trendClass: 'neutral', colorClass: 'info'    },
-        { icon: 'trending_up',     value: '—', label: 'Avg Performance',   trend: 'Loading…', trendClass: 'neutral', colorClass: 'success' },
-        { icon: 'pending_actions', value: '—', label: 'Pending Approvals', trend: 'Loading…', trendClass: 'neutral', colorClass: 'warning' },
+        { icon: 'groups',          value: '-', label: 'Total Students',    trend: 'Loading…', trendClass: 'neutral', colorClass: ''        },
+        { icon: 'badge',           value: '-', label: 'Teaching Staff',    trend: 'Loading…', trendClass: 'neutral', colorClass: 'info'    },
+        { icon: 'trending_up',     value: '-', label: 'Avg Performance',   trend: 'Loading…', trendClass: 'neutral', colorClass: 'success' },
+        { icon: 'pending_actions', value: '-', label: 'Pending Approvals', trend: 'Loading…', trendClass: 'neutral', colorClass: 'warning' },
     ]
 
     const performanceData = stats ? [
@@ -82,7 +82,7 @@ export function AdminDashboard() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Admin Dashboard"
-                        subtitle="School-wide overview — Term 2, 2026"
+                        subtitle="School-wide overview (Term 2, 2026)"
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -135,7 +135,7 @@ export function AdminDashboard() {
                                 <div className="card">
                                     <div className="card-header">
                                         <h2 className="card-title">School Overview</h2>
-                                        <p className="card-description">Key indicators — Term 2</p>
+                                        <p className="card-description">Key indicators (Term 2)</p>
                                     </div>
                                     <div className="card-content">
                                         <ResponsiveContainer width="100%" height={200}>
@@ -153,7 +153,7 @@ export function AdminDashboard() {
                                             </BarChart>
                                         </ResponsiveContainer>
                                         <div className="chart-legend-row adm-legend-mt">
-                                            {[['#10b981', '≥ 90% Excellent'], ['#003d7a', '75–89% Good'], ['#f59e0b', '< 75% Needs attention']].map(([color, label]) => (
+                                            {[['#10b981', '≥ 90% Excellent'], ['#003d7a', '75-89% Good'], ['#f59e0b', '< 75% Needs attention']].map(([color, label]) => (
                                                 <div key={label} className="chart-legend-item">
                                                     <span className="chart-legend-dot-sq" style={{ background: color }} />
                                                     {label}

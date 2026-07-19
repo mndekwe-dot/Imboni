@@ -52,7 +52,7 @@ describe('outbox', () => {
     expect(await pendingCount()).toBe(1)
   })
 
-  it('dedupes repeated saves of the same register — only the latest survives', async () => {
+  it('dedupes repeated saves of the same register: only the latest survives', async () => {
     const key = 'attendance|class1|2026-07-05'
     await enqueue('post', '/imboni/teacher/attendance/mark/', { records: [{ status: 'absent' }] }, key)
     await enqueue('post', '/imboni/teacher/attendance/mark/', { records: [{ status: 'present' }] }, key)

@@ -237,7 +237,7 @@ function GenerateModal({ dorms, onClose, onCommitted }) {
                                         <td className="es-nowrap">{r.room_number}</td>
                                         <td className="es-nowrap">{r.occupied}/{r.capacity}</td>
                                         <td>{r.free}</td>
-                                        <td>{r.groups.length ? r.groups.join(', ') : '—'}</td>
+                                        <td>{r.groups.length ? r.groups.join(', ') : '-'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -343,7 +343,7 @@ export function DormPlannerTab({ onCommitted }) {
                     {rooms.length === 0 ? (
                         <p className="u-muted u-sm">
                             Add dormitory rooms above, then Generate packs every active
-                            boarder into a bed — classes together, rooms filled evenly.
+                            boarder into a bed: classes together, rooms filled evenly.
                         </p>
                     ) : (
                         <p className="u-muted u-sm">

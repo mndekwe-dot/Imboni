@@ -39,7 +39,7 @@ function DisciplineRow({ report }) {
     const { label, typeClass } = reportTypeDisplay(report.report_type)
     const dateStr = report.date
         ? new Date(report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-        : '—'
+        : '-'
     const isPos  = report.report_type === 'positive' || report.report_type === 'achievement'
     const isNeg  = report.report_type === 'incident'
     const isWarn = report.report_type === 'warning'
@@ -53,7 +53,7 @@ function DisciplineRow({ report }) {
             <td>{dateStr}</td>
             <td><span className={typeClass}>{label}</span></td>
             <td>{report.title || report.description}</td>
-            <td>{report.reported_by || '—'}</td>
+            <td>{report.reported_by || '-'}</td>
             <td><span className={pointsClass}>{pointsLabel}</span></td>
             <td><span className={`badge ${statusClass}`}>{statusLabel}</span></td>
         </tr>
@@ -137,7 +137,7 @@ export function StudentActivities() {
     const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
 
     const reports  = discipline?.reports || []
-    const conductGrade = discipline?.conduct_grade || '—'
+    const conductGrade = discipline?.conduct_grade || '-'
     const conductLabel = discipline?.conduct_label || ''
 
     const positiveCount = reports.filter(r => r.report_type === 'positive' || r.report_type === 'achievement').length
@@ -207,21 +207,21 @@ export function StudentActivities() {
                                         strokeDasharray="226"
                                         strokeDashoffset={loading ? 226 : Math.max(226 - (positiveCount * 20), 0)} />
                                 </svg>
-                                <div className="score-ring-label">{loading ? '—' : conductGrade}<small>/term</small></div>
+                                <div className="score-ring-label">{loading ? '-' : conductGrade}<small>/term</small></div>
                             </div>
                             <div className="score-info">
-                                <div className="score-title">Conduct Grade — Current Term</div>
+                                <div className="score-title">Conduct Grade (Current Term)</div>
                                 <span className={`score-status ${conductGrade === 'A' || conductGrade === 'B' ? 'good' : 'warning'}`}>
-                                    {loading ? '—' : conductLabel}
+                                    {loading ? '-' : conductLabel}
                                 </span>
                                 <div className="score-breakdown">
                                     <span className="score-breakdown-item score-pos">
                                         <span className="material-symbols-rounded">add_circle</span>
-                                        {loading ? '—' : `${positiveCount} positive record${positiveCount !== 1 ? 's' : ''}`}
+                                        {loading ? '-' : `${positiveCount} positive record${positiveCount !== 1 ? 's' : ''}`}
                                     </span>
                                     <span className="score-breakdown-item score-neg">
                                         <span className="material-symbols-rounded">remove_circle</span>
-                                        {loading ? '—' : `${negativeCount} warning${negativeCount !== 1 ? 's' : ''}`}
+                                        {loading ? '-' : `${negativeCount} warning${negativeCount !== 1 ? 's' : ''}`}
                                     </span>
                                 </div>
                             </div>
@@ -346,7 +346,7 @@ export function StudentActivities() {
                                     {events.map(ev => {
                                         const dateStr = ev.date
                                             ? new Date(ev.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-                                            : '—'
+                                            : '-'
                                         return (
                                             <div key={ev.id} className="assign-item act-event-item">
                                                 <span className="assign-subject-dot schedule-dot-teal"></span>
@@ -355,7 +355,7 @@ export function StudentActivities() {
                                                     <div className="assign-subject">
                                                         {ev.activity_name}{ev.venue ? ` · ${ev.venue}` : ''}
                                                         {ev.start_time ? ` · ${ev.start_time.slice(0,5)}` : ''}
-                                                        {ev.end_time   ? `–${ev.end_time.slice(0,5)}`    : ''}
+                                                        {ev.end_time   ? `-${ev.end_time.slice(0,5)}`    : ''}
                                                     </div>
                                                 </div>
                                                 <span className="assign-due due-later">{dateStr}</span>

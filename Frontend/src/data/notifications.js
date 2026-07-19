@@ -88,7 +88,7 @@ export const notifications = {
   parent: [
     {
       id: 'p1',
-      title: 'Uwase Amina — Discipline Notice',
+      title: 'Uwase Amina: Discipline Notice',
       message: 'A conduct report has been filed for your child.',
       time: '30 min ago',
       read: false,
@@ -207,7 +207,7 @@ export const notifications = {
     {
       id: 'dos5',
       title: 'Teacher Absent',
-      message: 'Ms. Ingabire is absent today — Biology classes need cover.',
+      message: 'Ms. Ingabire is absent today. Biology classes need cover.',
       time: '2 days ago',
       read: true,
       path: '/dos/teachers',

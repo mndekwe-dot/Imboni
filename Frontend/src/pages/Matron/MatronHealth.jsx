@@ -52,7 +52,7 @@ function BedCard({ bed, badgeClass, badge, student, condition, since, isEmpty, r
             <span className={`bed-badge ${badgeClass}`}>{badge}</span>
             <div className="bed-number">{bed}</div>
             {isEmpty ? (
-                <div className="bed-empty-label">&mdash; Empty &mdash;</div>
+                <div className="bed-empty-label">Empty</div>
             ) : (
                 <>
                     <div className="bed-student">{student}</div>
@@ -181,7 +181,7 @@ function MedicationChecklist({ students }) {
                             <label className="form-label" htmlFor="med-student">Student</label>
                             <select id="med-student" className="form-input" value={form.student_id}
                                 onChange={e => setForm(f => ({ ...f, student_id: e.target.value }))}>
-                                <option value="">— Select —</option>
+                                <option value="">Select...</option>
                                 {students.map(s => <option key={s.id} value={s.id}>{s.name || s.full_name}</option>)}
                             </select>
                         </div>
@@ -351,8 +351,8 @@ export const MatronHealth = () => {
         name: r.name,
         conditionTag: r.condition_tag,
         complaint: r.complaint,
-        temp: r.temperature_c ? `${r.temperature_c} °C` : '—',
-        action: r.action_taken || '—',
+        temp: r.temperature_c ? `${r.temperature_c} °C` : '-',
+        action: r.action_taken || '-',
         ...(STATUS_DISPLAY[r.status] || STATUS_DISPLAY.cleared),
     }))
 
@@ -367,7 +367,7 @@ export const MatronHealth = () => {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Health & Wellness"
-                        subtitle="Sick bay management and student health records — Karisimbi House"
+                        subtitle="Sick bay management and student health records for Karisimbi House"
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -385,7 +385,7 @@ export const MatronHealth = () => {
 
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">bed</span> Sick Bay &mdash; Current Residents</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded">bed</span> Sick Bay: Current Residents</h3>
                                 <span className="settings-info-text align-self-center">
                                     {data.stats.beds_total} beds total &middot; {data.stats.beds_occupied} occupied &middot; {data.stats.beds_total - data.stats.beds_occupied} free
                                 </span>
@@ -414,7 +414,7 @@ export const MatronHealth = () => {
                                     <div>
                                         <label>Student</label>
                                         <select value={studentId} onChange={e => setStudentId(e.target.value)}>
-                                            <option value="">— Select student —</option>
+                                            <option value="">Select student...</option>
                                             {students.map(s => (
                                                 <option key={s.student_pk} value={s.student_pk}>
                                                     {s.full_name} (S{s.grade}{s.section})
@@ -438,7 +438,7 @@ export const MatronHealth = () => {
                                         <input type="datetime-local" value={visitDateTime} onChange={e => setVisitDateTime(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label>Temperature (&deg;C) &mdash; optional</label>
+                                        <label>Temperature (&deg;C, optional)</label>
                                         <input type="number" step="0.1" min="35" max="42" placeholder="e.g. 37.4" value={temperature} onChange={e => setTemperature(e.target.value)} />
                                     </div>
                                     <div className="full">
@@ -456,17 +456,17 @@ export const MatronHealth = () => {
                                     <div>
                                         <label>Admit to Sick Bay?</label>
                                         <select value={admitChoice} onChange={e => setAdmitChoice(e.target.value)}>
-                                            <option value="no">No &mdash; outpatient visit</option>
-                                            <option value="yes">Yes &mdash; assign to bed</option>
+                                            <option value="no">No (outpatient visit)</option>
+                                            <option value="yes">Yes (assign to bed)</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label>Notify Parent?</label>
                                         <select value={notifyParent} onChange={e => setNotifyParent(e.target.value)}>
                                             <option value="none">No</option>
-                                            <option value="sms">Yes &mdash; send SMS</option>
-                                            <option value="call">Yes &mdash; call parent</option>
-                                            <option value="both">Yes &mdash; both</option>
+                                            <option value="sms">Yes (send SMS)</option>
+                                            <option value="call">Yes (call parent)</option>
+                                            <option value="both">Yes (both)</option>
                                         </select>
                                     </div>
                                 </div>

@@ -59,7 +59,7 @@ export function PeriodManager({ periods, onChange, onClose }) {
                             className="form-input"
                             value={p.time}
                             onChange={e => updateRow(i, 'time', e.target.value)}
-                            placeholder="e.g. 8:00 – 8:40"
+                            placeholder="e.g. 8:00 - 8:40"
                         />
                         {/* Two-step delete: first click arms it, second click confirms */}
                         {pendingDelete === i ? (

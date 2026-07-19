@@ -87,7 +87,7 @@ export function RevenueSection() {
                             <form id="payment-form" className="platform-form-grid" onSubmit={submit}>
                                 <label>School
                                     <select className="form-input" value={form.client} onChange={e => set('client', e.target.value)}>
-                                        <option value="">— select —</option>
+                                        <option value="">Select</option>
                                         {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                     </select>
                                 </label>
@@ -122,8 +122,8 @@ export function RevenueSection() {
                                     {payments.map(p => (
                                         <tr key={p.id}>
                                             <td>{(p.received_at || '').slice(0, 10)}</td>
-                                            <td className="platform-strong">{p.school_name || '—'}</td>
-                                            <td className="pf-capitalize">{p.plan || '—'}</td>
+                                            <td className="platform-strong">{p.school_name || '-'}</td>
+                                            <td className="pf-capitalize">{p.plan || '-'}</td>
                                             <td>{money(p.amount, p.currency)}</td>
                                             <td><span className={`platform-chip platform-chip-${STATUS_CLS[p.status] || 'info'}`}>{p.status}</span></td>
                                             <td className="platform-col-action">

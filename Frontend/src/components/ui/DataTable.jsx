@@ -67,7 +67,7 @@ export function DataTable({
                         <span className="dt-count">
                             {data.length <= pageSize
                                 ? `${data.length} row${data.length !== 1 ? 's' : ''}`
-                                : `${start}–${end} of ${data.length}`}
+                                : `${start}-${end} of ${data.length}`}
                         </span>
                     )}
                     {headerRight}

@@ -34,7 +34,7 @@ const initialTransactions = [
     { initials: 'KU', name: 'Kayitesi Ursula',    adm: 'ADM-2026-003', amount: 'RWF 580,000', date: 'Mar 7, 2026', type: 'Full Payment', typeClass: 'paid'    },
     { initials: 'UL', name: 'Uwineza Lydia',      adm: 'ADM-2026-005', amount: 'RWF 580,000', date: 'Mar 5, 2026', type: 'Full Payment', typeClass: 'paid'    },
     { initials: 'NP', name: 'Nkurunziza Peter',   adm: 'ADM-2026-006', amount: 'RWF 150,000', date: 'Mar 4, 2026', type: 'Partial',      typeClass: 'partial' },
-    { initials: 'BJ', name: 'Bizimana James',     adm: 'ADM-2026-004', amount: '—',            date: '—',           type: 'Overdue',      typeClass: 'overdue' },
+    { initials: 'BJ', name: 'Bizimana James',     adm: 'ADM-2026-004', amount: '-',            date: '-',           type: 'Overdue',      typeClass: 'overdue' },
 ]
 
 function TxRow({ initials, name, adm, amount, date, type, typeClass }) {
@@ -111,7 +111,7 @@ export function AdminFinance() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Finance"
-                        subtitle="Fee collection, payments and school budget — Term 2, 2026"
+                        subtitle="Fee collection, payments and school budget (Term 2, 2026)"
                         userName={adminUser.userName}
                         userRole={adminUser.userRole}
                         userInitials={adminUser.userInitials}
@@ -203,7 +203,7 @@ export function AdminFinance() {
                                                 <span className="material-symbols-rounded">mail</span>
                                                 {reminderState.sending
                                                     ? 'Sending…'
-                                                    : reminderState.message || 'Send Fee Reminder — All Overdue'}
+                                                    : reminderState.message || 'Send Fee Reminder to All Overdue'}
                                             </button>
                                             <button className="btn btn-outline btn-sm btn-left" onClick={handleExport}>
                                                 <span className="material-symbols-rounded">summarize</span>

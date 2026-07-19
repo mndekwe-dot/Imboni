@@ -24,7 +24,7 @@ const ENTRIES = {
     },
     {
       id: '2', actor_name: 'Dan K', actor_role: 'dos',
-      action: 'result.approved', target: 'John Doe — Maths',
+      action: 'result.approved', target: 'John Doe (Maths)',
       detail: {}, created_at: '2026-07-01T08:00:00Z',
     },
   ],

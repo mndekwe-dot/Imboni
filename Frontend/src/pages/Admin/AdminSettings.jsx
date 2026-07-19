@@ -349,34 +349,34 @@ function SchoolInfoSection() {
                         onChange={e => { setTimezone(e.target.value); setSaved(false) }}
                     >
                         <optgroup label="East Africa">
-                            <option value="Africa/Kigali">Africa/Kigali — Rwanda (UTC+3)</option>
-                            <option value="Africa/Nairobi">Africa/Nairobi — Kenya, Uganda, Tanzania (UTC+3)</option>
-                            <option value="Africa/Kampala">Africa/Kampala — Uganda (UTC+3)</option>
-                            <option value="Africa/Dar_es_Salaam">Africa/Dar_es_Salaam — Tanzania (UTC+3)</option>
-                            <option value="Africa/Addis_Ababa">Africa/Addis_Ababa — Ethiopia (UTC+3)</option>
+                            <option value="Africa/Kigali">Africa/Kigali (Rwanda, UTC+3)</option>
+                            <option value="Africa/Nairobi">Africa/Nairobi (Kenya, Uganda, Tanzania, UTC+3)</option>
+                            <option value="Africa/Kampala">Africa/Kampala (Uganda, UTC+3)</option>
+                            <option value="Africa/Dar_es_Salaam">Africa/Dar_es_Salaam (Tanzania, UTC+3)</option>
+                            <option value="Africa/Addis_Ababa">Africa/Addis_Ababa (Ethiopia, UTC+3)</option>
                         </optgroup>
                         <optgroup label="West Africa">
-                            <option value="Africa/Lagos">Africa/Lagos — Nigeria (UTC+1)</option>
-                            <option value="Africa/Accra">Africa/Accra — Ghana (UTC+0)</option>
-                            <option value="Africa/Abidjan">Africa/Abidjan — Ivory Coast (UTC+0)</option>
-                            <option value="Africa/Dakar">Africa/Dakar — Senegal (UTC+0)</option>
+                            <option value="Africa/Lagos">Africa/Lagos (Nigeria, UTC+1)</option>
+                            <option value="Africa/Accra">Africa/Accra (Ghana, UTC+0)</option>
+                            <option value="Africa/Abidjan">Africa/Abidjan (Ivory Coast, UTC+0)</option>
+                            <option value="Africa/Dakar">Africa/Dakar (Senegal, UTC+0)</option>
                         </optgroup>
                         <optgroup label="Southern Africa">
-                            <option value="Africa/Johannesburg">Africa/Johannesburg — South Africa (UTC+2)</option>
-                            <option value="Africa/Harare">Africa/Harare — Zimbabwe (UTC+2)</option>
-                            <option value="Africa/Lusaka">Africa/Lusaka — Zambia (UTC+2)</option>
+                            <option value="Africa/Johannesburg">Africa/Johannesburg (South Africa, UTC+2)</option>
+                            <option value="Africa/Harare">Africa/Harare (Zimbabwe, UTC+2)</option>
+                            <option value="Africa/Lusaka">Africa/Lusaka (Zambia, UTC+2)</option>
                         </optgroup>
                         <optgroup label="North Africa">
-                            <option value="Africa/Cairo">Africa/Cairo — Egypt (UTC+2)</option>
-                            <option value="Africa/Casablanca">Africa/Casablanca — Morocco (UTC+1)</option>
+                            <option value="Africa/Cairo">Africa/Cairo (Egypt, UTC+2)</option>
+                            <option value="Africa/Casablanca">Africa/Casablanca (Morocco, UTC+1)</option>
                         </optgroup>
                         <optgroup label="Europe">
-                            <option value="Europe/London">Europe/London — UK (UTC+0/+1)</option>
-                            <option value="Europe/Paris">Europe/Paris — France, Belgium (UTC+1/+2)</option>
+                            <option value="Europe/London">Europe/London (UK, UTC+0/+1)</option>
+                            <option value="Europe/Paris">Europe/Paris (France, Belgium, UTC+1/+2)</option>
                         </optgroup>
                         <optgroup label="Americas">
-                            <option value="America/New_York">America/New_York — US East (UTC-5/-4)</option>
-                            <option value="America/Los_Angeles">America/Los_Angeles — US West (UTC-8/-7)</option>
+                            <option value="America/New_York">America/New_York (US East, UTC-5/-4)</option>
+                            <option value="America/Los_Angeles">America/Los_Angeles (US West, UTC-8/-7)</option>
                         </optgroup>
                     </select>
                 </div>
@@ -518,7 +518,7 @@ function SchoolStructureSection() {
                             ))}
                             {sec.years.length === 0 && (
                                 <p className="u-muted u-sm u-mt-sm">
-                                    No year groups yet — add one above
+                                    No year groups yet. Add one above
                                 </p>
                             )}
                         </div>
@@ -631,7 +631,7 @@ function SubjectsSection() {
 
             {typeCount === 0 && (
                 <p className="u-muted u-sm u-mt-075">
-                    No subject types yet — add one above.
+                    No subject types yet. Add one above.
                 </p>
             )}
         </div>
@@ -676,7 +676,7 @@ function RoomsSection() {
             <div className="settings-block">
                 <div className="settings-block-label">
                     <p className="settings-block-title">Add Room</p>
-                    <p className="settings-block-desc">Classrooms, labs, halls — used when scheduling timetable slots</p>
+                    <p className="settings-block-desc">Classrooms, labs, halls (used when scheduling timetable slots)</p>
                 </div>
                 <div className="settings-block-input-row u-mt-sm">
                     <input
@@ -703,7 +703,7 @@ function RoomsSection() {
                         </button>
                     </span>
                 ))}
-                {rooms.length === 0 && <span className="tag-chip-empty">No rooms yet — add one above</span>}
+                {rooms.length === 0 && <span className="tag-chip-empty">No rooms yet. Add one above</span>}
             </div>
 
             <p className="u-xs u-muted u-mt">
@@ -765,7 +765,7 @@ function TermRolloverSection() {
     }
 
     const summaryRows = (data) => [
-        { label: 'Mode', value: data.mode === 'promotion' ? 'New academic year — promote students' : 'Same year — carry rosters over' },
+        { label: 'Mode', value: data.mode === 'promotion' ? 'New academic year: promote students' : 'Same year: carry rosters over' },
         { label: 'Students promoted', value: data.students_promoted },
         { label: 'Students graduating (S6)', value: data.students_graduated },
         { label: 'Class rosters created', value: data.rosters_created },
@@ -774,9 +774,9 @@ function TermRolloverSection() {
     return (
         <div>
             <p className="u-muted u-mb u-fs-085">
-                Current term: <strong>{currentTerm?.name || '—'}</strong>.
-                Rolling over ends the current term, creates the next one and — when a new
-                academic year starts — promotes every active student one grade (S6 graduates).
+                Current term: <strong>{currentTerm?.name || '-'}</strong>.
+                Rolling over ends the current term, creates the next one and, when a new
+                academic year starts, promotes every active student one grade (S6 graduates).
             </p>
 
             {step === 1 && (
@@ -832,7 +832,7 @@ function TermRolloverSection() {
                         {preview.missing_classes?.length > 0 && (
                             <p className="adm-ro-warn">
                                 <span className="material-symbols-rounded adm-ro-warn-icon">warning</span>{' '}
-                                No class exists for: {preview.missing_classes.join(', ')} — those students will be
+                                No class exists for: {preview.missing_classes.join(', ')}. Those students will be
                                 promoted but not added to a roster. Create the classes first if needed.
                             </p>
                         )}
@@ -883,7 +883,7 @@ export function AdminSettings() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Settings"
-                        subtitle="School-wide configuration — structure, subjects, rooms and preferences"
+                        subtitle="School-wide configuration: structure, subjects, rooms and preferences"
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

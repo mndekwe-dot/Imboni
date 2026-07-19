@@ -242,7 +242,7 @@ export function TeacherAttendance() {
                                 )}
                                 {saved === 'offline' && (
                                     <div className="alert alert-success">
-                                        Attendance saved offline — it will sync automatically when you're back online.
+                                        Attendance saved offline. It will sync automatically when you're back online.
                                     </div>
                                 )}
 
@@ -258,7 +258,7 @@ export function TeacherAttendance() {
                                                 { label: 'Absent',      value: absentCount,          color: STATUS_COLORS.absent  },
                                                 { label: 'Late',        value: lateCount,            color: STATUS_COLORS.late    },
                                                 { label: 'Total',       value: students.length,      color: 'var(--primary)'     },
-                                                { label: 'Weekly Rate', value: stats ? `${stats.weekly_rate}%` : '—', color: 'var(--primary)' },
+                                                { label: 'Weekly Rate', value: stats ? `${stats.weekly_rate}%` : '-', color: 'var(--primary)' },
                                             ].map(s => (
                                                 <div key={s.label} className="mini-stat">
                                                     <div className="mini-stat-value" style={{ color: s.color }}>{s.value}</div>
@@ -268,7 +268,7 @@ export function TeacherAttendance() {
                                         </div>
 
                                         <DataTable
-                                            title={`${classKey} — Attendance`}
+                                            title={`${classKey} Attendance`}
                                             data={students}
                                             columns={['Student', 'Status', 'Notes']}
                                             renderRow={s => (

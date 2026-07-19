@@ -72,7 +72,7 @@ function ReviewModal({ app, onClose, onChanged }) {
 
             {creds ? (
                 <div className="pf-callout pf-mt">
-                    <p className="pf-field-value pf-mb">School provisioned ✓ — share these credentials:</p>
+                    <p className="pf-field-value pf-mb">School provisioned ✓. Share these credentials:</p>
                     <Field label="Login URL" value={creds.login_url} />
                     <Field label="Admin email" value={creds.admin_email} />
                     <Field label="Temporary password" value={creds.temp_password} />

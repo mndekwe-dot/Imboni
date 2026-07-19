@@ -33,7 +33,7 @@ describe('ExamCalendar', () => {
         // Two distinct slots become two columns (plus the Day column).
         const headers = screen.getAllByRole('columnheader')
         expect(headers.map(h => h.textContent)).toEqual(
-            expect.arrayContaining(['Day', '09:00–11:00', '13:00–15:00']),
+            expect.arrayContaining(['Day', '09:00-11:00', '13:00-15:00']),
         )
     })
 

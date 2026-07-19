@@ -63,7 +63,7 @@ describe('MatronIncidents', () => {
         const submitBtn = screen.getByRole('button', { name: /Submit to Discipline/ })
         expect(submitBtn).toBeDisabled()
 
-        fireEvent.change(screen.getByDisplayValue('— Select student —'), { target: { value: '1' } })
+        fireEvent.change(screen.getByDisplayValue('Select student...'), { target: { value: '1' } })
         expect(submitBtn).toBeDisabled() // still no description
 
         fireEvent.change(screen.getByPlaceholderText(/Describe the incident in detail/), { target: { value: 'Curfew violation' } })
@@ -76,7 +76,7 @@ describe('MatronIncidents', () => {
         renderWithRouter(<MatronIncidents />)
         await waitFor(() => expect(screen.getAllByText('Report Incident').length).toBeGreaterThan(0))
 
-        fireEvent.change(screen.getByDisplayValue('— Select student —'), { target: { value: '1' } })
+        fireEvent.change(screen.getByDisplayValue('Select student...'), { target: { value: '1' } })
         fireEvent.change(screen.getByPlaceholderText(/Describe the incident in detail/), { target: { value: 'Curfew violation' } })
 
         fireEvent.click(screen.getByRole('button', { name: /Submit to Discipline/ }))
@@ -95,7 +95,7 @@ describe('MatronIncidents', () => {
         renderWithRouter(<MatronIncidents />)
         await waitFor(() => expect(screen.getAllByText('Report Incident').length).toBeGreaterThan(0))
 
-        fireEvent.change(screen.getByDisplayValue('— Select student —'), { target: { value: '1' } })
+        fireEvent.change(screen.getByDisplayValue('Select student...'), { target: { value: '1' } })
         fireEvent.change(screen.getByPlaceholderText(/Describe the incident in detail/), { target: { value: 'Curfew violation' } })
         fireEvent.click(screen.getByRole('button', { name: /Submit to Discipline/ }))
 

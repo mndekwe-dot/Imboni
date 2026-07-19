@@ -52,7 +52,7 @@ export function ParentTimetable() {
                             <div className="card">
                                 <div className="card-header">
                                     <h2 className="card-title">
-                                        {child.student_name} — Class {child.grade}{child.section}
+                                        {child.student_name} (Class {child.grade}{child.section})
                                     </h2>
                                     {children.length > 1 && (
                                         <div className="flex-row-gap-sm">
@@ -65,7 +65,7 @@ export function ParentTimetable() {
                                             >
                                                 {children.map((c, i) => (
                                                     <option key={c.id} value={i}>
-                                                        {c.student_name} — {c.grade}{c.section}
+                                                        {c.student_name} ({c.grade}{c.section})
                                                     </option>
                                                 ))}
                                             </select>

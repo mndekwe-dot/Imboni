@@ -38,7 +38,7 @@ export function PlatformLogin() {
                     <img src={logo} alt="Imboni" />
                     <div>
                         <h1>Imboni Platform</h1>
-                        <p>Operator console — all schools</p>
+                        <p>Operator console for all schools</p>
                     </div>
                 </div>
 

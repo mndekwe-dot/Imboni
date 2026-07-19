@@ -68,8 +68,8 @@ function CaptainRow({ leader }) {
             <td><strong>{student_name}</strong> <span className="class-chip">{cls}</span></td>
             <td><span className="text-muted text-sm-muted">{student_id}</span></td>
             <td>{ROLE_DISPLAY[role] || role}</td>
-            <td className="text-muted">{appointed_date || '—'}</td>
-            <td>{notes || <span className="text-muted">—</span>}</td>
+            <td className="text-muted">{appointed_date || '-'}</td>
+            <td>{notes || <span className="text-muted">-</span>}</td>
         </tr>
     )
 }
@@ -112,7 +112,7 @@ export function DisStudentLeaders() {
                                 <div key={i} className="disc-stat-card">
                                     <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
                                     <div>
-                                        <div className="disc-stat-value">{loading ? '—' : s.value}</div>
+                                        <div className="disc-stat-value">{loading ? '-' : s.value}</div>
                                         <div className="disc-stat-label">{s.label}</div>
                                     </div>
                                 </div>

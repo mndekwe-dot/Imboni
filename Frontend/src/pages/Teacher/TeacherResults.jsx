@@ -183,7 +183,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                     <label className="form-label">Assessment Title *</label>
                     <input
                         className="form-control"
-                        placeholder="e.g. Pop Quiz 1 – Algebra"
+                        placeholder="e.g. Pop Quiz 1 (Algebra)"
                         value={form.title}
                         onChange={e => handle('title', e.target.value)}
                     />
@@ -221,7 +221,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
 
             {/* Student score entry table */}
             <div className="section-label-sm tr-scores-label">
-                Student Scores — {classObj.class_name}
+                Student Scores for {classObj.class_name}
             </div>
             {loadingStud ? (
                 <p className="tr-empty-pad">Loading students…</p>
@@ -257,7 +257,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                                             max={form.max_score || undefined}
                                             step="0.5"
                                             className="form-control tr-input-sm"
-                                            placeholder="—"
+                                            placeholder="-"
                                             value={scores[s.student_id] ?? ''}
                                             disabled={skipped[s.student_id]}
                                             onChange={e => setScore(s.student_id, e.target.value)}
@@ -495,7 +495,7 @@ export function TeacherResults() {
                                             <div className="mini-stats-row">
                                                 {[
                                                     { label: 'Class Average', value: `${avg}%`,     colorClass: 'text-primary'  },
-                                                    { label: 'Top Score',     value: highest ? highest.score_display : '—', colorClass: 'text-success' },
+                                                    { label: 'Top Score',     value: highest ? highest.score_display : '-', colorClass: 'text-success' },
                                                     { label: 'Pass Rate',     value: `${passRate}%`, colorClass: 'text-warning'  },
                                                     { label: 'Students',      value: rows.length,    colorClass: 'text-muted'    },
                                                 ].map(s => (
@@ -510,7 +510,7 @@ export function TeacherResults() {
                                         {trend.length >= 2 && (
                                             <div className="card u-mb">
                                                 <div className="card-header">
-                                                    <h2 className="card-title">Class Average Over Time — {classKey}</h2>
+                                                    <h2 className="card-title">Class Average Over Time for {classKey}</h2>
                                                 </div>
                                                 <div className="card-content tr-chart-body">
                                                     <ResponsiveContainer width="100%" height="100%">
@@ -535,7 +535,7 @@ export function TeacherResults() {
                                         )}
 
                                         <DataTable
-                                            title={`${classKey}${assessment ? ` — ${assessment}` : ''}`}
+                                            title={`${classKey}${assessment ? ` (${assessment})` : ''}`}
                                             data={rows}
                                             columns={['Student', 'Score', 'Grade', 'Date']}
                                             renderRow={r => {
