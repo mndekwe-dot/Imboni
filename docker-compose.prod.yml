@@ -33,12 +33,24 @@ services:
 
   backend:
     environment: *prod_backend_env
+    # ASGI: serves the REST API and the /imboni/ws/notifications/ stream in one
+    # process. With >1 worker the Redis channel layer (CHANNEL_LAYERS_REDIS_URL,
+    # db 3) is what makes a push reach a socket held by a *different* worker —
+    # do not run multi-worker without it.
+    #
+    # --no-access-log: a browser cannot send an Authorization header on a
+    # WebSocket handshake, so the access token travels in the query string. An
+    # access log would write live JWTs to disk. Request-level logging stays at
+    # the nginx edge; if you re-enable this, strip `token=` from the log format
+    # first (nginx: log $uri, not $request).
     command: >
-      gunicorn Imboni.wsgi:application
-      --bind 0.0.0.0:8000
-      --workers ${GUNICORN_WORKERS:-4}
-      --timeout 60
-      --access-logfile -
+      uvicorn Imboni.asgi:application
+      --host 0.0.0.0
+      --port 8000
+      --workers ${UVICORN_WORKERS:-4}
+      --proxy-headers
+      --forwarded-allow-ips "*"
+      --no-access-log
     restart: always
 
   worker:

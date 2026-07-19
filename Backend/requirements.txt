@@ -8,6 +8,8 @@ brotli==1.2.0
 celery==5.6.3
 certifi==2026.2.25
 cffi==2.0.0
+channels-redis==4.3.0
+channels==4.3.2
 charset-normalizer==3.4.5
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
@@ -17,6 +19,9 @@ colorama==0.4.6
 coverage==7.14.3
 cryptography==48.0.1
 cssselect2==0.9.0
+# daphne: not used to serve traffic (uvicorn does that) — it is imported by
+# channels.testing, which the WebSocket test suite depends on.
+daphne==4.2.2
 defusedxml==0.7.1
 django-cors-headers==4.9.0
 django-debug-toolbar==6.2.0
@@ -53,6 +58,7 @@ PyJWT==2.13.0
 pyotp==2.10.0
 pypdf==6.13.3
 pyphen==0.17.2
+pytest-asyncio==1.4.0
 pytest-cov==7.1.0
 pytest-django==4.12.0
 pytest==9.1.1
@@ -81,6 +87,7 @@ tzdata==2025.3
 tzlocal==5.3.1
 uritools==6.0.1
 urllib3==2.7.0
+uvicorn==0.51.0
 vine==5.1.0
 weasyprint==69.0
 webencodings==0.5.1

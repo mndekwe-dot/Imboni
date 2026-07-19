@@ -29,6 +29,10 @@ x-backend-env: &backend_env
   CELERY_BROKER_URL: redis://redis:6379/0
   CELERY_RESULT_BACKEND: redis://redis:6379/1
   REDIS_CACHE_URL: redis://redis:6379/2
+  # db 3 = Channels layer. Kept off 0/1/2 so celery/cache and the WebSocket fan-out
+  # never share keyspace. Required for >1 web worker: without it each worker gets
+  # its own in-memory layer and a push only reaches sockets on that one worker.
+  CHANNEL_LAYERS_REDIS_URL: redis://redis:6379/3
 
 services:
   db:
@@ -60,9 +64,11 @@ services:
     environment: *backend_env
     # entrypoint waits for db, runs migrate_schemas --shared, ensures the public
     # tenant exists, then execs this command:
-    # --timeout 120: self-serve signup provisions a schema + runs tenant
-    # migrations synchronously, which can exceed gunicorn's 30s default.
-    command: gunicorn Imboni.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
+    # ASGI (uvicorn) rather than WSGI (gunicorn) so /ws/notifications/ is served
+    # by the same process as the REST API. uvicorn has no request timeout, so the
+    # long synchronous self-serve provisioning that needed gunicorn --timeout 120
+    # can no longer be killed mid-migration.
+    command: uvicorn Imboni.asgi:application --host 0.0.0.0 --port 8000 --workers 3 --proxy-headers --forwarded-allow-ips "*"
     volumes:
       - imboni_media:/app/media
     depends_on:

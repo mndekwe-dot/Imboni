@@ -31,8 +31,11 @@ WORKDIR /app
 
 # --- Python dependencies (copied first for layer caching) ---
 COPY requirements.txt .
+# uvicorn[standard] adds uvloop/httptools plus the `websockets` protocol
+# implementation the notification stream needs. gunicorn is kept for any
+# WSGI-only tooling that still expects it.
 RUN pip install -r requirements.txt \
-    && pip install "gunicorn==23.0.0"
+    && pip install "gunicorn==23.0.0" "uvicorn[standard]==0.51.0"
 
 # --- Application code ---
 COPY . .
@@ -53,4 +56,8 @@ COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-CMD ["gunicorn", "Imboni.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# ASGI, not WSGI: the same process serves HTTP and the notification WebSocket.
+# --proxy-headers + --forwarded-allow-ips keeps X-Forwarded-Proto/For trusted
+# from the nginx `web` service so Django still sees the real scheme and client.
+CMD ["uvicorn", "Imboni.asgi:application", "--host", "0.0.0.0", "--port", "8000", \
+     "--workers", "3", "--proxy-headers", "--forwarded-allow-ips", "*"]

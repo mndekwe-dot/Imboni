@@ -62,6 +62,11 @@ SHARED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
+    # Django Channels — WebSocket/ASGI layer. It ships NO models, so it belongs
+    # in SHARED_APPS (loaded once for the whole process) rather than being
+    # duplicated into every school's schema. The real per-school isolation for
+    # WebSockets is enforced in apps/notifications/consumers.py, not here.
+    'channels',
 ]
 
 TENANT_APPS = [
@@ -144,6 +149,36 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Imboni.wsgi.application'
+
+# ── Channels / WebSockets ──────────────────────────────────────────────────────
+# The containers now serve ASGI (uvicorn Imboni.asgi:application) so the same
+# process handles HTTP *and* the notification WebSocket.
+ASGI_APPLICATION = 'Imboni.asgi.application'
+
+# Redis db numbering across the stack — each concern gets its own db so a
+# FLUSHDB on one never wipes another:
+#   0 celery broker | 1 celery results | 2 django cache | 3 channel layer
+CHANNEL_LAYERS_REDIS_URL = config('CHANNEL_LAYERS_REDIS_URL', default='')
+if CHANNEL_LAYERS_REDIS_URL and not TESTING:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [CHANNEL_LAYERS_REDIS_URL],
+                # Drop the oldest message rather than blocking a web worker when
+                # a single consumer's queue backs up.
+                'capacity': 500,
+                'expiry': 30,
+            },
+        }
+    }
+else:
+    # No Redis configured (bare dev) or running the test suite: an in-process
+    # layer keeps everything working without an external dependency. It does NOT
+    # span processes, so a multi-worker deployment MUST set CHANNEL_LAYERS_REDIS_URL.
+    CHANNEL_LAYERS = {
+        'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'},
+    }
 
 
 # Database
