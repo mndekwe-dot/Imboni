@@ -178,7 +178,7 @@ class ResultSubmitView(APIView):
                 user=dos_user,
                 title='Results submitted for approval',
                 message=f"{request.user.get_full_name()} submitted results for "
-                        f"{result.student.full_name} — {result.subject.name}.",
+                        f"{result.student.full_name} ({result.subject.name}).",
                 type='results',
                 path='/dos/results',
             )

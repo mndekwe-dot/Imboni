@@ -35,9 +35,9 @@ class HealthRecord(models.Model):
 
     NOTIFY_PARENT_CHOICES = [
         ('none', 'No'),
-        ('sms',  'Yes — SMS'),
-        ('call', 'Yes — Call Parent'),
-        ('both', 'Yes — Both'),
+        ('sms',  'Yes (SMS)'),
+        ('call', 'Yes (Call Parent)'),
+        ('both', 'Yes (Both)'),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -72,7 +72,7 @@ class HealthRecord(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.student.full_name} — {self.visit_type} ({self.status})"
+        return f"{self.student.full_name}, {self.visit_type} ({self.status})"
 
 
 class MedicationSchedule(models.Model):
@@ -102,7 +102,7 @@ class MedicationSchedule(models.Model):
         ordering = ['student__user__last_name', 'medicine_name']
 
     def __str__(self):
-        return f"{self.student.full_name} — {self.medicine_name} ({self.dosage})"
+        return f"{self.student.full_name}, {self.medicine_name} ({self.dosage})"
 
 
 class MedicationLog(models.Model):
@@ -122,7 +122,7 @@ class MedicationLog(models.Model):
         ordering = ['-date', 'time']
 
     def __str__(self):
-        return f"{self.schedule.medicine_name} — {self.date} {self.time}"
+        return f"{self.schedule.medicine_name} ({self.date} {self.time})"
 
 
 class ParentCommunication(models.Model):
@@ -135,8 +135,8 @@ class ParentCommunication(models.Model):
     ]
 
     OUTCOME_CHOICES = [
-        ('completed',       'Completed — parent informed'),
-        ('no_answer',       'No Answer — will retry'),
+        ('completed',       'Completed (parent informed)'),
+        ('no_answer',       'No Answer (will retry)'),
         ('message_left',    'Message Left'),
         ('awaiting_reply',  'Awaiting Parent Reply'),
         ('sms_sent',        'SMS Sent'),
@@ -171,13 +171,13 @@ class ParentCommunication(models.Model):
         ordering = ['-contacted_at']
 
     def __str__(self):
-        return f"{self.student.full_name} — {self.subject}"
+        return f"{self.student.full_name} ({self.subject})"
 
 
 class BoardingScheduleSlot(models.Model):
     """A single row in the standing boarding-house weekly routine."""
     DAY_TYPE_CHOICES = [
-        ('weekday',  'Monday – Friday'),
+        ('weekday',  'Monday - Friday'),
         ('saturday', 'Saturday'),
         ('sunday',   'Sunday'),
     ]
@@ -201,7 +201,7 @@ class BoardingScheduleSlot(models.Model):
         ordering = ['day_type', 'order']
 
     def __str__(self):
-        return f"{self.day_type} {self.time} — {self.label}"
+        return f"{self.day_type} {self.time} ({self.label})"
 
 
 class BoardingScheduleChange(models.Model):

@@ -158,7 +158,7 @@ class Payment(models.Model):
         ordering = ['-received_at']
 
     def __str__(self):
-        return f'{self.school_name or self.client_id} — {self.amount} {self.currency} ({self.status})'
+        return f'{self.school_name or self.client_id}, {self.amount} {self.currency} ({self.status})'
 
 
 class SupportTicket(models.Model):
@@ -293,7 +293,7 @@ class Contract(models.Model):
         return self.status == 'active' and 0 <= self.days_remaining <= 30
 
     def __str__(self):
-        return f'{self.title} — {self.client_id} ({self.status})'
+        return f'{self.title}, {self.client_id} ({self.status})'
 
 
 class TicketReply(models.Model):

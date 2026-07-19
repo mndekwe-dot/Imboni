@@ -214,10 +214,10 @@ def plan_exam_schedule(
 
     warnings = []
     if not rooms:
-        warnings.append("No active venues configured — exams were placed one at "
+        warnings.append("No active venues configured, so exams were placed one at "
                         "a time and left without a venue.")
     if unscheduled:
-        warnings.append(f"{len(unscheduled)} exam(s) did not fit — widen the exam "
+        warnings.append(f"{len(unscheduled)} exam(s) did not fit: widen the exam "
                         "window (more days or slots) and regenerate.")
 
     return {

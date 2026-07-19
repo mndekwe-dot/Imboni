@@ -43,7 +43,7 @@ class Command(BaseCommand):
 
         samples = [
             {
-                'title':        'Problem Set 4 – Quadratic Equations',
+                'title':        'Problem Set 4: Quadratic Equations',
                 'mode':         'paper',
                 'status':       'active',
                 'due_date':     today + timedelta(days=7),
@@ -51,7 +51,7 @@ class Command(BaseCommand):
                 'instructions': 'Solve all problems showing full working. Submit handwritten.',
             },
             {
-                'title':        'Chapter 6 Quiz – Algebra',
+                'title':        'Chapter 6 Quiz: Algebra',
                 'mode':         'online',
                 'status':       'active',
                 'due_date':     today + timedelta(days=3),
@@ -64,7 +64,7 @@ class Command(BaseCommand):
                 ],
             },
             {
-                'title':        'Lab Report – Projectile Motion Experiment',
+                'title':        'Lab Report: Projectile Motion Experiment',
                 'mode':         'paper',
                 'status':       'draft',
                 'due_date':     today + timedelta(days=14),
@@ -72,7 +72,7 @@ class Command(BaseCommand):
                 'instructions': 'Write a full lab report including hypothesis, method, results and conclusion.',
             },
             {
-                'title':        'Take-home CAT – Trigonometry',
+                'title':        'Take-home CAT: Trigonometry',
                 'mode':         'paper',
                 'status':       'draft',
                 'due_date':     today + timedelta(days=10),

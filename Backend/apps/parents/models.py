@@ -48,7 +48,7 @@ class ConsentResponse(models.Model):
         unique_together = ['request', 'student']
 
     def __str__(self):
-        return f"{self.student.full_name} — {self.request.title}: {self.status}"
+        return f"{self.student.full_name}, {self.request.title}: {self.status}"
 
 
 class ParentStudentRelationship(models.Model):

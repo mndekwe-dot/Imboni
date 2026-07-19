@@ -39,7 +39,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--admin-password', default='changeme123',
-            help='Password for the seeded admin (default: changeme123 — change it after first login).',
+            help='Password for the seeded admin (default: changeme123). Change it after first login.',
         )
         parser.add_argument(
             '--domain-base', default='localhost',
@@ -56,7 +56,7 @@ class Command(BaseCommand):
         # Idempotency: don't try to re-provision an existing tenant.
         if Client.objects.filter(schema_name=subdomain).exists():
             self.stdout.write(self.style.WARNING(
-                f'A client with schema_name "{subdomain}" already exists — nothing to do.'
+                f'A client with schema_name "{subdomain}" already exists. Nothing to do.'
             ))
             return
 

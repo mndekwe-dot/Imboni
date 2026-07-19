@@ -253,7 +253,7 @@ class TestUnreadCountsAndReadReceipts:
         conv.participants.add(parent, teacher)
         Message.objects.create(conversation=conv, sender=teacher, content='Unread 1')
         Message.objects.create(conversation=conv, sender=teacher, content='Unread 2')
-        Message.objects.create(conversation=conv, sender=parent, content='My own — not counted')
+        Message.objects.create(conversation=conv, sender=parent, content='My own, not counted')
 
         response = client.get('/imboni/messages/conversations/')
         results = response.data['results'] if isinstance(response.data, dict) else response.data

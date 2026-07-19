@@ -103,7 +103,7 @@ class Fee(models.Model):
         ordering = ['due_date']
 
     def __str__(self):
-        return f"{self.student.full_name} — {self.category} ({self.status})"
+        return f"{self.student.full_name}, {self.category} ({self.status})"
 
 
 class StudentDocument(models.Model):
@@ -130,7 +130,7 @@ class StudentDocument(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.student.full_name} — {self.title}"
+        return f"{self.student.full_name} ({self.title})"
 
 
 class Activity(models.Model):
@@ -234,7 +234,7 @@ class Assignment(models.Model):
         ordering = ['due_date']
 
     def __str__(self):
-        return f"{self.title} — {self.class_obj} ({self.due_date})"
+        return f"{self.title}, {self.class_obj} ({self.due_date})"
 
 
 class AssignmentSubmission(models.Model):
@@ -260,4 +260,4 @@ class AssignmentSubmission(models.Model):
         unique_together = ('assignment', 'student')
 
     def __str__(self):
-        return f"{self.student} — {self.assignment.title}"
+        return f"{self.student} ({self.assignment.title})"

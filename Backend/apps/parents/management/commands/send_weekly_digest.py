@@ -40,9 +40,9 @@ def _child_summary(student, since):
     if attendance.exists():
         lines.append(f"  Attendance: {absent} absence(s), {late} late arrival(s) this week.")
     for r in new_results:
-        lines.append(f"  New result: {r.subject.name} — {r.final_score} ({r.grade}).")
+        lines.append(f"  New result: {r.subject.name}, {r.final_score} ({r.grade}).")
     for rep in reports:
-        lines.append(f"  Conduct: {rep.get_report_type_display()} — {rep.title}.")
+        lines.append(f"  Conduct: {rep.get_report_type_display()}: {rep.title}.")
     return '\n'.join(lines)
 
 
@@ -98,7 +98,7 @@ class Command(BaseCommand):
                 try:
                     safe_delay(
                         send_email_task,
-                        'Imboni — Your weekly school summary',
+                        'Imboni: Your weekly school summary',
                         body,
                         [parent.email],
                     )

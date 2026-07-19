@@ -276,9 +276,9 @@ class DosClassWeeklyAttendanceView(APIView):
         if grade and section:
             class_name = f'S{grade}{section}'
         elif grade:
-            class_name = f'S{grade} — All Classes'
+            class_name = f'S{grade} (All Classes)'
         elif section:
-            class_name = f'All Years — Class {section}'
+            class_name = f'All Years (Class {section})'
         else:
             class_name = 'All Classes'
 

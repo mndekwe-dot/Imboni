@@ -139,7 +139,7 @@ class Command(BaseCommand):
 
             if lessons_added == 0:
                 self.stdout.write(
-                    f'  Skipped {sta.subject.name} ({sta.class_obj.name}) — no free slots found'
+                    f'  Skipped {sta.subject.name} ({sta.class_obj.name}): no free slots found'
                 )
 
         self.stdout.write(self.style.SUCCESS(

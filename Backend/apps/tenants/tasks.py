@@ -60,7 +60,7 @@ def _send_welcome_email(admin_email, school_name, url):
     from django.core.mail import send_mail
     try:
         send_mail(
-            subject=f'Welcome to Imboni — {school_name} is ready',
+            subject=f'Welcome to Imboni: {school_name} is ready',
             message=(
                 f'Your school "{school_name}" has been created.\n\n'
                 f'Sign in at: {url}\n\n'

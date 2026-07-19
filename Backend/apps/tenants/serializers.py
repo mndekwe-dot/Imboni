@@ -164,7 +164,7 @@ class SchoolApplySerializer(serializers.ModelSerializer):
         value = normalize_subdomain(value)
         if not SUBDOMAIN_RE.match(value):
             raise serializers.ValidationError(
-                'Use 3–63 lowercase letters, numbers and hyphens, starting with a letter.')
+                'Use 3-63 lowercase letters, numbers and hyphens, starting with a letter.')
         return value
 
 

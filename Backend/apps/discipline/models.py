@@ -63,7 +63,7 @@ class StudentLeader(models.Model):
         unique_together = ('student', 'role', 'term')
 
     def __str__(self):
-        return f"{self.student} — {self.get_role_display()}"
+        return f"{self.student} ({self.get_role_display()})"
 
 
 class BoardingStudent(models.Model):
@@ -96,7 +96,7 @@ class BoardingStudent(models.Model):
         db_table = 'boarding_students'
 
     def __str__(self):
-        return f"{self.student} — {self.dormitory} Room {self.room_number}"
+        return f"{self.student} ({self.dormitory} Room {self.room_number})"
 
 
 class Dormitory(models.Model):
@@ -176,7 +176,7 @@ class DiningPlan(models.Model):
         unique_together = ('student', 'term')
 
     def __str__(self):
-        return f"{self.student} — {self.get_plan_type_display()}"
+        return f"{self.student} ({self.get_plan_type_display()})"
 
 
 class NightAttendance(models.Model):
@@ -205,7 +205,7 @@ class NightAttendance(models.Model):
 
     def __str__(self):
         status = 'Present' if self.is_present else 'Absent'
-        return f"{self.student} — {self.date} — {status}"
+        return f"{self.student}, {self.date} ({status})"
 
 
 class DisFacilitySection(models.Model):
@@ -299,4 +299,4 @@ class ExtracurricularEntry(models.Model):
         unique_together = ('week', 'slot_id', 'day')
 
     def __str__(self):
-        return f"{self.slot_id}/{self.day} — {self.subject or self.label}"
+        return f"{self.slot_id}/{self.day} ({self.subject or self.label})"

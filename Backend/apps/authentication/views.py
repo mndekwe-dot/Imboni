@@ -452,7 +452,7 @@ class PasswordResetRequestView(APIView):
         plain_body = f'Click the link below to reset your password:\n\n{reset_link}\n\nThis link expires in 3 days.'
 
         email_msg = EmailMultiAlternatives(
-            subject='Password Reset — Imboni School',
+            subject='Imboni School Password Reset',
             body=plain_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[user.email],
@@ -607,7 +607,7 @@ class BulkInviteView(APIView):
                 if slots[resource] is not None and slots[resource] <= 0:
                     results['failed'].append({
                         'email': item.get('email',''),
-                        'reason': 'Plan limit reached — upgrade your plan to invite more.',
+                        'reason': 'Plan limit reached. Upgrade your plan to invite more.',
                     })
                     continue
 
@@ -816,7 +816,7 @@ class CSVInviteView(APIView):
                     results['failed'].append({
                         'row': idx,
                         'email': email,
-                        'reason': 'Plan limit reached — upgrade your plan to invite more.',
+                        'reason': 'Plan limit reached. Upgrade your plan to invite more.',
                     })
                     continue
 

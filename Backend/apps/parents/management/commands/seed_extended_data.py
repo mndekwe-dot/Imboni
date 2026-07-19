@@ -234,7 +234,7 @@ class Command(BaseCommand):
                 'due_date': today - timedelta(days=5),
                 'status': 'partial',
                 'paid_date': None,
-                'notes': 'Lunch program — balance remaining',
+                'notes': 'Lunch program: balance remaining',
             },
         ]
 
@@ -322,7 +322,7 @@ class Command(BaseCommand):
                 'subject': 'Attendance Concern',
                 'messages': [
                     ('teacher', "Hello, I noticed your child was absent three days last week. Is everything okay?"),
-                    ('parent', "I apologise — they had a mild fever but are fully recovered now."),
+                    ('parent', "I apologise. They had a mild fever but are fully recovered now."),
                     ('teacher', "Glad to hear it. Please send a note to the office when returning after illness. Take care!"),
                     ('parent', "Will do, thank you for checking in."),
                 ],
@@ -350,7 +350,7 @@ class Command(BaseCommand):
                     ('teacher', "Yes, submissions are due Monday 9th. They can submit digitally or in print."),
                     ('parent', "Understood, thank you for clarifying."),
                     ('teacher', "No problem at all. Looking forward to seeing the projects!"),
-                    ('parent', "They've been working hard on it — very excited!"),
+                    ('parent', "They've been working hard on it, very excited!"),
                 ],
             },
         ]

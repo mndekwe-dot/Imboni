@@ -37,4 +37,4 @@ class AuditEntry(models.Model):
         verbose_name_plural = 'audit entries'
 
     def __str__(self):
-        return f"{self.actor_name or 'system'} — {self.action} — {self.target}"
+        return f"{self.actor_name or 'system'}, {self.action}, {self.target}"

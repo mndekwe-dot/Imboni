@@ -42,11 +42,11 @@ def validate_subdomain(subdomain):
     """Raise ProvisioningError if malformed, reserved, or already taken."""
     if not SUBDOMAIN_RE.match(subdomain):
         raise ProvisioningError(
-            'Subdomain must be 3–63 characters: lowercase letters, numbers and '
+            'Subdomain must be 3-63 characters: lowercase letters, numbers and '
             'hyphens, starting with a letter and not ending with a hyphen.'
         )
     if subdomain in RESERVED_SUBDOMAINS or subdomain == get_public_schema_name():
-        raise ProvisioningError(f'"{subdomain}" is reserved — please choose another.')
+        raise ProvisioningError(f'"{subdomain}" is reserved. Please choose another.')
     if Client.objects.filter(schema_name=subdomain).exists():
         raise ProvisioningError(f'The subdomain "{subdomain}" is already taken.')
 

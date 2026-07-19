@@ -233,10 +233,10 @@ ANNOUNCEMENTS_DATA = [
     ('Term 2 Exam Schedule Released',
      'The examination schedule for Term 2 2026 has been released. All students are expected to be present 30 minutes before their examination time. Parents are advised to ensure students arrive at school early.',
      'academic', 'all', 'published'),
-    ('Sports Day — May 20, 2026',
+    ('Sports Day, May 20, 2026',
      'The annual Sports Day will be held on May 20, 2026. All students are encouraged to participate. Parents and guardians are warmly invited to attend and cheer for our school teams.',
      'event', 'all', 'published'),
-    ('Parents Meeting — April 25',
+    ('Parents Meeting, April 25',
      'There will be a parent-teacher meeting on April 25, 2026 at 10:00 AM in the school hall. All parents are required to attend to discuss their children\'s academic progress.',
      'general', 'parents', 'published'),
     ('Library Hours Extended',
@@ -532,7 +532,7 @@ class Command(BaseCommand):
             )
             if created:
                 r_count += 1
-        self.stdout.write(self.style.SUCCESS(f'  {r_count} results created ({r_count} total — approved, pending and rejected)'))
+        self.stdout.write(self.style.SUCCESS(f'  {r_count} results created ({r_count} total: approved, pending and rejected)'))
 
         # ── 11. Assessments ────────────────────────────────────────────────────
         self.stdout.write('Creating assessments...')
@@ -541,7 +541,7 @@ class Command(BaseCommand):
             ('a.uwase@imboni.rw',       'MTH', 'quiz',         'Algebra Quiz #3',         date(2026, 5, 5),  20, 18),
             ('a.uwase@imboni.rw',       'ENG', 'presentation', 'Climate Change Project',  date(2026, 4, 28), 50, 45),
             ('m.ingabire@imboni.rw',    'BIO', 'lab',          'Cell Division Lab',       date(2026, 5, 8),  30, 28),
-            ('k.mutabazi@imboni.rw',    'ENG', 'homework',     'Essay — My Community',    date(2026, 5, 3),  20, 14),
+            ('k.mutabazi@imboni.rw',    'ENG', 'homework',     'Essay: My Community',     date(2026, 5, 3),  20, 14),
             ('d.umutoni@imboni.rw',     'PHY', 'quiz',         'Forces & Motion Quiz',    date(2026, 5, 6),  20, 17),
             ('g.hakizimana.s@imboni.rw','MTH', 'quiz',         'Fractions Quiz',          date(2026, 5, 5),  20, 20),
             ('p.nkurunziza@imboni.rw',  'MTH', 'homework',     'Equations Worksheet',     date(2026, 5, 4),  20, 10),
@@ -640,7 +640,7 @@ class Command(BaseCommand):
              'Eric was disruptive during the English lesson. He has been spoken to.'),
             ('k.mutabazi@imboni.rw',   'positive',    'minor',    'Helped Classmate',
              'Kevin voluntarily helped a classmate understand a difficult Mathematics concept.'),
-            ('g.hakizimana.s@imboni.rw','achievement', 'minor',   'Perfect Attendance — April',
+            ('g.hakizimana.s@imboni.rw','achievement', 'minor',   'Perfect Attendance, April',
              'Grace Hakizimana achieved 100% attendance for the month of April 2026.'),
             ('d.umutoni@imboni.rw',    'positive',    'minor',    'Community Service Leadership',
              'Diane led the school community service program with great responsibility.'),
@@ -712,7 +712,7 @@ class Command(BaseCommand):
                 'e.ndagijimana@imboni.rw', 'warning', 'minor',
                 'Missing Evening Prep Session',
                 'Eric Ndagijimana was absent from the compulsory evening prep session on three consecutive days '
-                '(May 27–29). No permission slip was produced.',
+                '(May 27-29). No permission slip was produced.',
                 'pending_review', '', 3,
             ),
             (
@@ -727,7 +727,7 @@ class Command(BaseCommand):
             ),
             (
                 'a.uwase@imboni.rw', 'warning', 'minor',
-                'Uniform Violation — Repeated',
+                'Uniform Violation (Repeated)',
                 'Amina Uwase was noted to be wearing non-regulation shoes on three occasions this week. '
                 'A verbal warning was given on the first instance with no improvement.',
                 'rejected',
@@ -841,17 +841,17 @@ class Command(BaseCommand):
         DisFacility = m['DisFacility']
         facilities_data = [
             # (name, facility_type, gender, capacity, description)
-            ('Bisoke',              'dormitory',  'girls', 60,  'Girls dormitory — S1–S3 wing'),
-            ('Karisimbi',           'dormitory',  'girls', 50,  'Girls dormitory — S4–S6 wing'),
-            ('Muhabura',            'dormitory',  'boys',  60,  'Boys dormitory — junior wing'),
-            ('Sabyinyo',            'dormitory',  'boys',  55,  'Boys dormitory — senior wing'),
+            ('Bisoke',              'dormitory',  'girls', 60,  'Girls dormitory: S1-S3 wing'),
+            ('Karisimbi',           'dormitory',  'girls', 50,  'Girls dormitory: S4-S6 wing'),
+            ('Muhabura',            'dormitory',  'boys',  60,  'Boys dormitory: junior wing'),
+            ('Sabyinyo',            'dormitory',  'boys',  55,  'Boys dormitory: senior wing'),
             ('Main Dining Hall',    'dining_hall','na',    300, 'Primary dining facility for all students'),
-            ('Junior Dining Hall',  'dining_hall','na',    150, 'Secondary dining area — overflow and junior classes'),
+            ('Junior Dining Hall',  'dining_hall','na',    150, 'Secondary dining area: overflow and junior classes'),
             ('Student Common Room', 'common_room','mixed', 80,  'Shared common room for recreation and socialising'),
             ('Medical Bay',         'medical',    'na',    10,  'School health facility managed by the matron'),
             ('Sports Ground',       'sports',     'mixed', 200, 'Multi-purpose outdoor sports field'),
             ('Basketball Court',    'sports',     'mixed', 60,  'Outdoor basketball court'),
-            ('School Library',      'library',    'mixed', 100, 'Main library — open weekdays until 6 PM'),
+            ('School Library',      'library',    'mixed', 100, 'Main library, open weekdays until 6 PM'),
         ]
         fac_count = 0
         for name, ftype, gender, capacity, description in facilities_data:
@@ -981,12 +981,12 @@ class Command(BaseCommand):
         ActivityEvent = m['ActivityEvent']
         ActivityEnrollment = m['ActivityEnrollment']
         activities_data = [
-            ('Chess Club',          'debate',    'Mon & Wed 4:30–5:30 PM', 'Library Room 1', 20, 'c.umutoni@imboni.rw'),
-            ('Basketball Team',     'sport',     'Tue & Thu 4:30–6:00 PM', 'Sports Ground',  15, 'p.rurangwa@imboni.rw'),
-            ('Science Club',        'science',   'Friday 3:00–5:00 PM',    'Science Lab 1',  25, 's.uwera@imboni.rw'),
-            ('Debate Club',         'debate',    'Monday 3:00–4:30 PM',    'Room 201',       20, 'c.umutoni@imboni.rw'),
-            ('Drama & Arts Club',   'art',       'Wednesday 3:00–5:00 PM', 'School Hall',    30, 'i.nsabimana@imboni.rw'),
-            ('Community Service',   'community', 'Saturday 8:00 AM–12:00', 'School Campus',  30, 'dos@imboni.rw'),
+            ('Chess Club',          'debate',    'Mon & Wed 4:30 - 5:30 PM', 'Library Room 1', 20, 'c.umutoni@imboni.rw'),
+            ('Basketball Team',     'sport',     'Tue & Thu 4:30 - 6:00 PM', 'Sports Ground',  15, 'p.rurangwa@imboni.rw'),
+            ('Science Club',        'science',   'Friday 3:00 - 5:00 PM',    'Science Lab 1',  25, 's.uwera@imboni.rw'),
+            ('Debate Club',         'debate',    'Monday 3:00 - 4:30 PM',    'Room 201',       20, 'c.umutoni@imboni.rw'),
+            ('Drama & Arts Club',   'art',       'Wednesday 3:00 - 5:00 PM', 'School Hall',    30, 'i.nsabimana@imboni.rw'),
+            ('Community Service',   'community', 'Saturday 8:00 AM - 12:00', 'School Campus',  30, 'dos@imboni.rw'),
         ]
         activity_objs = {}
         act_count = 0
@@ -995,7 +995,7 @@ class Command(BaseCommand):
             obj, created = Activity.objects.get_or_create(
                 name=name,
                 defaults={
-                    'description': f'{name} — open to all students.',
+                    'description': f'{name}: open to all students.',
                     'category': category,
                     'schedule': schedule,
                     'venue': venue,
@@ -1072,12 +1072,12 @@ class Command(BaseCommand):
                 # title, subject_code, teacher_email, due_date, description
                 ('Term 2 Mathematics Problem Set',      'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 15), 'Complete exercises 5.1 to 5.4 from the textbook.'),
                 ('English Persuasive Essay',            'ENG', 'c.umutoni@imboni.rw',       date(2026, 6, 12), 'Write a 600-word persuasive essay on the effects of social media on youth.'),
-                ('Physics Lab Report — Projectile',    'PHY', 's.uwera@imboni.rw',         date(2026, 6, 10), 'Write up your lab report from the projectile motion experiment.'),
-                ('Chemistry Worksheet — Reaction Rates','CHE', 't.bizimana@imboni.rw',      date(2026, 6, 20), 'Answer all questions on reaction rates and equilibrium.'),
-                ('History Essay — Colonial Rwanda',    'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 25), 'Discuss the impact of colonialism on Rwandan society and culture (800 words).'),
-                ('Mathematics CAT 2 Preparation Notes','MTH', 'p.rurangwa@imboni.rw',      date(2026, 5, 28), 'Summarise your revision notes for CAT 2 — Algebra & Functions.'),
+                ('Physics Lab Report: Projectile',     'PHY', 's.uwera@imboni.rw',         date(2026, 6, 10), 'Write up your lab report from the projectile motion experiment.'),
+                ('Chemistry Worksheet: Reaction Rates', 'CHE', 't.bizimana@imboni.rw',      date(2026, 6, 20), 'Answer all questions on reaction rates and equilibrium.'),
+                ('History Essay: Colonial Rwanda',     'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 25), 'Discuss the impact of colonialism on Rwandan society and culture (800 words).'),
+                ('Mathematics CAT 2 Preparation Notes','MTH', 'p.rurangwa@imboni.rw',       date(2026, 5, 28), 'Summarise your revision notes for CAT 2: Algebra & Functions.'),
                 ('Computer Science Design Brief',      'ICT', 'i.nsabimana@imboni.rw',     date(2026, 5, 30), 'Create a design brief for your Term 2 website project.'),
-                ('Biology — Ecosystems Report',        'BIO', 'i.nsabimana@imboni.rw',     date(2026, 5, 20), 'Write a report on the ecosystem you studied in the field trip.'),
+                ('Biology: Ecosystems Report',         'BIO', 'i.nsabimana@imboni.rw',     date(2026, 5, 20), 'Write a report on the ecosystem you studied in the field trip.'),
             ]
             ass_objs = {}
             ass_count = 0
@@ -1120,7 +1120,7 @@ class Command(BaseCommand):
                             sub_count += 1
                 self.stdout.write(self.style.SUCCESS(f'  {sub_count} assignment submissions created for Amina'))
         else:
-            self.stdout.write(self.style.WARNING('  S4A class not found — skipping assignments'))
+            self.stdout.write(self.style.WARNING('  S4A class not found, skipping assignments'))
 
         # ── 24. Teacher Tasks ─────────────────────────────────────────────────
         self.stdout.write('Creating teacher tasks...')
@@ -1129,7 +1129,7 @@ class Command(BaseCommand):
             # (teacher_email, title, description, priority, due_date, is_completed)
             ('c.umutoni@imboni.rw',       'Grade S1A English Essays',            'Review and grade the persuasive essays submitted by S1A students.',                         'high',   date(2026, 6, 10), False),
             ('c.umutoni@imboni.rw',       'Prepare Term 2 Reading List',         'Compile recommended reading materials for S3A literature module.',                          'medium', date(2026, 6, 20), False),
-            ('c.umutoni@imboni.rw',       'Submit S3A Attendance Report',        'Complete monthly attendance report for S3A — May 2026.',                                   'high',   date(2026, 5, 31), True ),
+            ('c.umutoni@imboni.rw',       'Submit S3A Attendance Report',        'Complete monthly attendance report for S3A, May 2026.',                                    'high',   date(2026, 5, 31), True ),
             ('c.umutoni@imboni.rw',       'Parent Meeting Preparation',          'Prepare student progress notes for the upcoming parent-teacher meeting.',                   'medium', date(2026, 6, 25), False),
             ('p.rurangwa@imboni.rw',      'Prepare CAT 2 Mathematics Paper',     'Set questions and marking scheme for S2 CAT 2.',                                           'high',   date(2026, 6, 14), False),
             ('p.rurangwa@imboni.rw',      'Grade S4A Problem Sets',              'Mark and enter scores for the Term 2 problem set submission.',                             'high',   date(2026, 6, 16), False),
@@ -1169,20 +1169,20 @@ class Command(BaseCommand):
             ('c.umutoni@imboni.rw',       'S3A English Assignment Extension',
              'Due to the Science Day event, the deadline for the S3A English persuasive essay has been extended by three days. New deadline: Friday, June 12, 2026.',
              'academic', 'students', 'published'),
-            ('p.rurangwa@imboni.rw',      'Mathematics CAT 2 — Date Confirmed',
+            ('p.rurangwa@imboni.rw',      'Mathematics CAT 2 (Date Confirmed)',
              'The Mathematics CAT 2 for all S4 and S5 classes will be held on June 14, 2026 from 8:00 AM to 10:00 AM. Students must bring their own calculators.',
              'academic', 'students', 'published'),
             ('i.nsabimana@imboni.rw',     'Science Fair Registration Open',
              'Registration for the Term 2 Science Fair is now open. All S4 students must register their project titles with Mr. Nsabimana by June 13, 2026.',
              'event', 'students', 'published'),
-            ('s.uwera@imboni.rw',         'Physics Practical Session — S3A',
+            ('s.uwera@imboni.rw',         'Physics Practical Session (S3A)',
              'A compulsory practical for S3A Physics will be held on June 10, 2026 from 2:00 PM to 4:00 PM in the Physics Lab. Bring your lab notebooks.',
              'academic', 'students', 'published'),
-            ('j.ntakirutimana@imboni.rw', 'History Museum Visit — Permission Forms',
+            ('j.ntakirutimana@imboni.rw', 'History Museum Visit: Permission Forms',
              'Permission forms for the Kigali Memorial Centre visit (July 5, 2026) have been distributed. Signed forms must be returned to Mr. Ntakirutimana by June 25.',
              'event', 'parents', 'published'),
-            ('c.umutoni@imboni.rw',       'Reading Week — S1A Library Sessions',
-             'S1A students will have dedicated library sessions every Tuesday from June 9 to June 30, 3:30–4:30 PM. Attendance is compulsory.',
+            ('c.umutoni@imboni.rw',       'Reading Week: S1A Library Sessions',
+             'S1A students will have dedicated library sessions every Tuesday from June 9 to June 30, 3:30 - 4:30 PM. Attendance is compulsory.',
              'academic', 'students', 'published'),
             ('t.bizimana@imboni.rw',      'S2B Chemistry Lab Rules Reminder',
              'All S2B students are reminded to wear lab coats and safety goggles during every Chemistry practical session. Non-compliance will result in exclusion from the lab.',
@@ -1216,15 +1216,15 @@ class Command(BaseCommand):
             ('e.ndagijimana@imboni.rw',  'GEO', 'quiz',         'Map Reading Exercise',               date(2026, 5, 14), 20, 13),
             # S2A — Peter
             ('p.nkurunziza@imboni.rw',   'ENG', 'quiz',         'Vocabulary Test',                    date(2026, 5, 7),  20, 10),
-            ('p.nkurunziza@imboni.rw',   'HIS', 'homework',     'Research Task — Colonialism',        date(2026, 5, 11), 20, 12),
+            ('p.nkurunziza@imboni.rw',   'HIS', 'homework',     'Research Task: Colonialism',         date(2026, 5, 11), 20, 12),
             ('p.nkurunziza@imboni.rw',   'BIO', 'lab',          'Plant Cell Lab',                     date(2026, 5, 14), 30, 16),
             # S3A — Marie
             ('m.ingabire@imboni.rw',     'MTH', 'quiz',         'Quadratic Equations Quiz',           date(2026, 5, 7),  20, 19),
-            ('m.ingabire@imboni.rw',     'ENG', 'presentation', 'Book Report — Animal Farm',          date(2026, 5, 10), 30, 27),
+            ('m.ingabire@imboni.rw',     'ENG', 'presentation', 'Book Report: Animal Farm',           date(2026, 5, 10), 30, 27),
             ('m.ingabire@imboni.rw',     'CHE', 'lab',          'Periodic Table Lab',                 date(2026, 5, 13), 30, 24),
             # S3A — Lydia
             ('l.uwineza@imboni.rw',      'MTH', 'quiz',         'Algebra Quiz #2',                    date(2026, 5, 7),  20, 17),
-            ('l.uwineza@imboni.rw',      'ENG', 'quiz',         'Reading Comprehension — S3',         date(2026, 5, 11), 20, 15),
+            ('l.uwineza@imboni.rw',      'ENG', 'quiz',         'Reading Comprehension (S3)',         date(2026, 5, 11), 20, 15),
             ('l.uwineza@imboni.rw',      'PHY', 'lab',          'Energy & Work Lab',                  date(2026, 5, 14), 30, 22),
             # S3A — Mercy
             ('m.nyirabeza@imboni.rw',    'MTH', 'quiz',         'Quadratic Equations Quiz',           date(2026, 5, 7),  20, 16),
@@ -1237,18 +1237,18 @@ class Command(BaseCommand):
             # S3B — Moses
             ('m.habimana@imboni.rw',     'ENG', 'quiz',         'Grammar & Punctuation Test',         date(2026, 5, 8),  20, 12),
             ('m.habimana@imboni.rw',     'BIO', 'lab',          'Enzyme Activity Lab',                date(2026, 5, 12), 30, 17),
-            ('m.habimana@imboni.rw',     'HIS', 'homework',     'Essay — Genocide Against Tutsi',     date(2026, 5, 15), 20, 13),
+            ('m.habimana@imboni.rw',     'HIS', 'homework',     'Essay: Genocide Against Tutsi',      date(2026, 5, 15), 20, 13),
             # S4A — Felix
             ('f.ndayishimiye@imboni.rw', 'MTH', 'quiz',         'Algebra Quiz #3',                    date(2026, 5, 8),  20, 16),
-            ('f.ndayishimiye@imboni.rw', 'ENG', 'homework',     'Essay — Technology in Society',      date(2026, 5, 12), 20, 14),
-            ('f.ndayishimiye@imboni.rw', 'PHY', 'lab',          'Optics Lab — Lenses',                date(2026, 5, 14), 30, 23),
+            ('f.ndayishimiye@imboni.rw', 'ENG', 'homework',     'Essay: Technology in Society',       date(2026, 5, 12), 20, 14),
+            ('f.ndayishimiye@imboni.rw', 'PHY', 'lab',          'Optics Lab: Lenses',                 date(2026, 5, 14), 30, 23),
             # S4A — Clarisse
             ('c.uwimana@imboni.rw',      'MTH', 'quiz',         'Calculus Introduction Quiz',         date(2026, 5, 8),  20, 18),
             ('c.uwimana@imboni.rw',      'PHY', 'quiz',         'Waves & Sound Quiz',                 date(2026, 5, 11), 20, 17),
-            ('c.uwimana@imboni.rw',      'ENG', 'presentation', 'Oral Presentation — Leadership',     date(2026, 5, 13), 30, 28),
+            ('c.uwimana@imboni.rw',      'ENG', 'presentation', 'Oral Presentation: Leadership',      date(2026, 5, 13), 30, 28),
             # S4A — David
             ('d.nkurunziza@imboni.rw',   'MTH', 'quiz',         'Calculus Introduction Quiz',         date(2026, 5, 8),  20, 14),
-            ('d.nkurunziza@imboni.rw',   'ENG', 'homework',     'Essay — Environmental Issues',       date(2026, 5, 12), 20, 13),
+            ('d.nkurunziza@imboni.rw',   'ENG', 'homework',     'Essay: Environmental Issues',        date(2026, 5, 12), 20, 13),
             ('d.nkurunziza@imboni.rw',   'CHE', 'lab',          'Redox Reactions Lab',                date(2026, 5, 15), 30, 19),
             # S4B — Joy
             ('j.mukamazimpaka@imboni.rw','MTH', 'quiz',         'Quadratic Functions Quiz',           date(2026, 5, 8),  20, 17),
@@ -1257,10 +1257,10 @@ class Command(BaseCommand):
             # S5A — Diane
             ('d.umutoni@imboni.rw',      'MTH', 'quiz',         'Integration Techniques Quiz',        date(2026, 5, 9),  20, 18),
             ('d.umutoni@imboni.rw',      'ENG', 'presentation', 'Debate: Technology & Society',       date(2026, 5, 13), 30, 27),
-            ('d.umutoni@imboni.rw',      'CHE', 'lab',          'Organic Chemistry — Reactions',      date(2026, 5, 15), 30, 25),
+            ('d.umutoni@imboni.rw',      'CHE', 'lab',          'Organic Chemistry: Reactions',       date(2026, 5, 15), 30, 25),
             # S5A — James
             ('j.bizimana@imboni.rw',     'MTH', 'quiz',         'Integration Techniques Quiz',        date(2026, 5, 9),  20, 14),
-            ('j.bizimana@imboni.rw',     'ENG', 'homework',     'Literary Analysis — Poem',           date(2026, 5, 13), 20, 13),
+            ('j.bizimana@imboni.rw',     'ENG', 'homework',     'Literary Analysis: Poem',            date(2026, 5, 13), 20, 13),
             ('j.bizimana@imboni.rw',     'PHY', 'lab',          'Electromagnetic Induction Lab',      date(2026, 5, 15), 30, 21),
         ]
         extra_a_count = 0
@@ -1371,24 +1371,24 @@ class Command(BaseCommand):
             # (class_name, title, subject_code, teacher_email, due_date, description)
             ('S3A', 'Biology Cell Division Essay',            'BIO', 'i.nsabimana@imboni.rw',     date(2026, 6, 13), 'Write a 400-word essay explaining the stages of mitosis and meiosis.'),
             ('S3A', 'English Book Report',                    'ENG', 'c.umutoni@imboni.rw',       date(2026, 6, 10), 'Write a book report on any novel of your choice (minimum 300 words).'),
-            ('S3A', 'Mathematics — Simultaneous Equations',   'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 17), 'Solve all problems from Chapter 6 exercises 6.1 to 6.3.'),
+            ('S3A', 'Mathematics: Simultaneous Equations',    'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 17), 'Solve all problems from Chapter 6 exercises 6.1 to 6.3.'),
             ('S3A', 'Physics Motion Lab Write-up',            'PHY', 's.uwera@imboni.rw',         date(2026, 6, 11), "Write a formal lab report for the Newton's Laws practical session."),
             ('S3B', 'Mathematics Algebra Worksheet',          'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 17), 'Complete the algebra worksheet focusing on factorisation and expansion.'),
-            ('S3B', 'English Grammar Revision',               'ENG', 'c.umutoni@imboni.rw',       date(2026, 6, 12), 'Complete the grammar revision booklet pages 24–38.'),
-            ('S3B', 'History — Independence Essay',           'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 20), 'Write a 500-word essay on the path to Rwandan independence.'),
-            ('S2A', 'Mathematics — Fractions & Decimals',     'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 14), 'Complete exercises on fractions, decimals and percentages from Chapter 4.'),
+            ('S3B', 'English Grammar Revision',               'ENG', 'c.umutoni@imboni.rw',       date(2026, 6, 12), 'Complete the grammar revision booklet pages 24-38.'),
+            ('S3B', 'History: Independence Essay',            'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 20), 'Write a 500-word essay on the path to Rwandan independence.'),
+            ('S2A', 'Mathematics: Fractions & Decimals',      'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 14), 'Complete exercises on fractions, decimals and percentages from Chapter 4.'),
             ('S2A', 'English Reading Comprehension',          'ENG', 'c.umutoni@imboni.rw',       date(2026, 6, 11), 'Read the passage on page 85 and answer all comprehension questions.'),
-            ('S2A', 'Chemistry — Elements Worksheet',         'CHE', 't.bizimana@imboni.rw',      date(2026, 6, 18), 'Complete the worksheet on the first 20 elements of the periodic table.'),
+            ('S2A', 'Chemistry: Elements Worksheet',          'CHE', 't.bizimana@imboni.rw',      date(2026, 6, 18), 'Complete the worksheet on the first 20 elements of the periodic table.'),
             ('S2B', 'Chemistry Acid & Base Lab Report',       'CHE', 't.bizimana@imboni.rw',      date(2026, 6, 13), 'Write up the formal report from the acid-base neutralisation practical.'),
-            ('S2B', 'Mathematics — Geometry',                 'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 18), 'Complete geometry exercises from Chapter 7 — angles, triangles and circles.'),
-            ('S1A', 'English — Descriptive Writing',          'ENG', 'c.umutoni@imboni.rw',       date(2026, 6, 10), 'Write a descriptive paragraph (150 words) about your favourite place in Rwanda.'),
-            ('S1A', 'Mathematics — Number Systems',           'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 15), 'Complete number system exercises from Chapter 2, pages 14–18.'),
-            ('S1A', 'History — Pre-Colonial Rwanda',          'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 22), 'Draw a timeline of key events in pre-colonial Rwanda (1600–1900).'),
-            ('S1B', 'Mathematics — Basic Arithmetic',         'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 15), 'Complete arithmetic exercises: addition, subtraction, multiplication.'),
-            ('S1B', 'History — Ancient Rwanda Map',           'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 22), 'Draw and label the map of pre-colonial Rwanda with key kingdoms.'),
+            ('S2B', 'Mathematics: Geometry',                   'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 18), 'Complete geometry exercises from Chapter 7: angles, triangles and circles.'),
+            ('S1A', 'English: Descriptive Writing',           'ENG', 'c.umutoni@imboni.rw',       date(2026, 6, 10), 'Write a descriptive paragraph (150 words) about your favourite place in Rwanda.'),
+            ('S1A', 'Mathematics: Number Systems',            'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 15), 'Complete number system exercises from Chapter 2, pages 14-18.'),
+            ('S1A', 'History: Pre-Colonial Rwanda',           'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 22), 'Draw a timeline of key events in pre-colonial Rwanda (1600-1900).'),
+            ('S1B', 'Mathematics: Basic Arithmetic',          'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 15), 'Complete arithmetic exercises: addition, subtraction, multiplication.'),
+            ('S1B', 'History: Ancient Rwanda Map',            'HIS', 'j.ntakirutimana@imboni.rw', date(2026, 6, 22), 'Draw and label the map of pre-colonial Rwanda with key kingdoms.'),
             ('S5A', 'Mathematics Integration Problem Set',    'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 16), 'Solve the integration problem set from Chapter 9, all exercises.'),
-            ('S5A', 'Physics — Electromagnetic Induction Lab','PHY', 's.uwera@imboni.rw',         date(2026, 6, 12), 'Complete the formal write-up for the electromagnetic induction experiment.'),
-            ('S6A', 'Mathematics — Mock Exam Revision',       'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 20), 'Complete the mock exam revision paper from last year with full working.'),
+            ('S5A', 'Physics: Electromagnetic Induction Lab', 'PHY', 's.uwera@imboni.rw',         date(2026, 6, 12), 'Complete the formal write-up for the electromagnetic induction experiment.'),
+            ('S6A', 'Mathematics: Mock Exam Revision',        'MTH', 'p.rurangwa@imboni.rw',      date(2026, 6, 20), 'Complete the mock exam revision paper from last year with full working.'),
         ]
         other_ass_count = 0
         for class_name, title, subj_code, teacher_email, due_d, desc in other_class_assignments:
@@ -1411,22 +1411,22 @@ class Command(BaseCommand):
             # (student_email, assignment_title, class_name, status, grade, feedback)
             ('m.ingabire@imboni.rw',    'Biology Cell Division Essay',          'S3A', 'submitted', None, ''),
             ('l.uwineza@imboni.rw',     'Biology Cell Division Essay',          'S3A', 'submitted', None, ''),
-            ('m.nyirabeza@imboni.rw',   'Mathematics — Simultaneous Equations', 'S3A', 'submitted', None, ''),
+            ('m.nyirabeza@imboni.rw',   'Mathematics: Simultaneous Equations',  'S3A', 'submitted', None, ''),
             ('l.uwineza@imboni.rw',     'English Book Report',                  'S3A', 'graded', 82.0, 'Very well-written report. Clear analysis and good structure.'),
             ('m.ingabire@imboni.rw',    'English Book Report',                  'S3A', 'graded', 90.0, 'Exceptional literary insight. One of the best reports this term.'),
             ('k.mutabazi@imboni.rw',    'Mathematics Algebra Worksheet',        'S3B', 'submitted', None, ''),
             ('m.habimana@imboni.rw',    'English Grammar Revision',             'S3B', 'submitted', None, ''),
-            ('p.nkurunziza@imboni.rw',  'Mathematics — Fractions & Decimals',   'S2A', 'submitted', None, ''),
-            ('g.hakizimana.s@imboni.rw','English — Descriptive Writing',        'S1A', 'graded', 90.0, 'Exceptional writing. Beautiful description of Kigali.'),
-            ('g.hakizimana.s@imboni.rw','Mathematics — Number Systems',         'S1A', 'submitted', None, ''),
+            ('p.nkurunziza@imboni.rw',  'Mathematics: Fractions & Decimals',    'S2A', 'submitted', None, ''),
+            ('g.hakizimana.s@imboni.rw','English: Descriptive Writing',         'S1A', 'graded', 90.0, 'Exceptional writing. Beautiful description of Kigali.'),
+            ('g.hakizimana.s@imboni.rw','Mathematics: Number Systems',          'S1A', 'submitted', None, ''),
             ('c.uwimana@imboni.rw',     'Term 2 Mathematics Problem Set',       'S4A', 'graded', 78.0, 'Good work. Review question 5 for next time.'),
-            ('f.ndayishimiye@imboni.rw','Physics Lab Report — Projectile',      'S4A', 'submitted', None, ''),
-            ('d.nkurunziza@imboni.rw',  'History Essay — Colonial Rwanda',      'S4A', 'submitted', None, ''),
+            ('f.ndayishimiye@imboni.rw','Physics Lab Report: Projectile',       'S4A', 'submitted', None, ''),
+            ('d.nkurunziza@imboni.rw',  'History Essay: Colonial Rwanda',       'S4A', 'submitted', None, ''),
             ('j.mukamazimpaka@imboni.rw','English Persuasive Essay',            'S4A', 'submitted', None, ''),
-            ('d.umutoni@imboni.rw',     'Chemistry Worksheet — Reaction Rates', 'S4A', 'graded', 91.0, 'Excellent understanding of equilibrium constants.'),
-            ('j.bizimana@imboni.rw',    'History Essay — Colonial Rwanda',      'S4A', 'submitted', None, ''),
+            ('d.umutoni@imboni.rw',     'Chemistry Worksheet: Reaction Rates',  'S4A', 'graded', 91.0, 'Excellent understanding of equilibrium constants.'),
+            ('j.bizimana@imboni.rw',    'History Essay: Colonial Rwanda',       'S4A', 'submitted', None, ''),
             ('d.umutoni@imboni.rw',     'Mathematics Integration Problem Set',  'S5A', 'submitted', None, ''),
-            ('j.bizimana@imboni.rw',    'Physics — Electromagnetic Induction Lab','S5A', 'submitted', None, ''),
+            ('j.bizimana@imboni.rw',    'Physics: Electromagnetic Induction Lab', 'S5A', 'submitted', None, ''),
         ]
         extra_sub_count = 0
         for s_email, ass_title, class_name, sub_status, grade, feedback in extra_submissions:

@@ -92,14 +92,14 @@ class Command(BaseCommand):
         cmd = build_dump_command(db)
 
         if options['dry_run']:
-            self.stdout.write('Dry run — nothing written.')
+            self.stdout.write('Dry run: nothing written.')
             self.stdout.write(f'  Would run: {" ".join(cmd)}')
             self.stdout.write(f'  Would write: {target}')
             self.stdout.write(f'  Would prune *.sql.gz older than {retention} days in {out_dir}')
             return
 
         if not shutil.which('pg_dump'):
-            raise CommandError('pg_dump not found on PATH — install the PostgreSQL client tools.')
+            raise CommandError('pg_dump not found on PATH. Install the PostgreSQL client tools.')
 
         out_dir.mkdir(parents=True, exist_ok=True)
 

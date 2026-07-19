@@ -78,14 +78,14 @@ def plan_housing(*, dormitory_ids=None):
         rooms = [r for r in rooms if str(r.dormitory_id) in wanted]
     if not rooms:
         raise HousingError(
-            "No active dormitory rooms configured — add dormitories and rooms "
+            "No active dormitory rooms configured: add dormitories and rooms "
             "(with bed capacity) before generating an assignment."
         )
 
     boarders = gather_boarders()
     if not boarders:
         raise HousingError(
-            "No active boarding students to place — day scholars are excluded."
+            "No active boarding students to place; day scholars are excluded."
         )
 
     slots = [
@@ -159,7 +159,7 @@ def plan_housing(*, dormitory_ids=None):
     warnings = []
     if unplaced:
         warnings.append(
-            f"{len(unplaced)} student(s) could not be given a bed — add rooms, "
+            f"{len(unplaced)} student(s) could not be given a bed: add rooms, "
             "raise bed capacity, or move students to day scholar."
         )
     split = sum(1 for count in _group_room_counts(assignments).values() if count > 1)

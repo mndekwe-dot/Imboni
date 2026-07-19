@@ -108,14 +108,14 @@ def plan_timetable(term, *, class_ids=None, days=None):
     )
     if not periods:
         raise TimetableError(
-            "No schedulable periods configured — add active, non-break periods "
+            "No schedulable periods configured: add active, non-break periods "
             "to the bell schedule and try again."
         )
 
     lessons, meta = gather_lessons(term, class_ids=class_ids)
     if not lessons:
         raise TimetableError(
-            "No lessons to schedule — set a weekly period count on the "
+            "No lessons to schedule: set a weekly period count on the "
             "subject-teacher assignments for this term and try again."
         )
 
@@ -170,10 +170,10 @@ def plan_timetable(term, *, class_ids=None, days=None):
 
     warnings = []
     if not rooms:
-        warnings.append("No active rooms configured — lessons were placed one at "
+        warnings.append("No active rooms configured, so lessons were placed one at "
                         "a time and left without a room.")
     if unscheduled:
-        warnings.append(f"{len(unscheduled)} lesson(s) did not fit — widen the grid "
+        warnings.append(f"{len(unscheduled)} lesson(s) did not fit: widen the grid "
                         "(more periods, days or rooms) and regenerate.")
 
     return {

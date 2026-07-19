@@ -51,7 +51,7 @@ def _notify_parent(dis_user, parent_user, report):
     )
     conv = _get_or_create_conversation(
         dis_user, parent_user,
-        subject=f"Conduct Report — {student_name}",
+        subject=f"Conduct Report for {student_name}",
     )
     Message.objects.create(conversation=conv, sender=dis_user, content=content)
     conv.updated_at = timezone.now()

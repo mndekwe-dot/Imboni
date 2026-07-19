@@ -163,7 +163,7 @@ class DOSRecentActivityView(APIView):
         for t in User.objects.filter(role='teacher').order_by('-created_at'):
             activities.append({
                 'activity_type': 'staff',
-                'description':   f"New Teacher Added — {t.get_full_name() or t.username}",
+                'description':   f"New Teacher Added: {t.get_full_name() or t.username}",
                 'timestamp':     t.created_at,
                 'time_ago':      _time_ago(t.created_at),
             })
@@ -956,7 +956,7 @@ class BulkCreateStudentsView(APIView):
                 if slots is not None and slots <= 0:
                     failed += 1
                     errors.append({'row': idx, 'email': email,
-                                   'error': 'Plan limit reached — upgrade your plan to add more students.'})
+                                   'error': 'Plan limit reached. Upgrade your plan to add more students.'})
                     continue
 
                 password = row.get('password') or default_password
@@ -1124,7 +1124,7 @@ class ImportStudentsCSVView(APIView):
                 if slots is not None and slots <= 0:
                     failed += 1
                     errors.append({'row': idx, 'email': email,
-                                   'error': 'Plan limit reached — upgrade your plan to add more students.'})
+                                   'error': 'Plan limit reached. Upgrade your plan to add more students.'})
                     continue
 
                 with transaction.atomic():
@@ -1243,7 +1243,7 @@ class DOSResultApproveView(APIView):
         result.save(update_fields=['status', 'approved_by', 'approved_at', 'dos_comment'])
         from apps.audit.services import audit
         audit(request.user, 'result.approved',
-              target=f"{result.student.full_name} — {result.subject.name}",
+              target=f"{result.student.full_name} ({result.subject.name})",
               detail={'result_id': str(result.id)})
         return Response({'detail': 'Result approved.'})
 
@@ -1271,7 +1271,7 @@ class DOSResultRejectView(APIView):
         result.save(update_fields=['status', 'rejection_reason', 'dos_comment'])
         from apps.audit.services import audit
         audit(request.user, 'result.rejected',
-              target=f"{result.student.full_name} — {result.subject.name}",
+              target=f"{result.student.full_name} ({result.subject.name})",
               detail={'result_id': str(result.id), 'reason': result.rejection_reason})
         return Response({'detail': 'Result rejected.'})
 
@@ -1706,7 +1706,7 @@ class ChangeStudentClassView(APIView):
             'grade':          student.grade,
             'section':        student.section,
             'roster_updated': roster_updated,
-            'warning':        None if roster_updated else f'S{grade}{section} class record not found — student profile updated but not added to the class roster.',
+            'warning':        None if roster_updated else f'S{grade}{section} class record not found: student profile updated but not added to the class roster.',
         })
 
 
@@ -1877,10 +1877,10 @@ class DOSAnalyticsView(APIView):
 
         # Grade distribution bands
         BANDS = [
-            ('A (80–100)', 80, 101, '#10b981'),
-            ('B (70–79)',  70,  80, '#003d7a'),
-            ('C (60–69)',  60,  70, '#3b82f6'),
-            ('D (50–59)',  50,  60, '#f59e0b'),
+            ('A (80-100)', 80, 101, '#10b981'),
+            ('B (70-79)',  70,  80, '#003d7a'),
+            ('C (60-69)',  60,  70, '#3b82f6'),
+            ('D (50-59)',  50,  60, '#f59e0b'),
             ('F (<50)',     0,  50, '#ef4444'),
         ]
         total_r = Result.objects.filter(term=term, status='approved', final_score__isnull=False).count()
@@ -2355,17 +2355,17 @@ class StudentBulkInviteView(APIView):
                 continue
 
             if User.objects.filter(email__iexact=s_email, role='student').exists():
-                errors.append({'row': row_num, 'error': f'{s_email} is already registered — skipped.'})
+                errors.append({'row': row_num, 'error': f'{s_email} is already registered, skipped.'})
                 continue
 
             from apps.authentication.models import Invitation as _Inv
             if _Inv.objects.filter(email__iexact=s_email, role='student', is_used=False).exists():
-                errors.append({'row': row_num, 'error': f'{s_email} already has a pending invitation — skipped.'})
+                errors.append({'row': row_num, 'error': f'{s_email} already has a pending invitation, skipped.'})
                 continue
 
             if slots is not None and slots <= 0:
                 errors.append({'row': row_num,
-                               'error': 'Plan limit reached — upgrade your plan to invite more students.'})
+                               'error': 'Plan limit reached. Upgrade your plan to invite more students.'})
                 continue
 
             # Resolve year + stream to a Class object

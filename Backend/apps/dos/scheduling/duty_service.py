@@ -73,7 +73,7 @@ def plan_duty_roster(term, *, days=None, max_per_day=1, roles=None):
     posts = list(DutyPost.objects.filter(is_active=True).order_by("order", "start_time"))
     if not posts:
         raise DutyRosterError(
-            "No active duty posts configured — add posts (name, times, staff "
+            "No active duty posts configured: add posts (name, times, staff "
             "needed) before generating a roster."
         )
 
@@ -126,7 +126,7 @@ def plan_duty_roster(term, *, days=None, max_per_day=1, roles=None):
     warnings = []
     if unfilled:
         warnings.append(
-            f"{len(unfilled)} duty slot(s) could not be filled — add staff, "
+            f"{len(unfilled)} duty slot(s) could not be filled: add staff, "
             "raise the per-day limit, or reduce the posts."
         )
     if result.spread > 1:

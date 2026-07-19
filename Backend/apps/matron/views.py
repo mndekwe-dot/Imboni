@@ -735,7 +735,7 @@ class MatronBoardingScheduleView(APIView):
                 'days_in_schedule': 7,
                 'total_activities': sum(1 for s in weekday_slots if not s.is_break) + sum(1 for s in sat_slots + sun_slots if not s.is_break),
                 'changes_this_week': changes_this_week,
-                'current_term': current_term.name if current_term else '—',
+                'current_term': current_term.name if current_term else '-',
             },
         })
 

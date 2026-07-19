@@ -200,7 +200,7 @@ def _construct_event(payload, sig_header):
         except (ValueError, stripe.error.SignatureVerificationError):
             logger.warning('Rejected Stripe webhook: bad signature/payload')
             return None
-    logger.warning('STRIPE_WEBHOOK_SECRET unset — trusting webhook payload (dev only)')
+    logger.warning('STRIPE_WEBHOOK_SECRET unset: trusting webhook payload (dev only)')
     try:
         return json.loads(payload)
     except (ValueError, TypeError):

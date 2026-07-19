@@ -116,7 +116,7 @@ class Timetable(models.Model):
         ordering = ['day', 'start_time']
 
     def __str__(self):
-        return f"{self.class_obj} — {self.subject.name} — {self.day} {self.start_time}"
+        return f"{self.class_obj}, {self.subject.name} ({self.day} {self.start_time})"
 
 
 class Task(models.Model):
@@ -142,7 +142,7 @@ class Task(models.Model):
         ordering = ['is_completed', 'due_date', '-priority']
 
     def __str__(self):
-        return f"{self.teacher.get_full_name()} — {self.title}"
+        return f"{self.teacher.get_full_name()} ({self.title})"
 
 
 class Reminder(models.Model):
@@ -159,7 +159,7 @@ class Reminder(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.teacher.get_full_name()} — {self.content[:50]}"
+        return f"{self.teacher.get_full_name()} ({self.content[:50]})"
 
 class TeacherClassList(models.Model):
     id         = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -204,7 +204,7 @@ class Assignment(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.title} — {self.class_obj.name}"
+        return f"{self.title} ({self.class_obj.name})"
 
 
 class AssignmentSubmission(models.Model):
@@ -230,7 +230,7 @@ class AssignmentSubmission(models.Model):
         unique_together = ['assignment', 'student']
 
     def __str__(self):
-        return f"{self.student_name or 'Unknown'} — {self.assignment.title}"
+        return f"{self.student_name or 'Unknown'} ({self.assignment.title})"
 
 
 class QuestionBank(models.Model):

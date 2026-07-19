@@ -180,7 +180,7 @@ class Command(BaseCommand):
         for idx, reason in failed:
             self.stdout.write(self.style.WARNING(f'  row {idx} skipped: {reason}'))
         if dry_run:
-            self.stdout.write(self.style.WARNING('Dry run — no changes made.'))
+            self.stdout.write(self.style.WARNING('Dry run: no changes made.'))
             return
         if created or updated:
             audit(None, 'timetable.imported', target='import_timetable',

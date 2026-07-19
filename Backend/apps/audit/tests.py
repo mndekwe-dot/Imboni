@@ -38,7 +38,7 @@ class TestAuditLogListView:
     def test_admin_sees_entries_newest_first_with_filters(self, make_authenticated_client):
         client, admin = make_authenticated_client('admin')
         older = audit(admin, 'invitation.sent', target='a@school.rw')
-        newer = audit(admin, 'result.approved', target='John Doe — Maths')
+        newer = audit(admin, 'result.approved', target='John Doe (Maths)')
         # created_at is auto_now_add and can tie at microsecond resolution, and
         # the UUID PK gives no monotonic tiebreaker — so pin distinct timestamps
         # to make "newest first" deterministic instead of order-of-insertion luck.

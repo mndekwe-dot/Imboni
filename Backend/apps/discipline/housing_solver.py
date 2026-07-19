@@ -199,4 +199,4 @@ def _no_room_reason(rooms: Sequence[RoomSlot], gender: str | None) -> str:
     compatible = [r for r in rooms if gender_compatible(r.gender, gender)]
     if not compatible:
         return f"No dormitory accepts students of gender '{gender}'."
-    return "All matching rooms are full — no free beds left."
+    return "All matching rooms are full. No free beds left."

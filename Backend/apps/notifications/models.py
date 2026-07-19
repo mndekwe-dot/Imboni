@@ -36,4 +36,4 @@ class Notification(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.email} — {self.title}"
+        return f"{self.user.email} ({self.title})"

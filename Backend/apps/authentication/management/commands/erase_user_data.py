@@ -63,14 +63,14 @@ class Command(BaseCommand):
         self.stdout.write(f'Mode:   {mode}')
 
         if dry_run:
-            self.stdout.write(self.style.WARNING('Dry run — no changes made.'))
+            self.stdout.write(self.style.WARNING('Dry run: no changes made.'))
             self.stdout.write(self._plan(user, hard_delete))
             return
 
         if not options['yes']:
             confirm = input(f'\nType the user id to confirm {mode}: ').strip()
             if confirm != str(user.id):
-                raise CommandError('Confirmation did not match — aborted.')
+                raise CommandError('Confirmation did not match. Aborted.')
 
         actor = self._resolve_actor(options.get('actor'))
 
@@ -109,7 +109,7 @@ class Command(BaseCommand):
             raise CommandError(f'No user found matching "{identifier}".')
         except User.MultipleObjectsReturned:
             raise CommandError(
-                f'Multiple users share the email "{identifier}" — pass the user id instead.'
+                f'Multiple users share the email "{identifier}". Pass the user id instead.'
             )
 
     def _resolve_actor(self, actor_email):

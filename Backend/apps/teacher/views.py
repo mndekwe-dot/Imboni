@@ -552,7 +552,7 @@ class TeacherRecentActivitiesView(APIView):
         for r in Result.objects.filter(teacher=teacher).select_related('subject', 'student__user').order_by('-updated_at')[:5]:
             activities.append({
                 'activity_type': 'result',
-                'description':   f"Submitted results — {r.student.full_name} ({r.subject.name})",
+                'description':   f"Submitted results: {r.student.full_name} ({r.subject.name})",
                 'timestamp':     r.updated_at,
             })
 
@@ -560,7 +560,7 @@ class TeacherRecentActivitiesView(APIView):
         for a in AttendanceRecord.objects.filter(marked_by=teacher).select_related('student__user').order_by('-created_at')[:5]:
             activities.append({
                 'activity_type': 'attendance',
-                'description':   f"Marked attendance — {a.student.full_name} ({a.status})",
+                'description':   f"Marked attendance: {a.student.full_name} ({a.status})",
                 'timestamp':     a.created_at,
             })
 
@@ -568,7 +568,7 @@ class TeacherRecentActivitiesView(APIView):
         for b in BehaviorReport.objects.filter(reported_by=teacher).select_related('student__user').order_by('-created_at')[:5]:
             activities.append({
                 'activity_type': 'incident',
-                'description':   f"Reported incident — Student: {b.student.full_name}",
+                'description':   f"Reported incident. Student: {b.student.full_name}",
                 'timestamp':     b.created_at,
             })
 

@@ -43,7 +43,7 @@ describe('Signup page', () => {
                     status: 'pending',
                     subdomain: 'greenhills',
                     status_url: '/imboni/onboarding/status/abc/',
-                    message: 'Creating your school — this takes a moment.',
+                    message: 'Creating your school. This takes a moment.',
                 }),
             })
             // 2) GET status -> ready (first poll happens immediately).

@@ -58,7 +58,7 @@ def plan_dining(term, *, meals=None, class_ids=None):
     )
     if not sitting_rows:
         raise DiningPlanError(
-            "No active dining sittings configured for the selected meal(s) — "
+            "No active dining sittings configured for the selected meal(s): "
             "add sittings (name, meal, times, seats) first."
         )
 
@@ -111,7 +111,7 @@ def plan_dining(term, *, meals=None, class_ids=None):
     warnings = []
     if unassigned:
         warnings.append(
-            f"{len(unassigned)} class-meal(s) could not be seated — add a "
+            f"{len(unassigned)} class-meal(s) could not be seated: add a "
             "sitting or raise capacity."
         )
     for meal in meals:

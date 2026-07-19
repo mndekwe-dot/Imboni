@@ -154,7 +154,7 @@ class DutyAssignment(models.Model):
         unique_together = ['post', 'term', 'day', 'staff']
 
     def __str__(self):
-        return f"{self.staff} — {self.post.name} ({self.day})"
+        return f"{self.staff}, {self.post.name} ({self.day})"
 
 
 MEAL_CHOICES = [
@@ -208,7 +208,7 @@ class DiningAssignment(models.Model):
         unique_together = ['sitting', 'term', 'class_obj']
 
     def __str__(self):
-        return f"{self.class_obj} — {self.sitting.name}"
+        return f"{self.class_obj} ({self.sitting.name})"
 
 
 class SchoolSetting(models.Model):

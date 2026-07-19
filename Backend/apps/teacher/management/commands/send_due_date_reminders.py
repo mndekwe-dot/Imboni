@@ -54,7 +54,7 @@ class Command(BaseCommand):
                     ca.student.user,
                     title=f'Due tomorrow: {assignment.title}',
                     message=(
-                        f"{assignment.subject.name} — '{assignment.title}' is due on "
+                        f"{assignment.subject.name}: '{assignment.title}' is due on "
                         f"{assignment.due_date}. Don't forget to submit."
                     ),
                     type='exam',

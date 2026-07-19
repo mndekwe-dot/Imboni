@@ -69,7 +69,7 @@ class SchoolSignupView(APIView):
             'status': rec.status,
             'subdomain': rec.subdomain,
             'status_url': f'/imboni/onboarding/status/{rec.id}/',
-            'message': 'Creating your school — this takes a moment.',
+            'message': 'Creating your school. This takes a moment.',
         }, status=status.HTTP_202_ACCEPTED)
 
 
