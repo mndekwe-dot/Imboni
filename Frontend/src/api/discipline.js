@@ -39,6 +39,20 @@ export const createDisFacilitySection = (d)     => client.post('/imboni/discipli
 export const patchDisFacilitySection  = (id, d) => client.patch(`/imboni/discipline/facility-sections/${id}/`, d)
 export const deleteDisFacilitySection = (id)    => client.delete(`/imboni/discipline/facility-sections/${id}/`)
 
+// Dormitories, rooms and the housing (bin-packing) generator
+export const getDormitories    = ()       => client.get('/imboni/discipline/dormitories/')
+export const createDormitory   = (d)      => client.post('/imboni/discipline/dormitories/', d)
+export const patchDormitory    = (id, d)  => client.patch(`/imboni/discipline/dormitories/${id}/`, d)
+export const deleteDormitory   = (id)     => client.delete(`/imboni/discipline/dormitories/${id}/`)
+
+export const getDormRooms      = (params) => client.get('/imboni/discipline/dorm-rooms/', { params })
+export const createDormRoom    = (d)      => client.post('/imboni/discipline/dorm-rooms/', d)
+export const patchDormRoom     = (id, d)  => client.patch(`/imboni/discipline/dorm-rooms/${id}/`, d)
+export const deleteDormRoom    = (id)     => client.delete(`/imboni/discipline/dorm-rooms/${id}/`)
+
+export const generateHousing   = (d)      => client.post('/imboni/discipline/housing/generate/', d)
+export const commitHousing     = (d)      => client.post('/imboni/discipline/housing/generate/commit/', d)
+
 // Dining
 export const getDisDining    = ()      => client.get('/imboni/discipline/dining/')
 export const createDisDining = (d)     => client.post('/imboni/discipline/dining/', d)

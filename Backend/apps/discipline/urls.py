@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import housing_api, views
 
 urlpatterns = [
     # Current term
@@ -51,6 +51,15 @@ urlpatterns = [
     path('discipline/facilities/<uuid:pk>/',          views.DisFacilityDetailView.as_view(),         name='discipline-facility-detail'),
     path('discipline/facility-sections/',             views.DisFacilitySectionListView.as_view(),    name='discipline-facility-sections'),
     path('discipline/facility-sections/<uuid:pk>/',   views.DisFacilitySectionDetailView.as_view(),  name='discipline-facility-section-detail'),
+
+    # Dormitories, rooms and the housing (bin-packing) generator.
+    # Literal paths come before the <uuid:pk> routes so they are not eaten as pks.
+    path('discipline/housing/generate/',              housing_api.HousingGenerateView.as_view(),       name='discipline-housing-generate'),
+    path('discipline/housing/generate/commit/',       housing_api.HousingGenerateCommitView.as_view(), name='discipline-housing-generate-commit'),
+    path('discipline/dormitories/',                   housing_api.DormitoryListView.as_view(),         name='discipline-dormitories'),
+    path('discipline/dormitories/<uuid:pk>/',         housing_api.DormitoryDetailView.as_view(),       name='discipline-dormitory-detail'),
+    path('discipline/dorm-rooms/',                    housing_api.DormRoomListView.as_view(),          name='discipline-dorm-rooms'),
+    path('discipline/dorm-rooms/<uuid:pk>/',          housing_api.DormRoomDetailView.as_view(),        name='discipline-dorm-room-detail'),
 
     # Announcements
     path('discipline/announcements/',                       views.DisciplineAnnouncementView.as_view(),       name='discipline-announcements'),

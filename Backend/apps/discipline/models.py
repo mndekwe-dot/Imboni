@@ -99,6 +99,56 @@ class BoardingStudent(models.Model):
         return f"{self.student} — {self.dormitory} Room {self.room_number}"
 
 
+class Dormitory(models.Model):
+    """A boarding house the housing generator can pack students into.
+
+    Distinct from :class:`DisFacility` (a free-form facilities register): this
+    is the structured, room-by-room model the assignment generator needs.
+    """
+
+    GENDER_CHOICES = [
+        ('male',   'Male'),
+        ('female', 'Female'),
+        ('mixed',  'Mixed'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100, unique=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='mixed')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'dormitories'
+        ordering = ['name']
+        verbose_name_plural = 'dormitories'
+
+    def __str__(self):
+        return self.name
+
+
+class DormRoom(models.Model):
+    """A single room inside a dormitory — a bin with ``bed_capacity`` slots."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    dormitory = models.ForeignKey(
+        Dormitory,
+        on_delete=models.CASCADE,
+        related_name='rooms',
+    )
+    room_number = models.CharField(max_length=20)
+    bed_capacity = models.PositiveSmallIntegerField(default=4)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'dorm_rooms'
+        ordering = ['dormitory__name', 'room_number']
+        unique_together = ('dormitory', 'room_number')
+
+    def __str__(self):
+        return f"{self.dormitory.name} Room {self.room_number}"
+
+
 class DiningPlan(models.Model):
     PLAN_TYPE_CHOICES = [
         ('full_board', 'Full Board'),

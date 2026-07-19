@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DataTable } from '../../components/ui/DataTable'
 import { disNavItems, disSecondaryItems } from './disNav'
+import { DormPlannerTab } from './DormPlannerTab'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
     getDisFacilities, getDisStudents, getDisOccupancy,
@@ -324,8 +325,9 @@ export function DisBoarding() {
     const [showModal,    setShowModal]    = useState(false)
     const [editingRecord,setEditingRecord]= useState(null)
     const [occupancy,    setOccupancy]    = useState(null)
+    const [tab,          setTab]          = useState('records')
 
-    useEffect(() => {
+    const loadBoarding = useCallback(() => (
         Promise.all([
             getDisBoarding(),
             getDisFacilities({ type: 'dormitory' }),
@@ -334,8 +336,12 @@ export function DisBoarding() {
             setStudents(Array.isArray(boarding) ? boarding : [])
             setDormitories(Array.isArray(dorms) ? dorms : [])
             setOccupancy(occ)
-        }).catch(console.error).finally(() => setLoading(false))
-    }, [])
+        })
+    ), [])
+
+    useEffect(() => {
+        loadBoarding().catch(console.error).finally(() => setLoading(false))
+    }, [loadBoarding])
 
     // Section-grouped filter data
     const sectionNames  = [...new Set(dormitories.map(d => d.section_name).filter(Boolean))]
@@ -414,6 +420,25 @@ export function DisBoarding() {
                                 </div>
                             ))}
                         </div>
+
+                        <div className="rpt-tab-bar">
+                            <button className={`rpt-tab${tab === 'records' ? ' active' : ''}`}
+                                    onClick={() => setTab('records')}>
+                                <span className="material-symbols-rounded">hotel</span> Boarding Records
+                            </button>
+                            <button className={`rpt-tab${tab === 'planner' ? ' active' : ''}`}
+                                    onClick={() => setTab('planner')}>
+                                <span className="material-symbols-rounded">auto_awesome</span> Dorm Planner
+                            </button>
+                        </div>
+
+                        {tab === 'planner' && (
+                            <DormPlannerTab
+                                onCommitted={() => loadBoarding().catch(console.error)}
+                            />
+                        )}
+
+                        {tab === 'records' && <>
 
                         {occupancy && occupancy.dormitories.length > 0 && (
                             <div className="card mb-1-5">
@@ -518,6 +543,8 @@ export function DisBoarding() {
                                 onClearFilters={filter !== 'all' ? () => setFilter('all') : undefined}
                             />
                         )}
+
+                        </>}
 
                     </DashboardContent>
                 </main>
