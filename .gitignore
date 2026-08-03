@@ -64,3 +64,7 @@ playwright-report/
 test-results/
 blob-report/
 playwright/.cache/
+DEPLOY_ORACLE.md
+ORACLE_FREE_SETUP.md
+ORACLE_SETUP.md
+Docs/REMOVE_COMMITTED_ENV.md
