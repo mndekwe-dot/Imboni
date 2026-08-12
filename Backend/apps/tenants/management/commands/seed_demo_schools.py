@@ -522,7 +522,9 @@ class Command(BaseCommand):
     def _parents(self, ctx):
         """One parent per third student, sharing the child's family name."""
         from apps.parents.models import ParentStudentRelationship
-        profile, rng = ctx['profile'], ctx['rng_for']('parents')
+        # Parents get ordinary consumer email addresses, not a school domain,
+        # so this section needs no profile.
+        rng = ctx['rng_for']('parents')
         students = ctx['all_students'][::3]
 
         rows, links = [], []
