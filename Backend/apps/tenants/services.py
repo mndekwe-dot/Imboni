@@ -6,9 +6,16 @@ Both the `provision_school` management command and the self-serve signup API
 place that creates a schema, its domain and the seeded admin user.
 
 NOTE: `Client.save()` runs the tenant's migrations synchronously (auto_create_
-schema), which can take tens of seconds. That is fine for the CLI and acceptable
-for a prototype signup, but at scale provisioning should move to a Celery task
-so the HTTP request returns immediately (see MULTI_TENANCY_GUIDE.md).
+schema), which can take tens of seconds. Callers must account for that:
+
+  * `provision_school` (management command) blocks, which is what you want at a
+    terminal.
+  * Self-serve signup does NOT call this from the request. `SchoolSignupView`
+    returns 202 immediately and hands the work to `provision_school_task`, and
+    the frontend polls `ProvisionStatusView` until the row goes ready/failed.
+
+Anything new that provisions in response to a web request should follow the
+signup pattern rather than calling this inline.
 """
 import re
 

@@ -18,17 +18,20 @@ RUN npm install --no-audit --no-fund
 
 # API base URL baked into the bundle at build time.
 #
-# The app reads `import.meta.env.VITE_API_BASE` (src/api/client.js & auth.js)
-# and falls back to http://localhost:8000 when it is FALSY. In this container
-# nginx serves the SPA and reverse-proxies the API on the SAME origin, so the
-# browser should call the API with relative paths (e.g. /imboni/...).
+# The app reads `import.meta.env.VITE_API_BASE` (src/api/client.js and
+# src/hooks/useNotifications.js) and distinguishes three cases:
 #
-# NOTE: because the app uses `VITE_API_BASE || 'http://localhost:8000'`, an
-# empty string still falls back to localhost. To get true same-origin behaviour
-# for a specific deployment, pass the public origin at build time, e.g.:
-#     docker build --build-arg VITE_API_BASE=https://school1.localhost .
-# Leave it empty for the multi-tenant setup only once the source treats an empty
-# value as "relative/same-origin" (see report notes).
+#   undefined  -> http://localhost:8000  (plain `npm run dev`, no proxy)
+#   ""         -> same origin            <- what this container wants
+#   a URL      -> that host
+#
+# The empty default below is therefore correct here: nginx serves the SPA and
+# reverse-proxies the API on the SAME origin, so the browser calls /imboni/...
+# relative to whichever school subdomain it is on — which is also what lets the
+# Host header select the right tenant schema. Baking in a fixed origin would
+# send every school to one host, so only override this for a single-tenant
+# deployment, e.g.:
+#     docker build --build-arg VITE_API_BASE=https://school1.example.com .
 ARG VITE_API_BASE=""
 ENV VITE_API_BASE=$VITE_API_BASE
 
