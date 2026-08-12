@@ -39,9 +39,20 @@ const CLASSES = [{ id: 'c1', grade: 3, section: 'A' }]
 const ROOMS = [{ id: 'r1', name: 'Room 12' }]
 const TEACHERS = [{ teacher_id: 't1', full_name: 'Mr. Rurangwa' }]
 
+// The calendar opens on the CURRENT month (DosScheduling useState(todayDate
+// .getMonth())) and renders only exams falling inside it, so an exam pinned to
+// a fixed date silently stops rendering once that month passes -- these tests
+// were green through June and July and began failing on 1 August. Derive the
+// date from today so the pill is always in the month on screen. The 15th keeps
+// it clear of month boundaries in every timezone.
+const EXAM_MONTH_DATE = (() => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-15`
+})()
+
 const EXAM = {
   id: 9, title: 'Term 2 Finals', subject: 'Mathematics', subject_id: 'sub1',
-  exam_date: '2026-06-29', start_time: '08:00:00', end_time: '10:00:00',
+  exam_date: EXAM_MONTH_DATE, start_time: '08:00:00', end_time: '10:00:00',
   class_name: 'S3A', venue: 'Room 12', invigilator: 'Mr. Rurangwa',
   exam_type: 'final', term: 'Term 2', notes: '',
 }
