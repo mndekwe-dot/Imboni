@@ -261,6 +261,9 @@ python manage.py cleanup_invitations --dry-run
 python manage.py enforce_contracts
 # After changing backend code: rebuild ALL images that share it
 docker compose build backend worker beat
+# Migrations run automatically on container start; to apply them without a
+# restart (public schema + every school):
+docker compose exec backend python manage.py migrate_schemas
 ```
 
 Deployment runbook (server, TLS, backups, go-live checklist):
@@ -271,7 +274,11 @@ Deployment runbook (server, TLS, backups, go-live checklist):
 - **Postgres only** — django-tenants cannot run on SQLite/MySQL (CI and
   compose both use postgres:16).
 - Plain `manage.py migrate` is disabled; use `migrate_schemas` (the Docker
-  entrypoint and CI already do).
+  entrypoint and CI already do). Note the flags: `--shared` touches only the
+  public schema, so a migration in a `TENANT_APPS` app needs `--tenant` (or no
+  flag, for both) to reach schools that already exist. The Docker entrypoint
+  runs both on every boot; CI only needs `--shared` because pytest builds its
+  own tenant schemas.
 - Tenant-specific cache keys must embed `connection.schema_name` — a bare key
   is shared across schools.
 - JWTs in `localStorage` (XSS-readable); httpOnly-cookie migration is on the

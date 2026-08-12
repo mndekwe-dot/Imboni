@@ -17,7 +17,7 @@ click-repl==0.3.0
 click==8.4.2
 colorama==0.4.6
 coverage==7.14.3
-cryptography==48.0.1
+cryptography==50.0.0
 cssselect2==0.9.0
 # daphne: not used to serve traffic (uvicorn does that) — it is imported by
 # channels.testing, which the WebSocket test suite depends on.
@@ -56,7 +56,7 @@ pyhanko-certvalidator==0.30.1
 pyHanko==0.34.1
 PyJWT==2.13.0
 pyotp==2.10.0
-pypdf==6.13.3
+pypdf==6.15.0
 pyphen==0.17.2
 pytest-asyncio==1.4.0
 pytest-cov==7.1.0

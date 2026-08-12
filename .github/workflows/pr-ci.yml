@@ -1,0 +1,34 @@
+name: PR CI — secret scan
+
+# Scoped deliberately to secret scanning only.
+#
+# ci.yml already runs on `pull_request` and covers the rest: pip-audit, ruff,
+# pytest with a coverage floor, npm audit, eslint, vitest, the production build
+# and Playwright. Duplicating those here made every PR run the ~12-minute
+# backend suite twice for identical results, so the test jobs were removed.
+# Secret scanning is the one gate ci.yml does not provide.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # gitleaks scans the PR's commit range, so it needs the history
+          # rather than the default depth-1 checkout.
+          fetch-depth: 0
+
+      - name: Run gitleaks scan
+        uses: zricethezav/gitleaks-action@v2
+        # v2 takes no `args` input — it builds its own `gitleaks detect`
+        # invocation and is configured through the environment. It also exits
+        # immediately without GITHUB_TOKEN, which is what made this job fail in
+        # ~10s: not a leak found, a missing token.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

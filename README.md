@@ -261,8 +261,11 @@ pip install -r Backend/requirements.txt
 #    Point DATABASE_* at your local PostgreSQL; set THE_SECRET_KEY, etc.
 
 # 4. Apply migrations across schemas, then provision a school
+#    No flag = public schema + every existing school schema. Re-run this after
+#    pulling any change that adds a migration; a tenant schema is otherwise
+#    only migrated once, when it is created.
 cd Backend
-python manage.py migrate_schemas --shared
+python manage.py migrate_schemas
 python manage.py provision_school --help
 
 # 5. Start the API (plus `celery -A Imboni worker` and `beat` for background jobs)
