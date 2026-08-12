@@ -22,7 +22,8 @@ done
 echo "Postgres is up."
 
 # ---------------------------------------------------------------------------
-# Apply migrations to the shared (public) schema.
+# Apply migrations to the shared (public) schema. Tenant schemas come further
+# down: they can only be enumerated once this registry exists.
 # ---------------------------------------------------------------------------
 echo "Running shared migrations..."
 python manage.py migrate_schemas --shared
@@ -57,6 +58,24 @@ else:
 "
 
 # ---------------------------------------------------------------------------
-# Hand off to the container command (gunicorn / celery worker / celery beat).
+# Apply migrations to EVERY school schema.
+#
+# A tenant schema is migrated once at provisioning time (Client.save() with
+# auto_create_schema), and never again on its own. So any migration shipped in
+# a TENANT_APPS app would leave every existing school running against stale
+# tables until someone remembered to do this by hand. Running it on every boot
+# makes a deploy self-healing.
+#
+# Idempotent: with nothing to apply this is a per-schema no-op, so the worker
+# and beat containers (which run this same entrypoint after the backend is
+# healthy) just re-confirm the work the backend already did. The cost grows
+# with the number of schools, since each one is inspected — if that ever gets
+# slow, split it into a one-shot migration container rather than skipping it.
+# ---------------------------------------------------------------------------
+echo "Running tenant migrations..."
+python manage.py migrate_schemas --tenant
+
+# ---------------------------------------------------------------------------
+# Hand off to the container command (uvicorn / celery worker / celery beat).
 # ---------------------------------------------------------------------------
 exec "$@"
