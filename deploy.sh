@@ -103,16 +103,27 @@ done
 # ---------------------------------------------------------------------------
 # 6. Provision first tenant (idempotent — hello-tenant)
 # ---------------------------------------------------------------------------
-echo "[deploy] Provisioning first tenant (${DOMAIN})..."
-docker compose \
+# The subdomain must NOT be derived from the domain. `imboni.rw` would yield
+# `imboni`, which is in RESERVED_SUBDOMAINS (apps/tenants/services.py) and is
+# rejected outright — and because the old call ended in `|| echo`, that failure
+# was swallowed and the script still printed success with no school created.
+SCHOOL_NAME="${SCHOOL_NAME:-Demo School}"
+SCHOOL_SUBDOMAIN="${SCHOOL_SUBDOMAIN:-demo}"
+
+echo "[deploy] Provisioning first school (${SCHOOL_SUBDOMAIN}.${DOMAIN})..."
+if docker compose \
     --env-file .env.prod \
     -f docker-compose.yml \
     -f docker-compose.prod.yml \
     exec -T backend python manage.py provision_school \
-        --name "Imboni School" \
-        --subdomain "$(echo "${DOMAIN}" | sed 's/\..*//')" \
-        --admin-email "${EMAIL}" \
-    || echo "[deploy] Provisioning skipped (may already exist)."
+        --name "${SCHOOL_NAME}" \
+        --subdomain "${SCHOOL_SUBDOMAIN}" \
+        --admin-email "${EMAIL}"; then
+    echo "[deploy] School provisioned."
+else
+    echo "[deploy] WARNING: provisioning failed (the school may already exist)."
+    echo "[deploy] Check the output above before assuming the deployment is complete."
+fi
 
 echo ""
 echo "========================================"
@@ -122,9 +133,13 @@ echo "  Domain : https://${DOMAIN}"
 echo "  Admin  : ${EMAIL}"
 echo ""
 echo "  Next steps:"
-echo "    1. Point your domain A record to this server's IP"
-echo "    2. Open ports 80/443 in Oracle Cloud VCN security list"
-echo "    3. (Optional) Add TLS certs to Frontend/nginx.conf if not using a proxy"
+echo "    1. Point A records for ${DOMAIN} and *.${DOMAIN} at this server's IP"
+echo "    2. Open ports 80/443 in the Oracle VCN security list AND in the"
+echo "       instance firewall (Oracle images block them by default):"
+echo "         sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT"
+echo "         sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT"
+echo "         sudo netfilter-persistent save"
+echo "    3. Obtain the TLS certificate:  bash scripts/init-letsencrypt.sh"
 echo ""
 echo "  Useful commands:"
 echo "    docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml logs -f"
