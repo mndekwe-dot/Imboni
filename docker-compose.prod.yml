@@ -64,7 +64,55 @@ services:
     restart: always
 
   web:
-    # In production the edge proxy forwards to web:80. If instead you want THIS
-    # container to be the TLS edge, mount your certs and add a 443 server block
-    # to Frontend/nginx.conf; otherwise leave it on 80 behind your load balancer.
+    # This container IS the TLS edge. nginx.prod.conf.template replaces the
+    # development config: it serves the ACME challenge on :80, redirects
+    # everything else to https, and terminates TLS on :443.
+    #
+    # The nginx:alpine entrypoint runs envsubst over /etc/nginx/templates/.
+    # NGINX_ENVSUBST_FILTER limits substitution to ${IMBONI_*} so nginx's own
+    # runtime variables ($host, $uri, $remote_addr) survive untouched.
+    #
+    # Run scripts/init-letsencrypt.sh ONCE before the first `up` — nginx refuses
+    # to start when ssl_certificate points at a file that does not exist, so a
+    # placeholder certificate has to be in place first.
+    environment:
+      IMBONI_DOMAIN: ${DOMAIN:?set DOMAIN in .env.prod, e.g. imboni.rw}
+      NGINX_ENVSUBST_FILTER: "IMBONI_"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Frontend/nginx.prod.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot:ro
+    # nginx reads certificates only at startup or reload, so a renewed cert is
+    # not served until it reloads. Reload every 6h from inside this container --
+    # cheap, drops no connections, and avoids handing a sidecar the Docker
+    # socket just to send a signal. The image's own entrypoint still runs first,
+    # so envsubst templating happens before this command.
+    command: >
+      sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done &
+      nginx -g "daemon off;"'
     restart: always
+
+  # Renews certificates in the background. Certbot exits after each attempt, so
+  # it is wrapped in a loop rather than run as a one-shot: every 12 hours it
+  # tries a renewal (a no-op until the cert is inside its 30-day window).
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: >
+      sh -c 'trap exit TERM;
+      while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!};
+      done'
+    depends_on:
+      - web
+    restart: always
+
+volumes:
+  certbot_certs:
+  certbot_webroot:

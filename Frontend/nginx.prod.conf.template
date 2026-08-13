@@ -1,0 +1,151 @@
+# Imboni frontend — PRODUCTION nginx with TLS termination.
+#
+# This file replaces nginx.conf in production (mounted over it by
+# docker-compose.prod.yml). It is a TEMPLATE: the nginx:alpine entrypoint runs
+# envsubst over /etc/nginx/templates/*.template at container start.
+#
+# NGINX_ENVSUBST_FILTER=IMBONI_ is set in the compose file so ONLY ${IMBONI_*}
+# variables are substituted. Without that filter envsubst would also eat nginx's
+# own runtime variables ($host, $uri, $remote_addr) and the config would break.
+#
+# Two server blocks:
+#   :80   serves the ACME http-01 challenge, redirects everything else to https
+#   :443  terminates TLS, then behaves exactly like the development nginx.conf
+#
+# The Host header is forwarded unchanged throughout, because django-tenants
+# resolves the school's schema from it. Never rewrite it to the upstream name.
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+# The notification WebSocket carries its JWT in the query string (a browser
+# cannot set an Authorization header on a WS handshake). The default "combined"
+# format logs $request including that query string, which would put live tokens
+# on disk for their full lifetime. Log $uri instead.
+log_format imboni_noqs '$remote_addr - $remote_user [$time_local] '
+                       '"$request_method $uri $server_protocol" '
+                       '$status $body_bytes_sent "$http_referer" "$http_user_agent"';
+
+upstream imboni_backend {
+    server backend:8000;
+}
+
+# ---------------------------------------------------------------------------
+# Port 80 — ACME challenge and the redirect to TLS
+# ---------------------------------------------------------------------------
+server {
+    listen 80;
+    server_name _;
+
+    access_log /var/log/nginx/access.log imboni_noqs;
+
+    # Certbot writes its challenge files here (shared volume with the certbot
+    # container). This location MUST stay reachable over plain http, and must
+    # come before the redirect below, or renewal fails.
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Port 443 — the application
+# ---------------------------------------------------------------------------
+server {
+    listen 443 ssl;
+    http2 on;
+
+    # `_` matches any Host, which is what multi-tenancy needs: every school
+    # subdomain hits this same block and the backend decides which is which.
+    # The certificate still has to cover the hostname the browser asked for.
+    server_name _;
+
+    ssl_certificate     /etc/letsencrypt/live/${IMBONI_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${IMBONI_DOMAIN}/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    access_log /var/log/nginx/access.log imboni_noqs;
+
+    # CSV imports and media uploads.
+    client_max_body_size 25m;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 5;
+    gzip_types
+        text/plain
+        text/css
+        text/javascript
+        application/javascript
+        application/json
+        application/manifest+json
+        image/svg+xml
+        font/woff2;
+
+    # ---- SPA: client-side routing fallback ---------------------------------
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # ---- Backend / API reverse proxy ---------------------------------------
+    # X-Forwarded-Proto: https is what makes Django's SECURE_PROXY_SSL_HEADER
+    # see the request as secure. Without it, SECURE_SSL_REDIRECT=True in
+    # production redirects to https forever in a loop.
+    location /imboni/ {
+        proxy_pass http://imboni_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        # WebSockets are long-lived and mostly idle; the client pings every 25s.
+        proxy_read_timeout 300s;
+    }
+
+    # Django admin lives at /django-admin/ — /admin/* belongs to the React
+    # admin portal (SPA), so it must NOT be proxied to the backend.
+    location /django-admin/ {
+        proxy_pass http://imboni_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /static/ {
+        proxy_pass http://imboni_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /media/ {
+        proxy_pass http://imboni_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
