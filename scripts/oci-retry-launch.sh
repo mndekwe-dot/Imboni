@@ -134,7 +134,11 @@ while :; do
             exit 0
         fi
 
-        if echo "$output" | grep -qi "out of capacity\|OutOfCapacity\|LimitExceeded"; then
+        # Oracle phrases this as "Out of host capacity." with code InternalError
+        # and HTTP 500 -- not "out of capacity", and not a code that looks
+        # retryable. Match on the word "capacity" anywhere in the response,
+        # which is the only reliable signal across its several phrasings.
+        if echo "$output" | grep -qiE "capacity|LimitExceeded|TooManyRequests"; then
             echo "out of capacity"
         else
             # A real error (bad OCID, quota, malformed key) will repeat forever,
