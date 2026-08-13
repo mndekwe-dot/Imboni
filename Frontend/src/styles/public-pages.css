@@ -1,0 +1,424 @@
+/* Public marketing pages: pricing, about, contact, privacy, terms.
+   Shared by components/PublicLayout.jsx.
+
+   The landing page keeps landing.css to itself; this is deliberately plainer,
+   because these pages are read rather than scanned. */
+
+.pub-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg, #fff);
+    color: var(--text, #1a1a1a);
+}
+
+/* ── Nav ───────────────────────────────────────────────────────────────── */
+
+.pub-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    position: sticky;
+    top: 0;
+    background: var(--bg, #fff);
+    z-index: 10;
+}
+
+.pub-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.pub-nav-logo img {
+    height: 34px;
+    width: auto;
+    display: block;
+}
+
+.pub-nav-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    white-space: nowrap;
+}
+
+.pub-nav-name span {
+    color: var(--primary, #003d7a);
+}
+
+.pub-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.pub-nav-links {
+    display: flex;
+    gap: 1.4rem;
+}
+
+.pub-nav-links a {
+    text-decoration: none;
+    color: var(--text-muted, #4b5563);
+    font-size: .95rem;
+    white-space: nowrap;
+}
+
+.pub-nav-links a:hover {
+    color: var(--primary, #003d7a);
+}
+
+.pub-nav-signin {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem 1.1rem;
+    border-radius: 8px;
+    background: var(--primary, #003d7a);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .95rem;
+    white-space: nowrap;
+}
+
+/* ── Page header ───────────────────────────────────────────────────────── */
+
+.pub-header {
+    padding: 3.5rem 2rem 2rem;
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.pub-header-title {
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    margin: 0 0 .75rem;
+    line-height: 1.15;
+}
+
+.pub-header-sub {
+    margin: 0;
+    color: var(--text-muted, #4b5563);
+    font-size: 1.08rem;
+    line-height: 1.6;
+}
+
+/* ── Main ──────────────────────────────────────────────────────────────── */
+
+.pub-main {
+    flex: 1;
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 1rem 2rem 4rem;
+}
+
+.pub-prose {
+    max-width: 760px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.pub-prose h2 {
+    font-size: 1.25rem;
+    margin: 2.25rem 0 .6rem;
+}
+
+.pub-prose h3 {
+    font-size: 1.05rem;
+    margin: 1.5rem 0 .4rem;
+}
+
+.pub-prose p,
+.pub-prose li {
+    color: var(--text-muted, #374151);
+}
+
+.pub-prose ul {
+    padding-left: 1.25rem;
+}
+
+.pub-prose li {
+    margin-bottom: .4rem;
+}
+
+.pub-updated {
+    font-size: .9rem;
+    color: var(--text-muted, #6b7280);
+    border-left: 3px solid var(--primary, #003d7a);
+    padding-left: .75rem;
+}
+
+/* ── Pricing ───────────────────────────────────────────────────────────── */
+
+.pub-plans {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin: 1rem 0 2.5rem;
+}
+
+.pub-plan {
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 12px;
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.pub-plan--featured {
+    border-color: var(--primary, #003d7a);
+    border-width: 2px;
+}
+
+.pub-plan-badge {
+    align-self: flex-start;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--primary, #003d7a);
+    background: rgba(0, 61, 122, .08);
+    padding: .25rem .6rem;
+    border-radius: 999px;
+    margin-bottom: .75rem;
+}
+
+.pub-plan-name {
+    font-size: 1.3rem;
+    margin: 0 0 .3rem;
+}
+
+.pub-plan-for {
+    color: var(--text-muted, #6b7280);
+    font-size: .92rem;
+    margin: 0 0 1.1rem;
+    min-height: 2.6em;
+}
+
+.pub-plan-limits {
+    display: flex;
+    gap: 1.5rem;
+    padding: .9rem 0;
+    border-top: 1px solid var(--border, #e5e7eb);
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    margin-bottom: 1.1rem;
+}
+
+.pub-plan-limit-value {
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.pub-plan-limit-label {
+    font-size: .8rem;
+    color: var(--text-muted, #6b7280);
+}
+
+.pub-plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.4rem;
+    flex: 1;
+}
+
+.pub-plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    margin-bottom: .5rem;
+    font-size: .93rem;
+    color: var(--text-muted, #374151);
+}
+
+.pub-plan-features .material-symbols-rounded {
+    font-size: 1.1rem;
+    color: var(--primary, #003d7a);
+    flex-shrink: 0;
+}
+
+.pub-plan-cta {
+    display: block;
+    text-align: center;
+    padding: .7rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid var(--primary, #003d7a);
+    color: var(--primary, #003d7a);
+}
+
+.pub-plan-cta--solid {
+    background: var(--primary, #003d7a);
+    color: #fff;
+}
+
+/* ── Contact ───────────────────────────────────────────────────────────── */
+
+.pub-contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.pub-contact-card {
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 12px;
+    padding: 1.4rem;
+}
+
+.pub-contact-card .material-symbols-rounded {
+    color: var(--primary, #003d7a);
+    margin-bottom: .5rem;
+    display: block;
+}
+
+.pub-contact-card h3 {
+    margin: 0 0 .35rem;
+    font-size: 1.05rem;
+}
+
+.pub-contact-card p,
+.pub-contact-card a {
+    margin: 0;
+    color: var(--text-muted, #4b5563);
+    font-size: .95rem;
+    text-decoration: none;
+    line-height: 1.6;
+}
+
+.pub-contact-card a:hover {
+    color: var(--primary, #003d7a);
+    text-decoration: underline;
+}
+
+/* ── Values / about ────────────────────────────────────────────────────── */
+
+.pub-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0 2rem;
+}
+
+.pub-value {
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 12px;
+    padding: 1.4rem;
+}
+
+.pub-value .material-symbols-rounded {
+    color: var(--primary, #003d7a);
+    margin-bottom: .5rem;
+    display: block;
+}
+
+.pub-value h3 {
+    margin: 0 0 .4rem;
+    font-size: 1.02rem;
+}
+
+.pub-value p {
+    margin: 0;
+    color: var(--text-muted, #4b5563);
+    font-size: .93rem;
+    line-height: 1.6;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────────── */
+
+.pub-footer {
+    border-top: 1px solid var(--border, #e5e7eb);
+    background: var(--bg-alt, #f9fafb);
+    padding: 2.5rem 2rem 1.25rem;
+}
+
+.pub-footer-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+}
+
+.pub-footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.pub-footer-heading {
+    font-weight: 700;
+    font-size: .95rem;
+    margin-bottom: .3rem;
+}
+
+.pub-footer-desc {
+    margin: 0;
+    color: var(--text-muted, #6b7280);
+    font-size: .9rem;
+    line-height: 1.6;
+    max-width: 34ch;
+}
+
+.pub-footer-col a {
+    color: var(--text-muted, #4b5563);
+    text-decoration: none;
+    font-size: .9rem;
+}
+
+.pub-footer-col a:hover {
+    color: var(--primary, #003d7a);
+}
+
+.pub-footer-base {
+    max-width: 1080px;
+    margin: 2rem auto 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border, #e5e7eb);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: .85rem;
+    color: var(--text-muted, #6b7280);
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+    .pub-footer-inner {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .pub-nav {
+        flex-wrap: wrap;
+        padding: .85rem 1rem;
+    }
+
+    .pub-nav-links {
+        display: none;
+    }
+
+    .pub-header {
+        padding: 2.25rem 1rem 1.25rem;
+    }
+
+    .pub-main {
+        padding: 1rem 1rem 3rem;
+    }
+
+    .pub-footer-inner {
+        grid-template-columns: 1fr;
+    }
+}

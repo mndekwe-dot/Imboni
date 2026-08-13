@@ -118,10 +118,11 @@ export function LandingPage() {
                 </div>
                 <div className="landing-nav-right">
                     <div className="landing-nav-links">
-                        <a href="#about">About</a>
                         <a href="#portals">Portals</a>
                         <a href="#features">Features</a>
-                        <a href="#contact">Contact</a>
+                        <Link to="/pricing">Pricing</Link>
+                        <Link to="/about">About</Link>
+                        <Link to="/contact">Contact</Link>
                         <Link to="/signup">Sign up your school</Link>
                     </div>
                     <Link to="/login" className="landing-nav-signin">
@@ -489,10 +490,11 @@ export function LandingPage() {
                     <div className="footer-col">
                         <div className="footer-col-title">School</div>
                         <ul className="footer-col-list">
-                            <li><a href="#about">About Imboni</a></li>
-                            <li><a href="#contact">Contact Us</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                            <li><a href="#">Terms of Use</a></li>
+                            <li><Link to="/about">About Imboni</Link></li>
+                            <li><Link to="/pricing">Pricing</Link></li>
+                            <li><Link to="/contact">Contact Us</Link></li>
+                            <li><Link to="/privacy">Privacy Policy</Link></li>
+                            <li><Link to="/terms">Terms of Use</Link></li>
                             <li><Link to="/login">Sign In</Link></li>
                         </ul>
                     </div>
@@ -500,10 +502,12 @@ export function LandingPage() {
 
                 <div className="footer-bottom">
                     <span>&copy; {new Date().getFullYear()} Imboni Education Connects. All rights reserved.</span>
+                    {/* Cookies dropped: there is no cookie policy to link to, and a
+                        dead link in the footer of a product handling children's data
+                        reads worse than an absent one. */}
                     <div className="footer-bottom-links">
-                        <a href="#">Privacy</a>
-                        <a href="#">Terms</a>
-                        <a href="#">Cookies</a>
+                        <Link to="/privacy">Privacy</Link>
+                        <Link to="/terms">Terms</Link>
                     </div>
                 </div>
             </footer>
