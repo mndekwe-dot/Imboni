@@ -23,6 +23,14 @@ import { HealthSection } from './pages/Platform/sections/HealthSection';
 import { ResetPassword } from './pages/ResetPassword';
 import { Signup } from './pages/Signup';
 import { TeacherRegistration } from './pages/TeacherRegistration';
+// Public marketing pages. Eager like the other entry-path pages: a visitor
+// arriving on /pricing from a search result should not wait on a second
+// round-trip before seeing anything.
+import { Pricing } from './pages/Pricing';
+import { About } from './pages/About';
+import { Contact } from './pages/Contact';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
 
 // Lazy helper for named exports (React.lazy expects a default export).
 // The import string stays static so the bundler can split each page out.
@@ -137,6 +145,13 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/apply" element={<Apply />} />
+
+      {/* Public marketing and legal pages */}
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
       <Route path="/login" element={<LogIn />} />
       <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 

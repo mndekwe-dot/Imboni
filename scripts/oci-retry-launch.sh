@@ -134,21 +134,33 @@ while :; do
             exit 0
         fi
 
-        # Oracle phrases this as "Out of host capacity." with code InternalError
-        # and HTTP 500 -- not "out of capacity", and not a code that looks
-        # retryable. Match on the word "capacity" anywhere in the response,
-        # which is the only reliable signal across its several phrasings.
-        if echo "$output" | grep -qiE "capacity|LimitExceeded|TooManyRequests"; then
-            echo "out of capacity"
-        else
-            # A real error (bad OCID, quota, malformed key) will repeat forever,
-            # so surface it and stop rather than looping on it silently.
-            echo "FAILED"
+        # Classify the failure. The default is to KEEP GOING: this loop is meant
+        # to run unattended for hours, and anything that stops it early costs a
+        # capacity slot it might otherwise have caught.
+        #
+        # Only genuinely unrecoverable problems are fatal -- ones where every
+        # future attempt is guaranteed to fail the same way (bad credentials,
+        # wrong OCID, malformed request). Everything else, including network
+        # timeouts and Oracle's 5xx responses, is retried.
+        if echo "$output" | grep -qiE "NotAuthenticated|NotAuthorized|InvalidParameter|CannotParseRequest|MissingParameter|not authorized|does not exist"; then
+            echo "FATAL"
             echo ""
             echo "$output" | head -20
             echo ""
-            echo "[oci] This does not look like a capacity error. Stopping." >&2
+            echo "[oci] This will not succeed on retry. Stopping." >&2
             exit 1
+        fi
+
+        if echo "$output" | grep -qiE "capacity"; then
+            echo "out of capacity"
+        elif echo "$output" | grep -qiE "timed out|timeout|ConnectionError|RequestException|ServiceUnavailable|TooManyRequests|502|503|504"; then
+            # A blip between here and Oracle, not a verdict on capacity.
+            echo "transient (${config}) - will retry"
+        else
+            # Unrecognised. Show it so it is not silently swallowed, but carry on
+            # rather than abandoning the hunt over one odd response.
+            echo "unexpected - will retry"
+            echo "$output" | grep -iE '"message"|"code"' | head -3
         fi
     done
 
