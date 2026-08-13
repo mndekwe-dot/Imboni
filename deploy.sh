@@ -110,6 +110,13 @@ done
 SCHOOL_NAME="${SCHOOL_NAME:-Demo School}"
 SCHOOL_SUBDOMAIN="${SCHOOL_SUBDOMAIN:-demo}"
 
+# provision_school defaults --domain-base to "localhost" and --admin-password to
+# "changeme123". Both defaults are fine at a developer's terminal and dangerous
+# here: the first would register the school as demo.localhost (unreachable), and
+# the second would put a publicly known password on an internet-facing account
+# holding children's records. Pass both explicitly.
+SCHOOL_ADMIN_PASSWORD="${SCHOOL_ADMIN_PASSWORD:-$(openssl rand -base64 18)}"
+
 echo "[deploy] Provisioning first school (${SCHOOL_SUBDOMAIN}.${DOMAIN})..."
 if docker compose \
     --env-file .env.prod \
@@ -118,7 +125,9 @@ if docker compose \
     exec -T backend python manage.py provision_school \
         --name "${SCHOOL_NAME}" \
         --subdomain "${SCHOOL_SUBDOMAIN}" \
-        --admin-email "${EMAIL}"; then
+        --admin-email "${EMAIL}" \
+        --domain-base "${DOMAIN}" \
+        --admin-password "${SCHOOL_ADMIN_PASSWORD}"; then
     echo "[deploy] School provisioned."
 else
     echo "[deploy] WARNING: provisioning failed (the school may already exist)."
@@ -129,8 +138,10 @@ echo ""
 echo "========================================"
 echo " Imboni deployment complete!"
 echo "========================================"
-echo "  Domain : https://${DOMAIN}"
+echo "  School : https://${SCHOOL_SUBDOMAIN}.${DOMAIN}"
 echo "  Admin  : ${EMAIL}"
+echo "  Password: ${SCHOOL_ADMIN_PASSWORD}"
+echo "  (shown once - change it after first login)"
 echo ""
 echo "  Next steps:"
 echo "    1. Point A records for ${DOMAIN} and *.${DOMAIN} at this server's IP"
