@@ -75,6 +75,29 @@ def _send_welcome_email(admin_email, school_name, url):
 
 
 @shared_task
+def find_my_school_task(email, scheme='https'):
+    """
+    Look up which schools an email belongs to and post the links.
+
+    Runs in the worker rather than the request specifically so the HTTP
+    response cannot leak the answer through its timing -- see the enumeration
+    note in discovery.py. Nothing is returned to the caller either way.
+    """
+    from .discovery import find_schools_for_email, send_school_reminder
+
+    schools = find_schools_for_email(email)
+    if not schools:
+        # Deliberately no email and no error: a "we couldn't find you" message
+        # would confirm the address is not enrolled.
+        logger.info('find_my_school: no match')
+        return {'matched': 0}
+
+    send_school_reminder(email, schools, scheme=scheme)
+    logger.info('find_my_school: reminded %d school(s)', len(schools))
+    return {'matched': len(schools)}
+
+
+@shared_task
 def enforce_contract_lifecycle_task():
     """Daily (Celery beat): expire past-grace contracts and suspend uncovered schools."""
     from .lifecycle import enforce_contract_lifecycle

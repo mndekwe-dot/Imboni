@@ -60,6 +60,7 @@ export function PublicLayout({ title, subtitle, children }) {
                         <Link to="/signup">Sign up your school</Link>
                         <Link to="/apply">Apply to join</Link>
                         <Link to="/login">Sign in</Link>
+                        <Link to="/find-school">Find your school</Link>
                     </div>
 
                     <div className="pub-footer-col">

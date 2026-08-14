@@ -4,8 +4,13 @@ from django.contrib import admin
 from django.urls import path, include
 
 from apps.tenants import support
+from apps.tenants.identity import SchoolIdentityView
 
 urlpatterns = [
+    # Unauthenticated: the login page renders the school's name before anyone
+    # signs in. Exposes only the name and subscription status — see identity.py.
+    path('imboni/school/identity/', SchoolIdentityView.as_view(), name='school-identity'),
+
     # /django-admin/ (not /admin/) so the React admin portal owns /admin/*.
     path('django-admin/', admin.site.urls),
     path('imboni/', include('apps.parents.urls')),

@@ -260,6 +260,120 @@
     color: #fff;
 }
 
+/* ── Find my school ────────────────────────────────────────────────────── */
+
+.pub-find-form {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    max-width: 420px;
+    margin: 0 0 2rem;
+}
+
+.pub-find-form label {
+    font-weight: 600;
+    font-size: .95rem;
+}
+
+.pub-find-form input {
+    padding: .7rem .9rem;
+    border: 1px solid var(--border, #d1d5db);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--bg, #fff);
+    color: var(--text, #1a1a1a);
+}
+
+.pub-find-form input:focus {
+    outline: 2px solid var(--primary, #003d7a);
+    outline-offset: 1px;
+    border-color: transparent;
+}
+
+.pub-find-form button {
+    border: 1px solid var(--primary, #003d7a);
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.pub-find-form button:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+.pub-find-note {
+    font-size: .88rem;
+    color: var(--text-muted, #6b7280);
+    line-height: 1.55;
+    margin: .3rem 0 0;
+}
+
+.pub-find-error {
+    margin: 0;
+    color: var(--danger, #b42318);
+    font-size: .92rem;
+}
+
+.pub-find-done {
+    border: 1px solid var(--border, #e5e7eb);
+    border-left: 3px solid var(--primary, #003d7a);
+    border-radius: 10px;
+    padding: 1.5rem;
+    max-width: 520px;
+    margin-bottom: 2rem;
+}
+
+.pub-find-done .material-symbols-rounded {
+    color: var(--primary, #003d7a);
+    font-size: 2rem;
+    display: block;
+    margin-bottom: .5rem;
+}
+
+.pub-find-done > p:first-of-type {
+    font-weight: 600;
+    margin-top: 0;
+}
+
+.pub-find-done .pub-plan-cta {
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+/* ── School branding on the tenant login page ──────────────────────────── */
+
+.school-brand {
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+
+.school-brand-name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.25;
+}
+
+.school-brand-sub {
+    margin: .2rem 0 0;
+    font-size: .85rem;
+    color: var(--text-muted, #6b7280);
+    letter-spacing: .02em;
+}
+
+.school-brand-warn {
+    margin: .6rem auto 0;
+    max-width: 380px;
+    padding: .5rem .75rem;
+    border-radius: 8px;
+    background: rgba(180, 35, 24, .08);
+    color: var(--danger, #b42318);
+    font-size: .85rem;
+    line-height: 1.5;
+}
+
 /* ── Contact ───────────────────────────────────────────────────────────── */
 
 .pub-contact-grid {

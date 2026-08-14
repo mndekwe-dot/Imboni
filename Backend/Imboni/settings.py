@@ -294,6 +294,9 @@ REST_FRAMEWORK = {
         'user':           None if TESTING else '1000/min',
         'login':          None if TESTING else '5/min',   # per IP — stops guessing
         'password_reset': None if TESTING else '3/min',
+        # per IP — this endpoint queues a lookup across every tenant schema and
+        # can send mail, so it is both expensive and abusable as a mailer.
+        'school_lookup': None if TESTING else '3/min',
         'two_factor':     None if TESTING else '10/min',  # per IP — stops OTP brute force
     },
 }

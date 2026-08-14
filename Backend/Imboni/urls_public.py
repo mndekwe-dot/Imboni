@@ -11,8 +11,19 @@ from django.urls import path, include
 
 from apps.tenants.onboarding import SchoolSignupView, ProvisionStatusView, SchoolApplyView
 from apps.tenants.billing import StripeWebhookView
+from apps.tenants.discovery import FindMySchoolView
+from apps.tenants.identity import SchoolIdentityView
 
 urlpatterns = [
+    # "Find my school" — recovery for a user who has lost their subdomain.
+    # Public schema only: the bare domain is where a lost user ends up, and the
+    # tenant registry it searches lives here.
+    path('imboni/find-school/', FindMySchoolView.as_view(), name='find-my-school'),
+
+    # Answers on the bare domain too, so the frontend can use one code path and
+    # render unbranded when there is no school behind the hostname.
+    path('imboni/school/identity/', SchoolIdentityView.as_view(), name='school-identity-public'),
+
     # Self-serve school signup (Phase 2) — unauthenticated, async.
     path('imboni/onboarding/signup/', SchoolSignupView.as_view(), name='school-signup'),
     path('imboni/onboarding/status/<uuid:pk>/', ProvisionStatusView.as_view(),
