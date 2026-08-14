@@ -85,13 +85,23 @@ services:
       - ./Frontend/nginx.prod.conf.template:/etc/nginx/templates/default.conf.template:ro
       - certbot_certs:/etc/letsencrypt:ro
       - certbot_webroot:/var/www/certbot:ro
-    # nginx reads certificates only at startup or reload, so a renewed cert is
-    # not served until it reloads. Reload every 6h from inside this container --
-    # cheap, drops no connections, and avoids handing a sidecar the Docker
-    # socket just to send a signal. The image's own entrypoint still runs first,
-    # so envsubst templating happens before this command.
+    # Two jobs in one command, and the order matters.
+    #
+    # 1. Render the template. The nginx image only runs its envsubst step when
+    #    the container command starts with the literal word `nginx`:
+    #        if [ "$$1" = "nginx" -o "$$1" = "nginx-debug" ]; then ...
+    #    Overriding command with `sh -c` makes $$1 be "sh", so that step is
+    #    SILENTLY SKIPPED and the baked-in development nginx.conf stays active
+    #    -- which has no ACME location block, so the certificate challenge gets
+    #    answered with the SPA's index.html and validation fails. Invoke the
+    #    script explicitly instead of relying on the entrypoint's guess.
+    #
+    # 2. Reload every 6h so a renewed certificate is actually served; nginx only
+    #    reads certificate files at startup or reload. Doing it in-container
+    #    avoids handing a sidecar the Docker socket just to send a signal.
     command: >
-      sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done &
+      sh -c '/docker-entrypoint.d/20-envsubst-on-templates.sh;
+      while :; do sleep 6h & wait $${!}; nginx -s reload; done &
       nginx -g "daemon off;"'
     restart: always
 
