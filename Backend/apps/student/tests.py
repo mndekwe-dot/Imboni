@@ -36,7 +36,7 @@ class TestStudentProfileView:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['student_code'] == 'STU00100'
-        assert response.data['grade'] == '3'
+        assert response.data['grade'] == 'S3'
         assert response.data['section'] == 'B'
 
 

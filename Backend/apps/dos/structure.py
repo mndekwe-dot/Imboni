@@ -178,7 +178,7 @@ def is_final_year(year):
     return bool(years) and year == years[-1]
 
 
-def class_label(grade, section=None, class_obj=None):
+def class_label(grade=None, section=None, class_obj=None):
     """
     How a class is written for a human.
 

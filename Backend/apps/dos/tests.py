@@ -59,7 +59,7 @@ class TestStudentListView:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 2
-        assert all(s['grade'] == '5' for s in response.data)
+        assert all(s['grade'] == 'S5' for s in response.data)
 
     def test_search_and_grade_combine(self, make_authenticated_client):
         client, _user = make_authenticated_client('dos')

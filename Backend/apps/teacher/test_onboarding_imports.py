@@ -21,18 +21,18 @@ class TestImportClasses:
     def test_creates_classes_from_csv(self, tmp_path):
         csv = write_csv(tmp_path, 'classes.csv',
             'grade,section,room_number,max_students\n'
-            '1,A,R101,35\n'
-            '1,B,R102,\n')
+            'S1,A,R101,35\n'
+            'S1,B,R102,\n')
         call_command('import_classes', csv)
 
         a = Class.objects.get(grade='S1', section='A')
         assert a.room_number == 'R101'
         assert a.max_students == 35
-        assert a.name == 'Grade 1A'                 # default name
+        assert a.name == 'S1A'                      # default name: no prefix
         assert Class.objects.get(grade='S1', section='B').max_students == 40  # default
 
     def test_reimport_updates_in_place_no_duplicates(self, tmp_path):
-        write = lambda room: write_csv(tmp_path, 'c.csv', f'grade,section,room_number\n1,A,{room}\n')
+        write = lambda room: write_csv(tmp_path, 'c.csv', f'grade,section,room_number\nS1,A,{room}\n')
         call_command('import_classes', write('R101'))
         call_command('import_classes', write('R999'))
 
@@ -42,23 +42,23 @@ class TestImportClasses:
     def test_resolves_class_teacher_by_email(self, tmp_path):
         teacher = UserFactory(role='teacher', email='ct@imboni.test')
         csv = write_csv(tmp_path, 'c.csv',
-            'grade,section,class_teacher_email\n2,A,ct@imboni.test\n')
+            'grade,section,class_teacher_email\nS2,A,ct@imboni.test\n')
         call_command('import_classes', csv)
         assert Class.objects.get(grade='S2', section='A').class_teacher_id == teacher.id
 
     def test_unknown_teacher_email_skips_row(self, tmp_path):
         csv = write_csv(tmp_path, 'c.csv',
-            'grade,section,class_teacher_email\n2,A,ghost@imboni.test\n')
+            'grade,section,class_teacher_email\nS2,A,ghost@imboni.test\n')
         call_command('import_classes', csv)
         assert not Class.objects.filter(grade='S2', section='A').exists()
 
     def test_dry_run_writes_nothing(self, tmp_path):
-        csv = write_csv(tmp_path, 'c.csv', 'grade,section\n1,A\n')
+        csv = write_csv(tmp_path, 'c.csv', 'grade,section\nS1,A\n')
         call_command('import_classes', csv, '--dry-run')
         assert Class.objects.count() == 0
 
     def test_writes_audit_entry(self, tmp_path):
-        csv = write_csv(tmp_path, 'c.csv', 'grade,section\n1,A\n')
+        csv = write_csv(tmp_path, 'c.csv', 'grade,section\nS1,A\n')
         call_command('import_classes', csv)
         assert AuditEntry.objects.filter(action='classes.imported').exists()
 
@@ -79,8 +79,8 @@ class TestImportTimetable:
         self._setup()
         csv = write_csv(tmp_path, 'tt.csv',
             'grade,section,day,start_time,end_time,subject,room_number\n'
-            '1,A,monday,08:00,08:40,MATH101,R101\n'
-            '1,A,monday,08:40,09:20,ENG101,R101\n')
+            'S1,A,monday,08:00,08:40,MATH101,R101\n'
+            'S1,A,monday,08:40,09:20,ENG101,R101\n')
         call_command('import_timetable', csv)
 
         assert Timetable.objects.count() == 2
@@ -92,21 +92,21 @@ class TestImportTimetable:
         Class.objects.create(grade='S1', section='A')
         SubjectFactory(code='MATH101')
         csv = write_csv(tmp_path, 'tt.csv',
-            'grade,section,day,start_time,end_time,subject\n1,A,monday,08:00,08:40,MATH101\n')
+            'grade,section,day,start_time,end_time,subject\nS1,A,monday,08:00,08:40,MATH101\n')
         with pytest.raises(CommandError, match='current AcademicTerm'):
             call_command('import_timetable', csv)
 
     def test_unknown_class_skips_row(self, tmp_path):
         self._setup()
         csv = write_csv(tmp_path, 'tt.csv',
-            'grade,section,day,start_time,end_time,subject\n6,C,monday,08:00,08:40,MATH101\n')
+            'grade,section,day,start_time,end_time,subject\nS6,C,monday,08:00,08:40,MATH101\n')
         call_command('import_timetable', csv)
         assert Timetable.objects.count() == 0
 
     def test_bad_time_skips_row(self, tmp_path):
         self._setup()
         csv = write_csv(tmp_path, 'tt.csv',
-            'grade,section,day,start_time,end_time,subject\n1,A,monday,08:40,08:00,MATH101\n')
+            'grade,section,day,start_time,end_time,subject\nS1,A,monday,08:40,08:00,MATH101\n')
         call_command('import_timetable', csv)   # end before start
         assert Timetable.objects.count() == 0
 
@@ -116,8 +116,8 @@ class TestImportTimetable:
         Class.objects.create(grade='S2', section='A', name='2A')
         csv = write_csv(tmp_path, 'tt.csv',
             'grade,section,day,start_time,end_time,subject,teacher_email\n'
-            '1,A,monday,08:00,08:40,MATH101,t@imboni.test\n'
-            '2,A,monday,08:00,08:40,ENG101,t@imboni.test\n')   # same teacher, same time, other class
+            'S1,A,monday,08:00,08:40,MATH101,t@imboni.test\n'
+            'S2,A,monday,08:00,08:40,ENG101,t@imboni.test\n')   # same teacher, same time, other class
         call_command('import_timetable', csv)
 
         # Only the first booking survives; the clashing one is skipped.
@@ -125,7 +125,7 @@ class TestImportTimetable:
 
     def test_reimport_updates_slot_in_place(self, tmp_path):
         self._setup()
-        base = 'grade,section,day,start_time,end_time,subject\n1,A,monday,08:00,08:40,{}\n'
+        base = 'grade,section,day,start_time,end_time,subject\nS1,A,monday,08:00,08:40,{}\n'
         call_command('import_timetable', write_csv(tmp_path, 'a.csv', base.format('MATH101')))
         call_command('import_timetable', write_csv(tmp_path, 'b.csv', base.format('ENG101')))
 
@@ -135,6 +135,6 @@ class TestImportTimetable:
     def test_dry_run_writes_nothing(self, tmp_path):
         self._setup()
         csv = write_csv(tmp_path, 'tt.csv',
-            'grade,section,day,start_time,end_time,subject\n1,A,monday,08:00,08:40,MATH101\n')
+            'grade,section,day,start_time,end_time,subject\nS1,A,monday,08:00,08:40,MATH101\n')
         call_command('import_timetable', csv, '--dry-run')
         assert Timetable.objects.count() == 0

@@ -57,7 +57,7 @@ class TestEraseUserData:
         assert student.medical_conditions == ''
         # Non-personal academic identifiers are retained for record integrity.
         assert student.student_id
-        assert student.grade == 'S4'
+        assert student.grade == 'S1'
 
     def test_delete_removes_the_row(self):
         user = self._make_user()

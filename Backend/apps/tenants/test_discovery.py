@@ -13,6 +13,7 @@ Run with:
 from unittest.mock import patch
 
 import pytest
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -80,7 +81,14 @@ class TestFindMySchoolView:
     """
 
     def _post(self, payload):
-        return APIClient().post(reverse('find-my-school'), payload, format='json')
+        # The endpoint is public-schema only: the bare domain is where a user
+        # who has lost their subdomain lands, and the tenant registry it
+        # searches lives there. conftest registers 'public' as that schema's
+        # domain, so addressing that host is what routes to urls_public --
+        # reverse() against the tenant urlconf would not find the route at all.
+        url = reverse('find-my-school', urlconf='Imboni.urls_public')
+        with override_settings(ALLOWED_HOSTS=['*']):
+            return APIClient().post(url, payload, format='json', HTTP_HOST='public')
 
     def test_known_and_unknown_addresses_are_indistinguishable(self):
         with patch('apps.tenants.tasks.find_my_school_task.delay'):

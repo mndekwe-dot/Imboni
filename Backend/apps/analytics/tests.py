@@ -86,10 +86,10 @@ class TestPerformanceByGradeView:
         assert response.status_code == status.HTTP_200_OK
         by_grade = {row['grade']: row for row in response.data}
 
-        assert by_grade['4']['average_score'] == 80.0  # (70+90)/2
-        assert by_grade['4']['student_count'] == 2
-        assert by_grade['5']['average_score'] == 50.0
-        assert by_grade['5']['student_count'] == 1
+        assert by_grade['S4']['average_score'] == 80.0  # (70+90)/2
+        assert by_grade['S4']['student_count'] == 2
+        assert by_grade['S5']['average_score'] == 50.0
+        assert by_grade['S5']['student_count'] == 1
 
     def test_grade_with_no_approved_results_shows_zero_average(self, make_authenticated_client):
         client, _user = make_authenticated_client('dos')
@@ -100,8 +100,8 @@ class TestPerformanceByGradeView:
 
         assert response.status_code == status.HTTP_200_OK
         by_grade = {row['grade']: row for row in response.data}
-        assert by_grade['6']['average_score'] == 0
-        assert by_grade['6']['student_count'] == 1
+        assert by_grade['S6']['average_score'] == 0
+        assert by_grade['S6']['student_count'] == 1
 
 
 @pytest.mark.django_db
