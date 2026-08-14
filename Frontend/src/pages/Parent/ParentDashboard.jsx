@@ -51,7 +51,7 @@ function AssessmentItem({ title, assessment_type, date, score_display, grade }) 
             </div>
             <div className="assessment-info">
                 <p className="font-bold">{title}</p>
-                <p className="text-xs text-muted">{typeLabel}{dateStr ? ` · ${dateStr}` : ''}</p>
+                <p className="u-xs text-muted">{typeLabel}{dateStr ? ` · ${dateStr}` : ''}</p>
             </div>
             <div className={`assessment-score ${gradeClass(grade)}`}>{score_display}</div>
         </div>

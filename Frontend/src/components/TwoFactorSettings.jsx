@@ -152,7 +152,7 @@ export function TwoFactorSettings() {
                         />
                     </div>
                     <div className="form-actions" style={{ gap: '0.5rem' }}>
-                        <button className="btn btn-danger" onClick={confirmDisable} disabled={busy || !password}>
+                        <button className="btn btn-primary btn-destructive" onClick={confirmDisable} disabled={busy || !password}>
                             {busy ? 'Disabling…' : 'Disable 2FA'}
                         </button>
                         <button className="btn btn-secondary" onClick={() => { setStage('idle'); setError(''); setPassword('') }}>

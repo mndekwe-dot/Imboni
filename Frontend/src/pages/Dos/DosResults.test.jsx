@@ -53,7 +53,7 @@ describe('DosResults', () => {
   it('shows a loading state before results resolve', () => {
     getDosResults.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<DosResults />)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
   })
 
   it('shows an error state when the results fetch fails', async () => {

@@ -170,6 +170,8 @@ export function ParentAttendance() {
 
     return (
         <>
+            <a href="#main-content" className="skip-link">Skip to content</a>
+            <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
@@ -187,7 +189,7 @@ export function ParentAttendance() {
                                 <button key={c.id}
                                     className={`child-tab${i === activeIdx ? ' active' : ''}`}
                                     onClick={() => setActiveIdx(i)}>
-                                    <div className="child-tab-avatar amina">{initials(c.student_name)}</div>
+                                    <div className="child-tab-avatar">{initials(c.student_name)}</div>
                                     <span className="child-tab-name">{c.student_name}</span>
                                     <span className="child-tab-grade">&middot; {c.grade}{c.section}</span>
                                 </button>

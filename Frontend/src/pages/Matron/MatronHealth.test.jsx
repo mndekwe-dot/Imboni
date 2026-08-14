@@ -58,7 +58,7 @@ describe('MatronHealth', () => {
     it('renders the loading state initially', () => {
         getMatronHealth.mockReturnValue(new Promise(() => {}))
         renderWithRouter(<MatronHealth />)
-        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        expect(screen.getByText('Loading…')).toBeInTheDocument()
     })
 
     it('renders loaded stats, beds and history', async () => {

@@ -409,6 +409,48 @@
 .att-cal-legend > span { display: flex; align-items: center; gap: 0.3rem; }
 .att-cal-legend .att-dot { width: 10px; height: 10px; }
 
+/* Calendar grid + day cells. The legend above already existed; the grid it
+   describes did not, so the month rendered as an unstyled run of divs.
+   Cell tint matches the legend dot for the same status. */
+.att-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.cal-header-cell {
+  text-align: center;
+  padding: 0.4rem 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.cal-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  font-size: 0.8rem;
+}
+.cal-day { font-weight: 600; }
+
+.cal-empty     { border-color: transparent; background: transparent; }
+.cal-present   { background: var(--success-light);     border-color: rgba(16, 185, 129, 0.3); color: var(--success); }
+.cal-absent    { background: var(--destructive-light); border-color: rgba(239, 68, 68, 0.3);  color: var(--destructive); }
+.cal-late      { background: var(--warning-light);     border-color: rgba(245, 158, 11, 0.35); color: var(--warning); }
+.cal-excused   { background: var(--muted);             color: var(--muted-foreground); }
+.cal-no-record { background: var(--card);              color: var(--muted-foreground); }
+.cal-weekend   { background: var(--muted);             border-color: transparent; color: var(--muted-foreground); opacity: 0.6; }
+
+@media (max-width: 480px) {
+  .att-calendar-grid { gap: 2px; }
+  .cal-cell { font-size: 0.72rem; border-radius: 6px; }
+}
+
 /* Empty-state message inside the records table */
 .att-empty { padding: 1rem; color: var(--muted-foreground); }
 
@@ -583,6 +625,130 @@
 }
 .ann-author { display: flex; align-items: center; gap: 5px; }
 .ann-author .material-symbols-rounded { font-size: 0.9rem; }
+
+/* ===============================================
+   ANNOUNCEMENT FEED - StudentAnnouncements.jsx
+   Prefixed `sann-` so nothing collides with the global
+   `.ann-*` filter-pill rules in pages.css — all portal CSS
+   is bundled into one sheet, so bare names are not scoped.
+   Category colour rides on --cat-* set by the .sann-<category>
+   modifier, the same pattern parent.css uses for .pann-card.
+   =============================================== */
+
+.sann-chip-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.sann-chip {
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sann-chip:hover {
+  border-color: var(--student);
+  color: var(--student);
+  background: var(--student-light);
+}
+.sann-chip.active {
+  border-color: var(--student);
+  background: var(--student);
+  color: #fff;
+}
+
+.sann-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sann-item {
+  --cat-border: var(--border);
+  --cat-badge:  var(--muted);
+  --cat-text:   var(--muted-foreground);
+
+  display: flex;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cat-border);
+  border-radius: 12px;
+  transition: box-shadow 0.15s;
+}
+.sann-item:hover { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07); }
+
+.sann-urgent   { --cat-border: var(--destructive); --cat-badge: var(--destructive-light); --cat-text: var(--destructive); }
+.sann-academic { --cat-border: var(--primary);     --cat-badge: var(--primary-light);     --cat-text: var(--primary); }
+.sann-event    { --cat-border: var(--student);     --cat-badge: var(--student-light);     --cat-text: var(--student); }
+.sann-general  { --cat-border: var(--accent);      --cat-badge: var(--accent-light);      --cat-text: var(--accent); }
+
+.sann-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  background: var(--cat-badge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sann-icon .material-symbols-rounded {
+  font-size: 1.1rem;
+  color: var(--cat-text);
+}
+
+.sann-body { flex: 1; min-width: 0; }
+
+.sann-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+.sann-cat {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: var(--cat-badge);
+  color: var(--cat-text);
+  border-radius: 5px;
+  padding: 0.15rem 0.5rem;
+}
+.sann-date { font-size: 0.75rem; color: var(--muted-foreground); }
+
+.sann-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--foreground);
+}
+.sann-text {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+.sann-author {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 560px) {
+  .sann-item { padding: 0.9rem 1rem; gap: 0.75rem; }
+  .sann-icon { width: 32px; height: 32px; }
+}
 
 /* ===============================================
    MESSAGES - Student/student-messages.html

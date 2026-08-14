@@ -28,7 +28,7 @@ describe('MatronStudents', () => {
     it('renders the loading state initially', () => {
         getMatronStudents.mockReturnValue(new Promise(() => {}))
         renderWithRouter(<MatronStudents />)
-        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        expect(screen.getByText('Loading…')).toBeInTheDocument()
     })
 
     it('renders the error state when the load fails', async () => {

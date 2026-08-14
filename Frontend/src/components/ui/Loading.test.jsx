@@ -5,7 +5,7 @@ import { Loading } from './Loading'
 describe('Loading', () => {
   it('renders the default label', () => {
     render(<Loading />)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
   })
 
   it('renders a custom label', () => {

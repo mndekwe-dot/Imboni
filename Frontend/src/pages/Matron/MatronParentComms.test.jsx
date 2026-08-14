@@ -40,7 +40,7 @@ describe('MatronParentComms', () => {
     it('renders the loading state initially', () => {
         getParentComms.mockReturnValue(new Promise(() => {}))
         renderWithRouter(<MatronParentComms />)
-        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        expect(screen.getByText('Loading…')).toBeInTheDocument()
     })
 
     it('renders the error state when the load fails', async () => {

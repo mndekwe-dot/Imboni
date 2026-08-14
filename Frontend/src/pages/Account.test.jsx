@@ -29,7 +29,7 @@ describe('Account', () => {
     it('renders the loading state initially', () => {
         getProfile.mockReturnValue(new Promise(() => {}))
         renderWithRouter(<Account />)
-        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        expect(screen.getByText('Loading…')).toBeInTheDocument()
     })
 
     it('renders the profile form once loaded', async () => {
