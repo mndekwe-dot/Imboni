@@ -29,7 +29,7 @@ class TestStudentProfileView:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_student_sees_own_profile(self, api_client):
-        student = StudentFactory(student_id='STU00100', grade='3', section='B')
+        student = StudentFactory(student_id='STU00100', grade='S3', section='B')
         api_client.force_authenticate(student.user)
 
         response = api_client.get('/imboni/student/profile/')
@@ -234,7 +234,7 @@ class TestStudentAssignmentSubmitView:
         term = AcademicTermFactory(is_current=True)
         subject = SubjectFactory()
         teacher = UserFactory(role='teacher')
-        class_obj = Class.objects.create(name='S4A', grade='4', section='A')
+        class_obj = Class.objects.create(name='S4A', grade='S4', section='A')
         student = StudentFactory()
 
         assignment = Assignment.objects.create(

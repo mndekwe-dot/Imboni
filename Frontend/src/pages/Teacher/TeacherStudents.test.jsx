@@ -8,6 +8,14 @@ vi.mock('../../api/teacher', () => ({
   getTeacherStudents: vi.fn(),
 }))
 
+// The school's own structure, which the year/stream pickers are built from.
+vi.mock('../../api/dos', () => ({
+  getSchoolConfig: vi.fn().mockResolvedValue([
+  { name: 'O-Level', years: [{ name: 'S1', streams: ['A', 'B'] }, { name: 'S2', streams: ['A'] }, { name: 'S3', streams: ['A'] }] },
+  { name: 'A-Level', years: [{ name: 'S4', streams: ['A', 'B'] }, { name: 'S5', streams: ['A'] }, { name: 'S6', streams: ['A'] }] },
+]),
+}))
+
 vi.mock('../../api/notifications', () => ({
   getNotifications: vi.fn().mockResolvedValue([]),
   markNotificationRead: vi.fn(),

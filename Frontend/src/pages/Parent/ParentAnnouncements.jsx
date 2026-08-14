@@ -242,7 +242,7 @@ export function ParentAnnouncements() {
                         ) : visible.length === 0 ? (
                             <div className="u-pad-xl u-center-text u-muted">
                                 <span className="material-symbols-rounded pann-empty-icon">inbox</span>
-                                No announcements in this category.
+                                No announcements match this filter.
                             </div>
                         ) : (
                             <div className="u-stack-sm">

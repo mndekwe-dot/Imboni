@@ -14,6 +14,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { Loading } from '../../components/ui/Loading'
+import { classLabel } from '../../utils/classes'
 
 
 const STATUS_STYLE = {
@@ -149,7 +150,7 @@ export function MatronIncidents() {
                                         <option value="">Select student...</option>
                                         {students.map(s => (
                                             <option key={s.student_pk} value={s.student_pk}>
-                                                {s.full_name} (S{s.grade}{s.section})
+                                                {s.full_name} ({classLabel(s.grade, s.section)})
                                             </option>
                                         ))}
                                     </select>

@@ -8,6 +8,7 @@ import { ClassPicker } from '../../components/ui/ClassPicker'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { classLabel } from '../../utils/classes'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { getPendingResults, approveResult, rejectResult, bulkApproveResults } from '../../api/admin'
 import '../../styles/layout.css'
@@ -97,7 +98,7 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
         `${result.submitted_by?.first_name || ''} ${result.submitted_by?.last_name || ''}`.trim() || '-'
     const score       = result.total_score ?? result.score ?? result.final_score ?? '-'
     const grade       = result.letter_grade || result.grade_letter || '-'
-    const cls         = result.grade ? `S${result.grade}${result.section || ''}` : (result.class_name || '-')
+    const cls         = result.class_name || classLabel(result.grade, result.section) || '-'
 
     return (
         <tr>
@@ -160,8 +161,8 @@ export function AdminApprovals() {
     function load(tab, yr) {
         setLoading(true)
         setSelected(new Set())
-        const gradeNum = (yr ?? year) ? (yr ?? year).replace('S', '') : undefined
-        getPendingResults({ status: tab, ...(gradeNum ? { grade: gradeNum } : {}) })
+        const grade = (yr ?? year) || undefined
+        getPendingResults({ status: tab, ...(grade ? { grade } : {}) })
             .then(data => setAllResults(Array.isArray(data) ? data : (data?.results ?? [])))
             .catch(() => setAllResults([]))
             .finally(() => setLoading(false))

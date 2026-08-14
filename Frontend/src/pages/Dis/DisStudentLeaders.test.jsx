@@ -13,9 +13,9 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const LEADERS = [
-  { id: 1, student_name: 'Alice M.', student_id: 'STU001', grade: '5', section: 'A', role: 'head_girl',    appointed_date: '2026-01-10', notes: null },
-  { id: 2, student_name: 'Bob K.',   student_id: 'STU002', grade: '4', section: 'B', role: 'prefect',      appointed_date: '2026-01-12', notes: null },
-  { id: 3, student_name: 'Carol N.', student_id: 'STU003', grade: '3', section: 'A', role: 'house_captain', appointed_date: '2026-01-15', notes: 'Bisoke' },
+  { id: 1, student_name: 'Alice M.', student_id: 'STU001', grade: 'S5', section: 'A', role: 'head_girl',    appointed_date: '2026-01-10', notes: null },
+  { id: 2, student_name: 'Bob K.',   student_id: 'STU002', grade: 'S4', section: 'B', role: 'prefect',      appointed_date: '2026-01-12', notes: null },
+  { id: 3, student_name: 'Carol N.', student_id: 'STU003', grade: 'S3', section: 'A', role: 'house_captain', appointed_date: '2026-01-15', notes: 'Bisoke' },
 ]
 
 describe('DisStudentLeaders', () => {

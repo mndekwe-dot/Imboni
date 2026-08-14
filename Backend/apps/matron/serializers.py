@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.behavior.models import BehaviorReport
 from apps.discipline.models import BoardingStudent, DisciplineStaff
+from apps.dos.structure import class_label
 from .models import HealthRecord, ParentCommunication, BoardingScheduleSlot, BoardingScheduleChange
 
 
@@ -70,12 +71,9 @@ class MatronStudentSerializer(serializers.ModelSerializer):
         return obj.student.section
 
     def get_grade_label(self, obj):
-        grade_labels = {
-            '1': 'Secondary 1', '2': 'Secondary 2', '3': 'Secondary 3',
-            '4': 'Secondary 4', '5': 'Secondary 5', '6': 'Secondary 6',
-        }
-        grade = grade_labels.get(obj.student.grade, obj.student.grade)
-        return f"{grade} {obj.student.section}"
+        # The stored year code says what it is ('S3', 'P4'), so there is nothing
+        # to expand. This used to be one of five competing conventions.
+        return class_label(obj.student.grade, obj.student.section)
 
     def get_dormitory(self, obj):
         return obj.dormitory

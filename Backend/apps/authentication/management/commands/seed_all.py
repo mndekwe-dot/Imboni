@@ -112,40 +112,40 @@ SCHOOL_SECTIONS = [
     {
         'name': 'A-Level',
         'years': [
-            {'name': 'S4', 'streams': ['MPG', 'PCB', 'MCE']},
-            {'name': 'S5', 'streams': ['MPG', 'PCB', 'MCE']},
-            {'name': 'S6', 'streams': ['MPG', 'PCB', 'HEG']},
+            {'name': 'S4', 'streams': ['A', 'B', 'MPG', 'PCB', 'MCE']},
+            {'name': 'S5', 'streams': ['A', 'B', 'MPG', 'PCB', 'MCE']},
+            {'name': 'S6', 'streams': ['A', 'B', 'MPG', 'PCB', 'HEG']},
         ]
     },
 ]
 
 # grade, section, name
 CLASSES_DATA = [
-    (1, 'A', 'S1A'), (1, 'B', 'S1B'),
-    (2, 'A', 'S2A'), (2, 'B', 'S2B'),
-    (3, 'A', 'S3A'), (3, 'B', 'S3B'),
-    (4, 'A', 'S4A'), (4, 'B', 'S4B'),
-    (5, 'A', 'S5A'),
-    (6, 'A', 'S6A'),
+    ('S1', 'A', 'S1A'), ('S1', 'B', 'S1B'),
+    ('S2', 'A', 'S2A'), ('S2', 'B', 'S2B'),
+    ('S3', 'A', 'S3A'), ('S3', 'B', 'S3B'),
+    ('S4', 'A', 'S4A'), ('S4', 'B', 'S4B'),
+    ('S5', 'A', 'S5A'),
+    ('S6', 'A', 'S6A'),
 ]
 
 # email, grade, section, student_id, gpa, dormitory
 STUDENTS_DATA = [
-    ('a.uwase@imboni.rw',            4, 'A', 'STU-2026-001', 3.5, 'Bisoke'),
-    ('k.mutabazi@imboni.rw',         3, 'B', 'STU-2026-002', 3.1, 'Muhabura'),
-    ('m.ingabire@imboni.rw',         3, 'A', 'STU-2026-003', 3.9, 'Bisoke'),
-    ('p.nkurunziza@imboni.rw',       2, 'A', 'STU-2026-004', 2.4, 'Sabyinyo'),
-    ('d.umutoni@imboni.rw',          5, 'A', 'STU-2026-005', 3.7, 'Karisimbi'),
-    ('j.bizimana@imboni.rw',         5, 'A', 'STU-2026-006', 3.0, 'Muhabura'),
-    ('g.hakizimana.s@imboni.rw',     1, 'A', 'STU-2026-007', 4.0, 'Bisoke'),
-    ('e.ndagijimana@imboni.rw',      1, 'B', 'STU-2026-008', 2.2, 'Sabyinyo'),
-    ('l.uwineza@imboni.rw',          3, 'A', 'STU-2026-009', 3.6, 'Karisimbi'),
-    ('m.habimana@imboni.rw',         3, 'B', 'STU-2026-010', 3.3, 'Sabyinyo'),
-    ('m.nyirabeza@imboni.rw',        3, 'A', 'STU-2026-011', 3.4, 'Bisoke'),
-    ('f.ndayishimiye@imboni.rw',     4, 'A', 'STU-2026-012', 3.2, 'Muhabura'),
-    ('c.uwimana@imboni.rw',          4, 'A', 'STU-2026-013', 3.8, 'Karisimbi'),
-    ('d.nkurunziza@imboni.rw',       4, 'A', 'STU-2026-014', 3.1, 'Sabyinyo'),
-    ('j.mukamazimpaka@imboni.rw',    4, 'B', 'STU-2026-015', 3.6, 'Bisoke'),
+    ('a.uwase@imboni.rw',            'S4', 'A', 'STU-2026-001', 3.5, 'Bisoke'),
+    ('k.mutabazi@imboni.rw',         'S3', 'B', 'STU-2026-002', 3.1, 'Muhabura'),
+    ('m.ingabire@imboni.rw',         'S3', 'A', 'STU-2026-003', 3.9, 'Bisoke'),
+    ('p.nkurunziza@imboni.rw',       'S2', 'A', 'STU-2026-004', 2.4, 'Sabyinyo'),
+    ('d.umutoni@imboni.rw',          'S5', 'A', 'STU-2026-005', 3.7, 'Karisimbi'),
+    ('j.bizimana@imboni.rw',         'S5', 'A', 'STU-2026-006', 3.0, 'Muhabura'),
+    ('g.hakizimana.s@imboni.rw',     'S1', 'A', 'STU-2026-007', 4.0, 'Bisoke'),
+    ('e.ndagijimana@imboni.rw',      'S1', 'B', 'STU-2026-008', 2.2, 'Sabyinyo'),
+    ('l.uwineza@imboni.rw',          'S3', 'A', 'STU-2026-009', 3.6, 'Karisimbi'),
+    ('m.habimana@imboni.rw',         'S3', 'B', 'STU-2026-010', 3.3, 'Sabyinyo'),
+    ('m.nyirabeza@imboni.rw',        'S3', 'A', 'STU-2026-011', 3.4, 'Bisoke'),
+    ('f.ndayishimiye@imboni.rw',     'S4', 'A', 'STU-2026-012', 3.2, 'Muhabura'),
+    ('c.uwimana@imboni.rw',          'S4', 'A', 'STU-2026-013', 3.8, 'Karisimbi'),
+    ('d.nkurunziza@imboni.rw',       'S4', 'A', 'STU-2026-014', 3.1, 'Sabyinyo'),
+    ('j.mukamazimpaka@imboni.rw',    'S4', 'B', 'STU-2026-015', 3.6, 'Bisoke'),
 ]
 
 # parent email, student email, relationship
@@ -325,12 +325,12 @@ class Command(BaseCommand):
         AcademicTerm = m['AcademicTerm']
         term1_2026, _ = AcademicTerm.objects.get_or_create(
             term='term1', year=2026,
-            defaults={'name': 'Term 1 2026', 'start_date': date(2026, 1, 5),
+            defaults={'name': 'Term 1 2026', 'order': 1, 'start_date': date(2026, 1, 5),
                       'end_date': date(2026, 3, 27), 'is_current': False}
         )
         term2_2026, _ = AcademicTerm.objects.get_or_create(
             term='term2', year=2026,
-            defaults={'name': 'Term 2 2026', 'start_date': date(2026, 4, 28),
+            defaults={'name': 'Term 2 2026', 'order': 2, 'start_date': date(2026, 4, 28),
                       'end_date': date(2026, 7, 24), 'is_current': True}
         )
         AcademicTerm.objects.exclude(pk=term2_2026.pk).update(is_current=False)
@@ -419,7 +419,7 @@ class Command(BaseCommand):
         self.stdout.write('Assigning students to classes...')
         ClassAssignment = m['ClassAssignment']
         for email, grade, section, *_ in STUDENTS_DATA:
-            class_name = f'S{grade}{section}'
+            class_name = f'{grade}{section}'
             cls     = classes.get(class_name)
             student = students.get(email)
             if cls and student:

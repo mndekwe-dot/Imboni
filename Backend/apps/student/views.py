@@ -310,7 +310,7 @@ class StudentResultsView(APIView):
 
         from apps.results.models import Result, AcademicTerm
 
-        terms = AcademicTerm.objects.order_by('-year', '-term')
+        terms = AcademicTerm.objects.order_by('-year', '-order')
         response_data = []
 
         for term in terms:

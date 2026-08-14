@@ -264,7 +264,7 @@ export function ParentChildren() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading children…</p>
                         ) : children.length === 0 ? (
-                            <p className="u-pad u-muted">No children linked to your account.</p>
+                            <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
                             <div className="student-grid">
                                 {children.map(c => (

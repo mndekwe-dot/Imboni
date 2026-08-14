@@ -152,12 +152,12 @@ class TestMarkTeacherAttendanceView:
 class TestClassAttendanceView:
     def test_filters_by_grade_and_section(self, make_authenticated_client):
         client, _teacher = make_authenticated_client('teacher')
-        student_a = StudentFactory(grade='3', section='A')
-        student_b = StudentFactory(grade='3', section='B')
+        student_a = StudentFactory(grade='S3', section='A')
+        student_b = StudentFactory(grade='S3', section='B')
         AttendanceRecord.objects.create(student=student_a, date='2026-03-24', status='present')
         AttendanceRecord.objects.create(student=student_b, date='2026-03-24', status='absent')
 
-        response = client.get('/imboni/attendance/class/?grade=3&section=A&date=2026-03-24')
+        response = client.get('/imboni/attendance/class/?grade=S3&section=A&date=2026-03-24')
 
         assert response.status_code == status.HTTP_200_OK
         results = response.data['results'] if isinstance(response.data, dict) else response.data

@@ -4,6 +4,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { yearsFromConfig } from '../../utils/classes'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
@@ -715,16 +716,18 @@ function RoomsSection() {
 
 // ── Term Rollover ─────────────────────────────────────────────────────────────
 
-const TERM_OPTIONS = [
-    { value: 'term1', label: 'Term 1' },
-    { value: 'term2', label: 'Term 2' },
-    { value: 'term3', label: 'Term 3' },
-]
-
 function TermRolloverSection() {
+    // The school's own terms, not a hard-coded term1/2/3 — a semester system has
+    // two and a quarter system four.
+    const { setting } = useSchoolSettings()
+    const { config } = useSchoolConfig()
+    const termOptions = setting.terms ?? []
+    const years = yearsFromConfig(config)
+    const finalYear = years[years.length - 1]
+
     const [currentTerm, setCurrentTerm] = useState(null)
     const [step, setStep]       = useState(1)          // 1 form → 2 preview → 3 done
-    const [form, setForm] = useState({ term: 'term1', year: '', name: '', start_date: '', end_date: '' })
+    const [form, setForm] = useState({ term: '', year: '', name: '', start_date: '', end_date: '' })
     const [preview, setPreview] = useState(null)
     const [result, setResult]   = useState(null)
     const [busy, setBusy]       = useState(false)
@@ -733,6 +736,13 @@ function TermRolloverSection() {
     useEffect(() => {
         getCurrentTerm().then(setCurrentTerm).catch(() => setCurrentTerm(null))
     }, [])
+
+    // Preselect the school's first term once its configuration arrives, so the
+    // dropdown is never empty. The list is loaded, not hard-coded, so the
+    // default has to wait for it.
+    useEffect(() => {
+        if (!form.term && termOptions.length) set('term', termOptions[0].code)
+    }, [termOptions])   // eslint-disable-line react-hooks/exhaustive-deps
 
     function set(field, value) { setForm(f => ({ ...f, [field]: value })) }
 
@@ -767,7 +777,7 @@ function TermRolloverSection() {
     const summaryRows = (data) => [
         { label: 'Mode', value: data.mode === 'promotion' ? 'New academic year: promote students' : 'Same year: carry rosters over' },
         { label: 'Students promoted', value: data.students_promoted },
-        { label: 'Students graduating (S6)', value: data.students_graduated },
+        { label: `Students graduating${finalYear ? ` (${finalYear})` : ''}`, value: data.students_graduated },
         { label: 'Class rosters created', value: data.rosters_created },
     ]
 
@@ -776,7 +786,8 @@ function TermRolloverSection() {
             <p className="u-muted u-mb u-fs-085">
                 Current term: <strong>{currentTerm?.name || '-'}</strong>.
                 Rolling over ends the current term, creates the next one and, when a new
-                academic year starts, promotes every active student one grade (S6 graduates).
+                academic year starts, promotes every active student one year level
+                {finalYear ? ` (${finalYear} graduates)` : ''}.
             </p>
 
             {step === 1 && (
@@ -785,7 +796,7 @@ function TermRolloverSection() {
                         <div>
                             <label className="form-label" htmlFor="ro-term">New term</label>
                             <select id="ro-term" className="form-input" value={form.term} onChange={e => set('term', e.target.value)}>
-                                {TERM_OPTIONS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                                {termOptions.map(t => <option key={t.code} value={t.code}>{t.label}</option>)}
                             </select>
                         </div>
                         <div>

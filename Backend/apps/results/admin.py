@@ -15,7 +15,7 @@ class SubjectAdmin(admin.ModelAdmin):
 class AcademicTermAdmin(admin.ModelAdmin):
     list_display  = ('name', 'term', 'year', 'start_date', 'end_date', 'is_current')
     list_filter   = ('term', 'year', 'is_current')
-    ordering      = ('-year', '-term')
+    ordering      = ('-year', '-order')
 
 
 def approve_results(modeladmin, request, queryset):
@@ -38,7 +38,7 @@ class ResultAdmin(admin.ModelAdmin):
     list_display  = ('student', 'subject', 'term', 'final_score', 'grade', 'status', 'teacher')
     list_filter   = ('status', 'grade', 'term', 'subject')
     search_fields = ('student__user__last_name', 'student__student_id', 'subject__name')
-    ordering      = ('-term__year', '-term__term', 'student__user__last_name')
+    ordering      = ('-term__year', '-term__order', 'student__user__last_name')
     readonly_fields = ('approved_at', 'approved_by', 'submitted_at', 'created_at', 'updated_at')
 
     fieldsets = (

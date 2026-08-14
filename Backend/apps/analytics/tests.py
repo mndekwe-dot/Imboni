@@ -64,9 +64,9 @@ class TestPerformanceByGradeView:
         term = AcademicTermFactory(is_current=True)
         subject = SubjectFactory()
 
-        grade4_student1 = StudentFactory(grade='4')
-        grade4_student2 = StudentFactory(grade='4')
-        grade5_student1 = StudentFactory(grade='5')
+        grade4_student1 = StudentFactory(grade='S4')
+        grade4_student2 = StudentFactory(grade='S4')
+        grade5_student1 = StudentFactory(grade='S5')
 
         Result.objects.create(
             student=grade4_student1, subject=subject, term=term,
@@ -94,7 +94,7 @@ class TestPerformanceByGradeView:
     def test_grade_with_no_approved_results_shows_zero_average(self, make_authenticated_client):
         client, _user = make_authenticated_client('dos')
         AcademicTermFactory(is_current=True)
-        StudentFactory(grade='6')  # no results at all
+        StudentFactory(grade='S6')  # no results at all
 
         response = client.get('/imboni/analytics/performance/by-grade/')
 

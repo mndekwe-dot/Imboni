@@ -51,7 +51,7 @@ describe('StudentAnnouncements', () => {
 
         renderWithRouter(<StudentAnnouncements />)
 
-        await waitFor(() => expect(screen.getByText('No announcements found.')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText('No announcements yet.')).toBeInTheDocument())
     })
 
     it('filters by chip category', async () => {
@@ -74,6 +74,6 @@ describe('StudentAnnouncements', () => {
 
         renderWithRouter(<StudentAnnouncements />)
 
-        await waitFor(() => expect(screen.getByText('No announcements found.')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText('No announcements yet.')).toBeInTheDocument())
     })
 })

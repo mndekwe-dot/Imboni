@@ -13,8 +13,8 @@ vi.mock('../../api/dos', () => ({
 }))
 
 const STUDENTS = [
-    { full_name: 'Iris Niyomugabo', student_code: 'ADM001', grade: 2, section: 'A', room_number: '12', dormitory: 'Karisimbi', boarding_type: 'full' },
-    { full_name: 'Peter N.', student_code: 'ADM002', grade: 3, section: 'B', room_number: '14', dormitory: 'Karisimbi', boarding_type: 'day' },
+    { full_name: 'Iris Niyomugabo', student_code: 'ADM001', grade: 'S2', section: 'A', room_number: '12', dormitory: 'Karisimbi', boarding_type: 'full' },
+    { full_name: 'Peter N.', student_code: 'ADM002', grade: 'S3', section: 'B', room_number: '14', dormitory: 'Karisimbi', boarding_type: 'day' },
 ]
 
 describe('MatronStudents', () => {

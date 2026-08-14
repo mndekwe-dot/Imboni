@@ -260,12 +260,15 @@ class MyClassesView(APIView):
                 Q(subject__name__icontains=search)
             )
 
-        # ── Grade range filter ───────────────────────────────────────────
-        grade_filter = request.query_params.get('grade_filter', '')
-        if grade_filter == '1-2':
-            assignments = assignments.filter(class_obj__grade__in=['1', '2'])
-        elif grade_filter == '3-4':
-            assignments = assignments.filter(class_obj__grade__in=['3', '4'])
+        # ── Year filter ──────────────────────────────────────────────────
+        # A comma-separated list of the school's own year codes ('S1,S2'). This
+        # used to be two literal buckets, '1-2' and '3-4', which named years
+        # that only a Rwandan secondary school has.
+        grade_filter = request.query_params.get('grade_filter', '').strip()
+        if grade_filter:
+            wanted = [g.strip() for g in grade_filter.split(',') if g.strip()]
+            if wanted:
+                assignments = assignments.filter(class_obj__grade__in=wanted)
 
         high_performers = request.query_params.get('high_performers', '').lower() == 'true'
 

@@ -28,17 +28,17 @@ vi.mock('../../api/notifications', () => ({
 
 const rawResults = [
   {
-    id: 1, grade: 4, section: 'A', subject: 'Mathematics', status: 'submitted',
+    id: 1, grade: 'S4', section: 'A', subject: 'Mathematics', status: 'submitted',
     teacher: 'Mr. Habimana', submitted_at: '2026-05-01T10:00:00Z',
     final_score: '78.0', student_id_code: 'STU001', student: 'Eric N.', exam_score: 78, grade_letter: 'B',
   },
   {
-    id: 2, grade: 4, section: 'A', subject: 'Mathematics', status: 'submitted',
+    id: 2, grade: 'S4', section: 'A', subject: 'Mathematics', status: 'submitted',
     teacher: 'Mr. Habimana', submitted_at: '2026-05-01T10:00:00Z',
     final_score: '88.0', student_id_code: 'STU002', student: 'Alice M.', exam_score: 88, grade_letter: 'A',
   },
   {
-    id: 3, grade: 5, section: 'B', subject: 'English', status: 'approved',
+    id: 3, grade: 'S5', section: 'B', subject: 'English', status: 'approved',
     teacher: 'Ms. Claudine', submitted_at: '2026-04-20T10:00:00Z',
     final_score: '65.0', student_id_code: 'STU003', student: 'John K.', exam_score: 65, grade_letter: 'C',
   },

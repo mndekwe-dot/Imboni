@@ -14,7 +14,15 @@ describe('useSchoolSettings', () => {
     getSchoolSettings.mockReturnValue(new Promise(() => {}))
     const { result } = renderHook(() => useSchoolSettings())
     expect(result.current.loading).toBe(true)
-    expect(result.current.setting).toEqual({ timezone: 'Africa/Kigali', school_name: '' })
+    expect(result.current.setting.timezone).toBe('Africa/Kigali')
+    expect(result.current.setting.school_name).toBe('')
+  })
+
+  it('defaults to the familiar three terms until the school says otherwise', () => {
+    // A school that has configured nothing must behave exactly as before.
+    getSchoolSettings.mockReturnValue(new Promise(() => {}))
+    const { result } = renderHook(() => useSchoolSettings())
+    expect(result.current.setting.terms.map(t => t.code)).toEqual(['term1', 'term2', 'term3'])
   })
 
   it('loads settings on mount and replaces the default', async () => {
@@ -24,8 +32,26 @@ describe('useSchoolSettings', () => {
     const { result } = renderHook(() => useSchoolSettings())
 
     await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.setting).toEqual(setting)
+    expect(result.current.setting.timezone).toBe('America/New_York')
+    expect(result.current.setting.school_name).toBe('Imboni HS')
     expect(result.current.error).toBeNull()
+  })
+
+  it('keeps a school its own terms when it has configured them', async () => {
+    getSchoolSettings.mockResolvedValue({
+      timezone: 'America/New_York',
+      school_name: 'Riverside',
+      terms: [
+        { code: 'fall', label: 'Fall Semester', order: 1 },
+        { code: 'spring', label: 'Spring Semester', order: 2 },
+      ],
+    })
+
+    const { result } = renderHook(() => useSchoolSettings())
+
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.setting.terms.map(t => t.label))
+      .toEqual(['Fall Semester', 'Spring Semester'])
   })
 
   it('sets error message and clears loading on failure', async () => {

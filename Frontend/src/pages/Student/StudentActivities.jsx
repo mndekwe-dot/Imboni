@@ -296,7 +296,7 @@ export function StudentActivities() {
                             ) : (enrolled.length === 0 && available.length === 0) ? (
                                 <EmptyState
                                     icon="sports_soccer"
-                                    title="No activities available"
+                                    title="No activities found"
                                     description="Extracurricular activities will appear here when they are available."
                                 />
                             ) : (

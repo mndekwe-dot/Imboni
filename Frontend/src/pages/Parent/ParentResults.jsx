@@ -171,7 +171,7 @@ export function ParentResults() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading…</p>
                         ) : !child ? (
-                            <p className="u-pad u-muted">No children linked.</p>
+                            <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
                             <>
                                 {/* Recent Assessments table */}
@@ -245,7 +245,7 @@ export function ParentResults() {
                                         </div>
                                         <div className="card-content">
                                             {assessments.length === 0 ? (
-                                                <p className="u-muted">No assessments yet.</p>
+                                                <p className="u-muted">No assessments recorded yet.</p>
                                             ) : (
                                                 <div className="assessment-list">
                                                     {assessments.slice(0, 4).map((a, i) => (

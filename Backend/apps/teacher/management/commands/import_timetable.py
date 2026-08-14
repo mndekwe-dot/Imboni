@@ -32,6 +32,7 @@ from django.db import transaction
 
 from apps.audit.services import audit
 from apps.authentication.models import User
+from apps.dos.structure import class_label
 from apps.results.models import Subject, AcademicTerm
 from apps.teacher.models import Class, Timetable
 
@@ -113,7 +114,7 @@ class Command(BaseCommand):
 
         class_obj = Class.objects.filter(grade=grade, section=section).first()
         if class_obj is None:
-            return f'class Grade {grade}{section} not found (run import_classes first)'
+            return f'class {class_label(grade, section)} not found (run import_classes first)'
 
         subject_key = row.get('subject', '').strip()
         subject = (Subject.objects.filter(code__iexact=subject_key).first()

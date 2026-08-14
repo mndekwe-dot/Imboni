@@ -7,6 +7,7 @@ import { DataTable } from '../../components/ui/DataTable'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { classLabel } from '../../utils/classes'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import {
     getAdminStudents, getAdminStudentStats,
@@ -24,7 +25,7 @@ function initials(name = '') {
 
 function gradeLabel(grade, section) {
     if (!grade) return '-'
-    return `S${grade}${section || ''}`
+    return classLabel(grade, section)
 }
 
 function gradeColor(letter) {
@@ -231,9 +232,9 @@ export function AdminStudents() {
 
     useEffect(() => {
         setLoading(true)
-        const gradeNum = year ? year.replace('S', '') : undefined
+        const grade = year || undefined
         Promise.all([
-            getAdminStudents(gradeNum ? { grade: gradeNum } : {}).catch(() => []),
+            getAdminStudents(grade ? { grade } : {}).catch(() => []),
             getAdminStudentStats().catch(() => null),
         ]).then(([students, s]) => {
             setStudentList(Array.isArray(students) ? students : (students?.results ?? []))

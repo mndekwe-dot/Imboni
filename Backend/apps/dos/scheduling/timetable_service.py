@@ -13,6 +13,7 @@ from __future__ import annotations
 from django.db import transaction
 
 from apps.teacher.models import SubjectTeacherAssignment, Timetable
+from ..structure import class_label
 from ..models import Room, TimetablePeriod
 from .timetable_solver import Lesson, solve_timetable
 
@@ -91,7 +92,7 @@ def gather_lessons(term, class_ids=None):
 # ── planning ─────────────────────────────────────────────────────────────────
 
 def _class_label(class_obj):
-    return f"S{class_obj.grade}{class_obj.section}"
+    return class_label(class_obj=class_obj)
 
 
 def plan_timetable(term, *, class_ids=None, days=None):

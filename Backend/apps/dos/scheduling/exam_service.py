@@ -17,6 +17,7 @@ from django.db import transaction
 from apps.authentication.models import User
 from apps.results.models import AcademicTerm
 from apps.teacher.models import SubjectTeacherAssignment
+from ..structure import class_label
 from ..models import ExamSchedule, Room
 from .exam_solver import Exam, SlotMeta, solve_exam_schedule
 
@@ -112,7 +113,7 @@ def gather_exam_units(term, class_ids=None):
 # ── planning ─────────────────────────────────────────────────────────────────
 
 def _class_label(class_obj):
-    return f"S{class_obj.grade}{class_obj.section}"
+    return class_label(class_obj=class_obj)
 
 
 def plan_exam_schedule(

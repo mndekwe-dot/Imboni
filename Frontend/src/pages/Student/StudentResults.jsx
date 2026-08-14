@@ -12,6 +12,11 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 
+// DRF paginates by default (PageNumberPagination, PAGE_SIZE 20), so list
+// endpoints answer with { count, next, previous, results } rather than a bare
+// array. APIView endpoints return the array directly. Normalise both.
+const asList = data => (Array.isArray(data) ? data : (data?.results ?? []))
+
 function gradeClass(grade) {
     if (!grade) return ''
     const g = grade.charAt(0)
@@ -97,16 +102,17 @@ export function StudentResults() {
             getStudentProfile().catch(() => null),
             getStudentResults().catch(() => []),
         ]).then(([prof, results]) => {
+            const termList = asList(results)
             setProfile(prof)
-            setTerms(results || [])
-            if (results?.length) setActiveTerm(results[0].term_id)
+            setTerms(termList)
+            if (termList.length) setActiveTerm(termList[0].term_id)
 
             if (prof?.student_id) {
                 return getStudentAssessments(prof.student_id).catch(() => [])
             }
             return []
         }).then(ass => {
-            setAssessments(ass || [])
+            setAssessments(asList(ass))
         }).finally(() => setLoading(false))
     }, [])
 
@@ -126,9 +132,9 @@ export function StudentResults() {
         { value: activeTData?.year || '-',                  label: 'Year',            color: 'var(--success)' },
     ]
 
-    const termAssessments = activeTData
-        ? assessments.filter(() => true)
-        : assessments
+    // The assessments endpoint is not term-scoped, so every row is shown
+    // regardless of the selected term tab.
+    const termAssessments = assessments
 
     // Term-over-term average, oldest first (terms arrive newest-first)
     const trendData = [...terms]

@@ -80,11 +80,11 @@ describe('DosAnalytics', () => {
   it('flags students needing attention, merging score and absence reasons', async () => {
     getDosAnalytics.mockResolvedValue(ANALYTICS)
     getAtRiskStudents.mockResolvedValue([
-      { student_name: 'Eric N', student_code: 'STU001', grade: '2', average_score: 42.5, subjects_failing: 3 },
+      { student_name: 'Eric N', student_code: 'STU001', grade: 'S2', average_score: 42.5, subjects_failing: 3 },
     ])
     getChronicAbsence.mockResolvedValue([
-      { student_name: 'Eric N', student_code: 'STU001', grade: '2', attendance_rate: 65, days_absent: 7 },
-      { student_name: 'Alice K', student_code: 'STU002', grade: '1', attendance_rate: 72, days_absent: 5 },
+      { student_name: 'Eric N', student_code: 'STU001', grade: 'S2', attendance_rate: 65, days_absent: 7 },
+      { student_name: 'Alice K', student_code: 'STU002', grade: 'S1', attendance_rate: 72, days_absent: 5 },
     ])
     renderWithRouter(<DosAnalytics />)
 

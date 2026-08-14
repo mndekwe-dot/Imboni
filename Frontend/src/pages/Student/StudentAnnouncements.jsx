@@ -128,7 +128,11 @@ export function StudentAnnouncements() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading announcements…</p>
                         ) : visible.length === 0 ? (
-                            <p className="u-pad u-muted">No announcements found.</p>
+                            <p className="u-pad u-muted">
+                                {chip === 'All'
+                                    ? 'No announcements yet.'
+                                    : 'No announcements match this filter.'}
+                            </p>
                         ) : (
                             <div className="sann-feed">
                                 {visible.map(a => <AnnouncementItem key={a.id} ann={a} />)}

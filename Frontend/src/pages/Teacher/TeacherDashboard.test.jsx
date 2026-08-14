@@ -77,7 +77,7 @@ describe('TeacherDashboard', () => {
         getTeacherClassPerformance.mockResolvedValue([])
         renderWithRouter(<TeacherDashboard />)
 
-        await waitFor(() => expect(screen.getByText('No classes scheduled for today.')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText('No classes scheduled today.')).toBeInTheDocument())
         expect(screen.getByText('No pending tasks.')).toBeInTheDocument()
         expect(screen.getByText('No performance data yet.')).toBeInTheDocument()
     })

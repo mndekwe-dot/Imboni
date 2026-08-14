@@ -45,10 +45,10 @@ class TestDisciplineStudentListView:
     def test_grade_filter_narrows_results(self, make_authenticated_client):
         client, _user = make_authenticated_client('discipline')
 
-        StudentFactory(student_id='STU00111', grade='1')
-        StudentFactory(student_id='STU00222', grade='2')
+        StudentFactory(student_id='STU00111', grade='S1')
+        StudentFactory(student_id='STU00222', grade='S2')
 
-        response = client.get('/imboni/discipline/students/?grade=1')
+        response = client.get('/imboni/discipline/students/?grade=S1')
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
@@ -69,11 +69,11 @@ class TestDisciplineStudentListView:
     def test_combined_grade_and_section_filter(self, make_authenticated_client):
         client, _user = make_authenticated_client('discipline')
 
-        StudentFactory(student_id='STU00401', grade='5', section='A')
-        StudentFactory(student_id='STU00402', grade='5', section='B')
-        StudentFactory(student_id='STU00403', grade='6', section='A')
+        StudentFactory(student_id='STU00401', grade='S5', section='A')
+        StudentFactory(student_id='STU00402', grade='S5', section='B')
+        StudentFactory(student_id='STU00403', grade='S6', section='A')
 
-        response = client.get('/imboni/discipline/students/?grade=5&section=A')
+        response = client.get('/imboni/discipline/students/?grade=S5&section=A')
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1

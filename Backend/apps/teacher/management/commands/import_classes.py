@@ -5,9 +5,9 @@ Bulk-create (or update) the school's classes from a CSV, so a new pilot school
 can set up its whole class structure in one step instead of adding rows by hand.
 
 CSV columns (header row required; order doesn't matter, case-insensitive):
-    grade               required — e.g. 1..6
-    section             required — e.g. A/B/C
-    name                optional — display name (default "Grade <grade><section>")
+    grade               required — one of the school's year codes, e.g. S1
+    section             required — one of that year's streams, e.g. A
+    name                optional — display name (default "<grade><section>")
     room_number         optional
     max_students        optional — integer (default 40)
     class_teacher_email optional — email of an existing staff user to make class teacher
@@ -20,10 +20,12 @@ Run with --dry-run first to preview what would be created/updated.
 import csv
 import io
 
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from apps.audit.services import audit
+from apps.dos.structure import class_label, validate_grade, validate_section
 from apps.authentication.models import User
 from apps.teacher.models import Class
 
@@ -51,6 +53,16 @@ class Command(BaseCommand):
                     failed.append((idx, 'grade and section are required'))
                     continue
 
+                # The school's configuration is what says which years and
+                # streams exist, so a typo is caught here rather than becoming
+                # a class nothing else recognises.
+                try:
+                    validate_grade(grade)
+                    validate_section(section, grade)
+                except ValidationError as exc:
+                    failed.append((idx, exc.messages[0]))
+                    continue
+
                 teacher = None
                 email = row.get('class_teacher_email', '').strip()
                 if email:
@@ -67,7 +79,7 @@ class Command(BaseCommand):
                     continue
 
                 defaults = {
-                    'name': row.get('name', '').strip() or f'Grade {grade}{section}',
+                    'name': row.get('name', '').strip() or class_label(grade, section),
                     'room_number': row.get('room_number', '').strip(),
                     'max_students': max_students,
                 }
@@ -78,7 +90,7 @@ class Command(BaseCommand):
                 if dry_run:
                     self.stdout.write(
                         f'  row {idx}: would {"update" if existing else "create"} '
-                        f'Grade {grade}{section}'
+                        f'{class_label(grade, section)}'
                     )
                     continue
 

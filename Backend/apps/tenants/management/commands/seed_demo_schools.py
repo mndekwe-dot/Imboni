@@ -304,15 +304,15 @@ class Command(BaseCommand):
     def _terms(self):
         from apps.results.models import AcademicTerm
         spec = [
-            ('term1', f'Term 1 {YEAR}', date(YEAR, 1, 5),  date(YEAR, 3, 27), False),
-            ('term2', f'Term 2 {YEAR}', date(YEAR, 4, 28), date(YEAR, 7, 24), True),
-            ('term3', f'Term 3 {YEAR}', date(YEAR, 9, 7),  date(YEAR, 12, 4), False),
+            ('term1', 1, f'Term 1 {YEAR}', date(YEAR, 1, 5),  date(YEAR, 3, 27), False),
+            ('term2', 2, f'Term 2 {YEAR}', date(YEAR, 4, 28), date(YEAR, 7, 24), True),
+            ('term3', 3, f'Term 3 {YEAR}', date(YEAR, 9, 7),  date(YEAR, 12, 4), False),
         ]
         terms = {}
-        for code, name, start, end, current in spec:
+        for code, order, name, start, end, current in spec:
             term, _ = AcademicTerm.objects.get_or_create(
                 term=code, year=YEAR,
-                defaults={'name': name, 'start_date': start,
+                defaults={'name': name, 'order': order, 'start_date': start,
                           'end_date': end, 'is_current': current},
             )
             terms[code] = term
@@ -339,15 +339,15 @@ class Command(BaseCommand):
     def _school_settings(self, profile):
         from apps.dos.models import SchoolSection, SchoolSetting
 
-        o_years = [y for y in profile['years'] if y in ('1', '2', '3')]
-        a_years = [y for y in profile['years'] if y in ('4', '5', '6')]
+        o_years = [y for y in profile['years'] if y in ('S1', 'S2', 'S3')]
+        a_years = [y for y in profile['years'] if y in ('S4', 'S5', 'S6')]
         SchoolSection.objects.all().delete()
         for label, years in (('O-Level', o_years), ('A-Level', a_years)):
             if not years:
                 continue
             SchoolSection.objects.create(
                 name=label,
-                years=[{'name': f'S{y}', 'streams': profile['streams'][y]}
+                years=[{'name': y, 'streams': profile['streams'][y]}
                        for y in years],
             )
 
@@ -435,7 +435,7 @@ class Command(BaseCommand):
         i = 0
         for year in profile['years']:
             for stream in profile['streams'][year]:
-                name = f'S{year}{stream}'
+                name = f'{year}{stream}'
                 cls, _ = Class.objects.get_or_create(
                     grade=year, section=stream,
                     defaults={'name': name,
@@ -970,7 +970,7 @@ class Command(BaseCommand):
 
     def _leaders(self, ctx):
         from apps.discipline.models import StudentLeader
-        seniors = [s for s in ctx['all_students'] if s.grade in ('4', '5', '6')]
+        seniors = [s for s in ctx['all_students'] if s.grade in ('S4', 'S5', 'S6')]
         pool = seniors or ctx['all_students']
         if not pool:
             return

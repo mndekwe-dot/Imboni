@@ -29,7 +29,7 @@ def _make_subject(code='MATH101'):
     return Subject.objects.create(name='Mathematics', code=code)
 
 
-def _make_class(grade='4', section='A'):
+def _make_class(grade='S4', section='A'):
     return Class.objects.create(name=f'S{grade}{section}', grade=grade, section=section)
 
 
@@ -76,7 +76,7 @@ class TestTeacherAttendanceStudentsView:
         subject = _make_subject()
         class_obj = _make_class()
         _assign_teacher(teacher, subject, class_obj, term)
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         response = client.get('/imboni/teacher/attendance/students/', {'class_id': str(class_obj.id)})
@@ -92,7 +92,7 @@ class TestTeacherAttendanceStudentsView:
         client, _teacher = make_authenticated_client('teacher')
         term = _make_term()
         class_obj = _make_class()
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         response = client.get('/imboni/teacher/attendance/students/', {'class_id': str(class_obj.id)})
@@ -113,7 +113,7 @@ class TestMarkAttendanceView:
         subject = _make_subject()
         class_obj = _make_class()
         _assign_teacher(teacher, subject, class_obj, term)
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         response = client.post('/imboni/teacher/attendance/mark/', {
@@ -131,7 +131,7 @@ class TestMarkAttendanceView:
         client, _teacher = make_authenticated_client('teacher')
         term = _make_term()
         class_obj = _make_class()
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         response = client.post('/imboni/teacher/attendance/mark/', {
@@ -153,7 +153,7 @@ class TestMarkAttendanceView:
         subject = _make_subject()
         class_obj = _make_class()
         _assign_teacher(teacher, subject, class_obj, term)
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
         parent = UserFactory(role='parent')
         ParentStudentRelationship.objects.create(parent=parent, student=student, relationship_type='mother')
@@ -190,7 +190,7 @@ class TestMarkAttendanceView:
         subject = _make_subject()
         class_obj = _make_class()
         _assign_teacher(teacher, subject, class_obj, term)
-        outside_student = StudentFactory(grade='6', section='B')  # not enrolled in class_obj
+        outside_student = StudentFactory(grade='S6', section='B')  # not enrolled in class_obj
 
         response = client.post('/imboni/teacher/attendance/mark/', {
             'class_id': str(class_obj.id),
@@ -222,7 +222,7 @@ class TestTeacherResultsViews:
         subject = _make_subject()
         class_obj = _make_class()
         _assign_teacher(teacher, subject, class_obj, term)
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         response = client.post('/imboni/teacher/results/bulk-save/', {
@@ -245,7 +245,7 @@ class TestTeacherResultsViews:
         term = _make_term()
         subject = _make_subject()
         class_obj = _make_class()
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         response = client.post('/imboni/teacher/results/bulk-save/', {
@@ -268,7 +268,7 @@ class TestTeacherResultsViews:
         subject = _make_subject()
         class_obj = _make_class()
         _assign_teacher(teacher, subject, class_obj, term)
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         from apps.results.models import Assessment
@@ -289,7 +289,7 @@ class TestTeacherResultsViews:
         client, _teacher = make_authenticated_client('teacher')
         term = _make_term()
         class_obj = _make_class()
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         response = client.get('/imboni/teacher/results/list/', {'class_id': str(class_obj.id)})
@@ -452,7 +452,7 @@ class TestPaperAssignmentGrading:
         term = _make_term()
         subject = _make_subject()
         class_obj = _make_class()
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
         assignment = Assignment.objects.create(
             teacher=teacher, class_obj=class_obj, subject=subject,
@@ -581,8 +581,8 @@ class TestDueDateReminderCommand:
         term = _make_term()
         subject = _make_subject()
         class_obj = _make_class()
-        submitted_student = StudentFactory(grade='4', section='A')
-        pending_student   = StudentFactory(grade='4', section='A')
+        submitted_student = StudentFactory(grade='S4', section='A')
+        pending_student   = StudentFactory(grade='S4', section='A')
         for s in (submitted_student, pending_student):
             ClassAssignment.objects.create(class_obj=class_obj, student=s, term=term)
 
@@ -614,7 +614,7 @@ class TestDueDateReminderCommand:
         term = _make_term()
         subject = _make_subject()
         class_obj = _make_class()
-        student = StudentFactory(grade='4', section='A')
+        student = StudentFactory(grade='S4', section='A')
         ClassAssignment.objects.create(class_obj=class_obj, student=student, term=term)
 
         tomorrow = datetime.date.today() + datetime.timedelta(days=1)

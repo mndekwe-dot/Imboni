@@ -72,6 +72,7 @@ class AcademicTermFactory(DjangoModelFactory):
 
     name = factory.Sequence(lambda n: f'Term {n}')
     term = 'term1'
+    order = 1
     year = factory.Sequence(lambda n: 2020 + n)
     start_date = '2024-01-01'
     end_date = '2024-04-01'

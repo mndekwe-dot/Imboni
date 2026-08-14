@@ -99,7 +99,7 @@ class Command(BaseCommand):
                 grade=grade,
                 section=section,
                 defaults={
-                    'name': f'Grade {grade}{section}',
+                    'name': f'{grade}{section}',
                     'class_teacher': class_teacher,
                     'max_students': 35,
                     'room_number': f'R{grade}0{section}',

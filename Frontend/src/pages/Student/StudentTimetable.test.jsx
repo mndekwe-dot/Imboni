@@ -22,10 +22,10 @@ describe('StudentTimetable', () => {
   })
 
   it('renders the timetable for the student\'s own class once loaded', async () => {
-    getStudentProfile.mockResolvedValue({ grade: '4', section: 'A' })
+    getStudentProfile.mockResolvedValue({ grade: 'S4', section: 'A' })
     renderWithRouter(<StudentTimetable />)
 
-    await waitFor(() => expect(screen.getAllByText('Class 4A Weekly Schedule').length).toBeGreaterThan(0))
+    await waitFor(() => expect(screen.getAllByText('Class S4A Weekly Schedule').length).toBeGreaterThan(0))
   })
 
   it('shows an error message when the profile has no class information', async () => {

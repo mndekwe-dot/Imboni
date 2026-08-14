@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -12,6 +12,8 @@ import '../../styles/teacher.css'
 import '../../styles/tables.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { sectionsFromClasses } from '../../utils/classes'
 import {
     getTeacherMyClasses, getTeacherStudents,
     getTeacherResultList, bulkSaveResults,
@@ -28,23 +30,6 @@ const ASSESSMENT_TYPES = [
     { value: 'presentation', label: 'Presentation' },
     { value: 'lab',          label: 'Lab Work'     },
 ]
-
-function buildSections(classes) {
-    const oLevel = { name: 'O-Level', years: [] }
-    const aLevel = { name: 'A-Level', years: [] }
-    for (const cls of classes) {
-        const grade = parseInt(cls.grade)
-        const group = grade <= 3 ? oLevel : aLevel
-        const yearName = `S${cls.grade}`
-        let yearObj = group.years.find(y => y.name === yearName)
-        if (!yearObj) {
-            yearObj = { name: yearName, streams: [] }
-            group.years.push(yearObj)
-        }
-        if (!yearObj.streams.includes(cls.section)) yearObj.streams.push(cls.section)
-    }
-    return [oLevel, aLevel].filter(s => s.years.length > 0)
-}
 
 function getGrade(pct) {
     if (pct >= 80) return { label: 'A', cls: 'a' }
@@ -296,7 +281,11 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
 export function TeacherResults() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,    setClasses]    = useState([])
-    const [sections,   setSections]   = useState([])
+    const { config } = useSchoolConfig()
+    // Rebuilt when either the classes or the school's configuration arrives —
+    // the config loads asynchronously, so deriving this once inside the fetch
+    // would group years before the section names were known.
+    const sections = useMemo(() => sectionsFromClasses(classes, config), [classes, config])
     const [loadingClasses, setLoadingClasses] = useState(true)
     const [loadError,  setLoadError]  = useState(null)
 
@@ -324,14 +313,13 @@ export function TeacherResults() {
             .then(data => {
                 const list = Array.isArray(data) ? data : []
                 setClasses(list)
-                setSections(buildSections(list))
             })
             .catch(err => setLoadError(err?.message || 'Failed to load classes.'))
             .finally(() => setLoadingClasses(false))
     }, [])
 
     const selectedClass = year && classVal
-        ? classes.find(c => `S${c.grade}` === year && c.section === classVal) || null
+        ? classes.find(c => c.grade === year && c.section === classVal) || null
         : null
     const classKey = selectedClass ? selectedClass.class_name : ''
 
@@ -456,7 +444,7 @@ export function TeacherResults() {
                                         </select>
                                     ) : (
                                         <span className="settings-info-text u-muted">
-                                            {selectedClass ? 'No assessments yet' : 'Select a class first'}
+                                            {selectedClass ? 'No assessments recorded yet' : 'Select a class first'}
                                         </span>
                                     )}
                                     <div className="toolbar-spacer" />

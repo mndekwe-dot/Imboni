@@ -201,7 +201,7 @@ export function ParentAttendance() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading…</p>
                         ) : !child ? (
-                            <p className="u-pad u-muted">No children linked.</p>
+                            <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
                             <AttendancePanel
                                 key={child.id}

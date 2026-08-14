@@ -8,6 +8,7 @@ import {
   markDosTeacherAttendance,
   getDosAttendanceStats,
   getSchoolSettings,
+  getSchoolConfig,
 } from '../../api/dos'
 
 vi.mock('../../api/dos', () => ({
@@ -17,12 +18,13 @@ vi.mock('../../api/dos', () => ({
   markDosTeacherAttendance: vi.fn(),
   getDosAttendanceStats: vi.fn(),
   getSchoolSettings: vi.fn(),
+  getSchoolConfig: vi.fn(),
 }))
 
 const classesData = [
-  { grade: 4, section: 'A' },
-  { grade: 4, section: 'B' },
-  { grade: 5, section: 'A' },
+  { grade: 'S4', section: 'A' },
+  { grade: 'S4', section: 'B' },
+  { grade: 'S5', section: 'A' },
 ]
 
 const statsData = {
@@ -80,6 +82,10 @@ describe('DosAttendance', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     getSchoolSettings.mockResolvedValue({ timezone: 'Africa/Kigali', school_name: 'Test School' })
+    getSchoolConfig.mockResolvedValue([
+      { name: 'O-Level', years: [{ name: 'S1', streams: ['A'] }, { name: 'S2', streams: ['A'] }, { name: 'S3', streams: ['A'] }] },
+      { name: 'A-Level', years: [{ name: 'S4', streams: ['A', 'B'] }, { name: 'S5', streams: ['A'] }, { name: 'S6', streams: ['A'] }] },
+    ])
     getDosClasses.mockResolvedValue(classesData)
     getDosAttendanceStats.mockResolvedValue(statsData)
     getDosWeeklyAttendance.mockResolvedValue(weeklyAttendanceData)

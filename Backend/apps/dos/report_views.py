@@ -152,9 +152,11 @@ class StudentReportCardView(APIView):
         ).select_related('class_obj').first()
         student_class = class_assignment.class_obj.name if class_assignment else student.grade
 
-        # ── Build term label (Term 1, Term 2, etc.) ───────────────────────
-        term_map = {'term1': 'Term 1', 'term2': 'Term 2', 'term3': 'Term 3'}
-        term_label = term_map.get(term.term, term.name)
+        # ── Build term label ──────────────────────────────────────────────
+        # The term's own name, which the school set when it created the term.
+        # This used to be a hard-coded term1/2/3 map that silently mislabelled
+        # any school not using those three codes.
+        term_label = term.name
 
         # ── Render HTML template ─────────────────────────────────────────
         context = {
@@ -276,8 +278,7 @@ class ClassReportCardsView(APIView):
                 conduct_grade = conduct_labels.get(conduct.grade, 'N/A') if conduct else 'N/A'
 
                 rank, class_size = _get_rank(student, term)
-                term_map   = {'term1': 'Term 1', 'term2': 'Term 2', 'term3': 'Term 3'}
-                term_label = term_map.get(term.term, term.name)
+                term_label = term.name
 
                 context = {
                     'school_name':  SCHOOL_NAME,

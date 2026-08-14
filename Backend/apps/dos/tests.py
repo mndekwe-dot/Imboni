@@ -30,8 +30,8 @@ class TestStudentListView:
 
     def test_dos_can_list_students(self, make_authenticated_client):
         client, _user = make_authenticated_client('dos')
-        StudentFactory(grade='4', section='A')
-        StudentFactory(grade='5', section='B')
+        StudentFactory(grade='S4', section='A')
+        StudentFactory(grade='S5', section='B')
 
         response = client.get('/imboni/dos/students/')
 
@@ -51,11 +51,11 @@ class TestStudentListView:
 
     def test_grade_filter_narrows_results(self, make_authenticated_client):
         client, _user = make_authenticated_client('dos')
-        StudentFactory(grade='4', section='A')
-        StudentFactory(grade='5', section='B')
-        StudentFactory(grade='5', section='A')
+        StudentFactory(grade='S4', section='A')
+        StudentFactory(grade='S5', section='B')
+        StudentFactory(grade='S5', section='A')
 
-        response = client.get('/imboni/dos/students/', {'grade': '5'})
+        response = client.get('/imboni/dos/students/', {'grade': 'S5'})
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 2
@@ -64,15 +64,15 @@ class TestStudentListView:
     def test_search_and_grade_combine(self, make_authenticated_client):
         client, _user = make_authenticated_client('dos')
         StudentFactory(
-            grade='4',
+            grade='S4',
             user=UserFactory(role='student', first_name='Aline', last_name='Mukamana'),
         )
         StudentFactory(
-            grade='5',
+            grade='S5',
             user=UserFactory(role='student', first_name='Aline', last_name='Uwimana'),
         )
 
-        response = client.get('/imboni/dos/students/', {'search': 'Aline', 'grade': '4'})
+        response = client.get('/imboni/dos/students/', {'search': 'Aline', 'grade': 'S4'})
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
@@ -236,8 +236,8 @@ class TestTimetableConflictDetection:
         term = _make_term()
         subject = _make_subject()
         teacher = UserFactory(role='teacher')
-        class_a = Class.objects.create(name='S1A', grade='1', section='A')
-        class_b = Class.objects.create(name='S1B', grade='1', section='B')
+        class_a = Class.objects.create(name='S1A', grade='S1', section='A')
+        class_b = Class.objects.create(name='S1B', grade='S1', section='B')
         return client, term, subject, teacher, class_a, class_b
 
     def _slot_payload(self, class_obj, subject, teacher, **overrides):
@@ -309,10 +309,10 @@ class TestTermRollover:
     def _setup_school(self):
         from apps.teacher.models import ClassAssignment
         term = _make_term()  # term1 2025, current
-        s2_class = Class.objects.create(name='S2A', grade='2', section='A')
-        s3_class = Class.objects.create(name='S3A', grade='3', section='A')
-        s2_student = StudentFactory(grade='2', section='A')
-        s6_student = StudentFactory(grade='6', section='A')
+        s2_class = Class.objects.create(name='S2A', grade='S2', section='A')
+        s3_class = Class.objects.create(name='S3A', grade='S3', section='A')
+        s2_student = StudentFactory(grade='S2', section='A')
+        s6_student = StudentFactory(grade='S6', section='A')
         ClassAssignment.objects.create(class_obj=s2_class, student=s2_student, term=term)
         return term, s2_student, s6_student, s3_class
 
@@ -336,7 +336,7 @@ class TestTermRollover:
         assert response.data['students_promoted'] == 1
         assert response.data['students_graduated'] == 1
         s2_student.refresh_from_db(); s6_student.refresh_from_db()
-        assert s2_student.grade == '2'                      # unchanged
+        assert s2_student.grade == 'S2'                      # unchanged
         assert s6_student.status == 'active'                # unchanged
         assert not AcademicTerm.objects.filter(year=2026).exists()
 
@@ -350,7 +350,7 @@ class TestTermRollover:
 
         assert response.status_code == 200
         s2_student.refresh_from_db(); s6_student.refresh_from_db()
-        assert s2_student.grade == '3'
+        assert s2_student.grade == 'S3'
         assert s6_student.status == 'graduated'
         new_term = AcademicTerm.objects.get(term='term1', year=2026)
         assert new_term.is_current is True
@@ -373,7 +373,7 @@ class TestTermRollover:
         assert response.status_code == 200
         assert response.data['mode'] == 'carry_over'
         s2_student.refresh_from_db()
-        assert s2_student.grade == '2'                      # no promotion mid-year
+        assert s2_student.grade == 'S2'                      # no promotion mid-year
         new_term = AcademicTerm.objects.get(term='term2', year=2025)
         assert ClassAssignment.objects.filter(student=s2_student, term=new_term).exists()
 

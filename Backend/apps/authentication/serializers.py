@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import User, UserPreferences,Invitation
 from .validators import validate_avatar
+from apps.dos.structure import class_label
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -131,7 +132,7 @@ class InvitationSerializer(serializers.ModelSerializer):
     def get_class_obj_name(self, obj):
         if not obj.class_obj:
             return None
-        return f"S{obj.class_obj.grade}{obj.class_obj.section}"
+        return class_label(class_obj=obj.class_obj)
 
     def validate(self, data):
         # At least one of email or phone must be provided

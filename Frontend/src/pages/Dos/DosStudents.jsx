@@ -3,7 +3,8 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { yearsFromConfig } from '../../utils/classes'
+import { yearsFromConfig, classLabel as formatClass } from '../../utils/classes'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
@@ -32,7 +33,6 @@ function daysAgo(dateStr) {
     return `${diff} days ago`
 }
 
-const gradeMap = { '1':'S1','2':'S2','3':'S3','4':'S4','5':'S5','6':'S6' }
 const standMap = (p) => p >= 80 ? ['dos-stand-excellent','Excellent'] : p >= 60 ? ['dos-stand-good','Good'] : ['dos-stand-concern','Concern']
 
 function apiToStudent(s) {
@@ -42,7 +42,7 @@ function apiToStudent(s) {
         initials:    s.initials,
         name:        s.full_name,
         adm:         s.student_code,
-        year:        gradeMap[s.grade] || s.grade,
+        year:        s.grade,
         classLetter: s.section,
         status:      s.status,
         house:       '-',
@@ -361,8 +361,6 @@ const LEADER_ROLES = [
     { value: 'games_captain',    label: 'Games Captain'    },
 ]
 
-const gradeFromYear = y => y.toUpperCase().startsWith('S') ? y.slice(1) : y
-
 function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
     const [student,      setStudent]      = useState(null)
     const [loading,      setLoading]      = useState(true)
@@ -408,7 +406,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
     useEffect(() => {
         setLoading(true); setActionErr(''); setChangeClassOpen(false); setAppointOpen(false)
         getDosStudentDetail(studentId)
-            .then(d => { setStudent(d); setNewYear(`S${d.grade}`); setNewStream(d.section) })
+            .then(d => { setStudent(d); setNewYear(d.grade); setNewStream(d.section) })
             .catch(() => setActionErr('Failed to load student.'))
             .finally(() => setLoading(false))
     }, [studentId])
@@ -427,8 +425,8 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
         if (!newYear || !newStream) return
         setSaving(true); setActionErr('')
         try {
-            const res = await changeDosStudentClass(studentId, { grade: gradeFromYear(newYear), section: newStream })
-            setStudent(s => ({ ...s, grade: gradeFromYear(newYear), section: newStream }))
+            const res = await changeDosStudentClass(studentId, { grade: newYear, section: newStream })
+            setStudent(s => ({ ...s, grade: newYear, section: newStream }))
             setChangeClassOpen(false)
             if (res.warning) setActionErr(res.warning)
             onStudentUpdated()
@@ -457,7 +455,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
     }
 
     const isSuspended = student?.status === 'suspended'
-    const classLabel  = student ? `S${student.grade}${student.section}` : '-'
+    const classLabel  = student ? formatClass(student.grade, student.section) : '-'
 
     const standingColor = (p) => p >= 80 ? 'var(--success)' : p >= 60 ? 'var(--warning)' : 'var(--danger)'
 
@@ -760,6 +758,10 @@ export function DosStudents() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const { config }  = useSchoolConfig()
+    // Column headings come from the school's own terms. They were 'Term 1' and
+    // 'Term 2', which name terms only a three-term school has.
+    const { setting } = useSchoolSettings()
+    const pastTerms   = (setting.terms ?? []).slice(0, 2).map(t => t.label)
     const admitYears  = yearsFromConfig(config)
     const admitStreams = [...new Set(config.flatMap(s => s.years.flatMap(y => y.streams)))]
 
@@ -790,7 +792,7 @@ export function DosStudents() {
         const handle = setTimeout(() => {
             const params = {}
             if (search) params.search = search
-            if (year) params.grade = year.replace('S', '')
+            if (year) params.grade = year
             setLoading(true)
             loadData(params)
                 .catch(err => setError(err.message))
@@ -852,7 +854,7 @@ export function DosStudents() {
 
     function handleExport() {
         if (!filtered.length) return
-        const header = 'Name,Adm No,Year,Class,Dormitory,Term 1,Term 2,Current,Standing'
+        const header = `Name,Adm No,Year,Class,Dormitory,${pastTerms.join(',')},Current,Standing`
         const body   = filtered.map(s =>
             `"${s.name}","${s.adm}",${s.year},${s.classLetter},${s.house},${s.t1},${s.t2},${s.curr},${s.standing}`
         ).join('\n')
@@ -910,7 +912,7 @@ export function DosStudents() {
                         <DataTable
                             title={`${classLabel}: Students`}
                             data={filtered}
-                            columns={['Student','Adm No.','Dormitory','Term 1','Term 2','Current','Standing','Actions']}
+                            columns={['Student','Adm No.','Dormitory', ...pastTerms, 'Current','Standing','Actions']}
                             renderRow={s => <StudentRow key={s.adm} {...s} onView={() => setSelectedStudentId(s.id)} />}
                             emptyIcon="people"
                             emptyTitle="No students found"

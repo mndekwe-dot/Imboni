@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from apps.authentication.permissions import IsTeacherOrDOS, IsDOSOrAdmin
 from apps.authentication.models import User
 from apps.notifications.models import Notification
+from apps.dos.structure import class_label, year_label
 
 from .models import AttendanceRecord, AttendanceSummary, TeacherAttendanceRecord
 from .serializers import (
@@ -259,7 +260,7 @@ class DosClassWeeklyAttendanceView(APIView):
                 'full_name':     s.full_name,
                 'initials':      initials,
                 'student_code':  s.student_id,
-                'class_name':    f'S{enr.class_obj.grade}{enr.class_obj.section}',
+                'class_name':    class_label(class_obj=enr.class_obj),
                 'days':          day_statuses,
                 'present_count': present_count,
                 'rate':          rate,
@@ -274,9 +275,9 @@ class DosClassWeeklyAttendanceView(APIView):
                 class_teacher = u.get_full_name() or u.email
 
         if grade and section:
-            class_name = f'S{grade}{section}'
+            class_name = class_label(grade, section)
         elif grade:
-            class_name = f'S{grade} (All Classes)'
+            class_name = f'{year_label(grade)} (All Classes)'
         elif section:
             class_name = f'All Years (Class {section})'
         else:

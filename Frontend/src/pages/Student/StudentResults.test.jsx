@@ -14,7 +14,7 @@ vi.mock('../../api/notifications', () => ({
   markNotificationRead: vi.fn(),
 }))
 
-const PROFILE = { grade: '4', section: 'A', student_id: 9 }
+const PROFILE = { grade: 'S4', section: 'A', student_id: 9 }
 
 const TERMS = [
   { term_id: 1, term: 'Term 1', year: 2026, average_score: 80, subjects: [{ subject: 'Mathematics', grade: 'A', final_score: 85 }] },

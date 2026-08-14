@@ -30,4 +30,4 @@ class ConductGradeAdmin(admin.ModelAdmin):
                      'warning_count', 'incident_count', 'achievement_count')
     list_filter   = ('grade', 'term')
     search_fields = ('student__user__last_name', 'student__student_id')
-    ordering      = ('-term__year', '-term__term')
+    ordering      = ('-term__year', '-term__order')

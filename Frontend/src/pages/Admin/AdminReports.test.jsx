@@ -42,9 +42,9 @@ describe('AdminReports', () => {
 
   it('renders stat cards once data resolves', async () => {
     getAdminDashboardStats.mockResolvedValue(STATS)
-    getPerformanceByGrade.mockResolvedValue([{ grade: 4, avg_score: 80 }])
+    getPerformanceByGrade.mockResolvedValue([{ grade: 'S4', avg_score: 80 }])
     getWeeklyTrend.mockResolvedValue([{ week: 'W1', attendance: 90, performance: 78 }])
-    getEnrollmentByGrade.mockResolvedValue([{ grade: 4, student_count: 120 }])
+    getEnrollmentByGrade.mockResolvedValue([{ grade: 'S4', student_count: 120 }])
     getPerformanceDistribution.mockResolvedValue([{ category: 'Good', percentage: 60, count: 300 }])
     getTeachersBySubject.mockResolvedValue([{ subject_name: 'Mathematics', teacher_count: 5 }])
 
@@ -70,7 +70,7 @@ describe('AdminReports', () => {
 
   it('handles a paginated {results:[]} shape for chart data', async () => {
     getAdminDashboardStats.mockResolvedValue(STATS)
-    getPerformanceByGrade.mockResolvedValue({ results: [{ grade: 5, avg_score: 75 }] })
+    getPerformanceByGrade.mockResolvedValue({ results: [{ grade: 'S5', avg_score: 75 }] })
     getWeeklyTrend.mockResolvedValue([])
     getEnrollmentByGrade.mockResolvedValue([])
     getPerformanceDistribution.mockResolvedValue([])

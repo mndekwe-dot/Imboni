@@ -14,7 +14,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { classesFromConfig } from '../../utils/classes'
+import { classesFromConfig, classLabel } from '../../utils/classes'
 
 
 function isCaptain(role) {
@@ -24,7 +24,7 @@ function isCaptain(role) {
 function toLeaderCard(sl) {
     const words    = (sl.full_name || '').trim().split(/\s+/)
     const initials = words.slice(0, 2).map(w => w[0] || '').join('').toUpperCase()
-    const form     = sl.grade && sl.section ? `S${sl.grade}${sl.section}` : '-'
+    const form     = sl.grade && sl.section ? classLabel(sl.grade, sl.section) : '-'
     const since    = sl.appointed_date
         ? new Date(sl.appointed_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
         : '-'
