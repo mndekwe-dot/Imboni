@@ -9,23 +9,34 @@
     "signOut": "Sign out"
   },
   "common": {
+    "absent": "Absent",
     "add": "Add",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",
+    "completed": "Completed",
     "date": "Date",
     "day": "Day",
     "delete": "Delete",
     "description": "Description",
     "edit": "Edit",
+    "excused": "Excused",
     "filter": "Filter",
+    "full": "Full",
     "grade": "Grade",
+    "join": "Join",
+    "joining": "Joining…",
+    "late": "Late",
     "loading": "Loading…",
     "next": "Next",
     "no": "No",
+    "overdue": "Overdue",
+    "pending": "Pending",
     "points": "Points",
+    "present": "Present",
     "recordedBy": "Recorded By",
     "retry": "Try again",
+    "review": "Review",
     "save": "Save",
     "saving": "Saving…",
     "score": "Score",
@@ -37,10 +48,15 @@
     "somethingWentWrong": "Something went wrong",
     "status": "Status",
     "subject": "Subject",
+    "submitted": "Submitted",
     "term": "Term",
     "timeIn": "Time In",
     "type": "Type",
+    "upload": "Upload",
     "viewAll": "View All",
+    "weekend": "Weekend",
+    "withdraw": "Withdraw",
+    "withdrawing": "Withdrawing…",
     "yes": "Yes"
   },
   "language": {
@@ -111,6 +127,29 @@
     "tagline": "Education Connects"
   },
   "student": {
+    "activities": {
+      "achievement": "Achievement",
+      "available": "Available Activities",
+      "awarded": "Awarded",
+      "conductGradeTerm": "Conduct Grade (Current Term)",
+      "enrolled": "My Enrolled Activities",
+      "loadingActivities": "Loading activities…",
+      "loadingEvents": "Loading events…",
+      "loadingRecords": "Loading records…",
+      "negative": "Negative",
+      "noEvents": "No upcoming events",
+      "noEventsDesc": "Events for your enrolled activities will appear here.",
+      "noRecordsFiltered": "No discipline records match this filter.",
+      "noneDesc": "Extracurricular activities will appear here when they are available.",
+      "noneFound": "No activities found",
+      "noted": "Noted",
+      "positive": "Positive",
+      "recordsTitle": "Behaviour & Discipline Records",
+      "subtitle": "Behaviour record and extracurricular activities",
+      "title": "Activities & Discipline",
+      "upcomingEvents": "Upcoming Activity Events",
+      "warning": "Warning"
+    },
     "announcements": {
       "academic": "Academic",
       "actionNeeded": "Action needed",
@@ -129,6 +168,26 @@
       "unread": "Unread",
       "upcomingEvents": "Upcoming Events",
       "urgent": "Urgent"
+    },
+    "assignments": {
+      "allAssignments": "All Assignments",
+      "emptyFiltered": "No assignments match this filter right now.",
+      "loading": "Loading assignments…",
+      "onlineQuizzes": "Online Quizzes",
+      "submitNow": "Submit Now",
+      "subtitle": "Track all your tasks and deadlines",
+      "takeQuiz": "Take Quiz",
+      "totalThisTerm": "Total This Term"
+    },
+    "attendance": {
+      "daysAbsent": "Days Absent",
+      "daysPresent": "Days Present",
+      "lateArrivals": "Late Arrivals",
+      "loadingCalendar": "Loading calendar…",
+      "monthlyCalendar": "Monthly Calendar",
+      "noRecords": "No records for this month.",
+      "overallRate": "Overall Attendance Rate",
+      "totalDays": "Total School Days"
     },
     "dashboard": {
       "attendance": "Attendance",
@@ -154,6 +213,9 @@
       "upcomingAssignments": "Upcoming Assignments",
       "welcomeBack": "Welcome back, {{name}}"
     },
+    "discipline": {
+      "subtitle": "School rules, your discipline record & appeals"
+    },
     "results": {
       "assessment": "Assessment",
       "averageOverTime": "My Average Over Time",
@@ -169,6 +231,12 @@
       "subtitleWithClass": "Academic performance for {{class}}",
       "title": "My Results",
       "year": "Year"
+    },
+    "timetable": {
+      "loadError": "Could not load class information.",
+      "subtitle": "Weekly Schedule",
+      "subtitleWithClass": "Class {{class}} Weekly Schedule",
+      "title": "My Timetable"
     }
   }
 }

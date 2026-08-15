@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -72,6 +73,7 @@ function CalendarCell({ day, status }) {
 }
 
 export function StudentAttendance() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const today = new Date()
     const [profile,  setProfile]  = useState(null)
@@ -110,7 +112,9 @@ export function StudentAttendance() {
     }, [month, year])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
-    const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
+    const userRole     = gradeSection
+        ? `${t('roles.student')} · ${gradeSection}`
+        : t('roles.student')
 
     const overallRate  = stats?.overall_rate  ?? 0
     const daysPresent  = stats?.days_present  ?? 0
@@ -120,9 +124,9 @@ export function StudentAttendance() {
     const totalDays    = daysPresent + daysAbsent + lateArrivals + excused
 
     const statCards = [
-        { materialSymbols: 'check_circle', statValueColor: 'var(--success)',     statValue: daysPresent,  statLabel: 'Days Present'  },
-        { materialSymbols: 'cancel',       statValueColor: 'var(--destructive)', statValue: daysAbsent,   statLabel: 'Days Absent'   },
-        { materialSymbols: 'schedule',     statValueColor: 'var(--warning)',     statValue: lateArrivals, statLabel: 'Late Arrivals' },
+        { materialSymbols: 'check_circle', statValueColor: 'var(--success)',     statValue: daysPresent,  statLabel: t('student.attendance.daysPresent')  },
+        { materialSymbols: 'cancel',       statValueColor: 'var(--destructive)', statValue: daysAbsent,   statLabel: t('student.attendance.daysAbsent')   },
+        { materialSymbols: 'schedule',     statValueColor: 'var(--warning)',     statValue: lateArrivals, statLabel: t('student.attendance.lateArrivals') },
         { materialSymbols: 'event_note',   statValueColor: 'var(--primary)',     statValue: totalDays,    statLabel: 'Total Days'    },
     ]
 
@@ -143,13 +147,13 @@ export function StudentAttendance() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Attendance"
+                        title={t('nav.attendance')}
                         subtitle={`Your attendance record${gradeSection ? ` for ${gradeSection}` : ''}`}
                         userName={fullName}
                         userRole={userRole}
@@ -164,14 +168,14 @@ export function StudentAttendance() {
                         <div className="attendance-hero">
                             <div>
                                 <div className="attendance-big-number">{loading ? '-' : `${overallRate}%`}</div>
-                                <div className="attendance-big-label">Overall Attendance Rate</div>
+                                <div className="attendance-big-label">{t('student.attendance.overallRate')}</div>
                                 {stats?.attendance_label && <small className="u-muted">{stats.attendance_label}</small>}
                             </div>
                             <div className="attendance-breakdown">
-                                <div className="att-breakdown-item"><span>{loading ? '-' : daysPresent}</span><small>Days Present</small></div>
-                                <div className="att-breakdown-item"><span>{loading ? '-' : daysAbsent}</span><small>Days Absent</small></div>
-                                <div className="att-breakdown-item"><span>{loading ? '-' : lateArrivals}</span><small>Late Arrivals</small></div>
-                                <div className="att-breakdown-item"><span>{loading ? '-' : totalDays}</span><small>Total School Days</small></div>
+                                <div className="att-breakdown-item"><span>{loading ? '-' : daysPresent}</span><small>{t('student.attendance.daysPresent')}</small></div>
+                                <div className="att-breakdown-item"><span>{loading ? '-' : daysAbsent}</span><small>{t('student.attendance.daysAbsent')}</small></div>
+                                <div className="att-breakdown-item"><span>{loading ? '-' : lateArrivals}</span><small>{t('student.attendance.lateArrivals')}</small></div>
+                                <div className="att-breakdown-item"><span>{loading ? '-' : totalDays}</span><small>{t('student.attendance.totalDays')}</small></div>
                             </div>
                         </div>
 
@@ -192,7 +196,7 @@ export function StudentAttendance() {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">calendar_month</span> Monthly Calendar
+                                    <span className="material-symbols-rounded">calendar_month</span> {t('student.attendance.monthlyCalendar')}
                                 </h3>
                                 <div className="u-row-sm">
                                     <button className="btn btn-outline btn-icon" onClick={prevMonth}>
@@ -208,7 +212,7 @@ export function StudentAttendance() {
                             </div>
                             <div className="card-content">
                                 {calLoading ? (
-                                    <p className="u-muted">Loading calendar…</p>
+                                    <p className="u-muted">{t('student.attendance.loadingCalendar')}</p>
                                 ) : (
                                     <div className="att-calendar-grid">
                                         {DAY_LABELS.map(d => (
@@ -220,9 +224,9 @@ export function StudentAttendance() {
                                     </div>
                                 )}
                                 <div className="att-legend att-cal-legend">
-                                    {[['present','Present'],['absent','Absent'],['late','Late'],['excused','Excused'],['weekend','Weekend']].map(([s,l]) => (
+                                    {['present', 'absent', 'late', 'excused', 'weekend'].map(s => (
                                         <span key={s}>
-                                            <span className={`att-dot ${s}`}></span>{l}
+                                            <span className={`att-dot ${s}`}></span>{t(`common.${s}`)}
                                         </span>
                                     ))}
                                 </div>
@@ -236,12 +240,12 @@ export function StudentAttendance() {
                             </div>
                             <div className="card-content">
                                 {tableRecords.length === 0 ? (
-                                    <p className="att-empty">No records for this month.</p>
+                                    <p className="att-empty">{t('student.attendance.noRecords')}</p>
                                 ) : (
                                     <div className="table-responsive">
                                         <table>
                                             <thead>
-                                                <tr><th>Date</th><th>Day</th><th>Status</th><th>Time In</th></tr>
+                                                <tr><th>{t('common.date')}</th><th>{t('common.day')}</th><th>{t('common.status')}</th><th>{t('common.timeIn')}</th></tr>
                                             </thead>
                                             <tbody>
                                                 {tableRecords.map((r, i) => {

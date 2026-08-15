@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -84,6 +85,7 @@ function AssignmentStat({ iconClass, icon, value, valueColor, label }) {
 }
 
 function AssignmentCard({ assignment, onSubmit }) {
+    const { t } = useTranslation()
     const { id, title, subject, teacher, due_date, status: rawStatus, grade, feedback } = assignment
     const status  = normaliseStatus(rawStatus)
     const icon    = subjectIcon(subject)
@@ -117,12 +119,12 @@ function AssignmentCard({ assignment, onSubmit }) {
             <div className="assignment-actions">
                 {status === 'Overdue' && (
                     <button className="btn btn-sm btn-outline btn-destructive-outline" onClick={() => onSubmit(id)}>
-                        Submit Now
+                        {t('student.assignments.submitNow')}
                     </button>
                 )}
                 {status === 'Pending' && (
                     <button className="btn btn-sm btn-primary" onClick={() => onSubmit(id)}>
-                        Upload
+                        {t('common.upload')}
                     </button>
                 )}
                 {gs && (
@@ -136,6 +138,7 @@ function AssignmentCard({ assignment, onSubmit }) {
 }
 
 export function StudentAssignments() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
     const [profile,     setProfile]     = useState(null)
@@ -173,7 +176,9 @@ export function StudentAssignments() {
     }
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
-    const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
+    const userRole     = gradeSection
+        ? `${t('roles.student')} · ${gradeSection}`
+        : t('roles.student')
 
     const pendingCount   = assignments.filter(a => normaliseStatus(a.status) === 'Pending').length
     const submittedCount = assignments.filter(a => normaliseStatus(a.status) === 'Submitted').length
@@ -197,14 +202,14 @@ export function StudentAssignments() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Assignments"
-                        subtitle="Track all your tasks and deadlines"
+                        title={t('nav.assignments')}
+                        subtitle={t('student.assignments.subtitle')}
                         userName={fullName}
                         userRole={userRole}
                         userInitials={initials}
@@ -239,7 +244,7 @@ export function StudentAssignments() {
                                 <div className="act-list-header">
                                     <div className="act-list-title quiz-title-row">
                                         <span className="material-symbols-rounded quiz-title-icon">quiz</span>
-                                        Online Quizzes
+                                        {t('student.assignments.onlineQuizzes')}
                                     </div>
                                     <span className="act-list-count">{quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''}</span>
                                 </div>
@@ -266,19 +271,19 @@ export function StudentAssignments() {
                                                         <div className="quiz-score-value" style={{ color: q.percentage >= 50 ? 'var(--success)' : '#dc2626' }}>
                                                             {q.percentage}%
                                                         </div>
-                                                        <div className="quiz-score-label">Completed</div>
+                                                        <div className="quiz-score-label">{t('common.completed')}</div>
                                                     </div>
                                                     <button className="btn btn-outline btn-sm"
                                                         onClick={() => navigate(`/student/quiz/${q.id}/review`)}>
                                                         <span className="material-symbols-rounded icon-sm">visibility</span>
-                                                        Review
+                                                        {t('common.review')}
                                                     </button>
                                                 </div>
                                             ) : (
                                                 <button className="btn btn-primary btn-sm u-shrink-0"
                                                     onClick={() => navigate(`/student/quiz/${q.id}`)}>
                                                     <span className="material-symbols-rounded icon-sm">play_arrow</span>
-                                                    Take Quiz
+                                                    {t('student.assignments.takeQuiz')}
                                                 </button>
                                             )}
                                         </div>
@@ -289,12 +294,12 @@ export function StudentAssignments() {
 
                         {/* Paper assignments */}
                         {loading ? (
-                            <p className="u-pad u-muted">Loading assignments…</p>
+                            <p className="u-pad u-muted">{t('student.assignments.loading')}</p>
                         ) : filtered.length === 0 ? (
                             <EmptyState
                                 icon="assignment"
                                 title={`No ${statusFilter.toLowerCase()} assignments`}
-                                description="No assignments match this filter right now."
+                                description={t('student.assignments.emptyFiltered')}
                                 action={{ label: 'Show All', icon: 'refresh', onClick: () => setStatusFilter('All') }}
                             />
                         ) : (

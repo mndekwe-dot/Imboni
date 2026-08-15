@@ -9,23 +9,34 @@
     "signOut": "Sohoka"
   },
   "common": {
+    "absent": "Yasibye",
     "add": "Ongeraho",
     "back": "Subira inyuma",
     "cancel": "Reka",
     "close": "Funga",
+    "completed": "Byarangiye",
     "date": "Itariki",
     "day": "Umunsi",
     "delete": "Siba",
     "description": "Ibisobanuro",
     "edit": "Hindura",
+    "excused": "Yemerewe gusiba",
     "filter": "Shungura",
+    "full": "Byuzuye",
     "grade": "Urwego",
+    "join": "Injira",
+    "joining": "Kwinjira…",
+    "late": "Yatinze",
     "loading": "Biratangira…",
     "next": "Komeza",
     "no": "Oya",
+    "overdue": "Igihe cyarenze",
+    "pending": "Bitegereje",
     "points": "Amanota",
+    "present": "Yaje",
     "recordedBy": "Byanditswe na",
     "retry": "Ongera ugerageze",
+    "review": "Subiramo",
     "save": "Bika",
     "saving": "Birabikwa…",
     "score": "Amanota",
@@ -37,10 +48,15 @@
     "somethingWentWrong": "Hari ikitagenze neza",
     "status": "Imiterere",
     "subject": "Isomo",
+    "submitted": "Byatanzwe",
     "term": "Igihembwe",
     "timeIn": "Isaha yo kwinjira",
     "type": "Ubwoko",
+    "upload": "Ohereza",
     "viewAll": "Reba byose",
+    "weekend": "Impera z'icyumweru",
+    "withdraw": "Kuvamo",
+    "withdrawing": "Kuvamo…",
     "yes": "Yego"
   },
   "language": {
@@ -111,6 +127,29 @@
     "tagline": "Uburezi Buhuza"
   },
   "student": {
+    "activities": {
+      "achievement": "Icyagezweho",
+      "available": "Ibikorwa bihari",
+      "awarded": "Byahawe",
+      "conductGradeTerm": "Urwego rw'imyitwarire (igihembwe kiriho)",
+      "enrolled": "Ibikorwa niyandikishijemo",
+      "loadingActivities": "Ibikorwa biratangira…",
+      "loadingEvents": "Ibirori biratangira…",
+      "loadingRecords": "Inyandiko ziratangira…",
+      "negative": "Bibi",
+      "noEvents": "Nta birori biri imbere",
+      "noEventsDesc": "Ibirori by'ibikorwa wiyandikishijemo bizagaragara hano.",
+      "noRecordsFiltered": "Nta nyandiko z'imyitwarire zihuye n'iyi muyunguruzo.",
+      "noneDesc": "Ibikorwa byo kwidagadura bizagaragara hano nibiba bihari.",
+      "noneFound": "Nta bikorwa byabonetse",
+      "noted": "Byanditswe",
+      "positive": "Byiza",
+      "recordsTitle": "Inyandiko z'imyitwarire",
+      "subtitle": "Inyandiko y'imyitwarire n'ibikorwa byo kwidagadura",
+      "title": "Ibikorwa n'imyitwarire",
+      "upcomingEvents": "Ibirori by'ibikorwa biri imbere",
+      "warning": "Umuburo"
+    },
     "announcements": {
       "academic": "Amasomo",
       "actionNeeded": "Bisaba igikorwa",
@@ -129,6 +168,26 @@
       "unread": "Bitarasomwa",
       "upcomingEvents": "Ibirori biri imbere",
       "urgent": "Byihutirwa"
+    },
+    "assignments": {
+      "allAssignments": "Imikoro yose",
+      "emptyFiltered": "Nta mikoro ihuye n'iyi muyunguruzo.",
+      "loading": "Imikoro iratangira…",
+      "onlineQuizzes": "Ibizamini byo kuri interineti",
+      "submitNow": "Tanga nonaha",
+      "subtitle": "Kurikirana imikoro yawe n'ibihe ntarengwa",
+      "takeQuiz": "Kora ikizamini",
+      "totalThisTerm": "Byose muri iki gihembwe"
+    },
+    "attendance": {
+      "daysAbsent": "Iminsi yasibye",
+      "daysPresent": "Iminsi yaje",
+      "lateArrivals": "Inshuro yatinze",
+      "loadingCalendar": "Kalendari iratangira…",
+      "monthlyCalendar": "Kalendari y'ukwezi",
+      "noRecords": "Nta nyandiko z'uku kwezi.",
+      "overallRate": "Igipimo rusange cy'ubwitabire",
+      "totalDays": "Iminsi yose y'amasomo"
     },
     "dashboard": {
       "attendance": "Ubwitabire",
@@ -154,6 +213,9 @@
       "upcomingAssignments": "Imikoro iri imbere",
       "welcomeBack": "Murakaza neza, {{name}}"
     },
+    "discipline": {
+      "subtitle": "Amategeko y'ikigo, inyandiko y'imyitwarire yawe n'ubujurire"
+    },
     "results": {
       "assessment": "Isuzuma",
       "averageOverTime": "Impuzandengo yanjye mu gihe",
@@ -169,6 +231,12 @@
       "subtitleWithClass": "Imikorere mu masomo ya {{class}}",
       "title": "Amanota yanjye",
       "year": "Umwaka"
+    },
+    "timetable": {
+      "loadError": "Ntibyashobotse kubona amakuru y'ishuri.",
+      "subtitle": "Gahunda y'icyumweru",
+      "subtitleWithClass": "Gahunda y'icyumweru y'ishuri {{class}}",
+      "title": "Gahunda yanjye"
     }
   }
 }
