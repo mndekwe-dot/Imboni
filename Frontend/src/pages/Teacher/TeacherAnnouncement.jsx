@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -10,6 +11,7 @@ import {
     getTeacherAudienceOptions,
 } from '../../api/teacher'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
+import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -61,12 +63,13 @@ function chipMatch(ann, chip) {
 
 // ── Announcement card ─────────────────────────────────────────────────────────
 function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
+    const { t } = useTranslation()
     const cat     = ann.category || 'general'
     const icon    = CATEGORY_ICON[cat] || 'campaign'
     const color   = CATEGORY_COLOR[cat] || 'var(--primary)'
     const isDraft = ann.status === 'draft'
     const date    = ann.published_at || ann.created_at
-    const dateStr = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+    const dateStr = date ? formatDate(date) : ''
     const audience = ann.target_grade
         ? ann.target_grade
         : ann.target_audience === 'parents' ? 'Parents' : 'All Classes'
@@ -101,7 +104,7 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
                             className="btn btn-sm btn-primary"
                             onClick={() => onPublish(ann)}
                             disabled={busy === ann.id}
-                            title="Publish now"
+                            title={t('common.publishNow')}
                         >
                             <span className="material-symbols-rounded icon-sm">send</span>
                             {busy === ann.id ? 'Publishing…' : 'Publish'}
@@ -130,6 +133,7 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function TeacherAnnouncement() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements,  setAnnouncements]  = useState([])
     const [audienceOpts,   setAudienceOpts]   = useState([])
@@ -273,14 +277,14 @@ export function TeacherAnnouncement() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Announcements"
-                        subtitle="Create and manage class announcements"
+                        title={t('nav.announcements')}
+                        subtitle={t('teacher.announcements.subtitle')}
                         userName={fullName}
                         userRole="Teacher"
                         userInitials={initials}
@@ -348,7 +352,7 @@ export function TeacherAnnouncement() {
                                         <input
                                             type="text" className="input" name="title"
                                             value={form.title} onChange={handleChange}
-                                            placeholder="Announcement title…"
+                                            placeholder={t('teacher.announcements.titlePlaceholder')}
                                         />
                                     </div>
 
@@ -363,7 +367,7 @@ export function TeacherAnnouncement() {
                                         <textarea
                                             className="input" rows="4" name="content"
                                             value={form.content} onChange={handleChange}
-                                            placeholder="Write your announcement…"
+                                            placeholder={t('teacher.announcements.bodyPlaceholder')}
                                             maxLength={1000}
                                         />
                                     </div>
@@ -440,7 +444,7 @@ export function TeacherAnnouncement() {
                         ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="campaign"
-                                title="No announcements"
+                                title={t('teacher.announcements.none')}
                                 description={chip === 'All'
                                     ? "You haven't published any announcements yet."
                                     : `No ${chip.toLowerCase()} announcements found.`}

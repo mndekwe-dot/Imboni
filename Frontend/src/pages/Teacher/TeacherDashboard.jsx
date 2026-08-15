@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
@@ -119,6 +120,7 @@ function slotMeta(status) {
 
 // ── Create Task Modal ─────────────────────────────────────────────────────────
 function CreateTaskModal({ onClose, onCreated }) {
+    const { t } = useTranslation()
     const [title,    setTitle]    = useState('')
     const [priority, setPriority] = useState('medium')
     const [dueDate,  setDueDate]  = useState('')
@@ -168,7 +170,7 @@ function CreateTaskModal({ onClose, onCreated }) {
                             className="form-input"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
-                            placeholder="What needs to be done?"
+                            placeholder={t('teacher.dashboard.taskPlaceholder')}
                             autoFocus
                         />
                     </div>
@@ -212,6 +214,7 @@ function CreateTaskModal({ onClose, onCreated }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherDashboard() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
     const [stats,       setStats]       = useState(null)
@@ -284,14 +287,14 @@ export function TeacherDashboard() {
                 />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Dashboard"
-                        subtitle="Teacher Overview"
+                        title={t('nav.dashboard')}
+                        subtitle={t('teacher.dashboard.subtitle')}
                         userName={fullName}
                         userRole="Teacher"
                         userInitials={initials}
@@ -380,7 +383,7 @@ export function TeacherDashboard() {
                                                 <button
                                                     className="btn btn-outline btn-sm"
                                                     onClick={() => setShowTaskModal(true)}
-                                                    title="Add task"
+                                                    title={t('teacher.dashboard.addTask')}
                                                 >
                                                     <span className="material-symbols-rounded icon-sm">add</span>
                                                     Add
@@ -455,7 +458,7 @@ export function TeacherDashboard() {
                                                 </p>
                                             )}
                                             {activities.length === 0 && !loadError ? (
-                                                <p className="u-muted">No recent activities.</p>
+                                                <p className="u-muted">No recent activity.</p>
                                             ) : activities.map((a, i) => {
                                                 const { iconClass, icon } = ACTIVITY_ICONS[a.activity_type] || { iconClass: '', icon: 'notifications' }
                                                 return (

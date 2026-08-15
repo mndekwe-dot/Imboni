@@ -10,15 +10,19 @@
   },
   "common": {
     "absent": "Yasibye",
+    "active": "Bikora",
     "add": "Ongeraho",
+    "all": "Byose",
     "back": "Subira inyuma",
     "cancel": "Reka",
     "close": "Funga",
+    "closed": "Byafunzwe",
     "completed": "Byarangiye",
     "date": "Itariki",
     "day": "Umunsi",
     "delete": "Siba",
     "description": "Ibisobanuro",
+    "draft": "Umushinga",
     "edit": "Hindura",
     "excused": "Yemerewe gusiba",
     "filter": "Shungura",
@@ -28,12 +32,16 @@
     "joining": "Kwinjira…",
     "late": "Yatinze",
     "loading": "Biratangira…",
+    "loadingClasses": "Amashuri aratangira…",
     "next": "Komeza",
     "no": "Oya",
+    "noClassSelected": "Nta shuri ryatoranyijwe",
+    "notesOptional": "Ibindi wakwongeraho…",
     "overdue": "Igihe cyarenze",
     "pending": "Bitegereje",
     "points": "Amanota",
     "present": "Yaje",
+    "publishNow": "Tangaza nonaha",
     "recordedBy": "Byanditswe na",
     "retry": "Ongera ugerageze",
     "review": "Subiramo",
@@ -237,6 +245,56 @@
       "subtitle": "Gahunda y'icyumweru",
       "subtitleWithClass": "Gahunda y'icyumweru y'ishuri {{class}}",
       "title": "Gahunda yanjye"
+    }
+  },
+  "teacher": {
+    "announcements": {
+      "bodyPlaceholder": "Andika itangazo ryawe…",
+      "none": "Nta matangazo",
+      "subtitle": "Kora kandi ucunge amatangazo y'ishuri",
+      "titlePlaceholder": "Umutwe w'itangazo…"
+    },
+    "assignments": {
+      "deleteQuestion": "Siba ikibazo",
+      "describePlaceholder": "Sobanura umukoro…",
+      "fetching": "Turimo gushaka imikoro yawe.",
+      "qTypeFillBlank": "Uzuza ahantu hatuzuye",
+      "qTypeMcq": "Guhitamo kimwe muri byinshi",
+      "qTypeShortAnswer": "Igisubizo kigufi",
+      "qTypeTrueFalse": "Ni ukuri / Si ukuri",
+      "searchQuestions": "Shakisha ibibazo…",
+      "selectClass": "Hitamo ishuri...",
+      "subtitle": "Kora, ucunge kandi ukurikirane imikoro y'abanyeshuri"
+    },
+    "attendance": {
+      "fetchingClasses": "Turimo gushaka amashuri wahawe.",
+      "noStudents": "Nta banyeshuri biyandikishije",
+      "pickerHintAttendance": "Koresha ibiri hejuru guhitamo igice, umwaka n'ishuri kugira ngo wandike ubwitabire.",
+      "subtitle": "Kurikirana ubwitabire bw'abanyeshuri",
+      "title": "Andika ubwitabire"
+    },
+    "classes": {
+      "assessmentNamePlaceholder": "urugero: Ikizamini cyo hagati, CAT 1…",
+      "newAssessment": "Isuzuma rishya",
+      "searchStudents": "Shakisha ukoresheje izina cyangwa nomero…",
+      "subtitle": "Reba amashuri yawe kandi ucunge abanyeshuri",
+      "title": "Amashuri yanjye"
+    },
+    "dashboard": {
+      "addTask": "Ongeraho umurimo",
+      "subtitle": "Incamake y'umwarimu",
+      "taskPlaceholder": "Ni iki kigomba gukorwa?"
+    },
+    "messages": {
+      "subtitle": "Vugana n'ababyeyi n'abakozi"
+    },
+    "results": {
+      "commentPlaceholder": "urugero: Yakoze neza, akeneye kwisubiramo…",
+      "enterNew": "Andika amanota mashya",
+      "noneFound": "Nta manota yabonetse",
+      "pickerHintResults": "Koresha ibiri hejuru guhitamo igice, umwaka n'ishuri kugira ngo urebe cyangwa wandike amanota.",
+      "subtitle": "Reba kandi wandike amanota y'abanyeshuri",
+      "title": "Amanota"
     }
   }
 }

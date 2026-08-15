@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -42,6 +43,7 @@ function getGrade(pct) {
 // ── Enter New Results Modal ───────────────────────────────────────────────────
 
 function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
+    const { t } = useTranslation()
     // Derive all subjects this teacher teaches in this class
     const subjectsForClass = classes
         .filter(c => String(c.class_id) === String(classObj.class_id) && c.subject_id)
@@ -145,7 +147,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
 
     return (
         <Modal
-            title="Enter New Results"
+            title={t('teacher.results.enterNew')}
             icon="add_circle"
             onClose={onClose}
             size="wide"
@@ -211,7 +213,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
             {loadingStud ? (
                 <p className="tr-empty-pad">Loading students…</p>
             ) : students.length === 0 ? (
-                <p className="u-muted">No students found for this class.</p>
+                <p className="u-muted">No students found in this class.</p>
             ) : (
                 <div className="table-responsive tr-score-scroll">
                     <table>
@@ -252,7 +254,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                                         <input
                                             type="text"
                                             className="form-control tr-input-sm"
-                                            placeholder="e.g. Good effort, needs revision…"
+                                            placeholder={t('teacher.results.commentPlaceholder')}
                                             value={notes[s.student_id] ?? ''}
                                             disabled={skipped[s.student_id]}
                                             onChange={e => setNotes(prev => ({ ...prev, [s.student_id]: e.target.value }))}
@@ -279,6 +281,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function TeacherResults() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,    setClasses]    = useState([])
     const { config } = useSchoolConfig()
@@ -385,7 +388,7 @@ export function TeacherResults() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             {showEnterModal && selectedClass && (
@@ -402,8 +405,8 @@ export function TeacherResults() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Results"
-                        subtitle="View and enter student assessment results"
+                        title={t('teacher.results.title')}
+                        subtitle={t('teacher.results.subtitle')}
                         userName={fullName}
                         userRole="Teacher"
                         userInitials={initials}
@@ -419,7 +422,7 @@ export function TeacherResults() {
                             </div>
                         )}
                         {loadingClasses ? (
-                            <EmptyState icon="sync" title="Loading classes…" description="Fetching your assigned classes." />
+                            <EmptyState icon="sync" title={t('common.loadingClasses')} description={t('teacher.attendance.fetchingClasses')} />
                         ) : (
                             <>
                                 <ClassPicker
@@ -474,7 +477,7 @@ export function TeacherResults() {
                                 </div>
 
                                 {!selectedClass ? (
-                                    <EmptyState icon="school" title="No class selected" description="Use the picker above to select a section, year, and class to view or enter results." />
+                                    <EmptyState icon="school" title={t('common.noClassSelected')} description={t('teacher.results.pickerHintResults')} />
                                 ) : loadingData ? (
                                     <EmptyState icon="sync" title="Loading…" description={`Fetching results for ${classKey}.`} />
                                 ) : (
@@ -546,7 +549,7 @@ export function TeacherResults() {
                                                 )
                                             }}
                                             emptyIcon="assignment_late"
-                                            emptyTitle="No results found"
+                                            emptyTitle={t('teacher.results.noneFound')}
                                             emptyDesc={
                                                 <span>
                                                     No results recorded{assessment ? ` for "${assessment}"` : ''} in {classKey} yet.{' '}

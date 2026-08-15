@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -22,17 +23,17 @@ import {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const STATUS_TABS = [
-    { key: 'all',    label: 'All'    },
-    { key: 'active', label: 'Active' },
-    { key: 'draft',  label: 'Draft'  },
-    { key: 'closed', label: 'Closed' },
+    { key: 'all',    labelKey: 'common.all'    },
+    { key: 'active', labelKey: 'common.active' },
+    { key: 'draft',  labelKey: 'common.draft'  },
+    { key: 'closed', labelKey: 'common.closed' },
 ]
 
 const QUESTION_TYPES = [
-    { value: 'mcq',          label: 'Multiple Choice',   icon: 'radio_button_checked' },
-    { value: 'true_false',   label: 'True / False',      icon: 'check_circle'         },
-    { value: 'short_answer', label: 'Short Answer',      icon: 'short_text'           },
-    { value: 'fill_blank',   label: 'Fill in the Blank', icon: 'text_fields'          },
+    { value: 'mcq',          labelKey: 'teacher.assignments.qTypeMcq',         icon: 'radio_button_checked' },
+    { value: 'true_false',   labelKey: 'teacher.assignments.qTypeTrueFalse',   icon: 'check_circle'         },
+    { value: 'short_answer', labelKey: 'teacher.assignments.qTypeShortAnswer', icon: 'short_text'           },
+    { value: 'fill_blank',   labelKey: 'teacher.assignments.qTypeFillBlank',   icon: 'text_fields'          },
 ]
 
 const EMPTY_FORM = {
@@ -111,7 +112,8 @@ function FormSelect({ value, onChange, options, placeholder, disabled }) {
 // ── Single Quiz Question Editor ───────────────────────────────────────────────
 
 function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onMoveDown, isFirst, isLast }) {
-    const qType = QUESTION_TYPES.find(t => t.value === q.type)
+    const { t } = useTranslation()
+    const qType = QUESTION_TYPES.find(qt => qt.value === q.type)
 
     function set(field, value) { onChange({ ...q, [field]: value }) }
 
@@ -145,18 +147,18 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                 {/* Type selector */}
                 <div className="quiz-q-type-col">
                     <div className="quiz-q-type-row">
-                        {QUESTION_TYPES.map(t => (
-                            <button key={t.value} type="button"
+                        {QUESTION_TYPES.map(qt => (
+                            <button key={qt.value} type="button"
                                 onClick={() => {
-                                    const updated = { ...q, type: t.value }
-                                    if (t.value === 'true_false') { updated.options = []; updated.correct = 0 }
-                                    else if (t.value === 'mcq' && q.options.length === 0) { updated.options = ['', '', '', '']; updated.correct = 0 }
-                                    else if (t.value === 'short_answer' || t.value === 'fill_blank') { updated.options = []; updated.correct = '' }
+                                    const updated = { ...q, type: qt.value }
+                                    if (qt.value === 'true_false') { updated.options = []; updated.correct = 0 }
+                                    else if (qt.value === 'mcq' && q.options.length === 0) { updated.options = ['', '', '', '']; updated.correct = 0 }
+                                    else if (qt.value === 'short_answer' || qt.value === 'fill_blank') { updated.options = []; updated.correct = '' }
                                     onChange(updated)
                                 }}
-                                className={`quiz-q-type-btn${q.type === t.value ? ' active' : ''}`}>
-                                <span className="material-symbols-rounded">{t.icon}</span>
-                                {t.label}
+                                className={`quiz-q-type-btn${q.type === qt.value ? ' active' : ''}`}>
+                                <span className="material-symbols-rounded">{qt.icon}</span>
+                                {t(qt.labelKey)}
                             </button>
                         ))}
                     </div>
@@ -196,7 +198,7 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                             <span className="material-symbols-rounded">arrow_downward</span>
                         </button>
                     )}
-                    <button type="button" className="quiz-q-delete" onClick={onRemove} title="Delete question">
+                    <button type="button" className="quiz-q-delete" onClick={onRemove} title={t('teacher.assignments.deleteQuestion')}>
                         <span className="material-symbols-rounded">delete</span>
                     </button>
                 </div>
@@ -367,12 +369,12 @@ function QuizBuilder({ questions, onChange, onOpenBank }) {
 
             {/* Add buttons */}
             <div className="quiz-add-row">
-                {QUESTION_TYPES.map(t => (
-                    <button key={t.value} type="button"
+                {QUESTION_TYPES.map(qt => (
+                    <button key={qt.value} type="button"
                         className="btn btn-outline btn-sm"
-                        onClick={() => onChange([...questions, newQuestion(t.value)])}>
-                        <span className="material-symbols-rounded icon-sm">{t.icon}</span>
-                        + {t.label}
+                        onClick={() => onChange([...questions, newQuestion(qt.value)])}>
+                        <span className="material-symbols-rounded icon-sm">{qt.icon}</span>
+                        + {t(qt.labelKey)}
                     </button>
                 ))}
                 <button type="button" className="btn btn-outline btn-sm u-ml-auto" onClick={onOpenBank}>
@@ -387,6 +389,7 @@ function QuizBuilder({ questions, onChange, onOpenBank }) {
 // ── Question Bank Modal ───────────────────────────────────────────────────────
 
 function QuestionBankModal({ onClose, onImport }) {
+    const { t } = useTranslation()
     const [bank,    setBank]    = useState([])
     const [loading, setLoading] = useState(true)
     const [search,  setSearch]  = useState('')
@@ -456,7 +459,7 @@ function QuestionBankModal({ onClose, onImport }) {
                 </div>
             }>
             <div className="bank-filter-row">
-                <input className="form-control bank-search-input" placeholder="Search questions…"
+                <input className="form-control bank-search-input" placeholder={t('teacher.assignments.searchQuestions')}
                     value={search} onChange={e => setSearch(e.target.value)} />
                 <select className="form-control bank-select-scope" value={scope} onChange={e => setScope(e.target.value)}
                     aria-label="Question scope">
@@ -466,7 +469,7 @@ function QuestionBankModal({ onClose, onImport }) {
                 </select>
                 <select className="form-control bank-select-type" value={typeF} onChange={e => setTypeF(e.target.value)}>
                     <option value="">All types</option>
-                    {QUESTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    {QUESTION_TYPES.map(qt => <option key={qt.value} value={qt.value}>{t(qt.labelKey)}</option>)}
                 </select>
             </div>
             {loading ? (
@@ -821,6 +824,7 @@ function SubmissionsModal({ assignment, onClose }) {
 // ── Assignment Modal ──────────────────────────────────────────────────────────
 
 function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjectMap, saving, saveError }) {
+    const { t } = useTranslation()
     const [form, setForm] = useState(initial
         ? {
             title:               initial.title,
@@ -962,7 +966,7 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                         <label className="form-label">Class *</label>
                         <FormSelect value={form.class_obj}
                             onChange={handleClassChange}
-                            placeholder="Select class..." options={classOptions} />
+                            placeholder={t('teacher.assignments.selectClass')} options={classOptions} />
                     </div>
                     <div className="form-group">
                         <label className="form-label">Subject *</label>
@@ -1016,7 +1020,7 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                     <div className="form-group mb-1">
                         <label className="form-label">Instructions</label>
                         <textarea className="form-control textarea-sm" name="instructions" value={form.instructions} onChange={handle}
-                            placeholder="Describe the assignment…" />
+                            placeholder={t('teacher.assignments.describePlaceholder')} />
                     </div>
                 )}
 
@@ -1149,6 +1153,7 @@ function ClassDropdown({ value, onChange, options }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function TeacherAssignments() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [myClasses,       setMyClasses]       = useState([])
     const [classSubjectMap, setClassSubjectMap] = useState([])  // full list: [{class_id, class_name, subject_id, subject_name}]
@@ -1191,9 +1196,10 @@ export function TeacherAssignments() {
     }, [])
 
     const classNames = [...new Set(assignments.map(a => a.class_name).filter(Boolean))]
-    const statusTabs = STATUS_TABS.map(t => ({
-        ...t,
-        count: t.key === 'all' ? undefined : assignments.filter(a => a.status === t.key).length,
+    const statusTabs = STATUS_TABS.map(tab => ({
+        ...tab,
+        label: t(tab.labelKey),
+        count: tab.key === 'all' ? undefined : assignments.filter(a => a.status === tab.key).length,
     }))
 
     const visible = assignments.filter(a => {
@@ -1260,7 +1266,7 @@ export function TeacherAssignments() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             {isOpen && (
@@ -1287,8 +1293,8 @@ export function TeacherAssignments() {
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Assignments"
-                        subtitle="Create, manage and track student assignments"
+                        title={t('nav.assignments')}
+                        subtitle={t('teacher.assignments.subtitle')}
                         userName={fullName} userRole="Teacher"
                         userInitials={initials} avatarClass="teacher-av"
                         notifications={liveNotifications}
@@ -1324,7 +1330,7 @@ export function TeacherAssignments() {
                         </div>
 
                         {loading ? (
-                            <EmptyState icon="sync" title="Loading assignments…" description="Fetching your assignments." />
+                            <EmptyState icon="sync" title="Loading assignments…" description={t('teacher.assignments.fetching')} />
                         ) : visible.length > 0 ? (
                             <div className="asgn-list-wrap">
                                 <div className="asgn-list-header">

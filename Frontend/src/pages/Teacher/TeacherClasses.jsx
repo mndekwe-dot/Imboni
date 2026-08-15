@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -88,6 +89,7 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
 
 // ── Students Panel Modal ──────────────────────────────────────────────────────
 function StudentsPanel({ cls, onClose, onEnterResult }) {
+    const { t } = useTranslation()
     const [students, setStudents] = useState([])
     const [loading,  setLoading]  = useState(true)
     const [search,   setSearch]   = useState('')
@@ -111,7 +113,7 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
                 <span className="material-symbols-rounded">search</span>
                 <input
                     type="text"
-                    placeholder="Search by name or student code…"
+                    placeholder={t('teacher.classes.searchStudents')}
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                 />
@@ -161,6 +163,7 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
 
 // ── Results Modal (assessment picker → score table) ───────────────────────────
 function ResultsModal({ cls, onClose }) {
+    const { t } = useTranslation()
     const [step,       setStep]       = useState('pick')  // 'pick' | 'view' | 'new'
     const [titles,     setTitles]     = useState([])
     const [students,   setStudents]   = useState([])
@@ -376,7 +379,7 @@ function ResultsModal({ cls, onClose }) {
     // ── Step: New assessment ──────────────────────────────────────────────────
     return (
         <Modal
-            title="New Assessment"
+            title={t('teacher.classes.newAssessment')}
             icon="add"
             onClose={onClose}
             size="wide"
@@ -404,7 +407,7 @@ function ResultsModal({ cls, onClose }) {
                     <label className="form-label">Assessment Title *</label>
                     <input
                         className="form-control"
-                        placeholder="e.g. Mid-Term Exam, CAT 1, Quiz 3…"
+                        placeholder={t('teacher.classes.assessmentNamePlaceholder')}
                         value={newForm.assessment_title}
                         onChange={e => setNewForm(p => ({ ...p, assessment_title: e.target.value }))}
                     />
@@ -471,6 +474,7 @@ function ResultsModal({ cls, onClose }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherClasses() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,       setClasses]       = useState([])
     const [loadingClasses, setLoadingClasses] = useState(true)
@@ -516,7 +520,7 @@ export function TeacherClasses() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             {resultsClass && (
@@ -546,8 +550,8 @@ export function TeacherClasses() {
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="My Classes"
-                        subtitle="View your classes and manage students"
+                        title={t('teacher.classes.title')}
+                        subtitle={t('teacher.classes.subtitle')}
                         userName={fullName}
                         userRole="Teacher"
                         userInitials={initials}
