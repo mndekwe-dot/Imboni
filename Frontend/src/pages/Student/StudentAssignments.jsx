@@ -8,6 +8,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAssignments, submitAssignment } from '../../api/student'
 import { getStudentQuizzes } from '../../api/teacher'
+import { formatDate, formatDateLong } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -55,12 +56,12 @@ function formatDueDate(dateStr, status) {
     today.setHours(0, 0, 0, 0)
     due.setHours(0, 0, 0, 0)
     if (status === 'Submitted') {
-        return `Submitted ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+        return `Submitted ${formatDate(due)}`
     }
     const diff = Math.round((due - today) / 86400000)
-    if (diff < 0) return `Was due ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-    if (diff === 0) return `Due today: ${due.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
-    return `Due ${due.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
+    if (diff < 0) return `Was due ${formatDate(due)}`
+    if (diff === 0) return `Due today: ${formatDateLong(due)}`
+    return `Due ${formatDateLong(due)}`
 }
 
 function gradeStyle(grade) {

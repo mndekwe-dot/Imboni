@@ -5,6 +5,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
+import { formatDate, formatWeekdayShort } from '../../utils/date'
 import {
     getStudentProfile, getStudentDiscipline,
     getStudentActivities, getStudentActivityEvents,
@@ -38,7 +39,7 @@ function typeFilterMatch(report, filter) {
 function DisciplineRow({ report }) {
     const { label, typeClass } = reportTypeDisplay(report.report_type)
     const dateStr = report.date
-        ? new Date(report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        ? formatDate(report.date)
         : '-'
     const isPos  = report.report_type === 'positive' || report.report_type === 'achievement'
     const isNeg  = report.report_type === 'incident'
@@ -345,7 +346,7 @@ export function StudentActivities() {
                                     </div>
                                     {events.map(ev => {
                                         const dateStr = ev.date
-                                            ? new Date(ev.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+                                            ? formatWeekdayShort(ev.date)
                                             : '-'
                                         return (
                                             <div key={ev.id} className="assign-item act-event-item">

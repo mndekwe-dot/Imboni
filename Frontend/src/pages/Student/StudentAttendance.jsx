@@ -5,6 +5,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAttendanceStats, getStudentAttendanceCalendar } from '../../api/student'
+import { formatDate, formatWeekday } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -245,8 +246,8 @@ export function StudentAttendance() {
                                             <tbody>
                                                 {tableRecords.map((r, i) => {
                                                     const d = new Date(r.date)
-                                                    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                                                    const dayStr  = d.toLocaleDateString('en-US', { weekday: 'long' })
+                                                    const dateStr = formatDate(d)
+                                                    const dayStr  = formatWeekday(d)
                                                     const timeStr = r.time_in ? r.time_in.slice(0, 5) : '-'
                                                     return (
                                                         <tr key={i}>

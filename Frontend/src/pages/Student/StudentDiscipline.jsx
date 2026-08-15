@@ -7,6 +7,7 @@ import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentDiscipline } from '../../api/student'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
+import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -90,7 +91,7 @@ function DisciplineRow({ report }) {
     const badge  = reportBadge(report.report_type)
     const points = pointsDisplay(report.report_type)
     const dateStr = report.date
-        ? new Date(report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        ? formatDate(report.date)
         : '-'
     return (
         <tr>

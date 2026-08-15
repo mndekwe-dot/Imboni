@@ -30,6 +30,18 @@ describe('translation files', () => {
         expect(blanks).toEqual([])
     })
 
+    it('contains no mojibake', () => {
+        // Tooling that writes these files can decode UTF-8 as cp1252, turning
+        // '…' into 'â€¦' and storing it. The result looks fine in a diff but
+        // renders as gibberish, so check for the tell-tale characters.
+        const SUSPECT = /[ÂÃ€�]/
+        const dirty = [en, rw].flatMap((file, i) =>
+            leafKeys(file)
+                .filter(p => SUSPECT.test(p.split('.').reduce((o, k) => o[k], file)))
+                .map(p => `${i === 0 ? 'en' : 'rw'}:${p}`))
+        expect(dirty).toEqual([])
+    })
+
     it('exposes exactly the languages the backend accepts', () => {
         // Backend UserPreferencesSerializer.SUPPORTED_LANGUAGES is ('en', 'rw');
         // if these drift, saving a preference 400s.

@@ -5,6 +5,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentResults, getStudentAssessments } from '../../api/student'
+import { formatDateShort } from '../../utils/date'
 import {
     ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
@@ -69,7 +70,7 @@ function SubjectGradeCard({ subject, grade, final_score }) {
 
 function AssessmentRow({ subject_name, title, max_score, score_obtained, percentage, grade, date }) {
     const pct = percentage != null ? `${parseFloat(percentage).toFixed(0)}%` : '-'
-    const dateStr = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-'
+    const dateStr = date ? formatDateShort(date) : '-'
     return (
         <tr>
             <td><strong>{subject_name}</strong></td>
