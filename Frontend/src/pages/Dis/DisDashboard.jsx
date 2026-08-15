@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
@@ -64,6 +65,7 @@ function StaffItem({ full_name, staff_type, assigned_dormitory, assigned_grade }
 }
 
 export function DisDashboard() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const sessionUser = useSessionUser()
@@ -131,8 +133,8 @@ export function DisDashboard() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Dashboard"
-                        subtitle="Director of Discipline Overview"
+                        title={t('nav.dashboard')}
+                        subtitle={t('dis.dashboard.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

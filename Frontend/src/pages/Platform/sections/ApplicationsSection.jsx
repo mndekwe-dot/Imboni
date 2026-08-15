@@ -5,6 +5,7 @@ import {
 } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { formatDate } from '../../../utils/date'
 
 const STATUS_CLS = { pending: 'warn', approved: 'info', rejected: 'bad', provisioned: 'ok' }
 const FILTERS = [['', 'All'], ['pending', 'Pending'], ['approved', 'Approved'], ['provisioned', 'Provisioned'], ['rejected', 'Rejected']]
@@ -136,7 +137,7 @@ export function ApplicationsSection() {
                                         <td className="platform-strong">{a.school_name}</td>
                                         <td className="platform-muted">{a.desired_subdomain}</td>
                                         <td>{a.contact_name}<div className="platform-muted pf-subtle">{a.contact_email}</div></td>
-                                        <td className="platform-muted">{new Date(a.created_at).toLocaleDateString()}</td>
+                                        <td className="platform-muted">{formatDate(a.created_at)}</td>
                                         <td><span className={`platform-chip platform-chip-${STATUS_CLS[a.status]}`}>{label(a.status)}</span></td>
                                         <td className="platform-col-action">
                                             <button className="btn btn-outline btn-sm" onClick={() => setActive(a)}>Open</button>

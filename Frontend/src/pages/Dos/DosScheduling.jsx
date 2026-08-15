@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { classesFromConfig } from '../../utils/classes'
@@ -23,6 +24,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { formatDateWithWeekday, formatWeekdayShort } from '../../utils/date'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -80,9 +82,7 @@ function getCalendarDays(year, month) {
 
 function fmtDate(str) {
     if (!str) return '-'
-    return new Date(str + 'T00:00:00').toLocaleDateString('en-GB', {
-        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
-    })
+    return formatWeekdayShort(str + 'T00:00:00')
 }
 
 function fmtTime(str) {
@@ -326,6 +326,7 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DosScheduling() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
@@ -592,7 +593,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
 <div class="ftr">
     <span>Total: ${filteredExams.length} exam(s) across ${dates.length} day(s)</span>
-    <span>Generated: ${new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
+    <span>Generated: ${formatDateWithWeekday()}</span>
 </div>
 
 <script>window.onload = function(){ window.focus(); window.print(); }<\/script>
@@ -650,7 +651,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems}/>
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Scheduling" subtitle="Weekly class timetables and examination schedule" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('nav.scheduling')} subtitle={t('dos.scheduling.subtitle')} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
                         <div className="filter-tabs-bar mb-5">

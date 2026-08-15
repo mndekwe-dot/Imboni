@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -12,6 +13,7 @@ import { getMatronBoardingSchedule } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { Loading } from '../../components/ui/Loading'
 
 
@@ -91,6 +93,8 @@ function WeekendRow({ time, label, isBreak, breakText, sat, sun }) {
 }
 
 export function MatronSchedule() {
+    const { t } = useTranslation()
+    const dormitory = useMatronDormitory()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const { setting } = useSchoolSettings()
@@ -132,7 +136,9 @@ export function MatronSchedule() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Boarding Schedule"
-                        subtitle="Timetable sent by the Discipline Master for Karisimbi House"
+                        subtitle={dormitory
+                            ? t('matron.schedule.subtitle', { house: dormitory })
+                            : t('matron.schedule.subtitleNoHouse')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

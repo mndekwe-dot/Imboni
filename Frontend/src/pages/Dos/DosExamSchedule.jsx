@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import {
     getDosExamSchedule, deleteDosExamSchedule, updateDosExamSchedule,
@@ -222,6 +223,7 @@ function ExamGenerateModal({ onClose, onCommitted }) {
 }
 
 export function DosExamSchedule() {
+    const { t } = useTranslation()
     const { setting } = useSchoolSettings()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
@@ -295,8 +297,8 @@ export function DosExamSchedule() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Exam Schedule"
-                        subtitle="Create and manage examination timetables"
+                        title={t('dos.examSchedule.title')}
+                        subtitle={t('dos.examSchedule.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

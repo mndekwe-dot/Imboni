@@ -3,6 +3,7 @@ import { NavLink, Navigate, useNavigate } from 'react-router'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { platformLogout, platformUser, isPlatformAuthed } from '../../api/platform'
 import logo from '../../assets/images/imboni-logo.png'
+import { formatDateWithWeekday } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
@@ -32,7 +33,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
     const me = platformUser()
     const authed = isPlatformAuthed()
 
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    const today = formatDateWithWeekday()
     const initials = (me?.name || me?.email || 'OP').slice(0, 2).toUpperCase()
 
     function signOut() {

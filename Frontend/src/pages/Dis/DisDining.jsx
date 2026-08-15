@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -225,6 +226,7 @@ function DiningRow({ plan, onEdit, onDelete }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function DisDining() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [plans,         setPlans]         = useState([])
@@ -281,7 +283,7 @@ export function DisDining() {
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dining" subtitle="Student dining plans for the current term" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('dis.dining.title')} subtitle={t('dis.dining.subtitle')} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

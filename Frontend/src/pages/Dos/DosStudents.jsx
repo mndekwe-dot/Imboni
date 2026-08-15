@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
@@ -21,6 +22,7 @@ import '../../styles/dos.css'
 import '../../styles/tables.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { formatDate } from '../../utils/date'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = ['#003d7a','#10b981','#f59e0b','#6366f1','#ef4444','#0891b2','#7c3aed','#be185d']
@@ -178,11 +180,11 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                     {tab === 'single'
                         ? <button className="btn btn-primary" disabled={!isValid || sending} onClick={handleSingleSend}>
                             <span className="material-symbols-rounded icon-sm">send</span>
-                            {sending ? 'Sending...' : 'Send Invitations'}
+                            {sending ? 'Sending…' : 'Send Invitations'}
                           </button>
                         : <button className="btn btn-primary" disabled={!file || bulkSending || !!bulkResult} onClick={handleBulkSend}>
                             <span className="material-symbols-rounded icon-sm">upload_file</span>
-                            {bulkSending ? 'Sending...' : 'Send All Invitations'}
+                            {bulkSending ? 'Sending…' : 'Send All Invitations'}
                           </button>
                     }
                 </div>
@@ -726,7 +728,7 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                                     <td className="dos-inv-td">{statusEl}</td>
                                     <td className="dos-inv-td xs muted">{daysAgo(inv.created_at)}</td>
                                     <td className={'dos-inv-td xs ' + (inv.is_expired && !inv.is_used ? 'danger' : 'muted')}>
-                                        {inv.is_used ? '-' : new Date(inv.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        {inv.is_used ? '-' : formatDate(inv.expires_at)}
                                     </td>
                                     <td className="dos-inv-td wide">
                                         {!inv.is_used && (
@@ -755,6 +757,7 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function DosStudents() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const { config }  = useSchoolConfig()
@@ -871,7 +874,7 @@ export function DosStudents() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Student Management" subtitle="Monitor student enrollment and performance" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('dos.students.title')} subtitle={t('dos.students.subtitle')} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
                         <div className="portal-stat-grid">

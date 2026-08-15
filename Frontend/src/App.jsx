@@ -160,44 +160,37 @@ function App() {
 
       {/* ── Portal-specific login pages ── */}
       <Route path="/login/student" element={
-        <PortalLogin portal="student" label="Student Portal"
-          subtitle="Access your results, timetable, assignments and activities"
+        <PortalLogin portal="student"
           icon="school" accentColor="#0891b2"
           placeholder="student@imboni.rw" redirectTo="/student" />
       } />
       <Route path="/login/teacher" element={
-        <PortalLogin portal="teacher" label="Teacher Portal"
-          subtitle="Manage your classes, mark attendance and enter results"
+        <PortalLogin portal="teacher"
           icon="cast_for_education" accentColor="#7c3aed"
           placeholder="teacher@imboni.rw" redirectTo="/teacher" />
       } />
       <Route path="/login/parent" element={
-        <PortalLogin portal="parent" label="Parent Portal"
-          subtitle="Monitor your child's academic progress and school life"
+        <PortalLogin portal="parent"
           icon="family_restroom" accentColor="#f97316"
           placeholder="parent@gmail.com" redirectTo="/parent" />
       } />
       <Route path="/login/dos" element={
-        <PortalLogin portal="dos" label="Director of Studies"
-          subtitle="Academic oversight, scheduling, results approval and analytics"
+        <PortalLogin portal="dos"
           icon="analytics" accentColor="#003d7a"
           placeholder="dos@imboni.rw" redirectTo="/dos" />
       } />
       <Route path="/login/discipline" element={
-        <PortalLogin portal="discipline" label="Discipline Portal"
-          subtitle="Student behaviour, boarding management and activities"
+        <PortalLogin portal="discipline"
           icon="shield_person" accentColor="#dc2626"
           placeholder="discipline@imboni.rw" redirectTo="/discipline" />
       } />
       <Route path="/login/matron" element={
-        <PortalLogin portal="matron" label="Matron Portal"
-          subtitle="Student health, welfare and dormitory management"
+        <PortalLogin portal="matron"
           icon="health_and_safety" accentColor="#be185d"
           placeholder="matron@imboni.rw" redirectTo="/matron" />
       } />
       <Route path="/login/admin" element={
-        <PortalLogin portal="admin" label="Administration"
-          subtitle="School administration, staff management and system settings"
+        <PortalLogin portal="admin"
           icon="admin_panel_settings" accentColor="#4f46e5"
           placeholder="admin@imboni.rw" redirectTo="/admin" />
       } />

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
@@ -85,6 +86,7 @@ function ProgressItem({ label, value, width }) {
 }
 
 export function DosDashboard() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const sessionUser = useSessionUser()
@@ -203,7 +205,7 @@ export function DosDashboard() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="DOS Dashboard"
+                        title={t('dos.dashboard.title')}
                         subtitle={`Welcome back, ${sessionUser.userName}`}
                         {...sessionUser}
                         notifications={liveNotifications}

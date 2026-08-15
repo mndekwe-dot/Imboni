@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -44,6 +45,7 @@ function ReportRow({ dotClass, title, meta, statusClass, status }) {
 }
 
 export function MatronDashboard() {
+    const { t } = useTranslation()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [dashboard, setDashboard] = useState(null)
@@ -99,7 +101,7 @@ export function MatronDashboard() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Dashboard" subtitle={`${dormitory} Overview`} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('nav.dashboard')} subtitle={`${dormitory} Overview`} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

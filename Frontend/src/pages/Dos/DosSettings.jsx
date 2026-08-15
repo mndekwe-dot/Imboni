@@ -1,9 +1,11 @@
 import { useState,useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { updateSchoolSettings, getSubjects, createSubject, updateSubject, deleteSubject, renameSubjectCategory, deleteSubjectCategory, getDosRooms, createDosRoom, deleteDosRoom } from '../../api/dos'
 import '../../styles/layout.css'
@@ -35,42 +37,6 @@ function TagList({ items, onRemove }) {
 }
 
 // Renders a text input + Add button + tag list for one config field
-function ConfigSection({ title, description, items, onAdd, onRemove, placeholder }) {
-    const [input, setInput] = useState('')
-
-    function handleAdd() {
-        const val = input.trim()
-        if (!val || items.includes(val)) return
-        onAdd(val)
-        setInput('')
-    }
-
-    return (
-        <div className="settings-block">
-            <div className="settings-block-label">
-                <p className="settings-block-title">{title}</p>
-                <p className="settings-block-desc">{description}</p>
-            </div>
-            <div className="settings-block-input-row">
-                <input
-                    className="form-input flex-1"
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                    placeholder={placeholder}
-                />
-                <button className="btn btn-primary btn-sm" onClick={handleAdd}>
-                    <span className="material-symbols-rounded icon-sm">add</span>
-                    Add
-                </button>
-            </div>
-            <TagList items={items} onRemove={onRemove} />
-        </div>
-    )
-}
-
-// Compact 1–10 picker for a scheduling weight. `prefix` distinguishes the two
-// (E = exam scheduler, T = timetable generator) without widening the row.
 function WeightSelect({ prefix, value, onChange, title }) {
     return (
         <select
@@ -209,124 +175,13 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
     )
 }
 
-// ── YearInput — add a new year group ────────────────────────────────────────
-function YearInput({ onAdd }) {
-    const [input, setInput] = useState('')
-    function handle() {
-        const val = input.trim()
-        if (!val) return
-        onAdd(val)
-        setInput('')
-    }
-    return (
-        <div className="settings-block-input-row u-mt-sm">
-            <input
-                className="form-input flex-1"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handle()}
-                placeholder="e.g. S1"
-            />
-            <button className="btn btn-primary btn-sm" onClick={handle}>
-                <span className="material-symbols-rounded icon-sm">add</span> Add Year
-            </button>
-        </div>
-    )
-}
-
-// ── YearBlock — one year with editable name and per-year streams ─────────────
-function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
-    const [editing, setEditing]       = useState(false)
-    const [draft, setDraft]           = useState(year.name)
-    const [streamInput, setStreamInput] = useState('')
-
-    function commitRename() {
-        const val = draft.trim()
-        if (val && val !== year.name) onRename(year.name, val)
-        setEditing(false)
-    }
-
-    function handleAddStream() {
-        const val = streamInput.trim()
-        if (!val) return
-        onAddStream(val)
-        setStreamInput('')
-    }
-
-    return (
-        <div className="dset-editblock">
-            {/* Year header — name + edit + delete */}
-            <div className="dset-head">
-                {editing ? (
-                    <>
-                        <input
-                            className="form-input dset-input-year"
-                            value={draft}
-                            onChange={e => setDraft(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setEditing(false); setDraft(year.name) } }}
-                            autoFocus
-                        />
-                        <button className="btn btn-primary btn-sm" onClick={commitRename}>Save</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => { setEditing(false); setDraft(year.name) }}>Cancel</button>
-                    </>
-                ) : (
-                    <>
-                        <span className="dset-year-title">{year.name}</span>
-                        <button
-                            className="btn-icon-clean dset-icon-muted"
-                            onClick={() => setEditing(true)}
-                            title="Rename year"
-                        >
-                            <span className="material-symbols-rounded u-fs-1">edit</span>
-                        </button>
-                        <div className="dset-spacer" />
-                        <button
-                            className="btn-icon-clean dos-danger-text"
-                            onClick={onRemove}
-                            title="Remove year"
-                        >
-                            <span className="material-symbols-rounded u-fs-1">delete</span>
-                        </button>
-                    </>
-                )}
-            </div>
-
-            {/* Stream chips */}
-            <div className="tag-list u-mb-05">
-                {year.streams.map(s => (
-                    <span key={s} className="tag-chip">
-                        {s}
-                        <button className="tag-chip-remove" onClick={() => onRemoveStream(s)}>
-                            <span className="material-symbols-rounded">close</span>
-                        </button>
-                    </span>
-                ))}
-                {year.streams.length === 0 && <span className="tag-chip-empty">No streams yet</span>}
-            </div>
-
-            {/* Add stream */}
-            <div className="dset-stream-row">
-                <input
-                    className="form-input dset-input-stream"
-                    value={streamInput}
-                    onChange={e => setStreamInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAddStream()}
-                    placeholder="Add stream e.g. A, MPG"
-                />
-                <button className="btn btn-outline btn-sm" onClick={handleAddStream}>
-                    <span className="material-symbols-rounded icon-sm">add</span> Stream
-                </button>
-            </div>
-        </div>
-    )
-}
-
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export function DosSettings() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
-    const { config, saveConfig, loading, error } = useSchoolConfig()
+    const { config, loading, error } = useSchoolConfig()
     const { setting, loading: settingsLoading } = useSchoolSettings()
     const [subjects,  setSubjects]  = useState([])
     const [rooms,     setRooms]     = useState([])
@@ -335,8 +190,6 @@ export function DosSettings() {
     const [timezone,  setTimezone]  = useState('Africa/Kigali')
     const [tzSaving,  setTzSaving]  = useState(false)
     const [tzSaved,   setTzSaved]   = useState(false)
-    const [saving, setSaving] = useState(false)
-    const [saved,  setSaved]  = useState(false)
 
     useEffect(() => {
         if (!settingsLoading) setTimezone(setting.timezone)
@@ -444,71 +297,6 @@ export function DosSettings() {
         { iconClass: 'warning', icon: 'groups',         label: 'Stream Classes', value: totalStreams  },
     ]
 
-    // ── Generic update helpers ────────────────────────────────────────────────
-
-    function addSection(name) {
-        if (config.find(s => s.name === name)) return
-        saveConfig([...config, { name, years: [] }])
-    }
-
-    function removeSection(name) {
-        saveConfig(config.filter(s => s.name !== name))
-    }
-
-    function addYear(sectionName, yearName) {
-        if (!yearName.trim()) return
-        const sec = config.find(s => s.name === sectionName)
-        if (!sec || sec.years.find(y => y.name === yearName)) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: [...s.years, { name: yearName, streams: [] }] }
-            : s))
-    }
-
-    function removeYear(sectionName, yearName) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.filter(y => y.name !== yearName) }
-            : s))
-    }
-
-    function renameYear(sectionName, oldName, newName) {
-        if (!newName.trim() || oldName === newName) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === oldName ? { ...y, name: newName } : y) }
-            : s))
-    }
-
-    function addStream(sectionName, yearName, stream) {
-        if (!stream.trim()) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName && !y.streams.includes(stream)
-                ? { ...y, streams: [...y.streams, stream] }
-                : y) }
-            : s))
-    }
-
-    function removeStream(sectionName, yearName, stream) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName
-                ? { ...y, streams: y.streams.filter(st => st !== stream) }
-                : y) }
-            : s))
-    }
-
-    // ── Save to backend ───────────────────────────────────────────────────────
-
-    async function handleSave() {
-        setSaving(true)
-        try {
-            await saveConfig(config)
-            setSaved(true)
-            setTimeout(() => setSaved(false), 3000)
-        } catch (err) {
-            console.error(err)
-        } finally {
-            setSaving(false)
-        }
-    }
-
     async function handleTimezoneSave() {
         setTzSaving(true)
         try{
@@ -532,8 +320,8 @@ export function DosSettings() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="School Settings"
-                        subtitle="Configure school structure: sections, year groups and stream classes"
+                        title={t('dos.settings.title')}
+                        subtitle={t('dos.settings.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -583,62 +371,7 @@ export function DosSettings() {
                             </div>
                             <div className="card-content">
 
-                                {/* Add / remove sections */}
-                                <ConfigSection
-                                    title="Add Section"
-                                    description="Academic divisions e.g. O-Level, A-Level"
-                                    items={config.map(s => s.name)}
-                                    onAdd={addSection}
-                                    onRemove={removeSection}
-                                    placeholder="e.g. O-Level"
-                                />
-
-                                {/* Per-section year and stream config */}
-                                {config.length > 0 && (
-                                    <div className="settings-border-section">
-                                        {config.map(sec => (
-                                            <div key={sec.name} className="sec-config-block">
-                                                <p className="sec-config-block-title">{sec.name}</p>
-
-                                                <div className="settings-block">
-                                                    <div className="settings-block-label">
-                                                        <p className="settings-block-title">Year Groups</p>
-                                                        <p className="settings-block-desc">Each year has its own stream classes</p>
-                                                    </div>
-                                                    <YearInput onAdd={yearName => addYear(sec.name, yearName)} />
-                                                </div>
-
-                                                {sec.years.map(y => (
-                                                    <YearBlock
-                                                        key={y.name}
-                                                        year={y}
-                                                        onRename={(old, next) => renameYear(sec.name, old, next)}
-                                                        onRemove={() => removeYear(sec.name, y.name)}
-                                                        onAddStream={stream => addStream(sec.name, y.name, stream)}
-                                                        onRemoveStream={stream => removeStream(sec.name, y.name, stream)}
-                                                    />
-                                                ))}
-
-                                                {sec.years.length === 0 && (
-                                                    <p className="dset-note">
-                                                        No year groups yet. Add one above
-                                                    </p>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Save button */}
-                                <div className="cloud-save-row">
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={handleSave}
-                                        disabled={saving}
-                                    >
-                                        {saved ? 'Saved!' : saving ? 'Saving...' : 'Save to Database'}
-                                    </button>
-                                </div>
+                                <SchoolStructureEditor showStats={false} />
 
                             </div>
                         </div>
@@ -687,7 +420,7 @@ export function DosSettings() {
 
                                 {Object.keys(subjectsByType).length === 0 && (
                                     <p className="dset-note">
-                                        No subject types yet. Add one above
+                                        No subject types yet. Add one above.
                                     </p>
                                 )}
                             </div>
@@ -731,7 +464,7 @@ export function DosSettings() {
                                         </span>
                                     ))}
                                     {rooms.length === 0 && (
-                                        <span className="tag-chip-empty">No rooms yet. Add one above</span>
+                                        <span className="tag-chip-empty">No rooms yet. Add one above.</span>
                                     )}
                                 </div>
                             </div>
@@ -791,7 +524,7 @@ export function DosSettings() {
                                             </optgroup>
                                         </select>
                                         <button className="btn btn-primary btn-sm" onClick={handleTimezoneSave} disabled={tzSaving}>
-                                            {tzSaved ? 'Saved!' : tzSaving ? 'Saving...' : 'Save'}
+                                            {tzSaved ? 'Saved!' : tzSaving ? 'Saving…' : 'Save'}
                                         </button>
                                     </div>
                                 </div>

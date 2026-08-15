@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -227,6 +228,7 @@ function ReportRow({ report, onMarkComplete }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisStudents() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
@@ -309,8 +311,8 @@ export function DisStudents() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Students"
-                        subtitle="Conduct records and incident reports"
+                        title={t('nav.students')}
+                        subtitle={t('dis.students.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
@@ -21,6 +22,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { sectionsFromClasses } from '../../utils/classes'
+import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -50,7 +52,7 @@ function todayISO() {
 
 function fmtWeek(start, end) {
     if (!start || !end) return ''
-    const f = d => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    const f = d => formatDate(d + 'T00:00:00')
     return `Week: ${f(start)} - ${f(end)}`
 }
 
@@ -403,6 +405,7 @@ function TeacherAttendanceTab() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function DosAttendance() {
+    const { t } = useTranslation()
     const { setting } = useSchoolSettings()
     const toast = useToast()
     const sessionUser = useSessionUser()
@@ -435,8 +438,8 @@ export function DosAttendance() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Attendance"
-                        subtitle="Track student and teacher attendance by class"
+                        title={t('nav.attendance')}
+                        subtitle={t('dos.attendance.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

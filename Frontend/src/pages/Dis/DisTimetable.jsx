@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getISOWeek, getISOWeekYear } from 'date-fns'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -72,6 +73,7 @@ function applyEntries(entries, weekKey, setEntries, setSchedules, setIdMap, setS
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function DisTimetable() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [editingSlot,     setEditingSlot]     = useState(null)
@@ -177,8 +179,8 @@ export function DisTimetable() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Extracurricular Timetable"
-                        subtitle="Plan, create, and update the weekly non-academic activity schedule"
+                        title={t('dis.timetable.title')}
+                        subtitle={t('dis.timetable.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

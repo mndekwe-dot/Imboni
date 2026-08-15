@@ -1,12 +1,75 @@
 {
+  "admin": {
+    "announcements": {
+      "subtitle": "Compose and broadcast school-wide notices"
+    },
+    "approvals": {
+      "subtitle": "Review and approve exam results submitted by teachers",
+      "title": "Result Approvals"
+    },
+    "auditLog": {
+      "subtitle": "Who did what, and when: sensitive administrative actions"
+    },
+    "billing": {
+      "subtitle": "Manage your school's subscription and plan"
+    },
+    "dashboard": {
+      "subtitle": "School-wide overview",
+      "subtitleWithTerm": "School-wide overview ({{term}}, {{year}})",
+      "title": "Admin Dashboard"
+    },
+    "finance": {
+      "subtitle": "Fee collection, payments and school budget",
+      "subtitleWithTerm": "Fee collection, payments and school budget ({{term}}, {{year}})",
+      "title": "Finance"
+    },
+    "reports": {
+      "subtitle": "School-wide performance, attendance and enrollment insights",
+      "title": "Reports & Analytics"
+    },
+    "settings": {
+      "subtitle": "School-wide configuration: structure, subjects, rooms and preferences"
+    },
+    "staff": {
+      "subtitle": "Teachers, welfare and administration staff",
+      "title": "Staff Management"
+    },
+    "students": {
+      "subtitle": "Enrollment, admissions and student records",
+      "title": "Student Management"
+    },
+    "support": {
+      "subtitle": "Get help from the Imboni team"
+    }
+  },
   "auth": {
+    "backToHome": "Back to home",
+    "backToSignIn": "Back to sign in",
+    "contactAdmin": "Contact {{email}} for account issues",
     "email": "Email address",
+    "emailPlaceholder": "Enter your email",
+    "footer": "Imboni Education Connects © {{year}}.",
     "forgotPassword": "Forgot password?",
     "invalidCredentials": "Invalid email or password.",
     "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "privacyPolicy": "Privacy Policy",
     "rememberMe": "Remember me",
+    "resetIntro": "Enter your email address and we will send you a reset link.",
+    "resetPassword": "Reset Password",
+    "resetSent": "A password reset link has been sent to <1>{{email}}</1>. Check your email and follow the instructions.",
+    "restricted": "Access restricted to authorised users only",
+    "secure": "Secure: your data is encrypted",
+    "sendResetLink": "Send Reset Link",
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signInTo": "Sign in to {{portal}}",
+    "signOut": "Sign out",
+    "signingIn": "Signing in…",
+    "togglePassword": "Toggle password visibility",
+    "twoFactorHint": "Enter the 6-digit code from your authenticator app (or a backup code) to finish signing in.",
+    "verificationCode": "Verification code",
+    "verifyAndSignIn": "Verify and sign in",
+    "verifying": "Verifying…"
   },
   "common": {
     "absent": "Absent",
@@ -22,6 +85,7 @@
     "day": "Day",
     "delete": "Delete",
     "description": "Description",
+    "done": "Done",
     "draft": "Draft",
     "edit": "Edit",
     "excused": "Excused",
@@ -67,11 +131,120 @@
     "withdrawing": "Withdrawing…",
     "yes": "Yes"
   },
+  "dis": {
+    "activities": {
+      "subtitle": "Manage clubs, patron assignments and memberships",
+      "title": "Extracurricular Activities"
+    },
+    "announcements": {
+      "subtitle": "Compose and broadcast discipline notices"
+    },
+    "boarding": {
+      "subtitle": "Dormitory assignments and boarding records",
+      "title": "Boarding"
+    },
+    "dashboard": {
+      "subtitle": "Director of Discipline Overview"
+    },
+    "dining": {
+      "subtitle": "Student dining plans for the current term",
+      "title": "Dining"
+    },
+    "settings": {
+      "subtitle": "Configure facilities, school structure and portal defaults"
+    },
+    "staff": {
+      "subtitle": "Staff under your supervision",
+      "title": "Matrons & Patrons"
+    },
+    "studentLeaders": {
+      "subtitle": "Prefects, house captains and club leaders",
+      "title": "Student Leaders"
+    },
+    "studentLife": {
+      "subtitle": "Extracurricular activities, clubs and student leadership",
+      "title": "Student Life"
+    },
+    "students": {
+      "subtitle": "Conduct records and incident reports"
+    },
+    "timetable": {
+      "subtitle": "Plan, create, and update the weekly non-academic activity schedule",
+      "title": "Extracurricular Timetable"
+    }
+  },
+  "dos": {
+    "analytics": {
+      "subtitle": "Comprehensive school performance insights",
+      "title": "School Analytics"
+    },
+    "announcements": {
+      "subtitle": "Compose and broadcast school-wide announcements"
+    },
+    "attendance": {
+      "subtitle": "Track student and teacher attendance by class"
+    },
+    "dashboard": {
+      "title": "DOS Dashboard"
+    },
+    "examSchedule": {
+      "subtitle": "Create and manage examination timetables",
+      "title": "Exam Schedule"
+    },
+    "results": {
+      "subtitle": "Approval queue and school performance analytics"
+    },
+    "scheduling": {
+      "subtitle": "Weekly class timetables and examination schedule"
+    },
+    "settings": {
+      "subtitle": "Configure school structure: sections, year groups and stream classes",
+      "title": "School Settings"
+    },
+    "students": {
+      "subtitle": "Monitor student enrollment and performance",
+      "title": "Student Management"
+    },
+    "teachers": {
+      "subtitle": "View, add, update teachers and manage class assignments",
+      "title": "Teacher Management"
+    }
+  },
   "language": {
     "changed": "Language updated.",
     "english": "English",
     "kinyarwanda": "Kinyarwanda",
     "label": "Language"
+  },
+  "matron": {
+    "health": {
+      "subtitle": "Sick bay management and student health records for {{house}}",
+      "subtitleNoHouse": "Sick bay management and student health records",
+      "title": "Health & Wellness"
+    },
+    "incidents": {
+      "banner": "New Incident Report: {{house}} → Discipline Master",
+      "bannerNoHouse": "New Incident Report → Discipline Master",
+      "subtitle": "Submit incident reports directly to the Director of Discipline",
+      "title": "Report Incident"
+    },
+    "parentComms": {
+      "subtitle": "Log and track all parent contact for {{house}}",
+      "subtitleNoHouse": "Log and track all parent contact",
+      "title": "Parent Communications"
+    },
+    "schedule": {
+      "subtitle": "Timetable sent by the Discipline Master for {{house}}",
+      "subtitleNoHouse": "Timetable sent by the Discipline Master",
+      "title": "Boarding Schedule"
+    },
+    "students": {
+      "listTitle": "{{house}} Students",
+      "listTitleNoHouse": "My Students",
+      "subtitle": "{{house}}, {{count}} students",
+      "subtitleNoHouse": "{{count}} students",
+      "title": "My Students"
+    }
   },
   "nav": {
     "activities": "Activities",
@@ -147,6 +320,15 @@
     "parent": "Parent Portal",
     "student": "Student Portal",
     "teacher": "Teacher Portal"
+  },
+  "portalLogin": {
+    "admin": "School administration, staff management and system settings",
+    "discipline": "Student behaviour, boarding management and activities",
+    "dos": "Academic oversight, scheduling, results approval and analytics",
+    "matron": "Student health, welfare and dormitory management",
+    "parent": "Monitor your child's academic progress and school life",
+    "student": "Access your results, timetable, assignments and activities",
+    "teacher": "Manage your classes, mark attendance and enter results"
   },
   "roles": {
     "admin": "Administrator",

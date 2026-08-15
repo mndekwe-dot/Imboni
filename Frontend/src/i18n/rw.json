@@ -1,12 +1,75 @@
 {
+  "admin": {
+    "announcements": {
+      "subtitle": "Kwandika no gutangaza amatangazo ku kigo cyose"
+    },
+    "approvals": {
+      "subtitle": "Suzuma kandi wemeze amanota yatanzwe n'abarimu",
+      "title": "Kwemeza amanota"
+    },
+    "auditLog": {
+      "subtitle": "Uwakoze iki n'igihe: ibikorwa by'ubuyobozi byitonderwa"
+    },
+    "billing": {
+      "subtitle": "Cunga ifatabuguzi na gahunda y'ikigo cyawe"
+    },
+    "dashboard": {
+      "subtitle": "Incamake y'ikigo cyose",
+      "subtitleWithTerm": "Incamake y'ikigo cyose ({{term}}, {{year}})",
+      "title": "Imbonerahamwe y'ubuyobozi"
+    },
+    "finance": {
+      "subtitle": "Ikusanya ry'amafaranga, ubwishyu n'ingengo y'imari",
+      "subtitleWithTerm": "Ikusanya ry'amafaranga, ubwishyu n'ingengo y'imari ({{term}}, {{year}})",
+      "title": "Imari"
+    },
+    "reports": {
+      "subtitle": "Isesengura ry'imikorere, ubwitabire no kwiyandikisha",
+      "title": "Raporo n'isesengura"
+    },
+    "settings": {
+      "subtitle": "Igenamiterere ry'ikigo: imiterere, amasomo, ibyumba n'ibyifuzo"
+    },
+    "staff": {
+      "subtitle": "Abarimu, abita ku mibereho n'abakozi b'ubuyobozi",
+      "title": "Gucunga abakozi"
+    },
+    "students": {
+      "subtitle": "Kwiyandikisha, kwakirwa n'inyandiko z'abanyeshuri",
+      "title": "Gucunga abanyeshuri"
+    },
+    "support": {
+      "subtitle": "Saba ubufasha ku itsinda rya Imboni"
+    }
+  },
   "auth": {
+    "backToHome": "Subira ku rupapuro rw'itangiriro",
+    "backToSignIn": "Subira ku kwinjira",
+    "contactAdmin": "Vugana na {{email}} ku bibazo bya konti",
     "email": "Aderesi imeyili",
+    "emailPlaceholder": "Andika imeyili yawe",
+    "footer": "Imboni Uburezi Buhuza © {{year}}.",
     "forgotPassword": "Wibagiwe ijambo ry'ibanga?",
     "invalidCredentials": "Imeyili cyangwa ijambo ry'ibanga si byo.",
     "password": "Ijambo ry'ibanga",
+    "passwordPlaceholder": "Andika ijambo ry'ibanga",
+    "privacyPolicy": "Amabwiriza y'ibanga",
     "rememberMe": "Unyibuke",
+    "resetIntro": "Andika aderesi imeyili yawe tukoherereze umuyoboro wo guhindura.",
+    "resetPassword": "Guhindura ijambo ry'ibanga",
+    "resetSent": "Umuyoboro wo guhindura ijambo ry'ibanga woherejwe kuri <1>{{email}}</1>. Reba imeyili yawe ukurikize amabwiriza.",
+    "restricted": "Kwinjira byemewe gusa ku bantu babifitiye uburenganzira",
+    "secure": "Umutekano: amakuru yawe arabikwa mu ibanga",
+    "sendResetLink": "Ohereza umuyoboro wo guhindura",
     "signIn": "Injira",
-    "signOut": "Sohoka"
+    "signInTo": "Injira muri {{portal}}",
+    "signOut": "Sohoka",
+    "signingIn": "Kwinjira…",
+    "togglePassword": "Erekana/hisha ijambo ry'ibanga",
+    "twoFactorHint": "Andika kode y'imibare 6 iva muri porogaramu yawe (cyangwa kode y'ubwisungane) kugira ngo urangize kwinjira.",
+    "verificationCode": "Kode y'ukugenzura",
+    "verifyAndSignIn": "Genzura hanyuma winjire",
+    "verifying": "Biragenzurwa…"
   },
   "common": {
     "absent": "Yasibye",
@@ -22,6 +85,7 @@
     "day": "Umunsi",
     "delete": "Siba",
     "description": "Ibisobanuro",
+    "done": "Byarangiye",
     "draft": "Umushinga",
     "edit": "Hindura",
     "excused": "Yemerewe gusiba",
@@ -67,11 +131,120 @@
     "withdrawing": "Kuvamo…",
     "yes": "Yego"
   },
+  "dis": {
+    "activities": {
+      "subtitle": "Cunga amakipe, abayobozi n'abanyamuryango",
+      "title": "Ibikorwa byo kwidagadura"
+    },
+    "announcements": {
+      "subtitle": "Kwandika no gutangaza amatangazo y'imyitwarire"
+    },
+    "boarding": {
+      "subtitle": "Igenwa ry'amacumbi n'inyandiko zo kuba ku ishuri",
+      "title": "Kuba ku ishuri"
+    },
+    "dashboard": {
+      "subtitle": "Incamake y'Ushinzwe imyitwarire"
+    },
+    "dining": {
+      "subtitle": "Gahunda yo kurya y'abanyeshuri muri iki gihembwe",
+      "title": "Kurya"
+    },
+    "settings": {
+      "subtitle": "Shyiraho ibikoresho, imiterere y'ikigo n'igenamiterere"
+    },
+    "staff": {
+      "subtitle": "Abakozi ureberera",
+      "title": "Abarezi n'abayobozi"
+    },
+    "studentLeaders": {
+      "subtitle": "Abayobozi b'abanyeshuri, abakuru b'amacumbi n'abayobozi b'amakipe",
+      "title": "Abayobozi b'abanyeshuri"
+    },
+    "studentLife": {
+      "subtitle": "Ibikorwa byo kwidagadura, amakipe n'ubuyobozi bw'abanyeshuri",
+      "title": "Ubuzima bw'abanyeshuri"
+    },
+    "students": {
+      "subtitle": "Inyandiko z'imyitwarire na raporo z'ibibazo"
+    },
+    "timetable": {
+      "subtitle": "Tegura, ukore kandi uvugurure gahunda y'icyumweru y'ibikorwa bitari amasomo",
+      "title": "Gahunda y'ibikorwa byo kwidagadura"
+    }
+  },
+  "dos": {
+    "analytics": {
+      "subtitle": "Isesengura ryuzuye ry'imikorere y'ikigo",
+      "title": "Isesengura ry'ikigo"
+    },
+    "announcements": {
+      "subtitle": "Kwandika no gutangaza amatangazo ku kigo cyose"
+    },
+    "attendance": {
+      "subtitle": "Kurikirana ubwitabire bw'abanyeshuri n'abarimu ku ishuri"
+    },
+    "dashboard": {
+      "title": "Imbonerahamwe y'Umuyobozi w'Amasomo"
+    },
+    "examSchedule": {
+      "subtitle": "Kora kandi ucunge gahunda z'ibizamini",
+      "title": "Gahunda y'ibizamini"
+    },
+    "results": {
+      "subtitle": "Urutonde rwo kwemeza n'isesengura ry'imikorere"
+    },
+    "scheduling": {
+      "subtitle": "Gahunda y'icyumweru y'amasomo n'iy'ibizamini"
+    },
+    "settings": {
+      "subtitle": "Shyiraho imiterere y'ikigo: ibice, imyaka n'amashuri",
+      "title": "Igenamiterere ry'ikigo"
+    },
+    "students": {
+      "subtitle": "Kurikirana kwiyandikisha n'imikorere y'abanyeshuri",
+      "title": "Gucunga abanyeshuri"
+    },
+    "teachers": {
+      "subtitle": "Reba, ongeraho, uhindure abarimu kandi ucunge amashuri bahawe",
+      "title": "Gucunga abarimu"
+    }
+  },
   "language": {
     "changed": "Ururimi rwahinduwe.",
     "english": "Icyongereza",
     "kinyarwanda": "Ikinyarwanda",
     "label": "Ururimi"
+  },
+  "matron": {
+    "health": {
+      "subtitle": "Gucunga ivuriro n'inyandiko z'ubuzima bw'abanyeshuri ba {{house}}",
+      "subtitleNoHouse": "Gucunga ivuriro n'inyandiko z'ubuzima bw'abanyeshuri",
+      "title": "Ubuzima n'imibereho"
+    },
+    "incidents": {
+      "banner": "Raporo nshya y'ikibazo: {{house}} → Ushinzwe imyitwarire",
+      "bannerNoHouse": "Raporo nshya y'ikibazo → Ushinzwe imyitwarire",
+      "subtitle": "Ohereza raporo z'ibibazo ku Ushinzwe imyitwarire",
+      "title": "Tanga raporo y'ikibazo"
+    },
+    "parentComms": {
+      "subtitle": "Andika kandi ukurikirane itumanaho n'ababyeyi ba {{house}}",
+      "subtitleNoHouse": "Andika kandi ukurikirane itumanaho n'ababyeyi",
+      "title": "Itumanaho n'ababyeyi"
+    },
+    "schedule": {
+      "subtitle": "Gahunda yoherejwe n'Ushinzwe imyitwarire kuri {{house}}",
+      "subtitleNoHouse": "Gahunda yoherejwe n'Ushinzwe imyitwarire",
+      "title": "Gahunda yo kuba ku ishuri"
+    },
+    "students": {
+      "listTitle": "Abanyeshuri ba {{house}}",
+      "listTitleNoHouse": "Abanyeshuri banjye",
+      "subtitle": "{{house}}, abanyeshuri {{count}}",
+      "subtitleNoHouse": "abanyeshuri {{count}}",
+      "title": "Abanyeshuri banjye"
+    }
   },
   "nav": {
     "activities": "Ibikorwa",
@@ -147,6 +320,15 @@
     "parent": "Urubuga rw'Umubyeyi",
     "student": "Urubuga rw'Umunyeshuri",
     "teacher": "Urubuga rw'Umwarimu"
+  },
+  "portalLogin": {
+    "admin": "Ubuyobozi bw'ikigo, gucunga abakozi n'igenamiterere",
+    "discipline": "Imyitwarire y'abanyeshuri, gucunga kuba ku ishuri n'ibikorwa",
+    "dos": "Kugenzura amasomo, gahunda, kwemeza amanota n'isesengura",
+    "matron": "Ubuzima bw'abanyeshuri, imibereho no gucunga amacumbi",
+    "parent": "Kurikirana amajyambere y'umwana wawe mu masomo no mu buzima bw'ishuri",
+    "student": "Reba amanota, gahunda, imikoro n'ibikorwa byawe",
+    "teacher": "Cunga amashuri yawe, wandike ubwitabire n'amanota"
   },
   "roles": {
     "admin": "Umuyobozi",

@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useCurrentTerm } from '../../hooks/useCurrentTerm'
 import { StatCard } from '../../components/layout/StatCard'
 import { AdminPaymentModal } from '../../components/modals/AdminPaymentModal'
 import '../../styles/layout.css'
@@ -62,6 +64,8 @@ function TxRow({ initials, name, adm, amount, date, type, typeClass }) {
 }
 
 export function AdminFinance() {
+    const { t } = useTranslation()
+    const { term } = useCurrentTerm()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [txList, setTxList]           = useState(initialTransactions)
     const [statusFilter, setStatusFilter] = useState('All')
@@ -110,8 +114,10 @@ export function AdminFinance() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Finance"
-                        subtitle="Fee collection, payments and school budget (Term 2, 2026)"
+                        title={t('admin.finance.title')}
+                        subtitle={term
+                            ? t('admin.finance.subtitleWithTerm', { term: term.name, year: term.year })
+                            : t('admin.finance.subtitle')}
                         userName={adminUser.userName}
                         userRole={adminUser.userRole}
                         userInitials={adminUser.userInitials}

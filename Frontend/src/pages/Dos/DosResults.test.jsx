@@ -177,7 +177,7 @@ describe('DosResults', () => {
     const search = screen.getByPlaceholderText('Search by teacher, subject, or class...')
     fireEvent.change(search, { target: { value: 'nonexistent-xyz' } })
 
-    expect(screen.getByText('No results match your filters.')).toBeInTheDocument()
+    expect(screen.getByText('No results match the selected filters.')).toBeInTheDocument()
   })
 
   it('fetches analytics data when switching to the Analytics tab', async () => {

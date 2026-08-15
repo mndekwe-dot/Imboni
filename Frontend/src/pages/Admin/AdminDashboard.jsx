@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useCurrentTerm } from '../../hooks/useCurrentTerm'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
@@ -37,6 +39,8 @@ const ACTIVITY_ICON = {
 }
 
 export function AdminDashboard() {
+    const { t } = useTranslation()
+    const { term } = useCurrentTerm()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
 
@@ -82,7 +86,9 @@ export function AdminDashboard() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Admin Dashboard"
-                        subtitle="School-wide overview (Term 2, 2026)"
+                        subtitle={term
+                            ? t('admin.dashboard.subtitleWithTerm', { term: term.name, year: term.year })
+                            : t('admin.dashboard.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

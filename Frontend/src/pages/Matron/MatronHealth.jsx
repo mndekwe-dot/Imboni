@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -15,6 +16,8 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { OfflineIndicator } from '../../components/ui/OfflineIndicator'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useMatronDormitory } from '../../hooks/useMatronDormitory'
+import { formatDate } from '../../utils/date'
 
 
 const conditionLabels = { illness: 'Illness', injury: 'Injury', checkup: 'Check-up', followup: 'Follow-up' }
@@ -264,6 +267,8 @@ function MedicationChecklist({ students }) {
 }
 
 export const MatronHealth = () => {
+    const { t } = useTranslation()
+    const dormitory = useMatronDormitory()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [data, setData] = useState(null)
@@ -347,7 +352,7 @@ export const MatronHealth = () => {
     ]
 
     const healthHistory = data.history.map(r => ({
-        date: new Date(r.visit_datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        date: formatDate(r.visit_datetime),
         name: r.name,
         conditionTag: r.condition_tag,
         complaint: r.complaint,
@@ -367,7 +372,9 @@ export const MatronHealth = () => {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Health & Wellness"
-                        subtitle="Sick bay management and student health records for Karisimbi House"
+                        subtitle={dormitory
+                            ? t('matron.health.subtitle', { house: dormitory })
+                            : t('matron.health.subtitleNoHouse')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

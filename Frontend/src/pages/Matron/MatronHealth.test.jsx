@@ -3,10 +3,11 @@ import { renderWithRouter, setSessionUser, screen, fireEvent, waitFor, within } 
 import { MatronHealth } from './MatronHealth'
 import {
     getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents,
-    getMedicationsToday, administerMedication, createMedication,
+    getMedicationsToday, administerMedication, createMedication, getMatronDashboard,
 } from '../../api/matron'
 
 vi.mock('../../api/matron', () => ({
+    getMatronDashboard: vi.fn(),
     getMatronHealth: vi.fn(),
     createHealthRecord: vi.fn(),
     updateHealthRecord: vi.fn(),
@@ -49,6 +50,7 @@ function fieldByLabel(labelText) {
 
 beforeEach(() => {
     vi.clearAllMocks()
+    getMatronDashboard.mockResolvedValue({ stats: { dormitory: 'Karisimbi' } })
     setSessionUser({ first_name: 'Gloriose', last_name: 'Hakizimana', role: 'matron' })
     getMatronStudents.mockResolvedValue(STUDENTS)
     getMedicationsToday.mockResolvedValue({ date: '2026-07-02', total: 0, given: 0, overdue: 0, items: [] })

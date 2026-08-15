@@ -15,12 +15,3 @@ export const studentSecondaryItems = [
     { to: '/login',                icon: 'logout',         labelKey: 'nav.logout', action: 'logout'  },
 ]
 
-import { notifications } from '../../data/notifications'
-
-export const studentUser = {
-    userName:      'Uwase Amina',
-    userRole:      'Student · S4A',
-    userInitials:  'UA',
-    avatarClass:   'student-av',
-    notifications: notifications.student,
-}

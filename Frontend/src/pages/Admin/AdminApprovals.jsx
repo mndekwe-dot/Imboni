@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -11,6 +12,7 @@ import { errorMessage } from '../../utils/errors'
 import { classLabel } from '../../utils/classes'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { getPendingResults, approveResult, rejectResult, bulkApproveResults } from '../../api/admin'
+import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
@@ -118,7 +120,7 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
             </td>
             <td className="adm-cell-sub">{teacher}</td>
             <td className="u-xs u-muted">
-                {result.submitted_at ? new Date(result.submitted_at).toLocaleDateString() : '-'}
+                {result.submitted_at ? formatDate(result.submitted_at) : '-'}
             </td>
             {status === 'pending' && (
                 <td>
@@ -144,6 +146,7 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
 }
 
 export function AdminApprovals() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const { config }    = useSchoolConfig()
     const toast = useToast()
@@ -264,8 +267,8 @@ export function AdminApprovals() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Result Approvals"
-                        subtitle="Review and approve exam results submitted by teachers"
+                        title={t('admin.approvals.title')}
+                        subtitle={t('admin.approvals.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

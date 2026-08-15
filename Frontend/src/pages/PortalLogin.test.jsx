@@ -7,10 +7,10 @@ vi.mock('../hooks/useAuth', () => ({
   useAuth: () => ({ login: mockLogin }),
 }))
 
+// The portal name and blurb are resolved from `portal` via i18n, not passed
+// in — so there is no display text among these props.
 const baseProps = {
   portal: 'teacher',
-  label: 'Teacher Portal',
-  subtitle: 'Manage your classes',
   icon: 'person_book',
   accentColor: '#0891b2',
   placeholder: 'teacher@imboni.edu',
@@ -20,10 +20,10 @@ const baseProps = {
 describe('PortalLogin', () => {
   beforeEach(() => mockLogin.mockReset())
 
-  it('renders the portal label and subtitle', () => {
+  it('renders the portal label and subtitle from the portal slug', () => {
     renderWithRouter(<PortalLogin {...baseProps} />)
     expect(screen.getAllByText('Teacher Portal').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Manage your classes').length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Manage your classes/).length).toBeGreaterThan(0)
   })
 
   it('calls login with email, password, portal and redirectTo on submit', async () => {
@@ -67,7 +67,7 @@ describe('PortalLogin', () => {
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'pw' } })
     fireEvent.click(screen.getByRole('button', { name: /Sign in to Teacher Portal/ }))
 
-    expect(await screen.findByText('Signing in...')).toBeInTheDocument()
+    expect(await screen.findByText('Signing in…')).toBeInTheDocument()
     resolveLogin()
   })
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -8,6 +9,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import { formatDate } from '../../utils/date'
 import {
     getAdminAnnouncements, createAdminAnnouncement,
     updateAdminAnnouncement, deleteAdminAnnouncement,
@@ -54,7 +56,7 @@ function relDate(dateStr) {
     if (diff === 0) return 'Today'
     if (diff === 1) return 'Yesterday'
     if (diff < 7)  return `${diff}d ago`
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return formatDate(d)
 }
 
 function audienceLabel(ann) {
@@ -261,6 +263,7 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminAnnouncements() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const [announcements,   setAnnouncements]   = useState([])
@@ -399,8 +402,8 @@ export function AdminAnnouncements() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Announcements"
-                        subtitle="Compose and broadcast school-wide notices"
+                        title={t('nav.announcements')}
+                        subtitle={t('admin.announcements.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

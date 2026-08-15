@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -13,6 +14,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
+import { formatDateShort } from '../../utils/date'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -53,7 +55,7 @@ function timeAgo(isoStr) {
     if (h < 24)  return `${h}h ago`
     const d = Math.floor(h / 24)
     if (d < 7)   return `${d}d ago`
-    return new Date(isoStr).toLocaleDateString('en-GB', { day:'numeric', month:'short' })
+    return formatDateShort(isoStr)
 }
 
 function audienceLabel(val) {
@@ -117,6 +119,7 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DosAnnouncement() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
@@ -261,8 +264,8 @@ export function DosAnnouncement() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Announcements"
-                        subtitle="Compose and broadcast school-wide announcements"
+                        title={t('nav.announcements')}
+                        subtitle={t('dos.announcements.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { yearsFromConfig } from '../../utils/classes'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
@@ -393,149 +395,6 @@ function SchoolInfoSection() {
     )
 }
 
-function SchoolStructureSection() {
-    const toast = useToast()
-    const { config, saveConfig, loading, error } = useSchoolConfig()
-    const [saving, setSaving] = useState(false)
-    const [saved,  setSaved]  = useState(false)
-
-    if (loading) return <p className="adm-set-note">Loading…</p>
-    if (error)   return <p className="adm-danger">Error: {error}</p>
-
-    const totalYears   = config.reduce((sum, sec) => sum + sec.years.length, 0)
-    const totalStreams  = config.reduce((sum, sec) => sum + sec.years.reduce((s, y) => s + y.streams.length, 0), 0)
-
-    function addSection(name) {
-        if (config.find(s => s.name === name)) return
-        saveConfig([...config, { name, years: [] }])
-    }
-    function removeSection(name) { saveConfig(config.filter(s => s.name !== name)) }
-
-    function addYear(sectionName, yearName) {
-        if (!yearName.trim()) return
-        const sec = config.find(s => s.name === sectionName)
-        if (!sec || sec.years.find(y => y.name === yearName)) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: [...s.years, { name: yearName, streams: [] }] } : s))
-    }
-    function removeYear(sectionName, yearName) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.filter(y => y.name !== yearName) } : s))
-    }
-    function renameYear(sectionName, oldName, newName) {
-        if (!newName.trim() || oldName === newName) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === oldName ? { ...y, name: newName } : y) } : s))
-    }
-    function addStream(sectionName, yearName, stream) {
-        if (!stream.trim()) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName && !y.streams.includes(stream)
-                ? { ...y, streams: [...y.streams, stream] } : y) } : s))
-    }
-    function removeStream(sectionName, yearName, stream) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName
-                ? { ...y, streams: y.streams.filter(st => st !== stream) } : y) } : s))
-    }
-
-    async function handleSave() {
-        setSaving(true)
-        try {
-            await saveConfig(config)
-            setSaved(true)
-            setTimeout(() => setSaved(false), 3000)
-        } catch (e) {
-            toast.error(errorMessage(e, 'Could not save the school structure.'))
-        } finally { setSaving(false) }
-    }
-
-    return (
-        <div>
-            {config.length > 0 && (
-                <div className="adm-struct-stats">
-                    {[
-                        { icon: 'layers',         label: 'Sections',       value: config.length },
-                        { icon: 'calendar_month', label: 'Year Groups',    value: totalYears    },
-                        { icon: 'groups',         label: 'Stream Classes', value: totalStreams  },
-                    ].map(s => (
-                        <div key={s.label} className="disc-stat-card adm-struct-stat">
-                            <div className="disc-stat-icon info">
-                                <span className="material-symbols-rounded">{s.icon}</span>
-                            </div>
-                            <div>
-                                <div className="disc-stat-value">{s.value}</div>
-                                <div className="disc-stat-label">{s.label}</div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {config.length === 0 && (
-                <div className="card u-banner u-banner--primary u-mb">
-                    <div className="u-row">
-                        <span className="material-symbols-rounded u-banner-icon">info</span>
-                        <div>
-                            <p className="u-strong u-mb-025">Getting started</p>
-                            <p className="u-muted u-sm">
-                                Add your first section (e.g. O-Level or A-Level), then add year groups and stream classes to it.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <ConfigSection
-                title="Add Section"
-                description="Academic divisions e.g. O-Level, A-Level"
-                items={config.map(s => s.name)}
-                onAdd={addSection}
-                onRemove={removeSection}
-                placeholder="e.g. O-Level"
-            />
-
-            {config.length > 0 && (
-                <div className="settings-border-section">
-                    {config.map(sec => (
-                        <div key={sec.name} className="sec-config-block">
-                            <p className="sec-config-block-title">{sec.name}</p>
-                            <div className="settings-block">
-                                <div className="settings-block-label">
-                                    <p className="settings-block-title">Year Groups</p>
-                                    <p className="settings-block-desc">Each year has its own stream classes</p>
-                                </div>
-                                <YearInput onAdd={yearName => addYear(sec.name, yearName)} />
-                            </div>
-                            {sec.years.map(y => (
-                                <YearBlock
-                                    key={y.name}
-                                    year={y}
-                                    onRename={(old, next) => renameYear(sec.name, old, next)}
-                                    onRemove={() => removeYear(sec.name, y.name)}
-                                    onAddStream={stream => addStream(sec.name, y.name, stream)}
-                                    onRemoveStream={stream => removeStream(sec.name, y.name, stream)}
-                                />
-                            ))}
-                            {sec.years.length === 0 && (
-                                <p className="u-muted u-sm u-mt-sm">
-                                    No year groups yet. Add one above
-                                </p>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            <div className="cloud-save-row">
-                <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                    {saved ? 'Saved!' : saving ? 'Saving…' : 'Save to Database'}
-                </button>
-            </div>
-        </div>
-    )
-}
-
 function SubjectsSection() {
     const toast = useToast()
     const [subjects,    setSubjects]    = useState([])
@@ -704,7 +563,7 @@ function RoomsSection() {
                         </button>
                     </span>
                 ))}
-                {rooms.length === 0 && <span className="tag-chip-empty">No rooms yet. Add one above</span>}
+                {rooms.length === 0 && <span className="tag-chip-empty">No rooms yet. Add one above.</span>}
             </div>
 
             <p className="u-xs u-muted u-mt">
@@ -882,6 +741,7 @@ function TermRolloverSection() {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminSettings() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [activeSection, setActiveSection] = useState('School Info')
 
@@ -893,8 +753,8 @@ export function AdminSettings() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Settings"
-                        subtitle="School-wide configuration: structure, subjects, rooms and preferences"
+                        title={t('nav.settings')}
+                        subtitle={t('admin.settings.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -927,7 +787,7 @@ export function AdminSettings() {
                                 <div className="card-content">
 
                                     {activeSection === 'School Info'      && <SchoolInfoSection />}
-                                    {activeSection === 'School Structure' && <SchoolStructureSection />}
+                                    {activeSection === 'School Structure' && <SchoolStructureEditor />}
                                     {activeSection === 'Subjects'         && <SubjectsSection />}
                                     {activeSection === 'Rooms'            && <RoomsSection />}
                                     {activeSection === 'Term Rollover'    && <TermRolloverSection />}

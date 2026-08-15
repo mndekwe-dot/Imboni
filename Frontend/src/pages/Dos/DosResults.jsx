@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
@@ -20,6 +21,7 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { classLabel } from '../../utils/classes'
+import { formatDate } from '../../utils/date'
 
 const STATUS_MAP = { submitted: 'pending', approved: 'approved', rejected: 'rejected' }
 
@@ -42,7 +44,7 @@ function groupResults(raw) {
                 title: `${cls} - ${r.subject}`,
                 submittedBy: r.teacher || '-',
                 date: r.submitted_at
-                    ? new Date(r.submitted_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                    ? formatDate(r.submitted_at)
                     : '-',
                 subject: r.subject,
                 class: cls,
@@ -367,6 +369,7 @@ function ViewModal({ result, onClose }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function DosResults() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const sessionUser = useSessionUser()
@@ -484,7 +487,7 @@ export function DosResults() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Results" subtitle="Approval queue and school performance analytics" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('nav.results')} subtitle={t('dos.results.subtitle')} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 
@@ -537,7 +540,7 @@ export function DosResults() {
                                 {visible.length === 0 ? (
                                     <div className="qp-empty">
                                         <span className="material-symbols-rounded qp-empty-icon dos-av-dim">search_off</span>
-                                        No results match your filters.
+                                        No results match the selected filters.
                                     </div>
                                 ) : (
                                     <div className="settings-form">

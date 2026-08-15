@@ -1,24 +1,26 @@
 import { useState, useEffect, useRef } from 'react'
 import { getDisStudents } from '../../api/discipline'
+import { useDormitories } from '../../hooks/useDormitories'
 import '../../styles/components.css'
 
-const DORMITORIES = [
-    { key: 'bisoke',    name: 'Bisoke',    gender: 'Girls' },
-    { key: 'karisimbi', name: 'Karisimbi', gender: 'Girls' },
-    { key: 'muhabura',  name: 'Muhabura',  gender: 'Boys'  },
-    { key: 'sabyinyo',  name: 'Sabyinyo',  gender: 'Boys'  },
-]
+// Must match the key useDormitories derives, so a stored display name and a
+// fetched dormitory resolve to the same <option> value.
+const toDormKey = name => String(name || '').toLowerCase().replace(/\s+/g, '-')
 
 export function DormitoryCaptainModal({ captain, onClose, onSave }) {
     const isEditing = !!captain
+    // The school's own dormitories, not a fixed four.
+    const DORMITORIES = useDormitories()
 
     // captain.notes stores the dormitory's display name ("Dormitory: Bisoke"),
     // but the <select> below is keyed by lowercase id ("bisoke") — resolve the
     // matching key so editing a captain shows their actual dormitory selected.
-    const [dormKey, setDormKey] = useState(() => {
-        const displayName = captain?.notes?.replace('Dormitory: ', '') || ''
-        return DORMITORIES.find(d => d.name === displayName)?.key || displayName
-    })
+    //
+    // Derived from the name directly rather than by looking it up in
+    // DORMITORIES: that list arrives asynchronously and is still empty when
+    // this initialiser runs, which left the select with an unmatched value.
+    const [dormKey, setDormKey] = useState(() =>
+        toDormKey(captain?.notes?.replace('Dormitory: ', '') || ''))
     const [appointedDate, setAppointedDate] = useState(captain?.appointed_date || '')
     const [saving,        setSaving]        = useState(false)
     const [error,         setError]         = useState(null)
@@ -95,7 +97,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>
+                        <span className="material-symbols-rounded dmod-title-icon">
                             {isEditing ? 'edit' : 'person_add'}
                         </span>
                         <h2 className="modal-title">{isEditing ? 'Edit Dormitory Captain' : 'Add Dormitory Captain'}</h2>
@@ -109,15 +111,15 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                     {isEditing ? (
                         <div className="form-group">
                             <label className="form-label">Student</label>
-                            <div style={{ padding: '0.5rem 0.75rem', background: 'var(--muted)', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 600 }}>
+                            <div className="dmod-current">
                                 {captain.student_name}
-                                {cls && <span className="class-chip" style={{ marginLeft: '0.5rem', fontSize: '0.72rem' }}>{cls}</span>}
+                                {cls && <span className="class-chip dis-chip-inline">{cls}</span>}
                             </div>
                         </div>
                     ) : (
-                        <div className="form-group" ref={searchRef} style={{ position: 'relative' }}>
+                        <div className="form-group dis-search-wrap" ref={searchRef}>
                             <label className="form-label">Student *</label>
-                            <div style={{ position: 'relative' }}>
+                            <div className="dis-search-wrap">
                                 <input
                                     className="form-input"
                                     value={query}
@@ -126,33 +128,21 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                                     autoComplete="off"
                                 />
                                 {searching && (
-                                    <span className="material-symbols-rounded" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', fontSize: '1rem', color: 'var(--muted-foreground)' }}>
+                                    <span className="material-symbols-rounded dis-search-spin">
                                         progress_activity
                                     </span>
                                 )}
                             </div>
                             {dropdownOpen && searchResults.length > 0 && (
-                                <div style={{
-                                    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
-                                    background: 'var(--card)', border: '1px solid var(--border)',
-                                    borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                                    maxHeight: '220px', overflowY: 'auto', marginTop: '2px',
-                                }}>
+                                <div className="dis-search-menu">
                                     {searchResults.map(s => (
-                                        <div key={s.id} onClick={() => selectStudent(s)} style={{
-                                            padding: '0.625rem 0.875rem', cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', gap: '0.625rem',
-                                            borderBottom: '1px solid var(--border)',
-                                        }}
-                                        onMouseEnter={e => e.currentTarget.style.background = 'var(--muted)'}
-                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                                        >
-                                            <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                                        <div key={s.id} className="dis-search-item" onClick={() => selectStudent(s)}>
+                                            <div className="dis-search-av">
                                                 {s.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
                                             </div>
                                             <div>
-                                                <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{s.name}</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                                                <div className="dis-search-name">{s.name}</div>
+                                                <div className="dis-search-sub">
                                                     {s.student_id} · {s.grade}{s.section}
                                                 </div>
                                             </div>
@@ -161,9 +151,9 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                                 </div>
                             )}
                             {selectedStudent && (
-                                <div style={{ marginTop: '0.35rem', fontSize: '0.78rem', color: '#15803d', fontWeight: 600 }}>
+                                <div className="dis-picked">
                                     ✓ {selectedStudent.name} ({selectedStudent.student_id})
-                                    {cls && <span className="class-chip" style={{ marginLeft: '0.4rem', fontSize: '0.7rem' }}>{cls}</span>}
+                                    {cls && <span className="class-chip dis-chip-inline-sm">{cls}</span>}
                                 </div>
                             )}
                         </div>
@@ -186,8 +176,8 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                             </optgroup>
                         </select>
                         {selectedDorm && (
-                            <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.25rem', display: 'block' }}>
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.85rem', verticalAlign: 'middle' }}>
+                            <span className="dmod-note">
+                                <span className="material-symbols-rounded">
                                     {selectedDorm.gender === 'Girls' ? 'female' : 'male'}
                                 </span>
                                 {' '}{selectedDorm.gender} dormitory
@@ -201,7 +191,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                         <input className="form-input" type="date" value={appointedDate} onChange={e => setAppointedDate(e.target.value)} />
                     </div>
 
-                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+                    {error && <p className="dmod-error">{error}</p>}
                 </div>
 
                 <div className="modal-footer">

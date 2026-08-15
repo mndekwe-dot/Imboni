@@ -47,17 +47,25 @@ describe('DosSettings', () => {
     await waitFor(() => expect(screen.getByText('Getting started')).toBeInTheDocument())
   })
 
-  it('adds a new section', async () => {
+  it('adds a new section to the draft, and saves it only on Save', async () => {
     getSchoolConfig.mockResolvedValue([])
     updateSchoolConfig.mockResolvedValue([{ name: 'O-Level', years: [] }])
     renderWithRouter(<DosSettings />)
     await waitFor(() => expect(screen.getByText('Getting started')).toBeInTheDocument())
 
-    fireEvent.change(screen.getByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
+    // The structure editor loads its own copy of the config, so it settles a
+    // tick after the page does.
+    fireEvent.change(await screen.findByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
     const sectionsCard = screen.getByText('Sections, Years & Classes').closest('.card')
     fireEvent.click(within(sectionsCard).getByRole('button', { name: /Add/ }))
 
-    await waitFor(() => expect(updateSchoolConfig).toHaveBeenCalledWith([{ name: 'O-Level', years: [] }]))
+    // Adding stages the change; it must not reach the server yet.
+    await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument())
+    expect(updateSchoolConfig).not.toHaveBeenCalled()
+
+    fireEvent.click(within(sectionsCard).getByRole('button', { name: /Save changes/ }))
+    await waitFor(() => expect(updateSchoolConfig)
+      .toHaveBeenCalledWith([{ name: 'O-Level', years: [] }], { confirm: false }))
   })
 
   it('shows stat cards once sections exist', async () => {
@@ -72,7 +80,7 @@ describe('DosSettings', () => {
     getSchoolConfig.mockResolvedValue([])
     createDosRoom.mockResolvedValue({ id: 1, name: 'Lab 1' })
     renderWithRouter(<DosSettings />)
-    await waitFor(() => expect(screen.getByText('No subject types yet. Add one above')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No subject types yet. Add one above.')).toBeInTheDocument())
 
     fireEvent.change(screen.getByPlaceholderText('e.g. Sciences'), { target: { value: 'Sciences' } })
     fireEvent.click(screen.getByRole('button', { name: /Add Type/ }))

@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, setSessionUser, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { MatronIncidents } from './MatronIncidents'
-import { getMatronIncidents, createMatronIncident, getMatronStudents } from '../../api/matron'
+import { getMatronIncidents, createMatronIncident, getMatronStudents, getMatronDashboard } from '../../api/matron'
 import { getSchoolSettings } from '../../api/dos'
 
 vi.mock('../../api/matron', () => ({
+    getMatronDashboard: vi.fn(),
     getMatronIncidents: vi.fn(),
     createMatronIncident: vi.fn(),
     getMatronStudents: vi.fn(),
@@ -27,6 +28,7 @@ const REPORTS = [
 describe('MatronIncidents', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        getMatronDashboard.mockResolvedValue({ stats: { dormitory: 'Karisimbi' } })
         setSessionUser({ first_name: 'Gloriose', last_name: 'Hakizimana', role: 'matron' })
         getSchoolSettings.mockResolvedValue({ timezone: 'Africa/Kigali', school_name: 'Imboni' })
         getMatronStudents.mockResolvedValue(STUDENTS)

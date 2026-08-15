@@ -1,12 +1,4 @@
-import { notifications } from '../../data/notifications'
 
-export const disUser = {
-    userName:      'Mr. Eric Mutabazi',
-    userRole:      'Director of Discipline',
-    userInitials:  'EM',
-    avatarClass:   'discipline-av',
-    notifications: notifications.discipline,
-}
 
 export const disNavItems = [
     { to: '/discipline',               icon: 'dashboard',      labelKey: 'nav.dashboard',    end: true },

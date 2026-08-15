@@ -13,12 +13,3 @@ export const matronSecondaryItems = [
     { to: '/login',               icon: 'logout',         labelKey: 'nav.logout', action: 'logout'  },
 ]
 
-import { notifications } from '../../data/notifications'
-
-export const matronUser = {
-    userName:      'Mrs. Gloriose Hakizimana',
-    userRole:      'Matron, Karisimbi House',
-    userInitials:  'GH',
-    avatarClass:   'matron-av',
-    notifications: notifications.matron,
-}

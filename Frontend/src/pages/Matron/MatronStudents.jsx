@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
@@ -8,7 +9,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
 import '../../styles/pages.css'
-import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
@@ -16,6 +17,7 @@ import { getMatronStudents } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { Loading } from '../../components/ui/Loading'
 import { classLabel } from '../../utils/classes'
 
@@ -59,6 +61,8 @@ function StudentRow({ initials, name, studentCode, year, classBadge, room, dormi
 }
 
 export function MatronStudents() {
+    const dormitory = useMatronDormitory()
+    const { t } = useTranslation()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const { config } = useSchoolConfig()
@@ -120,8 +124,10 @@ export function MatronStudents() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="My Students"
-                        subtitle={`${matronUser.userRole.split(',').pop().trim()}, ${visibleStudents.length} students`}
+                        title={t('matron.students.title')}
+                        subtitle={dormitory
+                            ? t('matron.students.subtitle', { house: dormitory, count: visibleStudents.length })
+                            : t('matron.students.subtitleNoHouse', { count: visibleStudents.length })}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -158,7 +164,9 @@ export function MatronStudents() {
                         </div>
 
                         <DataTable
-                            title={`${matronUser.userRole.split(',').pop().trim()} Students`}
+                            title={dormitory
+                                ? t('matron.students.listTitle', { house: dormitory })
+                                : t('matron.students.listTitleNoHouse')}
                             data={visibleStudents}
                             columns={['Student','Class','Room','Dormitory','Boarding Type']}
                             renderRow={(student, index) => <StudentRow key={index} {...student} />}

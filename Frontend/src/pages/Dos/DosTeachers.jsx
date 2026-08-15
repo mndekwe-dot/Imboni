@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getSubjects } from '../../api/dos'
 import { DataTable } from '../../components/ui/DataTable'
 import { Sidebar } from '../../components/layout/Sidebar'
@@ -17,6 +18,7 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { Loading } from '../../components/ui/Loading'
+import { formatDate } from '../../utils/date'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TYPES = ['Full-Time', 'Part-Time']
@@ -307,7 +309,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
                     <button className="btn btn-primary" disabled={!isValid || sending} onClick={handleSend}>
                         <span className="material-symbols-rounded icon-sm">send</span>
-                        {sending ? 'Sending...' : 'Send Invitation'}
+                        {sending ? 'Sending…' : 'Send Invitation'}
                     </button>
                 </div>
             }
@@ -419,7 +421,7 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
                                 </td>
                                 <td className="pinv-td pinv-muted">{daysAgo(inv.created_at)}</td>
                                 <td className="pinv-td pinv-muted" style={expired ? { color: 'var(--danger)' } : undefined}>
-                                    {new Date(inv.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                    {formatDate(inv.expires_at)}
                                 </td>
                                 <td className="pinv-td last">
                                     <div className="pinv-actions">
@@ -448,6 +450,7 @@ const typeMap = { full_time: 'Full-Time', part_time: 'Part-Time' }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function DosTeachers() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
@@ -557,7 +560,7 @@ export function DosTeachers() {
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Teacher Management" subtitle="View, add, update teachers and manage class assignments" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('dos.teachers.title')} subtitle={t('dos.teachers.subtitle')} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
                         <div className="portal-stat-grid">

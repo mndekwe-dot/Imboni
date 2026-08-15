@@ -76,7 +76,7 @@ export function FindSchool() {
                         {error && <p className="pub-find-error" role="alert">{error}</p>}
 
                         <button type="submit" className="pub-plan-cta pub-plan-cta--solid" disabled={busy}>
-                            {busy ? 'Sending...' : 'Email me my school link'}
+                            {busy ? 'Sending…' : 'Email me my school link'}
                         </button>
 
                         <p className="pub-find-note">

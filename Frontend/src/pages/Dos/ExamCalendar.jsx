@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { formatWeekdayShortUTC } from '../../utils/date'
 
 /*
   Drag-and-drop exam rescheduling.
@@ -33,9 +34,7 @@ function parseUTC(iso) {
 function formatDayLabel(iso) {
     const d = parseUTC(iso)
     if (!d) return iso
-    return d.toLocaleDateString(undefined, {
-        weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC',
-    })
+    return formatWeekdayShortUTC(d)
 }
 
 function addDays(iso, n) {

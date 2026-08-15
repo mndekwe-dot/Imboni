@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -8,6 +9,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import { formatDate } from '../../utils/date'
 import {
     getAdminStaff, getAdminTeacherStats,
     getInvitations, sendInvitation, resendInvitation, cancelInvitation,
@@ -203,6 +205,7 @@ function InviteModal({ onClose, onSent }) {
 }
 
 export function AdminStaff() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const [staffList,   setStaffList]   = useState([])
@@ -317,7 +320,7 @@ export function AdminStaff() {
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Staff Management" subtitle="Teachers, welfare and administration staff" {...adminUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('admin.staff.title')} subtitle={t('admin.staff.subtitle')} {...adminUser} notifications={liveNotifications} onNotificationRead={markRead} />
                     <DashboardContent>
 
                         <div className="portal-stat-grid">
@@ -431,7 +434,7 @@ export function AdminStaff() {
                                                                 </span>
                                                             </td>
                                                             <td className="adm-sent-cell">
-                                                                {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : '-'}
+                                                                {inv.created_at ? formatDate(inv.created_at) : '-'}
                                                             </td>
                                                             <td>
                                                                 {!inv.is_used && inv.status !== 'cancelled' && (

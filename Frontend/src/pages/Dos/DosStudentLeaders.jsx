@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { getDosStudentLeaders, getDosActivities, patchDosActivity, deleteDosActivity } from '../../api/dos'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { StatCard } from '../../components/layout/StatCard'
@@ -7,6 +8,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
+import { useDormitories } from '../../hooks/useDormitories'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { useSessionUser } from '../../hooks/useSessionUser'
@@ -15,6 +17,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { classesFromConfig, classLabel } from '../../utils/classes'
+import { formatMonthYear } from '../../utils/date'
 
 
 function isCaptain(role) {
@@ -26,14 +29,13 @@ function toLeaderCard(sl) {
     const initials = words.slice(0, 2).map(w => w[0] || '').join('').toUpperCase()
     const form     = sl.grade && sl.section ? classLabel(sl.grade, sl.section) : '-'
     const since    = sl.appointed_date
-        ? new Date(sl.appointed_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+        ? formatMonthYear(sl.appointed_date)
         : '-'
     return { initials, name: sl.full_name, role: sl.role, roleTag: /deputy/i.test(sl.role) ? 'deputy' : 'prefect', form, since, house: sl.role }
 }
 
 
 const PREFECT_ROLES  = ['Head Girl','Head Boy','Deputy Head Girl','Deputy Head Boy','Academics Prefect','Games Prefect','Discipline Prefect','Health Prefect']
-const CAPTAIN_HOUSES = ['Karisimbi','Muhabura','Bisoke','Sabyinyo']
 // classes come from DOS settings — injected as prop
 
 function getRoleTag(role) {
@@ -46,7 +48,8 @@ function LeaderFormModal({ leader, onClose, onSave, allClasses }) {
     const [type,   setType]   = useState(leader?.type   || 'prefect')
     const [name,   setName]   = useState(leader?.name   || '')
     const [role,   setRole]   = useState(leader?.role   || PREFECT_ROLES[0])
-    const [house,  setHouse]  = useState(leader?.house  || CAPTAIN_HOUSES[0])
+    const dormitories = useDormitories()
+    const [house,  setHouse]  = useState(leader?.house  || '')
     const [form,   setForm]   = useState(leader?.form   || 'S4A')
     const [since,  setSince]  = useState(leader?.since  || 'Jan 2026')
     const [err,    setErr]    = useState('')
@@ -96,7 +99,7 @@ function LeaderFormModal({ leader, onClose, onSave, allClasses }) {
                         <div className="form-group">
                             <label className="form-label">Dormitory</label>
                             <select className="form-input" value={house} onChange={e => setHouse(e.target.value)}>
-                                {CAPTAIN_HOUSES.map(h => <option key={h}>{h}</option>)}
+                                {dormitories.map(d => <option key={d.id || d.name}>{d.name}</option>)}
                             </select>
                         </div>
                     )}

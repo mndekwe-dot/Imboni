@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { NewActivityModal } from '../../components/modals/NewActivityModal'
@@ -180,6 +181,7 @@ function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCa
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisStudentLife() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [activeTab, setActiveTab] = useState('activities')
@@ -350,8 +352,8 @@ export function DisStudentLife() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Student Life"
-                        subtitle="Extracurricular activities, clubs and student leadership"
+                        title={t('dis.studentLife.title')}
+                        subtitle={t('dis.studentLife.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

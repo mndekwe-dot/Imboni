@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
 import {
     getDisFacilities, createDisFacility, patchDisFacility, deleteDisFacility,
     getDisFacilitySections, createDisFacilitySection, patchDisFacilitySection, deleteDisFacilitySection,
@@ -330,124 +332,13 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
 
 // ── School config helpers ─────────────────────────────────────────────────────
 
-function TagList({ items, onRemove }) {
-    return (
-        <div className="tag-list">
-            {items.map(item => (
-                <span key={item} className="tag-chip">
-                    {item}
-                    <button className="tag-chip-remove" onClick={() => onRemove(item)}>
-                        <span className="material-symbols-rounded">close</span>
-                    </button>
-                </span>
-            ))}
-            {items.length === 0 && <span className="tag-chip-empty">None added yet</span>}
-        </div>
-    )
-}
-
-function ConfigSection({ title, description, items, onAdd, onRemove, placeholder }) {
-    const [input, setInput] = useState('')
-    function handleAdd() {
-        const val = input.trim()
-        if (!val || items.includes(val)) return
-        onAdd(val)
-        setInput('')
-    }
-    return (
-        <div className="settings-block">
-            <div className="settings-block-label">
-                <p className="settings-block-title">{title}</p>
-                <p className="settings-block-desc">{description}</p>
-            </div>
-            <div className="settings-block-input-row">
-                <input
-                    className="disc-picker-select flex-1"
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                    placeholder={placeholder}
-                />
-                <button className="btn btn-primary btn-sm" onClick={handleAdd}>
-                    <span className="material-symbols-rounded icon-sm">add</span> Add
-                </button>
-            </div>
-            <TagList items={items} onRemove={onRemove} />
-        </div>
-    )
-}
-
-function YearInput({ onAdd }) {
-    const [input, setInput] = useState('')
-    function handle() {
-        const val = input.trim()
-        if (!val) return
-        onAdd(val)
-        setInput('')
-    }
-    return (
-        <div className="settings-block-input-row u-mt-sm">
-            <input className="disc-picker-select flex-1" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handle()} placeholder="e.g. S1" />
-            <button className="btn btn-primary btn-sm" onClick={handle}><span className="material-symbols-rounded icon-sm">add</span> Add Year</button>
-        </div>
-    )
-}
-
-function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
-    const [editing, setEditing]         = useState(false)
-    const [draft, setDraft]             = useState(year.name)
-    const [streamInput, setStreamInput] = useState('')
-
-    function commitRename() {
-        const val = draft.trim()
-        if (val && val !== year.name) onRename(year.name, val)
-        setEditing(false)
-    }
-    function handleAddStream() {
-        const val = streamInput.trim()
-        if (!val) return
-        onAddStream(val)
-        setStreamInput('')
-    }
-
-    return (
-        <div className="disc-year-block">
-            <div className="u-row-sm u-mb-sm">
-                {editing ? (
-                    <>
-                        <input className="disc-picker-select disc-year-name-input" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setEditing(false); setDraft(year.name) } }} autoFocus />
-                        <button className="btn btn-primary btn-sm" onClick={commitRename}>Save</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => { setEditing(false); setDraft(year.name) }}>Cancel</button>
-                    </>
-                ) : (
-                    <>
-                        <span className="disc-row-title">{year.name}</span>
-                        <button className="btn-icon-clean u-muted" onClick={() => setEditing(true)}><span className="material-symbols-rounded disc-icon-1">edit</span></button>
-                        <div className="disc-fill" />
-                        <button className="btn-icon-clean disc-danger" onClick={onRemove}><span className="material-symbols-rounded disc-icon-1">delete</span></button>
-                    </>
-                )}
-            </div>
-            <div className="tag-list mb-2">
-                {year.streams.map(s => (
-                    <span key={s} className="tag-chip">{s}<button className="tag-chip-remove" onClick={() => onRemoveStream(s)}><span className="material-symbols-rounded">close</span></button></span>
-                ))}
-                {year.streams.length === 0 && <span className="tag-chip-empty">No streams yet</span>}
-            </div>
-            <div className="u-row-sm">
-                <input className="disc-picker-select disc-stream-input" value={streamInput} onChange={e => setStreamInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddStream()} placeholder="Add stream e.g. A, MPG" />
-                <button className="btn btn-outline btn-sm" onClick={handleAddStream}><span className="material-symbols-rounded icon-sm">add</span> Stream</button>
-            </div>
-        </div>
-    )
-}
-
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function DisSettings() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
-    const { config, saveConfig, loading, error } = useSchoolConfig()
+    const { config, loading, error } = useSchoolConfig()
     const [activeTab, setActiveTab] = useState('facilities')
 
     // ── Facilities state ──
@@ -461,8 +352,6 @@ export function DisSettings() {
     const [addingSection, setAddingSection] = useState(false)
 
     // ── School config state ──
-    const [saving, setSaving] = useState(false)
-    const [saved,  setSaved]  = useState(false)
 
     useEffect(() => {
         if (activeTab !== 'facilities' || facLoaded) return
@@ -509,43 +398,6 @@ export function DisSettings() {
         setSections(prev => prev.filter(s => s.id !== id))
         // clear section reference from affected dormitories
         setFacilities(prev => prev.map(f => f.section === id ? { ...f, section: null, section_name: null } : f))
-    }
-
-    // ── School config CRUD ──
-    function addSection(name) {
-        if (config.find(s => s.name === name)) return
-        saveConfig([...config, { name, years: [] }])
-    }
-    function removeSection(name) { saveConfig(config.filter(s => s.name !== name)) }
-    function addYear(sectionName, yearName) {
-        if (!yearName.trim()) return
-        const sec = config.find(s => s.name === sectionName)
-        if (!sec || sec.years.find(y => y.name === yearName)) return
-        saveConfig(config.map(s => s.name === sectionName ? { ...s, years: [...s.years, { name: yearName, streams: [] }] } : s))
-    }
-    function removeYear(sectionName, yearName) {
-        saveConfig(config.map(s => s.name === sectionName ? { ...s, years: s.years.filter(y => y.name !== yearName) } : s))
-    }
-    function renameYear(sectionName, oldName, newName) {
-        if (!newName.trim() || oldName === newName) return
-        saveConfig(config.map(s => s.name === sectionName ? { ...s, years: s.years.map(y => y.name === oldName ? { ...y, name: newName } : y) } : s))
-    }
-    function addStream(sectionName, yearName, stream) {
-        if (!stream.trim()) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName && !y.streams.includes(stream) ? { ...y, streams: [...y.streams, stream] } : y) }
-            : s))
-    }
-    function removeStream(sectionName, yearName, stream) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName ? { ...y, streams: y.streams.filter(st => st !== stream) } : y) }
-            : s))
-    }
-    async function handleSaveConfig() {
-        setSaving(true)
-        try { await saveConfig(config); setSaved(true); setTimeout(() => setSaved(false), 3000) }
-        catch(e) { console.error(e) }
-        finally   { setSaving(false) }
     }
 
     // ── Derived ──
@@ -603,8 +455,8 @@ export function DisSettings() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Settings"
-                        subtitle="Configure facilities, school structure and portal defaults"
+                        title={t('nav.settings')}
+                        subtitle={t('dis.settings.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -804,46 +656,7 @@ export function DisSettings() {
                                                 <span className="settings-info-text">Each section has its own year groups and stream classes</span>
                                             </div>
                                             <div className="card-content">
-                                                <ConfigSection
-                                                    title="Add Section"
-                                                    description="Academic divisions e.g. O-Level, A-Level"
-                                                    items={(config||[]).map(s => s.name)}
-                                                    onAdd={addSection}
-                                                    onRemove={removeSection}
-                                                    placeholder="e.g. O-Level"
-                                                />
-                                                {(config||[]).length > 0 && (
-                                                    <div className="settings-border-section">
-                                                        {(config||[]).map(sec => (
-                                                            <div key={sec.name} className="sec-config-block">
-                                                                <p className="sec-config-block-title">{sec.name}</p>
-                                                                <div className="settings-block">
-                                                                    <div className="settings-block-label">
-                                                                        <p className="settings-block-title">Year Groups</p>
-                                                                        <p className="settings-block-desc">Each year has its own stream classes</p>
-                                                                    </div>
-                                                                    <YearInput onAdd={yearName => addYear(sec.name, yearName)} />
-                                                                </div>
-                                                                {sec.years.map(y => (
-                                                                    <YearBlock key={y.name} year={y}
-                                                                        onRename={(old, next) => renameYear(sec.name, old, next)}
-                                                                        onRemove={() => removeYear(sec.name, y.name)}
-                                                                        onAddStream={stream => addStream(sec.name, y.name, stream)}
-                                                                        onRemoveStream={stream => removeStream(sec.name, y.name, stream)}
-                                                                    />
-                                                                ))}
-                                                                {sec.years.length === 0 && (
-                                                                    <p className="disc-empty-year">No year groups yet. Add one above.</p>
-                                                                )}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                                <div className="cloud-save-row">
-                                                    <button className="btn btn-primary" onClick={handleSaveConfig} disabled={saving}>
-                                                        {saved ? 'Saved!' : saving ? 'Saving...' : 'Save to Database'}
-                                                    </button>
-                                                </div>
+                                                <SchoolStructureEditor showStats={false} />
                                             </div>
                                         </div>
                                     </>

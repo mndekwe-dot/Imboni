@@ -1,15 +1,17 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
-import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getParentComms, sendParentComm, getMatronStudents } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { Loading } from '../../components/ui/Loading'
 
 
@@ -56,6 +58,8 @@ function CommEntry({ typeClass, typeIcon, student, parent, subject, notes, meta,
 }
 
 export function MatronParentComms() {
+    const dormitory = useMatronDormitory()
+    const { t } = useTranslation()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [data, setData] = useState(null)
@@ -171,8 +175,10 @@ export function MatronParentComms() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Parent Communications"
-                        subtitle={`Log and track all parent contact for ${matronUser.userRole.split(',').pop().trim()}`}
+                        title={t('matron.parentComms.title')}
+                        subtitle={dormitory
+                            ? t('matron.parentComms.subtitle', { house: dormitory })
+                            : t('matron.parentComms.subtitleNoHouse')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

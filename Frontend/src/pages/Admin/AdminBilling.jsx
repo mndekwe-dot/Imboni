@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { DashboardContent } from '../../components/layout/DashboardContent'
@@ -101,6 +102,7 @@ function UsageCard({ usage }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminBilling() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
 
     const [billing, setBilling] = useState(null)
@@ -150,8 +152,8 @@ export function AdminBilling() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Billing"
-                        subtitle="Manage your school's subscription and plan"
+                        title={t('nav.billing')}
+                        subtitle={t('admin.billing.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

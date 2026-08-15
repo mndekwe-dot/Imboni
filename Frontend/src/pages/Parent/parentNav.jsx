@@ -13,12 +13,3 @@ export const parentSecondaryItems = [
     { to: '/login',               icon: 'logout',         labelKey: 'nav.logout', action: 'logout'  },
 ]
 
-import { notifications } from '../../data/notifications'
-
-export const parentUser = {
-    userName:      'Mrs. Chantal Uwase',
-    userRole:      'Parent',
-    userInitials:  'CU',
-    avatarClass:   'parent-av',
-    notifications: notifications.parent,
-}

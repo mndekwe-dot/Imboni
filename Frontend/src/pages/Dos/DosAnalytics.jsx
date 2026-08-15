@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getDosAnalytics, getAtRiskStudents, getChronicAbsence } from '../../api/dos'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -59,6 +60,7 @@ function buildAttentionList(atRisk, chronic) {
 }
 
 export function DosAnalytics() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [data,    setData]    = useState(null)
@@ -124,8 +126,8 @@ export function DosAnalytics() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="School Analytics"
-                        subtitle="Comprehensive school performance insights"
+                        title={t('dos.analytics.title')}
+                        subtitle={t('dos.analytics.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

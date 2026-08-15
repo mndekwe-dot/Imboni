@@ -1,11 +1,12 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
 import { Link } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { FilterBar } from '../../components/ui/FilterBar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
 import { useEffect, useState } from 'react'
-import { matronNavItems, matronSecondaryItems, matronUser } from './matronNav'
+import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
@@ -13,6 +14,7 @@ import { getMatronIncidents, createMatronIncident, getMatronStudents } from '../
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { Loading } from '../../components/ui/Loading'
 import { classLabel } from '../../utils/classes'
 
@@ -43,6 +45,8 @@ function PastReportRow({ date, name, type, severityStyle, severity, statusClass,
 }
 
 export function MatronIncidents() {
+    const dormitory = useMatronDormitory()
+    const { t } = useTranslation()
     const { setting } = useSchoolSettings()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
@@ -130,8 +134,8 @@ export function MatronIncidents() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Report Incident"
-                        subtitle="Submit incident reports directly to the Director of Discipline"
+                        title={t('matron.incidents.title')}
+                        subtitle={t('matron.incidents.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -141,7 +145,9 @@ export function MatronIncidents() {
 
                         <div className="incident-form-card">
                             <div className="incident-form-title">
-                                <span className="material-symbols-rounded">report</span> New Incident Report: {matronUser.userRole.split(',').pop().trim()} &rarr; Discipline Master
+                                <span className="material-symbols-rounded">report</span> {dormitory
+                                    ? t('matron.incidents.banner', { house: dormitory })
+                                    : t('matron.incidents.bannerNoHouse')}
                             </div>
                             <div className="incident-form-grid">
                                 <div className="form-field">

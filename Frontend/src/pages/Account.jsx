@@ -238,7 +238,7 @@ export function Account() {
                                                 className="btn btn-primary"
                                                 onClick={handleProfileSave}
                                                 disabled={saving}
-                                            >{saved ? 'Saved' : saving ? 'Saving...' : 'Update Profile'}</button>
+                                            >{saved ? 'Saved' : saving ? 'Saving…' : 'Update Profile'}</button>
                                         </div>
                                     </div>
                                 </section>
@@ -290,7 +290,7 @@ export function Account() {
                                                 onClick={handlePasswordSave}
                                                 disabled={pwSaving}
                                             >
-                                                {pwSaved ? 'Password Changed!' : pwSaving ? 'Saving...' : 'Change Password'}
+                                                {pwSaved ? 'Password Changed!' : pwSaving ? 'Saving…' : 'Change Password'}
                                             </button>
                                         </div>
 
