@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
+import { formatDate, formatDateShort } from '../../utils/date'
 import {
     getMyChildren, getChildAssessments, getChildSummative, getChildReviews,
 } from '../../api/parent'
@@ -37,7 +39,7 @@ function scoreLabel(obtained, max) {
 
 function AssessmentRow({ title, assessment_type, date, score_display, grade, subject_name }) {
     const typeLabel = (assessment_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    const dateStr   = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'
+    const dateStr   = date ? formatDate(date) : '-'
     return (
         <tr>
             <td>{subject_name}</td>
@@ -64,7 +66,7 @@ function SummativeRow({ subject_name, class_test_marks, exam_score, final_score,
 function ReviewBubble({ teacher_name, teacher_role, teacher_comment, updated_at }) {
     const ini    = initials(teacher_name)
     const timeAgo = updated_at
-        ? new Date(updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        ? formatDateShort(updated_at)
         : ''
     return (
         <div className="review-bubble">
@@ -98,6 +100,7 @@ function AssessmentItem({ title, assessment_type, score_display, grade }) {
 }
 
 export function ParentResults() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [children,    setChildren]    = useState([])
@@ -138,14 +141,14 @@ export function ParentResults() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Academic Results"
-                        subtitle="Performance tracking and term reports"
+                        title={t('parent.results.title')}
+                        subtitle={t('parent.results.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

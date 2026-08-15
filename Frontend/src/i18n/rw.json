@@ -107,6 +107,38 @@
     "teachers": "Abarimu",
     "timetable": "Gahunda y'amasomo"
   },
+  "parent": {
+    "announcements": {
+      "subtitle": "Menya amakuru n'integuza z'ikigo"
+    },
+    "attendance": {
+      "subtitle": "Kalendari y'ubwitabire n'imibare y'ukwezi",
+      "title": "Inyandiko z'ubwitabire"
+    },
+    "behaviour": {
+      "subtitle": "Kurikirana imyitwarire n'ibyo umwana wawe agezeho",
+      "title": "Raporo z'imyitwarire"
+    },
+    "children": {
+      "subtitle": "Incamake y'imyirondoro y'abana bawe",
+      "title": "Abana banjye"
+    },
+    "dashboard": {
+      "subtitle": "Dore ibirimo kubera abana bawe",
+      "title": "Imbonerahamwe y'umubyeyi"
+    },
+    "messages": {
+      "subtitle": "Vugana n'abarimu n'abakozi b'ikigo"
+    },
+    "results": {
+      "subtitle": "Gukurikirana imikorere na raporo z'igihembwe",
+      "title": "Amanota y'amasomo"
+    },
+    "timetable": {
+      "subtitle": "Reba gahunda y'icyumweru y'umwana wawe",
+      "title": "Gahunda y'ishuri"
+    }
+  },
   "portal": {
     "admin": "Ubuyobozi",
     "discipline": "Urubuga rw'Imyitwarire",

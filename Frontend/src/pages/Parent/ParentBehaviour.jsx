@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -6,6 +7,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
 import { getMyChildren, getChildBehaviourStats, getChildBehaviourReports } from '../../api/parent'
+import { formatDateLong } from '../../utils/date'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 import '../../styles/layout.css'
@@ -37,7 +39,7 @@ function BehaviourCard({ title, reported_by_display, badge, report_type, descrip
     const type      = report_type === 'positive' || report_type === 'achievement' ? 'positive' : 'warning'
     const badgeCls  = type === 'positive' ? 'positive' : 'neutral'
     const badgeIcon = type === 'positive' ? 'sentiment_satisfied' : 'warning'
-    const dateStr   = date ? new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '-'
+    const dateStr   = date ? formatDateLong(date) : '-'
 
     return (
         <div className={`behavior-card type-${type}`}>
@@ -71,6 +73,7 @@ function BehaviourCard({ title, reported_by_display, badge, report_type, descrip
 const FILTERS = ['all', 'positive', 'achievement', 'warning', 'incident']
 
 export function ParentBehaviour() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [children,    setChildren]    = useState([])
@@ -123,14 +126,14 @@ export function ParentBehaviour() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Behavior Reports"
-                        subtitle="Track your child's conduct and achievements"
+                        title={t('parent.behaviour.title')}
+                        subtitle={t('parent.behaviour.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
