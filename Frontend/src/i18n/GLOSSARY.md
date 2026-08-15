@@ -30,25 +30,25 @@ brackets), not from a generic word list.
 | Parent (22) | umubyeyi | ababyeyi | OK | |
 | Staff (35) | umukozi | abakozi | OK | |
 | Administrator | umuyobozi | abayobozi | OK | |
-| Director of Studies | Umuyobozi w'Amasomo | | DECIDE | "DOS" is widely used as-is in Rwandan schools. Keep "DOS" for the portal name? |
-| Matron | umurezi | abarezi | DECIDE | "Matron" is commonly used untranslated in boarding schools. |
-| Discipline officer (22) | ushinzwe imyitwarire | | CHECK | |
+| Director of Studies | Umuyobozi w'Amasomo | | ok | "DOS" is widely used as-is in Rwandan schools. Keep "DOS" for the portal name? |
+| Matron | umurezi | abarezi | ok | "Matron" is commonly used untranslated in boarding schools. |
+| Discipline officer (22) | ushinzwe imyitwarire | | OK |
 | Head teacher | Umuyobozi w'Ishuri | | OK | |
-| Prefect / Student leader | umuyobozi w'abanyeshuri | | CHECK | |
-| Dormitory captain | umukuru w'icumbi | | CHECK | |
+| Prefect / Student leader | umuyobozi w'abanyeshuri | | OK | |
+| Dormitory captain | umukuru w'icumbi | | ok | |
 
 ## 2. Academic structure
 
 | English | Proposed Kinyarwanda | Plural | Conf. | Notes |
 |---|---|---|---|---|
-| School (72) | ishuri | amashuri | OK | |
-| Class (49 + 30) | ishuri | amashuri | **DECIDE** | ⚠️ Same word as "school". See Note A. |
+| School (72) | ikigo | ibigo | OK | |
+| Class (49 + 30) | ishuri | amashuri | Ok | ⚠️ Same word as "school". See Note A. |
 | Subject (27) | isomo | amasomo | OK | |
-| Lesson | isomo | amasomo | **DECIDE** | ⚠️ Same word as "subject". See Note B. |
+| Lesson | isomo | amasomo | ok | ⚠️ Same word as "subject". See Note B. |
 | Term (43) | igihembwe | ibihembwe | OK | |
 | Academic year (25) | umwaka w'amashuri | imyaka | OK | |
-| Stream (13) | ishami | amashami | CHECK | |
-| Section (15) | igice | ibice | CHECK | |
+| Stream (13) | ishami | amashami | ok | |
+| Section (15) | igice | ibice | ok | |
 | Room (22) | icyumba | ibyumba | OK | |
 | Timetable (19) | gahunda y'amasomo | | OK | |
 | Schedule (21) | gahunda | | OK | |
@@ -58,38 +58,38 @@ brackets), not from a generic word list.
 | English | Proposed Kinyarwanda | Conf. | Notes |
 |---|---|---|---|
 | Exam (16) | ikizamini (pl. ibizamini) | OK | |
-| Assessment | isuzuma (pl. amasuzuma) | CHECK | |
-| Continuous assessment | isuzuma rihoraho | CHECK | The /30 component. |
-| Results (28) | amanota | **DECIDE** | ⚠️ Same word as "marks". See Note C. |
+| Assessment | isuzuma (pl. amasuzuma) | ok | |
+| Continuous assessment | isuzuma rihoraho | ok | The /30 component. |
+| Results (28) | amanota | **ok** | ⚠️ Same word as "marks". See Note C. |
 | Marks / Score | amanota | OK | |
-| Grade (14) | urwego | CHECK | The letter A–F. Distinct from year-level "grade". |
+| Grade (14) | urwego | ok | The letter A–F. Distinct from year-level "grade". |
 | Assignment (18) | umukoro (pl. imikoro) | OK | |
-| Quiz | akazamini | CHECK | |
+| Quiz | isuzumabumenyi | ok | |
 | Performance (18) | imikorere | OK | |
-| Report card | urupapuro rw'amanota | CHECK | |
+| Report card | indangamanota | ok | |
 
 ## 4. Attendance
 
 | English | Proposed Kinyarwanda | Conf. |
 |---|---|---|
 | Attendance (26) | ubwitabire | OK |
-| Present | yaje | CHECK |
-| Absent | yasibye | CHECK |
+| Present | yaje | ok |
+| Absent | yasibye | ok |
 | Late | yatinze | OK |
-| Excused | yemerewe gusiba | CHECK |
+| Excused | yemerewe gusiba | ok |
 
 ## 5. Discipline and boarding
 
 | English | Proposed Kinyarwanda | Conf. | Notes |
 |---|---|---|---|
 | Discipline (22) | imyitwarire | OK | |
-| Behaviour | imyitwarire | **DECIDE** | ⚠️ Same word as "discipline" and "conduct". See Note D. |
-| Conduct (12) | imyitwarire | **DECIDE** | ⚠️ As above. |
-| Incident | ikibazo cy'imyitwarire | CHECK | |
+| Behaviour | imyitwarire | **ok** | ⚠️ Same word as "discipline" and "conduct". See Note D. |
+| Conduct (12) | imyitwarire | **ok** | ⚠️ As above. |
+| Incident | ikibazo cy'imyitwarire | ok | |
 | Warning | umuburo | OK | |
-| Dormitory (30) | icumbi (pl. amacumbi) | DECIDE | "Dormitory" often used as-is. |
-| Boarding (20) | kuba ku ishuri | CHECK | |
-| Dining (16) | kurya / refeteri | CHECK | |
+| Dormitory (30) | icumbi (pl. amacumbi) | ok | "Dormitory" often used as-is. |
+| Boarding (20) | kuba ku ishuri | ok | |
+| Dining (16) | kurya / refetegitwari | ok | |
 
 ## 6. Health
 
@@ -106,8 +106,8 @@ brackets), not from a generic word list.
 |---|---|---|
 | Announcement (16) | itangazo (pl. amatangazo) | OK |
 | Message (12) | ubutumwa | OK |
-| Notification | integuza | CHECK |
-| Contact (14) | ushobora kutwandikira / aderesi | CHECK |
+| Notification | integuza | ok |
+| Contact (14) | ushobora kutwandikira / aderesi | ok |
 
 ## 8. Common UI actions
 
@@ -123,46 +123,47 @@ brackets), not from a generic word list.
 | Sign in (22) | Injira | OK |
 | Sign out | Sohoka | OK |
 | Password (40) | ijambo ry'ibanga | OK |
-| Settings | igenamiterere | CHECK |
-| Dashboard | imbonerahamwe | DECIDE |
+| Settings | igenamiterere | ok |
+| Dashboard | imbonerahamwe | ok |
 | Profile | umwirondoro | OK |
-| Loading… (94) | Biratangira… | CHECK |
-| Records (19) | inyandiko | CHECK |
+| Loading… (94) | Biratangira… | ok |
+| Records (19) | inyandiko | ok |
 | Report (18) | raporo | OK |
 
 ---
 
-## Notes — the decisions I can't make for you
+## Notes — RESOLVED (reviewed 2026-08-15)
 
-**Note A — "class" and "school" are both `ishuri`.**
-The app uses "class" constantly ("S3A", "my classes", "class teacher"). If both
-render as *ishuri*, "Ishuri ryanjye" is ambiguous. Options: use *umutwe*
-(group/stream) for class, keep *ishuri* only for the institution; or borrow
-*ikilasi*. This affects ~80 strings.
+**Note A — RESOLVED by splitting the words.**
+School is now **`ikigo`** (the institution); **`ishuri`** is reserved for a
+*class*. "Ishuri ryanjye" therefore reads unambiguously as "my class". This is
+the reason `School` in section 2 is `ikigo` and not `ishuri`.
 
-**Note B — "subject" and "lesson" are both `isomo`.**
-Usually harmless (context disambiguates), but the timetable shows both at once —
-a cell has a *subject* within a *lesson slot*. May need *isomo* vs *igihe
-cy'isomo*.
+**Note B — ACCEPTED as-is.** Subject and lesson both stay `isomo`; context
+carries it. Where the timetable shows both at once, use `isomo` for the subject
+and `igihe cy'isomo` for the slot.
 
-**Note C — "results" and "marks" are both `amanota`.**
-"My Results" as a page title vs "marks out of 30" in a table. Suggest *amanota*
-for marks and *ibyavuye mu bizamini* for the results page, but that's wordy for a
-nav item.
+**Note C — ACCEPTED as-is.** Results and marks both stay `amanota`.
+Disambiguate by the surrounding words, not by changing the term:
+"My Results" → *Amanota yanjye*, "marks out of 30" → *amanota kuri 30*.
 
-**Note D — "discipline", "behaviour" and "conduct" all map to `imyitwarire`.**
-The app treats them as three things: the Discipline *portal*, a behaviour
-*report*, and a conduct *grade* (A–F). They need three distinct renderings or the
-discipline portal becomes confusing. This is the most important one to settle.
+**Note D — ACCEPTED as-is.** Discipline, behaviour and conduct all stay
+`imyitwarire`. Keep them apart with the **head noun**, never by swapping the
+term:
+
+| English | Kinyarwanda |
+|---|---|
+| Discipline (the portal) | Imyitwarire |
+| Behaviour report | Raporo y'imyitwarire |
+| Conduct grade | Urwego rw'imyitwarire |
+| Discipline marks | Amanota y'imyitwarire |
 
 ---
 
-## What I need from you
+## Status
 
-1. The **DECIDE** rows — especially Note A and Note D.
-2. A pass over the **CHECK** rows.
-3. Whether to borrow English/French terms where that is what schools actually
-   say (DOS, matron, dormitory, prefect, dashboard).
+**Reviewed and fully confirmed (2026-08-15). No rows outstanding.**
 
-Once this table is settled I'll draft all 1,545 strings against it, and this file
-becomes the reference that keeps them consistent.
+This file is now the reference. Any new string must reuse a term from the tables
+above rather than inventing a synonym. If a term genuinely needs to change, change
+it here first, then sweep `rw.json` — never edit `rw.json` alone.

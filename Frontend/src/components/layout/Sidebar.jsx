@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import logo from '../../assets/images/imboni-logo.png'
 
@@ -7,6 +8,7 @@ export function Sidebar({ navItems, secondaryItems }) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { logout } = useAuth()
+  const { t } = useTranslation()
 
   // Listen for the mobile-menu-btn in DashboardHeader to open us
   useEffect(() => {
@@ -35,18 +37,18 @@ export function Sidebar({ navItems, secondaryItems }) {
         <header className="sidebar-logo">
           <div className="logo-wrapper">
             <div className="sidebar-logo-icon">
-              <img src={logo} alt="Imboni Logo" />
+              <img src={logo} alt={t('sidebar.logoAlt')} />
             </div>
             <div className="sidebar-logo-text">
               <span className="sidebar-brand-name">Imboni</span>
-              <span className="sidebar-brand-tagline">Education Connects</span>
+              <span className="sidebar-brand-tagline">{t('sidebar.tagline')}</span>
             </div>
           </div>
 
           {/* Desktop: collapse/expand */}
           <button
             className="toggle sidebar-toggle"
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={collapsed ? t('sidebar.expand') : t('sidebar.collapse')}
             aria-expanded={!collapsed}
             onClick={() => setCollapsed(c => !c)}
           >
@@ -56,14 +58,14 @@ export function Sidebar({ navItems, secondaryItems }) {
           {/* Mobile: close sidebar */}
           <button
             className="toggle menu-toggle"
-            aria-label="Close menu"
+            aria-label={t('sidebar.closeMenu')}
             onClick={() => setMobileOpen(false)}
           >
             <span className="material-symbols-rounded" aria-hidden="true">close</span>
           </button>
         </header>
 
-        <nav className="sidebar-nav" aria-label="Main navigation">
+        <nav className="sidebar-nav" aria-label={t('sidebar.mainNavigation')}>
           <ul className="nav-list primary-nav">
             {navItems.map((item) => (
               <li key={item.to}>
@@ -76,7 +78,7 @@ export function Sidebar({ navItems, secondaryItems }) {
                   onClick={() => setMobileOpen(false)}
                 >
                   <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </NavLink>
               </li>
             ))}
@@ -85,13 +87,13 @@ export function Sidebar({ navItems, secondaryItems }) {
           <ul className="nav-list secondary-nav">
             {secondaryItems.map((item) => (
               <li key={item.to}>
-                {item.label === 'Logout' ? (
+                {item.action === 'logout' ? (
                   <button
                     className="sidebar-nav-item"
                     onClick={() => { setMobileOpen(false); logout() }}
                   >
                     <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </button>
                 ) : (
                   <NavLink
@@ -103,7 +105,7 @@ export function Sidebar({ navItems, secondaryItems }) {
                     onClick={() => setMobileOpen(false)}
                   >
                     <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </NavLink>
                 )}
               </li>

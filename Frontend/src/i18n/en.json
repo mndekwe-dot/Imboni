@@ -34,11 +34,65 @@
     "rememberMe": "Remember me",
     "invalidCredentials": "Invalid email or password."
   },
+  "sidebar": {
+    "tagline": "Education Connects",
+    "logoAlt": "Imboni Logo",
+    "mainNavigation": "Main navigation",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "profile": "Profile",
+    "logout": "Logout",
     "settings": "Settings",
     "messages": "Messages",
-    "announcements": "Announcements"
+    "announcements": "Announcements",
+    "students": "Students",
+    "staff": "Staff",
+    "teachers": "Teachers",
+    "results": "Results",
+    "myResults": "My Results",
+    "attendance": "Attendance",
+    "timetable": "Timetable",
+    "assignments": "Assignments",
+    "activities": "Activities",
+    "discipline": "Discipline",
+    "approvals": "Approvals",
+    "reports": "Reports",
+    "auditLog": "Audit Log",
+    "billing": "Billing",
+    "support": "Support",
+    "studentLife": "Student Life",
+    "boarding": "Boarding",
+    "scheduling": "Scheduling",
+    "myStudents": "My Students",
+    "dailySchedule": "Daily Schedule",
+    "reportIncident": "Report Incident",
+    "healthWellness": "Health & Wellness",
+    "parentComms": "Parent Comms",
+    "myChildren": "My Children",
+    "behaviour": "Behaviour",
+    "myClasses": "My Classes"
+  },
+  "portal": {
+    "student": "Student Portal",
+    "teacher": "Teacher Portal",
+    "parent": "Parent Portal",
+    "dos": "Director of Studies",
+    "discipline": "Discipline Portal",
+    "matron": "Matron Portal",
+    "admin": "Administration"
+  },
+  "roles": {
+    "student": "Student",
+    "teacher": "Teacher",
+    "parent": "Parent",
+    "dos": "Director of Studies",
+    "discipline": "Discipline",
+    "matron": "Matron",
+    "admin": "Administrator"
   }
 }

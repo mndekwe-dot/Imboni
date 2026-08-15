@@ -8,13 +8,16 @@ vi.mock('../../hooks/useAuth', () => ({
   useAuth: () => ({ logout: mockLogout }),
 }))
 
+// Nav items carry a translation key, not display text. Logout is flagged by
+// `action` rather than by its label — the label is translated, so matching on
+// it would break the moment the user switches language.
 const navItems = [
-  { to: '/teacher', label: 'Dashboard', icon: 'dashboard', end: true },
-  { to: '/teacher/classes', label: 'Classes', icon: 'class' },
+  { to: '/teacher', labelKey: 'nav.dashboard', icon: 'dashboard', end: true },
+  { to: '/teacher/classes', labelKey: 'nav.myClasses', icon: 'class' },
 ]
 const secondaryItems = [
-  { to: '/profile', label: 'Profile', icon: 'person' },
-  { label: 'Logout', icon: 'logout' },
+  { to: '/profile', labelKey: 'nav.profile', icon: 'person' },
+  { labelKey: 'nav.logout', action: 'logout', icon: 'logout' },
 ]
 
 describe('Sidebar', () => {
@@ -23,7 +26,7 @@ describe('Sidebar', () => {
   it('renders nav items and secondary items', () => {
     renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
-    expect(screen.getByText('Classes')).toBeInTheDocument()
+    expect(screen.getByText('My Classes')).toBeInTheDocument()
     expect(screen.getByText('Profile')).toBeInTheDocument()
     expect(screen.getByText('Logout')).toBeInTheDocument()
   })

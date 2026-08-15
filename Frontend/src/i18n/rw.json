@@ -34,11 +34,65 @@
     "rememberMe": "Unyibuke",
     "invalidCredentials": "Imeyili cyangwa ijambo ry'ibanga si byo."
   },
+  "sidebar": {
+    "tagline": "Uburezi Buhuza",
+    "logoAlt": "Ikirangantego cya Imboni",
+    "mainNavigation": "Urutonde rw'ibyerekana",
+    "expand": "Gura urutonde",
+    "collapse": "Gabanya urutonde",
+    "closeMenu": "Funga urutonde",
+    "openMenu": "Fungura urutonde"
+  },
   "nav": {
     "dashboard": "Imbonerahamwe",
     "profile": "Umwirondoro",
+    "logout": "Sohoka",
     "settings": "Igenamiterere",
     "messages": "Ubutumwa",
-    "announcements": "Amatangazo"
+    "announcements": "Amatangazo",
+    "students": "Abanyeshuri",
+    "staff": "Abakozi",
+    "teachers": "Abarimu",
+    "results": "Amanota",
+    "myResults": "Amanota yanjye",
+    "attendance": "Ubwitabire",
+    "timetable": "Gahunda y'amasomo",
+    "assignments": "Imikoro",
+    "activities": "Ibikorwa",
+    "discipline": "Imyitwarire",
+    "approvals": "Kwemeza",
+    "reports": "Raporo",
+    "auditLog": "Urutonde rw'ibyakozwe",
+    "billing": "Ubwishyu",
+    "support": "Ubufasha",
+    "studentLife": "Ubuzima bw'abanyeshuri",
+    "boarding": "Kuba ku ishuri",
+    "scheduling": "Gahunda",
+    "myStudents": "Abanyeshuri banjye",
+    "dailySchedule": "Gahunda ya buri munsi",
+    "reportIncident": "Tanga raporo y'ikibazo",
+    "healthWellness": "Ubuzima n'imibereho",
+    "parentComms": "Itumanaho n'ababyeyi",
+    "myChildren": "Abana banjye",
+    "behaviour": "Imyitwarire",
+    "myClasses": "Amashuri yanjye"
+  },
+  "portal": {
+    "student": "Urubuga rw'Umunyeshuri",
+    "teacher": "Urubuga rw'Umwarimu",
+    "parent": "Urubuga rw'Umubyeyi",
+    "dos": "Umuyobozi w'Amasomo",
+    "discipline": "Urubuga rw'Imyitwarire",
+    "matron": "Urubuga rw'Umurezi",
+    "admin": "Ubuyobozi"
+  },
+  "roles": {
+    "student": "Umunyeshuri",
+    "teacher": "Umwarimu",
+    "parent": "Umubyeyi",
+    "dos": "Umuyobozi w'Amasomo",
+    "discipline": "Ushinzwe imyitwarire",
+    "matron": "Umurezi",
+    "admin": "Umuyobozi"
   }
 }

@@ -9,18 +9,18 @@ export const disUser = {
 }
 
 export const disNavItems = [
-    { to: '/discipline',               icon: 'dashboard',      label: 'Dashboard',    end: true },
-    { to: '/discipline/students',      icon: 'people',         label: 'Students'               },
-    { to: '/discipline/student-life',  icon: 'emoji_events',   label: 'Student Life'           },
-    { to: '/discipline/boarding',      icon: 'hotel',          label: 'Boarding'               },
-    { to: '/discipline/staff',         icon: 'badge',          label: 'Staff'                  },
-    { to: '/discipline/announcements', icon: 'campaign',       label: 'Announcements'          },
-    { to: '/discipline/messages',      icon: 'chat',           label: 'Messages'               },
-    { to: '/discipline/timetable',     icon: 'calendar_month', label: 'Timetable'              },
+    { to: '/discipline',               icon: 'dashboard',      labelKey: 'nav.dashboard',    end: true },
+    { to: '/discipline/students',      icon: 'people',         labelKey: 'nav.students'               },
+    { to: '/discipline/student-life',  icon: 'emoji_events',   labelKey: 'nav.studentLife'           },
+    { to: '/discipline/boarding',      icon: 'hotel',          labelKey: 'nav.boarding'               },
+    { to: '/discipline/staff',         icon: 'badge',          labelKey: 'nav.staff'                  },
+    { to: '/discipline/announcements', icon: 'campaign',       labelKey: 'nav.announcements'          },
+    { to: '/discipline/messages',      icon: 'chat',           labelKey: 'nav.messages'               },
+    { to: '/discipline/timetable',     icon: 'calendar_month', labelKey: 'nav.timetable'              },
 ]
 
 export const disSecondaryItems = [
-    { to: '/discipline/settings',      icon: 'settings',       label: 'Settings'},
-    { to: '/profile?role=discipline',  icon: 'account_circle', label: 'Profile' },
-    { to: '/login',                    icon: 'logout',         label: 'Logout'  },
+    { to: '/discipline/settings',      icon: 'settings',       labelKey: 'nav.settings'},
+    { to: '/profile?role=discipline',  icon: 'account_circle', labelKey: 'nav.profile' },
+    { to: '/login',                    icon: 'logout',         labelKey: 'nav.logout', action: 'logout'  },
 ]
