@@ -121,6 +121,29 @@
   color: var(--card-foreground);
 }
 
+/* Count pill appended to a heading, e.g. "Clubs (3)" */
+.badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* Supporting line under a .card-title */
+.card-subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+}
+
 .card-description {
   font-size: var(--font-sm);
   color: var(--muted-foreground);
@@ -433,6 +456,39 @@ tr:hover td {
   box-shadow: 0 0 0 3px var(--primary-light, rgba(0,61,122,0.12));
 }
 
+/* Native <select>. Shares the .input box so a dropdown never renders as a
+   raw browser control next to a styled text field. The chevron is an inline
+   data: URI — a background-image cannot reference an external host. */
+.form-select {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: var(--font-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--card);
+  color: var(--foreground);
+  transition: all var(--transition-base);
+  min-height: var(--touch-min);
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2364748b' stroke-width='1.5'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1rem;
+}
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light, rgba(0,61,122,0.12));
+}
+.form-select:disabled {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+  cursor: not-allowed;
+}
+
 .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 @media (max-width: 480px) { .form-row-2 { grid-template-columns: 1fr; } }
 
@@ -456,6 +512,37 @@ tr:hover td {
   color: var(--destructive);
   font-size: 0.82rem;
 }
+
+/* ===============================================
+   ALERT BANNERS
+   In-page result feedback (a toast is for transient
+   notices; an alert stays with the form it belongs to).
+   Tone rides on --alert-* so the base rule stays single.
+   =============================================== */
+
+.alert {
+  --alert-fg:     var(--foreground);
+  --alert-bg:     var(--muted);
+  --alert-border: var(--border);
+
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid var(--alert-border);
+  border-left: 3px solid var(--alert-fg);
+  border-radius: var(--radius);
+  background: var(--alert-bg);
+  color: var(--alert-fg);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.alert .material-symbols-rounded { font-size: 1.05rem; flex-shrink: 0; }
+
+.alert-danger  { --alert-fg: var(--destructive); --alert-bg: var(--destructive-light); --alert-border: rgba(239, 68, 68, 0.25); }
+.alert-success { --alert-fg: var(--success);     --alert-bg: var(--success-light);     --alert-border: rgba(22, 163, 74, 0.25); }
+.alert-warning { --alert-fg: var(--warning);     --alert-bg: var(--warning-light);     --alert-border: rgba(234, 179, 8, 0.3); }
+.alert-info    { --alert-fg: var(--primary);     --alert-bg: var(--primary-light);     --alert-border: rgba(0, 61, 122, 0.2); }
 
 .filter-section {
   display: flex;
@@ -767,7 +854,10 @@ tr:hover td {
     color: var(--foreground);
     margin: 0;
 }
-.tt-modal-close {
+/* `.modal-close` is the same control under the name the Admin modals use —
+   one rule rather than two so the two spellings cannot drift apart. */
+.tt-modal-close,
+.modal-close {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -780,8 +870,10 @@ tr:hover td {
     color: var(--muted-foreground);
     transition: background 0.15s, color 0.15s;
 }
-.tt-modal-close:hover { background: var(--muted); color: var(--foreground); }
-.tt-modal-close .material-symbols-rounded { font-size: 1.1rem; }
+.tt-modal-close:hover,
+.modal-close:hover { background: var(--muted); color: var(--foreground); }
+.tt-modal-close .material-symbols-rounded,
+.modal-close .material-symbols-rounded { font-size: 1.1rem; }
 .tt-modal-body {
     padding: 1.25rem;
     overflow-y: auto;
@@ -1331,6 +1423,9 @@ tr:hover td {
 .cs-wrap { position: relative; display: inline-block; width: auto; }
 .cs-trigger { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; cursor: pointer; text-align: left; width: 100%; min-width: 8rem; }
 .cs-list { position: absolute; top: calc(100% + 4px); left: 0; min-width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); height: 180px; max-height: 180px; overflow-y: scroll; z-index: 200; list-style: none; margin: 0; padding: 0.25rem 0; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+/* Rendered through a portal into <body>, so it is positioned against the
+   viewport rather than the .cs-wrap ancestor. Select.jsx supplies top/left. */
+.cs-list--portal { position: fixed; top: auto; left: auto; }
 .cs-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem; white-space: nowrap; line-height: 1.4; }
 .cs-item:hover { background: var(--accent); }
 .cs-item--selected { background: var(--primary); color: var(--primary-foreground); }

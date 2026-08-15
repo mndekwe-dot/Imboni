@@ -89,7 +89,35 @@ def provision_tenant(*, name, subdomain, admin_email, admin_password=None,
                 admin_password_hash=admin_password_hash,
                 first_name=admin_first_name, last_name=admin_last_name)
 
+    _seed_structure(client)
+
     return client, domain_name
+
+
+def _seed_structure(client):
+    """
+    Give the new school the default year levels and streams.
+
+    Structure is now the authority for which years a school teaches, so a school
+    with no rows would be one that teaches nothing — no class could be created
+    and no pupil enrolled. Seeding the Rwandan government structure means a new
+    school works untouched, and a school elsewhere edits it in Settings rather
+    than building it from nothing.
+    """
+    from apps.dos.models import SchoolSection
+    from apps.dos.structure import DEFAULT_STRUCTURE
+
+    with schema_context(client.schema_name):
+        if SchoolSection.objects.exists():
+            return
+        for section in DEFAULT_STRUCTURE:
+            SchoolSection.objects.create(
+                name=section['name'],
+                years=section['years'],
+                # Streams live on each year (A-Level combinations differ from
+                # O-Level letters); the section-level list stays empty.
+                streams=[],
+            )
 
 
 def _seed_admin(client, admin_email, admin_password=None, admin_password_hash=None,

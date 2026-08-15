@@ -31,6 +31,7 @@ import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
+import { FindSchool } from './pages/FindSchool';
 
 // Lazy helper for named exports (React.lazy expects a default export).
 // The import string stays static so the bundler can split each page out.
@@ -152,6 +153,8 @@ function App() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
+      {/* Recovery for the subdomain model: a user who lost their school URL. */}
+      <Route path="/find-school" element={<FindSchool />} />
       <Route path="/login" element={<LogIn />} />
       <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 

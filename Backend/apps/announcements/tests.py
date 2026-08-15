@@ -175,8 +175,8 @@ class TestPublishedAnnouncementListView:
         assert response.data[0]['is_read'] is True
 
     def test_student_in_matching_grade_sees_grade_specific_announcement(self, api_client):
-        student = StudentFactory(grade='5', section='A')
-        make_announcement(title='Grade 5 only', target_audience='grade_specific', target_grade='5')
+        student = StudentFactory(grade='S5', section='A')
+        make_announcement(title='Grade 5 only', target_audience='grade_specific', target_grade='S5')
 
         api_client.force_authenticate(student.user)
         response = api_client.get('/imboni/announcements/')
@@ -185,8 +185,8 @@ class TestPublishedAnnouncementListView:
         assert 'Grade 5 only' in titles
 
     def test_student_in_different_grade_does_not_see_it(self, api_client):
-        student = StudentFactory(grade='3', section='A')
-        make_announcement(title='Grade 5 only', target_audience='grade_specific', target_grade='5')
+        student = StudentFactory(grade='S3', section='A')
+        make_announcement(title='Grade 5 only', target_audience='grade_specific', target_grade='S5')
 
         api_client.force_authenticate(student.user)
         response = api_client.get('/imboni/announcements/')
@@ -195,8 +195,8 @@ class TestPublishedAnnouncementListView:
         assert 'Grade 5 only' not in titles
 
     def test_student_matches_grade_and_section_target(self, api_client):
-        student = StudentFactory(grade='5', section='B')
-        make_announcement(title='5B only', target_audience='grade_specific', target_grade='5B')
+        student = StudentFactory(grade='S5', section='B')
+        make_announcement(title='5B only', target_audience='grade_specific', target_grade='S5B')
 
         api_client.force_authenticate(student.user)
         response = api_client.get('/imboni/announcements/')
@@ -206,9 +206,9 @@ class TestPublishedAnnouncementListView:
 
     def test_parent_sees_grade_specific_announcement_for_their_childs_grade(self, api_client):
         parent = UserFactory(role='parent')
-        child = StudentFactory(grade='2', section='A')
+        child = StudentFactory(grade='S2', section='A')
         ParentStudentRelationshipFactory(parent=parent, student=child)
-        make_announcement(title='Grade 2 only', target_audience='grade_specific', target_grade='2')
+        make_announcement(title='Grade 2 only', target_audience='grade_specific', target_grade='S2')
 
         api_client.force_authenticate(parent)
         response = api_client.get('/imboni/announcements/')
@@ -218,9 +218,9 @@ class TestPublishedAnnouncementListView:
 
     def test_parent_does_not_see_grade_specific_announcement_for_other_grades(self, api_client):
         parent = UserFactory(role='parent')
-        child = StudentFactory(grade='2', section='A')
+        child = StudentFactory(grade='S2', section='A')
         ParentStudentRelationshipFactory(parent=parent, student=child)
-        make_announcement(title='Grade 6 only', target_audience='grade_specific', target_grade='6')
+        make_announcement(title='Grade 6 only', target_audience='grade_specific', target_grade='S6')
 
         api_client.force_authenticate(parent)
         response = api_client.get('/imboni/announcements/')

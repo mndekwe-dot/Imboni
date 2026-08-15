@@ -19,6 +19,7 @@ def _child_summary(student, since):
     from apps.attendance.models import AttendanceRecord
     from apps.results.models import Result
     from apps.behavior.models import BehaviorReport
+    from apps.dos.structure import class_label
 
     attendance = AttendanceRecord.objects.filter(student=student, date__gte=since)
     absent = attendance.filter(status='absent').count()
@@ -36,7 +37,7 @@ def _child_summary(student, since):
     if not attendance.exists() and not new_results.exists() and not reports.exists():
         return None
 
-    lines = [f"{student.full_name} (S{student.grade}{student.section}):"]
+    lines = [f"{student.full_name} ({class_label(student.grade, student.section)}):"]
     if attendance.exists():
         lines.append(f"  Attendance: {absent} absence(s), {late} late arrival(s) this week.")
     for r in new_results:

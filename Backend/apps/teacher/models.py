@@ -11,8 +11,11 @@ class Class(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
-    grade = models.CharField(max_length=2)
-    section = models.CharField(max_length=1)
+    # Widened from 2/1: the school's own codes go here ('S1', 'P4'), and the
+    # A-Level stream codes this system already generates ('MPG', 'PCB') never
+    # fitted in a single character.
+    grade = models.CharField(max_length=10)
+    section = models.CharField(max_length=10)
     
     class_teacher = models.ForeignKey(
         User,
@@ -35,7 +38,9 @@ class Class(models.Model):
         ordering = ['grade', 'section']
     
     def __str__(self):
-        return f"Grade {self.grade}{self.section}"
+        # Prefer the class's own name; the year code is self-describing, so no
+        # "Grade " prefix (which used to render "Grade S3A").
+        return (self.name or '').strip() or f"{self.grade}{self.section}"
     
     @property
     def student_count(self):

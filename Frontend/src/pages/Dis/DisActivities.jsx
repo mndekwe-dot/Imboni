@@ -7,6 +7,8 @@ import { EditActivityModal } from '../../components/modals/EditActivityModal'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { yearsFromConfig, yearLabel } from '../../utils/classes'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { getDisActivities, createDisActivity, getConsentRequests, createConsentRequest } from '../../api/discipline'
 import '../../styles/layout.css'
@@ -64,13 +66,12 @@ function ActivityCard({ activity, onEdit }) {
     )
 }
 
-const GRADE_OPTIONS = [
-    { value: '',  label: 'All grades' },
-    { value: '1', label: 'S1' }, { value: '2', label: 'S2' }, { value: '3', label: 'S3' },
-    { value: '4', label: 'S4' }, { value: '5', label: 'S5' }, { value: '6', label: 'S6' },
-]
-
 function ConsentRequestsPanel() {
+    // The years this school teaches, not a hard-coded S1..S6 — a primary school
+    // has none of those.
+    const { config } = useSchoolConfig()
+    const years = yearsFromConfig(config)
+
     const [requests, setRequests] = useState([])
     const [loading, setLoading]   = useState(true)
     const [showForm, setShowForm] = useState(false)
@@ -149,9 +150,10 @@ function ConsentRequestsPanel() {
                         </div>
                         <div>
                             <label className="form-label" htmlFor="cr-grade">Grade</label>
-                            <select id="cr-grade" className="form-input" value={form.grade}
+                            <select id="cr-grade" className="form-select" value={form.grade}
                                 onChange={e => setForm(f => ({ ...f, grade: e.target.value }))}>
-                                {GRADE_OPTIONS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                                <option value="">All grades</option>
+                                {years.map(y => <option key={y} value={y}>{y}</option>)}
                             </select>
                         </div>
                         <div className="cr-actions">
@@ -176,7 +178,7 @@ function ConsentRequestsPanel() {
                                 <div className="cr-req-main">
                                     <div className="u-strong u-sm">{req.title}</div>
                                     <div className="text-xs-muted">
-                                        {req.event_date} · {req.grade ? `S${req.grade}` : 'All grades'}
+                                        {req.event_date} · {req.grade ? yearLabel(req.grade) : 'All grades'}
                                         {req.response_deadline && ` · respond by ${req.response_deadline}`}
                                     </div>
                                 </div>

@@ -47,7 +47,7 @@ export function ParentTimetable() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading…</p>
                         ) : children.length === 0 ? (
-                            <p className="u-pad u-muted">No children linked to your account.</p>
+                            <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
                             <div className="card">
                                 <div className="card-header">

@@ -110,7 +110,7 @@ class ConductGrade(models.Model):
     class Meta:
         db_table = 'conduct_grades'
         unique_together = ['student', 'term']
-        ordering = ['-term__year', '-term__term']
+        ordering = ['-term__year', '-term__order']
     
     def __str__(self):
         return f"{self.student.full_name} - {self.term.name} - {self.grade}"

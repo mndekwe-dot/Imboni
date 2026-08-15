@@ -19,6 +19,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { classLabel } from '../../utils/classes'
 
 const STATUS_MAP = { submitted: 'pending', approved: 'approved', rejected: 'rejected' }
 
@@ -27,7 +28,7 @@ function groupResults(raw) {
 
     raw.forEach(r => {
         //Build the class name from grade and section: Grade=4 , section=A => "S1A"
-        const cls = `S${r.grade}${r.section}`
+        const cls = classLabel(r.grade, r.section)
         //Translate backend status to display status
         const status = STATUS_MAP[r.status] || r.status
         // Unique key per card: same class + subject +status = same card

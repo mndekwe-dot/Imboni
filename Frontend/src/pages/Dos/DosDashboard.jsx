@@ -272,7 +272,7 @@ export function DosDashboard() {
                                                 disabled={activityLoadingMore}
                                             >
                                                 {activityLoadingMore
-                                                    ? 'Loading...'
+                                                    ? 'Loading…'
                                                     : `Load more (${activityTotal - activities.length} remaining)`}
                                             </button>
                                         )}

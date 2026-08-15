@@ -38,23 +38,30 @@ class AcademicTerm(models.Model):
     """
     Academic terms/semesters
     """
-    TERM_CHOICES = [
-        ('term1', 'Term 1'),
-        ('term2', 'Term 2'),
-        ('term3', 'Term 3'),
-    ]
+    # Terms are NOT enumerated. Three terms is the Rwandan structure, not a
+    # universal one -- semester systems have two and quarter systems four. A
+    # school's terms come from SchoolSetting.terms; the default is still the
+    # familiar term1/term2/term3, so nothing changes for existing schools.
+    #
+    # `order` below is what makes sequence explicit. Ordering used to rely on
+    # 'term1' < 'term2' < 'term3' sorting lexicographically, which is true only
+    # for those exact strings and silently wrong for anything else.
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
-    term = models.CharField(max_length=10, choices=TERM_CHOICES)
+    term = models.CharField(max_length=20)
     year = models.IntegerField()
+    # Position within the academic year, 1-based. Sorting by this instead of by
+    # the `term` string is what lets a school name its terms anything it likes
+    # ('autumn', 'semester-1') without breaking chronological ordering.
+    order = models.PositiveSmallIntegerField(default=1)
     start_date = models.DateField()
     end_date = models.DateField()
     is_current = models.BooleanField(default=False)
-    
+
     class Meta:
         db_table = 'academic_terms'
-        ordering = ['-year', '-term']
+        ordering = ['-year', '-order']
         unique_together = ['term', 'year']
     
     def __str__(self):
@@ -112,7 +119,9 @@ class Result(models.Model):
     class Meta:
         db_table = 'results'
         unique_together = ['student', 'subject', 'term']
-        ordering = ['-term__year', '-term__term', 'student']
+        # -term__order, not -term__term: sorting by the term string only ever
+        # worked because the strings happened to be term1/term2/term3.
+        ordering = ['-term__year', '-term__order', 'student']
         indexes = [
             models.Index(fields=['student', 'term']),
             models.Index(fields=['status']),

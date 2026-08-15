@@ -60,7 +60,7 @@ describe('DosDashboard', () => {
     getDosRecentActivity.mockReturnValue(new Promise(() => {}))
     getDosTasks.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<DosDashboard />)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
   })
 
   it('shows an error state when the stats fetch fails', async () => {

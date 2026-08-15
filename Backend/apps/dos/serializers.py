@@ -1,5 +1,7 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from . import structure
 from .models import SchoolSection, SchoolSetting, Room
 from apps.results.models import Subject
 
@@ -30,7 +32,7 @@ class PerformanceOverviewSerializer(serializers.Serializer):
 
 class GradePerformanceSerializer(serializers.Serializer):
     """One bar in the Performance by Grade chart."""
-    grade       = serializers.CharField()   # e.g. "Grade 1"
+    grade       = serializers.CharField()   # the school's own code, e.g. "S1"
     avg_score   = serializers.FloatField()
 
 
@@ -116,7 +118,7 @@ class DOSStudentSerializer(serializers.Serializer):
     full_name       = serializers.CharField()
     initials        = serializers.CharField()
     grade           = serializers.CharField()   # e.g. "6"
-    grade_label     = serializers.CharField()   # e.g. "Grade 6"
+    grade_label     = serializers.CharField()   # the school's own code, e.g. "S6"
     section         = serializers.CharField()
     avg_performance = serializers.FloatField(allow_null=True)
     attendance_rate = serializers.FloatField(allow_null=True)
@@ -124,20 +126,44 @@ class DOSStudentSerializer(serializers.Serializer):
     enrollment_date = serializers.DateField()
 
 
-class AddStudentSerializer(serializers.Serializer):
+class YearAndStreamMixin:
+    """
+    Validate `grade` and `section` against the school's own configuration.
+
+    These were `ChoiceField(choices=['1'..'6'])` and `['A','B','C']` — Imboni's
+    own structure written into every payload, which is exactly what stopped a
+    primary school or a four-stream school from enrolling anyone. The school's
+    configured years and streams are the authority instead.
+    """
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        grade = attrs.get('grade')
+        section = attrs.get('section')
+        try:
+            if grade is not None:
+                structure.validate_grade(grade)
+            if section is not None:
+                structure.validate_section(section, grade)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(exc.messages)
+        return attrs
+
+
+class AddStudentSerializer(YearAndStreamMixin, serializers.Serializer):
     """Payload for POST /imboni/dos/students/ (Add Student button)."""
     first_name      = serializers.CharField()
     last_name       = serializers.CharField()
     email           = serializers.EmailField()
-    grade           = serializers.ChoiceField(choices=['1', '2', '3', '4', '5', '6'])
-    section         = serializers.ChoiceField(choices=['A', 'B', 'C'])
+    grade           = serializers.CharField(max_length=10)
+    section         = serializers.CharField(max_length=10)
     enrollment_date = serializers.DateField()
     password        = serializers.CharField(write_only=True, min_length=8)
 
 
 class EnrollmentByGradeSerializer(serializers.Serializer):
     """One progress bar row in the Student Enrollment by Grade section."""
-    grade         = serializers.CharField()    # e.g. "Grade 6"
+    grade         = serializers.CharField()    # the school's own code, e.g. "S6"
     student_count = serializers.IntegerField()
     percentage    = serializers.FloatField()   # share of total active students
 
@@ -160,13 +186,13 @@ class EnrollmentTrendSerializer(serializers.Serializer):
 # Bulk Student Enrollment
 # ---------------------------------------------------------------------------
 
-class BulkAddStudentRowSerializer(serializers.Serializer):
+class BulkAddStudentRowSerializer(YearAndStreamMixin, serializers.Serializer):
     """One student row in the bulk-create payload."""
     first_name      = serializers.CharField()
     last_name       = serializers.CharField()
     email           = serializers.EmailField()
-    grade           = serializers.ChoiceField(choices=['1', '2', '3', '4', '5', '6'])
-    section         = serializers.ChoiceField(choices=['A', 'B', 'C'])
+    grade           = serializers.CharField(max_length=10)
+    section         = serializers.CharField(max_length=10)
     enrollment_date = serializers.DateField()
     password        = serializers.CharField(write_only=True, min_length=8, required=False, default='')
 
@@ -259,10 +285,29 @@ class SchoolSectionSerializer(serializers.ModelSerializer):
     """
     Converts SchoolSection model to JSON.
     Used by GET /imboni/dos/school-config/ and PUT /imboni/dos/school-config/
+
+    This is the school's own definition of the years it teaches, and everything
+    else now validates against it — so it has to validate itself first. It used
+    to accept any JSON at all, which meant a malformed save became the school's
+    structure.
     """
     class Meta:
         model = SchoolSection
         fields = ['id', 'name', 'years', 'streams', 'is_active', 'academic_term']
+
+    def validate(self, attrs):
+        # Reuse the whole-payload validator on a single section so one section
+        # posted alone is held to the same rules as a full replace.
+        section = {
+            'name': attrs.get('name', getattr(self.instance, 'name', '')),
+            'years': attrs.get('years', getattr(self.instance, 'years', [])),
+            'streams': attrs.get('streams', getattr(self.instance, 'streams', [])),
+        }
+        try:
+            structure.validate_structure([section])
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(exc.messages)
+        return attrs
 
 class SubjectSerializer(serializers.ModelSerializer):
     """Add / rename / list subjects from DosSettings."""
@@ -281,11 +326,60 @@ class RoomSerializer(serializers.ModelSerializer):
 class SchoolSettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolSetting
-        fields = ['timezone','school_name']
+        fields = ['timezone', 'school_name', 'terms']
 
     def validate_timezone(self, value):
         try:
             ZoneInfo(value)
         except (ZoneInfoNotFoundError,KeyError):
             raise serializers.ValidationError(f"'{value}' is not a valid timezone.")
+        return value
+
+    def validate_terms(self, value):
+        """
+        How this school divides its academic year: [{code, label, order}].
+
+        Three terms was hard-coded; a semester system has two and a quarter
+        system four. `code` is what lands in AcademicTerm.term, so it has to fit
+        that column and be unique; `order` is what everything sorts by, so it
+        has to be a number and must not repeat.
+        """
+        if not isinstance(value, list) or not value:
+            raise serializers.ValidationError('Expected at least one term.')
+
+        codes, orders = set(), set()
+        for entry in value:
+            if not isinstance(entry, dict):
+                raise serializers.ValidationError('Each term must be an object.')
+
+            code = str(entry.get('code') or '').strip()
+            if not code:
+                raise serializers.ValidationError('Every term needs a code.')
+            if len(code) > 20:
+                raise serializers.ValidationError(
+                    f"Term code '{code}' is too long (20 characters maximum)."
+                )
+            if code in codes:
+                raise serializers.ValidationError(f"Term code '{code}' is repeated.")
+            codes.add(code)
+
+            if not str(entry.get('label') or '').strip():
+                raise serializers.ValidationError(f"Term '{code}' needs a label.")
+
+            try:
+                order = int(entry.get('order'))
+            except (TypeError, ValueError):
+                raise serializers.ValidationError(
+                    f"Term '{code}' needs a numeric order."
+                )
+            if order < 1:
+                raise serializers.ValidationError(
+                    f"Term '{code}' must have an order of 1 or more."
+                )
+            if order in orders:
+                raise serializers.ValidationError(
+                    f'Two terms share the order {order}; each position must be distinct.'
+                )
+            orders.add(order)
+
         return value

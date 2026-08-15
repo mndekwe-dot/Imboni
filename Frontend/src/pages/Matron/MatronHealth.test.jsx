@@ -35,8 +35,8 @@ const HEALTH_DATA = {
 }
 
 const STUDENTS = [
-    { student_pk: 1, full_name: 'Iris Niyomugabo', grade: 2, section: 'A' },
-    { student_pk: 2, full_name: 'Peter N.', grade: 3, section: 'B' },
+    { student_pk: 1, full_name: 'Iris Niyomugabo', grade: 'S2', section: 'A' },
+    { student_pk: 2, full_name: 'Peter N.', grade: 'S3', section: 'B' },
 ]
 
 // The "Log Health Visit" form has no <label for=...> association, so we locate
@@ -58,7 +58,7 @@ describe('MatronHealth', () => {
     it('renders the loading state initially', () => {
         getMatronHealth.mockReturnValue(new Promise(() => {}))
         renderWithRouter(<MatronHealth />)
-        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        expect(screen.getByText('Loading…')).toBeInTheDocument()
     })
 
     it('renders loaded stats, beds and history', async () => {
@@ -164,9 +164,9 @@ describe('MatronHealth', () => {
         getMedicationsToday.mockResolvedValue({
             date: '2026-07-02', total: 2, given: 1, overdue: 1,
             items: [
-                { schedule_id: 'm1', student_name: 'Iris Niyomugabo', student_code: 'STU001', grade: '2', section: 'A',
+                { schedule_id: 'm1', student_name: 'Iris Niyomugabo', student_code: 'STU001', grade: 'S2', section: 'A',
                   medicine_name: 'Amoxicillin', dosage: '500mg', time: '08:00', given: true, given_at: '2026-07-02T08:05:00Z', overdue: false },
-                { schedule_id: 'm1', student_name: 'Iris Niyomugabo', student_code: 'STU001', grade: '2', section: 'A',
+                { schedule_id: 'm1', student_name: 'Iris Niyomugabo', student_code: 'STU001', grade: 'S2', section: 'A',
                   medicine_name: 'Amoxicillin', dosage: '500mg', time: '13:00', given: false, given_at: null, overdue: true },
             ],
         })

@@ -35,8 +35,8 @@ const ACTIVITIES = [
 ]
 
 const LEADERS = [
-  { id: 1, student_name: 'Eric N.', role: 'prefect', grade: '5', section: 'A', student_id: 'STU001', appointed_date: '2026-01-10' },
-  { id: 2, student_name: 'Alice M.', role: 'house_captain', grade: '4', section: 'B', student_id: 'STU002', appointed_date: '2026-01-15', notes: 'Bisoke' },
+  { id: 1, student_name: 'Eric N.', role: 'prefect', grade: 'S5', section: 'A', student_id: 'STU001', appointed_date: '2026-01-10' },
+  { id: 2, student_name: 'Alice M.', role: 'house_captain', grade: 'S4', section: 'B', student_id: 'STU002', appointed_date: '2026-01-15', notes: 'Bisoke' },
 ]
 
 describe('DisStudentLife', () => {

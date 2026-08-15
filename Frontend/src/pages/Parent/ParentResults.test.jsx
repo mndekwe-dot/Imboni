@@ -16,8 +16,8 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const CHILDREN = [
-  { id: 1, student_name: 'Eric N.', grade: '4', section: 'A' },
-  { id: 2, student_name: 'Alice M.', grade: '5', section: 'B' },
+  { id: 1, student_name: 'Eric N.', grade: 'S4', section: 'A' },
+  { id: 2, student_name: 'Alice M.', grade: 'S5', section: 'B' },
 ]
 
 describe('ParentResults', () => {
@@ -32,7 +32,7 @@ describe('ParentResults', () => {
   it('shows the no-children message when the parent has none linked', async () => {
     getMyChildren.mockResolvedValue([])
     renderWithRouter(<ParentResults />)
-    await waitFor(() => expect(screen.getByText('No children linked.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No children linked to your account yet.')).toBeInTheDocument())
   })
 
   it('renders assessments, summative results and reviews for the active child', async () => {
@@ -58,8 +58,9 @@ describe('ParentResults', () => {
 
     renderWithRouter(<ParentResults />)
 
-    await waitFor(() => expect(screen.getByText('No assessments recorded yet.')).toBeInTheDocument())
-    expect(screen.getByText('No assessments yet.')).toBeInTheDocument()
+    // Both the "Recent Results" and "Recent Assessments & Projects" panels key
+    // off the same empty list, so the shared empty state renders twice.
+    await waitFor(() => expect(screen.getAllByText('No assessments recorded yet.')).toHaveLength(2))
     expect(screen.getByText('No reviews yet.')).toBeInTheDocument()
     expect(screen.queryByText('Summative Performance')).not.toBeInTheDocument()
   })

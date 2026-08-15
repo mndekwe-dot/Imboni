@@ -142,7 +142,7 @@ export function ParentBehaviour() {
                                 <button key={c.id}
                                     className={`child-tab${i === activeIdx ? ' active' : ''}`}
                                     onClick={() => setActiveIdx(i)}>
-                                    <div className="child-tab-avatar amina">{initials(c.student_name)}</div>
+                                    <div className="child-tab-avatar">{initials(c.student_name)}</div>
                                     <span className="child-tab-name">{c.student_name}</span>
                                     <span className="child-tab-grade">&middot; {c.grade}{c.section}</span>
                                 </button>
@@ -154,14 +154,14 @@ export function ParentBehaviour() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading…</p>
                         ) : !child ? (
-                            <p className="u-pad u-muted">No children linked.</p>
+                            <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
                             <>
                                 {/* Conduct hero */}
                                 {stats && (
                                     <div className="conduct-hero">
                                         <div className="conduct-hero-left">
-                                            <div className="conduct-hero-avatar amina">{initials(child.student_name)}</div>
+                                            <div className="conduct-hero-avatar">{initials(child.student_name)}</div>
                                             <div>
                                                 <p className="conduct-hero-name">{child.student_name}</p>
                                                 <p className="conduct-hero-sub">{child.grade}{child.section} &nbsp;&middot;&nbsp; This Term</p>

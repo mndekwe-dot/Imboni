@@ -1,4 +1,6 @@
 from datetime import timedelta
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from django.utils import timezone
 from django.db.models import Avg, Q
 from rest_framework.views import APIView
@@ -38,6 +40,7 @@ from .serializers import (
     SchoolSettingSerializer,
     SubjectSerializer,
 )
+from . import structure
 from .models import ExamSchedule, SchoolSection,SchoolSetting
 
 
@@ -57,9 +60,11 @@ def _previous_term():
         AcademicTerm.objects
         .filter(
             Q(year__lt=term.year) |
-            Q(year=term.year, term__lt=term.term)
+            # order, not the term string: 'term1' < 'term2' only holds for those
+            # exact names, and 'term10' would sort before 'term2'.
+            Q(year=term.year, order__lt=term.order)
         )
-        .order_by('-year', '-term')
+        .order_by('-year', '-order')
         .first()
     )
 
@@ -155,7 +160,7 @@ class DOSRecentActivityView(APIView):
         ):
             activities.append({
                 'activity_type': 'approval',
-                'description':   f"Grade {r.student.grade} Results Approved",
+                'description':   f"{structure.year_label(r.student.grade)} Results Approved",
                 'timestamp':     r.approved_at,
                 'time_ago':      _time_ago(r.approved_at),
             })
@@ -248,17 +253,15 @@ class DOSPerformanceByGradeView(APIView):
             .filter(term=term)
             .values('student__grade')
             .annotate(avg=Avg('final_score'))
-            .order_by('student__grade')
         ) if term else []
 
-        grade_label = {
-            '1': 'Grade 1', '2': 'Grade 2', '3': 'Grade 3',
-            '4': 'Grade 4', '5': 'Grade 5', '6': 'Grade 6',
-        }
+        # Teaching order, not alphabetical: sorting the codes as strings puts
+        # S10 between S1 and S2.
+        rows = sorted(rows, key=lambda r: structure.year_index(r['student__grade']))
 
         data = [
             {
-                'grade':     grade_label.get(row['student__grade'], f"Grade {row['student__grade']}"),
+                'grade':     structure.year_label(row['student__grade']),
                 'avg_score': round(float(row['avg']), 1),
             }
             for row in rows
@@ -668,11 +671,6 @@ class StudentListCreateView(APIView):
                 Q(grade__icontains=search)
             )
 
-        grade_label = {
-            '1': 'Grade 1', '2': 'Grade 2', '3': 'Grade 3',
-            '4': 'Grade 4', '5': 'Grade 5', '6': 'Grade 6',
-        }
-
         data = []
         for s in students:
             name_parts = s.full_name.split()
@@ -687,7 +685,7 @@ class StudentListCreateView(APIView):
                 'full_name':       s.full_name,
                 'initials':        initials,
                 'grade':           s.grade,
-                'grade_label':     grade_label.get(s.grade, f"Grade {s.grade}"),
+                'grade_label':     structure.year_label(s.grade),
                 'section':         s.section,
                 'avg_performance': round(float(avg_raw), 1) if avg_raw else None,
                 'attendance_rate': round(float(att_obj.attendance_percentage), 1) if att_obj else None,
@@ -772,17 +770,15 @@ class StudentEnrollmentByGradeView(APIView):
             .filter(status='active')
             .values('grade')
             .annotate(student_count=Count('id'))
-            .order_by('-grade')   # Grade 6 first (highest)
         )
 
-        grade_label = {
-            '1': 'Grade 1', '2': 'Grade 2', '3': 'Grade 3',
-            '4': 'Grade 4', '5': 'Grade 5', '6': 'Grade 6',
-        }
+        # Most senior year first. `-grade` was lexicographic, so a school with
+        # ten or more years listed S9 above S10.
+        rows = sorted(rows, key=lambda r: structure.year_index(r['grade']), reverse=True)
 
         data = [
             {
-                'grade':         grade_label.get(row['grade'], f"Grade {row['grade']}"),
+                'grade':         structure.year_label(row['grade']),
                 'student_count': row['student_count'],
                 'percentage':    round(row['student_count'] / total * 100, 1) if total else 0,
             }
@@ -1314,7 +1310,7 @@ class ExamScheduleListView(APIView):
                 'title':          e.title,
                 'subject':        e.subject.name,
                 'subject_id':     str(e.subject.id),
-                'class_name':     (f"S{e.class_obj.grade}{e.class_obj.section}" if e.class_obj else None),
+                'class_name':     (structure.class_label(class_obj=e.class_obj) if e.class_obj else None),
                 'class_id':       str(e.class_obj.id) if e.class_obj else None,
                 'term':           str(e.term),
                 'exam_date':      str(e.exam_date),
@@ -1379,7 +1375,7 @@ class ExamScheduleDetailView(APIView):
             'id':          str(exam.id),
             'title':       exam.title,
             'subject':     exam.subject.name,
-            'class_name':  (f"S{exam.class_obj.grade}{exam.class_obj.section}" if exam.class_obj else None),
+            'class_name':  (structure.class_label(class_obj=exam.class_obj) if exam.class_obj else None),
             'term':        str(exam.term),
             'exam_date':   str(exam.exam_date),
             'start_time':  str(exam.start_time),
@@ -1479,11 +1475,13 @@ class DOSAttendanceOverviewView(APIView):
         teacher_rate    = round(teacher_present / teacher_total * 100, 1) if teacher_total else 0.0
 
         by_grade = []
-        for grade in ['1', '2', '3', '4', '5', '6']:
+        # The years this school actually teaches, in teaching order. This was
+        # a literal '1'..'6', so a primary school saw six empty secondary rows.
+        for grade in structure.ordered_years():
             g_total = qs.filter(student__grade=grade).count()
             g_pres  = qs.filter(student__grade=grade, status='present').count()
             by_grade.append({
-                'grade':           f'Grade {grade}',
+                'grade':           structure.year_label(grade),
                 'attendance_rate': round(g_pres / g_total * 100, 1) if g_total else 0.0,
             })
 
@@ -1687,6 +1685,14 @@ class ChangeStudentClassView(APIView):
         if not grade or not section:
             return Response({'error': 'grade and section are required.'}, status=400)
 
+        # This endpoint accepted anything at all, so a typo here wrote a year
+        # code no other part of the system recognised.
+        try:
+            structure.validate_grade(grade)
+            structure.validate_section(section, grade)
+        except DjangoValidationError as exc:
+            return Response({'error': exc.messages[0]}, status=400)
+
         student.grade   = grade
         student.section = section
         student.save(update_fields=['grade', 'section'])
@@ -1706,7 +1712,7 @@ class ChangeStudentClassView(APIView):
             'grade':          student.grade,
             'section':        student.section,
             'roster_updated': roster_updated,
-            'warning':        None if roster_updated else f'S{grade}{section} class record not found: student profile updated but not added to the class roster.',
+            'warning':        None if roster_updated else f'{structure.class_label(grade, section)} class record not found: student profile updated but not added to the class roster.',
         })
 
 
@@ -1867,10 +1873,11 @@ class DOSAnalyticsView(APIView):
 
         # Grade performance
         grade_perf = [
-            {'grade': f"S{row['student__grade']}", 'score': round(float(row['avg']), 1)}
-            for row in (
+            {'grade': structure.year_label(row['student__grade']), 'score': round(float(row['avg']), 1)}
+            for row in sorted(
                 Result.objects.filter(term=term, status='approved')
-                .values('student__grade').annotate(avg=Avg('final_score')).order_by('student__grade')
+                .values('student__grade').annotate(avg=Avg('final_score')),
+                key=lambda r: structure.year_index(r['student__grade']),
             )
             if row['avg'] is not None
         ]
@@ -1900,7 +1907,7 @@ class DOSAnalyticsView(APIView):
         # Pass/fail by grade year (pass threshold = 50)
         pass_fail = [
             {
-                'class': f"S{row['student__grade']}",
+                'class': structure.year_label(row['student__grade']),
                 'pass':  round(row['passed'] / (row['total'] or 1) * 100),
                 'fail':  100 - round(row['passed'] / (row['total'] or 1) * 100),
             }
@@ -2025,12 +2032,20 @@ class DOSDashboardWeeklyTrendView(APIView):
 
 class SchoolConfigView(APIView):
     """
-    GET /imboni/dos/school-config/  — return all school sections (DOS, Discipline, Admin)
+    GET /imboni/dos/school-config/  — return all school sections (any signed-in user)
     PUT /imboni/dos/school-config/  — replace all school sections (DOS, Admin only)
+
+    The structure is now what every screen builds its year and stream pickers
+    from, so a teacher marking a register needs to read it. It holds no personal
+    data — only which years the school teaches and what its streams are called —
+    so reading is open to any authenticated user while editing stays with the
+    DOS and admins.
     """
     def get_permissions(self):
+        from rest_framework.permissions import IsAuthenticated
+
         if getattr(self, 'request', None) and self.request.method == 'GET':
-            return [IsDOSOrAdminOrDiscipline()]
+            return [IsAuthenticated()]
         return [IsDOSOrAdmin()]
 
     def get(self,request):
@@ -2045,16 +2060,44 @@ class SchoolConfigView(APIView):
                 status=http_status.HTTP_400_BAD_REQUEST
             )
 
-        # Delete existing and recreate - simple replace strategy
-        SchoolSection.objects.all().delete()
-        created = []
-        for item in sections_data:
-            serializer =SchoolSectionSerializer(data=item)
-            if serializer.is_valid():
+        # Validate the whole payload BEFORE touching anything. This used to
+        # delete every section first and validate each one as it went, so a bad
+        # section halfway down left the school with a truncated structure and
+        # no way back.
+        try:
+            structure.validate_structure(sections_data)
+        except DjangoValidationError as exc:
+            return Response(
+                {'error': exc.messages[0], 'errors': exc.messages},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        # A year that classes or pupils still sit in cannot be removed — the
+        # records referencing it would be orphaned, and nothing else in the
+        # system would recognise their year code any more.
+        proposed = {
+            structure.normalize_year(entry, section.get('streams'))['name']
+            for section in sections_data
+            for entry in section.get('years') or []
+        }
+        orphaned = sorted(structure.years_in_use() - proposed)
+        if orphaned:
+            return Response(
+                {'error':
+                    f"Cannot remove {', '.join(orphaned)}: classes or students are "
+                    f"still in {'that year' if len(orphaned) == 1 else 'those years'}. "
+                    'Move them first.'},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        with transaction.atomic():
+            SchoolSection.objects.all().delete()
+            created = []
+            for item in sections_data:
+                serializer = SchoolSectionSerializer(data=item)
+                serializer.is_valid(raise_exception=True)
                 serializer.save()
                 created.append(serializer.data)
-            else:
-                return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
         return Response(created)
     
 # ---------------------------------------------------------------------------
@@ -2738,13 +2781,17 @@ class TermRolloverView(APIView):
     POST /imboni/dos/term-rollover/
 
     Ends the current term and starts the next one. When the new term starts a
-    new academic year (term1 after term3, or a later year), students are
-    promoted one grade (S6 graduates); otherwise class rosters are simply
-    carried over to the new term.
+    new academic year (the first term again, or a later year), students are
+    promoted one year level (the final year graduates); otherwise class rosters
+    are simply carried over to the new term.
+
+    Both the term codes and the year levels come from the school's own
+    configuration, so a two-semester primary school rolls over exactly like a
+    three-term secondary one.
 
     Body: {
         dry_run: bool,                 — preview counts without changing anything
-        term: 'term1'|'term2'|'term3',
+        term: one of the school's configured term codes,
         year: 2027,
         name: 'Term 1 2027',
         start_date: 'YYYY-MM-DD',
@@ -2772,8 +2819,12 @@ class TermRolloverView(APIView):
         end      = request.data.get('end_date')
         dry_run  = bool(request.data.get('dry_run'))
 
-        if term_key not in ('term1', 'term2', 'term3'):
-            return Response({'error': "term must be 'term1', 'term2' or 'term3'."}, status=400)
+        valid_terms = structure.term_codes()
+        if term_key not in valid_terms:
+            return Response(
+                {'error': f"term must be one of: {', '.join(valid_terms)}."},
+                status=400,
+            )
         try:
             year = int(year)
         except (TypeError, ValueError):
@@ -2783,12 +2834,15 @@ class TermRolloverView(APIView):
         if AcademicTerm.objects.filter(term=term_key, year=year).exists():
             return Response({'error': f'{name} already exists.'}, status=400)
 
-        order = {'term1': 1, 'term2': 2, 'term3': 3}
+        # Position in the year comes from the configuration, not from a
+        # hard-coded map -- a school may call its terms anything.
+        new_order     = structure.term_order(term_key)
+        current_order = current.order or structure.term_order(current.term)
         is_new_year = (year > current.year) or (
-            year == current.year and order[term_key] < order[current.term]
+            year == current.year and new_order < current_order
         )
         # Moving backwards makes no sense
-        if year < current.year or (year == current.year and order[term_key] <= order[current.term]):
+        if year < current.year or (year == current.year and new_order <= current_order):
             if not is_new_year:
                 return Response({'error': 'The new term must come after the current one.'}, status=400)
 
@@ -2816,21 +2870,24 @@ class TermRolloverView(APIView):
             new_term = None
             if not dry_run:
                 new_term = AcademicTerm.objects.create(
-                    name=name, term=term_key, year=year,
+                    name=name, term=term_key, year=year, order=new_order,
                     start_date=start, end_date=end, is_current=True,
                 )
                 AcademicTerm.objects.exclude(pk=new_term.pk).update(is_current=False)
 
             if is_new_year:
                 for student in active_students:
-                    if student.grade == '6':
+                    # The next year in the school's own sequence. This used to
+                    # be `int(grade) + 1` with `grade == '6'` for graduation,
+                    # which assumed numeric codes and a six-year school.
+                    new_grade = structure.next_year(student.grade)
+                    if new_grade is None:
                         summary['students_graduated'] += 1
                         if not dry_run:
                             student.status = 'graduated'
                             student.save(update_fields=['status'])
                         continue
 
-                    new_grade = str(int(student.grade) + 1)
                     summary['students_promoted'] += 1
                     if not dry_run:
                         student.grade = new_grade
@@ -2844,7 +2901,7 @@ class TermRolloverView(APIView):
                                 class_obj=target, student=student, term=new_term,
                             )
                     else:
-                        key = f'S{new_grade}{student.section}'
+                        key = structure.class_label(new_grade, student.section)
                         if key not in summary['missing_classes']:
                             summary['missing_classes'].append(key)
             else:

@@ -48,7 +48,7 @@ function GradePerformanceChart({ data }) {
         <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                <XAxis dataKey="grade" tickFormatter={v => `S${v}`} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="grade" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                 <Tooltip formatter={(v) => [`${v}%`, 'Avg Score']} />
                 <Bar dataKey="avg_score" radius={[6, 6, 0, 0]} maxBarSize={52}>
@@ -94,7 +94,7 @@ function EnrollmentChart({ data }) {
             <BarChart data={data} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="grade" tickFormatter={v => `S${v}`} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} width={24} />
+                <YAxis type="category" dataKey="grade" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} width={24} />
                 <Tooltip formatter={(v) => [v, 'Students']} />
                 <Bar dataKey="student_count" radius={[0, 6, 6, 0]} maxBarSize={24}>
                     <LabelList dataKey="student_count" position="right" style={{ fontSize: 10, fontWeight: 600, fill: 'var(--foreground)' }} />

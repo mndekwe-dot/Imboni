@@ -249,3 +249,19 @@
 
     .tt-table { min-width: unset; font-size: 0.85rem; }
 }
+/* ─── Break rows (MatronSchedule) ───────────────────────── */
+.tt-break-row { background: var(--muted); }
+.tt-break-cell {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Legend swatch for sport periods — the other .tt-legend-item
+   tones are set per-subject; this one had no tone at all. */
+.tt-sport { background: var(--success-light); color: var(--success); }

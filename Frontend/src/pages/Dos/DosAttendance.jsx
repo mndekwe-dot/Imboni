@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
@@ -19,6 +19,8 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { sectionsFromClasses } from '../../utils/classes'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -50,24 +52,6 @@ function fmtWeek(start, end) {
     if (!start || !end) return ''
     const f = d => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     return `Week: ${f(start)} - ${f(end)}`
-}
-
-function buildSections(classes) {
-    const map = {}
-    for (const cls of classes) {
-        const grade   = parseInt(cls.grade)
-        const secName = grade <= 3 ? 'O-Level' : 'A-Level'
-        const yearName = `S${cls.grade}`
-        if (!map[secName]) map[secName] = {}
-        if (!map[secName][yearName]) map[secName][yearName] = []
-        if (!map[secName][yearName].includes(cls.section)) map[secName][yearName].push(cls.section)
-    }
-    return Object.entries(map).map(([name, years]) => ({
-        name,
-        years: Object.entries(years)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([yName, streams]) => ({ name: yName, streams: streams.sort() })),
-    }))
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -109,7 +93,7 @@ function StudentAttendanceTab({ sections }) {
     const [weekOf,   setWeekOf]   = useState(todayISO)
     const [page,     setPage]     = useState(1)
 
-    const grade  = year     ? year.slice(1) : ''
+    const grade  = year || ''
     const stream = classVal
 
     const [weekData, setWeekData] = useState(null)
@@ -424,12 +408,17 @@ export function DosAttendance() {
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [mode,      setMode]      = useState('student')
-    const [sections,  setSections]  = useState([])
+    const { config } = useSchoolConfig()
+    const [classList, setClassList] = useState([])
+    // Rebuilt when either the classes or the school's configuration arrives —
+    // the config loads asynchronously, so deriving this once inside the fetch
+    // would group years before the section names were known.
+    const sections = useMemo(() => sectionsFromClasses(classList, config), [classList, config])
     const [attStats,  setAttStats]  = useState(null)
 
     useEffect(() => {
         getDosClasses()
-            .then(res => setSections(buildSections(res)))
+            .then(res => setClassList(Array.isArray(res) ? res : []))
             .catch(e => toast.error(errorMessage(e, 'Could not load classes.')))
         getDosAttendanceStats()
             .then(res => setAttStats(res))

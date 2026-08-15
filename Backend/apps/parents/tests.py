@@ -274,14 +274,14 @@ class TestConsentRequests:
         client, _dis = make_authenticated_client('discipline')
         parent_s2 = UserFactory(role='parent')
         parent_s4 = UserFactory(role='parent')
-        self._link(parent_s2, StudentFactory(grade='2'))
-        self._link(parent_s4, StudentFactory(grade='4'))
+        self._link(parent_s2, StudentFactory(grade='S2'))
+        self._link(parent_s4, StudentFactory(grade='S4'))
 
         response = client.post('/imboni/consent-requests/', {
             'title': 'Museum Trip',
             'description': 'S2 trip to the Ethnographic Museum.',
             'event_date': '2026-08-01',
-            'grade': '2',
+            'grade': 'S2',
         }, format='json')
 
         assert response.status_code == 201
@@ -294,14 +294,14 @@ class TestConsentRequests:
         from apps.parents.models import ConsentRequest, ConsentResponse
 
         client, parent = make_authenticated_client('parent')
-        child = StudentFactory(grade='2')
+        child = StudentFactory(grade='S2')
         self._link(parent, child)
         req = ConsentRequest.objects.create(
-            title='Museum Trip', description='...', event_date='2026-08-01', grade='2',
+            title='Museum Trip', description='...', event_date='2026-08-01', grade='S2',
         )
         # A request for another grade must not appear
         ConsentRequest.objects.create(
-            title='S6 Career Day', description='...', event_date='2026-08-02', grade='6',
+            title='S6 Career Day', description='...', event_date='2026-08-02', grade='S6',
         )
 
         listing = client.get('/imboni/parents/consent-requests/')
@@ -324,7 +324,7 @@ class TestConsentRequests:
         from apps.parents.models import ConsentRequest
 
         client, _parent = make_authenticated_client('parent')
-        other_child = StudentFactory(grade='2')
+        other_child = StudentFactory(grade='S2')
         req = ConsentRequest.objects.create(
             title='Trip', description='...', event_date='2026-08-01',
         )
@@ -341,7 +341,7 @@ class TestConsentRequests:
 
         client, _dis = make_authenticated_client('discipline')
         parent = UserFactory(role='parent')
-        child = StudentFactory(grade='2')
+        child = StudentFactory(grade='S2')
         self._link(parent, child)
         req = ConsentRequest.objects.create(
             title='Trip', description='...', event_date='2026-08-01',

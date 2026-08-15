@@ -5,20 +5,16 @@ from apps.authentication.models import User
 
 
 class Student(models.Model):
-    GRADE_CHOICES = [
-        ('1', 'Secondary 1'),
-        ('2', 'Secondary 2'),
-        ('3', 'Secondary 3'),
-        ('4', 'Secondary 4'),
-        ('5', 'Secondary 5'),
-        ('6', 'Secondary 6'),
-    ]
-
-    SECTION_CHOICES = [
-        ('A', 'Section A'),
-        ('B', 'Section B'),
-        ('C', 'Section C'),
-    ]
+    # Year level and stream are NOT enumerated here.
+    #
+    # They used to be ('1'-'6', "Secondary 1-6") and ('A','B','C'), which meant a
+    # primary school could not enrol a pupil and no school could have a fourth
+    # stream. Both now hold whatever the school configured for itself -- 'S1',
+    # 'P4', 'Y9' -- validated against apps.dos.structure rather than a constant.
+    #
+    # Django's `choices` never enforced anything on save() anyway, so nothing is
+    # lost by removing them; validation moved to where data enters (serializers
+    # and views), which is stricter than before, not looser.
 
     STATUS_CHOICES = [
         ('active', 'Active'),
@@ -31,8 +27,10 @@ class Student(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
     student_id = models.CharField(max_length=20, unique=True)
-    grade = models.CharField(max_length=2, choices=GRADE_CHOICES)
-    section = models.CharField(max_length=1, choices=SECTION_CHOICES)
+    # 10 chars holds 'S1', 'P4', 'Grade 12'; the old 2/1 could not even hold the
+    # A-Level stream codes ('MPG', 'PCB') this system already generates.
+    grade = models.CharField(max_length=10)
+    section = models.CharField(max_length=10)
     enrollment_date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
 
@@ -64,7 +62,9 @@ class Student(models.Model):
 
     @property
     def grade_section(self):
-        return f"Grade {self.grade}{self.section}"
+        # No "Grade " prefix: the stored year code is now self-describing
+        # ('S3', 'P3'), so prefixing produced "Grade S3A".
+        return f"{self.grade}{self.section}"
 
 
 class Fee(models.Model):

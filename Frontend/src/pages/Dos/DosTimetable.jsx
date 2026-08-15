@@ -17,6 +17,7 @@ import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
+import { classLabel as formatClass } from '../../utils/classes'
 
 const timetableStats = [
     { colorClass: 'info',    icon: 'calendar_view_week', value: '8',      label: 'Periods per Day',   trend: 'Mon - Sat'    },
@@ -371,7 +372,7 @@ export function DosTimetable() {
 
     const selectedClass = classes.find(c => c.id === classId)
     const classLabel = selectedClass
-        ? `S${selectedClass.grade}${selectedClass.section}`
+        ? formatClass(selectedClass.grade, selectedClass.section)
         : ''
 
     return (
@@ -415,7 +416,7 @@ export function DosTimetable() {
                                             placeholder="Select class"
                                             options={classes.map(c => ({
                                                 value: c.id,
-                                                label: `S${c.grade}${c.section}`,
+                                                label: formatClass(c.grade, c.section),
                                             }))}
                                         />
                                     </div>

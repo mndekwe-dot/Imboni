@@ -17,6 +17,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { Loading } from '../../components/ui/Loading'
+import { classLabel } from '../../utils/classes'
 
 
 function initialsOf(name) {
@@ -86,9 +87,9 @@ export function MatronStudents() {
             initials: initialsOf(s.full_name),
             name: s.full_name,
             studentCode: s.student_code,
-            year: `S${s.grade}`,
+            year: s.grade,
             classLetter: s.section,
-            classBadge: `S${s.grade}${s.section}`,
+            classBadge: classLabel(s.grade, s.section),
             room: s.room_number,
             dormitory: s.dormitory,
             boardingType: s.boarding_type,

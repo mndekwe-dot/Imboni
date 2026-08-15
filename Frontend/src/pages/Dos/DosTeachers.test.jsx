@@ -59,7 +59,7 @@ describe('DosTeachers', () => {
   it('shows a loading state before teachers resolve', () => {
     getDosTeachers.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<DosTeachers />)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
   })
 
   it('renders the teacher table and stat cards once loaded', async () => {

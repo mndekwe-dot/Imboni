@@ -25,8 +25,8 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const STUDENTS = [
-  { id: 1, name: 'Eric Niyonsenga', student_id: 'STU001', grade: '4', section: 'A', dormitory: 'Bisoke', status: 'active' },
-  { id: 2, name: 'Alice Mutesi', student_id: 'STU002', grade: '4', section: 'B', dormitory: 'Karisimbi', status: 'active' },
+  { id: 1, name: 'Eric Niyonsenga', student_id: 'STU001', grade: 'S4', section: 'A', dormitory: 'Bisoke', status: 'active' },
+  { id: 2, name: 'Alice Mutesi', student_id: 'STU002', grade: 'S4', section: 'B', dormitory: 'Karisimbi', status: 'active' },
 ]
 
 const STATS = { total_students: 540, new_admissions: 12, active_students: 530, enrollment_pct: 98, avg_performance: 80, avg_performance_change: 2 }
@@ -80,7 +80,7 @@ describe('AdminStudents', () => {
   it('opens the detail modal and shows profile/attendance/results once loaded', async () => {
     getAdminStudents.mockResolvedValue(STUDENTS)
     getAdminStudentStats.mockResolvedValue(STATS)
-    getStudentDetail.mockResolvedValue({ grade: '4', section: 'A', student_id: 'STU001', dormitory: 'Bisoke', status: 'active', current_gpa: 3.4 })
+    getStudentDetail.mockResolvedValue({ grade: 'S4', section: 'A', student_id: 'STU001', dormitory: 'Bisoke', status: 'active', current_gpa: 3.4 })
     getStudentAttendanceStats.mockResolvedValue({ present_percentage: 92, late_percentage: 3, absent_percentage: 5, attendance_rate: 92 })
     getStudentTermResults.mockResolvedValue([{ subject_name: 'Mathematics', total_score: 85, letter_grade: 'A' }])
 

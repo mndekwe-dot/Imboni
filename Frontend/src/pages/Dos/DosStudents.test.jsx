@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor, within } from '../../test/test-utils'
 import { DosStudents } from './DosStudents'
 import {
-  getSchoolConfig, getDosStudents, getDosStudentStats, inviteDosStudent,
+  getSchoolConfig, getSchoolSettings, getDosStudents, getDosStudentStats, inviteDosStudent,
   bulkInviteDosStudents, getDosStudentDetail, suspendDosStudent,
   changeDosStudentClass, appointStudentLeader, removeStudentLeader,
 } from '../../api/dos'
@@ -15,6 +15,7 @@ beforeAll(() => {
 
 vi.mock('../../api/dos', () => ({
   getSchoolConfig: vi.fn(),
+  getSchoolSettings: vi.fn(),
   getDosStudents: vi.fn(),
   getDosStudentStats: vi.fn(),
   inviteDosStudent: vi.fn(),
@@ -38,14 +39,23 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const STUDENTS = [
-  { student_id: 'u1', initials: 'EN', full_name: 'Eric N.', student_code: 'STU001', grade: '4', section: 'A', status: 'active', avg_performance: 85 },
-  { student_id: 'u2', initials: 'AM', full_name: 'Alice M.', student_code: 'STU002', grade: '4', section: 'B', status: 'suspended', avg_performance: 40 },
+  { student_id: 'u1', initials: 'EN', full_name: 'Eric N.', student_code: 'STU001', grade: 'S4', section: 'A', status: 'active', avg_performance: 85 },
+  { student_id: 'u2', initials: 'AM', full_name: 'Alice M.', student_code: 'STU002', grade: 'S4', section: 'B', status: 'suspended', avg_performance: 40 },
 ]
 
 const STATS = { total_students: 540, new_this_term: 12, active_students: 530, enrollment_pct: 98, new_admissions: 12, avg_performance: 80, avg_performance_change: 2 }
 
 function setupBaseMocks() {
   getSchoolConfig.mockResolvedValue([{ name: 'O-Level', years: [{ name: 'S4', streams: ['A', 'B'] }] }])
+  getSchoolSettings.mockResolvedValue({
+    timezone: 'Africa/Kigali',
+    school_name: 'Imboni',
+    terms: [
+      { code: 'term1', label: 'Term 1', order: 1 },
+      { code: 'term2', label: 'Term 2', order: 2 },
+      { code: 'term3', label: 'Term 3', order: 3 },
+    ],
+  })
   getDosStudents.mockResolvedValue(STUDENTS)
   getDosStudentStats.mockResolvedValue(STATS)
   getInvitations.mockResolvedValue([])
@@ -60,7 +70,7 @@ describe('DosStudents', () => {
   it('shows a loading state before students resolve', () => {
     getDosStudents.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<DosStudents />)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
   })
 
   it('renders student rows and stat cards once loaded', async () => {
@@ -112,7 +122,7 @@ describe('DosStudents', () => {
 
   it('opens the student detail drawer and suspends an active student', async () => {
     getDosStudentDetail.mockResolvedValue({
-      grade: '4', section: 'A', full_name: 'Eric N.', student_code: 'STU001',
+      grade: 'S4', section: 'A', full_name: 'Eric N.', student_code: 'STU001',
       email: 'eric@imboni.test', enrollment_date: '2023-01-10', status: 'active',
       avg_performance: 85, attendance_rate: 92, leadership: [],
     })

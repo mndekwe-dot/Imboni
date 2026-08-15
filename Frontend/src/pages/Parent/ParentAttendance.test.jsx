@@ -15,8 +15,8 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const CHILDREN = [
-  { id: 1, student_name: 'Eric N.', grade: '4', section: 'A' },
-  { id: 2, student_name: 'Alice M.', grade: '5', section: 'B' },
+  { id: 1, student_name: 'Eric N.', grade: 'S4', section: 'A' },
+  { id: 2, student_name: 'Alice M.', grade: 'S5', section: 'B' },
 ]
 
 const STATS = { overall_rate: 95, attendance_label: 'Good', days_present: 90, days_absent: 5, excused_absences: 2, late_arrivals: 3, late_label: 'Improving' }
@@ -33,7 +33,7 @@ describe('ParentAttendance', () => {
   it('shows the no-children message when none are linked', async () => {
     getMyChildren.mockResolvedValue([])
     renderWithRouter(<ParentAttendance />)
-    await waitFor(() => expect(screen.getByText('No children linked.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No children linked to your account yet.')).toBeInTheDocument())
   })
 
   it('renders the attendance stats and calendar for the active child', async () => {

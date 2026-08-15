@@ -71,11 +71,11 @@ function ReviewBubble({ teacher_name, teacher_role, teacher_comment, updated_at 
             <div className="review-header">
                 <div className="avatar avatar-sm pr-avatar-primary">{ini}</div>
                 <div>
-                    <p className="text-sm"><strong>{teacher_name}</strong></p>
-                    <p className="text-xs text-muted">{teacher_role}{timeAgo ? ` · ${timeAgo}` : ''}</p>
+                    <p className="u-sm"><strong>{teacher_name}</strong></p>
+                    <p className="u-xs text-muted">{teacher_role}{timeAgo ? ` · ${timeAgo}` : ''}</p>
                 </div>
             </div>
-            <p className="review-text text-sm">"{teacher_comment}"</p>
+            <p className="review-text u-sm">"{teacher_comment}"</p>
         </div>
     )
 }
@@ -90,7 +90,7 @@ function AssessmentItem({ title, assessment_type, score_display, grade }) {
             </div>
             <div className="assessment-info">
                 <p><strong>{title}</strong></p>
-                <p className="text-xs text-muted">{typeLabel}</p>
+                <p className="u-xs text-muted">{typeLabel}</p>
             </div>
             <div className={`assessment-score ${cls}`}>{score_display}</div>
         </div>
@@ -157,7 +157,7 @@ export function ParentResults() {
                                 <button key={c.id}
                                     className={`child-tab${i === activeIdx ? ' active' : ''}`}
                                     onClick={() => setActiveIdx(i)}>
-                                    <div className="child-tab-avatar amina">{initials(c.student_name)}</div>
+                                    <div className="child-tab-avatar">{initials(c.student_name)}</div>
                                     <div className="child-tab-info">
                                         <span className="child-tab-name">{c.student_name}</span>
                                         <span className="child-tab-grade">{c.grade}{c.section}</span>
@@ -171,7 +171,7 @@ export function ParentResults() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading…</p>
                         ) : !child ? (
-                            <p className="u-pad u-muted">No children linked.</p>
+                            <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
                             <>
                                 {/* Recent Assessments table */}
@@ -245,7 +245,7 @@ export function ParentResults() {
                                         </div>
                                         <div className="card-content">
                                             {assessments.length === 0 ? (
-                                                <p className="u-muted">No assessments yet.</p>
+                                                <p className="u-muted">No assessments recorded yet.</p>
                                             ) : (
                                                 <div className="assessment-list">
                                                     {assessments.slice(0, 4).map((a, i) => (

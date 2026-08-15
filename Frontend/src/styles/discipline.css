@@ -1601,3 +1601,63 @@ td .class-chip { margin-left: 4px; }
     background: var(--muted);
 }
 .dorm-room-chip.is-off { opacity: 0.5; text-decoration: line-through; }
+
+/* ===============================================
+   CONSENT REQUESTS - DisActivities.jsx
+   The markup shipped without these rules, so the form
+   and the request list rendered as raw stacked HTML.
+   =============================================== */
+
+.cr-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.85rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.cr-form > div { display: flex; flex-direction: column; gap: 0.35rem; }
+.cr-col-full { grid-column: 1 / -1; }
+
+.cr-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+.cr-error {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--destructive);
+}
+
+.cr-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.cr-req {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.cr-req-main { flex: 1; min-width: 200px; }
+
+.cr-count-approved,
+.cr-count-declined {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+.cr-count-approved { background: var(--success-light);     color: var(--success); }
+.cr-count-declined { background: var(--destructive-light); color: var(--destructive); }
+
+@media (max-width: 560px) {
+    .cr-req { align-items: flex-start; }
+}

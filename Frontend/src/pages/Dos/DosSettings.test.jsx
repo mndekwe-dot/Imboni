@@ -38,7 +38,7 @@ describe('DosSettings', () => {
   it('shows a loading state before the school config resolves', () => {
     getSchoolConfig.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<DosSettings />)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
   })
 
   it('shows the getting-started notice for an empty config', async () => {

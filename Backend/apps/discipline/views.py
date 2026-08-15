@@ -13,6 +13,7 @@ from apps.behavior.models import BehaviorReport, ConductGrade
 from apps.behavior.serializers import BehaviorReportSerializer
 from django.utils import timezone
 from apps.authentication.permissions import IsDiscipline, IsMatron, IsDisciplineOrMatron
+from apps.dos.structure import year_label
 
 
 def _get_or_create_conversation(user_a, user_b, subject=''):
@@ -499,11 +500,6 @@ class DisciplineStudentListView(APIView):
                  qs.filter(user__last_name__icontains=search) | \
                  qs.filter(student_id__icontains=search)
 
-        grade_labels = {
-            '1': 'S1', '2': 'S2', '3': 'S3',
-            '4': 'S4', '5': 'S5', '6': 'S6',
-        }
-
         data = []
         for s in qs[:200]:
             conduct_grade = None
@@ -520,7 +516,7 @@ class DisciplineStudentListView(APIView):
                 'id': str(s.id),
                 'student_id': s.student_id,
                 'name': s.user.get_full_name(),
-                'grade': grade_labels.get(s.grade, s.grade),
+                'grade': year_label(s.grade),
                 'section': s.section,
                 'conduct_grade': conduct_grade,
                 'incident_count': incident_count,
@@ -550,7 +546,7 @@ class DisciplineStudentDetailView(APIView):
 
         conduct_grade = None
         conduct_history = []
-        for cg in ConductGrade.objects.filter(student=student).select_related('term').order_by('-term__year', '-term__term'):
+        for cg in ConductGrade.objects.filter(student=student).select_related('term').order_by('-term__year', '-term__order'):
             if current_term and cg.term_id == current_term.id:
                 conduct_grade = cg.grade
             conduct_history.append({

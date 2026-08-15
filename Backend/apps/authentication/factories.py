@@ -37,7 +37,7 @@ class StudentFactory(DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory, role='student')
     student_id = factory.Sequence(lambda n: f'STU{n:05d}')
-    grade = '4'
+    grade = 'S1'
     section = 'A'
     enrollment_date = factory.Faker('date_this_decade')
 
@@ -72,6 +72,7 @@ class AcademicTermFactory(DjangoModelFactory):
 
     name = factory.Sequence(lambda n: f'Term {n}')
     term = 'term1'
+    order = 1
     year = factory.Sequence(lambda n: 2020 + n)
     start_date = '2024-01-01'
     end_date = '2024-04-01'

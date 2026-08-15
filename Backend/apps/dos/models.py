@@ -211,9 +211,29 @@ class DiningAssignment(models.Model):
         return f"{self.class_obj} ({self.sitting.name})"
 
 
+def default_terms():
+    """
+    The Rwandan three-term year, used when a school configures nothing.
+
+    A callable rather than a literal because Django shares a mutable default
+    between every instance otherwise.
+    """
+    return [
+        {'code': 'term1', 'label': 'Term 1', 'order': 1},
+        {'code': 'term2', 'label': 'Term 2', 'order': 2},
+        {'code': 'term3', 'label': 'Term 3', 'order': 3},
+    ]
+
+
 class SchoolSetting(models.Model):
     timezone = models.CharField(max_length=50 ,default='Africa/Kigali')
     school_name = models.CharField(max_length=100,blank=True,default='')
+
+    # How this school divides its academic year: [{code, label, order}].
+    # Three terms was hard-coded in AcademicTerm.TERM_CHOICES, which excluded
+    # semester (2) and quarter (4) systems. The default keeps existing schools
+    # behaving exactly as before.
+    terms = models.JSONField(default=default_terms, blank=True)
 
     class Meta:
         db_table= 'school_setting'

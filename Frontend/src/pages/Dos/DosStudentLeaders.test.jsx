@@ -13,8 +13,8 @@ vi.mock('../../api/dos', () => ({
 }))
 
 const LEADERS = [
-  { full_name: 'Eric N.', role: 'Head Boy', grade: '5', section: 'A', appointed_date: '2026-01-15' },
-  { full_name: 'Alice M.', role: 'House Captain', grade: '4', section: 'B', appointed_date: '2026-01-10' },
+  { full_name: 'Eric N.', role: 'Head Boy', grade: 'S5', section: 'A', appointed_date: '2026-01-15' },
+  { full_name: 'Alice M.', role: 'House Captain', grade: 'S4', section: 'B', appointed_date: '2026-01-10' },
 ]
 
 const CLUBS = [

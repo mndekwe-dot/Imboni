@@ -8,6 +8,7 @@ import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
+import { classLabel } from '../../utils/classes'
 import {
     getTeacherDashboardStats,
     getTeacherTodaySchedule,
@@ -346,12 +347,12 @@ export function TeacherDashboard() {
                                         </div>
                                         <div className="card-content">
                                             {schedule.length === 0 ? (
-                                                <p className="u-muted">No classes scheduled for today.</p>
+                                                <p className="u-muted">No classes scheduled today.</p>
                                             ) : schedule.map((slot, i) => {
                                                 const meta  = slotMeta(slot.status)
                                                 const start = slot.start_time?.slice(0, 5) || ''
                                                 const end   = slot.end_time?.slice(0, 5)   || ''
-                                                const cls   = slot.class_name || `S${slot.grade}${slot.section}`
+                                                const cls   = classLabel(slot.grade, slot.section, slot.class_name)
                                                 return (
                                                     <ScheduleCard
                                                         key={i}

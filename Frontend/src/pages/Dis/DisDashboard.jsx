@@ -146,7 +146,7 @@ export function DisDashboard() {
 
                         <div className="portal-stat-grid">
                             {loading
-                                ? [1,2,3,4].map(i => <div key={i} className="stat-card skeleton dis-skel" />)
+                                ? [1,2,3,4].map(i => <div key={i} className="stat-card loading-skeleton dis-skel" />)
                                 : statCards.map((s, i) => <StatCard key={i} {...s} />)
                             }
                         </div>

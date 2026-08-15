@@ -13,7 +13,9 @@ class ConsentRequest(models.Model):
     description = models.TextField()
     event_date = models.DateField()
     response_deadline = models.DateField(null=True, blank=True)
-    grade = models.CharField(max_length=2, blank=True)   # '' = all grades
+    # 10 chars to match Student.grade, which now holds the school's own year
+    # code ('S1', 'P4') rather than a single digit. '' = all years.
+    grade = models.CharField(max_length=10, blank=True)
 
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
                                    related_name='consent_requests_created')

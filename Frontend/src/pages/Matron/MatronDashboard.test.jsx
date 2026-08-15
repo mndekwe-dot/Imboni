@@ -40,7 +40,7 @@ describe('MatronDashboard', () => {
         getMatronDashboard.mockReturnValue(new Promise(() => {}))
         getMatronNightCheck.mockReturnValue(new Promise(() => {}))
         renderWithRouter(<MatronDashboard />)
-        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        expect(screen.getByText('Loading…')).toBeInTheDocument()
     })
 
     it('renders the error state when the load fails', async () => {

@@ -35,7 +35,7 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const SUBJECTS = [{ id: 'sub1', name: 'Mathematics' }]
-const CLASSES = [{ id: 'c1', grade: 3, section: 'A' }]
+const CLASSES = [{ id: 'c1', grade: 'S3', section: 'A' }]
 const ROOMS = [{ id: 'r1', name: 'Room 12' }]
 const TEACHERS = [{ teacher_id: 't1', full_name: 'Mr. Rurangwa' }]
 

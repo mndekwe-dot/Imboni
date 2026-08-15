@@ -15,8 +15,8 @@ vi.mock('../../api/dos', () => ({
 }))
 
 const STUDENTS = [
-    { student_pk: 1, full_name: 'Iris Niyomugabo', grade: 2, section: 'A' },
-    { student_pk: 2, full_name: 'Peter N.', grade: 3, section: 'B' },
+    { student_pk: 1, full_name: 'Iris Niyomugabo', grade: 'S2', section: 'A' },
+    { student_pk: 2, full_name: 'Peter N.', grade: 'S3', section: 'B' },
 ]
 
 const REPORTS = [
@@ -35,7 +35,7 @@ describe('MatronIncidents', () => {
     it('renders the loading state initially', () => {
         getMatronIncidents.mockReturnValue(new Promise(() => {}))
         renderWithRouter(<MatronIncidents />)
-        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        expect(screen.getByText('Loading…')).toBeInTheDocument()
     })
 
     it('renders the error state when the load fails', async () => {

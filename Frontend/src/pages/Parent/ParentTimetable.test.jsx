@@ -13,8 +13,8 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const CHILDREN = [
-  { id: 1, student_name: 'Eric N.', grade: '4', section: 'A' },
-  { id: 2, student_name: 'Alice M.', grade: '5', section: 'B' },
+  { id: 1, student_name: 'Eric N.', grade: 'S4', section: 'A' },
+  { id: 2, student_name: 'Alice M.', grade: 'S5', section: 'B' },
 ]
 
 describe('ParentTimetable', () => {
@@ -29,30 +29,30 @@ describe('ParentTimetable', () => {
   it('shows the no-children message when none are linked', async () => {
     getMyChildren.mockResolvedValue([])
     renderWithRouter(<ParentTimetable />)
-    await waitFor(() => expect(screen.getByText('No children linked to your account.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No children linked to your account yet.')).toBeInTheDocument())
   })
 
   it('renders the timetable for the first child by default, with no child switcher for a single child', async () => {
     getMyChildren.mockResolvedValue([CHILDREN[0]])
     renderWithRouter(<ParentTimetable />)
 
-    await waitFor(() => expect(screen.getByText('Eric N. (Class 4A)')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Eric N. (Class S4A)')).toBeInTheDocument())
     expect(screen.queryByLabelText('Child:')).not.toBeInTheDocument()
   })
 
   it('shows a child switcher and updates the timetable heading when multiple children are linked', async () => {
     getMyChildren.mockResolvedValue(CHILDREN)
     renderWithRouter(<ParentTimetable />)
-    await waitFor(() => expect(screen.getByText('Eric N. (Class 4A)')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Eric N. (Class S4A)')).toBeInTheDocument())
 
     fireEvent.change(screen.getByLabelText('Child:'), { target: { value: '1' } })
 
-    expect(screen.getByText('Alice M. (Class 5B)')).toBeInTheDocument()
+    expect(screen.getByText('Alice M. (Class S5B)')).toBeInTheDocument()
   })
 
   it('handles a paginated {results:[]} response shape from getMyChildren', async () => {
     getMyChildren.mockResolvedValue({ results: [CHILDREN[0]] })
     renderWithRouter(<ParentTimetable />)
-    await waitFor(() => expect(screen.getByText('Eric N. (Class 4A)')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Eric N. (Class S4A)')).toBeInTheDocument())
   })
 })

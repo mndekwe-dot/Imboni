@@ -36,7 +36,7 @@ describe('MatronSchedule', () => {
     it('renders the loading state initially', () => {
         getMatronBoardingSchedule.mockReturnValue(new Promise(() => {}))
         renderWithRouter(<MatronSchedule />)
-        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        expect(screen.getByText('Loading…')).toBeInTheDocument()
     })
 
     it('renders the error state when the load fails', async () => {

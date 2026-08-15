@@ -20,8 +20,8 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const PENDING = [
-  { id: 1, student_name: 'Eric N.', subject_name: 'Mathematics', total_score: 78, letter_grade: 'B', teacher_name: 'Mr. Habimana', grade: '4', section: 'A' },
-  { id: 2, student_name: 'Alice M.', subject_name: 'Mathematics', total_score: 88, letter_grade: 'A', teacher_name: 'Mr. Habimana', grade: '4', section: 'B' },
+  { id: 1, student_name: 'Eric N.', subject_name: 'Mathematics', total_score: 78, letter_grade: 'B', teacher_name: 'Mr. Habimana', grade: 'S4', section: 'A' },
+  { id: 2, student_name: 'Alice M.', subject_name: 'Mathematics', total_score: 88, letter_grade: 'A', teacher_name: 'Mr. Habimana', grade: 'S4', section: 'B' },
 ]
 
 function mockByStatus({ pending = [], approved = [], rejected = [] } = {}) {

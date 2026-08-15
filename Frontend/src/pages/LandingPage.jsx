@@ -496,6 +496,7 @@ export function LandingPage() {
                             <li><Link to="/privacy">Privacy Policy</Link></li>
                             <li><Link to="/terms">Terms of Use</Link></li>
                             <li><Link to="/login">Sign In</Link></li>
+                            <li><Link to="/find-school">Find your school</Link></li>
                         </ul>
                     </div>
                 </div>

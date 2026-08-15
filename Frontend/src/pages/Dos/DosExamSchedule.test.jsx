@@ -49,7 +49,7 @@ describe('DosExamSchedule', () => {
   it('shows a loading state initially', () => {
     getDosExamSchedule.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<DosExamSchedule />)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
   })
 
   it('shows an error state when the fetch fails', async () => {
@@ -80,7 +80,7 @@ describe('DosExamSchedule', () => {
     getDosExamSchedule.mockResolvedValue([])
     renderWithRouter(<DosExamSchedule />)
 
-    await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument())
     // falls back to the built-in examRows constant
     expect(screen.getByText('Mathematics')).toBeInTheDocument()
     expect(screen.getByText('English Language')).toBeInTheDocument()
@@ -118,7 +118,7 @@ describe('DosExamSchedule', () => {
     commitDosExamSchedule.mockResolvedValue({ created: 1, unscheduled: [], summary: {}, warnings: [] })
 
     renderWithRouter(<DosExamSchedule />)
-    await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument())
 
     // Open the modal.
     fireEvent.click(screen.getByRole('button', { name: /Generate/i }))

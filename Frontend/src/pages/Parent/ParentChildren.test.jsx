@@ -19,8 +19,8 @@ vi.mock('../../api/notifications', () => ({
 
 const CHILDREN = [{ id: 1 }, { id: 2 }]
 
-const CARD_1 = { name: 'Eric N.', initials: 'EN', grade: '4', section: 'A', student_code: 'STU001', is_in_school: true, academic_focus: ['Mathematics'], class_teacher: { name: 'Mr. Habimana' } }
-const CARD_2 = { name: 'Alice M.', initials: 'AM', grade: '5', section: 'B', student_code: 'STU002', is_in_school: false, academic_focus: [], class_teacher: null }
+const CARD_1 = { name: 'Eric N.', initials: 'EN', grade: 'S4', section: 'A', student_code: 'STU001', is_in_school: true, academic_focus: ['Mathematics'], class_teacher: { name: 'Mr. Habimana' } }
+const CARD_2 = { name: 'Alice M.', initials: 'AM', grade: 'S5', section: 'B', student_code: 'STU002', is_in_school: false, academic_focus: [], class_teacher: null }
 
 describe('ParentChildren', () => {
   beforeEach(() => vi.clearAllMocks())
@@ -34,7 +34,7 @@ describe('ParentChildren', () => {
   it('shows the empty state when the parent has no linked children', async () => {
     getMyChildren.mockResolvedValue([])
     renderWithRouter(<ParentChildren />)
-    await waitFor(() => expect(screen.getByText('No children linked to your account.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No children linked to your account yet.')).toBeInTheDocument())
   })
 
   it('fetches per-child data only for the ids returned by getMyChildren, never an arbitrary id', async () => {
@@ -101,10 +101,10 @@ describe('ParentChildren', () => {
     getConsentRequests.mockResolvedValue([
       {
         id: 'r1', title: 'Museum Trip', description: 'S2 trip.', event_date: '2026-08-01',
-        response_deadline: '2026-07-25', grade: '2', created_by: 'DIS Office',
+        response_deadline: '2026-07-25', grade: 'S2', created_by: 'DIS Office',
         children: [
-          { student_id: 's1', student_name: 'Eric N.', grade: '2', status: null },
-          { student_id: 's2', student_name: 'Alice N.', grade: '2', status: 'approved' },
+          { student_id: 's1', student_name: 'Eric N.', grade: 'S2', status: null },
+          { student_id: 's2', student_name: 'Alice N.', grade: 'S2', status: 'approved' },
         ],
       },
     ])
@@ -128,7 +128,7 @@ describe('ParentChildren', () => {
     getConsentRequests.mockResolvedValue([])
     renderWithRouter(<ParentChildren />)
 
-    await waitFor(() => expect(screen.getByText('No children linked to your account.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No children linked to your account yet.')).toBeInTheDocument())
     expect(screen.queryByText('Consent Requests')).not.toBeInTheDocument()
   })
 })

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -13,23 +13,8 @@ import '../../styles/tables.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getTeacherMyClasses, getTeacherStudents } from '../../api/teacher'
-
-function buildSections(classes) {
-    const oLevel = { name: 'O-Level', years: [] }
-    const aLevel = { name: 'A-Level', years: [] }
-    for (const cls of classes) {
-        const grade = parseInt(cls.grade)
-        const group = grade <= 3 ? oLevel : aLevel
-        const yearName = `S${cls.grade}`
-        let yearObj = group.years.find(y => y.name === yearName)
-        if (!yearObj) {
-            yearObj = { name: yearName, streams: [] }
-            group.years.push(yearObj)
-        }
-        if (!yearObj.streams.includes(cls.section)) yearObj.streams.push(cls.section)
-    }
-    return [oLevel, aLevel].filter(s => s.years.length > 0)
-}
+import { classLabel, sectionsFromClasses } from '../../utils/classes'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 
 function performanceBadge(pct) {
     if (pct == null) return { label: '-',        cls: 'badge-soft-warning' }
@@ -79,7 +64,11 @@ function StudentRow({ student, onView }) {
 export function TeacherStudent() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,  setClasses]  = useState([])
-    const [sections, setSections] = useState([])
+    const { config } = useSchoolConfig()
+    // Rebuilt when either the classes or the school's configuration arrives —
+    // the config loads asynchronously, so deriving this once inside the fetch
+    // would group years before the section names were known.
+    const sections = useMemo(() => sectionsFromClasses(classes, config), [classes, config])
     const [students, setStudents] = useState([])
     const [loading,  setLoading]  = useState(true)
     const [error,    setError]    = useState(null)
@@ -103,7 +92,6 @@ export function TeacherStudent() {
             .then(data => {
                 const list = Array.isArray(data) ? data : []
                 setClasses(list)
-                setSections(buildSections(list))
             })
             .catch(err => setError(err?.message || 'Failed to load classes.'))
         getTeacherStudents()
@@ -115,7 +103,7 @@ export function TeacherStudent() {
     // Re-fetch when class filter changes
     useEffect(() => {
         if (loading) return
-        const classKey = year && classVal ? `S${year.replace('S', '')}${classVal}` : null
+        const classKey = year && classVal ? classLabel(year, classVal) : null
         const cls = classKey ? classes.find(c => c.class_name === classKey) : null
         const params = cls ? { class_id: cls.class_id } : {}
         setLoading(true)
@@ -150,6 +138,7 @@ export function TeacherStudent() {
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
+            <div className="sidebar-overlay"></div>
 
             {selected && (
                 <Modal title="Student Profile" icon="person" onClose={() => setSelected(null)}>

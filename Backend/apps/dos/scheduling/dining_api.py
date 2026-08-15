@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 
 from apps.authentication.permissions import IsDOSOrAdmin
 from apps.results.models import AcademicTerm
+from ..structure import class_label
 from ..models import MEAL_CHOICES, DiningAssignment, DiningSitting
 from .dining_service import (
     DEFAULT_MEALS,
@@ -91,7 +92,7 @@ class DiningPlanListView(APIView):
             'start_time': a.sitting.start_time.strftime('%H:%M'),
             'end_time': a.sitting.end_time.strftime('%H:%M'),
             'class_id': str(a.class_obj_id),
-            'class_name': f"S{a.class_obj.grade}{a.class_obj.section}",
+            'class_name': class_label(class_obj=a.class_obj),
         } for a in qs])
 
 

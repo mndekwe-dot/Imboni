@@ -247,6 +247,8 @@ export function ParentChildren() {
 
     return (
         <>
+            <a href="#main-content" className="skip-link">Skip to content</a>
+            <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
@@ -262,7 +264,7 @@ export function ParentChildren() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading children…</p>
                         ) : children.length === 0 ? (
-                            <p className="u-pad u-muted">No children linked to your account.</p>
+                            <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
                             <div className="student-grid">
                                 {children.map(c => (

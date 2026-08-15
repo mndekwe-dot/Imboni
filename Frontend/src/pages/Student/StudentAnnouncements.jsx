@@ -20,25 +20,26 @@ const CATEGORY_ICON = {
 const CHIPS = ['All', 'Urgent', 'Academic', 'Events', 'General']
 
 function AnnouncementItem({ ann }) {
-    const icon    = CATEGORY_ICON[ann.category] || 'campaign'
-    const date    = ann.published_at || ann.created_at
-    const dateStr = date
+    const category = ann.category || 'general'
+    const icon     = CATEGORY_ICON[category] || 'campaign'
+    const date     = ann.published_at || ann.created_at
+    const dateStr  = date
         ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
         : ''
 
     return (
-        <div className={`announcement-item type-${ann.category || 'general'}`}>
-            <div className="ann-icon-wrap">
+        <div className={`sann-item sann-${category}`}>
+            <div className="sann-icon">
                 <span className="material-symbols-rounded">{icon}</span>
             </div>
-            <div className="ann-content">
-                <div className="ann-meta">
-                    <span className={`ann-chip type-${ann.category}`}>{(ann.category || 'general').toUpperCase()}</span>
-                    <span className="ann-date">{dateStr}</span>
+            <div className="sann-body">
+                <div className="sann-meta">
+                    <span className="sann-cat">{category.toUpperCase()}</span>
+                    <span className="sann-date">{dateStr}</span>
                 </div>
-                <h4 className="ann-title">{ann.title}</h4>
-                <p className="ann-body">{ann.content}</p>
-                <p className="ann-author">By {ann.author || 'Administration'}</p>
+                <h4 className="sann-title">{ann.title}</h4>
+                <p className="sann-text">{ann.content}</p>
+                <p className="sann-author">By {ann.author || 'Administration'}</p>
             </div>
         </div>
     )
@@ -111,11 +112,12 @@ export function StudentAnnouncements() {
                         </div>
 
                         {/* Filter chips */}
-                        <div className="ann-chips-row u-flex u-gap-05 u-wrap u-mb">
+                        <div className="sann-chip-row u-mb">
                             {CHIPS.map(c => (
                                 <button
                                     key={c}
-                                    className={`chip${chip === c ? ' chip-active' : ''}`}
+                                    type="button"
+                                    className={`sann-chip${chip === c ? ' active' : ''}`}
                                     onClick={() => setChip(c)}
                                 >
                                     {c}
@@ -126,9 +128,13 @@ export function StudentAnnouncements() {
                         {loading ? (
                             <p className="u-pad u-muted">Loading announcements…</p>
                         ) : visible.length === 0 ? (
-                            <p className="u-pad u-muted">No announcements found.</p>
+                            <p className="u-pad u-muted">
+                                {chip === 'All'
+                                    ? 'No announcements yet.'
+                                    : 'No announcements match this filter.'}
+                            </p>
                         ) : (
-                            <div className="ann-feed">
+                            <div className="sann-feed">
                                 {visible.map(a => <AnnouncementItem key={a.id} ann={a} />)}
                             </div>
                         )}

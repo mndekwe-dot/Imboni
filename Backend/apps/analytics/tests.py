@@ -64,9 +64,9 @@ class TestPerformanceByGradeView:
         term = AcademicTermFactory(is_current=True)
         subject = SubjectFactory()
 
-        grade4_student1 = StudentFactory(grade='4')
-        grade4_student2 = StudentFactory(grade='4')
-        grade5_student1 = StudentFactory(grade='5')
+        grade4_student1 = StudentFactory(grade='S4')
+        grade4_student2 = StudentFactory(grade='S4')
+        grade5_student1 = StudentFactory(grade='S5')
 
         Result.objects.create(
             student=grade4_student1, subject=subject, term=term,
@@ -86,22 +86,22 @@ class TestPerformanceByGradeView:
         assert response.status_code == status.HTTP_200_OK
         by_grade = {row['grade']: row for row in response.data}
 
-        assert by_grade['4']['average_score'] == 80.0  # (70+90)/2
-        assert by_grade['4']['student_count'] == 2
-        assert by_grade['5']['average_score'] == 50.0
-        assert by_grade['5']['student_count'] == 1
+        assert by_grade['S4']['average_score'] == 80.0  # (70+90)/2
+        assert by_grade['S4']['student_count'] == 2
+        assert by_grade['S5']['average_score'] == 50.0
+        assert by_grade['S5']['student_count'] == 1
 
     def test_grade_with_no_approved_results_shows_zero_average(self, make_authenticated_client):
         client, _user = make_authenticated_client('dos')
         AcademicTermFactory(is_current=True)
-        StudentFactory(grade='6')  # no results at all
+        StudentFactory(grade='S6')  # no results at all
 
         response = client.get('/imboni/analytics/performance/by-grade/')
 
         assert response.status_code == status.HTTP_200_OK
         by_grade = {row['grade']: row for row in response.data}
-        assert by_grade['6']['average_score'] == 0
-        assert by_grade['6']['student_count'] == 1
+        assert by_grade['S6']['average_score'] == 0
+        assert by_grade['S6']['student_count'] == 1
 
 
 @pytest.mark.django_db

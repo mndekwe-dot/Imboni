@@ -1261,6 +1261,7 @@ export function TeacherAssignments() {
     return (
         <>
             <a href="#main-content" className="skip-link">Skip to content</a>
+            <div className="sidebar-overlay"></div>
 
             {isOpen && (
                 <AssignmentModal

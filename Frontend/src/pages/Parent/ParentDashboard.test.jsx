@@ -16,8 +16,8 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const CHILDREN = [
-  { id: 1, student_name: 'Eric N.', grade: '4', section: 'A' },
-  { id: 2, student_name: 'Alice M.', grade: '5', section: 'B' },
+  { id: 1, student_name: 'Eric N.', grade: 'S4', section: 'A' },
+  { id: 2, student_name: 'Alice M.', grade: 'S5', section: 'B' },
 ]
 
 const STATS = {

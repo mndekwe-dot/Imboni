@@ -50,7 +50,7 @@ describe('ParentAnnouncements', () => {
     await waitFor(() => expect(screen.getByText('Exam Notice')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /Events0/ }))
-    expect(screen.getByText('No announcements in this category.')).toBeInTheDocument()
+    expect(screen.getByText('No announcements match this filter.')).toBeInTheDocument()
   })
 
   it('filters by category chip', async () => {

@@ -46,6 +46,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
 
     return (
         <div className="platform-portal">
+            <a href="#main-content" className="skip-link">Skip to content</a>
             {mobileOpen && <div className="sidebar-overlay active" aria-hidden="true" onClick={() => setMobileOpen(false)} />}
             <div className="dashboard-layout">
                 <aside className={`sidebar${mobileOpen ? ' active' : ''}`}>
@@ -86,7 +87,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                     </nav>
                 </aside>
 
-                <main className="dashboard-main">
+                <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
                         <button className="mobile-menu-btn" aria-label="Open menu" onClick={() => setMobileOpen(true)}>
                             <span className="material-symbols-rounded">menu</span>

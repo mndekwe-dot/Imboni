@@ -135,7 +135,7 @@ def test_dos_add_student_blocked_at_plan_limit(api_client, monkeypatch):
 
     resp = api_client.post(reverse('dos-students'), {
         'first_name': 'New', 'last_name': 'Student',
-        'email': 'newstudent@x.test', 'grade': '4', 'section': 'A',
+        'email': 'newstudent@x.test', 'grade': 'S1', 'section': 'A',
         'enrollment_date': '2026-01-15', 'password': 'TestPass123!',
     }, format='json')
 

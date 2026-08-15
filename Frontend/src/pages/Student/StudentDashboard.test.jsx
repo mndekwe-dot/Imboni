@@ -13,7 +13,7 @@ vi.mock('../../api/notifications', () => ({
   markNotificationRead: vi.fn(),
 }))
 
-const PROFILE = { grade: '4', section: 'A', student_code: 'STU001' }
+const PROFILE = { grade: 'S4', section: 'A', student_code: 'STU001' }
 
 const DASHBOARD = {
   stats: { attendance_percentage: 92, conduct_grade: 'A', pending_assignments: 3, recent_grade: 'B' },

@@ -37,8 +37,8 @@ beforeAll(() => {
 })
 
 const CLASSES = [
-  { id: 'c1', grade: 3, section: 'A' },
-  { id: 'c2', grade: 3, section: 'B' },
+  { id: 'c1', grade: 'S3', section: 'A' },
+  { id: 'c2', grade: 'S3', section: 'B' },
 ]
 
 const SUBJECTS = [

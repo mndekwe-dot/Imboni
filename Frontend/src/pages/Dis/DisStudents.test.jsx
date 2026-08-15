@@ -21,14 +21,14 @@ vi.mock('../../api/notifications', () => ({
 }))
 
 const STUDENTS = [
-  { id: 1, name: 'Eric N.', grade: '4', section: 'A', student_id: 'STU001', conduct_grade: 'A', incident_count: 0 },
-  { id: 2, name: 'Alice M.', grade: '4', section: 'B', student_id: 'STU002', conduct_grade: 'D', incident_count: 5 },
+  { id: 1, name: 'Eric N.', grade: 'S4', section: 'A', student_id: 'STU001', conduct_grade: 'A', incident_count: 0 },
+  { id: 2, name: 'Alice M.', grade: 'S4', section: 'B', student_id: 'STU002', conduct_grade: 'D', incident_count: 5 },
 ]
 
 const REPORTS = [
-  { id: 1, student: 'Eric N.', grade: '4', section: 'A', report_type: 'incident', title: 'Late', date: '2026-06-01', status: 'pending_review' },
-  { id: 2, student: 'Alice M.', grade: '4', section: 'B', report_type: 'warning', title: 'Uniform', date: '2026-06-02', status: 'approved' },
-  { id: 3, student: 'Eric N.', grade: '4', section: 'A', report_type: 'incident', title: 'Fight', date: '2026-06-03', status: 'rejected', review_notes: 'Insufficient evidence' },
+  { id: 1, student: 'Eric N.', grade: 'S4', section: 'A', report_type: 'incident', title: 'Late', date: '2026-06-01', status: 'pending_review' },
+  { id: 2, student: 'Alice M.', grade: 'S4', section: 'B', report_type: 'warning', title: 'Uniform', date: '2026-06-02', status: 'approved' },
+  { id: 3, student: 'Eric N.', grade: 'S4', section: 'A', report_type: 'incident', title: 'Fight', date: '2026-06-03', status: 'rejected', review_notes: 'Insufficient evidence' },
 ]
 
 describe('DisStudents', () => {

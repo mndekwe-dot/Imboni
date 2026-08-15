@@ -10,6 +10,7 @@ from __future__ import annotations
 from django.db import transaction
 
 from apps.teacher.models import Class
+from ..structure import class_label
 from ..models import DiningAssignment, DiningSitting
 from .dining_solver import DiningGroup, Sitting, solve_dining_plan
 
@@ -21,7 +22,7 @@ class DiningPlanError(ValueError):
 
 
 def _class_label(class_obj):
-    return f"S{class_obj.grade}{class_obj.section}"
+    return class_label(class_obj=class_obj)
 
 
 def gather_groups(meals, class_ids=None):

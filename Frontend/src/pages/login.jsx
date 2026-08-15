@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { useSchoolIdentity } from '../hooks/useSchoolIdentity'
 import '../styles/login.css'
 import '../styles/components.css'
+import '../styles/public-pages.css'
 import logo from '../assets/images/imboni-logo.png'
 
 function ForgotPasswordModal({ onClose }) {
@@ -57,6 +59,8 @@ const stats = [
 
 export function LogIn() {
     const { login, completeTwoFactor } = useAuth()
+    // Decorative only: null on the bare domain or if the lookup fails.
+    const { school } = useSchoolIdentity()
     const [email,      setEmail]      = useState('')
     const [password,   setPassword]   = useState('')
     const [showPw,     setShowPw]     = useState(false)
@@ -147,6 +151,24 @@ export function LogIn() {
                 <div className="login-right-logo">
                     <img src={logo} alt="Imboni Logo" />
                 </div>
+
+                {/* The school's own name, so a parent lands somewhere that looks
+                    like their school rather than generic software. Renders
+                    nothing on the bare domain or if the lookup fails — never a
+                    reason to block signing in. */}
+                {school && (
+                    <div className="school-brand">
+                        <p className="school-brand-name">{school.name}</p>
+                        <p className="school-brand-sub">on Imboni</p>
+                        {school.status === 'suspended' && (
+                            <p className="school-brand-warn">
+                                This school&apos;s account is suspended. You can still
+                                sign in, but most of the system will be unavailable
+                                until the outstanding balance is settled.
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 <div className="login-welcome">
                     <div className="login-welcome-icon">

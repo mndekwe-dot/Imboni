@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -13,6 +13,8 @@ import '../../styles/pages.css'
 import '../../styles/tables.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { classLabel, sectionsFromClasses } from '../../utils/classes'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import {
     getTeacherMyClasses,
     getTeacherAttendanceStats,
@@ -33,23 +35,6 @@ function todayISO() {
     return new Date().toISOString().split('T')[0]
 }
 
-function buildSections(classes) {
-    const oLevel = { name: 'O-Level', years: [] }
-    const aLevel = { name: 'A-Level', years: [] }
-    for (const cls of classes) {
-        const grade = parseInt(cls.grade)
-        const group = grade <= 3 ? oLevel : aLevel
-        const yearName = `S${cls.grade}`
-        let yearObj = group.years.find(y => y.name === yearName)
-        if (!yearObj) {
-            yearObj = { name: yearName, streams: [] }
-            group.years.push(yearObj)
-        }
-        if (!yearObj.streams.includes(cls.section)) yearObj.streams.push(cls.section)
-    }
-    return [oLevel, aLevel].filter(s => s.years.length > 0)
-}
-
 export function TeacherAttendance() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
@@ -63,7 +48,12 @@ export function TeacherAttendance() {
     const [classVal, setClassVal] = useState('')
     const [selectedDate, setSelectedDate] = useState(todayISO())
 
-    const [sections, setSections]     = useState([])
+    const { config } = useSchoolConfig()
+    const [myClasses, setMyClasses]   = useState([])
+    // Rebuilt when either the classes or the school's configuration arrives —
+    // the config loads asynchronously, so deriving this once inside the fetch
+    // would group years before the section names were known.
+    const sections = useMemo(() => sectionsFromClasses(myClasses, config), [myClasses, config])
     const [classIdMap, setClassIdMap] = useState({})
 
     const [students, setStudents] = useState([])
@@ -89,9 +79,9 @@ export function TeacherAttendance() {
                     const key = String(cls.class_id)
                     if (!seen.has(key)) { seen.add(key); unique.push(cls) }
                 }
-                setSections(buildSections(unique))
+                setMyClasses(unique)
                 const map = {}
-                unique.forEach(c => { map[`S${c.grade}${c.section}`] = c.class_id })
+                unique.forEach(c => { map[classLabel(c.grade, c.section)] = c.class_id })
                 setClassIdMap(map)
             } catch {
                 setError('Failed to load your classes.')

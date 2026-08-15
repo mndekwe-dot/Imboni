@@ -86,11 +86,13 @@ CORE_SUBJECTS = ['MTH', 'ENG', 'KIN', 'BIO', 'CHE', 'PHY', 'HIS', 'GEO', 'GS']
 # `schema` must match an existing tenant schema (see the Domain table).
 #
 # Field notes:
-#   years            Which forms the school teaches. '1'-'3' is O-Level,
-#                    '4'-'6' is A-Level. Must be strings — Student.grade and
-#                    Class.grade are CharFields.
-#   streams          Per-year class letters. Capped at A/B/C because
-#                    Student.SECTION_CHOICES only allows those three.
+#   years            Which forms the school teaches, as the school's own year
+#                    codes. 'S1'-'S3' is O-Level, 'S4'-'S6' is A-Level. These
+#                    are what land in Student.grade and Class.grade verbatim —
+#                    there is no separate numeric form.
+#   streams          Per-year class letters, keyed by year code. Any label of up
+#                    to 10 characters works; these schools use A/B/C because
+#                    that is what Rwandan secondary schools use.
 #   class_size       Students generated per class. This is what makes one
 #                    school feel large and another intimate.
 #   gender           'mixed' | 'girls' | 'boys'. Drives name selection,
@@ -109,9 +111,9 @@ SCHOOL_PROFILES = [
         'short': 'GHA',
         'domain': 'greenhills.rw',
         'motto': 'Knowledge, Integrity, Service',
-        'years': ['1', '2', '3', '4', '5', '6'],
-        'streams': {'1': ['A', 'B', 'C'], '2': ['A', 'B', 'C'], '3': ['A', 'B', 'C'],
-                    '4': ['A', 'B'], '5': ['A', 'B'], '6': ['A', 'B']},
+        'years': ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+        'streams': {'S1': ['A', 'B', 'C'], 'S2': ['A', 'B', 'C'], 'S3': ['A', 'B', 'C'],
+                    'S4': ['A', 'B'], 'S5': ['A', 'B'], 'S6': ['A', 'B']},
         'class_size': 16,
         'gender': 'mixed',
         'boarding': 0.7,
@@ -128,9 +130,9 @@ SCHOOL_PROFILES = [
         'short': 'LDK',
         'domain': 'lyceedekigali.rw',
         'motto': 'Discipline and Excellence',
-        'years': ['1', '2', '3', '4', '5', '6'],
-        'streams': {'1': ['A', 'B'], '2': ['A', 'B'], '3': ['A', 'B'],
-                    '4': ['A', 'B'], '5': ['A'], '6': ['A']},
+        'years': ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+        'streams': {'S1': ['A', 'B'], 'S2': ['A', 'B'], 'S3': ['A', 'B'],
+                    'S4': ['A', 'B'], 'S5': ['A'], 'S6': ['A']},
         'class_size': 20,
         'gender': 'mixed',
         'boarding': 0.45,
@@ -146,8 +148,8 @@ SCHOOL_PROFILES = [
         'short': 'SPS',
         'domain': 'sunriseprep.rw',
         'motto': 'Every Morning a New Start',
-        'years': ['1', '2', '3'],
-        'streams': {'1': ['A', 'B'], '2': ['A', 'B'], '3': ['A']},
+        'years': ['S1', 'S2', 'S3'],
+        'streams': {'S1': ['A', 'B'], 'S2': ['A', 'B'], 'S3': ['A']},
         'class_size': 11,
         'gender': 'mixed',
         'boarding': 0.0,          # pure day school — no dorms, no night checks
@@ -163,9 +165,9 @@ SCHOOL_PROFILES = [
         'short': 'GVG',
         'domain': 'greenvalleygirls.rw',
         'motto': 'Educate a Girl, Change a Nation',
-        'years': ['1', '2', '3', '4', '5', '6'],
-        'streams': {'1': ['A', 'B'], '2': ['A', 'B'], '3': ['A', 'B'],
-                    '4': ['A'], '5': ['A'], '6': ['A']},
+        'years': ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+        'streams': {'S1': ['A', 'B'], 'S2': ['A', 'B'], 'S3': ['A', 'B'],
+                    'S4': ['A'], 'S5': ['A'], 'S6': ['A']},
         'class_size': 14,
         'gender': 'girls',
         'boarding': 0.95,         # near-total boarding, as most girls' schools are
@@ -182,9 +184,9 @@ SCHOOL_PROFILES = [
         'short': 'SJS',
         'domain': 'stjoseph.rw',
         'motto': 'Faith, Work, Perseverance',
-        'years': ['1', '2', '3', '4'],
-        'streams': {'1': ['A', 'B', 'C'], '2': ['A', 'B'], '3': ['A', 'B'],
-                    '4': ['A']},
+        'years': ['S1', 'S2', 'S3', 'S4'],
+        'streams': {'S1': ['A', 'B', 'C'], 'S2': ['A', 'B'], 'S3': ['A', 'B'],
+                    'S4': ['A']},
         'class_size': 18,
         'gender': 'boys',
         'boarding': 0.8,
@@ -200,8 +202,8 @@ SCHOOL_PROFILES = [
         'short': 'NTH',
         'domain': 'nyamatatech.rw',
         'motto': 'Skills for Tomorrow',
-        'years': ['4', '5', '6'],   # upper-secondary technical school only
-        'streams': {'4': ['A', 'B'], '5': ['A', 'B'], '6': ['A']},
+        'years': ['S4', 'S5', 'S6'],   # upper-secondary technical school only
+        'streams': {'S4': ['A', 'B'], 'S5': ['A', 'B'], 'S6': ['A']},
         'class_size': 13,
         'gender': 'mixed',
         'boarding': 0.6,
