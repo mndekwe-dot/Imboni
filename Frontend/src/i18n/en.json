@@ -1,0 +1,44 @@
+{
+  "language": {
+    "label": "Language",
+    "english": "English",
+    "kinyarwanda": "Kinyarwanda",
+    "changed": "Language updated."
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "search": "Search",
+    "select": "Select",
+    "filter": "Filter",
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "sending": "Sending…",
+    "retry": "Try again",
+    "back": "Back",
+    "next": "Next",
+    "yes": "Yes",
+    "no": "No",
+    "skipToContent": "Skip to content"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "email": "Email address",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "rememberMe": "Remember me",
+    "invalidCredentials": "Invalid email or password."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "messages": "Messages",
+    "announcements": "Announcements"
+  }
+}

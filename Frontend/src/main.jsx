@@ -5,6 +5,9 @@ import { ToastProvider } from './context/ToastContext'
 import { AnnouncementsProvider } from './context/AnnouncementsContext'
 import { initSentry, Sentry } from './utils/sentry'
 import { ErrorFallback } from './components/ErrorFallback'
+// Imported for its side effect: initialises i18next before the first render, so
+// the very first paint is already in the user's language.
+import './i18n'
 import './index.css'
 import './styles/utilities.css'
 import App from './App.jsx'

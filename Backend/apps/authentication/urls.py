@@ -31,6 +31,8 @@ user_nested_router.register(r'preferences', views.UserPreferencesViewSet, basena
 urlpatterns = router.urls + user_nested_router.urls + [
     # Account Settings — Personal Profile tab (GET + PATCH)
     path('account/profile/', views.AccountProfileView.as_view(), name='account-profile'),
+    # Account Settings — language / theme / notification preferences (GET + PATCH)
+    path('account/preferences/', views.AccountPreferencesView.as_view(), name='account-preferences'),
     # Account Settings — Change Photo button (PATCH with image file)
     path('account/avatar/', views.AccountAvatarView.as_view(), name='account-avatar'),
     # Password Reset

@@ -1,0 +1,44 @@
+{
+  "language": {
+    "label": "Ururimi",
+    "english": "Icyongereza",
+    "kinyarwanda": "Ikinyarwanda",
+    "changed": "Ururimi rwahinduwe."
+  },
+  "common": {
+    "save": "Bika",
+    "cancel": "Reka",
+    "delete": "Siba",
+    "edit": "Hindura",
+    "add": "Ongeraho",
+    "close": "Funga",
+    "search": "Shakisha",
+    "select": "Hitamo",
+    "filter": "Shungura",
+    "loading": "Biratangira…",
+    "saving": "Birabikwa…",
+    "sending": "Biroherezwa…",
+    "retry": "Ongera ugerageze",
+    "back": "Subira inyuma",
+    "next": "Komeza",
+    "yes": "Yego",
+    "no": "Oya",
+    "skipToContent": "Simbukira ku bikubiyemo"
+  },
+  "auth": {
+    "signIn": "Injira",
+    "signOut": "Sohoka",
+    "email": "Aderesi imeyili",
+    "password": "Ijambo ry'ibanga",
+    "forgotPassword": "Wibagiwe ijambo ry'ibanga?",
+    "rememberMe": "Unyibuke",
+    "invalidCredentials": "Imeyili cyangwa ijambo ry'ibanga si byo."
+  },
+  "nav": {
+    "dashboard": "Imbonerahamwe",
+    "profile": "Umwirondoro",
+    "settings": "Igenamiterere",
+    "messages": "Ubutumwa",
+    "announcements": "Amatangazo"
+  }
+}
