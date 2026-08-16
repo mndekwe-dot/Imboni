@@ -94,6 +94,7 @@ function FormSelect({ value, onChange, options, placeholder }) {
 
 // ── Unified Add / Edit Teacher Modal (details + class assignment) ─────────────
 function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEdit = !!teacher
     const sections = config ?? []
     const noConfig = sections.length === 0 ||
@@ -150,7 +151,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
             size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" disabled={!isValid} onClick={handleSave}>
                         <span className="material-symbols-rounded icon-sm">{isEdit ? 'save' : 'person_add'}</span>
                         {isEdit ? 'Save Changes' : 'Add Teacher'}
@@ -159,22 +160,22 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
             }
         >
             {/* ── Teacher Details ── */}
-            <p className="teacher-modal-section-label">Teacher Details</p>
+            <p className="teacher-modal-section-label">{t('dos.teachers.teacherDetails')}</p>
             <div className="settings-form">
                 <div className="form-group">
-                    <label className="form-label">Full Name *</label>
+                    <label className="form-label">{t('common.fullNameRequired')}</label>
                     <input className="form-control" placeholder="e.g. Jean-Pierre Habimana"
                         value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} autoFocus />
                 </div>
                 <div className="resp-grid-2 u-gap-sm">
                     <div className="form-group">
-                        <label className="form-label">Subject *</label>
+                        <label className="form-label">{t('dos.teachers.subjectRequired')}</label>
                         <FormSelect value={form.subject} onChange={v => setForm(p => ({ ...p, subject: v }))}
-                            placeholder="Select subject"
+                            placeholder={t('dos.teachers.selectSubject')}
                             options={subjectOptions.map(s => ({ value: s, label: s }))} />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Employment Type *</label>
+                        <label className="form-label">{t('dos.teachers.employmentTypeRequired')}</label>
                         <FormSelect value={form.type} onChange={v => setForm(p => ({ ...p, type: v }))}
                             placeholder=""
                             options={TYPES.map(t => ({ value: t, label: t }))} />
@@ -182,7 +183,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                 </div>
                 {isEdit && (
                     <div className="form-group">
-                        <label className="form-label">Status</label>
+                        <label className="form-label">{t('common.status')}</label>
                         <FormSelect value={form.status} onChange={v => setForm(p => ({ ...p, status: v }))}
                             placeholder=""
                             options={[{ value: 'Active', label: 'Active' }, { value: 'Inactive', label: 'Inactive' }]} />
@@ -191,13 +192,13 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                 {!isEdit && (
                     <div className="resp-grid-2 u-gap-sm">
                         <div className="form-group">
-                            <label className="form-label">Email *</label>
+                            <label className="form-label">{t('dos.teachers.emailRequired')}</label>
                             <input className="form-control" type="email" placeholder="teacher@school.rw"
                                 value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Password * (min 8 chars)</label>
-                            <input className="form-control" type="password" placeholder="Min 8 characters"
+                            <label className="form-label">{t('dos.teachers.passwordRequired')}</label>
+                            <input className="form-control" type="password" placeholder={t('dos.teachers.minChars')}
                                 value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} />
                         </div>
                     </div>
@@ -208,12 +209,12 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
             <div className="teacher-modal-divider" />
 
             {/* ── Classes to Teach ── */}
-            <p className="teacher-modal-section-label">Classes to Teach</p>
+            <p className="teacher-modal-section-label">{t('dos.teachers.classesToTeach')}</p>
 
             {noConfig ? (
                 <EmptyState
                     icon="settings"
-                    title="No classes configured yet"
+                    title={t('dos.teachers.noClassesConfigured')}
                     description="Go to School Settings to add sections, year groups, and streams before assigning classes."
                 />
             ) : (
@@ -271,6 +272,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
 
 // ── Invite Teacher Modal ──────────────────────────────────────────────────────
 function InviteTeacherModal({ onClose, onInvite }) {
+    const { t } = useTranslation()
     const [form, setForm] = useState({ first_name: '', last_name: '', email: '', type: 'Full-Time' })
     const [sending, setSending] = useState(false)
     const [sent, setSent] = useState(false)
@@ -290,7 +292,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
 
     if (sent) return (
         <Modal title="Invitation Sent" icon="mark_email_read" onClose={onClose}
-            footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>Done</button></div>}>
+            footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>{t('common.done')}</button></div>}>
             <div className="dt-modal-success">
                 <span className="material-symbols-rounded dt-success-icon">check_circle</span>
                 <p className="dt-success-title">Invitation sent to {form.email}</p>
@@ -306,7 +308,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
         <Modal title="Invite Teacher" icon="person_add" onClose={onClose} size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" disabled={!isValid || sending} onClick={handleSend}>
                         <span className="material-symbols-rounded icon-sm">send</span>
                         {sending ? 'Sending…' : 'Send Invitation'}
@@ -324,23 +326,23 @@ function InviteTeacherModal({ onClose, onInvite }) {
             <div className="settings-form">
                 <div className="resp-grid-2 u-gap-sm">
                     <div className="form-group">
-                        <label className="form-label">First Name *</label>
+                        <label className="form-label">{t('common.firstNameRequired')}</label>
                         <input className="form-control" placeholder="e.g. Jean-Pierre"
                             value={form.first_name} onChange={e => setForm(p => ({ ...p, first_name: e.target.value }))} autoFocus />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Last Name *</label>
+                        <label className="form-label">{t('common.lastNameRequired')}</label>
                         <input className="form-control" placeholder="e.g. Habimana"
                             value={form.last_name} onChange={e => setForm(p => ({ ...p, last_name: e.target.value }))} />
                     </div>
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Email Address *</label>
+                    <label className="form-label">{t('common.emailAddressRequired')}</label>
                     <input className="form-control" type="email" placeholder="teacher@school.rw"
                         value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Employment Type</label>
+                    <label className="form-label">{t('dos.teachers.employmentType')}</label>
                     <FormSelect value={form.type} onChange={v => setForm(p => ({ ...p, type: v }))}
                         placeholder="" options={TYPES.map(t => ({ value: t, label: t }))} />
                 </div>
@@ -360,6 +362,7 @@ function daysAgo(dateStr) {
 
 // ── Pending Invitations Card ──────────────────────────────────────────────────
 function PendingInvitationsCard({ invitations, onResend, onCancel }) {
+    const { t } = useTranslation()
     const [resending, setResending] = useState(null)
     const [cancelling, setCancelling] = useState(null)
 
@@ -379,7 +382,7 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
         <div className="card pinv-card">
             <div className="pinv-hdr">
                 <span className="material-symbols-rounded pinv-hdr-icon">schedule_send</span>
-                <span className="pinv-hdr-title">Pending Invitations</span>
+                <span className="pinv-hdr-title">{t('dos.teachers.pendingInvitations')}</span>
                 <span className="pinv-count">
                     {invitations.length}
                 </span>
@@ -390,12 +393,12 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
             <table className="pinv-table">
                 <thead>
                     <tr className="pinv-thead">
-                        <th className="pinv-th first">Teacher</th>
-                        <th className="pinv-th">Email</th>
-                        <th className="pinv-th">Status</th>
-                        <th className="pinv-th">Invited</th>
-                        <th className="pinv-th">Expires</th>
-                        <th className="pinv-th last">Actions</th>
+                        <th className="pinv-th first">{t('common.teacher')}</th>
+                        <th className="pinv-th">{t('common.email')}</th>
+                        <th className="pinv-th">{t('common.status')}</th>
+                        <th className="pinv-th">{t('dos.teachers.invited')}</th>
+                        <th className="pinv-th">{t('dos.teachers.expires')}</th>
+                        <th className="pinv-th last">{t('common.actions')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -413,10 +416,10 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
                                 <td className="pinv-td pinv-email">{inv.email || '-'}</td>
                                 <td className="pinv-td">
                                     {expired
-                                        ? <span className="pinv-status expired">Expired</span>
+                                        ? <span className="pinv-status expired">{t('common.expired')}</span>
                                         : inv.delivery_status === 'sent'
-                                            ? <span className="pinv-status sent">Sent</span>
-                                            : <span className="pinv-status failed">Failed</span>
+                                            ? <span className="pinv-status sent">{t('common.sent')}</span>
+                                            : <span className="pinv-status failed">{t('common.failed')}</span>
                                     }
                                 </td>
                                 <td className="pinv-td pinv-muted">{daysAgo(inv.created_at)}</td>
@@ -570,7 +573,7 @@ export function DosTeachers() {
                         <div className="toolbar-card">
                             <div className="toolbar-search">
                                 <span className="material-symbols-rounded">search</span>
-                                <input placeholder="Search by name or subject..." value={search} onChange={e => setSearch(e.target.value)} />
+                                <input placeholder={t('dos.teachers.searchTeachers')} value={search} onChange={e => setSearch(e.target.value)} />
                                 {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
                             </div>
                             <InlineSelect value={subjectFilter} onChange={setSubjectFilter} options={subjects} placeholder="All Subjects" />
@@ -591,26 +594,26 @@ export function DosTeachers() {
                             title="All Teachers"
                             data={filtered}
                             columns={['Teacher', 'Subject', 'Type', 'Classes Assigned', 'Status', 'Actions']}
-                            renderRow={t => (
-                                <tr key={t.id}>
+                            renderRow={teacher => (
+                                <tr key={teacher.id}>
                                     <td>
                                         <div className="dt-cell-user">
-                                            <div className="dt-avatar" style={{ background: avatarColor(t.name) }}>{initials(t.name)}</div>
-                                            <div><div className="dt-name">{t.name}</div><div className="dt-sub">{t.id}</div></div>
+                                            <div className="dt-avatar" style={{ background: avatarColor(teacher.name) }}>{initials(teacher.name)}</div>
+                                            <div><div className="dt-name">{teacher.name}</div><div className="dt-sub">{teacher.id}</div></div>
                                         </div>
                                     </td>
-                                    <td className="fw-600">{t.subject}</td>
-                                    <td><span className={`tm-badge ${t.type === 'Full-Time' ? 'fulltime' : 'parttime'}`}>{t.type}</span></td>
-                                    <td>{t.classes.length > 0 ? t.classes.map((cls, i) => <span key={i} className="dt-chip">{cls}</span>) : <span className="dt-sub">None assigned</span>}</td>
+                                    <td className="fw-600">{teacher.subject}</td>
+                                    <td><span className={`tm-badge ${teacher.type === 'Full-Time' ? 'fulltime' : 'parttime'}`}>{teacher.type}</span></td>
+                                    <td>{teacher.classes.length > 0 ? teacher.classes.map((cls, i) => <span key={i} className="dt-chip">{cls}</span>) : <span className="dt-sub">{t('dos.teachers.noneAssigned')}</span>}</td>
                                     <td>
-                                        <span className={`dt-status${t.status === 'Active' ? ' dt-status-active' : ' dt-status-inactive'}`}>
-                                            <span className={`dt-status-dot${t.status === 'Active' ? ' dt-status-dot-active' : ' dt-status-dot-inactive'}`} />
-                                            {t.status}
+                                        <span className={`dt-status${teacher.status === 'Active' ? ' dt-status-active' : ' dt-status-inactive'}`}>
+                                            <span className={`dt-status-dot${teacher.status === 'Active' ? ' dt-status-dot-active' : ' dt-status-dot-inactive'}`} />
+                                            {teacher.status}
                                         </span>
                                     </td>
                                     <td>
-                                        <button className="btn btn-primary btn-sm" onClick={() => setEditing(t)}>
-                                            <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                                        <button className="btn btn-primary btn-sm" onClick={() => setEditing(teacher)}>
+                                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                                         </button>
                                     </td>
                                 </tr>
