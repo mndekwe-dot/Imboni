@@ -19,6 +19,7 @@ import {
     getAssignmentSubmissions, getAssignmentGradeSheet, saveAssignmentGrades,
     getQuestionBank, saveToQuestionBank, patchQuestionBank, deleteFromQuestionBank,
 } from '../../api/teacher'
+import { formatDateTime } from '../../utils/date'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,14 @@ const QUESTION_TYPES = [
     { value: 'short_answer', labelKey: 'teacher.assignments.qTypeShortAnswer', icon: 'short_text'           },
     { value: 'fill_blank',   labelKey: 'teacher.assignments.qTypeFillBlank',   icon: 'text_fields'          },
 ]
+
+// Backend status codes mapped to their label key. The status is data; the
+// word shown for it is not, so it is never derived from the code itself.
+const STATUS_LABEL_KEYS = {
+    active: 'common.active',
+    draft:  'common.draft',
+    closed: 'common.closed',
+}
 
 const EMPTY_FORM = {
     title: '', class_obj: '', subject: '', due_date: '',
@@ -61,15 +70,16 @@ function calcMaxScore(questions) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function submissionPill(a) {
+function submissionPill(a, t) {
     if (a.submitted === null || a.submitted === undefined || a.mode === 'paper')
-        return { label: 'Not tracked', bg: 'var(--muted)', color: 'var(--muted-foreground)' }
+        return { label: t('teacher.assignments.notTracked'), bg: 'var(--muted)', color: 'var(--muted-foreground)' }
     if (a.status === 'draft')
-        return { label: 'Draft', bg: 'var(--muted)', color: 'var(--muted-foreground)' }
+        return { label: t('common.draft'), bg: 'var(--muted)', color: 'var(--muted-foreground)' }
+    const label = t('teacher.assignments.submittedOf', { submitted: a.submitted, total: a.total })
     const pct = a.total ? (a.submitted / a.total) * 100 : 0
-    if (pct === 100) return { label: `${a.submitted}/${a.total} submitted`, bg: 'rgba(16,185,129,0.12)', color: 'var(--success)'     }
-    if (pct >= 50)   return { label: `${a.submitted}/${a.total} submitted`, bg: 'rgba(245,158,11,0.12)', color: 'var(--warning)'      }
-    return                  { label: `${a.submitted}/${a.total} submitted`, bg: 'rgba(239,68,68,0.1)',   color: 'var(--destructive)' }
+    if (pct === 100) return { label, bg: 'rgba(16,185,129,0.12)', color: 'var(--success)'     }
+    if (pct >= 50)   return { label, bg: 'rgba(245,158,11,0.12)', color: 'var(--warning)'      }
+    return                  { label, bg: 'rgba(239,68,68,0.1)',   color: 'var(--destructive)' }
 }
 
 // ── Styled form select ────────────────────────────────────────────────────────
@@ -168,18 +178,18 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                         <div>
                             <input
                                 className="form-control"
-                                placeholder={`Question ${qi + 1}… use ____ for the blank (e.g. "The capital of France is ____.") `}
+                                placeholder={t('teacher.assignments.fillBlankPlaceholder', { n: qi + 1 })}
                                 value={q.text}
                                 onChange={e => set('text', e.target.value)}
                             />
                             <div className="quiz-q-hint">
-                                Use ____ (four underscores) to mark the blank position.
+                                {t('teacher.assignments.fillBlankHint')}
                             </div>
                         </div>
                     ) : (
                         <input
                             className="form-control"
-                            placeholder={`Question ${qi + 1}…`}
+                            placeholder={t('teacher.assignments.questionPlaceholder', { n: qi + 1 })}
                             value={q.text}
                             onChange={e => set('text', e.target.value)}
                         />
@@ -189,12 +199,12 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                 {/* Move + delete */}
                 <div className="quiz-q-tools">
                     {!isFirst && (
-                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveUp} title="Move up">
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveUp} title={t('common.moveUp')}>
                             <span className="material-symbols-rounded">arrow_upward</span>
                         </button>
                     )}
                     {!isLast && (
-                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveDown} title="Move down">
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveDown} title={t('common.moveDown')}>
                             <span className="material-symbols-rounded">arrow_downward</span>
                         </button>
                     )}
@@ -210,14 +220,14 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                 {q.image ? (
                     <div className="u-row-sm">
                         <img src={q.image} alt="question" className="quiz-q-image" />
-                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={() => set('image', '')} title="Remove image">
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={() => set('image', '')} title={t('common.removeImage')}>
                             <span className="material-symbols-rounded">close</span>
                         </button>
                     </div>
                 ) : (
                     <button type="button" onClick={() => imgRef.current.click()} className="quiz-q-add-image">
                         <span className="material-symbols-rounded">add_photo_alternate</span>
-                        Add image
+                        {t('common.addImage')}
                     </button>
                 )}
             </div>
@@ -231,7 +241,7 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                                 <input type="radio" name={`correct-${q.id}`}
                                     checked={q.correct === oi} onChange={() => set('correct', oi)} />
                                 <input className="quiz-q-option-input"
-                                    placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+                                    placeholder={t('teacher.assignments.optionLetter', { letter: String.fromCharCode(65 + oi) })}
                                     value={opt} onChange={e => setOption(oi, e.target.value)} />
                                 {q.options.length > 2 && (
                                     <button type="button" className="quiz-q-delete quiz-q-delete-sm" onClick={() => removeOption(oi)}>
@@ -243,12 +253,12 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                         {q.options.length < 6 && (
                             <button type="button" onClick={addOption} className="quiz-q-add-option">
                                 <span className="material-symbols-rounded">add</span>
-                                Add option
+                                {t('teacher.assignments.addOption')}
                             </button>
                         )}
                         <div className="quiz-q-help">
                             <span className="material-symbols-rounded">check_circle</span>
-                            {' '}Select the radio button next to the correct answer.
+                            {' '}{t('teacher.assignments.mcqHelp')}
                         </div>
                     </>
                 )}
@@ -264,7 +274,7 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                         ))}
                         <div className="quiz-q-help">
                             <span className="material-symbols-rounded">check_circle</span>
-                            {' '}Select the correct answer (True or False).
+                            {' '}{t('teacher.assignments.trueFalseHelp')}
                         </div>
                     </>
                 )}
@@ -272,11 +282,15 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
                 {(q.type === 'short_answer' || q.type === 'fill_blank') && (
                     <div className="quiz-q-answer">
                         <label className="form-label">
-                            {q.type === 'fill_blank' ? 'Expected answer (for the blank)' : 'Model answer'}{' '}
-                            <span className="label-muted">(used for auto-grading)</span>
+                            {q.type === 'fill_blank'
+                                ? t('teacher.assignments.expectedAnswer')
+                                : t('teacher.assignments.modelAnswer')}{' '}
+                            <span className="label-muted">{t('teacher.assignments.autoGradingHint')}</span>
                         </label>
                         <input className="form-control"
-                            placeholder={q.type === 'fill_blank' ? 'e.g. Paris' : 'e.g. Newton\'s first law of motion'}
+                            placeholder={q.type === 'fill_blank'
+                                ? t('teacher.assignments.egParis')
+                                : t('teacher.assignments.egLaw')}
                             value={q.correct || ''}
                             onChange={e => set('correct', e.target.value)}
                         />
@@ -287,22 +301,22 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
             {/* Points + explanation row */}
             <div className="quiz-q-foot">
                 <div className="quiz-q-points">
-                    <label className="quiz-q-points-label">Points:</label>
+                    <label className="quiz-q-points-label">{t('teacher.assignments.pointsLabel')}</label>
                     <input type="number" min="1" max="100"
                         className="form-control quiz-q-points-input"
                         value={q.points} onChange={e => set('points', Math.max(1, parseInt(e.target.value) || 1))} />
                 </div>
                 <div className="quiz-q-expl">
                     <input className="form-control quiz-q-expl-input"
-                        placeholder="Explanation (shown to students after submission, optional)…"
+                        placeholder={t('teacher.assignments.explanationPlaceholder')}
                         value={q.explanation} onChange={e => set('explanation', e.target.value)} />
                 </div>
                 <button type="button"
                     onClick={() => onSaveToBank(q)}
-                    title="Save to question bank"
+                    title={t('teacher.assignments.saveToBankTitle')}
                     className="quiz-q-bank-btn">
                     <span className="material-symbols-rounded">bookmark_add</span>
-                    Save to bank
+                    {t('teacher.assignments.saveToBank')}
                 </button>
             </div>
         </div>
@@ -312,6 +326,7 @@ function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onM
 // ── Quiz Builder ──────────────────────────────────────────────────────────────
 
 function QuizBuilder({ questions, onChange, onOpenBank }) {
+    const { t } = useTranslation()
     function update(id, updated) { onChange(questions.map(q => q.id === id ? updated : q)) }
     function remove(id)          { onChange(questions.filter(q => q.id !== id)) }
     function moveUp(idx) {
@@ -338,8 +353,8 @@ function QuizBuilder({ questions, onChange, onOpenBank }) {
                 points:         q.points,
                 image:          q.image,
             })
-            alert('Question saved to bank.')
-        } catch { alert('Failed to save question.') }
+            alert(t('teacher.assignments.savedToBank'))
+        } catch { alert(t('teacher.assignments.saveQuestionFailed')) }
     }
 
     const totalPoints = calcMaxScore(questions)
@@ -347,11 +362,14 @@ function QuizBuilder({ questions, onChange, onOpenBank }) {
     return (
         <div>
             {questions.length === 0 ? (
-                <div className="quiz-q-empty">No questions yet. Add a question type below or import from your bank.</div>
+                <div className="quiz-q-empty">{t('teacher.assignments.noQuestions')}</div>
             ) : (
                 <>
                     <div className="u-flex u-justify-end u-mb-xs">
-                        <span className="quiz-section-count">{questions.length} question{questions.length !== 1 ? 's' : ''} · {totalPoints} mark{totalPoints !== 1 ? 's' : ''} total</span>
+                        <span className="quiz-section-count">
+                            {t('teacher.assignments.questionCount', { count: questions.length })} ·{' '}
+                            {t('teacher.assignments.markCount', { count: totalPoints })}
+                        </span>
                     </div>
                     {questions.map((q, qi) => (
                         <QuestionEditor key={q.id} q={q} qi={qi}
@@ -379,7 +397,7 @@ function QuizBuilder({ questions, onChange, onOpenBank }) {
                 ))}
                 <button type="button" className="btn btn-outline btn-sm u-ml-auto" onClick={onOpenBank}>
                     <span className="material-symbols-rounded icon-sm">library_books</span>
-                    Import from Bank
+                    {t('teacher.assignments.importFromBank')}
                 </button>
             </div>
         </div>
@@ -444,17 +462,22 @@ function QuestionBankModal({ onClose, onImport }) {
         onClose()
     }
 
-    const typeLabel = { mcq: 'MCQ', true_false: 'T/F', short_answer: 'Short', fill_blank: 'Fill' }
+    const typeLabelKeys = {
+        mcq:          'teacher.assignments.typeShortMcq',
+        true_false:   'teacher.assignments.typeShortTrueFalse',
+        short_answer: 'teacher.assignments.typeShortShort',
+        fill_blank:   'teacher.assignments.typeShortFill',
+    }
 
     return (
-        <Modal title="Question Bank" icon="library_books" onClose={onClose} size="wide"
+        <Modal title={t('teacher.assignments.bankTitle')} icon="library_books" onClose={onClose} size="wide"
             footer={
                 <div className="modal-footer-row">
-                    <span className="modal-footer-hint">{selected.size} question{selected.size !== 1 ? 's' : ''} selected</span>
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                    <span className="modal-footer-hint">{t('teacher.assignments.selectedCount', { count: selected.size })}</span>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" disabled={selected.size === 0} onClick={handleImport}>
                         <span className="material-symbols-rounded icon-sm">add</span>
-                        Import Selected
+                        {t('teacher.assignments.importSelected')}
                     </button>
                 </div>
             }>
@@ -462,20 +485,22 @@ function QuestionBankModal({ onClose, onImport }) {
                 <input className="form-control bank-search-input" placeholder={t('teacher.assignments.searchQuestions')}
                     value={search} onChange={e => setSearch(e.target.value)} />
                 <select className="form-control bank-select-scope" value={scope} onChange={e => setScope(e.target.value)}
-                    aria-label="Question scope">
-                    <option value="">All questions</option>
-                    <option value="mine">My questions</option>
-                    <option value="shared">Shared with me</option>
+                    aria-label={t('teacher.assignments.questionScope')}>
+                    <option value="">{t('teacher.assignments.allQuestions')}</option>
+                    <option value="mine">{t('teacher.assignments.myQuestions')}</option>
+                    <option value="shared">{t('teacher.assignments.sharedWithMe')}</option>
                 </select>
                 <select className="form-control bank-select-type" value={typeF} onChange={e => setTypeF(e.target.value)}>
-                    <option value="">All types</option>
+                    <option value="">{t('teacher.assignments.allTypes')}</option>
                     {QUESTION_TYPES.map(qt => <option key={qt.value} value={qt.value}>{t(qt.labelKey)}</option>)}
                 </select>
             </div>
             {loading ? (
-                <p className="u-muted">Loading…</p>
+                <p className="u-muted">{t('common.loading')}</p>
             ) : filtered.length === 0 ? (
-                <p className="u-muted">No saved questions{search || typeF ? ' matching your filters' : ' yet'}.</p>
+                <p className="u-muted">{search || typeF
+                    ? t('teacher.assignments.noMatchingQuestions')
+                    : t('teacher.assignments.noSavedQuestions')}</p>
             ) : (
                 <div className="bank-list">
                     {filtered.map(q => (
@@ -483,18 +508,25 @@ function QuestionBankModal({ onClose, onImport }) {
                             className={`bank-item${selected.has(q.id) ? ' selected' : ''}`}>
                             <input type="checkbox" readOnly checked={selected.has(q.id)} className="bank-item-check" />
                             <div className="bank-item-body">
-                                <div className="bank-item-text">{q.text || '(no text)'}</div>
+                                <div className="bank-item-text">{q.text || t('teacher.assignments.noText')}</div>
                                 <div className="bank-item-meta">
-                                    {typeLabel[q.question_type] || q.question_type} · {q.points} pt{q.points !== 1 ? 's' : ''}
+                                    {typeLabelKeys[q.question_type] ? t(typeLabelKeys[q.question_type]) : q.question_type}
+                                    {' · '}{t('teacher.assignments.pointCount', { count: q.points })}
                                     {q.subject_name ? ` · ${q.subject_name}` : ''}
-                                    {q.is_mine === false && q.teacher_name ? ` · Shared by ${q.teacher_name}` : ''}
-                                    {q.is_mine !== false && q.is_shared ? ' · Shared' : ''}
+                                    {q.is_mine === false && q.teacher_name
+                                        ? ' · ' + t('teacher.assignments.sharedBy', { name: q.teacher_name })
+                                        : ''}
+                                    {q.is_mine !== false && q.is_shared
+                                        ? ' · ' + t('teacher.assignments.shared')
+                                        : ''}
                                 </div>
                             </div>
                             {q.is_mine !== false && (
                                 <button type="button"
                                     onClick={e => { e.stopPropagation(); toggleShare(q) }}
-                                    title={q.is_shared ? 'Stop sharing with other teachers' : 'Share with other teachers'}
+                                    title={q.is_shared
+                                        ? t('teacher.assignments.stopSharing')
+                                        : t('teacher.assignments.startSharing')}
                                     className={`bank-item-icon-btn${q.is_shared ? ' shared' : ''}`}>
                                     <span className="material-symbols-rounded">
                                         {q.is_shared ? 'group' : 'group_off'}
@@ -539,6 +571,7 @@ function seededShuffle(items, seed) {
 }
 
 function PreviewModal({ assignment, questions, onClose }) {
+    const { t } = useTranslation()
     const [answers,  setAnswers]  = useState({})
     const [revealed, setRevealed] = useState(false)
     const displayQ = useMemo(
@@ -561,17 +594,17 @@ function PreviewModal({ assignment, questions, onClose }) {
     }
 
     return (
-        <Modal title={`Preview: ${assignment.title}`} icon="preview" onClose={onClose} size="wide"
+        <Modal title={t('teacher.assignments.previewTitle', { title: assignment.title })} icon="preview" onClose={onClose} size="wide"
             footer={
                 <div className="modal-footer-row">
                     <span className="modal-footer-hint">
-                        This is how students will see the quiz. Correct answers are hidden.
+                        {t('teacher.assignments.previewHint')}
                     </span>
                     <button className="btn btn-outline" onClick={() => setRevealed(r => !r)}>
                         <span className="material-symbols-rounded icon-sm">{revealed ? 'visibility_off' : 'visibility'}</span>
-                        {revealed ? 'Hide' : 'Reveal'} answers
+                        {revealed ? t('teacher.assignments.hideAnswers') : t('teacher.assignments.revealAnswers')}
                     </button>
-                    <button className="btn btn-outline" onClick={onClose}>Close</button>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
                 </div>
             }>
             {/* Quiz header */}
@@ -581,10 +614,10 @@ function PreviewModal({ assignment, questions, onClose }) {
                     <div className="preview-instructions">{assignment.instructions}</div>
                 )}
                 <div className="preview-meta">
-                    <span><strong>{calcMaxScore(questions)}</strong> marks total</span>
-                    <span><strong>{questions.length}</strong> questions</span>
-                    {assignment.time_limit_minutes && <span><strong>{assignment.time_limit_minutes}</strong> min limit</span>}
-                    {assignment.shuffle_questions && <span>Questions are shuffled</span>}
+                    <span><strong>{calcMaxScore(questions)}</strong> {t('teacher.assignments.marksTotal')}</span>
+                    <span><strong>{questions.length}</strong> {t('teacher.assignments.questionsWord')}</span>
+                    {assignment.time_limit_minutes && <span><strong>{assignment.time_limit_minutes}</strong> {t('teacher.assignments.minLimit')}</span>}
+                    {assignment.shuffle_questions && <span>{t('teacher.assignments.shuffled')}</span>}
                 </div>
             </div>
 
@@ -601,8 +634,8 @@ function PreviewModal({ assignment, questions, onClose }) {
                         <div key={q.id} className="preview-q"
                             style={{ '--preview-q-border': revealed && studentAns !== undefined ? (isCorrect ? 'var(--success)' : '#dc2626') : 'var(--border)' }}>
                             <div className="preview-q-head">
-                                <span className="preview-q-title">{qi + 1}. {q.text || '(empty question)'}</span>
-                                <span className="preview-q-points">{q.points} pt{q.points !== 1 ? 's' : ''}</span>
+                                <span className="preview-q-title">{qi + 1}. {q.text || t('teacher.assignments.emptyQuestion')}</span>
+                                <span className="preview-q-points">{t('teacher.assignments.pointCount', { count: q.points })}</span>
                             </div>
                             {q.image && <img src={q.image} alt="question" className="preview-q-image" />}
 
@@ -613,7 +646,7 @@ function PreviewModal({ assignment, questions, onClose }) {
                                             <input type="radio" name={`prev-${q.id}`}
                                                 checked={answers[q.id] === oi}
                                                 onChange={() => setAnswers(a => ({ ...a, [q.id]: oi }))} />
-                                            {opt || `Option ${String.fromCharCode(65 + oi)}`}
+                                            {opt || t('teacher.assignments.optionLetter', { letter: String.fromCharCode(65 + oi) })}
                                             {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded preview-check">check</span>}
                                         </label>
                                     ))}
@@ -634,12 +667,12 @@ function PreviewModal({ assignment, questions, onClose }) {
                             )}
                             {(q.type === 'short_answer' || q.type === 'fill_blank') && (
                                 <div>
-                                    <input className="form-control" placeholder="Student types answer here…"
+                                    <input className="form-control" placeholder={t('teacher.assignments.studentAnswerPlaceholder')}
                                         value={answers[q.id] || ''}
                                         onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))} />
                                     {revealed && q.correct && (
                                         <div className="preview-model-answer">
-                                            Model answer: <strong>{q.correct}</strong>
+                                            {t('teacher.assignments.modelAnswerLabel')} <strong>{q.correct}</strong>
                                         </div>
                                     )}
                                 </div>
@@ -655,7 +688,7 @@ function PreviewModal({ assignment, questions, onClose }) {
             </div>
             {revealed && Object.keys(answers).length > 0 && (
                 <div className="preview-score">
-                    Preview score: {score()} / {calcMaxScore(questions)}
+                    {t('teacher.assignments.previewScore', { score: score(), max: calcMaxScore(questions) })}
                 </div>
             )}
         </Modal>
@@ -665,6 +698,7 @@ function PreviewModal({ assignment, questions, onClose }) {
 // ── Paper Grading Modal ───────────────────────────────────────────────────────
 
 function GradeModal({ assignment, onClose }) {
+    const { t } = useTranslation()
     const [sheet,   setSheet]   = useState(null)
     const [scores,  setScores]  = useState({})
     const [loading, setLoading] = useState(true)
@@ -681,7 +715,7 @@ function GradeModal({ assignment, onClose }) {
                 }
                 setScores(init)
             })
-            .catch(() => setMessage({ type: 'error', text: 'Failed to load the class roster.' }))
+            .catch(() => setMessage({ type: 'error', text: t('teacher.assignments.loadRosterFailed') }))
             .finally(() => setLoading(false))
     }, [assignment.id])
 
@@ -699,12 +733,13 @@ function GradeModal({ assignment, onClose }) {
                 .map(([student_id, score]) => ({ student_id, score }))
             const res = await saveAssignmentGrades(assignment.id, records)
             if (res.errors?.length) {
-                setMessage({ type: 'error', text: `${res.saved} saved, ${res.errors.length} rejected (check scores are 0-${maxScore}).` })
+                setMessage({ type: 'error', text: t('teacher.assignments.gradesRejected', {
+                    saved: res.saved, rejected: res.errors.length, max: maxScore }) })
             } else {
-                setMessage({ type: 'success', text: `Saved ${res.saved} score${res.saved !== 1 ? 's' : ''}.` })
+                setMessage({ type: 'success', text: t('teacher.assignments.gradesSaved', { count: res.saved }) })
             }
         } catch {
-            setMessage({ type: 'error', text: 'Failed to save scores.' })
+            setMessage({ type: 'error', text: t('teacher.assignments.saveScoresFailed') })
         } finally {
             setSaving(false)
         }
@@ -713,31 +748,32 @@ function GradeModal({ assignment, onClose }) {
     const gradedCount = Object.values(scores).filter(v => v !== '').length
 
     return (
-        <Modal title={`Grade: ${assignment.title}`} icon="edit_note" onClose={onClose} size="wide"
+        <Modal title={t('teacher.assignments.gradeTitle', { title: assignment.title })} icon="edit_note" onClose={onClose} size="wide"
             footer={
                 <div className="modal-footer-row">
                     <span className="modal-footer-hint"
                         style={{ color: message?.type === 'error' ? '#dc2626' : message?.type === 'success' ? 'var(--success)' : undefined }}>
-                        {message?.text || `${gradedCount}/${sheet?.students?.length ?? 0} graded · out of ${maxScore}`}
+                        {message?.text || t('teacher.assignments.gradedSummary', {
+                            graded: gradedCount, total: sheet?.students?.length ?? 0, max: maxScore })}
                     </span>
-                    <button className="btn btn-outline" onClick={onClose}>Close</button>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || loading}>
                         <span className="material-symbols-rounded icon-sm">save</span>
-                        {saving ? 'Saving…' : 'Save Scores'}
+                        {saving ? t('common.saving') : t('teacher.assignments.saveScores')}
                     </button>
                 </div>
             }>
             {loading ? (
-                <p className="u-muted">Loading roster…</p>
+                <p className="u-muted">{t('teacher.assignments.loadingRoster')}</p>
             ) : !sheet?.students?.length ? (
-                <p className="u-muted">No students found in {assignment.class_name}.</p>
+                <p className="u-muted">{t('teacher.assignments.noStudentsIn', { class: assignment.class_name })}</p>
             ) : (
                 <div className="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Student</th>
-                                <th className="grade-score-col">Score (/{maxScore})</th>
+                                <th>{t('common.student')}</th>
+                                <th className="grade-score-col">{t('teacher.assignments.scoreOutOf', { max: maxScore })}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -751,7 +787,7 @@ function GradeModal({ assignment, onClose }) {
                                         <input
                                             type="number" min="0" max={maxScore}
                                             className="form-control grade-input"
-                                            aria-label={`Score for ${s.full_name}`}
+                                            aria-label={t('teacher.assignments.scoreFor', { name: s.full_name })}
                                             value={scores[s.student_id] ?? ''}
                                             onChange={e => setScore(s.student_id, e.target.value)}
                                         />
@@ -769,6 +805,7 @@ function GradeModal({ assignment, onClose }) {
 // ── Submissions Modal ─────────────────────────────────────────────────────────
 
 function SubmissionsModal({ assignment, onClose }) {
+    const { t } = useTranslation()
     const [subs,    setSubs]    = useState([])
     const [loading, setLoading] = useState(true)
 
@@ -780,22 +817,22 @@ function SubmissionsModal({ assignment, onClose }) {
     }, [assignment.id])
 
     return (
-        <Modal title={`Submissions: ${assignment.title}`} icon="fact_check" onClose={onClose} size="wide"
-            footer={<div className="modal-footer-row"><button className="btn btn-outline" onClick={onClose}>Close</button></div>}>
+        <Modal title={t('teacher.assignments.submissionsTitle', { title: assignment.title })} icon="fact_check" onClose={onClose} size="wide"
+            footer={<div className="modal-footer-row"><button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button></div>}>
             {loading ? (
-                <p className="u-muted">Loading submissions…</p>
+                <p className="u-muted">{t('teacher.assignments.loadingSubmissions')}</p>
             ) : subs.length === 0 ? (
-                <p className="u-muted">No submissions yet.</p>
+                <p className="u-muted">{t('teacher.assignments.noSubmissions')}</p>
             ) : (
                 <div className="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Student</th>
-                                <th>Score</th>
-                                <th>Percentage</th>
-                                <th>Submitted</th>
-                                <th>Late</th>
+                                <th>{t('common.student')}</th>
+                                <th>{t('common.score')}</th>
+                                <th>{t('common.percentage')}</th>
+                                <th>{t('common.submitted')}</th>
+                                <th>{t('common.late')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -809,8 +846,8 @@ function SubmissionsModal({ assignment, onClose }) {
                                     <td>
                                         <span className={`sub-pct ${s.percentage >= 50 ? 'pass' : 'low'}`}>{s.percentage}%</span>
                                     </td>
-                                    <td className="cell-date">{new Date(s.submitted_at).toLocaleString()}</td>
-                                    <td>{s.is_late ? <span className="sub-late">Late</span> : '-'}</td>
+                                    <td className="cell-date">{formatDateTime(s.submitted_at)}</td>
+                                    <td>{s.is_late ? <span className="sub-late">{t('common.late')}</span> : '-'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -912,27 +949,33 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                 />
             )}
             <Modal
-                title={initial ? 'Edit Assignment' : 'New Assignment'}
+                title={initial ? t('teacher.assignments.editAssignment') : t('teacher.assignments.newAssignment')}
                 icon="assignment"
                 onClose={onClose}
                 size="wide"
                 footer={
                     <div className="modal-footer-row">
                         <span className={`modal-footer-hint${saveError ? ' has-error' : ''}`}>
-                            {saveError || (!isValid && '* Fill in all required fields') || (form.mode === 'online' && questions.length === 0 && '* Add at least one question')}
+                            {saveError
+                                || (!isValid && t('teacher.assignments.fillRequired'))
+                                || (form.mode === 'online' && questions.length === 0 && t('teacher.assignments.addOneQuestion'))}
                         </span>
                         {form.mode === 'online' && questions.length > 0 && (
                             <button className="btn btn-outline" type="button" onClick={() => setShowPreview(true)}>
                                 <span className="material-symbols-rounded icon-sm">preview</span>
-                                Preview
+                                {t('teacher.assignments.preview')}
                             </button>
                         )}
-                        <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                        <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                         <button className="btn btn-primary" disabled={!isValid || saving} onClick={handleSave}>
                             <span className="material-symbols-rounded icon-sm">
                                 {form.status === 'draft' ? 'save' : 'publish'}
                             </span>
-                            {saving ? 'Saving…' : form.status === 'draft' ? 'Save as Draft' : 'Publish'}
+                            {saving
+                                ? t('common.saving')
+                                : form.status === 'draft'
+                                    ? t('teacher.assignments.saveAsDraft')
+                                    : t('common.publish')}
                         </button>
                     </div>
                 }
@@ -940,8 +983,8 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                 {/* Mode toggle */}
                 <div className="resp-grid-2 grid-gap-sm mb-1-5">
                     {[
-                        { key: 'paper',  icon: 'assignment', label: 'Paper Assignment', sub: 'Manual grading' },
-                        { key: 'online', icon: 'quiz',        label: 'Online Quiz',      sub: 'Auto-marked'   },
+                        { key: 'paper',  icon: 'assignment', label: t('teacher.assignments.modePaper'),  sub: t('teacher.assignments.modePaperSub')  },
+                        { key: 'online', icon: 'quiz',       label: t('teacher.assignments.modeOnline'), sub: t('teacher.assignments.modeOnlineSub') },
                     ].map(m => (
                         <button key={m.key} onClick={() => setForm(p => ({ ...p, mode: m.key }))}
                             className={`mode-toggle-btn${form.mode === m.key ? ' active' : ''}`}>
@@ -954,71 +997,75 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                     ))}
                 </div>
 
-                <div className="section-label-sm">Assignment Details</div>
+                <div className="section-label-sm">{t('teacher.assignments.detailsLabel')}</div>
 
                 <div className="resp-grid-2 grid-gap-sm mb-1">
                     <div className="form-group col-full">
-                        <label className="form-label">Title *</label>
+                        <label className="form-label">{t('common.titleRequired')}</label>
                         <input className="form-control" name="title" value={form.title} onChange={handle}
-                            placeholder={form.mode === 'online' ? 'e.g. Chapter 6 Quiz' : 'e.g. Problem Set 4'} />
+                            placeholder={form.mode === 'online'
+                                ? t('teacher.assignments.egQuizTitle')
+                                : t('teacher.assignments.egPaperTitle')} />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Class *</label>
+                        <label className="form-label">{t('common.classRequired')}</label>
                         <FormSelect value={form.class_obj}
                             onChange={handleClassChange}
                             placeholder={t('teacher.assignments.selectClass')} options={classOptions} />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Subject *</label>
+                        <label className="form-label">{t('common.subjectRequired')}</label>
                         <FormSelect value={form.subject}
                             onChange={v => setForm(p => ({ ...p, subject: v }))}
-                            placeholder={form.class_obj ? 'Select subject...' : 'Select a class first'}
+                            placeholder={form.class_obj
+                                ? t('teacher.assignments.selectSubject')
+                                : t('teacher.assignments.selectClassFirst')}
                             disabled={!form.class_obj || subjectOptions.length === 0}
                             options={subjectOptions} />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Due Date *</label>
+                        <label className="form-label">{t('teacher.assignments.dueDateRequired')}</label>
                         <input className="form-control input-icon-field" type="date" name="due_date" value={form.due_date} onChange={handle} />
                     </div>
                     {form.mode === 'paper' && (
                         <div className="form-group">
-                            <label className="form-label">Max Score *</label>
+                            <label className="form-label">{t('teacher.assignments.maxScoreRequired')}</label>
                             <input className="form-control" type="number" min="1" name="max_score"
-                                value={form.max_score} onChange={handle} placeholder="e.g. 30" />
+                                value={form.max_score} onChange={handle} placeholder={t('teacher.assignments.egThirty')} />
                         </div>
                     )}
                     {form.mode === 'online' && (
                         <>
                             <div className="form-group">
-                                <label className="form-label">Time Limit <span className="label-muted">(minutes, optional)</span></label>
+                                <label className="form-label">{t('teacher.assignments.timeLimit')} <span className="label-muted">{t('teacher.assignments.minutesOptional')}</span></label>
                                 <input className="form-control" type="number" min="1" name="time_limit_minutes"
-                                    value={form.time_limit_minutes} onChange={handle} placeholder="e.g. 30 (leave blank for unlimited)" />
+                                    value={form.time_limit_minutes} onChange={handle} placeholder={t('teacher.assignments.egTimeLimit')} />
                             </div>
                             <div className="form-group shuffle-row">
                                 <input type="checkbox" id="shuffle" name="shuffle_questions"
                                     checked={form.shuffle_questions} onChange={handle}
                                     className="checkbox-sm" />
                                 <label htmlFor="shuffle" className="u-pointer u-sm">
-                                    Shuffle question order per student
+                                    {t('teacher.assignments.shuffleLabel')}
                                 </label>
                             </div>
                         </>
                     )}
                     <div className="form-group">
-                        <label className="form-label">Status</label>
+                        <label className="form-label">{t('common.status')}</label>
                         <FormSelect value={form.status}
                             onChange={v => setForm(p => ({ ...p, status: v }))}
                             placeholder=""
                             options={[
-                                { value: 'draft',  label: 'Save as draft' },
-                                { value: 'active', label: 'Publish now'   },
+                                { value: 'draft',  label: t('teacher.assignments.saveAsDraft') },
+                                { value: 'active', label: t('common.publishNow')              },
                             ]} />
                     </div>
                 </div>
 
                 {form.mode === 'paper' && (
                     <div className="form-group mb-1">
-                        <label className="form-label">Instructions</label>
+                        <label className="form-label">{t('teacher.assignments.instructions')}</label>
                         <textarea className="form-control textarea-sm" name="instructions" value={form.instructions} onChange={handle}
                             placeholder={t('teacher.assignments.describePlaceholder')} />
                     </div>
@@ -1027,7 +1074,7 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
                 {form.mode === 'online' && (
                     <>
                         <div className="quiz-section-header">
-                            <div className="section-label-sm flush">Quiz Questions</div>
+                            <div className="section-label-sm flush">{t('teacher.assignments.quizQuestions')}</div>
                         </div>
                         <QuizBuilder
                             questions={questions}
@@ -1044,7 +1091,8 @@ function AssignmentModal({ initial, onClose, onSave, teacherClasses, classSubjec
 // ── Assignment Card ───────────────────────────────────────────────────────────
 
 function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSubmissions, onGrade, publishing }) {
-    const pill = submissionPill(a)
+    const { t } = useTranslation()
+    const pill = submissionPill(a, t)
     const statusStyle = {
         active: { bg: 'rgba(16,185,129,0.1)',  color: 'var(--success)'          },
         draft:  { bg: 'rgba(245,158,11,0.1)',  color: 'var(--warning)'          },
@@ -1065,21 +1113,21 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                 </div>
                 <div className="asgn-meta">
                     <span className="asgn-meta-text">{a.subject_name} · {a.class_name}</span>
-                    <span className="asgn-meta-text">Due {a.due_date}</span>
-                    <span className="asgn-meta-text">Max: {a.max_score}</span>
-                    {a.time_limit_minutes && <span className="asgn-meta-text">{a.time_limit_minutes} min</span>}
+                    <span className="asgn-meta-text">{t('teacher.assignments.due', { date: a.due_date })}</span>
+                    <span className="asgn-meta-text">{t('teacher.assignments.maxLabel', { score: a.max_score })}</span>
+                    {a.time_limit_minutes && <span className="asgn-meta-text">{t('teacher.assignments.minutesShort', { count: a.time_limit_minutes })}</span>}
                     <span className="asgn-chip" style={{ background: statusStyle.bg, color: statusStyle.color }}>
-                        {a.status.charAt(0).toUpperCase() + a.status.slice(1)}
+                        {STATUS_LABEL_KEYS[a.status] ? t(STATUS_LABEL_KEYS[a.status]) : a.status}
                     </span>
                     <span className="asgn-chip" style={{
                         background: a.mode === 'online' ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
                         color:      a.mode === 'online' ? 'var(--success)'        : '#6366f1',
                     }}>
-                        {a.mode === 'online' ? 'Online' : 'Paper'}
+                        {a.mode === 'online' ? t('teacher.assignments.online') : t('teacher.assignments.paper')}
                     </span>
                     {a.shuffle_questions && (
                         <span className="asgn-chip shuffled">
-                            Shuffled
+                            {t('teacher.assignments.shuffledChip')}
                         </span>
                     )}
                 </div>
@@ -1087,30 +1135,30 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                     {a.status === 'draft' && (
                         <button className="btn btn-sm btn-primary" onClick={() => onPublish(a.id)} disabled={publishing === a.id}>
                             <span className="material-symbols-rounded icon-sm">publish</span>
-                            {publishing === a.id ? 'Publishing…' : 'Publish'}
+                            {publishing === a.id ? t('common.publishing') : t('common.publish')}
                         </button>
                     )}
                     {a.mode === 'online' && a.status === 'active' && (
-                        <button className="btn btn-outline btn-sm" onClick={() => onViewSubmissions(a)} title="View submissions">
+                        <button className="btn btn-outline btn-sm" onClick={() => onViewSubmissions(a)} title={t('teacher.assignments.viewSubmissions')}>
                             <span className="material-symbols-rounded icon-sm">fact_check</span>
-                            Submissions
+                            {t('teacher.assignments.submissions')}
                         </button>
                     )}
                     {a.mode === 'paper' && a.status === 'active' && (
-                        <button className="btn btn-outline btn-sm" onClick={() => onGrade(a)} title="Enter scores">
+                        <button className="btn btn-outline btn-sm" onClick={() => onGrade(a)} title={t('teacher.assignments.enterScores')}>
                             <span className="material-symbols-rounded icon-sm">edit_note</span>
-                            Grade
+                            {t('teacher.assignments.grade')}
                         </button>
                     )}
                     {a.status !== 'closed' && (
-                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(a)} title="Edit">
+                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(a)} title={t('common.edit')}>
                             <span className="material-symbols-rounded icon-sm">edit</span>
                         </button>
                     )}
-                    <button className="btn btn-outline btn-sm" onClick={() => onDuplicate(a)} title="Duplicate">
+                    <button className="btn btn-outline btn-sm" onClick={() => onDuplicate(a)} title={t('common.duplicate')}>
                         <span className="material-symbols-rounded icon-sm">content_copy</span>
                     </button>
-                    <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onDelete(a.id)} title="Delete">
+                    <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onDelete(a.id)} title={t('common.delete')}>
                         <span className="material-symbols-rounded icon-sm">delete</span>
                     </button>
                 </div>
@@ -1122,6 +1170,7 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
 // ── Class filter dropdown ─────────────────────────────────────────────────────
 
 function ClassDropdown({ value, onChange, options }) {
+    const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const ref = useRef(null)
     useEffect(() => {
@@ -1133,12 +1182,12 @@ function ClassDropdown({ value, onChange, options }) {
         <div ref={ref} className="class-dd-wrap">
             <button className="btn btn-outline class-dd-btn" onClick={() => setOpen(o => !o)}>
                 <span className="material-symbols-rounded icon-md">class</span>
-                {value === 'all' ? 'All Classes' : value}
+                {value === 'all' ? t('common.allClasses') : value}
                 <span className="material-symbols-rounded icon-md ml-auto">{open ? 'expand_less' : 'expand_more'}</span>
             </button>
             {open && (
                 <div className="class-dd-menu">
-                    {[{ key: 'all', label: 'All Classes' }, ...options.map(o => ({ key: o, label: o }))].map(item => (
+                    {[{ key: 'all', label: t('common.allClasses') }, ...options.map(o => ({ key: o, label: o }))].map(item => (
                         <button key={item.key} onClick={() => { onChange(item.key); setOpen(false) }}
                             className={`class-dd-opt${value === item.key ? ' active' : ''}`}>
                             {item.label}
@@ -1174,7 +1223,7 @@ export function TeacherAssignments() {
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
     const lastName   = storedUser.last_name  || ''
-    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Teacher'
+    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || t('roles.teacher')
     const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'T'
 
     useEffect(() => {
@@ -1191,7 +1240,7 @@ export function TeacherAssignments() {
                 setSubjects(Array.isArray(subjectList) ? subjectList : [])
                 setAssignments(Array.isArray(asgList) ? asgList : [])
             })
-            .catch(err => setLoadError(err?.message || 'Failed to load.'))
+            .catch(err => setLoadError(err?.message || t('common.loadFailed')))
             .finally(() => setLoading(false))
     }, [])
 
@@ -1220,7 +1269,7 @@ export function TeacherAssignments() {
             }
             setIsOpen(false); setEditing(null)
         } catch (e) {
-            setSaveError(e?.response?.data ? JSON.stringify(e.response.data) : e?.message || 'Failed to save.')
+            setSaveError(e?.response?.data ? JSON.stringify(e.response.data) : e?.message || t('common.saveFailed'))
         } finally {
             setSaving(false)
         }
@@ -1245,7 +1294,7 @@ export function TeacherAssignments() {
     async function handleDuplicate(a) {
         try {
             const created = await createTeacherAssignment({
-                title:              `Copy of ${a.title}`,
+                title:              t('teacher.assignments.copyOf', { title: a.title }),
                 class_obj:          a.class_id,
                 subject:            a.subject_id,
                 mode:               a.mode,
@@ -1295,7 +1344,7 @@ export function TeacherAssignments() {
                     <DashboardHeader
                         title={t('nav.assignments')}
                         subtitle={t('teacher.assignments.subtitle')}
-                        userName={fullName} userRole="Teacher"
+                        userName={fullName} userRole={t('roles.teacher')}
                         userInitials={initials} avatarClass="teacher-av"
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -1310,10 +1359,10 @@ export function TeacherAssignments() {
 
                         <div className="portal-stat-grid mb-1-5">
                             {[
-                                { icon: 'assignment',   value: assignments.length,                                    label: 'Total',          colorClass: ''        },
-                                { icon: 'check_circle', value: assignments.filter(a => a.status === 'active').length, label: 'Active',         colorClass: 'success' },
-                                { icon: 'quiz',         value: assignments.filter(a => a.mode === 'online').length,   label: 'Online Quizzes', colorClass: ''        },
-                                { icon: 'draft',        value: assignments.filter(a => a.status === 'draft').length,  label: 'Drafts',         colorClass: 'warning' },
+                                { icon: 'assignment',   value: assignments.length,                                    label: t('teacher.assignments.statTotal'),         colorClass: ''        },
+                                { icon: 'check_circle', value: assignments.filter(a => a.status === 'active').length, label: t('common.active'),                         colorClass: 'success' },
+                                { icon: 'quiz',         value: assignments.filter(a => a.mode === 'online').length,   label: t('teacher.assignments.statOnlineQuizzes'), colorClass: ''        },
+                                { icon: 'draft',        value: assignments.filter(a => a.status === 'draft').length,  label: t('teacher.assignments.statDrafts'),        colorClass: 'warning' },
                             ].map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
@@ -1324,19 +1373,21 @@ export function TeacherAssignments() {
                                 <button className="btn btn-primary whitespace-nowrap"
                                     onClick={() => { setEditing(null); setSaveError(null); setIsOpen(true) }}>
                                     <span className="material-symbols-rounded icon-sm">add</span>
-                                    New Assignment
+                                    {t('teacher.assignments.newAssignment')}
                                 </button>
                             </div>
                         </div>
 
                         {loading ? (
-                            <EmptyState icon="sync" title="Loading assignments…" description={t('teacher.assignments.fetching')} />
+                            <EmptyState icon="sync" title={t('teacher.assignments.loadingAssignments')} description={t('teacher.assignments.fetching')} />
                         ) : visible.length > 0 ? (
                             <div className="asgn-list-wrap">
                                 <div className="asgn-list-header">
-                                    <span className="asgn-list-count">{visible.length} assignment{visible.length !== 1 ? 's' : ''}</span>
+                                    <span className="asgn-list-count">{t('teacher.assignments.assignmentCount', { count: visible.length })}</span>
                                     <span className="asgn-list-filter">
-                                        {classFilter !== 'all' ? classFilter : 'All Classes'} · {statusFilter !== 'all' ? statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1) : 'All'}
+                                        {classFilter !== 'all' ? classFilter : t('common.allClasses')}
+                                        {' · '}
+                                        {statusFilter !== 'all' ? t(STATUS_LABEL_KEYS[statusFilter]) : t('common.all')}
                                     </span>
                                 </div>
                                 <div className="asgn-list-body">
@@ -1359,16 +1410,18 @@ export function TeacherAssignments() {
                         ) : (
                             <EmptyState
                                 icon={statusFilter === 'draft' ? 'draft' : 'assignment'}
-                                title={statusFilter === 'all' && classFilter === 'all' ? 'No assignments yet' : 'No matching assignments'}
+                                title={statusFilter === 'all' && classFilter === 'all'
+                                    ? t('teacher.assignments.noAssignments')
+                                    : t('teacher.assignments.noMatching')}
                                 description={statusFilter !== 'all' || classFilter !== 'all'
-                                    ? 'Try clearing the filters.'
-                                    : "Click 'New Assignment' to get started."}
+                                    ? t('teacher.assignments.tryClearing')
+                                    : t('teacher.assignments.getStarted')}
                                 secondAction={statusFilter !== 'all' || classFilter !== 'all' ? {
-                                    label: 'Clear Filters', icon: 'filter_alt_off',
+                                    label: t('common.clearFilters'), icon: 'filter_alt_off',
                                     onClick: () => { setStatusFilter('all'); setClassFilter('all') },
                                 } : undefined}
                                 action={statusFilter === 'all' && classFilter === 'all' ? {
-                                    label: 'New Assignment', icon: 'add',
+                                    label: t('teacher.assignments.newAssignment'), icon: 'add',
                                     onClick: () => { setEditing(null); setIsOpen(true) },
                                 } : undefined}
                             />
