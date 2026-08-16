@@ -50,12 +50,13 @@ function HealthStat({ iconClass, icon, value, label }) {
 }
 
 function BedCard({ bed, badgeClass, badge, student, condition, since, isEmpty, recordId, onDischarge, discharging }) {
+    const { t } = useTranslation()
     return (
         <div className={`bed-card ${badgeClass}`}>
             <span className={`bed-badge ${badgeClass}`}>{badge}</span>
             <div className="bed-number">{bed}</div>
             {isEmpty ? (
-                <div className="bed-empty-label">Empty</div>
+                <div className="bed-empty-label">{t('common.empty')}</div>
             ) : (
                 <>
                     <div className="bed-student">{student}</div>
@@ -91,6 +92,7 @@ function HealthHistoryRow({ date, name, conditionTag, complaint, temp, action, s
 }
 
 function MedicationChecklist({ students }) {
+    const { t } = useTranslation()
     const [checklist, setChecklist] = useState(null)
     const [giving, setGiving]       = useState(null)     // "scheduleId|time" in flight
     const [showAdd, setShowAdd]     = useState(false)
@@ -162,7 +164,7 @@ function MedicationChecklist({ students }) {
     return (
         <div className="card mb-1-5">
             <div className="card-header">
-                <h3 className="card-title"><span className="material-symbols-rounded">medication</span> Today&apos;s Medication</h3>
+                <h3 className="card-title"><span className="material-symbols-rounded">medication</span> {t('matron.health.todayMedication')}</h3>
                 <div className="u-row">
                     <OfflineIndicator />
                     {checklist && (
@@ -173,7 +175,7 @@ function MedicationChecklist({ students }) {
                     )}
                     <button className="btn btn-outline btn-sm" onClick={() => setShowAdd(s => !s)}>
                         <span className="material-symbols-rounded icon-sm">add</span>
-                        Add Schedule
+                        {t('matron.health.addSchedule')}
                     </button>
                 </div>
             </div>
@@ -189,27 +191,27 @@ function MedicationChecklist({ students }) {
                             </select>
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-name">Medicine</label>
+                            <label className="form-label" htmlFor="med-name">{t('matron.health.medicine')}</label>
                             <input id="med-name" className="form-input" placeholder="e.g. Amoxicillin"
                                 value={form.medicine_name} onChange={e => setForm(f => ({ ...f, medicine_name: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-dosage">Dosage</label>
+                            <label className="form-label" htmlFor="med-dosage">{t('matron.health.dosage')}</label>
                             <input id="med-dosage" className="form-input" placeholder="e.g. 500mg"
                                 value={form.dosage} onChange={e => setForm(f => ({ ...f, dosage: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-times">Times (comma-separated)</label>
+                            <label className="form-label" htmlFor="med-times">{t('matron.health.times')}</label>
                             <input id="med-times" className="form-input" placeholder="08:00, 13:00, 20:00"
                                 value={form.times} onChange={e => setForm(f => ({ ...f, times: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-start">Start</label>
+                            <label className="form-label" htmlFor="med-start">{t('common.start')}</label>
                             <input id="med-start" type="date" className="form-input"
                                 value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-end">End (optional)</label>
+                            <label className="form-label" htmlFor="med-end">{t('matron.health.endOptional')}</label>
                             <input id="med-end" type="date" className="form-input"
                                 value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
                         </div>
@@ -223,9 +225,9 @@ function MedicationChecklist({ students }) {
                 )}
 
                 {!checklist ? (
-                    <p className="u-muted">Loading medication checklist…</p>
+                    <p className="u-muted">{t('matron.health.loadingChecklist')}</p>
                 ) : items.length === 0 ? (
-                    <p className="u-muted">No medications scheduled for today.</p>
+                    <p className="u-muted">{t('matron.health.noMedications')}</p>
                 ) : (
                     <div className="med-list">
                         {items.map(item => {
@@ -242,7 +244,7 @@ function MedicationChecklist({ students }) {
                                     {item.given ? (
                                         <span className="med-given">
                                             <span className="material-symbols-rounded">check_circle</span>
-                                            Given
+                                            {t('common.given')}
                                         </span>
                                     ) : (
                                         <>
@@ -392,7 +394,7 @@ export const MatronHealth = () => {
 
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">bed</span> Sick Bay: Current Residents</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded">bed</span> {t('matron.health.sickBayResidents')}</h3>
                                 <span className="settings-info-text align-self-center">
                                     {data.stats.beds_total} beds total &middot; {data.stats.beds_occupied} occupied &middot; {data.stats.beds_total - data.stats.beds_occupied} free
                                 </span>
@@ -414,7 +416,7 @@ export const MatronHealth = () => {
 
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">add_circle</span> Log Health Visit</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded">add_circle</span> {t('matron.health.logVisit')}</h3>
                             </div>
                             <div className="card-content">
                                 <div className="health-form-grid">
@@ -430,7 +432,7 @@ export const MatronHealth = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Visit Type</label>
+                                        <label>{t('matron.health.visitType')}</label>
                                         <select value={visitType} onChange={e => setVisitType(e.target.value)}>
                                             <option value="sickbay_admission">Sick Bay Admission</option>
                                             <option value="routine_checkup">Routine Check-up</option>
@@ -449,7 +451,7 @@ export const MatronHealth = () => {
                                         <input type="number" step="0.1" min="35" max="42" placeholder="e.g. 37.4" value={temperature} onChange={e => setTemperature(e.target.value)} />
                                     </div>
                                     <div className="full">
-                                        <label>Complaint / Condition</label>
+                                        <label>{t('matron.health.complaint')}</label>
                                         <input type="text" placeholder="Brief description of presenting complaint…" value={complaint} onChange={e => setComplaint(e.target.value)} />
                                     </div>
                                     <div className="full">

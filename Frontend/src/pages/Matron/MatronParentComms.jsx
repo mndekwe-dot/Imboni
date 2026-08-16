@@ -194,7 +194,7 @@ export function MatronParentComms() {
 
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">add_comment</span> Log New Communication</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded">add_comment</span> {t('matron.parentComms.logNew')}</h3>
                             </div>
                             <div className="card-content">
                                 <div className="comms-form-grid">
@@ -210,11 +210,11 @@ export function MatronParentComms() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Parent / Guardian Contacted</label>
+                                        <label>{t('matron.parentComms.contacted')}</label>
                                         <input type="text" placeholder="e.g. Mr. John Doe (father)" value={parentContact} onChange={e => setParentContact(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label>Communication Type</label>
+                                        <label>{t('matron.parentComms.commType')}</label>
                                         <select value={commType} onChange={e => setCommType(e.target.value)}>
                                             <option value="call">Phone Call</option>
                                             <option value="sms">SMS / WhatsApp</option>
@@ -228,11 +228,11 @@ export function MatronParentComms() {
                                         <input type="datetime-local" value={contactedAt} onChange={e => setContactedAt(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label>Reason / Subject</label>
+                                        <label>{t('matron.parentComms.reason')}</label>
                                         <input type="text" placeholder="e.g. Health update, Conduct concern, Welfare check…" value={subject} onChange={e => setSubject(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label>Outcome / Status</label>
+                                        <label>{t('matron.parentComms.outcome')}</label>
                                         <select value={outcome} onChange={e => setOutcome(e.target.value)}>
                                             <option value="completed">Completed (parent informed)</option>
                                             <option value="no_answer">No Answer (will retry)</option>
@@ -243,11 +243,11 @@ export function MatronParentComms() {
                                         </select>
                                     </div>
                                     <div className="full">
-                                        <label>Notes</label>
+                                        <label>{t('common.notes')}</label>
                                         <textarea placeholder="Summary of what was discussed or agreed upon…" value={notes} onChange={e => setNotes(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label>Follow-up Required?</label>
+                                        <label>{t('matron.parentComms.followUpRequired')}</label>
                                         <select value={followUp} onChange={e => setFollowUp(e.target.value)}>
                                             <option value="no">No</option>
                                             <option value="1day">Yes (follow up in 1 day)</option>
@@ -256,7 +256,7 @@ export function MatronParentComms() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Urgency</label>
+                                        <label>{t('matron.parentComms.urgency')}</label>
                                         <select value={urgency} onChange={e => setUrgency(e.target.value)}>
                                             <option value="routine">Routine</option>
                                             <option value="important">Important</option>

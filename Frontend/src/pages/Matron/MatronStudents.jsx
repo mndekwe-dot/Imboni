@@ -153,14 +153,14 @@ export function MatronStudents() {
                                 <span className="material-symbols-rounded">search</span>
                                 <input
                                     type="text"
-                                    placeholder="Search by name or student ID..."
+                                    placeholder={t('matron.students.search')}
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                 />
                             </div>
                             <div className="toolbar-spacer" />
-                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded icon-sm">download</span> Export</button>
-                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded icon-sm">print</span> Print Roll</button>
+                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}</button>
+                            <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded icon-sm">print</span> {t('matron.students.printRoll')}</button>
                         </div>
 
                         <DataTable
@@ -171,8 +171,8 @@ export function MatronStudents() {
                             columns={['Student','Class','Room','Dormitory','Boarding Type']}
                             renderRow={(student, index) => <StudentRow key={index} {...student} />}
                             emptyIcon="people"
-                            emptyTitle="No students found"
-                            emptyDesc="No students match the selected filters."
+                            emptyTitle={t('common.noStudentsFound')}
+                            emptyDesc={t('common.noStudentsFiltered')}
                         />
 
                     </DashboardContent>
