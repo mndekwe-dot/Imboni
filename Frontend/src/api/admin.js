@@ -54,6 +54,14 @@ export const getStudentTermResults     = (id, params) => client.get(`/imboni/res
 // ── Finance ───────────────────────────────────────────────────────────────────
 export const sendFeeReminders = (data = {}) => client.post('/imboni/analytics/fees/remind/', data)
 
+// School-wide fee totals for a term: billed, collected, outstanding, rate.
+export const getFeesOverview = (params = {}) =>
+    client.get('/imboni/analytics/fees/overview/', { params })
+
+// Students with due / overdue / partial fees this term.
+export const getOutstandingFees = (params = {}) =>
+    client.get('/imboni/analytics/fees/outstanding/', { params })
+
 // ── Audit Log ─────────────────────────────────────────────────────────────────
 export const getAuditLog = (params) => client.get('/imboni/admin/audit/', { params })
 

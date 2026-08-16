@@ -229,6 +229,11 @@ class SchoolSetting(models.Model):
     timezone = models.CharField(max_length=50 ,default='Africa/Kigali')
     school_name = models.CharField(max_length=100,blank=True,default='')
 
+    # ISO 4217 code the school bills in. Amounts were formatted with a literal
+    # in the UI ('KES' in one modal, 'RWF' elsewhere), so a school outside
+    # Rwanda had no way to correct it and the two disagreed with each other.
+    currency = models.CharField(max_length=3, default='RWF')
+
     # How this school divides its academic year: [{code, label, order}].
     # Three terms was hard-coded in AcademicTerm.TERM_CHOICES, which excluded
     # semester (2) and quarter (4) systems. The default keeps existing schools

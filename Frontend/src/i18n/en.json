@@ -19,9 +19,22 @@
       "title": "Admin Dashboard"
     },
     "finance": {
+      "category": "Category",
+      "collected": "Collected",
+      "dueDate": "Due Date",
+      "loading": "Loading fee data…",
+      "noOutstanding": "No outstanding fees this term.",
+      "ofTarget": "{{rate}}% of target",
+      "outstanding": "Outstanding",
+      "outstandingTitle": "Outstanding Fees",
+      "overdueCount": "{{count}} overdue",
+      "quickActions": "Quick Actions",
+      "student": "Student",
       "subtitle": "Fee collection, payments and school budget",
       "subtitleWithTerm": "Fee collection, payments and school budget ({{term}}, {{year}})",
-      "title": "Finance"
+      "title": "Finance",
+      "totalExpected": "Total Fee Expected",
+      "unavailable": "Fee data is unavailable. Check that a term is marked current."
     },
     "reports": {
       "subtitle": "School-wide performance, attendance and enrollment insights",
@@ -76,11 +89,15 @@
     "active": "Active",
     "add": "Add",
     "all": "All",
+    "amount": "Amount",
+    "amountWithCurrency": "Amount ({{currency}}) *",
     "back": "Back",
+    "boys": "Boys",
     "cancel": "Cancel",
     "close": "Close",
     "closed": "Closed",
     "completed": "Completed",
+    "confirm": "Confirm",
     "date": "Date",
     "day": "Day",
     "delete": "Delete",
@@ -91,12 +108,14 @@
     "excused": "Excused",
     "filter": "Filter",
     "full": "Full",
+    "girls": "Girls",
     "grade": "Grade",
     "join": "Join",
     "joining": "Joining…",
     "late": "Late",
     "loading": "Loading…",
     "loadingClasses": "Loading classes…",
+    "new": "New",
     "next": "Next",
     "no": "No",
     "noClassSelected": "No class selected",
@@ -105,11 +124,13 @@
     "pending": "Pending",
     "points": "Points",
     "present": "Present",
+    "publish": "Publish",
     "publishNow": "Publish now",
     "recordedBy": "Recorded By",
     "retry": "Try again",
     "review": "Review",
     "save": "Save",
+    "saveDraft": "Save Draft",
     "saving": "Saving…",
     "score": "Score",
     "search": "Search",
@@ -246,6 +267,16 @@
       "title": "My Students"
     }
   },
+  "messaging": {
+    "backToConversations": "Back to conversations",
+    "loading": "Loading…",
+    "new": "New",
+    "noConversations": "No conversations yet. Tap \"New\" to start one.",
+    "search": "Search messages...",
+    "selectConversation": "Select a conversation to read it.",
+    "title": "Messages",
+    "viewProfile": "View profile"
+  },
   "nav": {
     "activities": "Activities",
     "announcements": "Announcements",
@@ -330,6 +361,13 @@
     "student": "Access your results, timetable, assignments and activities",
     "teacher": "Manage your classes, mark attendance and enter results"
   },
+  "publicNav": {
+    "about": "About",
+    "contact": "Contact",
+    "education": "Education",
+    "pricing": "Pricing",
+    "signUpSchool": "Sign up your school"
+  },
   "roles": {
     "admin": "Administrator",
     "discipline": "Discipline",
@@ -338,6 +376,17 @@
     "parent": "Parent",
     "student": "Student",
     "teacher": "Teacher"
+  },
+  "settings": {
+    "currency": "Currency",
+    "currencyBif": "BIF — Burundian Franc",
+    "currencyDesc": "Used for school fees, payments and financial reports",
+    "currencyEur": "EUR — Euro",
+    "currencyKes": "KES — Kenyan Shilling",
+    "currencyRwf": "RWF — Rwandan Franc",
+    "currencyTzs": "TZS — Tanzanian Shilling",
+    "currencyUgx": "UGX — Ugandan Shilling",
+    "currencyUsd": "USD — US Dollar"
   },
   "sidebar": {
     "closeMenu": "Close menu",

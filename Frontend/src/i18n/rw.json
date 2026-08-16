@@ -19,9 +19,22 @@
       "title": "Imbonerahamwe y'ubuyobozi"
     },
     "finance": {
+      "category": "Icyiciro",
+      "collected": "Yakusanyijwe",
+      "dueDate": "Itariki ntarengwa",
+      "loading": "Amakuru y'amafaranga aratangira…",
+      "noOutstanding": "Nta mafaranga asigaye muri iki gihembwe.",
+      "ofTarget": "{{rate}}% by'intego",
+      "outstanding": "Asigaye",
+      "outstandingTitle": "Amafaranga asigaye",
+      "overdueCount": "{{count}} yarengeje igihe",
+      "quickActions": "Ibikorwa byihuse",
+      "student": "Umunyeshuri",
       "subtitle": "Ikusanya ry'amafaranga, ubwishyu n'ingengo y'imari",
       "subtitleWithTerm": "Ikusanya ry'amafaranga, ubwishyu n'ingengo y'imari ({{term}}, {{year}})",
-      "title": "Imari"
+      "title": "Imari",
+      "totalExpected": "Amafaranga yose ateganyijwe",
+      "unavailable": "Amakuru y'amafaranga ntaboneka. Reba niba hari igihembwe cyagenwe."
     },
     "reports": {
       "subtitle": "Isesengura ry'imikorere, ubwitabire no kwiyandikisha",
@@ -76,11 +89,15 @@
     "active": "Bikora",
     "add": "Ongeraho",
     "all": "Byose",
+    "amount": "Umubare w'amafaranga",
+    "amountWithCurrency": "Umubare w'amafaranga ({{currency}}) *",
     "back": "Subira inyuma",
+    "boys": "Abahungu",
     "cancel": "Reka",
     "close": "Funga",
     "closed": "Byafunzwe",
     "completed": "Byarangiye",
+    "confirm": "Emeza",
     "date": "Itariki",
     "day": "Umunsi",
     "delete": "Siba",
@@ -91,12 +108,14 @@
     "excused": "Yemerewe gusiba",
     "filter": "Shungura",
     "full": "Byuzuye",
+    "girls": "Abakobwa",
     "grade": "Urwego",
     "join": "Injira",
     "joining": "Kwinjira…",
     "late": "Yatinze",
     "loading": "Biratangira…",
     "loadingClasses": "Amashuri aratangira…",
+    "new": "Bishya",
     "next": "Komeza",
     "no": "Oya",
     "noClassSelected": "Nta shuri ryatoranyijwe",
@@ -105,11 +124,13 @@
     "pending": "Bitegereje",
     "points": "Amanota",
     "present": "Yaje",
+    "publish": "Tangaza",
     "publishNow": "Tangaza nonaha",
     "recordedBy": "Byanditswe na",
     "retry": "Ongera ugerageze",
     "review": "Subiramo",
     "save": "Bika",
+    "saveDraft": "Bika umushinga",
     "saving": "Birabikwa…",
     "score": "Amanota",
     "search": "Shakisha",
@@ -246,6 +267,16 @@
       "title": "Abanyeshuri banjye"
     }
   },
+  "messaging": {
+    "backToConversations": "Subira ku biganiro",
+    "loading": "Biratangira…",
+    "new": "Bushya",
+    "noConversations": "Nta biganiro birahari. Kanda \"Bushya\" utangire.",
+    "search": "Shakisha ubutumwa...",
+    "selectConversation": "Hitamo ikiganiro kugira ngo ugisome.",
+    "title": "Ubutumwa",
+    "viewProfile": "Reba umwirondoro"
+  },
   "nav": {
     "activities": "Ibikorwa",
     "announcements": "Amatangazo",
@@ -330,6 +361,13 @@
     "student": "Reba amanota, gahunda, imikoro n'ibikorwa byawe",
     "teacher": "Cunga amashuri yawe, wandike ubwitabire n'amanota"
   },
+  "publicNav": {
+    "about": "Abo turibo",
+    "contact": "Twandikire",
+    "education": "Uburezi",
+    "pricing": "Ibiciro",
+    "signUpSchool": "Iyandikishe ikigo cyawe"
+  },
   "roles": {
     "admin": "Umuyobozi",
     "discipline": "Ushinzwe imyitwarire",
@@ -338,6 +376,17 @@
     "parent": "Umubyeyi",
     "student": "Umunyeshuri",
     "teacher": "Umwarimu"
+  },
+  "settings": {
+    "currency": "Ifaranga",
+    "currencyBif": "BIF — Ifaranga ry'u Burundi",
+    "currencyDesc": "Rikoreshwa ku mafaranga y'ishuri, ubwishyu na raporo z'imari",
+    "currencyEur": "EUR — Iyero",
+    "currencyKes": "KES — Ishilingi rya Kenya",
+    "currencyRwf": "RWF — Ifaranga ry'u Rwanda",
+    "currencyTzs": "TZS — Ishilingi rya Tanzaniya",
+    "currencyUgx": "UGX — Ishilingi rya Uganda",
+    "currencyUsd": "USD — Idolari rya Amerika"
   },
   "sidebar": {
     "closeMenu": "Funga urutonde",

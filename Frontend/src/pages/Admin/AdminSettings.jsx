@@ -295,10 +295,12 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
 // ── Section components ────────────────────────────────────────────────────────
 
 function SchoolInfoSection() {
+    const { t } = useTranslation()
     const toast = useToast()
     const { setting, loading: settingsLoading } = useSchoolSettings()
     const [schoolName, setSchoolName] = useState('')
     const [timezone,   setTimezone]   = useState('Africa/Kigali')
+    const [currency,   setCurrency]   = useState('RWF')
     const [saving,     setSaving]     = useState(false)
     const [saved,      setSaved]      = useState(false)
 
@@ -306,13 +308,14 @@ function SchoolInfoSection() {
         if (!settingsLoading) {
             setSchoolName(setting.school_name || '')
             setTimezone(setting.timezone || 'Africa/Kigali')
+            setCurrency(setting.currency || 'RWF')
         }
     }, [settingsLoading, setting])
 
     async function handleSave() {
         setSaving(true)
         try {
-            await updateSchoolSettings({ school_name: schoolName, timezone })
+            await updateSchoolSettings({ school_name: schoolName, timezone, currency })
             setSaved(true)
             setTimeout(() => setSaved(false), 3000)
         } catch (e) {
@@ -337,6 +340,28 @@ function SchoolInfoSection() {
                         onChange={e => { setSchoolName(e.target.value); setSaved(false) }}
                         placeholder="e.g. Imboni Academy"
                     />
+                </div>
+            </div>
+
+            <div className="settings-block">
+                <div className="settings-block-label">
+                    <p className="settings-block-title">{t('settings.currency')}</p>
+                    <p className="settings-block-desc">{t('settings.currencyDesc')}</p>
+                </div>
+                <div className="settings-block-input-row">
+                    <select
+                        className="disc-picker-select flex-1"
+                        value={currency}
+                        onChange={e => { setCurrency(e.target.value); setSaved(false) }}
+                    >
+                        <option value="RWF">{t('settings.currencyRwf')}</option>
+                        <option value="KES">{t('settings.currencyKes')}</option>
+                        <option value="UGX">{t('settings.currencyUgx')}</option>
+                        <option value="TZS">{t('settings.currencyTzs')}</option>
+                        <option value="BIF">{t('settings.currencyBif')}</option>
+                        <option value="USD">{t('settings.currencyUsd')}</option>
+                        <option value="EUR">{t('settings.currencyEur')}</option>
+                    </select>
                 </div>
             </div>
 
