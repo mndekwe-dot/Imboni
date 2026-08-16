@@ -129,6 +129,7 @@ brackets), not from a generic word list.
 | Loading… (94) | Biratangira… | ok |
 | Records (19) | inyandiko | ok |
 | Report (18) | raporo | OK |
+| Portal | urubuga (pl. imbuga) | ok |
 
 
 ## 9. Weekdays (timetable / attendance columns)
@@ -153,6 +154,14 @@ used instead — unambiguous and still short enough for a table header.
 |---|---|---|
 | Re-read your own submitted quiz | `common.revise` | Subiramo |
 | Assess someone else's work to approve or reject | `dos.results.review` | Suzuma |
+
+## 11. Dates are not strings
+
+Month and weekday names come from `Intl`, not from `rw.json`. Everything goes
+through `src/utils/date.js`, which reads the active language and asks for
+`rw-RW`, falling back to `en-US` if the runtime has no Kinyarwanda data. Never
+hand-roll `toLocaleDateString('en-US', …)` at a call site — it pins that one
+screen to English while the rest of the page switches.
 
 ---
 

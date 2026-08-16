@@ -13,15 +13,16 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { Loading } from '../../components/ui/Loading'
+import { formatDateTime } from '../../utils/date'
 
 
 const OUTCOME_DISPLAY = {
-    completed:      { statusClass: 'completed', status: 'Completed'     },
-    no_answer:      { statusClass: 'pending',   status: 'No Answer'     },
-    message_left:   { statusClass: 'sent',      status: 'Message Left'  },
-    awaiting_reply: { statusClass: 'pending',   status: 'Pending Reply' },
-    sms_sent:       { statusClass: 'sent',      status: 'Sent'          },
-    email_sent:     { statusClass: 'sent',      status: 'Sent'          },
+    completed:      { statusClass: 'completed', statusKey: 'matron.parentComms.outcomeCompleted'   },
+    no_answer:      { statusClass: 'pending',   statusKey: 'matron.parentComms.outcomeNoAnswer'    },
+    message_left:   { statusClass: 'sent',      statusKey: 'matron.parentComms.outcomeMessageLeft' },
+    awaiting_reply: { statusClass: 'pending',   statusKey: 'matron.parentComms.outcomePendingReply' },
+    sms_sent:       { statusClass: 'sent',      statusKey: 'matron.parentComms.outcomeSent'        },
+    email_sent:     { statusClass: 'sent',      statusKey: 'matron.parentComms.outcomeSent'        },
 }
 
 
@@ -37,7 +38,8 @@ function CommsStat({ iconClass, icon, value, label }) {
     )
 }
 
-function CommEntry({ typeClass, typeIcon, student, parent, subject, notes, meta, statusClass, status }) {
+function CommEntry({ typeClass, typeIcon, student, parent, subject, notes, meta, statusClass, statusKey }) {
+    const { t } = useTranslation()
     return (
         <div className="comm-entry">
             <div className={`comm-type-icon ${typeClass}`}><span className="material-symbols-rounded">{typeIcon}</span></div>
@@ -51,7 +53,7 @@ function CommEntry({ typeClass, typeIcon, student, parent, subject, notes, meta,
                 <div className="comm-meta">{meta}</div>
             </div>
             <div className="comm-right">
-                <span className={`comm-status-badge ${statusClass}`}>{status}</span>
+                <span className={`comm-status-badge ${statusClass}`}>{t(statusKey)}</span>
             </div>
         </div>
     )
@@ -136,20 +138,20 @@ export function MatronParentComms() {
             resetForm()
             load()
         } catch (e) {
-            setSaveError(e?.response?.data?.error || e?.message || 'Failed to save log.')
+            setSaveError(e?.response?.data?.error || e?.message || t('matron.parentComms.saveFailed'))
         } finally {
             setSaving(false)
         }
     }
 
     if (loading) return <Loading fullPage />
-    if (error) return <p className="u-pad u-danger">Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     const commsStats = [
-        { iconClass: 'calls',   icon: 'call',    value: data.stats.calls_this_month, label: 'Calls This Month' },
-        { iconClass: 'sms',     icon: 'sms',     value: data.stats.sms_sent,         label: 'SMS Sent'         },
-        { iconClass: 'email',   icon: 'mail',    value: data.stats.emails_sent,      label: 'Emails Sent'      },
-        { iconClass: 'pending', icon: 'pending', value: data.stats.awaiting_reply,   label: 'Awaiting Reply'   },
+        { iconClass: 'calls',   icon: 'call',    value: data.stats.calls_this_month, label: t('matron.parentComms.callsThisMonth') },
+        { iconClass: 'sms',     icon: 'sms',     value: data.stats.sms_sent,         label: t('matron.parentComms.smsSent')        },
+        { iconClass: 'email',   icon: 'mail',    value: data.stats.emails_sent,      label: t('matron.parentComms.emailsSent')     },
+        { iconClass: 'pending', icon: 'pending', value: data.stats.awaiting_reply,   label: t('matron.parentComms.awaitingReply')  },
     ]
 
     const TYPE_ICON = { call: 'call', sms: 'sms', email: 'mail', visit: 'person', letter: 'mail' }
@@ -161,13 +163,16 @@ export function MatronParentComms() {
         parent: entry.parent_contact,
         subject: entry.subject,
         notes: entry.notes,
-        meta: `${new Date(entry.contacted_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}${entry.follow_up_required ? ' · Follow-up due ' + entry.follow_up_date : ''}`,
+        meta: formatDateTime(entry.contacted_at)
+            + (entry.follow_up_required
+                ? ' · ' + t('matron.parentComms.followUpDue', { date: entry.follow_up_date })
+                : ''),
         ...(OUTCOME_DISPLAY[entry.outcome] || OUTCOME_DISPLAY.completed),
     }))
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             <div className="dashboard-layout">
@@ -199,9 +204,9 @@ export function MatronParentComms() {
                             <div className="card-content">
                                 <div className="comms-form-grid">
                                     <div>
-                                        <label>Student</label>
+                                        <label>{t('common.student')}</label>
                                         <select value={studentId} onChange={e => setStudentId(e.target.value)}>
-                                            <option value="">Select student...</option>
+                                            <option value="">{t('common.selectStudent')}</option>
                                             {students.map(s => (
                                                 <option key={s.student_pk} value={s.student_pk}>
                                                     {s.full_name} (S{s.grade}{s.section})
@@ -211,107 +216,107 @@ export function MatronParentComms() {
                                     </div>
                                     <div>
                                         <label>{t('matron.parentComms.contacted')}</label>
-                                        <input type="text" placeholder="e.g. Mr. John Doe (father)" value={parentContact} onChange={e => setParentContact(e.target.value)} />
+                                        <input type="text" placeholder={t('matron.parentComms.egParent')} value={parentContact} onChange={e => setParentContact(e.target.value)} />
                                     </div>
                                     <div>
                                         <label>{t('matron.parentComms.commType')}</label>
                                         <select value={commType} onChange={e => setCommType(e.target.value)}>
-                                            <option value="call">Phone Call</option>
-                                            <option value="sms">SMS / WhatsApp</option>
-                                            <option value="email">Email</option>
-                                            <option value="visit">In-Person Visit</option>
-                                            <option value="letter">Letter</option>
+                                            <option value="call">{t('matron.parentComms.typeCall')}</option>
+                                            <option value="sms">{t('matron.parentComms.typeSms')}</option>
+                                            <option value="email">{t('common.email')}</option>
+                                            <option value="visit">{t('matron.parentComms.typeVisit')}</option>
+                                            <option value="letter">{t('matron.parentComms.typeLetter')}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Date &amp; Time</label>
+                                        <label>{t('common.dateTime')}</label>
                                         <input type="datetime-local" value={contactedAt} onChange={e => setContactedAt(e.target.value)} />
                                     </div>
                                     <div>
                                         <label>{t('matron.parentComms.reason')}</label>
-                                        <input type="text" placeholder="e.g. Health update, Conduct concern, Welfare check…" value={subject} onChange={e => setSubject(e.target.value)} />
+                                        <input type="text" placeholder={t('matron.parentComms.egReason')} value={subject} onChange={e => setSubject(e.target.value)} />
                                     </div>
                                     <div>
                                         <label>{t('matron.parentComms.outcome')}</label>
                                         <select value={outcome} onChange={e => setOutcome(e.target.value)}>
-                                            <option value="completed">Completed (parent informed)</option>
-                                            <option value="no_answer">No Answer (will retry)</option>
-                                            <option value="message_left">Message Left</option>
-                                            <option value="awaiting_reply">Awaiting Parent Reply</option>
-                                            <option value="sms_sent">SMS Sent</option>
-                                            <option value="email_sent">Email Sent</option>
+                                            <option value="completed">{t('matron.parentComms.optCompleted')}</option>
+                                            <option value="no_answer">{t('matron.parentComms.optNoAnswer')}</option>
+                                            <option value="message_left">{t('matron.parentComms.optMessageLeft')}</option>
+                                            <option value="awaiting_reply">{t('matron.parentComms.optAwaitingReply')}</option>
+                                            <option value="sms_sent">{t('matron.parentComms.optSmsSent')}</option>
+                                            <option value="email_sent">{t('matron.parentComms.optEmailSent')}</option>
                                         </select>
                                     </div>
                                     <div className="full">
                                         <label>{t('common.notes')}</label>
-                                        <textarea placeholder="Summary of what was discussed or agreed upon…" value={notes} onChange={e => setNotes(e.target.value)} />
+                                        <textarea placeholder={t('matron.parentComms.notesPlaceholder')} value={notes} onChange={e => setNotes(e.target.value)} />
                                     </div>
                                     <div>
                                         <label>{t('matron.parentComms.followUpRequired')}</label>
                                         <select value={followUp} onChange={e => setFollowUp(e.target.value)}>
-                                            <option value="no">No</option>
-                                            <option value="1day">Yes (follow up in 1 day)</option>
-                                            <option value="3days">Yes (follow up in 3 days)</option>
-                                            <option value="nextweek">Yes (follow up next week)</option>
+                                            <option value="no">{t('common.no')}</option>
+                                            <option value="1day">{t('matron.parentComms.followUp1Day')}</option>
+                                            <option value="3days">{t('matron.parentComms.followUp3Days')}</option>
+                                            <option value="nextweek">{t('matron.parentComms.followUpNextWeek')}</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label>{t('matron.parentComms.urgency')}</label>
                                         <select value={urgency} onChange={e => setUrgency(e.target.value)}>
-                                            <option value="routine">Routine</option>
-                                            <option value="important">Important</option>
-                                            <option value="urgent">Urgent</option>
+                                            <option value="routine">{t('common.routine')}</option>
+                                            <option value="important">{t('common.important')}</option>
+                                            <option value="urgent">{t('common.urgent')}</option>
                                         </select>
                                     </div>
                                 </div>
                                 {saveError && <p className="u-danger u-fs-085">{saveError}</p>}
                                 <div className="btn-row mt-1-5">
                                     <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !studentId || !parentContact.trim() || !subject.trim()}>
-                                        <span className="material-symbols-rounded">save</span> {saving ? 'Saving…' : 'Save Log'}
+                                        <span className="material-symbols-rounded">save</span> {saving ? t('common.saving') : t('matron.parentComms.saveLog')}
                                     </button>
-                                    <button className="btn btn-outline" onClick={resetForm}>Clear</button>
+                                    <button className="btn btn-outline" onClick={resetForm}>{t('common.clear')}</button>
                                 </div>
                             </div>
                         </div>
 
                         <div className="card">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">history</span> Communication Log</h3>
-                                <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded">download</span> Export</button>
+                                <h3 className="card-title"><span className="material-symbols-rounded">history</span> {t('matron.parentComms.log')}</h3>
+                                <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded">download</span> {t('common.export')}</button>
                             </div>
                             <div className="card-content">
                                 <div className="comms-filter-bar">
                                     <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
-                                        <option value="">All Types</option>
-                                        <option value="call">Phone Call</option>
-                                        <option value="sms">SMS / WhatsApp</option>
-                                        <option value="email">Email</option>
-                                        <option value="visit">In-Person Visit</option>
+                                        <option value="">{t('matron.parentComms.allTypes')}</option>
+                                        <option value="call">{t('matron.parentComms.typeCall')}</option>
+                                        <option value="sms">{t('matron.parentComms.typeSms')}</option>
+                                        <option value="email">{t('common.email')}</option>
+                                        <option value="visit">{t('matron.parentComms.typeVisit')}</option>
                                     </select>
                                     <select value={outcomeFilter} onChange={e => setOutcomeFilter(e.target.value)}>
-                                        <option value="">All Statuses</option>
-                                        <option value="completed">Completed</option>
-                                        <option value="awaiting_reply">Pending Reply</option>
-                                        <option value="no_answer">No Answer</option>
-                                        <option value="sms_sent">Sent</option>
+                                        <option value="">{t('matron.parentComms.allStatuses')}</option>
+                                        <option value="completed">{t('common.completed')}</option>
+                                        <option value="awaiting_reply">{t('matron.parentComms.outcomePendingReply')}</option>
+                                        <option value="no_answer">{t('matron.parentComms.outcomeNoAnswer')}</option>
+                                        <option value="sms_sent">{t('common.sent')}</option>
                                     </select>
                                     <select value={studentFilter} onChange={e => setStudentFilter(e.target.value)}>
-                                        <option value="">All Students</option>
+                                        <option value="">{t('common.allStudents')}</option>
                                         {students.map(s => (
                                             <option key={s.student_pk} value={s.student_pk}>{s.full_name}</option>
                                         ))}
                                     </select>
                                     <select value={periodFilter} onChange={e => setPeriodFilter(e.target.value)}>
-                                        <option value="">All Time</option>
-                                        <option value="this_month">This Month</option>
-                                        <option value="last_month">Last Month</option>
-                                        <option value="last_3_months">Last 3 Months</option>
+                                        <option value="">{t('common.allTime')}</option>
+                                        <option value="this_month">{t('common.thisMonth')}</option>
+                                        <option value="last_month">{t('common.lastMonth')}</option>
+                                        <option value="last_3_months">{t('common.last3Months')}</option>
                                     </select>
                                 </div>
 
                                 <div className="comms-list">
                                     {commLog.length === 0
-                                        ? <p className="u-muted u-sm">No communications logged yet.</p>
+                                        ? <p className="u-muted u-sm">{t('matron.parentComms.empty')}</p>
                                         : commLog.map((entry, index) => <CommEntry key={index} {...entry} />)}
                                 </div>
                             </div>

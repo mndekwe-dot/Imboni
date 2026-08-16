@@ -1,110 +1,114 @@
 import '../styles/landing.css'
 import { Link } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import logo from '../assets/images/imboni-logo.png'
 
+// These tables are evaluated once at module load, before a language is known,
+// so they hold translation keys and the component resolves them at render.
 const portals = [
     {
-        title: 'Student Portal',
-        desc: 'Access your timetable, results, assignments, attendance record, and school announcements, all in one place.',
+        titleKey: 'portal.student',
+        descKey: 'landing.portals.studentDesc',
         icon: 'school',
         color: '#0d9488',
         bg: 'rgba(13,148,136,0.1)',
         border: 'rgba(13,148,136,0.25)',
         gradient: 'linear-gradient(135deg, #0d9488, #0891b2)',
-        features: ['Timetable', 'Results', 'Assignments', 'Attendance'],
+        features: ['timetable', 'results', 'assignments', 'attendance'],
     },
     {
-        title: 'Teacher Portal',
-        desc: 'Manage classes, record results, track attendance, and communicate with students effortlessly.',
+        titleKey: 'portal.teacher',
+        descKey: 'landing.portals.teacherDesc',
         icon: 'person_book',
         color: '#0891b2',
         bg: 'rgba(8,145,178,0.09)',
         border: 'rgba(8,145,178,0.22)',
         gradient: 'linear-gradient(135deg, #0891b2, #0369a1)',
-        features: ['Classes', 'Results', 'Attendance', 'Assignments'],
+        features: ['classes', 'results', 'attendance', 'assignments'],
     },
     {
-        title: 'Parent Portal',
-        desc: "Stay informed about your child's academic progress, attendance, behaviour, and school communications.",
+        titleKey: 'portal.parent',
+        descKey: 'landing.portals.parentDesc',
         icon: 'family_restroom',
         color: '#7c3aed',
         bg: 'rgba(124,58,237,0.09)',
         border: 'rgba(124,58,237,0.22)',
         gradient: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-        features: ['Academic Results', 'Attendance', 'Behaviour', 'Messages'],
+        features: ['academicResults', 'attendance', 'behaviour', 'messages'],
     },
     {
-        title: 'Director of Studies',
-        desc: 'Full academic oversight: manage timetables, exam schedules, analytics, and school-wide announcements.',
+        titleKey: 'portal.dos',
+        descKey: 'landing.portals.dosDesc',
         icon: 'manage_accounts',
         color: '#003d7a',
         bg: 'rgba(0,61,122,0.09)',
         border: 'rgba(0,61,122,0.22)',
         gradient: 'linear-gradient(135deg, #003d7a, #005a8f)',
-        features: ['Analytics', 'Timetables', 'Exams', 'Announcements'],
+        features: ['analytics', 'timetables', 'exams', 'announcements'],
     },
     {
-        title: 'Discipline Portal',
-        desc: 'Track student conduct, manage boarding activities, dining schedules, and staff coordination.',
+        titleKey: 'portal.discipline',
+        descKey: 'landing.portals.disDesc',
         icon: 'security',
         color: '#4f46e5',
         bg: 'rgba(79,70,229,0.09)',
         border: 'rgba(79,70,229,0.22)',
         gradient: 'linear-gradient(135deg, #4f46e5, #4338ca)',
-        features: ['Conduct Reports', 'Activities', 'Dining', 'Boarding'],
+        features: ['conductReports', 'activities', 'dining', 'boarding'],
     },
     {
-        title: 'Matron Portal',
-        desc: 'Monitor student health, manage dormitory welfare, record incidents, and liaise with parents.',
+        titleKey: 'portal.matron',
+        descKey: 'landing.portals.matronDesc',
         icon: 'health_and_safety',
         color: '#8b5cf6',
         bg: 'rgba(139,92,246,0.09)',
         border: 'rgba(139,92,246,0.22)',
         gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-        features: ['Health Records', 'Incidents', 'Students', 'Parent Comms'],
+        features: ['healthRecords', 'incidents', 'students', 'parentComms'],
     },
 ]
 
 const features = [
-    { icon: 'sync', title: 'Real-Time Information', desc: 'Results, attendance, and announcements update instantly across all portals.' },
-    { icon: 'lock', title: 'Secure Role-Based Access', desc: 'Every user sees only what they need. School-issued credentials keep data private.' },
-    { icon: 'forum', title: 'Integrated Messaging', desc: 'Direct messaging between teachers, parents, and boarding staff, with no outside apps needed.' },
-    { icon: 'bar_chart', title: 'Academic Analytics', desc: 'A live picture of performance trends, attendance rates, and exam outcomes.' },
-    { icon: 'phone_iphone', title: 'Mobile-Friendly', desc: 'Full experience on any device: phone, tablet, or desktop. No app install needed.' },
-    { icon: 'notifications', title: 'Smart Announcements', desc: 'Important notices reach students, teachers, and parents simultaneously.' },
+    { icon: 'sync',           key: 'realtime'  },
+    { icon: 'lock',           key: 'secure'    },
+    { icon: 'forum',          key: 'messaging' },
+    { icon: 'bar_chart',      key: 'analytics' },
+    { icon: 'phone_iphone',   key: 'mobile'    },
+    { icon: 'notifications',  key: 'smart'     },
 ]
 
 const aboutPoints = [
-    { icon: 'emoji_objects', title: 'Our Mission', desc: 'To simplify school life by connecting every stakeholder (students, teachers, parents, and boarding staff) on one clear and reliable platform.' },
-    { icon: 'groups', title: 'Who We Serve', desc: 'Imboni is built for boarding schools that want to bring clarity, transparency, and efficiency to every part of school operations.' },
-    { icon: 'verified', title: 'Our Commitment', desc: 'We are committed to data privacy, secure access, and building tools that actually match how schools work every day.' },
+    { icon: 'emoji_objects', key: 'mission'    },
+    { icon: 'groups',        key: 'serve'      },
+    { icon: 'verified',      key: 'commitment' },
 ]
 
-const boardingPoints = [
-    'Dormitory welfare monitoring and daily check-ins',
-    'Health record management and sick bay tracking',
-    'Incident reports with parent notification workflow',
-    'House-based student tracking across all boarding houses',
-    'Direct communication channel between Matron and parents',
-    'Structured weekly schedule for all boarding students',
-]
+const boardingPoints = ['point1', 'point2', 'point3', 'point4', 'point5', 'point6']
 
-const boardingPills = ['Karisimbi (Girls)', 'Muhabura (Boys)', 'Bisoke (Girls)', 'Sabyinyo (Boys)']
+const boardingHouses = [
+    { name: 'Karisimbi', groupKey: 'common.girls' },
+    { name: 'Muhabura',  groupKey: 'common.boys'  },
+    { name: 'Bisoke',    groupKey: 'common.girls' },
+    { name: 'Sabyinyo',  groupKey: 'common.boys'  },
+]
 
 const mockNotifs = [
-    { icon: 'priority_high', color: '#ef4444', text: 'Physics Exam moved to Mar 14', time: '2m ago' },
-    { icon: 'school', color: '#0d9488', text: 'Term 2 results now published', time: '1h ago' },
-    { icon: 'event', color: '#f97316', text: 'Parent-Teacher Conf, Mar 20', time: '3h ago' },
+    { icon: 'priority_high', color: '#ef4444', key: 'notif1' },
+    { icon: 'school',        color: '#0d9488', key: 'notif2' },
+    { icon: 'event',         color: '#f97316', key: 'notif3' },
 ]
 
+// Contact details are data, not copy — only the labels are translated.
 const contactItems = [
-    { icon: 'location_on', label: 'Address', value: 'Musanze, Northern Province, Rwanda' },
-    { icon: 'mail', label: 'Email', value: 'ndekwe22@gmail.com' },
-    { icon: 'phone', label: 'Phone', value: '+250 798 650 0692' },
-    { icon: 'schedule', label: 'Hours', value: 'Mon - Fri, 7:30 AM - 5:00 PM' },
+    { icon: 'location_on', labelKey: 'landing.contact.address', valueKey: 'landing.contact.addressValue' },
+    { icon: 'mail',        labelKey: 'common.email',            value: 'info@imboni.edu.rw'              },
+    { icon: 'phone',       labelKey: 'common.phone',            value: '+250 788 000 000'                },
+    { icon: 'schedule',    labelKey: 'landing.contact.hours',   valueKey: 'landing.contact.hoursValue'   },
 ]
 
 export function LandingPage() {
+    const { t } = useTranslation()
+
     return (
         <div className="landing-page">
 
@@ -114,20 +118,20 @@ export function LandingPage() {
                     <div className="landing-nav-logo">
                         <img src={logo} alt="Imboni Logo" />
                     </div>
-                    <span className="landing-nav-name">Imboni <span>Education</span></span>
+                    <span className="landing-nav-name">Imboni <span>{t('publicNav.education')}</span></span>
                 </div>
                 <div className="landing-nav-right">
                     <div className="landing-nav-links">
-                        <a href="#portals">Portals</a>
-                        <a href="#features">Features</a>
-                        <Link to="/pricing">Pricing</Link>
-                        <Link to="/about">About</Link>
-                        <Link to="/contact">Contact</Link>
-                        <Link to="/signup">Sign up your school</Link>
+                        <a href="#portals">{t('publicNav.portals')}</a>
+                        <a href="#features">{t('publicNav.features')}</a>
+                        <Link to="/pricing">{t('publicNav.pricing')}</Link>
+                        <Link to="/about">{t('publicNav.about')}</Link>
+                        <Link to="/contact">{t('publicNav.contact')}</Link>
+                        <Link to="/signup">{t('publicNav.signUpSchool')}</Link>
                     </div>
                     <Link to="/login" className="landing-nav-signin">
                         <span className="material-symbols-rounded">login</span>
-                        Sign In
+                        {t('publicNav.signIn')}
                     </Link>
                 </div>
             </nav>
@@ -142,27 +146,26 @@ export function LandingPage() {
                     <div className="hero-content">
                         <div className="hero-badge">
                             <span className="material-symbols-rounded">verified</span>
-                            Boarding School Management Platform
+                            {t('landing.hero.badge')}
                         </div>
 
                         <h1 className="hero-title">
-                            Every part of<br />
-                            school life,<br />
-                            <span className="accent">connected.</span>
+                            {t('landing.hero.titleLine1')}<br />
+                            {t('landing.hero.titleLine2')}<br />
+                            <span className="accent">{t('landing.hero.titleAccent')}</span>
                         </h1>
 
                         <p className="hero-subtitle">
-                            Imboni brings students, teachers, parents, and boarding staff together
-                            on one unified platform, keeping communication clear and school life running smoothly.
+                            {t('landing.hero.subtitle')}
                         </p>
 
                         <div className="hero-actions">
                             <Link to="/login" className="hero-cta">
-                                Access Your Portal
+                                {t('landing.hero.cta')}
                                 <span className="material-symbols-rounded">arrow_forward</span>
                             </Link>
                             <a href="#about" className="hero-secondary">
-                                Learn more
+                                {t('landing.hero.secondary')}
                             </a>
                         </div>
                     </div>
@@ -181,35 +184,35 @@ export function LandingPage() {
                                     <div className="mockup-avatar">UA</div>
                                     <div>
                                         <div className="mockup-name">Uwase Amina</div>
-                                        <div className="mockup-role">Student · S4A</div>
+                                        <div className="mockup-role">{t('landing.mock.role')}</div>
                                     </div>
                                 </div>
                                 <div className="mockup-stat-row">
                                     <div className="mockup-stat-card" style={{ '--mc': '#0d9488' }}>
                                         <span className="material-symbols-rounded">menu_book</span>
                                         <div className="msc-val">8</div>
-                                        <div className="msc-lbl">Subjects</div>
+                                        <div className="msc-lbl">{t('landing.mock.subjects')}</div>
                                     </div>
                                     <div className="mockup-stat-card" style={{ '--mc': '#f97316' }}>
                                         <span className="material-symbols-rounded">assignment</span>
                                         <div className="msc-val">3</div>
-                                        <div className="msc-lbl">Due Soon</div>
+                                        <div className="msc-lbl">{t('landing.mock.dueSoon')}</div>
                                     </div>
                                     <div className="mockup-stat-card" style={{ '--mc': '#4f46e5' }}>
                                         <span className="material-symbols-rounded">check_circle</span>
                                         <div className="msc-val">94%</div>
-                                        <div className="msc-lbl">Attendance</div>
+                                        <div className="msc-lbl">{t('landing.mock.attendance')}</div>
                                     </div>
                                 </div>
-                                <div className="mockup-notif-label">Recent Notifications</div>
+                                <div className="mockup-notif-label">{t('landing.mock.notifLabel')}</div>
                                 <div className="mockup-notifs">
                                     {mockNotifs.map((n, i) => (
                                         <div key={i} className="mockup-notif">
                                             <div className="mockup-notif-icon" style={{ background: `${n.color}20`, color: n.color }}>
                                                 <span className="material-symbols-rounded">{n.icon}</span>
                                             </div>
-                                            <div className="mockup-notif-text">{n.text}</div>
-                                            <div className="mockup-notif-time">{n.time}</div>
+                                            <div className="mockup-notif-text">{t(`landing.mock.${n.key}`)}</div>
+                                            <div className="mockup-notif-time">{t(`landing.mock.${n.key}Time`)}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -227,22 +230,20 @@ export function LandingPage() {
             {/* ── About ── */}
             <section className="landing-section" id="about">
                 <div className="section-header">
-                    <div className="section-label">About Imboni</div>
-                    <h2 className="section-title">Built around your school community</h2>
+                    <div className="section-label">{t('landing.about.label')}</div>
+                    <h2 className="section-title">{t('landing.about.title')}</h2>
                     <p className="section-subtitle">
-                        Imboni was designed from the ground up for boarding schools,
-                        where students, teachers, parents, and residential staff all need
-                        to stay connected and informed every single day.
+                        {t('landing.about.subtitle')}
                     </p>
                 </div>
                 <div className="about-grid">
                     {aboutPoints.map(p => (
-                        <div key={p.title} className="about-card">
+                        <div key={p.key} className="about-card">
                             <div className="about-card-icon">
                                 <span className="material-symbols-rounded">{p.icon}</span>
                             </div>
-                            <div className="about-card-title">{p.title}</div>
-                            <p className="about-card-desc">{p.desc}</p>
+                            <div className="about-card-title">{t(`landing.about.${p.key}Title`)}</div>
+                            <p className="about-card-desc">{t(`landing.about.${p.key}Desc`)}</p>
                         </div>
                     ))}
                 </div>
@@ -252,10 +253,9 @@ export function LandingPage() {
                     <div className="about-photo-overlay" />
                     <div className="about-photo-content">
                         <blockquote className="about-quote">
-                            "A school runs on communication. Imboni makes sure that communication
-                            is clear, timely, and reaches the right people, every time."
+                            {t('landing.about.quote')}
                         </blockquote>
-                        <div className="about-quote-source">School Administration Team</div>
+                        <div className="about-quote-source">{t('landing.about.quoteSource')}</div>
                     </div>
                 </div>
             </section>
@@ -263,17 +263,16 @@ export function LandingPage() {
             {/* ── Portals ── */}
             <section className="landing-section alt" id="portals">
                 <div className="section-header">
-                    <div className="section-label">Six Portals</div>
-                    <h2 className="section-title">A dedicated view for every role</h2>
+                    <div className="section-label">{t('landing.portals.label')}</div>
+                    <h2 className="section-title">{t('landing.portals.title')}</h2>
                     <p className="section-subtitle">
-                        From classroom results to dormitory welfare, each stakeholder gets
-                        a purpose-built portal tailored to their daily responsibilities.
+                        {t('landing.portals.subtitle')}
                     </p>
                 </div>
                 <div className="portals-grid">
                     {portals.map(p => (
                         <div
-                            key={p.title}
+                            key={p.titleKey}
                             className="portal-card"
                             style={{ '--card-color': p.color, '--card-bg': p.bg, '--card-border': p.border, '--card-gradient': p.gradient }}
                         >
@@ -282,12 +281,12 @@ export function LandingPage() {
                                 <span className="material-symbols-rounded">{p.icon}</span>
                             </div>
                             <div>
-                                <div className="portal-card-title">{p.title}</div>
-                                <p className="portal-card-desc">{p.desc}</p>
+                                <div className="portal-card-title">{t(p.titleKey)}</div>
+                                <p className="portal-card-desc">{t(p.descKey)}</p>
                             </div>
                             <div className="portal-card-features">
                                 {p.features.map(f => (
-                                    <span key={f} className="portal-card-feature">{f}</span>
+                                    <span key={f} className="portal-card-feature">{t(`landing.chip.${f}`)}</span>
                                 ))}
                             </div>
                         </div>
@@ -298,20 +297,20 @@ export function LandingPage() {
             {/* ── Features ── */}
             <section className="landing-section" id="features">
                 <div className="section-header">
-                    <div className="section-label">Platform Features</div>
-                    <h2 className="section-title">Built for how schools actually work</h2>
+                    <div className="section-label">{t('landing.features.label')}</div>
+                    <h2 className="section-title">{t('landing.features.title')}</h2>
                     <p className="section-subtitle">
-                        Imboni handles the communication and record-keeping so staff can focus on students.
+                        {t('landing.features.subtitle')}
                     </p>
                 </div>
                 <div className="features-grid">
                     {features.map(f => (
-                        <div key={f.title} className="feature-item">
+                        <div key={f.key} className="feature-item">
                             <div className="feature-icon">
                                 <span className="material-symbols-rounded">{f.icon}</span>
                             </div>
-                            <div className="feature-title">{f.title}</div>
-                            <p className="feature-desc">{f.desc}</p>
+                            <div className="feature-title">{t(`landing.features.${f.key}Title`)}</div>
+                            <p className="feature-desc">{t(`landing.features.${f.key}Desc`)}</p>
                         </div>
                     ))}
                 </div>
@@ -323,25 +322,25 @@ export function LandingPage() {
                     <div className="boarding-visual">
                         <div className="boarding-visual-badge">
                             <span className="material-symbols-rounded">night_shelter</span>
-                            Boarding Management
+                            {t('landing.boarding.badge')}
                         </div>
                         <p className="boarding-visual-desc">
-                            The Matron and Discipline portals give boarding staff complete oversight
-                            of residential life, from health records to house activities.
+                            {t('landing.boarding.visualDesc')}
                         </p>
                         <div className="boarding-pill-row">
-                            {boardingPills.map(h => (
-                                <span key={h} className="boarding-pill">{h}</span>
+                            {boardingHouses.map(h => (
+                                <span key={h.name} className="boarding-pill">
+                                    {t('landing.boarding.pill', { name: h.name, group: t(h.groupKey) })}
+                                </span>
                             ))}
                         </div>
                         <div className="boarding-visual-glow" />
                     </div>
                     <div>
-                        <div className="section-label">Residential Life</div>
-                        <h2 className="section-title">Complete boarding school oversight</h2>
+                        <div className="section-label">{t('landing.boarding.label')}</div>
+                        <h2 className="section-title">{t('landing.boarding.title')}</h2>
                         <p className="section-subtitle lp-sub-mb-175">
-                            Every boarding house, every student, every incident: tracked and
-                            communicated clearly between staff and parents.
+                            {t('landing.boarding.subtitle')}
                         </p>
                         <ul className="boarding-list">
                             {boardingPoints.map(point => (
@@ -349,7 +348,7 @@ export function LandingPage() {
                                     <div className="boarding-list-icon">
                                         <span className="material-symbols-rounded">check</span>
                                     </div>
-                                    {point}
+                                    {t(`landing.boarding.${point}`)}
                                 </li>
                             ))}
                         </ul>
@@ -361,21 +360,20 @@ export function LandingPage() {
             <section className="landing-section" id="contact">
                 <div className="contact-split">
                     <div>
-                        <div className="section-label">Get In Touch</div>
-                        <h2 className="section-title">We're here to help</h2>
+                        <div className="section-label">{t('landing.contact.label')}</div>
+                        <h2 className="section-title">{t('landing.contact.title')}</h2>
                         <p className="section-subtitle lp-sub-mb-2">
-                            Have a question about accessing your portal, or need support with your
-                            school-issued credentials? Reach out to the school office and we'll assist you.
+                            {t('landing.contact.subtitle')}
                         </p>
                         <div className="contact-items">
                             {contactItems.map(c => (
-                                <div key={c.label} className="contact-item">
+                                <div key={c.labelKey} className="contact-item">
                                     <div className="contact-item-icon">
                                         <span className="material-symbols-rounded">{c.icon}</span>
                                     </div>
                                     <div>
-                                        <div className="contact-item-label">{c.label}</div>
-                                        <div className="contact-item-value">{c.value}</div>
+                                        <div className="contact-item-label">{t(c.labelKey)}</div>
+                                        <div className="contact-item-value">{c.valueKey ? t(c.valueKey) : c.value}</div>
                                     </div>
                                 </div>
                             ))}
@@ -383,33 +381,33 @@ export function LandingPage() {
                     </div>
 
                     <div className="contact-form-card">
-                        <div className="contact-form-title">Send a Message</div>
+                        <div className="contact-form-title">{t('landing.contact.formTitle')}</div>
                         <div className="contact-form-group">
-                            <label className="contact-form-label">Your Name</label>
-                            <input type="text" className="contact-form-input" placeholder="e.g. Uwase Amina" />
+                            <label className="contact-form-label">{t('landing.contact.yourName')}</label>
+                            <input type="text" className="contact-form-input" placeholder={t('landing.contact.namePlaceholder')} />
                         </div>
                         <div className="contact-form-group">
-                            <label className="contact-form-label">Email Address</label>
+                            <label className="contact-form-label">{t('common.emailAddress')}</label>
                             <input type="email" className="contact-form-input" placeholder="your@email.com" />
                         </div>
                         <div className="contact-form-group">
-                            <label className="contact-form-label">Role</label>
+                            <label className="contact-form-label">{t('common.role')}</label>
                             <select className="contact-form-input">
-                                <option value="">Select your role...</option>
-                                <option>Student</option>
-                                <option>Parent / Guardian</option>
-                                <option>Teacher</option>
-                                <option>Staff</option>
-                                <option>Other</option>
+                                <option value="">{t('landing.contact.selectRole')}</option>
+                                <option>{t('common.student')}</option>
+                                <option>{t('landing.contact.roleGuardian')}</option>
+                                <option>{t('common.teacher')}</option>
+                                <option>{t('roles.staff')}</option>
+                                <option>{t('landing.contact.roleOther')}</option>
                             </select>
                         </div>
                         <div className="contact-form-group">
-                            <label className="contact-form-label">Message</label>
-                            <textarea className="contact-form-input" rows={4} placeholder="How can we help you?"></textarea>
+                            <label className="contact-form-label">{t('landing.contact.message')}</label>
+                            <textarea className="contact-form-input" rows={4} placeholder={t('landing.contact.messagePlaceholder')}></textarea>
                         </div>
                         <button className="contact-form-btn">
                             <span className="material-symbols-rounded">send</span>
-                            Send Message
+                            {t('landing.contact.send')}
                         </button>
                     </div>
                 </div>
@@ -420,14 +418,13 @@ export function LandingPage() {
                 <div className="cta-strip-inner">
                     <div className="cta-strip-orb" />
                     <div className="cta-strip-orb cta-strip-orb-2" />
-                    <div className="section-label cta-strip-label">Get Started</div>
-                    <h2 className="cta-strip-title">Ready to sign in?</h2>
+                    <div className="section-label cta-strip-label">{t('landing.cta.label')}</div>
+                    <h2 className="cta-strip-title">{t('landing.cta.title')}</h2>
                     <p className="cta-strip-subtitle">
-                        Use your school-issued credentials to access your portal.
-                        Contact the school office if you need help.
+                        {t('landing.cta.subtitle')}
                     </p>
                     <Link to="/login" className="cta-strip-btn">
-                        Sign In to Your Portal
+                        {t('landing.cta.button')}
                         <span className="material-symbols-rounded">arrow_forward</span>
                     </Link>
                 </div>
@@ -441,16 +438,15 @@ export function LandingPage() {
                             <div className="landing-nav-logo">
                                 <img src={logo} alt="Imboni Logo" />
                             </div>
-                            <span className="footer-brand-name">Imboni <span>Education</span></span>
+                            <span className="footer-brand-name">Imboni <span>{t('publicNav.education')}</span></span>
                         </div>
                         <p className="footer-brand-desc">
-                            A unified school management platform connecting students, teachers,
-                            parents, and boarding staff under one roof.
+                            {t('landing.footer.brandDesc')}
                         </p>
                         <div className="footer-contact">
                             <div className="footer-contact-item">
                                 <span className="material-symbols-rounded">location_on</span>
-                                Musanze, Northern Province, Rwanda
+                                {t('landing.contact.addressValue')}
                             </div>
                             <div className="footer-contact-item">
                                 <span className="material-symbols-rounded">mail</span>
@@ -464,51 +460,51 @@ export function LandingPage() {
                     </div>
 
                     <div className="footer-col">
-                        <div className="footer-col-title">Portals</div>
+                        <div className="footer-col-title">{t('publicNav.portals')}</div>
                         <ul className="footer-col-list">
-                            <li><a href="#portals">Student Portal</a></li>
-                            <li><a href="#portals">Teacher Portal</a></li>
-                            <li><a href="#portals">Parent Portal</a></li>
-                            <li><a href="#portals">Director of Studies</a></li>
-                            <li><a href="#portals">Discipline Portal</a></li>
-                            <li><a href="#portals">Matron Portal</a></li>
+                            <li><a href="#portals">{t('portal.student')}</a></li>
+                            <li><a href="#portals">{t('portal.teacher')}</a></li>
+                            <li><a href="#portals">{t('portal.parent')}</a></li>
+                            <li><a href="#portals">{t('portal.dos')}</a></li>
+                            <li><a href="#portals">{t('portal.discipline')}</a></li>
+                            <li><a href="#portals">{t('portal.matron')}</a></li>
                         </ul>
                     </div>
 
                     <div className="footer-col">
-                        <div className="footer-col-title">Platform</div>
+                        <div className="footer-col-title">{t('landing.footer.platform')}</div>
                         <ul className="footer-col-list">
-                            <li><a href="#features">Real-Time Updates</a></li>
-                            <li><a href="#features">Academic Analytics</a></li>
-                            <li><a href="#features">Announcements</a></li>
-                            <li><a href="#features">Messaging</a></li>
-                            <li><a href="#boarding">Boarding Management</a></li>
-                            <li><a href="#features">Mobile Access</a></li>
+                            <li><a href="#features">{t('landing.footer.realtimeUpdates')}</a></li>
+                            <li><a href="#features">{t('landing.features.analyticsTitle')}</a></li>
+                            <li><a href="#features">{t('landing.chip.announcements')}</a></li>
+                            <li><a href="#features">{t('landing.footer.messaging')}</a></li>
+                            <li><a href="#boarding">{t('landing.boarding.badge')}</a></li>
+                            <li><a href="#features">{t('landing.footer.mobileAccess')}</a></li>
                         </ul>
                     </div>
 
                     <div className="footer-col">
-                        <div className="footer-col-title">School</div>
+                        <div className="footer-col-title">{t('landing.footer.school')}</div>
                         <ul className="footer-col-list">
-                            <li><Link to="/about">About Imboni</Link></li>
-                            <li><Link to="/pricing">Pricing</Link></li>
-                            <li><Link to="/contact">Contact Us</Link></li>
-                            <li><Link to="/privacy">Privacy Policy</Link></li>
-                            <li><Link to="/terms">Terms of Use</Link></li>
-                            <li><Link to="/login">Sign In</Link></li>
-                            <li><Link to="/find-school">Find your school</Link></li>
+                            <li><Link to="/about">{t('publicNav.aboutImboni')}</Link></li>
+                            <li><Link to="/pricing">{t('publicNav.pricing')}</Link></li>
+                            <li><Link to="/contact">{t('publicNav.contactUs')}</Link></li>
+                            <li><Link to="/privacy">{t('auth.privacyPolicy')}</Link></li>
+                            <li><Link to="/terms">{t('publicNav.termsOfUse')}</Link></li>
+                            <li><Link to="/login">{t('publicNav.signIn')}</Link></li>
+                            <li><Link to="/find-school">{t('publicNav.findSchool')}</Link></li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="footer-bottom">
-                    <span>&copy; {new Date().getFullYear()} Imboni Education Connects. All rights reserved.</span>
+                    <span>{t('landing.footer.copyright', { year: new Date().getFullYear() })}</span>
                     {/* Cookies dropped: there is no cookie policy to link to, and a
                         dead link in the footer of a product handling children's data
                         reads worse than an absent one. */}
                     <div className="footer-bottom-links">
-                        <Link to="/privacy">Privacy</Link>
-                        <Link to="/terms">Terms</Link>
+                        <Link to="/privacy">{t('publicNav.privacy')}</Link>
+                        <Link to="/terms">{t('publicNav.terms')}</Link>
                     </div>
                 </div>
             </footer>
