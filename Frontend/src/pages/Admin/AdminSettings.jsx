@@ -63,11 +63,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
     }
 
     async function handleAddLesson() {
-        if (!lessonName.trim() || !lessonCode.trim()) { setLessonErr(t('admin.settings.nameCodeRequired')); return }
+        if (!lessonName.trim() || !lessonCode.trim()) { setLessonErr(t('settings.nameCodeRequired')); return }
         try {
             await onAddLesson(lessonName.trim(), lessonCode.trim().toUpperCase(), typeName)
             setLessonName(''); setLessonCode(''); setLessonErr('')
-        } catch (e) { setLessonErr(e.message || t('admin.settings.addLessonFailed')) }
+        } catch (e) { setLessonErr(e.message || t('settings.addLessonFailed')) }
     }
 
     function commitLessonRename(id) {
@@ -90,12 +90,12 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 ) : (
                     <>
                         <span className="adm-type-title">{typeName}</span>
-                        <span className="adm-set-count u-fs-075">{t('admin.settings.lessonCount', { count: subjects.length })}</span>
-                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title={t('admin.settings.renameType')}>
+                        <span className="adm-set-count u-fs-075">{t('settings.lessonCount', { count: subjects.length })}</span>
+                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')}>
                             <span className="material-symbols-rounded u-fs-1">edit</span>
                         </button>
                         <div className="adm-spacer" />
-                        <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title={t('admin.settings.deleteType')}>
+                        <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title={t('settings.deleteType')}>
                             <span className="material-symbols-rounded u-fs-1">delete</span>
                         </button>
                     </>
@@ -128,19 +128,19 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 </div>
             ))}
 
-            {subjects.length === 0 && <p className="adm-lesson-empty">{t('admin.settings.noLessons')}</p>}
+            {subjects.length === 0 && <p className="adm-lesson-empty">{t('settings.noLessons')}</p>}
 
             <div className="adm-lesson-add">
                 <input className="form-input adm-input-lesson"
                     value={lessonName} onChange={e => setLessonName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder={t('admin.settings.lessonNamePlaceholder')} />
+                    placeholder={t('settings.lessonNamePlaceholder')} />
                 <input className="form-input adm-input-code"
                     value={lessonCode} onChange={e => setLessonCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder={t('admin.settings.lessonCodePlaceholder')} />
+                    placeholder={t('settings.lessonCodePlaceholder')} />
                 <button className="btn btn-outline btn-sm" onClick={handleAddLesson}>
-                    <span className="material-symbols-rounded icon-sm">add</span> {t('admin.settings.lesson')}
+                    <span className="material-symbols-rounded icon-sm">add</span> {t('settings.lesson')}
                 </button>
             </div>
             {lessonErr && <p className="adm-inline-err">{lessonErr}</p>}
@@ -223,8 +223,8 @@ function SchoolInfoSection() {
 
             <div className="settings-block">
                 <div className="settings-block-label">
-                    <p className="settings-block-title">{t('admin.settings.timezone')}</p>
-                    <p className="settings-block-desc">{t('admin.settings.timezoneDesc')}</p>
+                    <p className="settings-block-title">{t('settings.timezone')}</p>
+                    <p className="settings-block-desc">{t('settings.timezoneDesc')}</p>
                 </div>
                 <div className="settings-block-input-row">
                     <select
@@ -232,33 +232,33 @@ function SchoolInfoSection() {
                         value={timezone}
                         onChange={e => { setTimezone(e.target.value); setSaved(false) }}
                     >
-                        <optgroup label={t('admin.settings.tzEastAfrica')}>
+                        <optgroup label={t('settings.tzEastAfrica')}>
                             <option value="Africa/Kigali">Africa/Kigali (Rwanda, UTC+3)</option>
                             <option value="Africa/Nairobi">Africa/Nairobi (Kenya, Uganda, Tanzania, UTC+3)</option>
                             <option value="Africa/Kampala">Africa/Kampala (Uganda, UTC+3)</option>
                             <option value="Africa/Dar_es_Salaam">Africa/Dar_es_Salaam (Tanzania, UTC+3)</option>
                             <option value="Africa/Addis_Ababa">Africa/Addis_Ababa (Ethiopia, UTC+3)</option>
                         </optgroup>
-                        <optgroup label={t('admin.settings.tzWestAfrica')}>
+                        <optgroup label={t('settings.tzWestAfrica')}>
                             <option value="Africa/Lagos">Africa/Lagos (Nigeria, UTC+1)</option>
                             <option value="Africa/Accra">Africa/Accra (Ghana, UTC+0)</option>
                             <option value="Africa/Abidjan">Africa/Abidjan (Ivory Coast, UTC+0)</option>
                             <option value="Africa/Dakar">Africa/Dakar (Senegal, UTC+0)</option>
                         </optgroup>
-                        <optgroup label={t('admin.settings.tzSouthernAfrica')}>
+                        <optgroup label={t('settings.tzSouthernAfrica')}>
                             <option value="Africa/Johannesburg">Africa/Johannesburg (South Africa, UTC+2)</option>
                             <option value="Africa/Harare">Africa/Harare (Zimbabwe, UTC+2)</option>
                             <option value="Africa/Lusaka">Africa/Lusaka (Zambia, UTC+2)</option>
                         </optgroup>
-                        <optgroup label={t('admin.settings.tzNorthAfrica')}>
+                        <optgroup label={t('settings.tzNorthAfrica')}>
                             <option value="Africa/Cairo">Africa/Cairo (Egypt, UTC+2)</option>
                             <option value="Africa/Casablanca">Africa/Casablanca (Morocco, UTC+1)</option>
                         </optgroup>
-                        <optgroup label={t('admin.settings.tzEurope')}>
+                        <optgroup label={t('settings.tzEurope')}>
                             <option value="Europe/London">Europe/London (UK, UTC+0/+1)</option>
                             <option value="Europe/Paris">Europe/Paris (France, Belgium, UTC+1/+2)</option>
                         </optgroup>
-                        <optgroup label={t('admin.settings.tzAmericas')}>
+                        <optgroup label={t('settings.tzAmericas')}>
                             <option value="America/New_York">America/New_York (US East, UTC-5/-4)</option>
                             <option value="America/Los_Angeles">America/Los_Angeles (US West, UTC-8/-7)</option>
                         </optgroup>
@@ -269,7 +269,7 @@ function SchoolInfoSection() {
             <div>
                 <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
                     <span className="material-symbols-rounded">{saved ? 'check' : 'save'}</span>
-                    {saved ? t('admin.settings.savedBang') : saving ? t('common.saving') : t('admin.settings.saveChanges')}
+                    {saved ? t('settings.savedBang') : saving ? t('common.saving') : t('admin.settings.saveChanges')}
                 </button>
             </div>
         </div>
@@ -283,7 +283,7 @@ function SubjectsSection() {
     const [newTypeName, setNewTypeName] = useState('')
 
     useEffect(() => {
-        getSubjects().then(setSubjects).catch(e => toast.error(errorMessage(e, t('admin.settings.loadSubjectsFailed'))))
+        getSubjects().then(setSubjects).catch(e => toast.error(errorMessage(e, t('settings.loadSubjectsFailed'))))
     }, [])
 
     function handleAddType() {
@@ -335,14 +335,14 @@ function SubjectsSection() {
         <div>
             <div className="u-row-sm u-mb">
                 <span className="adm-set-count">
-                    {t('admin.settings.typeCount', { count: typeCount })} · {t('admin.settings.lessonCount', { count: lessonCount })}
+                    {t('settings.typeCount', { count: typeCount })} · {t('settings.lessonCount', { count: lessonCount })}
                 </span>
             </div>
 
             <div className="settings-block">
                 <div className="settings-block-label">
-                    <p className="settings-block-title">{t('admin.settings.addSubjectType')}</p>
-                    <p className="settings-block-desc">{t('admin.settings.addSubjectTypeDesc')}</p>
+                    <p className="settings-block-title">{t('settings.addSubjectType')}</p>
+                    <p className="settings-block-desc">{t('settings.addSubjectTypeDesc')}</p>
                 </div>
                 <div className="settings-block-input-row u-mt-sm">
                     <input
@@ -350,10 +350,10 @@ function SubjectsSection() {
                         value={newTypeName}
                         onChange={e => setNewTypeName(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleAddType()}
-                        placeholder={t('admin.settings.egSciences')}
+                        placeholder={t('settings.egSciences')}
                     />
                     <button className="btn btn-primary btn-sm" onClick={handleAddType}>
-                        <span className="material-symbols-rounded icon-sm">add</span> {t('admin.settings.addType')}
+                        <span className="material-symbols-rounded icon-sm">add</span> {t('settings.addType')}
                     </button>
                 </div>
             </div>
@@ -373,7 +373,7 @@ function SubjectsSection() {
 
             {typeCount === 0 && (
                 <p className="u-muted u-sm u-mt-075">
-                    {t('admin.settings.noTypes')}
+                    {t('settings.noTypes')}
                 </p>
             )}
         </div>
@@ -388,21 +388,21 @@ function RoomsSection() {
     const [roomErr,   setRoomErr]   = useState('')
 
     useEffect(() => {
-        getDosRooms().then(data => setRooms(data)).catch(e => toast.error(errorMessage(e, t('admin.settings.loadRoomsFailed'))))
+        getDosRooms().then(data => setRooms(data)).catch(e => toast.error(errorMessage(e, t('settings.loadRoomsFailed'))))
     }, [])
 
     async function handleAddRoom() {
         const name = roomInput.trim()
         if (!name) return
         if (rooms.some(r => r.name.toLowerCase() === name.toLowerCase())) {
-            setRoomErr(t('admin.settings.roomExists')); return
+            setRoomErr(t('settings.roomExists')); return
         }
         try {
             const newRoom = await createDosRoom(name)
             setRooms(prev => [...prev, newRoom].sort((a, b) => a.name.localeCompare(b.name)))
             setRoomInput('')
             setRoomErr('')
-        } catch (e) { setRoomErr(e.message || t('admin.settings.addRoomFailed')) }
+        } catch (e) { setRoomErr(e.message || t('settings.addRoomFailed')) }
     }
 
     async function handleDeleteRoom(id) {
@@ -410,7 +410,7 @@ function RoomsSection() {
             await deleteDosRoom(id)
             setRooms(prev => prev.filter(r => r.id !== id))
         } catch (e) {
-            toast.error(errorMessage(e, t('admin.settings.deleteRoomFailed')))
+            toast.error(errorMessage(e, t('settings.deleteRoomFailed')))
         }
     }
 
@@ -418,8 +418,8 @@ function RoomsSection() {
         <div>
             <div className="settings-block">
                 <div className="settings-block-label">
-                    <p className="settings-block-title">{t('admin.settings.addRoom')}</p>
-                    <p className="settings-block-desc">{t('admin.settings.addRoomDesc')}</p>
+                    <p className="settings-block-title">{t('settings.addRoom')}</p>
+                    <p className="settings-block-desc">{t('settings.addRoomDesc')}</p>
                 </div>
                 <div className="settings-block-input-row u-mt-sm">
                     <input
@@ -427,7 +427,7 @@ function RoomsSection() {
                         value={roomInput}
                         onChange={e => { setRoomInput(e.target.value); setRoomErr('') }}
                         onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
-                        placeholder={t('admin.settings.roomPlaceholder')}
+                        placeholder={t('settings.roomPlaceholder')}
                     />
                     <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
                         <span className="material-symbols-rounded icon-sm">add</span> {t('common.add')}
@@ -446,11 +446,11 @@ function RoomsSection() {
                         </button>
                     </span>
                 ))}
-                {rooms.length === 0 && <span className="tag-chip-empty">{t('admin.settings.noRooms')}</span>}
+                {rooms.length === 0 && <span className="tag-chip-empty">{t('settings.noRooms')}</span>}
             </div>
 
             <p className="u-xs u-muted u-mt">
-                {t('admin.settings.roomCount', { count: rooms.length })}
+                {t('settings.roomCount', { count: rooms.length })}
             </p>
         </div>
     )
