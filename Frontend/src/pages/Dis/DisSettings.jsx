@@ -19,32 +19,35 @@ import { disNavItems, disSecondaryItems } from './disNav'
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const FACILITY_TYPES = [
-    { key: 'dormitory',   label: 'Dormitory',       icon: 'hotel',            genderRelevant: true  },
-    { key: 'dining_hall', label: 'Dining Hall',      icon: 'restaurant',       genderRelevant: false },
-    { key: 'common_room', label: 'Common Room',      icon: 'living',           genderRelevant: false },
-    { key: 'medical',     label: 'Medical Room',     icon: 'medical_services', genderRelevant: false },
-    { key: 'sports',      label: 'Sports Facility',  icon: 'sports_soccer',    genderRelevant: false },
-    { key: 'library',     label: 'Library',          icon: 'menu_book',        genderRelevant: false },
-    { key: 'other',       label: 'Other',            icon: 'category',         genderRelevant: false },
+    { key: 'dormitory',   labelKey: 'dis.settings.typeDormitory',  icon: 'hotel',            genderRelevant: true  },
+    { key: 'dining_hall', labelKey: 'dis.settings.typeDiningHall', icon: 'restaurant',       genderRelevant: false },
+    { key: 'common_room', labelKey: 'dis.settings.typeCommonRoom', icon: 'living',           genderRelevant: false },
+    { key: 'medical',     labelKey: 'dis.settings.typeMedical',    icon: 'medical_services', genderRelevant: false },
+    { key: 'sports',      labelKey: 'dis.settings.typeSports',     icon: 'sports_soccer',    genderRelevant: false },
+    { key: 'library',     labelKey: 'dis.settings.typeLibrary',    icon: 'menu_book',        genderRelevant: false },
+    { key: 'other',       labelKey: 'dis.settings.typeOther',      icon: 'category',         genderRelevant: false },
 ]
 
 const GENDER_OPTIONS = [
-    { value: 'boys',  label: 'Boys'           },
-    { value: 'girls', label: 'Girls'          },
-    { value: 'mixed', label: 'Mixed / Shared' },
-    { value: 'na',    label: 'Not Applicable' },
+    { value: 'boys',  labelKey: 'dis.settings.genderBoys'  },
+    { value: 'girls', labelKey: 'dis.settings.genderGirls' },
+    { value: 'mixed', labelKey: 'dis.settings.genderMixed' },
+    { value: 'na',    labelKey: 'dis.settings.genderNa'    },
 ]
 
+// The badge shows a shorter word than the form option ('Mixed', not
+// 'Mixed / Shared'), and 'na' deliberately has no badge at all.
 const GENDER_BADGE = {
-    boys:  { cls: 'info',    label: 'Boys'  },
-    girls: { cls: 'warning', label: 'Girls' },
-    mixed: { cls: 'success', label: 'Mixed' },
-    na:    { cls: '',        label: ''      },
+    boys:  { cls: 'info',    labelKey: 'dis.settings.genderBoys'       },
+    girls: { cls: 'warning', labelKey: 'dis.settings.genderGirls'      },
+    mixed: { cls: 'success', labelKey: 'dis.settings.genderMixedShort' },
+    na:    { cls: '',        labelKey: null                            },
 }
 
 // ── Section Modal ─────────────────────────────────────────────────────────────
 
 function SectionModal({ section, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEditing = !!section
     const [form, setForm] = useState({
         name:        section?.name        || '',
@@ -60,7 +63,7 @@ function SectionModal({ section, onClose, onSave }) {
     }, [])
 
     async function handleSave() {
-        if (!form.name.trim()) { setError('Section name is required.'); return }
+        if (!form.name.trim()) { setError(t('dis.settings.sectionNameMissing')); return }
         setSaving(true); setError(null)
         try {
             await onSave({ name: form.name.trim(), gender: form.gender, description: form.description })
@@ -76,38 +79,38 @@ function SectionModal({ section, onClose, onSave }) {
                         <span className="material-symbols-rounded disc-modal-icon">
                             {isEditing ? 'edit' : 'add_circle'}
                         </span>
-                        <h2 className="modal-title">{isEditing ? 'Edit Section' : 'Add Section'}</h2>
+                        <h2 className="modal-title">{isEditing ? t('dis.settings.editSection') : t('dis.settings.addSection')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
                 <div className="modal-body">
                     <div className="form-group">
-                        <label className="form-label">Section Name *</label>
+                        <label className="form-label">{t('dis.settings.sectionNameRequired')}</label>
                         <input className="form-input" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                            placeholder="e.g. Boys Section, Girls Wing" autoFocus />
+                            placeholder={t('dis.settings.sectionNamePlaceholder')} autoFocus />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Gender</label>
+                        <label className="form-label">{t('dis.settings.gender')}</label>
                         <div className="disc-gender-options">
                             {GENDER_OPTIONS.map(g => (
                                 <label key={g.value} className={`disc-gender-opt${form.gender === g.value ? ' active' : ''}`}>
                                     <input type="radio" value={g.value} checked={form.gender === g.value} onChange={() => setForm(p => ({ ...p, gender: g.value }))} className="disc-gender-radio" />
-                                    {g.label}
+                                    {t(g.labelKey)}
                                 </label>
                             ))}
                         </div>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Description (optional)</label>
-                        <textarea className="form-input form-textarea" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows="2" placeholder="Brief description…" />
+                        <label className="form-label">{t('dis.settings.descriptionOptional')}</label>
+                        <textarea className="form-input form-textarea" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows="2" placeholder={t('dis.settings.descriptionPlaceholder')} />
                     </div>
                     {error && <p className="form-error-text">{error}</p>}
                 </div>
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !form.name.trim()}>
                         <span className="material-symbols-rounded">{isEditing ? 'save' : 'add_circle'}</span>
-                        {saving ? 'Saving…' : isEditing ? 'Save Changes' : 'Add Section'}
+                        {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('dis.settings.addSection')}
                     </button>
                 </div>
             </div>
@@ -118,6 +121,7 @@ function SectionModal({ section, onClose, onSave }) {
 // ── Section Card ──────────────────────────────────────────────────────────────
 
 function SectionCard({ section, dormCount, onEdit, onDelete }) {
+    const { t } = useTranslation()
     const [confirm, setConfirm] = useState(false)
     const gBadge = GENDER_BADGE[section.gender] || GENDER_BADGE.na
 
@@ -129,16 +133,16 @@ function SectionCard({ section, dormCount, onEdit, onDelete }) {
             <div className="disc-fill">
                 <div className="disc-row-title">{section.name}</div>
                 <div className="u-xs u-muted">
-                    {dormCount} dormitor{dormCount === 1 ? 'y' : 'ies'}
+                    {t('dis.settings.dormCount', { count: dormCount })}
                     {section.description && ` · ${section.description}`}
                 </div>
             </div>
-            {gBadge.label && <span className={`pub-badge ${gBadge.cls}`}>{gBadge.label}</span>}
+            {gBadge.labelKey && <span className={`pub-badge ${gBadge.cls}`}>{t(gBadge.labelKey)}</span>}
             {confirm ? (
                 <div className="disc-confirm-row">
-                    <span className="text-xs-muted">Delete?</span>
-                    <button className="btn btn-primary btn-sm" onClick={() => onDelete(section.id)}>Yes</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => setConfirm(false)}>No</button>
+                    <span className="text-xs-muted">{t('common.deleteConfirm')}</span>
+                    <button className="btn btn-primary btn-sm" onClick={() => onDelete(section.id)}>{t('common.yes')}</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => setConfirm(false)}>{t('common.no')}</button>
                 </div>
             ) : (
                 <div className="disc-btn-row">
@@ -146,7 +150,7 @@ function SectionCard({ section, dormCount, onEdit, onDelete }) {
                         <span className="material-symbols-rounded icon-sm">delete</span>
                     </button>
                     <button className="btn btn-primary btn-sm" onClick={() => onEdit(section)}>
-                        <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                        <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                     </button>
                 </div>
             )}
@@ -157,6 +161,7 @@ function SectionCard({ section, dormCount, onEdit, onDelete }) {
 // ── Facility Modal ────────────────────────────────────────────────────────────
 
 function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEditing = !!facility
     const [form, setForm] = useState({
         name:          facility?.name          || '',
@@ -179,7 +184,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
         setForm(prev => ({ ...prev, [name]: value }))
     }
 
-    const typeInfo = FACILITY_TYPES.find(t => t.key === form.facility_type)
+    const typeInfo = FACILITY_TYPES.find(ft => ft.key === form.facility_type)
 
     async function handleSave() {
         if (!form.name.trim()) { setError('Name is required.'); return }
@@ -205,27 +210,27 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                         <span className="material-symbols-rounded disc-modal-icon">
                             {isEditing ? 'edit' : 'add_circle'}
                         </span>
-                        <h2 className="modal-title">{isEditing ? 'Edit Facility' : 'Add Facility'}</h2>
+                        <h2 className="modal-title">{isEditing ? t('dis.settings.editFacility') : t('dis.settings.addFacility')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
                 <div className="modal-body">
                     <div className="form-group">
-                        <label className="form-label">Facility Name *</label>
-                        <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder="e.g. Bisoke" autoFocus />
+                        <label className="form-label">{t('dis.settings.facilityNameRequired')}</label>
+                        <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('dis.settings.facilityNamePlaceholder')} autoFocus />
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Type *</label>
+                            <label className="form-label">{t('dis.settings.typeRequired')}</label>
                             <select className="form-input" name="facility_type" value={form.facility_type} onChange={handleChange} disabled={isEditing}>
-                                {FACILITY_TYPES.map(t => (
-                                    <option key={t.key} value={t.key}>{t.label}</option>
+                                {FACILITY_TYPES.map(ft => (
+                                    <option key={ft.key} value={ft.key}>{t(ft.labelKey)}</option>
                                 ))}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Capacity</label>
-                            <input className="form-input" type="number" name="capacity" value={form.capacity} onChange={handleChange} placeholder="e.g. 60" min="1" />
+                            <label className="form-label">{t('dis.settings.capacity')}</label>
+                            <input className="form-input" type="number" name="capacity" value={form.capacity} onChange={handleChange} placeholder={t('dis.settings.capacityPlaceholder')} min="1" />
                         </div>
                     </div>
 
@@ -234,9 +239,9 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                         <>
                             {sections.length > 0 && (
                                 <div className="form-group">
-                                    <label className="form-label">Section</label>
+                                    <label className="form-label">{t('common.section')}</label>
                                     <select className="form-input" name="section" value={form.section || ''} onChange={handleChange}>
-                                        <option value="">No section</option>
+                                        <option value="">{t('dis.settings.noSection')}</option>
                                         {sections.map(s => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}
@@ -244,12 +249,12 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                                 </div>
                             )}
                             <div className="form-group">
-                                <label className="form-label">Gender Designation</label>
+                                <label className="form-label">{t('dis.settings.genderDesignation')}</label>
                                 <div className="disc-gender-options">
                                     {GENDER_OPTIONS.filter(g => g.value !== 'na').map(g => (
                                         <label key={g.value} className={`disc-gender-opt${form.gender === g.value ? ' active' : ''}`}>
                                             <input type="radio" name="gender" value={g.value} checked={form.gender === g.value} onChange={handleChange} className="disc-gender-radio" />
-                                            {g.label}
+                                            {t(g.labelKey)}
                                         </label>
                                     ))}
                                 </div>
@@ -258,16 +263,16 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                     )}
 
                     <div className="form-group">
-                        <label className="form-label">Description (optional)</label>
-                        <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="2" placeholder="Brief description or notes…" />
+                        <label className="form-label">{t('dis.settings.descriptionOptional')}</label>
+                        <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="2" placeholder={t('dis.settings.facilityDescPlaceholder')} />
                     </div>
                     {error && <p className="form-error-text">{error}</p>}
                 </div>
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !form.name.trim()}>
                         <span className="material-symbols-rounded">{isEditing ? 'save' : 'add_circle'}</span>
-                        {saving ? 'Saving…' : isEditing ? 'Save Changes' : 'Add Facility'}
+                        {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('dis.settings.addFacility')}
                     </button>
                 </div>
             </div>
@@ -278,8 +283,9 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
 // ── Facility Card ─────────────────────────────────────────────────────────────
 
 function FacilityCard({ facility, sections, onEdit, onDelete }) {
+    const { t } = useTranslation()
     const [confirmDelete, setConfirmDelete] = useState(false)
-    const typeInfo  = FACILITY_TYPES.find(t => t.key === facility.facility_type)
+    const typeInfo  = FACILITY_TYPES.find(ft => ft.key === facility.facility_type)
     const gBadge    = GENDER_BADGE[facility.gender] || GENDER_BADGE.na
     const secName   = facility.section_name || null
 
@@ -291,10 +297,10 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
                 </div>
                 <div>
                     <div className="staff-card-name">{facility.name}</div>
-                    <div className="staff-card-role">{typeInfo?.label || facility.facility_type}</div>
+                    <div className="staff-card-role">{typeInfo ? t(typeInfo.labelKey) : facility.facility_type}</div>
                 </div>
-                {gBadge.label && (
-                    <span className={`pub-badge ${gBadge.cls} ml-auto`}>{gBadge.label}</span>
+                {gBadge.labelKey && (
+                    <span className={`pub-badge ${gBadge.cls} ml-auto`}>{t(gBadge.labelKey)}</span>
                 )}
             </div>
             <div className="staff-card-meta">
@@ -302,7 +308,7 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
                     <span><span className="material-symbols-rounded">meeting_room</span>{secName}</span>
                 )}
                 {facility.capacity && (
-                    <span><span className="material-symbols-rounded">groups</span>Capacity: {facility.capacity}</span>
+                    <span><span className="material-symbols-rounded">groups</span>{t('dis.settings.capacityLabel', { count: facility.capacity })}</span>
                 )}
                 {facility.description && (
                     <span><span className="material-symbols-rounded">notes</span>{facility.description}</span>
@@ -311,9 +317,9 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
             <div className="staff-card-actions">
                 {confirmDelete ? (
                     <>
-                        <span className="u-xs u-muted">Delete?</span>
-                        <button className="btn btn-primary btn-sm" onClick={() => onDelete(facility.id)}>Yes</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>No</button>
+                        <span className="u-xs u-muted">{t('common.deleteConfirm')}</span>
+                        <button className="btn btn-primary btn-sm" onClick={() => onDelete(facility.id)}>{t('common.yes')}</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>{t('common.no')}</button>
                     </>
                 ) : (
                     <>
@@ -321,7 +327,7 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
                             <span className="material-symbols-rounded icon-sm">delete</span>
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onEdit(facility)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                         </button>
                     </>
                 )}
@@ -415,10 +421,10 @@ export function DisSettings() {
     const unsectionedDorms = dormitories.filter(d => !d.section)
 
     const facStats = [
-        { iconClass: 'info',    icon: 'hotel',        value: dormitories.length, label: 'Dormitories'  },
-        { iconClass: '',        icon: 'meeting_room',  value: sections.length,    label: 'Sections'     },
-        { iconClass: 'success', icon: 'restaurant',   value: diningHalls.length, label: 'Dining Halls' },
-        { iconClass: 'warning', icon: 'category',     value: otherRooms.length,  label: 'Other Rooms'  },
+        { iconClass: 'info',    icon: 'hotel',        value: dormitories.length, label: t('dis.settings.dormitories')    },
+        { iconClass: '',        icon: 'meeting_room', value: sections.length,    label: t('dis.settings.statSections')   },
+        { iconClass: 'success', icon: 'restaurant',   value: diningHalls.length, label: t('dis.settings.diningHalls')    },
+        { iconClass: 'warning', icon: 'category',     value: otherRooms.length,  label: t('dis.settings.statOtherRooms') },
     ]
 
     const showModal = addingFacType || editingFac
@@ -449,7 +455,7 @@ export function DisSettings() {
                 />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
@@ -465,10 +471,10 @@ export function DisSettings() {
 
                         <div className="filter-tabs-bar mb-5">
                             <button className={`filter-tab${activeTab === 'facilities' ? ' active' : ''}`} onClick={() => setActiveTab('facilities')}>
-                                <span className="material-symbols-rounded">apartment</span> Facilities
+                                <span className="material-symbols-rounded">apartment</span> {t('dis.settings.tabFacilities')}
                             </button>
                             <button className={`filter-tab${activeTab === 'structure' ? ' active' : ''}`} onClick={() => setActiveTab('structure')}>
-                                <span className="material-symbols-rounded">layers</span> School Structure
+                                <span className="material-symbols-rounded">layers</span> {t('dis.settings.tabStructure')}
                             </button>
                         </div>
 
@@ -490,21 +496,21 @@ export function DisSettings() {
                                 )}
 
                                 {facLoading ? (
-                                    <p className="disc-loading-text">Loading facilities…</p>
+                                    <p className="disc-loading-text">{t('dis.settings.loadingFacilities')}</p>
                                 ) : (
                                     <>
                                         {/* ── Dormitory Sections ── */}
                                         <div className="card mb-1-5">
                                             <div className="card-header">
-                                                <h2 className="card-title"><span className="material-symbols-rounded">meeting_room</span> Dormitory Sections</h2>
+                                                <h2 className="card-title"><span className="material-symbols-rounded">meeting_room</span> {t('dis.settings.dormitorySections')}</h2>
                                                 <button className="btn btn-primary btn-sm" onClick={() => setAddingSection(true)}>
-                                                    <span className="material-symbols-rounded icon-sm">add</span> Add Section
+                                                    <span className="material-symbols-rounded icon-sm">add</span> {t('dis.settings.addSection')}
                                                 </button>
                                             </div>
                                             <div className="card-content">
                                                 {sections.length === 0 ? (
                                                     <p className="disc-empty-text">
-                                                        No sections yet. Create sections like "Boys Section" or "Girls Wing" to organise your dormitories.
+                                                        {t('dis.settings.noSections')}
                                                     </p>
                                                 ) : (
                                                     <div className="disc-col-sm">
@@ -525,14 +531,14 @@ export function DisSettings() {
                                         {/* ── Dormitories (grouped by section) ── */}
                                         <div className="card mb-1-5">
                                             <div className="card-header">
-                                                <h2 className="card-title"><span className="material-symbols-rounded">hotel</span> Dormitories</h2>
+                                                <h2 className="card-title"><span className="material-symbols-rounded">hotel</span> {t('dis.settings.dormitories')}</h2>
                                                 <button className="btn btn-primary btn-sm" onClick={() => setAddingFacType('dormitory')}>
-                                                    <span className="material-symbols-rounded icon-sm">add</span> Add Dormitory
+                                                    <span className="material-symbols-rounded icon-sm">add</span> {t('dis.settings.addDormitory')}
                                                 </button>
                                             </div>
                                             <div className="card-content">
                                                 {dormitories.length === 0 ? (
-                                                    <p className="disc-empty-text">No dormitories configured yet.</p>
+                                                    <p className="disc-empty-text">{t('dis.settings.noDormitories')}</p>
                                                 ) : (
                                                     <>
                                                         {/* Grouped by section */}
@@ -540,8 +546,8 @@ export function DisSettings() {
                                                             <div key={sec.id} className="u-mb">
                                                                 <div className="u-row-sm disc-mb-mid">
                                                                     <span className="disc-group-label">{sec.name}</span>
-                                                                    {GENDER_BADGE[sec.gender]?.label && (
-                                                                        <span className={`pub-badge ${GENDER_BADGE[sec.gender].cls} disc-badge-xs`}>{GENDER_BADGE[sec.gender].label}</span>
+                                                                    {GENDER_BADGE[sec.gender]?.labelKey && (
+                                                                        <span className={`pub-badge ${GENDER_BADGE[sec.gender].cls} disc-badge-xs`}>{t(GENDER_BADGE[sec.gender].labelKey)}</span>
                                                                     )}
                                                                 </div>
                                                                 <div className="staff-cards-grid">
@@ -556,7 +562,7 @@ export function DisSettings() {
                                                         {unsectionedDorms.length > 0 && (
                                                             <div>
                                                                 {dormsBySection.some(g => g.dorms.length > 0) && (
-                                                                    <div className="disc-group-label disc-mb-mid">No Section</div>
+                                                                    <div className="disc-group-label disc-mb-mid">{t('dis.settings.noSectionGroup')}</div>
                                                                 )}
                                                                 <div className="staff-cards-grid">
                                                                     {unsectionedDorms.map(f => (
@@ -573,14 +579,14 @@ export function DisSettings() {
                                         {/* ── Dining Halls ── */}
                                         <div className="card mb-1-5">
                                             <div className="card-header">
-                                                <h2 className="card-title"><span className="material-symbols-rounded">restaurant</span> Dining Halls</h2>
+                                                <h2 className="card-title"><span className="material-symbols-rounded">restaurant</span> {t('dis.settings.diningHalls')}</h2>
                                                 <button className="btn btn-primary btn-sm" onClick={() => setAddingFacType('dining_hall')}>
-                                                    <span className="material-symbols-rounded icon-sm">add</span> Add Dining Hall
+                                                    <span className="material-symbols-rounded icon-sm">add</span> {t('dis.settings.addDiningHall')}
                                                 </button>
                                             </div>
                                             <div className="card-content">
                                                 {diningHalls.length === 0 ? (
-                                                    <p className="disc-empty-text">No dining halls configured yet.</p>
+                                                    <p className="disc-empty-text">{t('dis.settings.noDiningHalls')}</p>
                                                 ) : (
                                                     <div className="staff-cards-grid">
                                                         {diningHalls.map(f => (
@@ -594,24 +600,25 @@ export function DisSettings() {
                                         {/* ── Other Rooms ── */}
                                         <div className="card">
                                             <div className="card-header">
-                                                <h2 className="card-title"><span className="material-symbols-rounded">category</span> Other Rooms &amp; Facilities</h2>
+                                                <h2 className="card-title"><span className="material-symbols-rounded">category</span> {t('dis.settings.otherRooms')}</h2>
                                                 <div className="disc-btn-inline-group">
                                                     {['common_room','medical','sports','library','other'].map(type => {
-                                                        const t = FACILITY_TYPES.find(x => x.key === type)
+                                                        const ft = FACILITY_TYPES.find(x => x.key === type)
                                                         return (
-                                                            <button key={type} className="btn btn-outline btn-sm" onClick={() => setAddingFacType(type)} title={`Add ${t?.label}`}>
-                                                                <span className="material-symbols-rounded icon-sm">{t?.icon}</span>
+                                                            <button key={type} className="btn btn-outline btn-sm" onClick={() => setAddingFacType(type)}
+                                                                title={t('dis.settings.addType', { type: ft ? t(ft.labelKey) : type })}>
+                                                                <span className="material-symbols-rounded icon-sm">{ft?.icon}</span>
                                                             </button>
                                                         )
                                                     })}
                                                     <button className="btn btn-primary btn-sm" onClick={() => setAddingFacType('other')}>
-                                                        <span className="material-symbols-rounded icon-sm">add</span> Add Room
+                                                        <span className="material-symbols-rounded icon-sm">add</span> {t('dis.settings.addRoom')}
                                                     </button>
                                                 </div>
                                             </div>
                                             <div className="card-content">
                                                 {otherRooms.length === 0 ? (
-                                                    <p className="disc-empty-text">No other rooms configured yet.</p>
+                                                    <p className="disc-empty-text">{t('dis.settings.noOtherRooms')}</p>
                                                 ) : (
                                                     <div className="staff-cards-grid">
                                                         {otherRooms.map(f => (
@@ -630,17 +637,17 @@ export function DisSettings() {
                         {activeTab === 'structure' && (
                             <>
                                 {loading ? (
-                                    <p className="u-pad u-muted">Loading…</p>
+                                    <p className="u-pad u-muted">{t('common.loading')}</p>
                                 ) : error ? (
-                                    <p className="u-pad disc-danger">Error: {error}</p>
+                                    <p className="u-pad disc-danger">{t('common.errorPrefix')}: {error}</p>
                                 ) : (
                                     <>
                                         {(config || []).length > 0 && (
                                             <div className="disc-stat-grid mb-1-5">
                                                 {[
-                                                    { iconClass: 'info',    icon: 'layers',         label: 'Sections',       value: (config||[]).length },
-                                                    { iconClass: 'success', icon: 'calendar_month', label: 'Year Groups',    value: totalYears           },
-                                                    { iconClass: 'warning', icon: 'groups',         label: 'Stream Classes', value: totalStreams          },
+                                                    { iconClass: 'info',    icon: 'layers',         label: t('common.sections'),      value: (config||[]).length },
+                                                    { iconClass: 'success', icon: 'calendar_month', label: t('common.yearGroups'),    value: totalYears          },
+                                                    { iconClass: 'warning', icon: 'groups',         label: t('common.streamClasses'), value: totalStreams        },
                                                 ].map((s, i) => (
                                                     <div key={i} className="disc-stat-card">
                                                         <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
@@ -652,8 +659,8 @@ export function DisSettings() {
 
                                         <div className="card">
                                             <div className="card-header">
-                                                <h2 className="card-title">Sections, Years &amp; Classes</h2>
-                                                <span className="settings-info-text">Each section has its own year groups and stream classes</span>
+                                                <h2 className="card-title">{t('dis.settings.structureTitle')}</h2>
+                                                <span className="settings-info-text">{t('dis.settings.structureHint')}</span>
                                             </div>
                                             <div className="card-content">
                                                 <SchoolStructureEditor showStats={false} />

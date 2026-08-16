@@ -65,6 +65,24 @@ export const formatWeekdayShort = value =>
 /** "Saturday" — day-of-week only. */
 export const formatWeekday = value => fmt(value, { weekday: 'long' })
 
+/**
+ * "August" — the month heading of a calendar grid. Takes a month index (0-11)
+ * rather than a date so callers do not have to build one just to name a month.
+ */
+export const monthName = (year, month) =>
+    fmt(new Date(year, month, 1), { month: 'long' })
+
+/**
+ * ["Sun", "Mon", …] in the active locale, Sunday first, for calendar column
+ * headers. Hardcoded English arrays were the last thing on those grids still
+ * pinned to one language.
+ */
+export function weekdayShortNames() {
+    // 2024-01-07 was a Sunday; stepping seven days from it walks the week.
+    return Array.from({ length: 7 }, (_, i) =>
+        fmt(new Date(2024, 0, 7 + i), { weekday: 'short' }))
+}
+
 /** "Aug 2026" — month pickers and grouping headers. */
 export const formatMonthYear = value =>
     fmt(value, { month: 'short', year: 'numeric' })

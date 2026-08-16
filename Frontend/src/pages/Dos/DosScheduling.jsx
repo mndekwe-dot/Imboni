@@ -24,26 +24,16 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { formatDateWithWeekday, formatWeekdayShort } from '../../utils/date'
+import { formatDateWithWeekday, formatWeekdayShort, monthName, weekdayShortNames } from '../../utils/date'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const timetableStats = [
-    { colorClass: 'info',    icon: 'calendar_view_week', value: '8',      label: 'Periods per Day',   trend: 'Mon - Sat'    },
-    { colorClass: 'success', icon: 'menu_book',          value: '9',      label: 'Subjects',          trend: 'All classes'  },
-    { colorClass: 'warning', icon: 'school',             value: '7',      label: 'Teachers Assigned', trend: 'Fully staffed'},
-    { colorClass: '',        icon: 'event_available',    value: 'Term 2', label: 'Current Term',      trend: '2026'         },
-]
-
-const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
-const DOW_SHORT   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-
 const EXAM_TYPES = [
-    { value: 'midterm', label: 'Mid-Term Exam' },
-    { value: 'final',   label: 'Final Exam'    },
-    { value: 'quiz',    label: 'Quiz'          },
-    { value: 'mock',    label: 'Mock Exam'     },
-    { value: 'other',   label: 'Other'         },
+    { value: 'midterm', labelKey: 'dos.scheduling.typeMidterm' },
+    { value: 'final',   labelKey: 'dos.scheduling.typeFinal'   },
+    { value: 'quiz',    labelKey: 'dos.scheduling.typeQuiz'    },
+    { value: 'mock',    labelKey: 'dos.scheduling.typeMock'    },
+    { value: 'other',   labelKey: 'dos.scheduling.typeOther'   },
 ]
 
 const TYPE_COLORS = {
@@ -102,12 +92,13 @@ function calcDuration(start, end) {
 }
 
 function examStatus(dateStr) {
-    if (!dateStr) return { label: 'Upcoming', cls: 'badge-upcoming' }
+    const upcoming = { done: false, labelKey: 'common.upcoming', cls: 'badge-upcoming' }
+    if (!dateStr) return upcoming
     const d = new Date(dateStr + 'T00:00:00')
     const today = new Date(); today.setHours(0,0,0,0)
     return d < today
-        ? { label: 'Completed', cls: 'badge-success' }
-        : { label: 'Upcoming',  cls: 'badge-upcoming' }
+        ? { done: true, labelKey: 'common.completed', cls: 'badge-success' }
+        : upcoming
 }
 
 function getISOWeekString(dateStr) {
@@ -128,14 +119,16 @@ function yearPfx(className) {
 // ── Exam detail modal ─────────────────────────────────────────────────────────
 
 function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
-    const { label, cls } = examStatus(exam.exam_date)
+    const { t } = useTranslation()
+    const { labelKey, cls } = examStatus(exam.exam_date)
     const duration = calcDuration(exam.start_time, exam.end_time)
-    const typLabel = EXAM_TYPES.find(t => t.value === exam.exam_type)?.label || exam.exam_type
+    const typeKey  = EXAM_TYPES.find(et => et.value === exam.exam_type)?.labelKey
+    const typLabel = typeKey ? t(typeKey) : exam.exam_type
     const [rescheduling, setRescheduling] = useState(false)
     const [moveDate,     setMoveDate]     = useState(exam.exam_date || '')
 
     return (
-        <Modal title="Exam Details" icon="info" onClose={onClose}>
+        <Modal title={t('dos.scheduling.examDetails')} icon="info" onClose={onClose}>
             <div className="es-detail-modal">
                 <div className="es-detail-header">
                     <div>
@@ -151,18 +144,18 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                             </>}
                         </div>
                     </div>
-                    <span className={`badge ${cls}`}>{label}</span>
+                    <span className={`badge ${cls}`}>{t(labelKey)}</span>
                 </div>
 
                 <div className="es-detail-grid">
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">event</span>
-                        <div><div className="es-detail-label">Date</div><div className="es-detail-value">{fmtDate(exam.exam_date)}</div></div>
+                        <div><div className="es-detail-label">{t('common.date')}</div><div className="es-detail-value">{fmtDate(exam.exam_date)}</div></div>
                     </div>
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">schedule</span>
                         <div>
-                            <div className="es-detail-label">Time</div>
+                            <div className="es-detail-label">{t('common.time')}</div>
                             <div className="es-detail-value">
                                 {fmtTime(exam.start_time)} - {fmtTime(exam.end_time)}
                                 {duration && <span className="es-detail-duration">({duration})</span>}
@@ -171,24 +164,24 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                     </div>
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">class</span>
-                        <div><div className="es-detail-label">Class</div><div className="es-detail-value">{exam.class_name||'All classes'}</div></div>
+                        <div><div className="es-detail-label">{t('common.class')}</div><div className="es-detail-value">{exam.class_name||t('dos.scheduling.allClasses')}</div></div>
                     </div>
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">meeting_room</span>
-                        <div><div className="es-detail-label">Venue</div><div className="es-detail-value">{exam.venue||'-'}</div></div>
+                        <div><div className="es-detail-label">{t('common.venue')}</div><div className="es-detail-value">{exam.venue||'-'}</div></div>
                     </div>
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">person</span>
-                        <div><div className="es-detail-label">Invigilator</div><div className="es-detail-value">{exam.invigilator||'-'}</div></div>
+                        <div><div className="es-detail-label">{t('common.invigilator')}</div><div className="es-detail-value">{exam.invigilator||'-'}</div></div>
                     </div>
                     <div className="es-detail-item">
                         <span className="material-symbols-rounded es-detail-icon">school</span>
-                        <div><div className="es-detail-label">Term</div><div className="es-detail-value">{exam.term||'-'}</div></div>
+                        <div><div className="es-detail-label">{t('common.term')}</div><div className="es-detail-value">{exam.term||'-'}</div></div>
                     </div>
                     {exam.notes && (
                         <div className="es-detail-item es-detail-span2">
                             <span className="material-symbols-rounded es-detail-icon">notes</span>
-                            <div><div className="es-detail-label">Notes</div><div className="es-detail-value">{exam.notes}</div></div>
+                            <div><div className="es-detail-label">{t('common.notes')}</div><div className="es-detail-value">{exam.notes}</div></div>
                         </div>
                     )}
                 </div>
@@ -196,27 +189,27 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                 <div className="es-detail-actions">
                     {rescheduling ? (
                         <div className="es-reschedule-row">
-                            <span className="es-reschedule-label">Move to:</span>
+                            <span className="es-reschedule-label">{t('dos.scheduling.moveTo')}</span>
                             <input type="date" className="form-input es-reschedule-date"
                                 value={moveDate} onChange={e => setMoveDate(e.target.value)}/>
                             <button className="btn btn-primary btn-sm u-nowrap"
                                 onClick={() => { if(moveDate){ onReschedule(exam.id, moveDate); onClose() } }}>
-                                Confirm
+                                {t('common.confirm')}
                             </button>
-                            <button className="btn btn-outline btn-sm" onClick={() => setRescheduling(false)}>Cancel</button>
+                            <button className="btn btn-outline btn-sm" onClick={() => setRescheduling(false)}>{t('common.cancel')}</button>
                         </div>
                     ) : (
                         <>
                             <button className="btn btn-outline btn-destructive-outline"
-                                onClick={() => { if(window.confirm('Delete this exam?')){ onDelete(exam.id); onClose() } }}>
-                                <span className="material-symbols-rounded icon-sm">delete</span> Delete
+                                onClick={() => { if(window.confirm(t('dos.scheduling.deleteExamConfirm'))){ onDelete(exam.id); onClose() } }}>
+                                <span className="material-symbols-rounded icon-sm">delete</span> {t('common.delete')}
                             </button>
                             <button className="btn btn-outline" onClick={() => setRescheduling(true)}>
-                                <span className="material-symbols-rounded icon-sm">event_repeat</span> Reschedule
+                                <span className="material-symbols-rounded icon-sm">event_repeat</span> {t('dos.scheduling.reschedule')}
                             </button>
-                            <button className="btn btn-outline" onClick={onClose}>Close</button>
+                            <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
                             <button className="btn btn-primary" onClick={onEdit}>
-                                <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                                <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                             </button>
                         </>
                     )}
@@ -229,6 +222,7 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
 // ── Exam add / edit form ──────────────────────────────────────────────────────
 
 function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, classes, rooms, teachers, termId, onSave, onCancel }) {
+    const { t } = useTranslation()
     const [form, setForm] = useState({
         session:        editing?.title           || defaultSession || '',
         subject_id:     editing?.subject_id      || '',
@@ -249,71 +243,71 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
     }
 
     return (
-        <Modal title={editing ? 'Edit Exam' : 'Add Exam'} icon="edit_calendar" onClose={onCancel} wide>
+        <Modal title={editing ? t('dos.scheduling.editExam') : t('dos.scheduling.addExam')} icon="edit_calendar" onClose={onCancel} wide>
             <div className="tt-form">
                 <div className="form-group u-mb-sm">
-                    <label className="form-label"><span className="material-symbols-rounded icon-sm">folder_open</span> Session / Group Name</label>
-                    <input className="form-input" list="es-session-list" value={form.session} onChange={set('session')} placeholder="e.g. Term 2 Final Exams" />
+                    <label className="form-label"><span className="material-symbols-rounded icon-sm">folder_open</span> {t('dos.scheduling.sessionGroupName')}</label>
+                    <input className="form-input" list="es-session-list" value={form.session} onChange={set('session')} placeholder={t('dos.scheduling.egSessionName')} />
                     <datalist id="es-session-list">{sessions.map(s => <option key={s} value={s}/>)}</datalist>
                 </div>
                 <div className="tt-form-row">
                     <div className="form-group">
-                        <label className="form-label" htmlFor="exam-subject">Subject *</label>
+                        <label className="form-label" htmlFor="exam-subject">{t('common.subjectRequired')}</label>
                         <select id="exam-subject" className="form-input" value={form.subject_id} onChange={set('subject_id')}>
-                            <option value="">Select subject</option>
+                            <option value="">{t('dos.scheduling.selectSubject')}</option>
                             {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                         </select>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Class</label>
+                        <label className="form-label">{t('common.class')}</label>
                         <select className="form-input" value={form.class_id} onChange={set('class_id')}>
-                            <option value="">All / Not set</option>
+                            <option value="">{t('dos.scheduling.allNotSet')}</option>
                             {classes.map(c => <option key={c.id} value={c.id}>S{c.grade}{c.section}</option>)}
                         </select>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Exam Type</label>
+                        <label className="form-label">{t('dos.scheduling.examType')}</label>
                         <select className="form-input" value={form.exam_type} onChange={set('exam_type')}>
-                            {EXAM_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                            {EXAM_TYPES.map(et => <option key={et.value} value={et.value}>{t(et.labelKey)}</option>)}
                         </select>
                     </div>
                 </div>
                 <div className="tt-form-row">
                     <div className="form-group">
-                        <label className="form-label" htmlFor="exam-date">Date *</label>
+                        <label className="form-label" htmlFor="exam-date">{t('dos.scheduling.dateRequired')}</label>
                         <input id="exam-date" className="form-input" type="date" value={form.exam_date} onChange={set('exam_date')}/>
                     </div>
                     <div className="form-group">
-                        <label className="form-label" htmlFor="exam-start">Start *</label>
+                        <label className="form-label" htmlFor="exam-start">{t('dos.scheduling.startRequired')}</label>
                         <input id="exam-start" className="form-input" type="time" value={form.start_time} onChange={set('start_time')}/>
                     </div>
                     <div className="form-group">
-                        <label className="form-label" htmlFor="exam-end">End *</label>
+                        <label className="form-label" htmlFor="exam-end">{t('dos.scheduling.endRequired')}</label>
                         <input id="exam-end" className="form-input" type="time" value={form.end_time} onChange={set('end_time')}/>
                     </div>
                 </div>
                 <div className="tt-form-row">
                     <div className="form-group">
-                        <label className="form-label">Venue / Room</label>
+                        <label className="form-label">{t('dos.scheduling.venueRoom')}</label>
                         <select className="form-input" value={form.venue} onChange={set('venue')}>
-                            <option value="">Select room</option>
+                            <option value="">{t('dos.scheduling.selectRoom')}</option>
                             {rooms.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
                         </select>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Invigilator</label>
+                        <label className="form-label">{t('common.invigilator')}</label>
                         <select className="form-input" value={form.invigilator_id} onChange={set('invigilator_id')}>
-                            <option value="">Select teacher</option>
-                            {teachers.map(t => <option key={t.teacher_id} value={t.teacher_id}>{t.full_name}</option>)}
+                            <option value="">{t('dos.scheduling.selectTeacher')}</option>
+                            {teachers.map(tr => <option key={tr.teacher_id} value={tr.teacher_id}>{tr.full_name}</option>)}
                         </select>
                     </div>
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Notes</label>
-                    <textarea className="form-input es-textarea-v" rows={2} value={form.notes} onChange={set('notes')} placeholder="Optional notes..."/>
+                    <label className="form-label">{t('common.notes')}</label>
+                    <textarea className="form-input es-textarea-v" rows={2} value={form.notes} onChange={set('notes')} placeholder={t('dos.scheduling.notesPlaceholder')}/>
                 </div>
                 <div className="tt-form-actions">
-                    <button className="btn btn-outline" onClick={onCancel}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onCancel}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSubmit}>
                         <span className="material-symbols-rounded icon-sm">save</span> {editing ? 'Update' : 'Save'}
                     </button>
@@ -359,7 +353,7 @@ export function DosScheduling() {
     const [classes,         setClasses]         = useState([])
     const [rooms,           setRooms]           = useState([])
     const [teachers,        setTeachers]        = useState([])
-    const [currentTermId,   setCurrentTermId]   = useState(null)
+    const [currentTerm,     setCurrentTerm]     = useState(null)
     const [customSessions,  setCustomSessions]  = useState(() => {
         try { return JSON.parse(localStorage.getItem('imboni_sessions') || '[]') } catch { return [] }
     })
@@ -374,15 +368,26 @@ export function DosScheduling() {
     const printFrameRef = useRef(null)
 
     useEffect(() => {
-        if (activeTab !== 'exams' || examsLoaded) return
-        setExamsLoaded(true); setExamsLoading(true)
-        getDosExamSchedule().then(setExams).catch(console.error).finally(() => setExamsLoading(false))
         getSubjects().then(setSubjects).catch(console.error)
         getDosClasses().then(setClasses).catch(console.error)
         getDosRooms().then(setRooms).catch(console.error)
         getDosTeachers().then(data => setTeachers(Array.isArray(data) ? data : (data.results||[]))).catch(console.error)
-        getCurrentTerm().then(t => { if (t?.id) setCurrentTermId(t.id) }).catch(console.error)
+        getCurrentTerm().then(setCurrentTerm).catch(console.error)
+    }, [])
+
+    useEffect(() => {
+        if (activeTab !== 'exams' || examsLoaded) return
+        setExamsLoaded(true); setExamsLoading(true)
+        getDosExamSchedule().then(setExams).catch(console.error).finally(() => setExamsLoading(false))
     }, [activeTab, examsLoaded])
+
+    // Every number here is read from what the school actually has configured.
+    const timetableStats = [
+        { colorClass: 'info',    icon: 'calendar_view_week', value: periods.length,             label: t('dos.scheduling.periodsPerDay'),    trend: t('dos.scheduling.dayRange')        },
+        { colorClass: 'success', icon: 'menu_book',          value: subjects.length,            label: t('common.subject'),                  trend: t('dos.scheduling.allClassesTrend') },
+        { colorClass: 'warning', icon: 'school',             value: teachers.length,            label: t('dos.scheduling.teachersAssigned'), trend: t('dos.scheduling.allClassesTrend') },
+        { colorClass: '',        icon: 'event_available',    value: currentTerm?.name || '-',   label: t('dos.scheduling.currentTerm'),      trend: currentTerm?.year || '' },
+    ]
 
     async function handleExamSave(formData) {
         try {
@@ -461,7 +466,8 @@ export function DosScheduling() {
     }
 
     async function handleDeleteSession(name) {
-        if (!window.confirm(`Delete session "${name}"? This will delete all ${exams.filter(e=>e.title===name).length} exam(s) in it.`)) return
+        if (!window.confirm(t('dos.scheduling.deleteSessionConfirm', {
+            name, count: exams.filter(e=>e.title===name).length }))) return
         const toDelete = exams.filter(e => e.title === name)
         await Promise.all(toDelete.map(e => deleteDosExamSchedule(e.id).catch(console.error)))
         const updated = customSessions.filter(s => s !== name)
@@ -478,7 +484,7 @@ export function DosScheduling() {
         const hasGeneral = filteredExams.some(e => !e.class_name)
         const columns = [...classSet].sort()
         if (hasGeneral) columns.unshift('GENERAL')
-        if (columns.length === 0) { alert('No exams to print.'); return }
+        if (columns.length === 0) { alert(t('dos.scheduling.nothingToPrint')); return }
 
         // Rows = unique dates sorted
         const dates = [...new Set(filteredExams.map(e => e.exam_date))].sort()
@@ -491,7 +497,7 @@ export function DosScheduling() {
             lookup[key].push(e)
         })
 
-        const sessionTitle = selectedSession !== 'all' ? selectedSession.toUpperCase() : 'ALL SESSIONS'
+        const sessionTitle = selectedSession !== 'all' ? selectedSession.toUpperCase() : t('dos.scheduling.printAllSessions')
         const filterNote   = [
             sectionFilter !== 'all' ? sectionFilter : '',
             classFilter   !== 'all' ? classFilter   : '',
@@ -524,7 +530,7 @@ export function DosScheduling() {
 
         const html = `<!DOCTYPE html><html><head>
 <meta charset="utf-8">
-<title>Examination Timetable</title>
+<title>${t('dos.scheduling.printTitle')}</title>
 <style>
 @page { size: A4 landscape; margin: 10mm 12mm; }
 *     { box-sizing:border-box; margin:0; padding:0; }
@@ -574,7 +580,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
 <div class="hdr">
     <div class="h-school">${setting?.school_name || 'IMBONI SCHOOL'}</div>
-    <div class="h-title">EXAMINATION TIMETABLE</div>
+    <div class="h-title">${t('dos.scheduling.printTitle').toUpperCase()}</div>
     <div class="h-session">${sessionTitle}</div>
     ${filterNote ? `<div class="h-note">${filterNote}</div>` : ''}
 </div>
@@ -582,7 +588,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 <table>
     <thead>
         <tr>
-            <th class="date-th">DATES</th>
+            <th class="date-th">${t('dos.scheduling.printDates')}</th>
             ${headerCells}
         </tr>
     </thead>
@@ -592,8 +598,8 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 </table>
 
 <div class="ftr">
-    <span>Total: ${filteredExams.length} exam(s) across ${dates.length} day(s)</span>
-    <span>Generated: ${formatDateWithWeekday()}</span>
+    <span>${t('dos.scheduling.printTotal', { exams: filteredExams.length, days: dates.length })}</span>
+    <span>${t('dos.scheduling.printGenerated', { date: formatDateWithWeekday(new Date()) })}</span>
 </div>
 
 <script>window.onload = function(){ window.focus(); window.print(); }<\/script>
@@ -646,7 +652,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems}/>
@@ -656,16 +662,16 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                     <DashboardContent>
                         <div className="filter-tabs-bar mb-5">
                             <button className={`filter-tab${activeTab==='timetable'?' active':''}`} onClick={() => setActiveTab('timetable')}>
-                                <span className="material-symbols-rounded">calendar_view_week</span> Timetable
+                                <span className="material-symbols-rounded">calendar_view_week</span> {t('dos.scheduling.tabTimetable')}
                             </button>
                             <button className={`filter-tab${activeTab==='exams'?' active':''}`} onClick={() => setActiveTab('exams')}>
-                                <span className="material-symbols-rounded">school</span> Exam Schedule
+                                <span className="material-symbols-rounded">school</span> {t('dos.scheduling.tabExams')}
                             </button>
                             <button className={`filter-tab${activeTab==='duty'?' active':''}`} onClick={() => setActiveTab('duty')}>
-                                <span className="material-symbols-rounded">assignment_ind</span> Duty Roster
+                                <span className="material-symbols-rounded">assignment_ind</span> {t('dos.scheduling.tabDuty')}
                             </button>
                             <button className={`filter-tab${activeTab==='dining'?' active':''}`} onClick={() => setActiveTab('dining')}>
-                                <span className="material-symbols-rounded">restaurant</span> Dining
+                                <span className="material-symbols-rounded">restaurant</span> {t('dos.scheduling.tabDining')}
                             </button>
                         </div>
 
@@ -684,19 +690,19 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
                                 <div className="card">
                                     <div className="card-header">
-                                        <h2 className="card-title">Class {classId}</h2>
+                                        <h2 className="card-title">{t('dos.scheduling.classLabel', { name: classId })}</h2>
                                         <div className="flex-row-gap">
                                             <div className="flex-row-gap-sm">
-                                                <label className="form-label mb-0" htmlFor="timetable-class-select">Class:</label>
+                                                <label className="form-label mb-0" htmlFor="timetable-class-select">{t('dos.scheduling.classColon')}</label>
                                                 <select id="timetable-class-select" className="form-input dos-select-auto" value={classId} onChange={e=>setClassId(e.target.value)}>
                                                     {allClasses.map(c => <option key={c} value={c}>{c}</option>)}
                                                 </select>
                                             </div>
                                             <button className="btn btn-outline btn-sm" onClick={() => setShowPeriodManager(true)}>
-                                                <span className="material-symbols-rounded icon-sm">schedule</span> Edit Periods
+                                                <span className="material-symbols-rounded icon-sm">schedule</span> {t('dos.scheduling.editPeriods')}
                                             </button>
                                             <button className="btn btn-primary btn-sm" onClick={() => {setEditingSlot(null);setShowForm(true)}}>
-                                                <span className="material-symbols-rounded">add</span> Add Slot
+                                                <span className="material-symbols-rounded">add</span> {t('dos.scheduling.addSlot')}
                                             </button>
                                         </div>
                                     </div>
@@ -714,11 +720,11 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                             <>
                                 <div className="card">
                                     <div className="card-header">
-                                        <h2 className="card-title">Exam Schedule</h2>
+                                        <h2 className="card-title">{t('dos.scheduling.tabExams')}</h2>
                                         <div className="es-card-actions">
-                                            <button className="btn btn-outline btn-sm" onClick={handlePrint}><span className="material-symbols-rounded">print</span> Print / PDF</button>
+                                            <button className="btn btn-outline btn-sm" onClick={handlePrint}><span className="material-symbols-rounded">print</span> {t('common.print')}</button>
                                             <button className="btn btn-primary btn-sm" onClick={() => {setDefaultSession(selectedSession!=='all'?selectedSession:'');setDefaultDate('');setEditingExam(null);setShowExamForm(true)}}>
-                                                <span className="material-symbols-rounded">add</span> Add Exam
+                                                <span className="material-symbols-rounded">add</span> {t('dos.scheduling.addExam')}
                                             </button>
                                         </div>
                                     </div>
@@ -727,17 +733,17 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
                                         {/* Session */}
                                         <div className="es-filter-section">
-                                            <div className="es-filter-section-label"><span className="material-symbols-rounded">folder_open</span> Session</div>
+                                            <div className="es-filter-section-label"><span className="material-symbols-rounded">folder_open</span> {t('common.session')}</div>
                                             <div className="es-session-chips">
                                                 <button className={`es-session-chip${selectedSession==='all'?' active':''}`} onClick={() => setSelectedSession('all')}>
-                                                    All <span className="es-chip-count">{exams.length}</span>
+                                                    {t('common.all')} <span className="es-chip-count">{exams.length}</span>
                                                 </button>
                                                 {sessions.map(s => (
                                                     <span key={s} className={`es-session-chip-wrap${selectedSession===s?' active':''}`}>
                                                         <button className="es-session-chip-label" onClick={() => setSelectedSession(s)}>
                                                             {s} <span className="es-chip-count">{exams.filter(e=>e.title===s).length}</span>
                                                         </button>
-                                                        <button className="es-session-chip-del" title="Delete session"
+                                                        <button className="es-session-chip-del" title={t('dos.scheduling.deleteSession')}
                                                             onClick={e => {e.stopPropagation();handleDeleteSession(s)}}>
                                                             <span className="material-symbols-rounded">close</span>
                                                         </button>
@@ -746,16 +752,16 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                 {addingSession ? (
                                                     <span className="es-session-add-input">
                                                         <input autoFocus className="form-input es-session-input"
-                                                            placeholder="Session name…" value={newSessionName}
+                                                            placeholder={t('dos.scheduling.sessionNamePlaceholder')} value={newSessionName}
                                                             onChange={e => setNewSessionName(e.target.value)}
                                                             onKeyDown={e => { if (e.key==='Enter') handleAddSession(); if (e.key==='Escape') {setAddingSession(false);setNewSessionName('')} }}
                                                         />
-                                                        <button className="btn btn-primary btn-sm es-session-btn" onClick={handleAddSession}>Add</button>
+                                                        <button className="btn btn-primary btn-sm es-session-btn" onClick={handleAddSession}>{t('common.add')}</button>
                                                         <button className="btn btn-outline btn-sm es-session-btn-x" onClick={() => {setAddingSession(false);setNewSessionName('')}}>✕</button>
                                                     </span>
                                                 ) : (
                                                     <button className="es-session-chip es-session-chip-new" onClick={() => setAddingSession(true)}>
-                                                        <span className="material-symbols-rounded es-new-session-icon">add</span> New Session
+                                                        <span className="material-symbols-rounded es-new-session-icon">add</span> {t('dos.scheduling.newSession')}
                                                     </button>
                                                 )}
                                             </div>
@@ -763,9 +769,9 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
                                         {/* Level */}
                                         <div className="es-filter-section">
-                                            <div className="es-filter-section-label"><span className="material-symbols-rounded">layers</span> Level</div>
+                                            <div className="es-filter-section-label"><span className="material-symbols-rounded">layers</span> {t('common.level')}</div>
                                             <div className="att-mode-bar u-mb-0">
-                                                <button className={`att-mode-btn${sectionFilter==='all'?' active':''}`} onClick={() => {setSectionFilter('all');setClassFilter('all')}}>All Levels</button>
+                                                <button className={`att-mode-btn${sectionFilter==='all'?' active':''}`} onClick={() => {setSectionFilter('all');setClassFilter('all')}}>{t('dos.scheduling.allLevels')}</button>
                                                 {(config||[]).map(sec => (
                                                     <button key={sec.id||sec.name} className={`att-mode-btn${sectionFilter===sec.name?' active':''}`} onClick={() => {setSectionFilter(sec.name);setClassFilter('all')}}>
                                                         <span className="material-symbols-rounded">school</span>
@@ -779,9 +785,9 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         {/* Class (only when section selected) */}
                                         {sectionFilter!=='all' && classesInSection.length>0 && (
                                             <div className="es-filter-section">
-                                                <div className="es-filter-section-label"><span className="material-symbols-rounded">group</span> Class</div>
+                                                <div className="es-filter-section-label"><span className="material-symbols-rounded">group</span> {t('common.class')}</div>
                                                 <div className="es-class-chips">
-                                                    <button className={`es-class-chip-btn${classFilter==='all'?' active':''}`} onClick={() => setClassFilter('all')}>All</button>
+                                                    <button className={`es-class-chip-btn${classFilter==='all'?' active':''}`} onClick={() => setClassFilter('all')}>{t('common.all')}</button>
                                                     {classesInSection.map(cls => (
                                                         <button key={cls} className={`es-class-chip-btn${classFilter===cls?' active':''}`} onClick={() => setClassFilter(cls)}>{cls}</button>
                                                     ))}
@@ -791,41 +797,43 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
                                         {/* Legend */}
                                         <div className="es-cal-legend">
-                                            {EXAM_TYPES.map(t => (
-                                                <span key={t.value} className="es-cal-legend-item">
-                                                    <span className="es-cal-legend-dot" style={{background:TYPE_COLORS[t.value]}}/>
-                                                    {t.label}
+                                            {EXAM_TYPES.map(et => (
+                                                <span key={et.value} className="es-cal-legend-item">
+                                                    <span className="es-cal-legend-dot" style={{background:TYPE_COLORS[et.value]}}/>
+                                                    {t(et.labelKey)}
                                                 </span>
                                             ))}
                                         </div>
 
                                         {/* ── Month calendar ── */}
                                         {examsLoading ? (
-                                            <p className="es-empty-msg">Loading exams…</p>
+                                            <p className="es-empty-msg">{t('dos.scheduling.loadingExams')}</p>
                                         ) : (
                                             <div className="es-cal-month-wrap">
 
                                                 {/* Navigation */}
                                                 <div className="es-cal-month-nav">
-                                                    <button className="btn btn-outline btn-sm" onClick={() => {setCalYear(todayDate.getFullYear());setCalMonth(todayDate.getMonth())}}>Today</button>
+                                                    <button className="btn btn-outline btn-sm" onClick={() => {setCalYear(todayDate.getFullYear());setCalMonth(todayDate.getMonth())}}>{t('common.today')}</button>
                                                     <button className="es-cal-nav-btn" onClick={prevMonth}>
                                                         <span className="material-symbols-rounded">chevron_left</span>
                                                     </button>
                                                     <button className="es-cal-nav-btn" onClick={nextMonth}>
                                                         <span className="material-symbols-rounded">chevron_right</span>
                                                     </button>
-                                                    <span className="es-cal-month-title">{MONTH_NAMES[calMonth]} {calYear}</span>
+                                                    <span className="es-cal-month-title">{monthName(calYear, calMonth)} {calYear}</span>
                                                     <span className="es-cal-month-count">
-                                                        {filteredExams.filter(e => {
-                                                            const d = new Date(e.exam_date+'T00:00:00')
-                                                            return d.getFullYear()===calYear && d.getMonth()===calMonth
-                                                        }).length} exams this month
+                                                        {t('dos.scheduling.examsThisMonth', {
+                                                            count: filteredExams.filter(e => {
+                                                                const d = new Date(e.exam_date+'T00:00:00')
+                                                                return d.getFullYear()===calYear && d.getMonth()===calMonth
+                                                            }).length,
+                                                        })}
                                                     </span>
                                                 </div>
 
                                                 {/* Day-of-week headers */}
                                                 <div className="es-cal-month-grid">
-                                                    {DOW_SHORT.map(d => (
+                                                    {weekdayShortNames().map(d => (
                                                         <div key={d} className="es-cal-month-dow">{d}</div>
                                                     ))}
 
@@ -849,7 +857,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                                 <span className={`es-cal-month-num${day.isToday?' today':''}`}>{day.day}</span>
                                                                 <div className="es-cal-month-events">
                                                                     {dayExams.slice(0,2).map(exam => {
-                                                                        const done  = examStatus(exam.exam_date).label==='Completed'
+                                                                        const done  = examStatus(exam.exam_date).done
                                                                         const color = done ? '#9ca3af' : (TYPE_COLORS[exam.exam_type]||TYPE_COLORS.other)
                                                                         return (
                                                                             <div key={exam.id} className="es-cal-month-event"
@@ -864,7 +872,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                                         )
                                                                     })}
                                                                     {dayExams.length>3 && (
-                                                                        <div className="es-cal-month-more">+{dayExams.length-3} more</div>
+                                                                        <div className="es-cal-month-more">{t('dos.scheduling.moreEvents', { count: dayExams.length-3 })}</div>
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -896,7 +904,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         classes={classes}
                                         rooms={rooms}
                                         teachers={teachers}
-                                        termId={currentTermId}
+                                        termId={currentTerm?.id ?? null}
                                         onSave={handleExamSave}
                                         onCancel={() => {setShowExamForm(false);setEditingExam(null);setDefaultSession('');setDefaultDate('')}}
                                     />
@@ -908,7 +916,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
             </div>
 
             {/* Hidden iframe used as print target — avoids popup blockers */}
-            <iframe ref={printFrameRef} title="exam-print"
+            <iframe ref={printFrameRef} title={t('dos.scheduling.printFrame')}
                 className="es-print-frame"
                 aria-hidden="true"/>
         </>
