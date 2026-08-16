@@ -42,6 +42,27 @@ describe('translation files', () => {
         expect(dirty).toEqual([])
     })
 
+    it('resolves plural keys in both languages', () => {
+        // i18next picks the _one / _other suffix from Intl.PluralRules for the
+        // active language. If a runtime has no plural data for 'rw', or a key
+        // is missing one of the two forms, t() returns the bare key — which
+        // would ship "admin.settings.roomCount" as visible interface text.
+        const forms = leafKeys(en).filter(k => k.endsWith('_other')).map(k => k.slice(0, -6))
+        expect(forms.length).toBeGreaterThan(0)
+
+        for (const lng of ['en', 'rw']) {
+            setLanguage(lng)
+            for (const base of forms) {
+                for (const count of [0, 1, 5]) {
+                    const out = i18n.t(base, { count })
+                    expect(out, `${lng}:${base} count=${count}`).not.toContain(base)
+                    expect(out).toContain(String(count))
+                }
+            }
+        }
+        setLanguage('en')
+    })
+
     it('exposes exactly the languages the backend accepts', () => {
         // Backend UserPreferencesSerializer.SUPPORTED_LANGUAGES is ('en', 'rw');
         // if these drift, saving a preference 400s.
