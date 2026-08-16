@@ -39,18 +39,15 @@ export function ChatBubble({
                 <div className="msg-bubble">
                     {attachment ? (
                         /* File attachment bubble */
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div className="msg-attach">
                             <span className="material-symbols-rounded">description</span>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: 600, fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div className="msg-attach-main">
+                                <div className="msg-attach-name">
                                     {attachment.fileName}
                                 </div>
-                                <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>{attachment.fileSize}</div>
+                                <div className="msg-attach-size">{attachment.fileSize}</div>
                             </div>
-                            <button
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', borderRadius: '4px' }}
-                                title="Download"
-                            >
+                            <button type="button" className="msg-attach-btn" title="Download">
                                 <span className="material-symbols-rounded">download</span>
                             </button>
                         </div>

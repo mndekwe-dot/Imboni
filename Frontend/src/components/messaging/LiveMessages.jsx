@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../layout/Sidebar'
 import { DashboardHeader } from '../layout/DashboardHeader'
 import { ConversationItem } from './ConversationItem'
 import { ChatBubble } from './ChatBubble'
+import { formatDateShort } from '../../utils/date'
 import {
     getConversations, getMessages, sendMessage,
     getMessageContacts, startConversation,
@@ -31,7 +33,7 @@ function relativeTime(iso) {
     if (sameDay) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1)
     if (d.toDateString() === yesterday.toDateString()) return 'Yesterday'
-    return d.toLocaleDateString([], { month: 'short', day: 'numeric' })
+    return formatDateShort(d)
 }
 
 /**
@@ -41,9 +43,10 @@ function relativeTime(iso) {
  */
 export function LiveMessages({
     navItems, secondaryItems,
-    title = 'Messages', subtitle,
+    title, subtitle,
     userName, userRole, userInitials, avatarClass,
 }) {
+    const { t } = useTranslation()
     const [conversations, setConversations] = useState([])
     const [loadingConvs, setLoadingConvs] = useState(true)
     const [selectedId, setSelectedId] = useState(null)
@@ -158,7 +161,7 @@ export function LiveMessages({
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={navItems} secondaryItems={secondaryItems} />
@@ -168,26 +171,26 @@ export function LiveMessages({
                         userName={userName} userRole={userRole}
                         userInitials={userInitials} avatarClass={avatarClass}
                     />
-                    <div className="dashboard-content" style={{ padding: '1.5rem' }}>
-                        {error && <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>{error}</div>}
+                    <div className="dashboard-content msg-content-pad">
+                        {error && <div className="alert alert-danger lm-alert">{error}</div>}
                         <div className={`msg-page-wrap${showThread ? ' thread-open' : ''}`}>
 
                             {/* ── Conversation list ── */}
                             <div className="conv-panel">
                                 <div className="conv-panel-header">
-                                    <h3>Messages</h3>
+                                    <h3>{t('messaging.title')}</h3>
                                     <button className="btn btn-sm btn-primary" onClick={openNewMessage}>
                                         <span className="material-symbols-rounded">edit</span>
-                                        New
+                                        {t('messaging.new')}
                                     </button>
                                 </div>
 
                                 <div className="conv-list">
                                     {loadingConvs ? (
-                                        <p style={{ padding: '1.5rem', color: 'var(--muted-foreground)' }}>Loading…</p>
+                                        <p className="lm-note">{t('common.loading')}</p>
                                     ) : conversations.length === 0 ? (
-                                        <p style={{ padding: '1.5rem', color: 'var(--muted-foreground)' }}>
-                                            No conversations yet. Tap “New” to start one.
+                                        <p className="lm-note">
+                                            {t('messaging.noConversations')}
                                         </p>
                                     ) : conversations.map(conv => {
                                         const name = conv.other_participant?.name || conv.subject || 'Conversation'
@@ -214,13 +217,13 @@ export function LiveMessages({
                             <div className="msg-right-col">
                                 <div className="thread-panel">
                                     {!selectedId ? (
-                                        <div className="thread-body" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted-foreground)' }}>
-                                            Select a conversation to read it.
+                                        <div className="thread-body lm-thread-empty">
+                                            {t('messaging.selectConversation')}
                                         </div>
                                     ) : (
                                         <>
                                             <div className="thread-head">
-                                                <button className="back-btn" aria-label="Back to conversations" onClick={() => setShowThread(false)}>
+                                                <button className="back-btn" aria-label={t('messaging.backToConversations')} onClick={() => setShowThread(false)}>
                                                     <span className="material-symbols-rounded">arrow_back</span>
                                                 </button>
                                                 <div className={`thread-head-avatar ${roleClass(other?.role)}`}>
@@ -238,9 +241,9 @@ export function LiveMessages({
 
                                             <div className="thread-body" ref={threadBodyRef}>
                                                 {loadingThread && messages.length === 0 ? (
-                                                    <p style={{ color: 'var(--muted-foreground)' }}>Loading…</p>
+                                                    <p className="lm-thread-note">{t('common.loading')}</p>
                                                 ) : messages.length === 0 ? (
-                                                    <p style={{ color: 'var(--muted-foreground)' }}>No messages yet. Say hello.</p>
+                                                    <p className="lm-thread-note">No messages yet. Say hello.</p>
                                                 ) : messages.map(m => (
                                                     <ChatBubble
                                                         key={m.id}
@@ -257,12 +260,12 @@ export function LiveMessages({
                                                 <input
                                                     type="text"
                                                     className="composer-input"
-                                                    placeholder="Type your message…"
+                                                    placeholder={t('messaging.typeMessage')}
                                                     value={draft}
                                                     onChange={e => setDraft(e.target.value)}
                                                     onKeyDown={e => { if (e.key === 'Enter') handleSend() }}
                                                 />
-                                                <button className="btn btn-primary send-btn" title="Send"
+                                                <button className="btn btn-primary send-btn" title={t('common.send')}
                                                     onClick={handleSend} disabled={sending || !draft.trim()}>
                                                     <span className="material-symbols-rounded">send</span>
                                                 </button>
@@ -283,7 +286,7 @@ export function LiveMessages({
                         <div className="modal-header">
                             <div className="modal-header-left">
                                 <span className="material-symbols-rounded">edit</span>
-                                <h2 className="modal-title">New Message</h2>
+                                <h2 className="modal-title">{t('messaging.newMessage')}</h2>
                             </div>
                             <button className="btn-icon-clean" onClick={() => setShowNew(false)}>
                                 <span className="material-symbols-rounded">close</span>
@@ -291,30 +294,23 @@ export function LiveMessages({
                         </div>
                         <div className="modal-body">
                             <input
-                                className="form-input"
-                                placeholder="Search people you can message…"
+                                className="form-input lm-contact-search"
+                                placeholder={t('messaging.searchPeople')}
                                 value={contactSearch}
                                 onChange={e => setContactSearch(e.target.value)}
                                 autoFocus
-                                style={{ marginBottom: '0.75rem' }}
                             />
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxHeight: 320, overflowY: 'auto' }}>
+                            <div className="lm-contact-list">
                                 {contacts.length === 0 ? (
-                                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>No contacts found.</p>
+                                    <p className="lm-contact-empty">No contacts found.</p>
                                 ) : contacts.map(c => (
-                                    <button key={c.id}
-                                        onClick={() => startWith(c)}
-                                        style={{
-                                            display: 'flex', alignItems: 'center', gap: '0.6rem', textAlign: 'left',
-                                            padding: '0.5rem 0.6rem', borderRadius: 8, border: '1px solid var(--border)',
-                                            background: 'transparent', cursor: 'pointer',
-                                        }}>
-                                        <span className={`conv-avatar ${roleClass(c.role)}`} style={{ width: 34, height: 34, fontSize: '0.8rem' }}>
+                                    <button key={c.id} type="button" className="lm-contact" onClick={() => startWith(c)}>
+                                        <span className={`conv-avatar ${roleClass(c.role)}`}>
                                             {initialsOf(c.name)}
                                         </span>
-                                        <span style={{ flex: 1 }}>
-                                            <span style={{ fontWeight: 600, fontSize: '0.875rem', display: 'block' }}>{c.name}</span>
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{c.role_label}</span>
+                                        <span className="lm-contact-main">
+                                            <span className="lm-contact-name">{c.name}</span>
+                                            <span className="lm-contact-role">{c.role_label}</span>
                                         </span>
                                     </button>
                                 ))}

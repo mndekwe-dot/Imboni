@@ -55,6 +55,12 @@
       "subtitle": "Get help from the Imboni team"
     }
   },
+  "announcements": {
+    "bodyPlaceholder": "Write the full announcement here…",
+    "newAnnouncement": "New Announcement",
+    "search": "Search announcements...",
+    "titlePlaceholder": "e.g. School closed for Public Holiday, April 28"
+  },
   "auth": {
     "backToHome": "Back to home",
     "backToSignIn": "Back to sign in",
@@ -91,9 +97,12 @@
     "all": "All",
     "amount": "Amount",
     "amountWithCurrency": "Amount ({{currency}}) *",
+    "audience": "Audience",
     "back": "Back",
+    "bodyRequired": "Body *",
     "boys": "Boys",
     "cancel": "Cancel",
+    "category": "Category",
     "close": "Close",
     "closed": "Closed",
     "completed": "Completed",
@@ -135,6 +144,7 @@
     "score": "Score",
     "search": "Search",
     "select": "Select",
+    "send": "Send",
     "sending": "Sending…",
     "showAll": "Show All",
     "skipToContent": "Skip to content",
@@ -144,6 +154,8 @@
     "submitted": "Submitted",
     "term": "Term",
     "timeIn": "Time In",
+    "title": "Title",
+    "titleRequired": "Title *",
     "type": "Type",
     "upload": "Upload",
     "viewAll": "View All",
@@ -268,13 +280,20 @@
     }
   },
   "messaging": {
+    "attachFile": "Attach file",
     "backToConversations": "Back to conversations",
+    "emoji": "Emoji",
     "loading": "Loading…",
+    "moreOptions": "More options",
     "new": "New",
+    "newMessage": "New Message",
     "noConversations": "No conversations yet. Tap \"New\" to start one.",
+    "noMessages": "No messages yet. Say hello.",
     "search": "Search messages...",
+    "searchPeople": "Search people you can message…",
     "selectConversation": "Select a conversation to read it.",
     "title": "Messages",
+    "typeMessage": "Type your message…",
     "viewProfile": "View profile"
   },
   "nav": {

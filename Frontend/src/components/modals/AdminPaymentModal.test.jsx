@@ -18,7 +18,7 @@ describe('AdminPaymentModal', () => {
     expect(onSave).not.toHaveBeenCalled()
   })
 
-  it('formats amount with KES prefix and locale thousands separator', () => {
+  it('formats the amount in the school currency with thousands separators', () => {
     const onSave = vi.fn()
     const onClose = vi.fn()
     render(<AdminPaymentModal onClose={onClose} onSave={onSave} />)
@@ -29,7 +29,7 @@ describe('AdminPaymentModal', () => {
 
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
       name: 'Aisha Kamau',
-      amount: 'KES 58,000',
+      amount: 'RWF 58,000',
       initials: 'AK',
       adm: '-',
       typeClass: 'paid',

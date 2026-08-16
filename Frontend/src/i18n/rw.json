@@ -55,6 +55,12 @@
       "subtitle": "Saba ubufasha ku itsinda rya Imboni"
     }
   },
+  "announcements": {
+    "bodyPlaceholder": "Andika itangazo ryuzuye hano…",
+    "newAnnouncement": "Itangazo rishya",
+    "search": "Shakisha amatangazo...",
+    "titlePlaceholder": "urugero: Ikigo gifunze ku munsi mukuru, 28 Mata"
+  },
   "auth": {
     "backToHome": "Subira ku rupapuro rw'itangiriro",
     "backToSignIn": "Subira ku kwinjira",
@@ -91,9 +97,12 @@
     "all": "Byose",
     "amount": "Umubare w'amafaranga",
     "amountWithCurrency": "Umubare w'amafaranga ({{currency}}) *",
+    "audience": "Abagenewe",
     "back": "Subira inyuma",
+    "bodyRequired": "Ibikubiyemo *",
     "boys": "Abahungu",
     "cancel": "Reka",
+    "category": "Icyiciro",
     "close": "Funga",
     "closed": "Byafunzwe",
     "completed": "Byarangiye",
@@ -135,6 +144,7 @@
     "score": "Amanota",
     "search": "Shakisha",
     "select": "Hitamo",
+    "send": "Ohereza",
     "sending": "Biroherezwa…",
     "showAll": "Erekana byose",
     "skipToContent": "Simbukira ku bikubiyemo",
@@ -144,6 +154,8 @@
     "submitted": "Byatanzwe",
     "term": "Igihembwe",
     "timeIn": "Isaha yo kwinjira",
+    "title": "Umutwe",
+    "titleRequired": "Umutwe *",
     "type": "Ubwoko",
     "upload": "Ohereza",
     "viewAll": "Reba byose",
@@ -268,13 +280,20 @@
     }
   },
   "messaging": {
+    "attachFile": "Omeka dosiye",
     "backToConversations": "Subira ku biganiro",
+    "emoji": "Emoji",
     "loading": "Biratangira…",
+    "moreOptions": "Ibindi bikorwa",
     "new": "Bushya",
+    "newMessage": "Ubutumwa bushya",
     "noConversations": "Nta biganiro birahari. Kanda \"Bushya\" utangire.",
+    "noMessages": "Nta butumwa burahari. Musuhuze.",
     "search": "Shakisha ubutumwa...",
+    "searchPeople": "Shakisha abo wandikira…",
     "selectConversation": "Hitamo ikiganiro kugira ngo ugisome.",
     "title": "Ubutumwa",
+    "typeMessage": "Andika ubutumwa bwawe…",
     "viewProfile": "Reba umwirondoro"
   },
   "nav": {

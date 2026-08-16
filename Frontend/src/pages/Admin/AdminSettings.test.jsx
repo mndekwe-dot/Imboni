@@ -59,7 +59,8 @@ describe('AdminSettings', () => {
     fireEvent.change(screen.getByDisplayValue('Imboni Academy'), { target: { value: 'New Name Academy' } })
     fireEvent.click(screen.getByRole('button', { name: /Save Changes/ }))
 
-    await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith({ school_name: 'New Name Academy', timezone: 'Africa/Kigali' }))
+    await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith(
+      { school_name: 'New Name Academy', timezone: 'Africa/Kigali', currency: 'RWF' }))
     expect(await screen.findByText('Saved!')).toBeInTheDocument()
   })
 
