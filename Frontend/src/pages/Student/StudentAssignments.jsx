@@ -276,7 +276,7 @@ export function StudentAssignments() {
                                                     <button className="btn btn-outline btn-sm"
                                                         onClick={() => navigate(`/student/quiz/${q.id}/review`)}>
                                                         <span className="material-symbols-rounded icon-sm">visibility</span>
-                                                        {t('common.review')}
+                                                        {t('common.revise')}
                                                     </button>
                                                 </div>
                                             ) : (

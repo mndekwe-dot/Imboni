@@ -130,6 +130,30 @@ brackets), not from a generic word list.
 | Records (19) | inyandiko | ok |
 | Report (18) | raporo | OK |
 
+
+## 9. Weekdays (timetable / attendance columns)
+
+Kinyarwanda names days by ordinal, so three-letter abbreviations collide:
+*gatatu* (3rd) and *gatanu* (5th) both shorten to "Gat". The full short form is
+used instead — unambiguous and still short enough for a table header.
+
+| English | Kinyarwanda |
+|---|---|
+| Mon | Mbere |
+| Tue | Kabiri |
+| Wed | Gatatu |
+| Thu | Kane |
+| Fri | Gatanu |
+
+## 10. One English word, two acts
+
+"Review" means two different things in this app and must not share a key:
+
+| Context | Key | Kinyarwanda |
+|---|---|---|
+| Re-read your own submitted quiz | `common.revise` | Subiramo |
+| Assess someone else's work to approve or reject | `dos.results.review` | Suzuma |
+
 ---
 
 ## Notes — RESOLVED (reviewed 2026-08-15)
