@@ -80,11 +80,12 @@ function groupResults(raw) {
 }
 
 
+// Labels are resolved at render; a module constant cannot call t().
 const STATUS_TABS = [
-    { key: 'all', label: 'All' },
-    { key: 'pending', label: 'Pending' },
-    { key: 'approved', label: 'Approved' },
-    { key: 'rejected', label: 'Rejected' },
+    { key: 'all',      labelKey: 'common.all'      },
+    { key: 'pending',  labelKey: 'common.pending'  },
+    { key: 'approved', labelKey: 'common.approved' },
+    { key: 'rejected', labelKey: 'common.rejected' },
 ]
 
 const STATUS_STYLE = {
@@ -95,6 +96,7 @@ const STATUS_STYLE = {
 
 // ── Result Card ───────────────────────────────────────────────────────────────
 function ResultCard({ result, onReview, onView }) {
+    const { t } = useTranslation()
     const s = STATUS_STYLE[result.status]
     return (
         <div className="card dos-result-card">
@@ -133,7 +135,7 @@ function ResultCard({ result, onReview, onView }) {
                         <button className="btn btn-primary btn-sm" onClick={() => onReview(result)}>
                             <span className="material-symbols-rounded icon-sm">rate_review</span> Review
                         </button>
-                        <button className="btn btn-outline btn-sm" onClick={() => onView(result)}>View Details</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => onView(result)}>{t('dos.results.viewDetails')}</button>
                     </>
                 )}
                 {result.status === 'approved' && (
@@ -146,7 +148,7 @@ function ResultCard({ result, onReview, onView }) {
                         <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onView(result)}>
                             <span className="material-symbols-rounded icon-sm">info</span> View Feedback
                         </button>
-                        <button className="btn btn-primary btn-sm" onClick={() => onReview(result)}>Re-review</button>
+                        <button className="btn btn-primary btn-sm" onClick={() => onReview(result)}>{t('dos.results.reReview')}</button>
                     </>
                 )}
             </div>
@@ -161,6 +163,7 @@ function gradeColor(g) {
 
 // ── Review Modal ──────────────────────────────────────────────────────────────
 function ReviewModal({ result, onClose, onApprove, onReject }) {
+    const { t } = useTranslation()
     const [tab, setTab] = useState('overview')
     const [comment, setComment] = useState('')
 
@@ -171,10 +174,10 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
     ]
 
     return (
-        <Modal title="Review Submission" icon="rate_review" onClose={onClose} size="wide"
+        <Modal title={t('dos.results.reviewSubmission')} icon="rate_review" onClose={onClose} size="wide"
             footer={
                 <div className="modal-confirm-actions flex-wrap-gap-3 u-full">
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-outline btn-destructive-outline"
                         onClick={() => { onReject(result); onClose() }}>
                         <span className="material-symbols-rounded icon-sm">cancel</span> Reject
@@ -242,9 +245,9 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                         ))}
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Review Comment (optional)</label>
+                        <label className="form-label">{t('dos.results.reviewComment')}</label>
                         <textarea className="form-control es-textarea-v" rows={3}
-                            placeholder="Add a note for the teacher (required if rejecting)..."
+                            placeholder={t('dos.results.notePlaceholder')}
                             value={comment} onChange={e => setComment(e.target.value)}
                         />
                     </div>
@@ -329,12 +332,13 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
 
 // ── View Details Modal ────────────────────────────────────────────────────────
 function ViewModal({ result, onClose }) {
+    const { t } = useTranslation()
     const s = STATUS_STYLE[result.status]
     const passCount = Math.round(result.students * 0.88)
     const failCount = result.students - passCount
     return (
-        <Modal title="Result Details" icon="assessment" onClose={onClose}
-            footer={<button className="btn btn-outline" onClick={onClose}>Close</button>}
+        <Modal title={t('dos.results.resultDetails')} icon="assessment" onClose={onClose}
+            footer={<button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>}
         >
             <div className="dos-review-block-header mb-5">
                 <div>
@@ -465,9 +469,10 @@ export function DosResults() {
     }
 
     // Add a count badge to each filter tab (e.g. "Pending 3")
-    const statusTabsWithCount = STATUS_TABS.map(t => ({
-        ...t,
-        count: t.key === 'all' ? undefined : cards.filter(c => c.status === t.key).length,
+    const statusTabsWithCount = STATUS_TABS.map(tab => ({
+        ...tab,
+        label: t(tab.labelKey),
+        count: tab.key === 'all' ? undefined : cards.filter(c => c.status === tab.key).length,
     }))
 
     // Apply the active status filter and search box to reduce the visible cards
@@ -524,7 +529,7 @@ export function DosResults() {
                                     <div className="toolbar-search">
                                         <span className="material-symbols-rounded">search</span>
                                         <input
-                                            placeholder="Search by teacher, subject, or class..."
+                                            placeholder={t('dos.results.search')}
                                             value={search} onChange={e => setSearch(e.target.value)}
                                         />
                                         {search && (
@@ -593,7 +598,7 @@ export function DosResults() {
                                         {/* Grade Distribution Donut */}
                                         <div className="card">
                                             <div className="card-header">
-                                                <h3 className="card-title">Grade Distribution</h3>
+                                                <h3 className="card-title">{t('dos.results.gradeDistribution')}</h3>
                                                 <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''}</span>
                                             </div>
                                             <div className="card-content">
@@ -614,7 +619,7 @@ export function DosResults() {
                                         {/* Monthly Attendance AreaChart */}
                                         <div className="card">
                                             <div className="card-header">
-                                                <h3 className="card-title">Attendance Trend</h3>
+                                                <h3 className="card-title">{t('dos.results.attendanceTrend')}</h3>
                                                 <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''}</span>
                                             </div>
                                             <div className="card-content">
@@ -640,7 +645,7 @@ export function DosResults() {
                                     {/* Row 2: Pass/Fail by Class stacked bar */}
                                     <div className="card">
                                         <div className="card-header">
-                                            <h3 className="card-title">Pass / Fail Rate by Class</h3>
+                                            <h3 className="card-title">{t('dos.results.passFail')}</h3>
                                             <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''} · % of students</span>
                                         </div>
                                         <div className="card-content">
@@ -664,7 +669,7 @@ export function DosResults() {
                                         {/* Teacher Submission Status */}
                                         <div className="card">
                                             <div className="card-header">
-                                                <h3 className="card-title">Result Submissions</h3>
+                                                <h3 className="card-title">{t('dos.results.submissions')}</h3>
                                                 <span className="settings-info-text">By subject</span>
                                             </div>
                                             <div className="card-content">
@@ -685,7 +690,7 @@ export function DosResults() {
                                         {/* Performance by Grade */}
                                         <div className="card">
                                             <div className="card-header">
-                                                <h3 className="card-title">Performance by Grade</h3>
+                                                <h3 className="card-title">{t('dos.results.performanceByGrade')}</h3>
                                                 <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''}</span>
                                             </div>
                                             <div className="card-content">
@@ -707,7 +712,7 @@ export function DosResults() {
                                     {/* Row 4: Subject Performance (full width) */}
                                     <div className="card">
                                         <div className="card-header">
-                                            <h3 className="card-title">Subject Performance</h3>
+                                            <h3 className="card-title">{t('dos.results.subjectPerformance')}</h3>
                                             <span className="settings-info-text">{(d.terms || []).find(t => t.id === activeTermId)?.name || ''}</span>
                                         </div>
                                         <div className="card-content">

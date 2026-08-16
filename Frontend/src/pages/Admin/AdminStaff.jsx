@@ -114,6 +114,7 @@ function StaffRow({ member, onView }) {
 }
 
 function InviteModal({ onClose, onSent }) {
+    const { t } = useTranslation()
     const [form,    setForm]    = useState(BLANK_INVITE)
     const [loading, setLoading] = useState(false)
     const [error,   setError]   = useState('')
@@ -156,7 +157,7 @@ function InviteModal({ onClose, onSent }) {
                 {success ? (
                     <div className="modal-body adm-invite-success">
                         <span className="material-symbols-rounded adm-invite-success-icon">mark_email_read</span>
-                        <p className="adm-invite-success-title">Invitation sent!</p>
+                        <p className="adm-invite-success-title">{t('admin.staff.invitationSent')}</p>
                         <p className="adm-invite-success-note">
                             An invitation link was sent to <strong>{form.email}</strong>
                         </p>
@@ -165,20 +166,20 @@ function InviteModal({ onClose, onSent }) {
                     <form className="modal-body u-stack-1" onSubmit={handleSubmit}>
                         <div className="u-grid-2">
                             <div className="form-group form-group-0">
-                                <label className="form-label" htmlFor="invite-first-name">First Name *</label>
+                                <label className="form-label" htmlFor="invite-first-name">{t('common.firstNameRequired')}</label>
                                 <input id="invite-first-name" className="form-input" name="first_name" value={form.first_name} onChange={handleChange} autoFocus />
                             </div>
                             <div className="form-group form-group-0">
-                                <label className="form-label" htmlFor="invite-last-name">Last Name *</label>
+                                <label className="form-label" htmlFor="invite-last-name">{t('common.lastNameRequired')}</label>
                                 <input id="invite-last-name" className="form-input" name="last_name" value={form.last_name} onChange={handleChange} />
                             </div>
                         </div>
                         <div className="form-group form-group-0">
-                            <label className="form-label" htmlFor="invite-email">Email Address *</label>
+                            <label className="form-label" htmlFor="invite-email">{t('common.emailAddressRequired')}</label>
                             <input id="invite-email" className="form-input" name="email" type="email" value={form.email} onChange={handleChange} />
                         </div>
                         <div className="form-group form-group-0">
-                            <label className="form-label" htmlFor="invite-role">Role *</label>
+                            <label className="form-label" htmlFor="invite-role">{t('common.roleRequired')}</label>
                             <select id="invite-role" className="form-input" name="role" value={form.role} onChange={handleChange}>
                                 {INVITE_ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                             </select>
@@ -191,7 +192,7 @@ function InviteModal({ onClose, onSent }) {
                         </div>
                         {error && <p className="form-error-text">{error}</p>}
                         <div className="u-row-sm u-justify-end u-pt-xs">
-                            <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
+                            <button type="button" className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                             <button type="submit" className="btn btn-primary" disabled={loading}>
                                 <span className="material-symbols-rounded">send</span>
                                 {loading ? 'Sending…' : 'Send Invitation'}
@@ -287,7 +288,7 @@ export function AdminStaff() {
                 <div className="modal-overlay" onClick={() => setViewing(null)}>
                     <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h2 className="modal-title">Staff Profile</h2>
+                            <h2 className="modal-title">{t('admin.staff.profile')}</h2>
                             <button className="modal-close" onClick={() => setViewing(null)}>
                                 <span className="material-symbols-rounded">close</span>
                             </button>
@@ -364,16 +365,16 @@ export function AdminStaff() {
                                         {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
                                     </div>
                                     <select className="input input-auto select-xs" value={deptFilter} onChange={e => setDeptFilter(e.target.value)}>
-                                        <option>All Departments</option>
-                                        <option>Academic</option><option>Welfare</option><option>Admin</option>
+                                        <option>{t('admin.staff.allDepartments')}</option>
+                                        <option>{t('admin.staff.academic')}</option><option>{t('admin.staff.welfare')}</option><option>Admin</option>
                                     </select>
                                     <select className="input input-auto select-xs" value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
-                                        <option>All Roles</option>
-                                        <option value="teacher">Teacher</option>
-                                        <option value="dos">Director of Studies</option>
-                                        <option value="matron">Matron</option>
-                                        <option value="discipline">Discipline Master</option>
-                                        <option value="admin">Administrator</option>
+                                        <option>{t('admin.staff.allRoles')}</option>
+                                        <option value="teacher">{t('common.teacher')}</option>
+                                        <option value="dos">{t('roles.dos')}</option>
+                                        <option value="matron">{t('roles.matron')}</option>
+                                        <option value="discipline">{t('admin.staff.disciplineMaster')}</option>
+                                        <option value="admin">{t('roles.admin')}</option>
                                     </select>
                                 </div>
 
@@ -397,9 +398,9 @@ export function AdminStaff() {
                         {activeTab === 'invitations' && (
                             <div className="card">
                                 <div className="card-header">
-                                    <h2 className="card-title">Staff Invitations</h2>
+                                    <h2 className="card-title">{t('admin.staff.invitations')}</h2>
                                     <button className="btn btn-outline btn-sm" onClick={loadInvitations}>
-                                        <span className="material-symbols-rounded">refresh</span> Refresh
+                                        <span className="material-symbols-rounded">refresh</span> {t('common.refresh')}
                                     </button>
                                 </div>
                                 <div className="card-content">
@@ -413,11 +414,11 @@ export function AdminStaff() {
                                             <table className="adm-table">
                                                 <thead>
                                                     <tr>
-                                                        <th>Recipient</th>
-                                                        <th>Role</th>
-                                                        <th>Status</th>
-                                                        <th>Sent</th>
-                                                        <th>Actions</th>
+                                                        <th>{t('admin.staff.recipient')}</th>
+                                                        <th>{t('common.role')}</th>
+                                                        <th>{t('common.status')}</th>
+                                                        <th>{t('common.sent')}</th>
+                                                        <th>{t('common.actions')}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
