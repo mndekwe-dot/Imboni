@@ -326,7 +326,17 @@ class RoomSerializer(serializers.ModelSerializer):
 class SchoolSettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolSetting
-        fields = ['timezone', 'school_name', 'terms']
+        fields = ['timezone', 'school_name', 'terms', 'currency']
+
+    def validate_currency(self, value):
+        # ISO 4217 is three uppercase letters. Stored uppercase so the UI can
+        # print it directly without normalising at every call site.
+        code = (value or '').strip().upper()
+        if not (len(code) == 3 and code.isalpha()):
+            raise serializers.ValidationError(
+                "Currency must be a 3-letter ISO 4217 code, e.g. RWF, KES, USD."
+            )
+        return code
 
     def validate_timezone(self, value):
         try:
