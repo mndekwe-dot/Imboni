@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 import { Loading } from '../../components/ui/Loading'
@@ -9,44 +10,45 @@ import {
 } from '../../api/discipline'
 
 const GENDERS = [
-    { value: 'mixed',  label: 'Mixed'  },
-    { value: 'male',   label: 'Boys'   },
-    { value: 'female', label: 'Girls'  },
+    { value: 'mixed',  labelKey: 'common.mixed' },
+    { value: 'male',   labelKey: 'common.boys'  },
+    { value: 'female', labelKey: 'common.girls' },
 ]
-const GENDER_LABEL = Object.fromEntries(GENDERS.map(g => [g.value, g.label]))
+const GENDER_KEY = Object.fromEntries(GENDERS.map(g => [g.value, g.labelKey]))
 
 // ── Dormitory + room manager — the bins the generator packs into ─────────────
 
 function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                        onCreateRoom, onUpdateRoom, onDeleteRoom }) {
+    const { t } = useTranslation()
     const [dormDraft, setDormDraft] = useState({ name: '', gender: 'mixed' })
     const [roomDraft, setRoomDraft] = useState({ dormitory: '', room_number: '', bed_capacity: 4 })
     const [error, setError] = useState('')
 
     async function addDorm() {
-        if (!dormDraft.name.trim()) { setError('Dormitory name is required'); return }
+        if (!dormDraft.name.trim()) { setError(t('dis.dormPlanner.dormNameRequired')); return }
         try {
             await onCreateDorm({ ...dormDraft, name: dormDraft.name.trim() })
             setDormDraft({ name: '', gender: 'mixed' })
             setError('')
-        } catch (e) { setError(e.response?.data?.detail || 'Could not add dormitory') }
+        } catch (e) { setError(e.response?.data?.detail || t('dis.dormPlanner.addDormFailed')) }
     }
 
     async function addRoom() {
         if (!roomDraft.dormitory || !roomDraft.room_number.trim()) {
-            setError('Pick a dormitory and enter a room number'); return
+            setError(t('dis.dormPlanner.pickDormAndRoom')); return
         }
         try {
             await onCreateRoom({ ...roomDraft, room_number: roomDraft.room_number.trim() })
             setRoomDraft({ dormitory: roomDraft.dormitory, room_number: '', bed_capacity: 4 })
             setError('')
-        } catch (e) { setError(e.response?.data?.detail || 'Could not add room') }
+        } catch (e) { setError(e.response?.data?.detail || t('dis.dormPlanner.addRoomFailed')) }
     }
 
     return (
         <div className="card mb-5">
             <div className="card-header">
-                <h2 className="card-title">Dormitories &amp; Rooms</h2>
+                <h2 className="card-title">{t('dis.dormPlanner.title')}</h2>
                 <span className="u-muted u-sm">
                     {dorms.length} dormitor{dorms.length !== 1 ? 'ies' : 'y'} · {rooms.length} room{rooms.length !== 1 ? 's' : ''}
                 </span>
@@ -54,8 +56,7 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
             <div className="card-content">
                 {dorms.length === 0 && (
                     <p className="u-muted u-sm">
-                        No dormitories yet. Add one below, give it rooms with a bed
-                        capacity, then use Generate to pack boarders into them.
+                        {t('dis.dormPlanner.noDorms')}
                     </p>
                 )}
 
@@ -63,14 +64,14 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                     <div key={d.id} className="dorm-block">
                         <div className="dorm-head">
                             <strong>{d.name}</strong>
-                            <span className="badge">{GENDER_LABEL[d.gender] || d.gender}</span>
-                            <span className="u-muted u-sm">{d.bed_count ?? 0} beds</span>
+                            <span className="badge">{GENDER_KEY[d.gender] ? t(GENDER_KEY[d.gender]) : d.gender}</span>
+                            <span className="u-muted u-sm">{t('dis.dormPlanner.bedCount', { count: d.bed_count ?? 0 })}</span>
                             <label className="u-flex u-gap-05 u-items-center u-sm u-muted">
                                 <input type="checkbox" checked={d.is_active}
                                        onChange={e => onUpdateDorm(d.id, { is_active: e.target.checked })} />
-                                Active
+                                {t('common.active')}
                             </label>
-                            <button className="btn-icon-clean" title={`Delete ${d.name}`}
+                            <button className="btn-icon-clean" title={t('dis.dormPlanner.deleteDorm', { name: d.name })}
                                     onClick={() => onDeleteDorm(d.id)}>
                                 <span className="material-symbols-rounded u-fs-095">delete</span>
                             </button>
@@ -78,21 +79,21 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                         <div className="dorm-rooms">
                             {rooms.filter(r => String(r.dormitory) === String(d.id)).map(r => (
                                 <span key={r.id} className={`dorm-room-chip${r.is_active ? '' : ' is-off'}`}>
-                                    {r.room_number} · {r.bed_capacity} beds
-                                    <button className="btn-icon-clean" title={`Toggle room ${r.room_number}`}
+                                    {r.room_number} · {t('dis.dormPlanner.bedCount', { count: r.bed_capacity })}
+                                    <button className="btn-icon-clean" title={t('dis.dormPlanner.toggleRoom', { number: r.room_number })}
                                             onClick={() => onUpdateRoom(r.id, { is_active: !r.is_active })}>
                                         <span className="material-symbols-rounded u-fs-085">
                                             {r.is_active ? 'toggle_on' : 'toggle_off'}
                                         </span>
                                     </button>
-                                    <button className="btn-icon-clean" title={`Delete room ${r.room_number}`}
+                                    <button className="btn-icon-clean" title={t('dis.dormPlanner.deleteRoom', { number: r.room_number })}
                                             onClick={() => onDeleteRoom(r.id)}>
                                         <span className="material-symbols-rounded u-fs-085">close</span>
                                     </button>
                                 </span>
                             ))}
                             {rooms.filter(r => String(r.dormitory) === String(d.id)).length === 0 && (
-                                <span className="u-muted u-sm">No rooms yet</span>
+                                <span className="u-muted u-sm">{t('dis.dormPlanner.noRooms')}</span>
                             )}
                         </div>
                     </div>
@@ -100,36 +101,36 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
 
                 <div className="u-grid u-grid-2 u-gap-1 mt-1">
                     <div className="form-group">
-                        <label className="form-label">Add a dormitory</label>
+                        <label className="form-label">{t('dis.dormPlanner.addDorm')}</label>
                         <div className="u-flex u-gap-05">
-                            <input className="form-input" placeholder="Dormitory name (e.g. Bisoke)"
+                            <input className="form-input" placeholder={t('dis.dormPlanner.dormNamePlaceholder')}
                                    value={dormDraft.name}
                                    onChange={e => setDormDraft({ ...dormDraft, name: e.target.value })} />
-                            <select className="form-select" aria-label="Dormitory gender"
+                            <select className="form-select" aria-label={t('dis.dormPlanner.dormGender')}
                                     value={dormDraft.gender}
                                     onChange={e => setDormDraft({ ...dormDraft, gender: e.target.value })}>
-                                {GENDERS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                                {GENDERS.map(g => <option key={g.value} value={g.value}>{t(g.labelKey)}</option>)}
                             </select>
-                            <button className="btn btn-primary btn-sm" onClick={addDorm}>Add</button>
+                            <button className="btn btn-primary btn-sm" onClick={addDorm}>{t('common.add')}</button>
                         </div>
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Add a room</label>
+                        <label className="form-label">{t('dis.dormPlanner.addRoom')}</label>
                         <div className="u-flex u-gap-05">
-                            <select className="form-select" aria-label="Room dormitory"
+                            <select className="form-select" aria-label={t('dis.dormPlanner.roomDormitory')}
                                     value={roomDraft.dormitory}
                                     onChange={e => setRoomDraft({ ...roomDraft, dormitory: e.target.value })}>
-                                <option value="">Dormitory…</option>
+                                <option value="">{t('dis.dormPlanner.dormEllipsis')}</option>
                                 {dorms.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                             </select>
-                            <input className="form-input" placeholder="Room no."
+                            <input className="form-input" placeholder={t('dis.dormPlanner.roomNumberPlaceholder')}
                                    value={roomDraft.room_number}
                                    onChange={e => setRoomDraft({ ...roomDraft, room_number: e.target.value })} />
                             <input type="number" min="1" max="100" className="form-input"
-                                   aria-label="Bed capacity" value={roomDraft.bed_capacity}
+                                   aria-label={t('dis.dormPlanner.bedCapacity')} value={roomDraft.bed_capacity}
                                    onChange={e => setRoomDraft({ ...roomDraft, bed_capacity: Number(e.target.value) })} />
-                            <button className="btn btn-primary btn-sm" onClick={addRoom}>Add</button>
+                            <button className="btn btn-primary btn-sm" onClick={addRoom}>{t('common.add')}</button>
                         </div>
                     </div>
                 </div>
@@ -142,6 +143,7 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
 // ── Generate modal — preview then commit ────────────────────────────────────
 
 function GenerateModal({ dorms, onClose, onCommitted }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [selected, setSelected] = useState([])
     const [preview, setPreview] = useState(null)
@@ -163,7 +165,7 @@ function GenerateModal({ dorms, onClose, onCommitted }) {
             setPreview(plan)
             plan.warnings?.forEach(w => toast.info(w))
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not generate an assignment.')
+            toast.error(err.response?.data?.detail || t('dis.dormPlanner.generateFailed'))
         } finally { setBusy(false) }
     }
 
@@ -171,32 +173,32 @@ function GenerateModal({ dorms, onClose, onCommitted }) {
         setBusy(true)
         try {
             const result = await commitHousing(payload())
-            toast.success(`Assigned ${result.updated} student(s) to rooms.`)
+            toast.success(t('dis.dormPlanner.saved', { count: result.updated }))
             onCommitted()
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not save the assignment.')
+            toast.error(err.response?.data?.detail || t('dis.dormPlanner.saveFailed'))
         } finally { setBusy(false) }
     }
 
     return (
         <Modal
-            title="Generate Dormitory Assignment" icon="auto_awesome" onClose={onClose} size="wide"
+            title={t('dis.dormPlanner.generateTitle')} icon="auto_awesome" onClose={onClose} size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
-                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
                     {preview
                         ? <button className="btn btn-primary" onClick={handleCommit}
                                   disabled={busy || preview.summary.placed === 0}>
-                              Save {preview.summary.placed} assignment(s)
+                              {t('dis.dormPlanner.saveAssignments', { count: preview.summary.placed })}
                           </button>
                         : <button className="btn btn-primary" onClick={handlePreview} disabled={busy}>
-                              {busy ? 'Generating…' : 'Preview'}
+                              {busy ? t('common.generating') : t('dos.examSchedule.preview')}
                           </button>}
                 </div>
             }
         >
             <div className="form-group">
-                <label className="form-label">Dormitories to fill</label>
+                <label className="form-label">{t('dis.dormPlanner.dormsToFill')}</label>
                 <div className="att-mode-bar">
                     {dorms.map(d => (
                         <button key={d.id} type="button"
@@ -207,28 +209,37 @@ function GenerateModal({ dorms, onClose, onCommitted }) {
                     ))}
                 </div>
                 <p className="u-muted u-fs-085 mt-1">
-                    Select none to use every active dormitory. Classes are kept together
-                    where a room is big enough; day scholars are skipped.
+                    {t('dis.dormPlanner.selectNoneHint')}
                 </p>
             </div>
 
             {preview && (
                 <div className="mt-1-5">
                     <div className="es-gen-summary">
-                        <span className="badge badge-published">{preview.summary.placed} placed</span>
+                        <span className="badge badge-published">{t('dis.dormPlanner.placed', { count: preview.summary.placed })}</span>
                         {preview.summary.unplaced > 0 &&
-                            <span className="badge badge-draft">{preview.summary.unplaced} unplaced</span>}
+                            <span className="badge badge-draft">{t('dis.dormPlanner.unplaced', { count: preview.summary.unplaced })}</span>}
                         <span className="u-muted u-sm">
-                            {preview.summary.students} boarders · {preview.summary.rooms_used}/{preview.summary.rooms} rooms used ·
-                            {' '}{preview.summary.free_beds} free bed(s)
+                            {t('dis.dormPlanner.summary', {
+                                students: preview.summary.students,
+                                used: preview.summary.rooms_used,
+                                rooms: preview.summary.rooms,
+                                free: preview.summary.free_beds,
+                            })}
                         </span>
                     </div>
 
-                    <h3 className="section-label-sm mt-1-5">Room occupancy</h3>
+                    <h3 className="section-label-sm mt-1-5">{t('dis.dormPlanner.roomOccupancy')}</h3>
                     <div className="es-table-wrap">
                         <table className="es-table">
                             <thead>
-                                <tr><th>Dormitory</th><th>Room</th><th>Occupancy</th><th>Free</th><th>Classes</th></tr>
+                                <tr>
+                                    <th>{t('common.dormitory')}</th>
+                                    <th>{t('common.room')}</th>
+                                    <th>{t('common.occupancy')}</th>
+                                    <th>{t('common.free')}</th>
+                                    <th>{t('common.classes')}</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {preview.rooms.map(r => (
@@ -246,10 +257,10 @@ function GenerateModal({ dorms, onClose, onCommitted }) {
 
                     {preview.unplaced.length > 0 && (
                         <>
-                            <h3 className="section-label-sm mt-1-5">Could not be placed</h3>
+                            <h3 className="section-label-sm mt-1-5">{t('dis.dormPlanner.couldNotPlace')}</h3>
                             <div className="es-table-wrap">
                                 <table className="es-table">
-                                    <thead><tr><th>Student</th><th>Class</th><th>Reason</th></tr></thead>
+                                    <thead><tr><th>{t('common.student')}</th><th>{t('common.class')}</th><th>{t('common.reason')}</th></tr></thead>
                                     <tbody>
                                         {preview.unplaced.map(u => (
                                             <tr key={u.boarding_id}>
@@ -272,6 +283,7 @@ function GenerateModal({ dorms, onClose, onCommitted }) {
 // ── Tab ─────────────────────────────────────────────────────────────────────
 
 export function DormPlannerTab({ onCommitted }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [dorms, setDorms] = useState([])
     const [rooms, setRooms] = useState([])
@@ -286,7 +298,7 @@ export function DormPlannerTab({ onCommitted }) {
 
     useEffect(() => {
         load()
-            .catch(() => toast.error('Could not load dormitories.'))
+            .catch(() => toast.error(t('dis.dormPlanner.loadFailed')))
             .finally(() => setLoading(false))
     }, [load, toast])
 
@@ -294,13 +306,13 @@ export function DormPlannerTab({ onCommitted }) {
     async function handleUpdateDorm(id, data) { await patchDormitory(id, data); await load() }
     async function handleDeleteDorm(id) {
         try { await deleteDormitory(id); await load() }
-        catch { toast.error('Could not delete dormitory.') }
+        catch { toast.error(t('dis.dormPlanner.deleteDormFailed')) }
     }
     async function handleCreateRoom(data) { await createDormRoom(data); await load() }
     async function handleUpdateRoom(id, data) { await patchDormRoom(id, data); await load() }
     async function handleDeleteRoom(id) {
         try { await deleteDormRoom(id); await load() }
-        catch { toast.error('Could not delete room.') }
+        catch { toast.error(t('dis.dormPlanner.deleteRoomFailed')) }
     }
 
     if (loading) return <Loading />
@@ -316,7 +328,7 @@ export function DormPlannerTab({ onCommitted }) {
                     onCommitted={() => {
                         setShowGenerate(false)
                         onCommitted?.()
-                        load().catch(() => toast.error('Could not reload dormitories.'))
+                        load().catch(() => toast.error(t('dis.dormPlanner.reloadFailed')))
                     }}
                 />
             )}
@@ -331,24 +343,25 @@ export function DormPlannerTab({ onCommitted }) {
 
             <div className="card">
                 <div className="card-header">
-                    <h2 className="card-title">Room Assignment</h2>
+                    <h2 className="card-title">{t('dis.dormPlanner.assignmentTitle')}</h2>
                     <div className="es-card-actions">
                         <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}
                                 disabled={rooms.length === 0}>
-                            <span className="material-symbols-rounded">auto_awesome</span> Generate
+                            <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
                         </button>
                     </div>
                 </div>
                 <div className="card-content">
                     {rooms.length === 0 ? (
                         <p className="u-muted u-sm">
-                            Add dormitory rooms above, then Generate packs every active
-                            boarder into a bed: classes together, rooms filled evenly.
+                            {t('dis.dormPlanner.noRoomsHint')}
                         </p>
                     ) : (
                         <p className="u-muted u-sm">
-                            {totalBeds} bed(s) across {rooms.filter(r => r.is_active).length} active room(s).
-                            Generate previews the packing before anything is saved.
+                            {t('dis.dormPlanner.bedsHint', {
+                                beds: totalBeds,
+                                rooms: rooms.filter(r => r.is_active).length,
+                            })}
                         </p>
                     )}
                 </div>

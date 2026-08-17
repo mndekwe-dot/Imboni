@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 import { Loading } from '../../components/ui/Loading'
@@ -8,15 +9,16 @@ import {
 } from '../../api/dos'
 
 const MEALS = [
-    { value: 'breakfast', label: 'Breakfast' },
-    { value: 'lunch',     label: 'Lunch' },
-    { value: 'supper',    label: 'Supper' },
+    { value: 'breakfast', labelKey: 'dos.dining.mealBreakfast' },
+    { value: 'lunch',     labelKey: 'dos.dining.mealLunch'     },
+    { value: 'supper',    labelKey: 'dos.dining.mealSupper'    },
 ]
-const MEAL_LABEL = Object.fromEntries(MEALS.map(m => [m.value, m.label]))
+const MEAL_KEY = Object.fromEntries(MEALS.map(m => [m.value, m.labelKey]))
 
 // ── Sitting manager ──────────────────────────────────────────────────────────
 
 function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
+    const { t } = useTranslation()
     const [draft, setDraft] = useState({
         name: '', meal: 'lunch', start_time: '', end_time: '', capacity: 100,
     })
@@ -24,41 +26,40 @@ function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
 
     async function add() {
         if (!draft.name.trim() || !draft.start_time || !draft.end_time) {
-            setError('Name, start and end time are required'); return
+            setError(t('dos.dining.nameTimesRequired')); return
         }
-        if (!draft.capacity || draft.capacity < 1) { setError('Capacity must be at least 1'); return }
+        if (!draft.capacity || draft.capacity < 1) { setError(t('dos.dining.capacityMin')); return }
         try {
             await onCreate({ ...draft, name: draft.name.trim(), order: sittings.length + 1 })
             setDraft({ name: '', meal: 'lunch', start_time: '', end_time: '', capacity: 100 })
             setError('')
-        } catch (e) { setError(e.response?.data?.detail || 'Could not add sitting') }
+        } catch (e) { setError(e.response?.data?.detail || t('dos.dining.addSittingFailed')) }
     }
 
     return (
         <div className="card mb-5">
             <div className="card-header">
-                <h2 className="card-title">Dining Sittings</h2>
+                <h2 className="card-title">{t('dos.dining.sittings')}</h2>
                 <span className="u-muted u-sm">{sittings.length} sitting{sittings.length !== 1 ? 's' : ''}</span>
             </div>
             <div className="card-content">
                 {sittings.length === 0 && (
                     <p className="u-muted u-sm">
-                        No sittings yet. Add one below. The planner seats whole classes into
-                        sittings without exceeding the seats available.
+                        {t('dos.dining.noSittings')}
                     </p>
                 )}
                 {sittings.map(s => (
                     <div key={s.id} className="dset-lesson-row">
                         <span className="dset-lesson-name">{s.name}</span>
-                        <span className="es-room-chip">{MEAL_LABEL[s.meal] || s.meal}</span>
+                        <span className="es-room-chip">{MEAL_KEY[s.meal] ? t(MEAL_KEY[s.meal]) : s.meal}</span>
                         <span className="u-muted u-sm">{s.start_time?.slice(0,5)}-{s.end_time?.slice(0,5)}</span>
-                        <span className="es-room-chip">{s.capacity} seats</span>
+                        <span className="es-room-chip">{t('dos.dining.seatCount', { count: s.capacity })}</span>
                         <label className="u-flex u-gap-05 u-items-center u-sm u-muted">
                             <input type="checkbox" checked={s.is_active}
                                    onChange={e => onUpdate(s.id, { is_active: e.target.checked })} />
-                            Active
+                            {t('common.active')}
                         </label>
-                        <button className="btn-icon-clean dos-danger-text" title="Delete sitting"
+                        <button className="btn-icon-clean dos-danger-text" title={t('dos.dining.deleteSitting')}
                                 onClick={() => onDelete(s.id)}>
                             <span className="material-symbols-rounded u-fs-095">delete</span>
                         </button>
@@ -66,20 +67,20 @@ function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
                 ))}
 
                 <div className="dset-lesson-add mt-1">
-                    <input className="form-input dset-input-lesson" placeholder="Sitting name (e.g. Lunch 1)"
+                    <input className="form-input dset-input-lesson" placeholder={t('dos.dining.namePlaceholder')}
                            value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} />
-                    <select className="form-select" aria-label="Meal" value={draft.meal}
+                    <select className="form-select" aria-label={t('common.meal')} value={draft.meal}
                             onChange={e => setDraft({ ...draft, meal: e.target.value })}>
-                        {MEALS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                        {MEALS.map(m => <option key={m.value} value={m.value}>{t(m.labelKey)}</option>)}
                     </select>
-                    <input type="time" className="form-input" aria-label="Start time"
+                    <input type="time" className="form-input" aria-label={t('common.startTime')}
                            value={draft.start_time} onChange={e => setDraft({ ...draft, start_time: e.target.value })} />
-                    <input type="time" className="form-input" aria-label="End time"
+                    <input type="time" className="form-input" aria-label={t('common.endTime')}
                            value={draft.end_time} onChange={e => setDraft({ ...draft, end_time: e.target.value })} />
                     <input type="number" min="1" className="form-input dset-input-narrow"
-                           aria-label="Capacity" value={draft.capacity}
+                           aria-label={t('common.capacity')} value={draft.capacity}
                            onChange={e => setDraft({ ...draft, capacity: Number(e.target.value) })} />
-                    <button className="btn btn-primary btn-sm" onClick={add}>Add</button>
+                    <button className="btn btn-primary btn-sm" onClick={add}>{t('common.add')}</button>
                 </div>
                 {error && <p className="u-danger u-fs-085 mt-1">{error}</p>}
             </div>
@@ -90,6 +91,7 @@ function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
 // ── Generate modal ───────────────────────────────────────────────────────────
 
 function GenerateModal({ onClose, onCommitted }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [terms, setTerms] = useState([])
     const [form, setForm] = useState({ term_id: '', meals: ['lunch'] })
@@ -101,10 +103,10 @@ function GenerateModal({ onClose, onCommitted }) {
             .then(data => {
                 const list = Array.isArray(data) ? data : (data?.results || [])
                 setTerms(list)
-                const current = list.find(t => t.is_current) || list[0]
+                const current = list.find(term => term.is_current) || list[0]
                 if (current) setForm(f => ({ ...f, term_id: String(current.id) }))
             })
-            .catch(() => toast.error('Could not load academic terms.'))
+            .catch(() => toast.error(t('dos.examSchedule.loadTermsFailed')))
     }, [toast])
 
     function update(field, value) {
@@ -126,7 +128,7 @@ function GenerateModal({ onClose, onCommitted }) {
             setPreview(plan)
             plan.warnings?.forEach(w => toast.info(w))
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not generate a dining plan.')
+            toast.error(err.response?.data?.detail || t('dos.dining.generateFailed'))
         } finally { setBusy(false) }
     }
 
@@ -134,10 +136,10 @@ function GenerateModal({ onClose, onCommitted }) {
         setBusy(true)
         try {
             const result = await commitDiningPlan(form)
-            toast.success(`Saved ${result.created} seating(s).`)
+            toast.success(t('dos.dining.saved', { count: result.created }))
             onCommitted()
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not save the dining plan.')
+            toast.error(err.response?.data?.detail || t('dos.dining.saveFailed'))
         } finally { setBusy(false) }
     }
 
@@ -145,38 +147,38 @@ function GenerateModal({ onClose, onCommitted }) {
 
     return (
         <Modal
-            title="Generate Dining Plan" icon="auto_awesome" onClose={onClose} size="wide"
+            title={t('dos.dining.generateTitle')} icon="auto_awesome" onClose={onClose} size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
-                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
                     {preview
                         ? <button className="btn btn-primary" onClick={handleCommit}
                                   disabled={busy || preview.summary.seated === 0}>
-                              Save {preview.summary.seated} seating(s)
+                              {t('dos.dining.saveSeatings', { count: preview.summary.seated })}
                           </button>
                         : <button className="btn btn-primary" onClick={handlePreview} disabled={!canRun}>
-                              {busy ? 'Generating…' : 'Preview'}
+                              {busy ? t('common.generating') : t('dos.examSchedule.preview')}
                           </button>}
                 </div>
             }
         >
             <div className="u-grid u-grid-2 u-gap-1">
                 <div className="form-group">
-                    <label className="form-label">Academic Term *</label>
+                    <label className="form-label">{t('dos.examSchedule.academicTermRequired')}</label>
                     <select className="form-select" value={form.term_id}
                             onChange={e => update('term_id', e.target.value)}>
-                        <option value="">Select term…</option>
-                        {terms.map(t => <option key={t.id} value={t.id}>{t.name} ({t.year})</option>)}
+                        <option value="">{t('dos.examSchedule.selectTerm')}</option>
+                        {terms.map(term => <option key={term.id} value={term.id}>{term.name} ({term.year})</option>)}
                     </select>
                 </div>
                 <div className="form-group u-col-span-all">
-                    <label className="form-label">Meals to plan *</label>
+                    <label className="form-label">{t('dos.dining.mealsToPlan')}</label>
                     <div className="att-mode-bar">
                         {MEALS.map(m => (
                             <button key={m.value} type="button"
                                     className={`att-mode-btn${form.meals.includes(m.value) ? ' active' : ''}`}
                                     onClick={() => toggleMeal(m.value)}>
-                                {m.label}
+                                {t(m.labelKey)}
                             </button>
                         ))}
                     </div>
@@ -186,26 +188,35 @@ function GenerateModal({ onClose, onCommitted }) {
             {preview && (
                 <div className="mt-1-5">
                     <div className="es-gen-summary">
-                        <span className="badge badge-published">{preview.summary.seated} seated</span>
+                        <span className="badge badge-published">{t('dos.dining.seated', { count: preview.summary.seated })}</span>
                         {preview.summary.unassigned > 0 &&
-                            <span className="badge badge-draft">{preview.summary.unassigned} unseated</span>}
+                            <span className="badge badge-draft">{t('dos.dining.unseated', { count: preview.summary.unassigned })}</span>}
                         <span className="u-muted u-sm">
-                            {preview.summary.classes} classes · {preview.summary.students} students ·
-                            {' '}{preview.summary.sittings} sittings
+                            {t('dos.dining.summary', {
+                                classes: preview.summary.classes,
+                                students: preview.summary.students,
+                                sittings: preview.summary.sittings,
+                            })}
                         </span>
                     </div>
 
-                    <h3 className="section-label-sm mt-1-5">Hall occupancy</h3>
+                    <h3 className="section-label-sm mt-1-5">{t('dos.dining.hallOccupancy')}</h3>
                     <div className="es-table-wrap">
                         <table className="es-table">
                             <thead>
-                                <tr><th>Sitting</th><th>Meal</th><th>Seated</th><th>Capacity</th><th>Free</th></tr>
+                                <tr>
+                                    <th>{t('dos.dining.sitting')}</th>
+                                    <th>{t('common.meal')}</th>
+                                    <th>{t('dos.dining.seatedCol')}</th>
+                                    <th>{t('common.capacity')}</th>
+                                    <th>{t('common.free')}</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {preview.occupancy.map(o => (
                                     <tr key={o.sitting_id}>
                                         <td>{o.sitting_name}</td>
-                                        <td>{MEAL_LABEL[o.meal] || o.meal}</td>
+                                        <td>{MEAL_KEY[o.meal] ? t(MEAL_KEY[o.meal]) : o.meal}</td>
                                         <td>{o.seated}</td>
                                         <td>{o.capacity}</td>
                                         <td className="u-muted">{o.free}</td>
@@ -215,16 +226,22 @@ function GenerateModal({ onClose, onCommitted }) {
                         </table>
                     </div>
 
-                    <h3 className="section-label-sm mt-1-5">Seating</h3>
+                    <h3 className="section-label-sm mt-1-5">{t('dos.dining.seating')}</h3>
                     <div className="es-table-wrap">
                         <table className="es-table">
                             <thead>
-                                <tr><th>Meal</th><th>Sitting</th><th>Time</th><th>Class</th><th>Students</th></tr>
+                                <tr>
+                                    <th>{t('common.meal')}</th>
+                                    <th>{t('dos.dining.sitting')}</th>
+                                    <th>{t('common.time')}</th>
+                                    <th>{t('common.class')}</th>
+                                    <th>{t('landing.chip.students')}</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {preview.assignments.map((a, i) => (
                                     <tr key={i}>
-                                        <td>{MEAL_LABEL[a.meal] || a.meal}</td>
+                                        <td>{MEAL_KEY[a.meal] ? t(MEAL_KEY[a.meal]) : a.meal}</td>
                                         <td>{a.sitting_name}</td>
                                         <td className="es-nowrap">{a.start_time}-{a.end_time}</td>
                                         <td>{a.class_name}</td>
@@ -237,10 +254,10 @@ function GenerateModal({ onClose, onCommitted }) {
 
                     {preview.unassigned.length > 0 && (
                         <>
-                            <h3 className="section-label-sm mt-1-5">Could not seat</h3>
+                            <h3 className="section-label-sm mt-1-5">{t('dos.dining.couldNotSeat')}</h3>
                             <ul className="u-sm u-danger">
                                 {preview.unassigned.map((u, i) => (
-                                    <li key={i}>{u.class_name} ({MEAL_LABEL[u.meal] || u.meal}): {u.reason}</li>
+                                    <li key={i}>{u.class_name} ({MEAL_KEY[u.meal] ? t(MEAL_KEY[u.meal]) : u.meal}): {u.reason}</li>
                                 ))}
                             </ul>
                         </>
@@ -254,6 +271,7 @@ function GenerateModal({ onClose, onCommitted }) {
 // ── Tab ──────────────────────────────────────────────────────────────────────
 
 export function DiningPlannerTab() {
+    const { t } = useTranslation()
     const toast = useToast()
     const [sittings, setSittings] = useState([])
     const [plan, setPlan] = useState([])
@@ -268,7 +286,7 @@ export function DiningPlannerTab() {
 
     useEffect(() => {
         load()
-            .catch(() => toast.error('Could not load dining plan.'))
+            .catch(() => toast.error(t('dos.dining.loadFailed')))
             .finally(() => setLoading(false))
     }, [load, toast])
 
@@ -276,7 +294,7 @@ export function DiningPlannerTab() {
     async function handleUpdate(id, data) { await updateDiningSitting(id, data); await load() }
     async function handleDelete(id) {
         try { await deleteDiningSitting(id); await load() }
-        catch { toast.error('Could not delete sitting.') }
+        catch { toast.error(t('dos.dining.deleteSittingFailed')) }
     }
 
     if (loading) return <Loading />
@@ -294,7 +312,7 @@ export function DiningPlannerTab() {
                     onClose={() => setShowGenerate(false)}
                     onCommitted={() => {
                         setShowGenerate(false)
-                        load().catch(() => toast.error('Could not reload dining plan.'))
+                        load().catch(() => toast.error(t('dos.dining.reloadFailed')))
                     }}
                 />
             )}
@@ -304,26 +322,29 @@ export function DiningPlannerTab() {
 
             <div className="card">
                 <div className="card-header">
-                    <h2 className="card-title">Dining Plan</h2>
+                    <h2 className="card-title">{t('dos.dining.planTitle')}</h2>
                     <div className="es-card-actions">
                         <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}>
-                            <span className="material-symbols-rounded">auto_awesome</span> Generate
+                            <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
                         </button>
                     </div>
                 </div>
                 <div className="card-content">
                     {orderedMeals.length === 0 ? (
                         <p className="u-muted u-sm">
-                            No dining plan saved yet. Configure sittings above, then use Generate
-                            to seat classes without overfilling the hall.
+                            {t('dos.dining.noPlan')}
                         </p>
                     ) : orderedMeals.map(meal => (
                         <div key={meal} className="mb-5">
-                            <h3 className="section-label-sm">{MEAL_LABEL[meal] || meal}</h3>
+                            <h3 className="section-label-sm">{MEAL_KEY[meal] ? t(MEAL_KEY[meal]) : meal}</h3>
                             <div className="es-table-wrap">
                                 <table className="es-table">
                                     <thead>
-                                        <tr><th>Sitting</th><th>Time</th><th>Class</th></tr>
+                                        <tr>
+                                            <th>{t('dos.dining.sitting')}</th>
+                                            <th>{t('common.time')}</th>
+                                            <th>{t('common.class')}</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         {byMeal[meal].map(r => (
