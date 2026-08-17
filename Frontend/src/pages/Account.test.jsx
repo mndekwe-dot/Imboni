@@ -67,7 +67,7 @@ describe('Account', () => {
         fireEvent.change(screen.getByPlaceholderText('Confirm new password'), { target: { value: 'different123' } })
         fireEvent.click(screen.getByRole('button', { name: /Change Password/ }))
 
-        expect(screen.getByText('New password do not match')).toBeInTheDocument()
+        expect(screen.getByText('New passwords do not match')).toBeInTheDocument()
         expect(changePassword).not.toHaveBeenCalled()
     })
 

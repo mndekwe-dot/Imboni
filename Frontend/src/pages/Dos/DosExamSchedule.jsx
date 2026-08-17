@@ -103,7 +103,7 @@ function ExamGenerateModal({ onClose, onCommitted }) {
             setPreview(plan)
             plan.warnings?.forEach(w => toast.info(w))
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not generate a schedule.')
+            toast.error(err.response?.data?.detail || t('dos.examSchedule.generateFailed'))
         } finally {
             setBusy(false)
         }

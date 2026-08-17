@@ -80,7 +80,7 @@ export function LogIn() {
                 setChallenge(result.challenge)
             }
         } catch (err) {
-            setError(err.message || 'Unable to sign in. Please try again.')
+            setError(err.message || t('auth.signInFailed'))
         } finally {
             setLoading(false)
         }
@@ -93,7 +93,7 @@ export function LogIn() {
         try {
             await completeTwoFactor(challenge, code.trim())
         } catch (err) {
-            setError(err.message || 'Invalid or expired code. Please try again.')
+            setError(err.message || t('auth.codeInvalid'))
         } finally {
             setLoading(false)
         }
@@ -203,7 +203,7 @@ export function LogIn() {
                         <button type="submit" className="login-btn" disabled={loading}>
                             {loading
                                 ? <><span className="btn-spinner"></span> {t('auth.verifying')}</>
-                                : 'Verify and sign in'}
+                                : t('auth.verifyAndSignIn')}
                         </button>
                         <button
                             type="button"

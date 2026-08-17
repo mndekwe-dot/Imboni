@@ -121,7 +121,7 @@ export function Account() {
         setPwError('')  // clear any previous error
         // Frontend validation — check before hitting the server
         if (pwForm.new_password !== pwForm.confirm_password) {
-            setPwError('New password do not match')
+            setPwError(t('account.passwordsDoNotMatch'))
             return  // stop here, do not call the API
         }
         setPwSaving(true)
