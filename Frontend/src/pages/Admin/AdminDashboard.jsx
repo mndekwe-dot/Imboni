@@ -6,7 +6,8 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useCurrentTerm } from '../../hooks/useCurrentTerm'
-import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
+import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
@@ -40,6 +41,7 @@ const ACTIVITY_ICON = {
 
 export function AdminDashboard() {
     const { t } = useTranslation()
+    const { setting } = useSchoolSettings()
     const { term } = useCurrentTerm()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
@@ -97,8 +99,8 @@ export function AdminDashboard() {
 
                         <WelcomeBanner
                             name={firstName}
-                            role="School Principal &bull; Imboni Academy"
-                            badge="Principal"
+                            role={bannerRole(t, t('roles.principal'), setting.school_name)}
+                            badge={t('roles.principalShort')}
                         />
 
                         <div className="portal-stat-grid">

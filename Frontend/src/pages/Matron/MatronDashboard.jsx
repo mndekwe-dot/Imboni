@@ -66,7 +66,7 @@ export function MatronDashboard() {
     if (loading) return <Loading fullPage />
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
-    const dormitory = dashboard.stats.dormitory || 'your dormitory'
+    const dormitory = dashboard.stats.dormitory || t('matron.dashboard.yourDormitory')
 
     const matronStats = [
         { colorClass: '',        icon: 'home',         value: boarders.length, label: 'Students in Dormitory' },
@@ -101,13 +101,13 @@ export function MatronDashboard() {
                 <Sidebar navItems={matronNavItems} secondaryItems={matronSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title={t('nav.dashboard')} subtitle={`${dormitory} Overview`} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('nav.dashboard')} subtitle={t('matron.dashboard.overview', { dormitory })} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 
                         <WelcomeBanner
                             name={sessionUser.userName}
-                            role={`${dormitory} Matron, ${boarders.length} students in your care`}
+                            role={t('matron.dashboard.bannerRole', { dormitory, count: boarders.length })}
                         />
 
                         <div className="portal-stat-grid">

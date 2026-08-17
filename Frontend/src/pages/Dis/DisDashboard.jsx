@@ -6,7 +6,8 @@ import { errorMessage } from '../../utils/errors'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
-import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
+import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { getDisDashboard, getDisStaff, getDisTasks, createDisTask, updateDisTask } from '../../api/discipline'
@@ -66,6 +67,7 @@ function StaffItem({ full_name, staff_type, assigned_dormitory, assigned_grade }
 
 export function DisDashboard() {
     const { t } = useTranslation()
+    const { setting } = useSchoolSettings()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const sessionUser = useSessionUser()
@@ -143,7 +145,7 @@ export function DisDashboard() {
 
                         <WelcomeBanner
                             name={sessionUser.userName}
-                            role="Director of Discipline · Imboni Academy"
+                            role={bannerRole(t, t('roles.disciplineDirector'), setting.school_name)}
                         />
 
                         <div className="portal-stat-grid">

@@ -9,7 +9,8 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
-import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
+import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -87,6 +88,7 @@ function ProgressItem({ label, value, width }) {
 
 export function DosDashboard() {
     const { t } = useTranslation()
+    const { setting } = useSchoolSettings()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const sessionUser = useSessionUser()
@@ -215,7 +217,7 @@ export function DosDashboard() {
                     <DashboardContent>
                         <WelcomeBanner
                             name={sessionUser.userName}
-                            role="Director of Studies &bull; Imboni Academy"
+                            role={bannerRole(t, t('roles.dos'), setting.school_name)}
                         />
 
                         <div className="portal-stat-grid">

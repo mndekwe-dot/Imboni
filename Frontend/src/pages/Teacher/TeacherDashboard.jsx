@@ -10,6 +10,8 @@ import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { classLabel } from '../../utils/classes'
+import { formatDate } from '../../utils/date'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import {
     getTeacherDashboardStats,
     getTeacherTodaySchedule,
@@ -28,16 +30,17 @@ function barColor(v) {
     return '#f59e0b'
 }
 
-function relTime(ts) {
+function relTime(ts, translate) {
     if (!ts) return ''
     const d = Math.floor((Date.now() - new Date(ts)) / 1000)
-    if (d < 60)    return 'Just now'
-    if (d < 3600)  return `${Math.floor(d / 60)} min ago`
-    if (d < 86400) return `${Math.floor(d / 3600)} hours ago`
-    return `${Math.floor(d / 86400)} days ago`
+    if (d < 60)    return translate('common.justNow')
+    if (d < 3600)  return translate('common.minutesAgo', { count: Math.floor(d / 60) })
+    if (d < 86400) return translate('common.hoursAgo',   { count: Math.floor(d / 3600) })
+    return translate('common.daysAgo', { count: Math.floor(d / 86400) })
 }
 
 function ScheduleCard({ time, room, className, subject, status, statusClass, cardClass, showMark, onMark, onClick }) {
+    const { t } = useTranslation()
     return (
         <div className={`schedule-card ${cardClass} cursor-ptr`} onClick={onClick}>
             <div className="schedule-info">
@@ -56,7 +59,7 @@ function ScheduleCard({ time, room, className, subject, status, statusClass, car
                     className="btn-mark-attendance btn btn-primary btn-sm"
                     onClick={e => { e.stopPropagation(); onMark() }}
                 >
-                    Mark Attendance
+                    {t('teacher.dashboard.markAttendance')}
                 </button>
             )}
             <span className={`badge ${statusClass}`}>{status}</span>
@@ -64,7 +67,14 @@ function ScheduleCard({ time, room, className, subject, status, statusClass, car
     )
 }
 
+const PRIORITY_KEYS = {
+    low:    'common.priorityLow',
+    medium: 'common.priorityMedium',
+    high:   'common.priorityHigh',
+}
+
 function TaskCard({ title, deadline, priority }) {
+    const { t } = useTranslation()
     const cls = priority === 'high' ? 'badge-high' : priority === 'medium' ? 'badge-medium' : 'badge-low'
     return (
         <div className="task-card">
@@ -73,18 +83,19 @@ function TaskCard({ title, deadline, priority }) {
                 <div className="task-title">{title}</div>
                 {deadline && <div className="task-deadline">{deadline}</div>}
             </div>
-            <span className={`badge ${cls}`}>{priority}</span>
+            <span className={`badge ${cls}`}>{t(PRIORITY_KEYS[priority] || PRIORITY_KEYS.medium)}</span>
         </div>
     )
 }
 
 function CustomTooltip({ active, payload }) {
+    const { t } = useTranslation()
     if (!active || !payload?.length) return null
     const d = payload[0].payload
     return (
         <div className="chart-tooltip">
             <div className="chart-tooltip-label">{d.class_name}</div>
-            <div style={{ color: barColor(d.average_score) }}>{d.average_score}% average</div>
+            <div style={{ color: barColor(d.average_score) }}>{t('teacher.dashboard.percentAverage', { value: d.average_score })}</div>
         </div>
     )
 }
@@ -113,9 +124,9 @@ const ACTIVITY_ICONS = {
 }
 
 function slotMeta(status) {
-    if (status === 'completed')   return { label: 'Completed',   cls: 'badge-completed', cardCls: 'completed', showMark: false }
-    if (status === 'in_progress') return { label: 'In Progress', cls: 'badge-primary',   cardCls: 'current',   showMark: true  }
-    return                               { label: 'Upcoming',    cls: 'badge-secondary', cardCls: 'upcoming',  showMark: false }
+    if (status === 'completed')   return { labelKey: 'teacher.dashboard.slotCompleted',  cls: 'badge-completed', cardCls: 'completed', showMark: false }
+    if (status === 'in_progress') return { labelKey: 'teacher.dashboard.slotInProgress', cls: 'badge-primary',   cardCls: 'current',   showMark: true  }
+    return                               { labelKey: 'teacher.dashboard.slotUpcoming',   cls: 'badge-secondary', cardCls: 'upcoming',  showMark: false }
 }
 
 // ── Create Task Modal ─────────────────────────────────────────────────────────
@@ -133,7 +144,7 @@ function CreateTaskModal({ onClose, onCreated }) {
     }, [])
 
     async function handleSave() {
-        if (!title.trim()) { setError('Title is required.'); return }
+        if (!title.trim()) { setError(t('teacher.dashboard.titleRequiredError')); return }
         setSaving(true); setError(null)
         try {
             const task = await createTeacherTask({
@@ -144,7 +155,7 @@ function CreateTaskModal({ onClose, onCreated }) {
             onCreated(task)
             onClose()
         } catch (e) {
-            setError(e?.message || 'Failed to save task.')
+            setError(e?.message || t('teacher.dashboard.saveTaskFailed'))
         } finally {
             setSaving(false)
         }
@@ -156,7 +167,7 @@ function CreateTaskModal({ onClose, onCreated }) {
                 <div className="modal-header">
                     <div className="modal-header-left">
                         <span className="material-symbols-rounded text-primary">task_alt</span>
-                        <h2 className="modal-title">New Task</h2>
+                        <h2 className="modal-title">{t('teacher.dashboard.newTask')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}>
                         <span className="material-symbols-rounded">close</span>
@@ -165,7 +176,7 @@ function CreateTaskModal({ onClose, onCreated }) {
 
                 <div className="modal-body">
                     <div className="form-group">
-                        <label className="form-label">Title *</label>
+                        <label className="form-label">{t('common.titleRequired')}</label>
                         <input
                             className="form-input"
                             value={title}
@@ -176,19 +187,19 @@ function CreateTaskModal({ onClose, onCreated }) {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Priority</label>
+                        <label className="form-label">{t('common.priority')}</label>
                         <div className="td-priority-row">
                             {['low', 'medium', 'high'].map(p => (
                                 <label key={p} className={`td-priority-opt${priority === p ? ' selected' : ''}`}>
                                     <input type="radio" value={p} checked={priority === p} onChange={() => setPriority(p)} />
-                                    {p}
+                                    {t(PRIORITY_KEYS[p])}
                                 </label>
                             ))}
                         </div>
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Due Date</label>
+                        <label className="form-label">{t('common.dueDate')}</label>
                         <input
                             type="date"
                             className="form-input"
@@ -201,10 +212,10 @@ function CreateTaskModal({ onClose, onCreated }) {
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !title.trim()}>
                         <span className="material-symbols-rounded">save</span>
-                        {saving ? 'Saving…' : 'Save Task'}
+                        {saving ? t('common.saving') : t('teacher.dashboard.saveTask')}
                     </button>
                 </div>
             </div>
@@ -217,6 +228,7 @@ export function TeacherDashboard() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
+    const { setting } = useSchoolSettings()
     const [stats,       setStats]       = useState(null)
     const [schedule,    setSchedule]    = useState([])
     const [tasks,       setTasks]       = useState([])
@@ -241,10 +253,10 @@ export function TeacherDashboard() {
             getTeacherTasks().catch(() => []),
             getTeacherClassPerformance().catch(() => []),
             getTeacherRecentActivities({ limit: 10, offset: 0 }).catch(err => ({ _error: err?.message })),
-        ]).then(([s, sched, t, perf, act]) => {
+        ]).then(([s, sched, taskList, perf, act]) => {
             setStats(s)
             setSchedule(Array.isArray(sched) ? sched : [])
-            setTasks(Array.isArray(t) ? t : [])
+            setTasks(Array.isArray(taskList) ? taskList : [])
             setPerformance(Array.isArray(perf) ? perf : [])
             if (act && !act._error) {
                 setActivities(act.results || [])
@@ -262,21 +274,22 @@ export function TeacherDashboard() {
             setActivities(prev => [...prev, ...(res.results || [])])
             setHasMore(res.has_more || false)
         } catch (e) {
-            setLoadError(e?.message || 'Failed to load more activities.')
+            setLoadError(e?.message || t('teacher.dashboard.loadMoreFailed'))
         } finally {
             setLoadingMore(false)
         }
     }
 
     const statCards = stats ? [
-        { icon: 'check_circle',    value: `${stats.overall_attendance}%`, label: 'Attendance Rate', trend: 'This term',            trendClass: 'positive', colorClass: 'success' },
-        { icon: 'school',          value: `${stats.class_average}%`,      label: 'Class Average',   trend: 'This term',            trendClass: 'positive', colorClass: '' },
-        { icon: 'assignment_late', value: stats.pending_grading,           label: 'Pending Grading', trend: 'Draft results',        trendClass: 'negative', colorClass: 'warning' },
-        { icon: 'groups',          value: stats.total_students,            label: 'Total Students',  trend: 'Across your classes',  trendClass: '',          colorClass: '' },
-        { icon: 'menu_book',       value: stats.classes_today,             label: 'Classes Today',   trend: `${stats.classes_completed} completed, ${stats.classes_remaining} left`, trendClass: '', colorClass: '' },
+        { icon: 'check_circle',    value: `${stats.overall_attendance}%`, label: t('teacher.dashboard.attendanceRate'), trend: t('teacher.dashboard.thisTerm'),           trendClass: 'positive', colorClass: 'success' },
+        { icon: 'school',          value: `${stats.class_average}%`,      label: t('teacher.dashboard.classAverage'),   trend: t('teacher.dashboard.thisTerm'),           trendClass: 'positive', colorClass: '' },
+        { icon: 'assignment_late', value: stats.pending_grading,          label: t('teacher.dashboard.pendingGrading'), trend: t('teacher.dashboard.draftResults'),       trendClass: 'negative', colorClass: 'warning' },
+        { icon: 'groups',          value: stats.total_students,           label: t('teacher.dashboard.totalStudents'),  trend: t('teacher.dashboard.acrossYourClasses'),  trendClass: '',         colorClass: '' },
+        { icon: 'menu_book',       value: stats.classes_today,            label: t('teacher.dashboard.classesToday'),
+          trend: t('teacher.dashboard.classesProgress', { done: stats.classes_completed, left: stats.classes_remaining }), trendClass: '', colorClass: '' },
     ] : []
 
-    const pendingTasks = tasks.filter(t => !t.is_completed).slice(0, 4)
+    const pendingTasks = tasks.filter(task => !task.is_completed).slice(0, 4)
 
     return (
         <>
@@ -296,7 +309,7 @@ export function TeacherDashboard() {
                         title={t('nav.dashboard')}
                         subtitle={t('teacher.dashboard.subtitle')}
                         userName={fullName}
-                        userRole="Teacher"
+                        userRole={t('roles.teacher')}
                         userInitials={initials}
                         avatarClass="teacher-av"
                         notifications={liveNotifications}
@@ -304,39 +317,39 @@ export function TeacherDashboard() {
                     />
                     <DashboardContent>
 
-                        <WelcomeBanner name={firstName || 'Teacher'} role="Imboni Academy" />
+                        <WelcomeBanner name={firstName || t('roles.teacher')} role={setting.school_name} />
 
                         <div className="dash-card">
-                            <div className="section-label-sm">Quick Actions</div>
+                            <div className="section-label-sm">{t('common.quickActions')}</div>
                             <div className="quick-actions">
                                 <button className="btn btn-primary" onClick={() => navigate('/teacher/attendance')}>
                                     <span className="material-symbols-rounded">how_to_reg</span>
-                                    Mark Attendance
+                                    {t('teacher.dashboard.markAttendance')}
                                 </button>
                                 <button className="btn btn-outline" onClick={() => navigate('/teacher/results')}>
                                     <span className="material-symbols-rounded">edit_note</span>
-                                    Enter Results
+                                    {t('teacher.dashboard.enterResults')}
                                 </button>
                                 <button className="btn btn-outline" onClick={() => navigate('/teacher/assignments')}>
                                     <span className="material-symbols-rounded">assignment</span>
-                                    Assignments
+                                    {t('teacher.dashboard.assignments')}
                                 </button>
                                 <button className="btn btn-outline" onClick={() => navigate('/teacher/classes')}>
                                     <span className="material-symbols-rounded">groups</span>
-                                    My Classes
+                                    {t('teacher.dashboard.myClasses')}
                                 </button>
                             </div>
                         </div>
 
                         {loading ? (
                             <div className="dash-card">
-                                <p className="u-muted">Loading…</p>
+                                <p className="u-muted">{t('common.loading')}</p>
                             </div>
                         ) : (
                             <>
                                 {statCards.length > 0 && (
                                     <div className="dash-card">
-                                        <div className="section-label-sm">Overview</div>
+                                        <div className="section-label-sm">{t('common.overview')}</div>
                                         <div className="portal-stat-grid">
                                             {statCards.map((stat, i) => <StatCard key={i} {...stat} />)}
                                         </div>
@@ -346,11 +359,11 @@ export function TeacherDashboard() {
                                 <div className="content-grid-2-1">
                                     <div className="card">
                                         <div className="card-header">
-                                            <h3 className="card-title">Today's Schedule</h3>
+                                            <h3 className="card-title">{t('teacher.dashboard.todaySchedule')}</h3>
                                         </div>
                                         <div className="card-content">
                                             {schedule.length === 0 ? (
-                                                <p className="u-muted">No classes scheduled today.</p>
+                                                <p className="u-muted">{t('teacher.dashboard.noClassesToday')}</p>
                                             ) : schedule.map((slot, i) => {
                                                 const meta  = slotMeta(slot.status)
                                                 const start = slot.start_time?.slice(0, 5) || ''
@@ -360,10 +373,10 @@ export function TeacherDashboard() {
                                                     <ScheduleCard
                                                         key={i}
                                                         time={`${start} - ${end}`}
-                                                        room={slot.room_number ? `Room ${slot.room_number}` : ''}
+                                                        room={slot.room_number ? t('common.roomNumber', { number: slot.room_number }) : ''}
                                                         className={cls}
                                                         subject={slot.subject_name}
-                                                        status={meta.label}
+                                                        status={t(meta.labelKey)}
                                                         statusClass={meta.cls}
                                                         cardClass={meta.cardCls}
                                                         showMark={meta.showMark}
@@ -377,7 +390,7 @@ export function TeacherDashboard() {
 
                                     <div className="card">
                                         <div className="card-header">
-                                            <h3 className="card-title">Pending Tasks</h3>
+                                            <h3 className="card-title">{t('teacher.dashboard.pendingTasks')}</h3>
                                             <div className="u-row-sm">
                                                 <span className="badge badge-secondary">{pendingTasks.length}</span>
                                                 <button
@@ -386,18 +399,18 @@ export function TeacherDashboard() {
                                                     title={t('teacher.dashboard.addTask')}
                                                 >
                                                     <span className="material-symbols-rounded icon-sm">add</span>
-                                                    Add
+                                                    {t('common.add')}
                                                 </button>
                                             </div>
                                         </div>
                                         <div className="card-content">
                                             {pendingTasks.length === 0 ? (
-                                                <p className="u-muted">No pending tasks.</p>
+                                                <p className="u-muted">{t('teacher.dashboard.noPendingTasks')}</p>
                                             ) : pendingTasks.map((task, i) => (
                                                 <TaskCard
                                                     key={i}
                                                     title={task.title}
-                                                    deadline={task.due_date ? `Due: ${task.due_date}` : ''}
+                                                    deadline={task.due_date ? t('teacher.dashboard.due', { date: formatDate(task.due_date) }) : ''}
                                                     priority={task.priority || 'medium'}
                                                 />
                                             ))}
@@ -408,12 +421,12 @@ export function TeacherDashboard() {
                                 <div className="content-grid-1-1">
                                     <div className="card">
                                         <div className="card-header">
-                                            <h3 className="card-title">Class Performance</h3>
-                                            <span className="text-xs-muted">Average score per class</span>
+                                            <h3 className="card-title">{t('teacher.dashboard.classPerformance')}</h3>
+                                            <span className="text-xs-muted">{t('teacher.dashboard.averagePerClass')}</span>
                                         </div>
                                         <div className="card-content">
                                             {performance.length === 0 ? (
-                                                <p className="u-muted">No performance data yet.</p>
+                                                <p className="u-muted">{t('teacher.dashboard.noPerformance')}</p>
                                             ) : (
                                                 <>
                                                     <ResponsiveContainer width="100%" height={220}>
@@ -431,11 +444,11 @@ export function TeacherDashboard() {
                                                     </ResponsiveContainer>
                                                     <div className="chart-legend-row">
                                                         {[
-                                                            ['#10b981', '≥ 80% Excellent'],
-                                                            ['#003d7a', '70-79% Good'],
-                                                            ['#f59e0b', '< 70% Needs attention'],
+                                                            ['#10b981', t('teacher.dashboard.legendExcellent')],
+                                                            ['#003d7a', t('teacher.dashboard.legendGood')],
+                                                            ['#f59e0b', t('teacher.dashboard.legendAttention')],
                                                         ].map(([color, label]) => (
-                                                            <div key={label} className="chart-legend-item">
+                                                            <div key={color} className="chart-legend-item">
                                                                 <span className="chart-legend-dot-sq" style={{ background: color }} />
                                                                 {label}
                                                             </div>
@@ -448,7 +461,7 @@ export function TeacherDashboard() {
 
                                     <div className="card">
                                         <div className="card-header">
-                                            <h3 className="card-title">Recent Activities</h3>
+                                            <h3 className="card-title">{t('teacher.dashboard.recentActivities')}</h3>
                                         </div>
                                         <div className="card-content">
                                             {loadError && (
@@ -458,7 +471,7 @@ export function TeacherDashboard() {
                                                 </p>
                                             )}
                                             {activities.length === 0 && !loadError ? (
-                                                <p className="u-muted">No recent activity.</p>
+                                                <p className="u-muted">{t('teacher.dashboard.noRecentActivity')}</p>
                                             ) : activities.map((a, i) => {
                                                 const { iconClass, icon } = ACTIVITY_ICONS[a.activity_type] || { iconClass: '', icon: 'notifications' }
                                                 return (
@@ -467,7 +480,7 @@ export function TeacherDashboard() {
                                                         iconClass={iconClass}
                                                         icon={icon}
                                                         text={a.description}
-                                                        time={relTime(a.timestamp)}
+                                                        time={relTime(a.timestamp, t)}
                                                     />
                                                 )
                                             })}
@@ -480,7 +493,7 @@ export function TeacherDashboard() {
                                                     <span className="material-symbols-rounded icon-sm">
                                                         {loadingMore ? 'progress_activity' : 'expand_more'}
                                                     </span>
-                                                    {loadingMore ? 'Loading…' : 'Load More'}
+                                                    {loadingMore ? t('common.loading') : t('common.loadMore')}
                                                 </button>
                                             )}
                                         </div>
