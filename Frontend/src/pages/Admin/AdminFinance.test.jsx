@@ -129,7 +129,7 @@ describe('AdminFinance', () => {
     getOutstandingFees.mockClear()
 
     fireEvent.click(screen.getByRole('button', { name: /Record New Payment/ }))
-    fireEvent.change(screen.getByPlaceholderText('e.g. Aisha Kamau'), { target: { value: 'New Parent' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Uwase Amina'), { target: { value: 'New Parent' } })
     fireEvent.change(screen.getByPlaceholderText('e.g. 58000'), { target: { value: '20000' } })
     fireEvent.click(screen.getByText('Record Payment'))
 

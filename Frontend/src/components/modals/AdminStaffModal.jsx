@@ -1,11 +1,25 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
 
-const DEPARTMENTS = ['Academic', 'Welfare', 'Admin']
-const CONTRACTS   = ['Full-Time', 'Part-Time']
-const STATUSES    = ['Active', 'On Leave', 'Inactive']
+// Values stay English — they are what the record stores. Only labels move.
+const DEPARTMENTS = [
+    { value: 'Academic', labelKey: 'modals.staff.deptAcademic' },
+    { value: 'Welfare',  labelKey: 'modals.staff.deptWelfare'  },
+    { value: 'Admin',    labelKey: 'modals.staff.deptAdmin'    },
+]
+const CONTRACTS = [
+    { value: 'Full-Time', labelKey: 'modals.staff.contractFullTime' },
+    { value: 'Part-Time', labelKey: 'modals.staff.contractPartTime' },
+]
+const STATUSES = [
+    { value: 'Active',   labelKey: 'common.active'                },
+    { value: 'On Leave', labelKey: 'modals.staff.statusOnLeave'   },
+    { value: 'Inactive', labelKey: 'modals.staff.statusInactive'  },
+]
 
 export function AdminStaffModal({ staff, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEditing = !!staff
 
     useEffect(() => {
@@ -52,11 +66,11 @@ export function AdminStaffModal({ staff, onClose, onSave }) {
 
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--admin, #4f46e5)' }}>
+                        <span className="material-symbols-rounded modal-title-icon--admin">
                             {isEditing ? 'edit' : 'person_add'}
                         </span>
                         <h2 className="modal-title">
-                            {isEditing ? 'Edit Staff Member' : 'Add Staff Member'}
+                            {isEditing ? t('modals.staff.editTitle') : t('modals.staff.addTitle')}
                         </h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}>
@@ -64,59 +78,59 @@ export function AdminStaffModal({ staff, onClose, onSave }) {
                     </button>
                 </div>
 
-                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                <div className="modal-body modal-body--stack">
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Full Name *</label>
+                            <label className="form-label">{t('common.fullNameRequired')}</label>
                             <input
                                 className={`form-input${errors.name ? ' input-error' : ''}`}
                                 name="name" value={form.name} onChange={handleChange}
-                                placeholder="e.g. Ms. Grace Mwangi"
+                                placeholder={t('modals.staff.egStaffName')}
                             />
-                            {errors.name && <span style={{ color: 'var(--destructive)', fontSize: '0.75rem' }}>{errors.name}</span>}
+                            {errors.name && <span className="field-error">{errors.name}</span>}
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Staff ID</label>
+                            <label className="form-label">{t('modals.staff.staffId')}</label>
                             <input
                                 className="form-input"
                                 name="id" value={form.id} onChange={handleChange}
-                                placeholder="e.g. STF-009"
+                                placeholder={t('modals.staff.egStaffId')}
                             />
                         </div>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Role / Position *</label>
+                        <label className="form-label">{t('modals.staff.roleRequired')}</label>
                         <input
                             className={`form-input${errors.role ? ' input-error' : ''}`}
                             name="role" value={form.role} onChange={handleChange}
-                            placeholder="e.g. Mathematics Teacher"
+                            placeholder={t('modals.staff.egRole')}
                         />
-                        {errors.role && <span style={{ color: 'var(--destructive)', fontSize: '0.75rem' }}>{errors.role}</span>}
+                        {errors.role && <span className="field-error">{errors.role}</span>}
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Department</label>
+                            <label className="form-label">{t('common.department')}</label>
                             <select className="form-input" name="dept" value={form.dept} onChange={handleChange}>
-                                {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+                                {DEPARTMENTS.map(d => <option key={d.value} value={d.value}>{t(d.labelKey)}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Contract Type</label>
+                            <label className="form-label">{t('modals.staff.contractType')}</label>
                             <select className="form-input" name="contract" value={form.contract} onChange={handleChange}>
-                                {CONTRACTS.map(c => <option key={c}>{c}</option>)}
+                                {CONTRACTS.map(c => <option key={c.value} value={c.value}>{t(c.labelKey)}</option>)}
                             </select>
                         </div>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Status</label>
+                        <label className="form-label">{t('common.status')}</label>
                         <select className="form-input" name="status" value={form.status} onChange={handleChange}>
-                            {STATUSES.map(s => <option key={s}>{s}</option>)}
+                            {STATUSES.map(s => <option key={s.value} value={s.value}>{t(s.labelKey)}</option>)}
                         </select>
                     </div>
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave}>
                         <span className="material-symbols-rounded">{isEditing ? 'save' : 'person_add'}</span>
                         {isEditing ? 'Save Changes' : 'Add Staff'}

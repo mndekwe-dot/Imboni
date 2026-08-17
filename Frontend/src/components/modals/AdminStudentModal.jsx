@@ -2,15 +2,30 @@ import { useState, useEffect } from 'react'
 import '../../styles/components.css'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { classesFromConfig } from '../../utils/classes'
-const HOUSES  = ['Kigoma', 'Qatar', 'Europe', 'Samiyonga']
-const FEE_STATUSES = ['Paid', 'Partial', 'Overdue']
-const STATUSES     = ['Active', 'On Leave', 'Deferred']
+import { useDormitories } from '../../hooks/useDormitories'
+import { useTranslation } from 'react-i18next'
+
+const FEE_STATUSES = [
+    { value: 'Paid',    labelKey: 'modals.student.feePaid'    },
+    { value: 'Partial', labelKey: 'modals.student.feePartial' },
+    { value: 'Overdue', labelKey: 'modals.student.feeOverdue' },
+]
+const STATUSES = [
+    { value: 'Active',   labelKey: 'common.active'                  },
+    { value: 'On Leave', labelKey: 'modals.student.statusOnLeave'   },
+    { value: 'Deferred', labelKey: 'modals.student.statusDeferred'  },
+]
 
 export function AdminStudentModal({ student, onClose, onSave, readOnly = false }) {
+    const { t } = useTranslation()
     const { config } = useSchoolConfig()
     const allClasses = classesFromConfig(config)
+    // The school's own dormitories, not a fixed four hardcoded here.
+    const dormitories = useDormitories()
     const isEditing = !!student
-    const title = readOnly ? 'Student Details' : isEditing ? 'Edit Student' : 'Admit Student'
+    const title = readOnly
+        ? t('modals.student.detailsTitle')
+        : isEditing ? t('modals.student.editTitle') : t('modals.student.admitTitle')
 
     useEffect(() => {
         document.body.style.overflow = 'hidden'
@@ -55,7 +70,7 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
 
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--admin, #4f46e5)' }}>
+                        <span className="material-symbols-rounded modal-title-icon--admin">
                             {readOnly ? 'person' : isEditing ? 'edit' : 'person_add'}
                         </span>
                         <h2 className="modal-title">{title}</h2>
@@ -65,53 +80,54 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
                     </button>
                 </div>
 
-                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                <div className="modal-body modal-body--stack">
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Full Name *</label>
+                            <label className="form-label">{t('common.fullNameRequired')}</label>
                             <input
                                 className={`form-input${errors.name ? ' input-error' : ''}`}
                                 name="name" value={form.name} onChange={handleChange}
-                                placeholder="e.g. Aisha Kamau"
+                                placeholder={t('modals.student.egStudentName')}
                                 readOnly={readOnly}
                             />
-                            {errors.name && <span style={{ color: 'var(--destructive)', fontSize: '0.75rem' }}>{errors.name}</span>}
+                            {errors.name && <span className="field-error">{errors.name}</span>}
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Admission No.</label>
+                            <label className="form-label">{t('common.admissionNo')}</label>
                             <input
                                 className="form-input"
                                 name="adm" value={form.adm} onChange={handleChange}
-                                placeholder="e.g. ADM-2026-009"
+                                placeholder={t('modals.student.egAdmission')}
                                 readOnly={readOnly}
                             />
                         </div>
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Class</label>
+                            <label className="form-label">{t('common.class')}</label>
                             <select className="form-input" name="class" value={form.class} onChange={handleChange} disabled={readOnly}>
                                 {allClasses.map(c => <option key={c}>{c}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">House / Dormitory</label>
+                            <label className="form-label">{t('modals.student.houseDormitory')}</label>
                             <select className="form-input" name="house" value={form.house} onChange={handleChange} disabled={readOnly}>
-                                {HOUSES.map(h => <option key={h}>{h}</option>)}
+                                <option value="">{t('modals.student.noDormitory')}</option>
+                                {dormitories.map(h => <option key={h.key} value={h.name}>{h.name}</option>)}
                             </select>
                         </div>
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Fee Status</label>
+                            <label className="form-label">{t('modals.student.feeStatus')}</label>
                             <select className="form-input" name="fee" value={form.fee} onChange={handleChange} disabled={readOnly}>
-                                {FEE_STATUSES.map(f => <option key={f}>{f}</option>)}
+                                {FEE_STATUSES.map(f => <option key={f.value} value={f.value}>{t(f.labelKey)}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Enrollment Status</label>
+                            <label className="form-label">{t('modals.student.enrollmentStatus')}</label>
                             <select className="form-input" name="status" value={form.status} onChange={handleChange} disabled={readOnly}>
-                                {STATUSES.map(s => <option key={s}>{s}</option>)}
+                                {STATUSES.map(s => <option key={s.value} value={s.value}>{t(s.labelKey)}</option>)}
                             </select>
                         </div>
                     </div>

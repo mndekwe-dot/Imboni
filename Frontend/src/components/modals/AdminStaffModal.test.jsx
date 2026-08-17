@@ -6,7 +6,7 @@ describe('AdminStaffModal', () => {
   it('renders add mode with default selects', () => {
     render(<AdminStaffModal onClose={() => {}} onSave={() => {}} />)
     expect(screen.getByText('Add Staff Member')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('e.g. Ms. Grace Mwangi')).toHaveValue('')
+    expect(screen.getByPlaceholderText('e.g. Ms. Mukamana Grace')).toHaveValue('')
   })
 
   it('shows validation errors and does not save when required fields are missing', () => {
@@ -23,7 +23,7 @@ describe('AdminStaffModal', () => {
     fireEvent.click(screen.getByText('Add Staff'))
     expect(screen.getByText('Full name is required')).toBeInTheDocument()
 
-    fireEvent.change(screen.getByPlaceholderText('e.g. Ms. Grace Mwangi'), { target: { value: 'Grace' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Ms. Mukamana Grace'), { target: { value: 'Grace' } })
     expect(screen.queryByText('Full name is required')).not.toBeInTheDocument()
   })
 
@@ -32,7 +32,7 @@ describe('AdminStaffModal', () => {
     const onClose = vi.fn()
     render(<AdminStaffModal onClose={onClose} onSave={onSave} />)
 
-    fireEvent.change(screen.getByPlaceholderText('e.g. Ms. Grace Mwangi'), { target: { value: 'Grace Mwangi' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Ms. Mukamana Grace'), { target: { value: 'Grace Mwangi' } })
     fireEvent.change(screen.getByPlaceholderText('e.g. Mathematics Teacher'), { target: { value: 'Teacher' } })
     fireEvent.click(screen.getByText('Add Staff'))
 

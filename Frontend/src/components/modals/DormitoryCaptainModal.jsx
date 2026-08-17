@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { getDisStudents } from '../../api/discipline'
 import { useDormitories } from '../../hooks/useDormitories'
+import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
 
 // Must match the key useDormitories derives, so a stored display name and a
@@ -8,6 +9,7 @@ import '../../styles/components.css'
 const toDormKey = name => String(name || '').toLowerCase().replace(/\s+/g, '-')
 
 export function DormitoryCaptainModal({ captain, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEditing = !!captain
     // The school's own dormitories, not a fixed four.
     const DORMITORIES = useDormitories()
@@ -100,7 +102,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                         <span className="material-symbols-rounded dmod-title-icon">
                             {isEditing ? 'edit' : 'person_add'}
                         </span>
-                        <h2 className="modal-title">{isEditing ? 'Edit Dormitory Captain' : 'Add Dormitory Captain'}</h2>
+                        <h2 className="modal-title">{isEditing ? t('modals.captain.editTitle') : t('modals.captain.addTitle')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
@@ -110,7 +112,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                     {/* Student selector */}
                     {isEditing ? (
                         <div className="form-group">
-                            <label className="form-label">Student</label>
+                            <label className="form-label">{t('common.student')}</label>
                             <div className="dmod-current">
                                 {captain.student_name}
                                 {cls && <span className="class-chip dis-chip-inline">{cls}</span>}
@@ -118,13 +120,13 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                         </div>
                     ) : (
                         <div className="form-group dis-search-wrap" ref={searchRef}>
-                            <label className="form-label">Student *</label>
+                            <label className="form-label">{t('modals.leader.studentRequired')}</label>
                             <div className="dis-search-wrap">
                                 <input
                                     className="form-input"
                                     value={query}
                                     onChange={handleSearch}
-                                    placeholder="Search by name or ADM number…"
+                                    placeholder={t('common.searchStudentPlaceholder')}
                                     autoComplete="off"
                                 />
                                 {searching && (
@@ -161,15 +163,15 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
 
                     {/* Dormitory */}
                     <div className="form-group">
-                        <label className="form-label">Dormitory *</label>
+                        <label className="form-label">{t('modals.captain.dormitoryRequired')}</label>
                         <select className="form-input" value={dormKey} onChange={e => setDormKey(e.target.value)} disabled={isEditing}>
-                            <option value="">Select dormitory</option>
-                            <optgroup label="Girls Dormitories">
+                            <option value="">{t('modals.captain.selectDormitory')}</option>
+                            <optgroup label={t('modals.captain.girlsDormitories')}>
                                 {DORMITORIES.filter(d => d.gender === 'Girls').map(d => (
                                     <option key={d.key} value={d.key}>{d.name}</option>
                                 ))}
                             </optgroup>
-                            <optgroup label="Boys Dormitories">
+                            <optgroup label={t('modals.captain.boysDormitories')}>
                                 {DORMITORIES.filter(d => d.gender === 'Boys').map(d => (
                                     <option key={d.key} value={d.key}>{d.name}</option>
                                 ))}
@@ -180,14 +182,16 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                                 <span className="material-symbols-rounded">
                                     {selectedDorm.gender === 'Girls' ? 'female' : 'male'}
                                 </span>
-                                {' '}{selectedDorm.gender} dormitory
+                                {' '}{selectedDorm.gender === 'Girls'
+                                    ? t('modals.captain.girlsDormNote')
+                                    : t('modals.captain.boysDormNote')}
                             </span>
                         )}
                     </div>
 
                     {/* Appointed date */}
                     <div className="form-group">
-                        <label className="form-label">Appointed Date</label>
+                        <label className="form-label">{t('common.appointedDate')}</label>
                         <input className="form-input" type="date" value={appointedDate} onChange={e => setAppointedDate(e.target.value)} />
                     </div>
 
@@ -195,10 +199,10 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || (!isEditing && !selectedStudent) || !dormKey}>
                         <span className="material-symbols-rounded">{isEditing ? 'save' : 'person_add'}</span>
-                        {saving ? 'Saving…' : isEditing ? 'Save Changes' : 'Add Captain'}
+                        {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('modals.captain.addCaptain')}
                     </button>
                 </div>
             </div>

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
 
 export function StaffModal({ staff, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEditing = !!staff
 
     useEffect(() => {
@@ -33,11 +35,11 @@ export function StaffModal({ staff, onClose, onSave }) {
 
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>
+                        <span className="material-symbols-rounded modal-title-icon--discipline">
                             {isEditing ? 'edit' : 'person_add'}
                         </span>
                         <h2 className="modal-title">
-                            {isEditing ? 'Edit Staff Member' : 'Add Staff Member'}
+                            {isEditing ? t('modals.disStaff.editTitle') : t('modals.disStaff.addTitle')}
                         </h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}>
@@ -48,35 +50,35 @@ export function StaffModal({ staff, onClose, onSave }) {
                 <div className="modal-body">
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Full Name</label>
-                            <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder="e.g. Ms. J. Kamau" />
+                            <label className="form-label">{t('modals.disStaff.fullName')}</label>
+                            <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('modals.disStaff.egName')} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Role / Dormitory</label>
-                            <input className="form-input" name="role" value={form.role} onChange={handleChange} placeholder="e.g. Matron, Kigoma Dormitory" />
+                            <label className="form-label">{t('modals.disStaff.roleDormitory')}</label>
+                            <input className="form-input" name="role" value={form.role} onChange={handleChange} placeholder={t('modals.disStaff.egRole')} />
                         </div>
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Email</label>
-                            <input className="form-input" name="email" value={form.email} onChange={handleChange} placeholder="e.g. j.kamau@imboni.edu" />
+                            <label className="form-label">{t('common.email')}</label>
+                            <input className="form-input" name="email" value={form.email} onChange={handleChange} placeholder={t('modals.disStaff.egEmail')} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Extension</label>
-                            <input className="form-input" name="ext" value={form.ext} onChange={handleChange} placeholder="e.g. Extension 301" />
+                            <label className="form-label">{t('modals.disStaff.extension')}</label>
+                            <input className="form-input" name="ext" value={form.ext} onChange={handleChange} placeholder={t('modals.disStaff.egExt')} />
                         </div>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Duty Hours</label>
-                        <input className="form-input" name="duty" value={form.duty} onChange={handleChange} placeholder="e.g. 6:00 PM - 7:00 AM" />
+                        <label className="form-label">{t('modals.disStaff.dutyHours')}</label>
+                        <input className="form-input" name="duty" value={form.duty} onChange={handleChange} placeholder={t('modals.disStaff.egDuty')} />
                     </div>
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={!form.name || !form.role}>
                         <span className="material-symbols-rounded">{isEditing ? 'save' : 'person_add'}</span>
-                        {isEditing ? ' Save Changes' : ' Add Staff'}
+                        {isEditing ? t('common.saveChanges') : t('modals.disStaff.addButton')}
                     </button>
                 </div>
 

@@ -6,7 +6,7 @@ describe('AdminPaymentModal', () => {
   it('renders with today date defaulted and Full Payment type', () => {
     render(<AdminPaymentModal onClose={() => {}} onSave={() => {}} />)
     expect(screen.getByText('Record New Payment')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('e.g. Aisha Kamau')).toHaveValue('')
+    expect(screen.getByPlaceholderText('e.g. Uwase Amina')).toHaveValue('')
   })
 
   it('shows validation errors when student name and amount are missing', () => {
@@ -23,7 +23,7 @@ describe('AdminPaymentModal', () => {
     const onClose = vi.fn()
     render(<AdminPaymentModal onClose={onClose} onSave={onSave} />)
 
-    fireEvent.change(screen.getByPlaceholderText('e.g. Aisha Kamau'), { target: { value: 'Aisha Kamau' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Uwase Amina'), { target: { value: 'Aisha Kamau' } })
     fireEvent.change(screen.getByPlaceholderText('e.g. 58000'), { target: { value: '58000' } })
     fireEvent.click(screen.getByText('Record Payment'))
 
@@ -41,7 +41,7 @@ describe('AdminPaymentModal', () => {
     const onSave = vi.fn()
     render(<AdminPaymentModal onClose={() => {}} onSave={onSave} />)
 
-    fireEvent.change(screen.getByPlaceholderText('e.g. Aisha Kamau'), { target: { value: 'A B' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Uwase Amina'), { target: { value: 'A B' } })
     fireEvent.change(screen.getByPlaceholderText('e.g. 58000'), { target: { value: '1000' } })
     fireEvent.change(screen.getByDisplayValue('Full Payment'), { target: { value: 'Bursary' } })
     fireEvent.click(screen.getByText('Record Payment'))

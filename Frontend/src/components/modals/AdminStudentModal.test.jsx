@@ -16,7 +16,7 @@ describe('AdminStudentModal', () => {
   it('renders add mode with default class/house/fee/status', async () => {
     render(<AdminStudentModal onClose={() => {}} onSave={() => {}} />)
     expect(screen.getAllByText('Admit Student').length).toBeGreaterThan(0)
-    expect(screen.getByPlaceholderText('e.g. Aisha Kamau')).toHaveValue('')
+    expect(screen.getByPlaceholderText('e.g. Uwase Amina')).toHaveValue('')
     await waitFor(() => expect(getSchoolConfig).toHaveBeenCalled())
   })
 
@@ -33,7 +33,7 @@ describe('AdminStudentModal', () => {
     const onClose = vi.fn()
     render(<AdminStudentModal onClose={onClose} onSave={onSave} />)
 
-    fireEvent.change(screen.getByPlaceholderText('e.g. Aisha Kamau'), { target: { value: 'Aisha Kamau' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Uwase Amina'), { target: { value: 'Aisha Kamau' } })
     fireEvent.click(screen.getByRole('button', { name: /Admit Student/ }))
 
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
@@ -50,7 +50,7 @@ describe('AdminStudentModal', () => {
     render(<AdminStudentModal student={student} onClose={() => {}} onSave={() => {}} readOnly />)
 
     expect(screen.getByText('Student Details')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('e.g. Aisha Kamau')).toHaveAttribute('readonly')
+    expect(screen.getByPlaceholderText('e.g. Uwase Amina')).toHaveAttribute('readonly')
     expect(screen.queryByText('Admit Student')).not.toBeInTheDocument()
     expect(screen.getByText('Close')).toBeInTheDocument()
   })
