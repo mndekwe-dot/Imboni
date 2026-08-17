@@ -300,6 +300,7 @@
     "overdue": "Igihe cyarenze",
     "parent": "Umubyeyi",
     "pending": "Bitegereje",
+    "pendingReview": "Bitegereje isuzuma",
     "percentage": "Ijanisha",
     "phone": "Telefone",
     "phoneNumber": "Nomero ya telefone",
@@ -321,6 +322,7 @@
     "removeImage": "Kura ishusho",
     "rename": "Hindura izina",
     "retry": "Ongera ugerageze",
+    "reviewed": "Byasuzumwe",
     "revise": "Subiramo",
     "role": "Uruhare",
     "roleRequired": "Uruhare *",
@@ -1098,10 +1100,24 @@
       "visitsThisMonth": "Basuye muri uku kwezi"
     },
     "incidents": {
+      "actionPlaceholder": "Ni iki wakoze ako kanya? (urugero: umuburo mu magambo, guhamagara umubyeyi, umunyeshuri kuguma mu icumbi)",
+      "actionTaken": "Icyakozwe (niba gihari)",
+      "allReports": "Raporo zose",
       "banner": "Raporo nshya y'ikibazo: {{house}} → Ushinzwe imyitwarire",
       "bannerNoHouse": "Raporo nshya y'ikibazo → Ushinzwe imyitwarire",
+      "clearForm": "Hanagura ifishi",
+      "dateOfIncident": "Itariki y'ikibazo",
+      "descPlaceholder": "Sobanura ikibazo mu buryo burambuye: icyabaye, aho cyabereye, abagize uruhare, n'abatangabuhamya...",
+      "disciplineStatus": "Uko ubushinzwe imyitwarire bwabifashe",
+      "pastReports": "Raporo zanjye zashize",
+      "reportType": "Ubwoko bwa raporo",
+      "sevCritical": "Gikomeye cyane (bisaba igikorwa ako kanya)",
+      "submitFailed": "Kohereza raporo byanze.",
+      "submitToDiscipline": "Ohereza ku bushinzwe imyitwarire",
+      "submitting": "Birohererezwa…",
       "subtitle": "Ohereza raporo z'ibibazo ku Ushinzwe imyitwarire",
-      "title": "Tanga raporo y'ikibazo"
+      "title": "Tanga raporo y'ikibazo",
+      "typePositive": "Raporo nziza"
     },
     "parentComms": {
       "allStatuses": "Imimerere yose",

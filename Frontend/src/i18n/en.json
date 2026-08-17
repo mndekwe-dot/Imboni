@@ -300,6 +300,7 @@
     "overdue": "Overdue",
     "parent": "Parent",
     "pending": "Pending",
+    "pendingReview": "Pending Review",
     "percentage": "Percentage",
     "phone": "Phone",
     "phoneNumber": "Phone Number",
@@ -321,6 +322,7 @@
     "removeImage": "Remove image",
     "rename": "Rename",
     "retry": "Try again",
+    "reviewed": "Reviewed",
     "revise": "Review",
     "role": "Role",
     "roleRequired": "Role *",
@@ -1098,10 +1100,24 @@
       "visitsThisMonth": "Visits This Month"
     },
     "incidents": {
+      "actionPlaceholder": "What immediate action did you take? (e.g. verbal warning, parent called, student confined to dorm)",
+      "actionTaken": "Action Taken (if any)",
+      "allReports": "All Reports",
       "banner": "New Incident Report: {{house}} → Discipline Master",
       "bannerNoHouse": "New Incident Report → Discipline Master",
+      "clearForm": "Clear Form",
+      "dateOfIncident": "Date of Incident",
+      "descPlaceholder": "Describe the incident in detail: what happened, where, who was involved, any witnesses...",
+      "disciplineStatus": "Discipline Status",
+      "pastReports": "My Past Reports",
+      "reportType": "Report Type",
+      "sevCritical": "Critical (Requires Immediate Action)",
+      "submitFailed": "Failed to submit report.",
+      "submitToDiscipline": "Submit to Discipline",
+      "submitting": "Submitting…",
       "subtitle": "Submit incident reports directly to the Director of Discipline",
-      "title": "Report Incident"
+      "title": "Report Incident",
+      "typePositive": "Positive Report"
     },
     "parentComms": {
       "allStatuses": "All Statuses",
