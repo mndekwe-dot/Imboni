@@ -165,6 +165,19 @@ screen to English while the rest of the page switches.
 
 ---
 
+## 12. The legal pages say which version governs
+
+`/privacy` and `/terms` are translated like everything else, but a translated
+contract is not the contract. Both pages print a line at the foot, in the
+reader's own language and only when that language is not English, saying the
+English version prevails where the two differ. Any future legal or policy page
+must carry the same line — `privacy.translationNotice`.
+
+This is not a hedge against the quality of the Kinyarwanda. It is what makes it
+safe to publish a Kinyarwanda version at all before a lawyer has read it.
+
+---
+
 ## Notes — RESOLVED (reviewed 2026-08-15)
 
 **Note A — RESOLVED by splitting the words.**
