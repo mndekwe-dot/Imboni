@@ -65,6 +65,7 @@ beforeEach(() => {
   getDosClasses.mockResolvedValue(CLASSES)
   getSubjects.mockResolvedValue(SUBJECTS)
   getDosRooms.mockResolvedValue(ROOMS)
+  getTerms.mockResolvedValue([{ id: 1, name: 'Term 2', year: 2026, is_current: true }])
   getDosTimetable.mockResolvedValue({ slots: [] })
 })
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Select } from '../../components/ui/Select'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -18,13 +19,6 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 import { classLabel as formatClass } from '../../utils/classes'
-
-const timetableStats = [
-    { colorClass: 'info',    icon: 'calendar_view_week', value: '8',      label: 'Periods per Day',   trend: 'Mon - Sat'    },
-    { colorClass: 'success', icon: 'menu_book',          value: '9',      label: 'Subjects',          trend: 'All classes'  },
-    { colorClass: 'warning', icon: 'school',             value: '7',      label: 'Teachers Assigned', trend: 'Fully staffed'},
-    { colorClass: '',        icon: 'event_available',    value: 'Term 1', label: 'Current Term',      trend: '2026'         },
-]
 
 // "8:00", "08:00" → 480 (minutes since midnight). Lets us match times
 // regardless of zero-padding differences between the API and PERIODS data.
@@ -92,6 +86,7 @@ function slotsToSchedules(classId, slots, periods) {
 // Auto-scheduler modal: pick a term, preview the generated weekly plan, then
 // commit it. Nothing is written until the DOS confirms the preview.
 function TimetableGenerateModal({ onClose, onCommitted }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [terms,   setTerms]   = useState([])
     const [form,    setForm]    = useState({ term_id: '', replace: true })
@@ -103,11 +98,11 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
             .then(data => {
                 const list = Array.isArray(data) ? data : (data?.results || [])
                 setTerms(list)
-                const current = list.find(t => t.is_current) || list[0]
+                const current = list.find(term => term.is_current) || list[0]
                 if (current) setForm(f => ({ ...f, term_id: String(current.id) }))
             })
-            .catch(() => toast.error('Could not load academic terms.'))
-    }, [toast])
+            .catch(() => toast.error(t('dos.timetable.loadTermsFailed')))
+    }, [toast, t])
 
     const canRun = form.term_id && !busy
 
@@ -123,7 +118,7 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
             setPreview(plan)
             plan.warnings?.forEach(w => toast.info(w))
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not generate a timetable.')
+            toast.error(err.response?.data?.detail || t('dos.timetable.generateFailed'))
         } finally {
             setBusy(false)
         }
@@ -133,10 +128,10 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
         setBusy(true)
         try {
             const result = await commitDosTimetable(form)
-            toast.success(`Saved ${result.created} lesson(s).`)
+            toast.success(t('dos.timetable.savedLessons', { count: result.created }))
             onCommitted()
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not save the timetable.')
+            toast.error(err.response?.data?.detail || t('dos.timetable.saveFailed'))
         } finally {
             setBusy(false)
         }
@@ -144,32 +139,32 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
 
     return (
         <Modal
-            title="Generate Timetable"
+            title={t('dos.timetable.generateTitle')}
             icon="auto_awesome"
             onClose={onClose}
             size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
-                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
                     {preview
                         ? <button className="btn btn-primary" onClick={handleCommit}
                                   disabled={busy || preview.summary.scheduled === 0}>
-                              Save {preview.summary.scheduled} lesson(s)
+                              {t('dos.timetable.saveLessons', { count: preview.summary.scheduled })}
                           </button>
                         : <button className="btn btn-primary" onClick={handlePreview} disabled={!canRun}>
-                              {busy ? 'Generating…' : 'Preview'}
+                              {busy ? t('dos.timetable.generating') : t('common.preview')}
                           </button>}
                 </div>
             }
         >
             <div className="u-grid u-grid-2 u-gap-1">
                 <div className="form-group">
-                    <label className="form-label">Academic Term *</label>
+                    <label className="form-label">{t('dos.timetable.academicTerm')}</label>
                     <select className="form-select" value={form.term_id}
                             onChange={e => update('term_id', e.target.value)}>
-                        <option value="">Select term…</option>
-                        {terms.map(t => (
-                            <option key={t.id} value={t.id}>{t.name} ({t.year})</option>
+                        <option value="">{t('common.selectTerm')}</option>
+                        {terms.map(term => (
+                            <option key={term.id} value={term.id}>{term.name} ({term.year})</option>
                         ))}
                     </select>
                 </div>
@@ -177,7 +172,7 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
                     <label className="u-flex u-gap-05 u-items-center">
                         <input type="checkbox" checked={form.replace}
                                onChange={e => update('replace', e.target.checked)} />
-                        Replace existing timetable
+                        {t('dos.timetable.replaceExisting')}
                     </label>
                 </div>
             </div>
@@ -185,17 +180,17 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
             {preview && (
                 <div className="mt-1-5">
                     <div className="es-gen-summary">
-                        <span className="badge badge-published">{preview.summary.scheduled} scheduled</span>
+                        <span className="badge badge-published">{t('dos.timetable.scheduledCount', { count: preview.summary.scheduled })}</span>
                         {preview.summary.unscheduled > 0 &&
-                            <span className="badge badge-draft">{preview.summary.unscheduled} unplaced</span>}
+                            <span className="badge badge-draft">{t('dos.timetable.unplacedCount', { count: preview.summary.unscheduled })}</span>}
                         <span className="u-muted u-sm">
-                            {preview.summary.slots_available} slots · {preview.summary.venues} venue(s)
+                            {t('dos.timetable.slotsVenues', { slots: preview.summary.slots_available, venues: preview.summary.venues })}
                         </span>
                     </div>
                     <div className="es-table-wrap mt-1">
                         <table className="es-table">
                             <thead>
-                                <tr><th>Subject</th><th>Wt</th><th>Class</th><th>Day</th><th>Time</th><th>Teacher</th><th>Room</th></tr>
+                                <tr><th>{t('common.subject')}</th><th>{t('dos.timetable.weightAbbr')}</th><th>{t('common.class')}</th><th>{t('common.day')}</th><th>{t('common.time')}</th><th>{t('common.teacher')}</th><th>{t('common.room')}</th></tr>
                             </thead>
                             <tbody>
                                 {preview.assignments.map((a, i) => (
@@ -219,6 +214,7 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
 }
 
 export function DosTimetable() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [classes, setClasses]           = useState([])
@@ -234,6 +230,7 @@ export function DosTimetable() {
     const [rooms, setRooms]       = useState([])
     const [conflict, setConflict] = useState(null)   // { formData, conflicts: [...] }
     const [showGenerate, setShowGenerate] = useState(false)
+    const [currentTerm, setCurrentTerm] = useState(null)
 
     // Load class list, subjects and rooms on mount
     useEffect(() => {
@@ -243,6 +240,12 @@ export function DosTimetable() {
         })
         getSubjects().then(data => setSubjects(data)).catch(err => console.error('subjects failed:', err))
         getDosRooms().then(data => setRooms(data)).catch(err => console.error('rooms failed:', err))
+        getTerms()
+            .then(data => {
+                const list = Array.isArray(data) ? data : (data?.results || [])
+                setCurrentTerm(list.find(term => term.is_current) || null)
+            })
+            .catch(err => console.error('terms failed:', err))
     }, [])
 
     const [refreshKey, setRefreshKey] = useState(0)
@@ -375,22 +378,43 @@ export function DosTimetable() {
         ? formatClass(selectedClass.grade, selectedClass.section)
         : ''
 
+    // Read from what is loaded, not from constants. The break row is not a
+    // teaching period, and the teacher count is the teachers this class
+    // actually sees in the week on screen.
+    const lessonPeriods = periods.filter(p => p.id !== 'break')
+    const classTeachers = new Set(
+        Object.values(schedules[classId] || {})
+            .flat()
+            .filter(cell => cell && cell.teacher)
+            .map(cell => cell.teacher))
+
+    const timetableStats = [
+        { colorClass: 'info',    icon: 'calendar_view_week', value: String(lessonPeriods.length),
+          label: t('dos.scheduling.periodsPerDay'),    trend: t('dos.scheduling.dayRange')   },
+        { colorClass: 'success', icon: 'menu_book',          value: String(subjects.length),
+          label: t('common.subjects'),                 trend: t('dos.scheduling.allClasses') },
+        { colorClass: 'warning', icon: 'school',             value: String(classTeachers.size),
+          label: t('dos.scheduling.teachersAssigned'), trend: t('dos.timetable.inThisClass') },
+        { colorClass: '',        icon: 'event_available',    value: currentTerm?.name || t('dos.scheduling.notSet'),
+          label: t('dos.scheduling.currentTerm'),      trend: currentTerm ? String(currentTerm.year) : '' },
+    ]
+
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Academic Timetable"
-                        subtitle="Create and manage weekly class timetables for all forms"
+                        title={t('dos.timetable.title')}
+                        subtitle={t('dos.timetable.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                         actions={
                             <button className="btn btn-secondary" onClick={() => setShowGenerate(true)}>
-                                <span className="material-symbols-rounded">auto_awesome</span> Generate
+                                <span className="material-symbols-rounded">auto_awesome</span> {t('common.generate')}
                             </button>
                         }
                     />
@@ -405,15 +429,17 @@ export function DosTimetable() {
                         <div className="card">
                             <div className="card-header">
                                 <h2 className="card-title">
-                                    {classLabel ? `Class ${classLabel}: Weekly Timetable` : 'Weekly Timetable'}
+                                    {classLabel
+                                        ? t('dos.timetable.weeklyFor', { name: classLabel })
+                                        : t('dos.timetable.weekly')}
                                 </h2>
                                 <div className="flex-row-gap">
                                     <div className="flex-row-gap">
-                                        <label className="form-label mb-0">Class:</label>
+                                        <label className="form-label mb-0">{t('dos.scheduling.classColon')}</label>
                                         <Select
                                             value={classId}
                                             onChange={setClassId}
-                                            placeholder="Select class"
+                                            placeholder={t('common.selectClass')}
                                             options={classes.map(c => ({
                                                 value: c.id,
                                                 label: formatClass(c.grade, c.section),
@@ -425,19 +451,19 @@ export function DosTimetable() {
                                         onClick={() => setShowPeriodManager(true)}
                                     >
                                         <span className="material-symbols-rounded icon-sm">schedule</span>
-                                        Edit Periods
+                                        {t('dos.scheduling.editPeriods')}
                                     </button>
                                     <button
                                         className="btn btn-primary btn-sm"
                                         onClick={() => { setEditingSlot(null); setShowForm(true) }}
                                     >
-                                        <span className="material-symbols-rounded">add</span> Add Slot
+                                        <span className="material-symbols-rounded">add</span> {t('dos.scheduling.addSlot')}
                                     </button>
                                 </div>
                             </div>
                             <div className="card-content">
                                 {loading ? (
-                                    <p className="dos-tt-note">Loading timetable…</p>
+                                    <p className="dos-tt-note">{t('dos.timetable.loadingTimetable')}</p>
                                 ) : (
                                     <Timetable
                                         type="academic"
@@ -491,7 +517,7 @@ export function DosTimetable() {
                                     <div className="modal-header">
                                         <div className="modal-header-left">
                                             <span className="material-symbols-rounded dos-tt-warn-icon">warning</span>
-                                            <h2 className="modal-title">Scheduling Conflict</h2>
+                                            <h2 className="modal-title">{t('dos.timetable.conflictTitle')}</h2>
                                         </div>
                                         <button className="btn-icon-clean" onClick={() => setConflict(null)}>
                                             <span className="material-symbols-rounded">close</span>
@@ -499,7 +525,7 @@ export function DosTimetable() {
                                     </div>
                                     <div className="modal-body">
                                         <p className="dos-tt-conflict-title">
-                                            This slot clashes with the existing timetable:
+                                            {t('dos.timetable.conflictBody')}
                                         </p>
                                         <ul className="dos-tt-conflict-list">
                                             {conflict.conflicts.map((c, i) => (
@@ -508,10 +534,10 @@ export function DosTimetable() {
                                         </ul>
                                     </div>
                                     <div className="modal-footer">
-                                        <button className="btn btn-secondary" onClick={() => setConflict(null)}>Go Back</button>
+                                        <button className="btn btn-secondary" onClick={() => setConflict(null)}>{t('common.goBack')}</button>
                                         <button className="btn btn-primary"
                                             onClick={() => conflict.onForce?.()}>
-                                            Save Anyway
+                                            {t('dos.timetable.saveAnyway')}
                                         </button>
                                     </div>
                                 </div>
