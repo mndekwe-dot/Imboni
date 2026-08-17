@@ -50,13 +50,19 @@ describe('translation files', () => {
         const forms = leafKeys(en).filter(k => k.endsWith('_other')).map(k => k.slice(0, -6))
         expect(forms.length).toBeGreaterThan(0)
 
+        // Most plural strings print the number, but not all of them: some only
+        // change a pronoun ("Keep it" / "Keep them"). Demand the number back
+        // only from the ones that asked for it.
+        const raw = path => path.split('.').reduce((o, k) => o[k], en)
+        const shows = base => /\{\{\s*count\s*\}\}/.test(raw(`${base}_other`))
+
         for (const lng of ['en', 'rw']) {
             setLanguage(lng)
             for (const base of forms) {
                 for (const count of [0, 1, 5]) {
                     const out = i18n.t(base, { count })
                     expect(out, `${lng}:${base} count=${count}`).not.toContain(base)
-                    expect(out).toContain(String(count))
+                    if (shows(base)) expect(out, `${lng}:${base} count=${count}`).toContain(String(count))
                 }
             }
         }

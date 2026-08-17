@@ -63,7 +63,7 @@ describe('DosSettings', () => {
     await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument())
     expect(updateSchoolConfig).not.toHaveBeenCalled()
 
-    fireEvent.click(within(sectionsCard).getByRole('button', { name: /Save changes/ }))
+    fireEvent.click(within(sectionsCard).getByRole('button', { name: /save changes/i }))
     await waitFor(() => expect(updateSchoolConfig)
       .toHaveBeenCalledWith([{ name: 'O-Level', years: [] }], { confirm: false }))
   })

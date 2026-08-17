@@ -94,7 +94,7 @@ describe('AdminSettings', () => {
 
     fireEvent.change(screen.getByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
     fireEvent.click(screen.getByRole('button', { name: /Add/ }))
-    fireEvent.click(await screen.findByRole('button', { name: /Save changes/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /save changes/i }))
 
     await waitFor(() => expect(updateSchoolConfig)
       .toHaveBeenCalledWith([{ name: 'O-Level', years: [] }], { confirm: false }))
@@ -115,7 +115,7 @@ describe('AdminSettings', () => {
 
     fireEvent.change(screen.getByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
     fireEvent.click(screen.getByRole('button', { name: /Add/ }))
-    fireEvent.click(await screen.findByRole('button', { name: /Save changes/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /save changes/i }))
 
     expect(await screen.findByText('the year S6')).toBeInTheDocument()
 
