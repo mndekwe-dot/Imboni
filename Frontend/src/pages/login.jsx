@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { useSchoolIdentity } from '../hooks/useSchoolIdentity'
 import '../styles/login.css'
@@ -7,57 +9,53 @@ import '../styles/public-pages.css'
 import logo from '../assets/images/imboni-logo.png'
 
 function ForgotPasswordModal({ onClose }) {
+    const { t } = useTranslation()
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
                         <span className="material-symbols-rounded">lock_reset</span>
-                        <h2 className="modal-title">Reset Password</h2>
+                        <h2 className="modal-title">{t('auth.resetPassword')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
                 <div className="modal-body">
                     <p className="lg-forgot-intro">
-                        Password resets are handled by the school administration. Please contact the school office using one of the options below:
+                        {t('auth.resetIntroContact')}
                     </p>
                     <div className="u-stack-sm">
                         <div className="lg-contact-row">
                             <span className="material-symbols-rounded lg-contact-icon">mail</span>
                             <div>
-                                <div className="lg-contact-label">Email</div>
+                                <div className="lg-contact-label">{t('common.email')}</div>
                                 <div className="lg-contact-value">admin@imboni.edu</div>
                             </div>
                         </div>
                         <div className="lg-contact-row">
                             <span className="material-symbols-rounded lg-contact-icon">phone</span>
                             <div>
-                                <div className="lg-contact-label">School Extension</div>
-                                <div className="lg-contact-value">Extension 100</div>
+                                <div className="lg-contact-label">{t('auth.schoolExtension')}</div>
+                                <div className="lg-contact-value">{t('auth.extensionValue')}</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div className="modal-footer">
-                    <button className="btn btn-primary u-full" onClick={onClose}>Got it</button>
+                    <button className="btn btn-primary u-full" onClick={onClose}>{t('auth.gotIt')}</button>
                 </div>
             </div>
         </div>
     )
 }
 
-const roles = [
-    'Student', 'Teacher', 'Parent', 'Director of Studies', 'Discipline', 'Matron',
-]
-
-const stats = [
-    { value: '980+',  label: 'Boarders'  },
-    { value: '48+',   label: 'Teachers'  },
-    { value: '6',     label: 'Portals'   },
-    { value: '4',     label: 'Houses'    },
+const ROLE_KEYS = [
+    'roles.student', 'roles.teacher', 'roles.parent',
+    'roles.dos', 'roles.discipline', 'roles.matron',
 ]
 
 export function LogIn() {
+    const { t } = useTranslation()
     const { login, completeTwoFactor } = useAuth()
     // Decorative only: null on the bare domain or if the lookup fails.
     const { school } = useSchoolIdentity()
@@ -116,29 +114,18 @@ export function LogIn() {
 
                     <h2>
                         Imboni<br />
-                        <span>Education Connects</span>
+                        <span>{t('auth.brandTagline')}</span>
                     </h2>
 
                     <p>
-                        One unified platform for students, teachers, parents,
-                        and boarding staff, keeping every part of school life
-                        connected and running smoothly.
+                        {t('auth.leftIntro')}
                     </p>
 
                     <div className="left-divider"></div>
 
                     <div className="login-left-roles">
-                        {roles.map(role => (
-                            <span key={role} className="role-pill">{role}</span>
-                        ))}
-                    </div>
-
-                    <div className="left-stats">
-                        {stats.map(s => (
-                            <div key={s.label} className="left-stat-item">
-                                <div className="left-stat-value">{s.value}</div>
-                                <div className="left-stat-label">{s.label}</div>
-                            </div>
+                        {ROLE_KEYS.map(key => (
+                            <span key={key} className="role-pill">{t(key)}</span>
                         ))}
                     </div>
                 </div>
@@ -159,12 +146,10 @@ export function LogIn() {
                 {school && (
                     <div className="school-brand">
                         <p className="school-brand-name">{school.name}</p>
-                        <p className="school-brand-sub">on Imboni</p>
+                        <p className="school-brand-sub">{t('auth.onImboni')}</p>
                         {school.status === 'suspended' && (
                             <p className="school-brand-warn">
-                                This school&apos;s account is suspended. You can still
-                                sign in, but most of the system will be unavailable
-                                until the outstanding balance is settled.
+                                {t('auth.suspendedWarning')}
                             </p>
                         )}
                     </div>
@@ -175,12 +160,12 @@ export function LogIn() {
                         <span className="material-symbols-rounded">school</span>
                     </div>
                     <div>
-                        <h1 className="login-heading">Welcome back</h1>
+                        <h1 className="login-heading">{t('auth.welcomeBack')}</h1>
                     </div>
                 </div>
 
                 <p className="login-subheading">
-                    Sign in with your school-issued credentials to access your portal.
+                    {t('auth.loginSubheading')}
                 </p>
 
                 {/* Error banner — shown only when there's an error to report. */}
@@ -194,11 +179,10 @@ export function LogIn() {
                 {challenge ? (
                     <form className="login-form" onSubmit={handleVerify} autoComplete="off">
                         <p className="login-subheading lg-mt-0">
-                            Enter the 6-digit code from your authenticator app (or a backup
-                            code) to finish signing in.
+                            {t('auth.twoFactorHint')}
                         </p>
                         <div className="form-group">
-                            <label className="form-label" htmlFor="twofa-code">Verification code</label>
+                            <label className="form-label" htmlFor="twofa-code">{t('auth.verificationCode')}</label>
                             <div className="input-wrap">
                                 <span className="input-icon material-symbols-rounded">password</span>
                                 <input
@@ -218,7 +202,7 @@ export function LogIn() {
                         </div>
                         <button type="submit" className="login-btn" disabled={loading}>
                             {loading
-                                ? <><span className="btn-spinner"></span> Verifying...</>
+                                ? <><span className="btn-spinner"></span> {t('auth.verifying')}</>
                                 : 'Verify and sign in'}
                         </button>
                         <button
@@ -226,14 +210,14 @@ export function LogIn() {
                             className="forgot-link lg-back-link"
                             onClick={() => { setChallenge(null); setCode(''); setError('') }}
                         >
-                            Back to sign in
+                            {t('auth.backToSignIn')}
                         </button>
                     </form>
                 ) : (
                 <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
 
                     <div className="form-group">
-                        <label className="form-label" htmlFor="email">Email address</label>
+                        <label className="form-label" htmlFor="email">{t('auth.email')}</label>
                         <div className="input-wrap">
                             <span className="input-icon material-symbols-rounded">mail</span>
                             <input
@@ -241,7 +225,7 @@ export function LogIn() {
                                 type="email"
                                 id="email"
                                 name="email"
-                                placeholder="you@imboni.edu"
+                                placeholder={t('auth.emailPlaceholderExample')}
                                 autoComplete="email"
                                 required
                                 value={email}
@@ -251,7 +235,7 @@ export function LogIn() {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label" htmlFor="password">Password</label>
+                        <label className="form-label" htmlFor="password">{t('auth.password')}</label>
                         <div className="input-wrap">
                             <span className="input-icon material-symbols-rounded">lock</span>
                             <input
@@ -259,7 +243,7 @@ export function LogIn() {
                                 type={showPw ? 'text' : 'password'}
                                 id="password"
                                 name="password"
-                                placeholder="Enter your password"
+                                placeholder={t('auth.passwordPlaceholder')}
                                 autoComplete="current-password"
                                 required
                                 value={password}
@@ -268,7 +252,7 @@ export function LogIn() {
                             <button
                                 type="button"
                                 className="pw-toggle"
-                                aria-label="Toggle password visibility"
+                                aria-label={t('auth.togglePassword')}
                                 onClick={() => setShowPw(p => !p)}
                             >
                                 <span className="material-symbols-rounded">
@@ -281,35 +265,35 @@ export function LogIn() {
                     <div className="form-options">
                         <label className="remember-label">
                             <input type="checkbox" name="remember" />
-                            Remember me
+                            {t('auth.rememberMe')}
                         </label>
-                        <button type="button" className="forgot-link" onClick={() => setShowForgot(true)}>Forgot password?</button>
+                        <button type="button" className="forgot-link" onClick={() => setShowForgot(true)}>{t('auth.forgotPassword')}</button>
                     </div>
 
                     <button type="submit" className="login-btn" disabled={loading}>
                         {loading
-                            ? <><span className="btn-spinner"></span> Signing in...</>
-                            : 'Sign in'}
+                            ? <><span className="btn-spinner"></span> {t('auth.signingIn')}</>
+                            : t('auth.signIn')}
                     </button>
 
                 </form>
                 )}
 
-                <div className="form-divider">or</div>
+                <div className="form-divider">{t('auth.or')}</div>
 
                 <div className="login-help">
                     <div className="login-help-icon">
                         <span className="material-symbols-rounded">support_agent</span>
                     </div>
                     <div>
-                        <strong>Need help?</strong> Contact the school office at{' '}
-                        <strong>admin@imboni.edu</strong> or extension <strong>100</strong>.
+                        <strong>{t('auth.needHelp')}</strong>{' '}
+                        {t('auth.contactOffice', { email: 'admin@imboni.edu', extension: '100' })}
                     </div>
                 </div>
 
                 <div className="login-footer">
-                    Imboni Education Connects &copy; {new Date().getFullYear()}.{' '}
-                    <a href="#">Privacy Policy</a>
+                    {t('auth.footerCopyright', { year: new Date().getFullYear() })}{' '}
+                    <Link to="/privacy">{t('auth.privacyPolicy')}</Link>
                 </div>
 
             </div>
