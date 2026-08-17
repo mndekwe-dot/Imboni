@@ -19,21 +19,29 @@ import { formatDateShort } from '../../utils/date'
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-    { value: 'urgent',   label: 'Urgent',   icon: 'priority_high' },
-    { value: 'academic', label: 'Academic', icon: 'school'         },
-    { value: 'event',    label: 'Event',    icon: 'event'          },
-    { value: 'general',  label: 'General',  icon: 'info'           },
+    { value: 'urgent',   labelKey: 'announcements.catUrgent',   icon: 'priority_high' },
+    { value: 'academic', labelKey: 'announcements.catAcademic', icon: 'school'        },
+    { value: 'event',    labelKey: 'announcements.catEvent',    icon: 'event'         },
+    { value: 'general',  labelKey: 'announcements.catGeneral',  icon: 'info'          },
 ]
 
 const AUDIENCES = [
-    { value: 'all',            label: 'Everyone',           icon: 'groups'          },
-    { value: 'teachers',       label: 'All Teachers',       icon: 'school'          },
-    { value: 'students',       label: 'All Students',       icon: 'group'           },
-    { value: 'parents',        label: 'Parents / Guardians',icon: 'family_restroom' },
-    { value: 'grade_specific', label: 'Specific Year',      icon: 'filter_list'     },
+    { value: 'all',            labelKey: 'announcements.audEveryone',     icon: 'groups'          },
+    { value: 'teachers',       labelKey: 'announcements.audTeachers',     icon: 'school'          },
+    { value: 'students',       labelKey: 'announcements.audStudents',     icon: 'group'           },
+    { value: 'parents',        labelKey: 'announcements.audParents',      icon: 'family_restroom' },
+    { value: 'grade_specific', labelKey: 'announcements.audSpecificYear', icon: 'filter_list'     },
 ]
 
 const FILTERS = ['all', 'published', 'draft', 'archived']
+
+const FILTER_KEYS = {
+    all:       'announcements.filterAll',
+    published: 'announcements.filterPublished',
+    draft:     'announcements.filterDraft',
+    archived:  'announcements.filterArchived',
+}
+
 
 const EMPTY_FORM = {
     title:           '',
@@ -45,69 +53,71 @@ const EMPTY_FORM = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function timeAgo(isoStr) {
+function timeAgo(isoStr, t) {
     if (!isoStr) return ''
     const diff = Date.now() - new Date(isoStr).getTime()
     const m = Math.floor(diff / 60000)
-    if (m < 1)   return 'Just now'
-    if (m < 60)  return `${m}m ago`
+    if (m < 1)  return t('common.justNow')
+    if (m < 60) return t('common.minutesAgo', { count: m })
     const h = Math.floor(m / 60)
-    if (h < 24)  return `${h}h ago`
+    if (h < 24) return t('common.hoursAgo', { count: h })
     const d = Math.floor(h / 24)
-    if (d < 7)   return `${d}d ago`
+    if (d < 7)  return t('common.daysAgo', { count: d })
     return formatDateShort(isoStr)
 }
 
-function audienceLabel(val) {
-    return AUDIENCES.find(a => a.value === val)?.label || val
+function audienceLabel(val, t) {
+    const found = AUDIENCES.find(a => a.value === val)
+    return found ? t(found.labelKey) : val
 }
 
 // ── Announcement item ─────────────────────────────────────────────────────────
 
 function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
+    const { t }   = useTranslation()
     const cat     = CATEGORIES.find(c => c.value === ann.category) || CATEGORIES[3]
     const isDraft = ann.status === 'draft'
     const isArch  = ann.status === 'archived'
     const time    = isDraft
-        ? `Last edited ${timeAgo(ann.updated_at)}`
-        : timeAgo(ann.published_at || ann.created_at)
+        ? t('announcements.lastEdited', { time: timeAgo(ann.updated_at, t) })
+        : timeAgo(ann.published_at || ann.created_at, t)
 
     return (
         <div className="ann-item">
             <div className="ann-item-header">
                 <div className="ann-avatar">{ann.author ? ann.author.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() : 'AN'}</div>
                 <div className="ann-item-meta">
-                    <div className="ann-item-title">{ann.title || <em>Untitled</em>}</div>
+                    <div className="ann-item-title">{ann.title || <em>{t('common.untitled')}</em>}</div>
                     <div className="ann-item-sub">
-                        {isDraft ? 'Draft' : `Sent to: ${audienceLabel(ann.target_audience)}`}
+                        {isDraft ? t('common.draft') : t('announcements.sentTo', { audience: audienceLabel(ann.target_audience, t) })}
                         {ann.target_grade ? ` · ${ann.target_grade}` : ''}
                         &nbsp;&middot;&nbsp;{time}
                     </div>
                 </div>
-                <span className={`ann-badge ${ann.category}`}>{cat.label}</span>
-                {isArch && <span className="ann-badge general ann-badge-inline">Archived</span>}
+                <span className={`ann-badge ${ann.category}`}>{t(cat.labelKey)}</span>
+                {isArch && <span className="ann-badge general ann-badge-inline">{t('common.archived')}</span>}
             </div>
             <p className="ann-excerpt">{ann.content}</p>
             <div className="ann-item-footer">
                 <span className="ann-views">
                     <span className="material-symbols-rounded">{isDraft ? 'draft' : 'visibility'}</span>
-                    {isDraft ? 'Draft' : 'Published'}
+                    {isDraft ? t('common.draft') : t('common.published')}
                 </span>
                 <div className="ann-item-actions">
-                    <button className="ann-icon-btn" title="Edit" onClick={() => onEdit(ann)}>
+                    <button className="ann-icon-btn" title={t('common.edit')} onClick={() => onEdit(ann)}>
                         <span className="material-symbols-rounded">edit</span>
                     </button>
                     {isDraft && (
-                        <button className="ann-icon-btn" title="Publish" onClick={() => onPublish(ann.id)}>
+                        <button className="ann-icon-btn" title={t('common.publish')} onClick={() => onPublish(ann.id)}>
                             <span className="material-symbols-rounded">publish</span>
                         </button>
                     )}
                     {!isArch && !isDraft && (
-                        <button className="ann-icon-btn" title="Archive" onClick={() => onArchive(ann.id)}>
+                        <button className="ann-icon-btn" title={t('common.archive')} onClick={() => onArchive(ann.id)}>
                             <span className="material-symbols-rounded">archive</span>
                         </button>
                     )}
-                    <button className="ann-icon-btn danger" title="Delete" onClick={() => onDelete(ann.id)}>
+                    <button className="ann-icon-btn danger" title={t('common.delete')} onClick={() => onDelete(ann.id)}>
                         <span className="material-symbols-rounded">delete</span>
                     </button>
                 </div>
@@ -213,8 +223,8 @@ export function DosAnnouncement() {
     }
 
     async function handleSave(status) {
-        if (!form.title.trim())   { setFormError('Title is required.'); return }
-        if (!form.content.trim()) { setFormError('Content is required.'); return }
+        if (!form.title.trim())   { setFormError(t('announcements.titleRequiredError')); return }
+        if (!form.content.trim()) { setFormError(t('announcements.contentRequiredError')); return }
         setFormError('')
         setSaving(true)
         try {
@@ -227,7 +237,7 @@ export function DosAnnouncement() {
             handleClear()
             reload()
         } catch(e) {
-            setFormError('Failed to save. Please try again.')
+            setFormError(t('announcements.saveFailed'))
             console.error(e)
         } finally {
             setSaving(false)
@@ -235,7 +245,7 @@ export function DosAnnouncement() {
     }
 
     async function handleDelete(id) {
-        if (!window.confirm('Delete this announcement?')) return
+        if (!window.confirm(t('announcements.deleteConfirm'))) return
         try {
             await deleteDosAnnouncement(id)
             setAnnouncements(prev => prev.filter(a => a.id !== id))
@@ -258,7 +268,7 @@ export function DosAnnouncement() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
@@ -279,11 +289,11 @@ export function DosAnnouncement() {
                                 <div className="card-header">
                                     <h2 className="card-title">
                                         <span className="material-symbols-rounded">edit_note</span>
-                                        {editingId ? 'Edit Announcement' : 'Create New Announcement'}
+                                        {editingId ? t('announcements.editTitle') : t('announcements.createTitle')}
                                     </h2>
                                     {editingId && (
                                         <button className="btn btn-outline btn-sm" onClick={handleClear}>
-                                            <span className="material-symbols-rounded icon-sm">close</span> Cancel Edit
+                                            <span className="material-symbols-rounded icon-sm">close</span> {t('announcements.cancelEdit')}
                                         </button>
                                     )}
                                 </div>
@@ -291,14 +301,14 @@ export function DosAnnouncement() {
 
                                     {/* Category */}
                                     <div className="form-group ann-form-group">
-                                        <label className="form-label">Category</label>
+                                        <label className="form-label">{t('common.category')}</label>
                                         <div className="ann-category-row">
                                             {CATEGORIES.map(c => (
                                                 <label key={c.value} className={`ann-cat-label ${c.value}${form.category===c.value?' selected':''}`}>
                                                     <input type="radio" name="ann-cat" value={c.value}
                                                         checked={form.category===c.value}
                                                         onChange={set('category')} />
-                                                    <span className="material-symbols-rounded">{c.icon}</span> {c.label}
+                                                    <span className="material-symbols-rounded">{c.icon}</span> {t(c.labelKey)}
                                                 </label>
                                             ))}
                                         </div>
@@ -306,22 +316,22 @@ export function DosAnnouncement() {
 
                                     {/* Title */}
                                     <div className="form-group ann-form-group">
-                                        <label className="form-label" htmlFor="annTitle">Announcement Title *</label>
+                                        <label className="form-label" htmlFor="annTitle">{t('announcements.titleRequired')}</label>
                                         <input type="text" className="form-input" id="annTitle"
-                                            placeholder="e.g. Mid-Term Exam Schedule Revision"
+                                            placeholder={t('announcements.egDosTitle')}
                                             value={form.title} onChange={set('title')} />
                                     </div>
 
                                     {/* Audience */}
                                     <div className="form-group ann-form-group">
-                                        <label className="form-label">Send To</label>
+                                        <label className="form-label">{t('announcements.sendTo')}</label>
                                         <div className="ann-audience-grid">
                                             {AUDIENCES.map(a => (
                                                 <label key={a.value} className={`ann-audience-item${form.target_audience===a.value?' selected':''}`}>
                                                     <input type="radio" name="ann-audience" value={a.value}
                                                         checked={form.target_audience===a.value}
                                                         onChange={set('target_audience')} />
-                                                    <span className="material-symbols-rounded">{a.icon}</span> {a.label}
+                                                    <span className="material-symbols-rounded">{a.icon}</span> {t(a.labelKey)}
                                                 </label>
                                             ))}
                                         </div>
@@ -332,13 +342,13 @@ export function DosAnnouncement() {
                                         <div className="form-group ann-form-group">
                                             {yearNames.length === 0 ? (
                                                 <p className="dos-ann-note">
-                                                    No year groups found. Please configure them in
-                                                    <strong> School Settings → Sections</strong>.
+                                                    {t('announcements.noYearGroups')}{' '}
+                                                    <strong>{t('announcements.settingsPath')}</strong>.
                                                 </p>
                                             ) : (
                                                 <>
                                                     {/* Step 1 — pick year */}
-                                                    <label className="form-label">Year Group</label>
+                                                    <label className="form-label">{t('common.yearGroup')}</label>
                                                     <div className="es-class-chips dos-chips-mb">
                                                         {yearNames.map(y => (
                                                             <button key={y} type="button"
@@ -355,12 +365,12 @@ export function DosAnnouncement() {
                                                     {/* Step 2 — pick class within that year */}
                                                     {selectedYear && (yearClassMap[selectedYear]||[]).length > 0 && (
                                                         <>
-                                                            <label className="form-label">Class <span className="dos-optional">(optional, leave on year to target all)</span></label>
+                                                            <label className="form-label">{t('common.class')} <span className="dos-optional">{t('announcements.classOptional')}</span></label>
                                                             <div className="es-class-chips">
                                                                 <button type="button"
                                                                     className={`es-class-chip-btn${form.target_grade===selectedYear?' active':''}`}
                                                                     onClick={() => setForm(p => ({ ...p, target_grade: selectedYear }))}>
-                                                                    All {selectedYear}
+                                                                    {t('announcements.allYear', { year: selectedYear })}
                                                                 </button>
                                                                 {(yearClassMap[selectedYear]||[]).map(cls => (
                                                                     <button key={cls} type="button"
@@ -379,9 +389,9 @@ export function DosAnnouncement() {
 
                                     {/* Content */}
                                     <div className="form-group ann-content-group">
-                                        <label className="form-label" htmlFor="annContent">Announcement Content *</label>
+                                        <label className="form-label" htmlFor="annContent">{t('announcements.contentRequired')}</label>
                                         <textarea className="form-input es-textarea-v" id="annContent" rows={6}
-                                            placeholder="Type the full announcement details here..."
+                                            placeholder={t('announcements.bodyPlaceholderShort')}
                                             value={form.content} onChange={set('content')} />
                                     </div>
 
@@ -392,15 +402,15 @@ export function DosAnnouncement() {
                                     {/* Actions */}
                                     <div className="ann-form-actions">
                                         <button type="button" className="btn btn-outline" onClick={handleClear} disabled={saving}>
-                                            Clear
+                                            {t('common.clear')}
                                         </button>
                                         <button type="button" className="btn btn-secondary" onClick={() => handleSave('draft')} disabled={saving}>
                                             <span className="material-symbols-rounded">draft</span>
-                                            {saving ? 'Saving…' : 'Save Draft'}
+                                            {saving ? t('common.saving') : t('announcements.saveDraft')}
                                         </button>
                                         <button type="button" className="btn btn-primary" onClick={() => handleSave('published')} disabled={saving}>
                                             <span className="material-symbols-rounded">send</span>
-                                            {saving ? 'Publishing…' : (editingId ? 'Update & Publish' : 'Publish Now')}
+                                            {saving ? t('announcements.publishing') : (editingId ? t('announcements.updateAndPublish') : t('announcements.publishNow'))}
                                         </button>
                                     </div>
                                 </div>
@@ -409,8 +419,8 @@ export function DosAnnouncement() {
                             {/* ── RIGHT: Recent Broadcasts ── */}
                             <div className="card">
                                 <div className="card-header">
-                                    <h2 className="card-title">Recent Broadcasts</h2>
-                                    <span className="badge badge-published">{countByStatus('published')} of {total} loaded</span>
+                                    <h2 className="card-title">{t('announcements.recentBroadcasts')}</h2>
+                                    <span className="badge badge-published">{t('announcements.loadedOf', { shown: countByStatus('published'), total })}</span>
                                 </div>
                                 <div className="card-content">
 
@@ -419,7 +429,7 @@ export function DosAnnouncement() {
                                         {FILTERS.map(f => (
                                             <button key={f} className={`ann-filter-pill${activeFilter===f?' active':''}`}
                                                 onClick={() => setActiveFilter(f)}>
-                                                {f.charAt(0).toUpperCase()+f.slice(1)}
+                                                {t(FILTER_KEYS[f])}
                                                 {f !== 'all' && (
                                                     <span className="es-chip-count dos-chip-count-ml">
                                                         {countByStatus(f)}
@@ -431,11 +441,13 @@ export function DosAnnouncement() {
 
                                     {/* List */}
                                     {loading ? (
-                                        <p className="es-empty-msg">Loading announcements…</p>
+                                        <p className="es-empty-msg">{t('announcements.loading')}</p>
                                     ) : filtered.length === 0 ? (
                                         <div className="es-empty-state">
                                             <span className="material-symbols-rounded es-empty-icon">campaign</span>
-                                            <p>No {activeFilter !== 'all' ? activeFilter : ''} announcements yet.</p>
+                                            <p>{activeFilter === 'all'
+                                                ? t('announcements.noneYet')
+                                                : t('announcements.noneOfStatus', { status: t(FILTER_KEYS[activeFilter]).toLowerCase() })}</p>
                                         </div>
                                     ) : (
                                         <>
@@ -455,14 +467,16 @@ export function DosAnnouncement() {
                                                 <div className="dos-ann-loadmore">
                                                     <button className="btn btn-outline btn-sm" onClick={loadMore} disabled={loadingMore}>
                                                         <span className="material-symbols-rounded icon-sm">expand_more</span>
-                                                        {loadingMore ? 'Loading…' : `Load more (${total - announcements.length} remaining)`}
+                                                        {loadingMore
+                                                            ? t('common.loading')
+                                                            : t('announcements.loadMoreRemaining', { count: total - announcements.length })}
                                                     </button>
                                                 </div>
                                             )}
 
                                             {!hasMore && announcements.length > 0 && (
                                                 <p className="dos-ann-allloaded">
-                                                    All {total} announcement{total!==1?'s':''} loaded
+                                                    {t('announcements.allLoaded', { count: total })}
                                                 </p>
                                             )}
                                         </>
