@@ -37,8 +37,18 @@ function scoreLabel(obtained, max) {
     return max ? `${Math.round(obtained)}/${Math.round(max)}` : `${Math.round(obtained)}`
 }
 
+const ASSESSMENT_TYPE_KEYS = {
+    quiz:         'teacher.classes.typeQuiz',
+    homework:     'teacher.classes.typeHomework',
+    project:      'teacher.classes.typeProject',
+    presentation: 'teacher.classes.typePresentation',
+    lab:          'teacher.classes.typeLab',
+}
+
 function AssessmentRow({ title, assessment_type, date, score_display, grade, subject_name }) {
-    const typeLabel = (assessment_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    const { t } = useTranslation()
+    const typeKey   = ASSESSMENT_TYPE_KEYS[assessment_type]
+    const typeLabel = typeKey ? t(typeKey) : (assessment_type || '')
     const dateStr   = date ? formatDate(date) : '-'
     return (
         <tr>
@@ -83,7 +93,9 @@ function ReviewBubble({ teacher_name, teacher_role, teacher_comment, updated_at 
 }
 
 function AssessmentItem({ title, assessment_type, score_display, grade }) {
-    const typeLabel = (assessment_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    const { t } = useTranslation()
+    const typeKey   = ASSESSMENT_TYPE_KEYS[assessment_type]
+    const typeLabel = typeKey ? t(typeKey) : (assessment_type || '')
     const cls = grade === 'A' ? 'text-success' : grade === 'B' ? 'text-primary' : 'text-warning'
     return (
         <div className="assessment-item">
@@ -155,7 +167,7 @@ export function ParentResults() {
                     />
                     {!loading && children.length > 0 && (
                         <div className="child-switcher-bar">
-                            <span className="child-switcher-label">Viewing:</span>
+                            <span className="child-switcher-label">{t('common.viewing')}</span>
                             {children.map((c, i) => (
                                 <button key={c.id}
                                     className={`child-tab${i === activeIdx ? ' active' : ''}`}
@@ -172,31 +184,31 @@ export function ParentResults() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">Loading…</p>
+                            <p className="u-pad u-muted">{t('common.loading')}</p>
                         ) : !child ? (
-                            <p className="u-pad u-muted">No children linked to your account yet.</p>
+                            <p className="u-pad u-muted">{t('parent.results.noChildren')}</p>
                         ) : (
                             <>
                                 {/* Recent Assessments table */}
                                 <div className="card">
                                     <div className="card-header">
-                                        <h3 className="card-title">Recent Results for {child.student_name}</h3>
+                                        <h3 className="card-title">{t('parent.results.recentFor', { name: child.student_name })}</h3>
                                     </div>
                                     <div className="card-content">
                                         {loadingData ? (
-                                            <p className="u-muted">Loading…</p>
+                                            <p className="u-muted">{t('common.loading')}</p>
                                         ) : assessments.length === 0 ? (
-                                            <p className="u-muted">No assessments recorded yet.</p>
+                                            <p className="u-muted">{t('parent.results.noAssessments')}</p>
                                         ) : (
                                             <div className="table-responsive">
                                                 <table>
                                                     <thead>
                                                         <tr>
-                                                            <th>Subject</th>
-                                                            <th>Type</th>
-                                                            <th>Score</th>
-                                                            <th>Grade</th>
-                                                            <th>Date</th>
+                                                            <th>{t('common.subject')}</th>
+                                                            <th>{t('common.type')}</th>
+                                                            <th>{t('common.score')}</th>
+                                                            <th>{t('common.grade')}</th>
+                                                            <th>{t('common.date')}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -214,18 +226,18 @@ export function ParentResults() {
                                 {summative.length > 0 && (
                                     <div className="card mt-1-5">
                                         <div className="card-header">
-                                            <h3 className="card-title">Summative Performance</h3>
+                                            <h3 className="card-title">{t('parent.results.summative')}</h3>
                                         </div>
                                         <div className="card-content">
                                             <div className="table-responsive">
                                                 <table>
                                                     <thead>
                                                         <tr>
-                                                            <th>Subject</th>
-                                                            <th>Class Test</th>
-                                                            <th>Exam</th>
-                                                            <th>Final</th>
-                                                            <th>Grade</th>
+                                                            <th>{t('common.subject')}</th>
+                                                            <th>{t('common.classTest')}</th>
+                                                            <th>{t('common.exam')}</th>
+                                                            <th>{t('common.final')}</th>
+                                                            <th>{t('common.grade')}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -243,12 +255,12 @@ export function ParentResults() {
                                 <div className="grid-2 mt-1-5">
                                     <div className="card">
                                         <div className="card-header">
-                                            <h3 className="card-title">Recent Assessments &amp; Projects</h3>
-                                            <span className="badge badge-secondary">This Term</span>
+                                            <h3 className="card-title">{t('parent.results.recentAssessments')}</h3>
+                                            <span className="badge badge-secondary">{t('parent.results.thisTerm')}</span>
                                         </div>
                                         <div className="card-content">
                                             {assessments.length === 0 ? (
-                                                <p className="u-muted">No assessments recorded yet.</p>
+                                                <p className="u-muted">{t('parent.results.noAssessments')}</p>
                                             ) : (
                                                 <div className="assessment-list">
                                                     {assessments.slice(0, 4).map((a, i) => (
@@ -261,11 +273,11 @@ export function ParentResults() {
 
                                     <div className="card">
                                         <div className="card-header">
-                                            <h3 className="card-title">Teacher Reviews</h3>
+                                            <h3 className="card-title">{t('parent.results.teacherReviews')}</h3>
                                         </div>
                                         <div className="card-content">
                                             {reviews.length === 0 ? (
-                                                <p className="u-muted">No reviews yet.</p>
+                                                <p className="u-muted">{t('parent.results.noReviews')}</p>
                                             ) : (
                                                 <div className="review-timeline">
                                                     {reviews.map((r, i) => (
