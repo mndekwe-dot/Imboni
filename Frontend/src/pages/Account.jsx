@@ -1,5 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { changePassword, getProfile, updateProfile, uploadAvatar } from '../api/account'
+import { getMyChildren } from '../api/parent'
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { Sidebar } from '../components/layout/Sidebar'
 import { DashboardHeader } from '../components/layout/DashboardHeader'
@@ -32,6 +34,7 @@ const NAV = {
 }
 
 export function Account() {
+    const { t } = useTranslation()
     // --- Profile state ---
     const [profile, setProfile] = useState(null)   // original data from server — never edited directly
     const [loading, setLoading] = useState(true)   // true while fetching profile from API
@@ -61,6 +64,9 @@ export function Account() {
     const [pwSaved, setPwSaved] = useState(false)  // true for 3s after successful password change
     const [pwError, setPwError] = useState('')      // error message shown below password form
 
+    // Linked students, for parents. Only parents have any.
+    const [children, setChildren] = useState(null)
+
     // Fetch real user data from the server when the page first loads.
     // Sets both profile (original) and form (editable copy) at the same time.
     useEffect(() => {
@@ -76,6 +82,13 @@ export function Account() {
             .catch(err => console.error(err))
             .finally(() => setLoading(false))
     }, [])
+
+    useEffect(() => {
+        if (role !== 'parent') return
+        getMyChildren()
+            .then(data => setChildren(Array.isArray(data) ? data : []))
+            .catch(() => setChildren([]))
+    }, [role])
 
     // Show loading text while API call is in progress.
     // Prevents the form from flashing with empty inputs.
@@ -136,14 +149,14 @@ export function Account() {
     }
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={navItems} secondaryItems={secondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Account Settings"
-                        subtitle="Update your personal information and preferences"
+                        title={t('account.title')}
+                        subtitle={t('account.subtitle')}
                         userName={profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || sessionUser.userName : sessionUser.userName}
                         userRole={sessionUser.userRole}
                         userInitials={initials !== '?' ? initials.toUpperCase() : sessionUser.userInitials}
@@ -159,17 +172,19 @@ export function Account() {
                             <aside className="card settings-nav-card">
                                 <nav className="settings-nav-list">
                                     <a href="#profile" className="settings-nav-item active">
-                                        <span className="material-symbols-rounded">person</span> Personal Profile
+                                        <span className="material-symbols-rounded">person</span> {t('account.navProfile')}
                                     </a>
                                     <a href="#security" className="settings-nav-item">
-                                        <span className="material-symbols-rounded">lock</span> Security
+                                        <span className="material-symbols-rounded">lock</span> {t('account.navSecurity')}
                                     </a>
                                     <a href="#notifications" className="settings-nav-item">
-                                        <span className="material-symbols-rounded">notifications</span> Notifications
+                                        <span className="material-symbols-rounded">notifications</span> {t('account.navNotifications')}
                                     </a>
-                                    <a href="#billing" className="settings-nav-item">
-                                        <span className="material-symbols-rounded">payments</span> Billing History
-                                    </a>
+                                    {role === 'parent' && (
+                                        <a href="#family" className="settings-nav-item">
+                                            <span className="material-symbols-rounded">family_restroom</span> {t('account.navFamily')}
+                                        </a>
+                                    )}
                                 </nav>
                             </aside>
 
@@ -178,7 +193,7 @@ export function Account() {
                                 {/* Personal Profile */}
                                 <section id="profile" className="card settings-section-card">
                                     <div className="settings-card-header">
-                                        <h3>Personal Profile</h3>
+                                        <h3>{t('account.navProfile')}</h3>
                                     </div>
                                     <div className="card-content">
                                         <div className="profile-upload-container">
@@ -196,13 +211,13 @@ export function Account() {
                                                 className="btn btn-outline btn-sm"
                                                 onClick={() => avatarInputRef.current.click()}
                                             >
-                                                Change Photo
+                                                {t('account.changePhoto')}
                                             </button>
                                         </div>
 
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label className="form-label">Full Name</label>
+                                                <label className="form-label">{t('modals.disStaff.fullName')}</label>
                                                 <input
                                                     type="text"
                                                     className="form-input"
@@ -214,13 +229,13 @@ export function Account() {
                                                 />
                                             </div>
                                             <div className="form-group">
-                                                <label className="form-label">Email Address</label>
+                                                <label className="form-label">{t('common.emailAddress')}</label>
                                                 <input type="email" className="form-input" value={profile?.email ?? ''} />
                                             </div>
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label className="form-label">Phone Number</label>
+                                                <label className="form-label">{t('common.phoneNumber')}</label>
                                                 <input
                                                     type="tel"
                                                     className="form-input"
@@ -229,7 +244,7 @@ export function Account() {
                                                 />
                                             </div>
                                             <div className="form-group">
-                                                <label className="form-label">Role</label>
+                                                <label className="form-label">{t('common.role')}</label>
                                                 <input type="text" className="form-input" value={profile?.role ?? ''} readOnly />
                                             </div>
                                         </div>
@@ -238,7 +253,7 @@ export function Account() {
                                                 className="btn btn-primary"
                                                 onClick={handleProfileSave}
                                                 disabled={saving}
-                                            >{saved ? 'Saved' : saving ? 'Saving…' : 'Update Profile'}</button>
+                                            >{saved ? t('account.savedShort') : saving ? t('common.saving') : t('account.updateProfile')}</button>
                                         </div>
                                     </div>
                                 </section>
@@ -246,7 +261,7 @@ export function Account() {
                                 {/* Security */}
                                 <section id="security" className="card settings-section-card">
                                     <div className="settings-card-header">
-                                        <h3>Security</h3>
+                                        <h3>{t('account.navSecurity')}</h3>
                                     </div>
                                     <div className="card-content">
                                         {pwError && (
@@ -254,32 +269,32 @@ export function Account() {
                                         )}
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label className="form-label">Current Password</label>
+                                                <label className="form-label">{t('account.currentPassword')}</label>
                                                 <input
                                                     type="password"
                                                     className="form-input"
-                                                    placeholder="Enter current password"
+                                                    placeholder={t('account.enterCurrentPassword')}
                                                     value={pwForm.old_password}
                                                     onChange={e => setPwForm(f => ({ ...f, old_password: e.target.value }))}
                                                 />
                                             </div>
                                             <div className="form-group">
-                                                <label className="form-label">New Password</label>
+                                                <label className="form-label">{t('account.newPassword')}</label>
                                                 <input
                                                     type="password"
                                                     className="form-input"
-                                                    placeholder="Enter new password"
+                                                    placeholder={t('account.enterNewPassword')}
                                                     value={pwForm.new_password}
                                                     onChange={e => setPwForm(f => ({ ...f, new_password: e.target.value }))}
                                                 />
                                             </div>
                                         </div>
                                         <div className="form-group">
-                                            <label className="form-label">Confirm New Password</label>
+                                            <label className="form-label">{t('account.confirmNewPassword')}</label>
                                             <input
                                                 type="password"
                                                 className="form-input"
-                                                placeholder="Confirm new password"
+                                                placeholder={t('account.confirmNewPasswordPlaceholder')}
                                                 value={pwForm.confirm_password}
                                                 onChange={e => setPwForm(f => ({ ...f, confirm_password: e.target.value }))}
                                             />
@@ -290,7 +305,7 @@ export function Account() {
                                                 onClick={handlePasswordSave}
                                                 disabled={pwSaving}
                                             >
-                                                {pwSaved ? 'Password Changed!' : pwSaving ? 'Saving…' : 'Change Password'}
+                                                {pwSaved ? t('account.passwordChanged') : pwSaving ? t('common.saving') : t('account.changePassword')}
                                             </button>
                                         </div>
 
@@ -302,15 +317,15 @@ export function Account() {
                                 {/* Notifications */}
                                 <section id="notifications" className="card settings-section-card">
                                     <div className="settings-card-header">
-                                        <h3>Notifications</h3>
+                                        <h3>{t('account.navNotifications')}</h3>
                                     </div>
                                     <div className="card-content">
                                         <div className="notif-list">
                                             {[
-                                                { label: 'New messages', desc: 'Get notified when you receive a new message' },
-                                                { label: 'Announcements', desc: 'Get notified when a new announcement is posted' },
-                                                { label: 'Results published', desc: 'Get notified when exam results are available' },
-                                                { label: 'Discipline reports', desc: 'Get notified when a discipline record is added' },
+                                                { label: t('account.notifMessages'),      desc: t('account.notifMessagesDesc')      },
+                                                { label: t('account.notifAnnouncements'), desc: t('account.notifAnnouncementsDesc') },
+                                                { label: t('account.notifResults'),       desc: t('account.notifResultsDesc')       },
+                                                { label: t('account.notifDiscipline'),    desc: t('account.notifDisciplineDesc')    },
                                             ].map((item) => (
                                                 <div key={item.label} className="notif-row">
                                                     <div>
@@ -325,44 +340,56 @@ export function Account() {
                                             ))}
                                         </div>
                                         <div className="form-actions">
-                                            <button className="btn btn-primary">Save Preferences</button>
+                                            <button className="btn btn-primary">{t('account.savePreferences')}</button>
                                         </div>
                                     </div>
                                 </section>
 
                                 {/* Linked family / billing */}
-                                <section id="billing" className="card settings-section-card">
-                                    <div className="settings-card-header">
-                                        <h3>Family Connections</h3>
-                                    </div>
-                                    <div className="card-content">
-                                        <div className="linked-children-list">
-                                            <div className="linked-child-item">
-                                                <div className="child-brief">
-                                                    <div className="avatar-sm">UA</div>
-                                                    <div>
-                                                        <p className="name">Uwase Amina</p>
-                                                        <p className="id-tag">S4A Â· ID: 2024-001</p>
-                                                    </div>
-                                                </div>
-                                                <span className="badge status-paid">Verified</span>
-                                            </div>
-                                            <div className="linked-child-item">
-                                                <div className="child-brief">
-                                                    <div className="avatar-sm u-bg-accent">IJ</div>
-                                                    <div>
-                                                        <p className="name">Ishimwe Jean</p>
-                                                        <p className="id-tag">S1B Â· ID: 2024-042</p>
-                                                    </div>
-                                                </div>
-                                                <span className="badge status-paid">Verified</span>
-                                            </div>
+                                {/* Linked students — parents only.
+                                    This block used to render two invented
+                                    children ("Uwase Amina · ID 2024-001",
+                                    "Ishimwe Jean · ID 2024-042") to every user
+                                    of every role, alongside a Link New Student
+                                    button wired to nothing. The real list comes
+                                    from /parents/my-children/. */}
+                                {role === 'parent' && (
+                                    <section id="family" className="card settings-section-card">
+                                        <div className="settings-card-header">
+                                            <h3>{t('account.navFamily')}</h3>
                                         </div>
-                                        <button className="btn btn-outline mt-1 w-full">
-                                            <span className="material-symbols-rounded">person_add</span> Link New Student
-                                        </button>
-                                    </div>
-                                </section>
+                                        <div className="card-content">
+                                            {children === null ? (
+                                                <p className="u-muted u-sm">{t('account.loadingChildren')}</p>
+                                            ) : children.length === 0 ? (
+                                                <p className="u-muted u-sm">{t('account.noChildren')}</p>
+                                            ) : (
+                                                <div className="linked-children-list">
+                                                    {children.map(child => (
+                                                        <div key={child.id} className="linked-child-item">
+                                                            <div className="child-brief">
+                                                                <div className="avatar-sm">
+                                                                    {(child.student_name || '')
+                                                                        .split(' ').filter(Boolean).slice(0, 2)
+                                                                        .map(w => w[0]).join('').toUpperCase()}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="name">{child.student_name}</p>
+                                                                    <p className="id-tag">
+                                                                        {t('account.childIdTag', {
+                                                                            class: `${child.grade ?? ''}${child.section ?? ''}`,
+                                                                            id: child.student_id ?? '-',
+                                                                        })}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </section>
+                                )}
 
                             </div>
                         </div>

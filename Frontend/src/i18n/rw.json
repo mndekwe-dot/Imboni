@@ -1,4 +1,35 @@
 {
+  "account": {
+    "changePassword": "Hindura ijambo ry'ibanga",
+    "changePhoto": "Hindura ifoto",
+    "childIdTag": "{{class}} · Nomero: {{id}}",
+    "confirmNewPassword": "Emeza ijambo ry'ibanga rishya",
+    "confirmNewPasswordPlaceholder": "Emeza ijambo ry'ibanga rishya",
+    "currentPassword": "Ijambo ry'ibanga risanzwe",
+    "enterCurrentPassword": "Andika ijambo ry'ibanga risanzwe",
+    "enterNewPassword": "Andika ijambo ry'ibanga rishya",
+    "loadingChildren": "Abanyeshuri bahujwe baratangira…",
+    "navFamily": "Abana bahujwe",
+    "navNotifications": "Integuza",
+    "navProfile": "Umwirondoro",
+    "navSecurity": "Umutekano",
+    "newPassword": "Ijambo ry'ibanga rishya",
+    "noChildren": "Nta munyeshuri urahuzwa na iyi konti. Vugana n'ibiro by'ikigo kugira ngo muhuze.",
+    "notifAnnouncements": "Amatangazo",
+    "notifAnnouncementsDesc": "Menyeshwa iyo itangazo rishya ritangajwe",
+    "notifDiscipline": "Raporo z'imyitwarire",
+    "notifDisciplineDesc": "Menyeshwa iyo inyandiko y'imyitwarire yongewemo",
+    "notifMessages": "Ubutumwa bushya",
+    "notifMessagesDesc": "Menyeshwa iyo wakiriye ubutumwa bushya",
+    "notifResults": "Amanota yatangajwe",
+    "notifResultsDesc": "Menyeshwa iyo amanota y'ibizamini aboneka",
+    "passwordChanged": "Ijambo ry'ibanga ryahinduwe!",
+    "savePreferences": "Bika ibyo wahisemo",
+    "savedShort": "Byabitswe",
+    "subtitle": "Vugurura umwirondoro wawe n'ibyo uhitamo",
+    "title": "Igenamiterere rya konti",
+    "updateProfile": "Vugurura umwirondoro"
+  },
   "admin": {
     "announcements": {
       "subtitle": "Kwandika no gutangaza amatangazo ku kigo cyose"

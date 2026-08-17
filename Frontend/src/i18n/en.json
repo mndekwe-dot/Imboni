@@ -1,4 +1,35 @@
 {
+  "account": {
+    "changePassword": "Change Password",
+    "changePhoto": "Change Photo",
+    "childIdTag": "{{class}} · ID: {{id}}",
+    "confirmNewPassword": "Confirm New Password",
+    "confirmNewPasswordPlaceholder": "Confirm new password",
+    "currentPassword": "Current Password",
+    "enterCurrentPassword": "Enter current password",
+    "enterNewPassword": "Enter new password",
+    "loadingChildren": "Loading linked students…",
+    "navFamily": "Family Connections",
+    "navNotifications": "Notifications",
+    "navProfile": "Personal Profile",
+    "navSecurity": "Security",
+    "newPassword": "New Password",
+    "noChildren": "No students are linked to this account yet. Contact the school office to link one.",
+    "notifAnnouncements": "Announcements",
+    "notifAnnouncementsDesc": "Get notified when a new announcement is posted",
+    "notifDiscipline": "Discipline reports",
+    "notifDisciplineDesc": "Get notified when a discipline record is added",
+    "notifMessages": "New messages",
+    "notifMessagesDesc": "Get notified when you receive a new message",
+    "notifResults": "Results published",
+    "notifResultsDesc": "Get notified when exam results are available",
+    "passwordChanged": "Password Changed!",
+    "savePreferences": "Save Preferences",
+    "savedShort": "Saved",
+    "subtitle": "Update your personal information and preferences",
+    "title": "Account Settings",
+    "updateProfile": "Update Profile"
+  },
   "admin": {
     "announcements": {
       "subtitle": "Compose and broadcast school-wide notices"
