@@ -44,6 +44,9 @@ describe('DosExamSchedule', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     getSchoolSettings.mockResolvedValue({ timezone: 'Africa/Kigali', school_name: 'Test School' })
+    // The card heading names the current term, so the page loads terms on
+    // mount rather than carrying a hardcoded "Term 1 · 2026".
+    getTerms.mockResolvedValue([{ id: 't1', name: 'Term 1', year: 2026, is_current: true }])
   })
 
   it('shows a loading state initially', () => {
@@ -76,14 +79,16 @@ describe('DosExamSchedule', () => {
     expect(within(physicsRow).getAllByText('-').length).toBeGreaterThan(0)
   })
 
-  it('keeps the default/fallback exam rows when the API returns an empty array', async () => {
+  it('shows an empty state, not invented rows, when the API returns an empty array', async () => {
     getDosExamSchedule.mockResolvedValue([])
     renderWithRouter(<DosExamSchedule />)
 
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument())
-    // falls back to the built-in examRows constant
-    expect(screen.getByText('Mathematics')).toBeInTheDocument()
-    expect(screen.getByText('English Language')).toBeInTheDocument()
+    // This used to fall back to a built-in `examRows` constant: seven invented
+    // exams with invented invigilators, shown to any school that had none
+    // scheduled. A school with no exams must see that it has no exams.
+    expect(screen.getByText(/No exams scheduled yet/)).toBeInTheDocument()
+    expect(screen.queryByText('English Language')).not.toBeInTheDocument()
   })
 
   it('deletes an exam row when the delete button is clicked, calling the api with the right id', async () => {
