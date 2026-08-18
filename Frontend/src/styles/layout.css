@@ -269,7 +269,7 @@
 .sidebar-logo .toggle:hover {
   background: var(--sidebar-foreground);
   color: var(--sidebar);
-  transform: scale(1.1);
+  transform: scale(var(--hover-scale));
 }
 
 .sidebar-logo .toggle:active {
@@ -515,7 +515,7 @@
 
 .sidebar.collapsed .sidebar-nav-item:hover {
   background: rgba(255, 255, 255, 0.18);
-  transform: scale(1.08);
+  transform: scale(var(--hover-scale));
 }
 
 .sidebar.collapsed .sidebar-nav-item.active {
@@ -660,7 +660,7 @@
 }
 .header-user-av:hover {
   opacity: 0.85;
-  transform: scale(1.08);
+  transform: scale(var(--hover-scale));
 }
 
 /* Portal-specific avatar colours */
@@ -716,7 +716,7 @@
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.3);
   color: #ffffff;
-  transform: scale(1.08);
+  transform: scale(var(--hover-scale));
 }
 
 .mobile-menu-btn:active {
@@ -805,7 +805,7 @@
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.3);
   color: #ffffff;
-  transform: scale(1.08);
+  transform: scale(var(--hover-scale));
 }
 
 .notification-badge {
@@ -1052,7 +1052,7 @@
   }
   50% {
     opacity: 0.8;
-    transform: scale(1.05);
+    transform: scale(var(--hover-scale));
   }
 }
 

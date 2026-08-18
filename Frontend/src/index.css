@@ -122,6 +122,19 @@
   --transition-base: 200ms ease;
   --transition-slow: 300ms ease;
 
+  /* Interaction ---------------------------------------------------------
+     One lift, one scale, one timing for the whole app. Before these, the
+     same card lifted 1px on one screen and 4px on another, and .class-detail
+     -card was defined three times across two stylesheets with a different
+     hover in each -- every stylesheet is bundled globally, so which one won
+     depended on import order. Reach for these rather than a literal. */
+  --hover-lift: -2px;          /* cards and raised surfaces */
+  --hover-scale: 1.08;         /* icon buttons and avatars */
+  --hover-transition: var(--transition-fast);
+  --hover-shadow: var(--shadow-md);
+  --focus-ring: 0 0 0 3px var(--primary-light);
+  --focus-ring-width: 2px;
+
   /* Z-Index Scale */
   --z-dropdown: 1000;
   --z-sticky: 1020;
@@ -349,4 +362,66 @@ img, video, iframe, embed, object {
 @keyframes route-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .route-fallback-spinner { animation-duration: 2s; }
+}
+
+/* ── Interaction: one hover, defined once ────────────────────────────────
+   These five cards each had two or three competing :hover rules spread
+   across dos.css, teacher.css, student.css, pages.css and parent.css.
+   Every stylesheet is bundled globally and route chunks accumulate as you
+   navigate, so which rule applied depended on where you had been -- the
+   same card lifted 1px, 2px or 4px depending on your history. Defined here
+   once, in the chunk every page loads, with the portal copies deleted.
+
+   Add a new card to this list rather than giving it a private hover. */
+.stat-card:hover,
+.metric-card:hover,
+.activity-card:hover,
+.class-detail-card:hover,
+.leader-card:hover,
+.house-card:hover,
+.behavior-card:hover,
+.ann-item:hover {
+  transform: translateY(var(--hover-lift));
+  box-shadow: var(--hover-shadow);
+  border-color: var(--border-hover);
+  transition: transform var(--hover-transition),
+              box-shadow var(--hover-transition),
+              border-color var(--hover-transition);
+}
+
+.calendar-day:hover {
+  background: var(--muted-hover);
+  transform: translateY(var(--hover-lift));
+  transition: background var(--hover-transition), transform var(--hover-transition);
+}
+
+/* Keyboard parity. The app had 189 :hover rules and exactly one
+   :focus-visible, so tabbing through it gave almost no indication of where
+   you were. Anything focusable gets the same ring; the lift is left to the
+   pointer so focus does not shift layout under a keyboard user. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: var(--focus-ring-width) solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Respect a reduced-motion preference: keep the colour and shadow change,
+   drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .stat-card:hover, .metric-card:hover, .activity-card:hover,
+  .class-detail-card:hover, .leader-card:hover, .house-card:hover,
+  .behavior-card:hover, .ann-item:hover, .calendar-day:hover {
+    transform: none;
+  }
 }
