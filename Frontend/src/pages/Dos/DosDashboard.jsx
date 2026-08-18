@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useToast } from '../../context/ToastContext'
@@ -195,7 +196,15 @@ export function DosDashboard() {
 
     const gradePerformance = gradeData
 
-    if (loading) return <SkeletonStats count={4} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={dosNavItems} secondaryItems={dosSecondaryItems}
+            title={t('dos.dashboard.title')}
+            user={sessionUser}
+        >
+            <SkeletonStats count={4} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     return (

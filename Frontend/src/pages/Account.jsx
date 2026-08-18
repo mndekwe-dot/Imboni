@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { changePassword, getProfile, updateProfile, uploadAvatar } from '../api/account'
+import { PageSkeleton } from '../components/layout/PageSkeleton'
 import { getMyChildren } from '../api/parent'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
@@ -92,8 +93,16 @@ export function Account() {
 
     // Show loading text while API call is in progress.
     // Prevents the form from flashing with empty inputs.
-    if (loading) return <SkeletonCard lines={6} />
-
+    if (loading) return (
+        <PageSkeleton
+            navItems={navItems} secondaryItems={secondaryItems}
+            title={t('account.title')}
+            subtitle={t('account.subtitle')}
+            user={sessionUser}
+        >
+            <SkeletonCard lines={6} />
+        </PageSkeleton>
+    )
     // Build initials from first and last name for the avatar circle e.g. "JN"
     const initials = profile
         ? `${profile.first_name?.[0] ?? ''}${profile.last_name?.[0] ?? ''}`

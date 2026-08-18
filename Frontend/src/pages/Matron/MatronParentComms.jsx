@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
@@ -144,7 +145,15 @@ export function MatronParentComms() {
         }
     }
 
-    if (loading) return <SkeletonList items={5} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={matronNavItems} secondaryItems={matronSecondaryItems}
+            title={t('matron.parentComms.title')}
+            user={sessionUser}
+        >
+            <SkeletonList items={5} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     const commsStats = [

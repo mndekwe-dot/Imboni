@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -846,7 +847,16 @@ export function DosStudents() {
         setInvitations(arr.filter(inv => inv.role === 'student'))
     }
 
-    if (loading) return <SkeletonTable rows={8} cols={6} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={dosNavItems} secondaryItems={dosSecondaryItems}
+            title={t('dos.students.title')}
+            subtitle={t('dos.students.subtitle')}
+            user={sessionUser}
+        >
+            <SkeletonTable rows={8} cols={6} />
+        </PageSkeleton>
+    )
     if (error)   return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     // search and year are already applied server-side (see the debounced effect above) —

@@ -1,4 +1,5 @@
 import { useState,useEffect } from 'react'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -264,7 +265,16 @@ export function DosSettings() {
 
     // ── Loading / error / empty states ───────────────────────────────────────
 
-    if (loading) return <SkeletonCard lines={6} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={dosNavItems} secondaryItems={dosSecondaryItems}
+            title={t('dos.settings.title')}
+            subtitle={t('dos.settings.subtitle')}
+            user={sessionUser}
+        >
+            <SkeletonCard lines={6} />
+        </PageSkeleton>
+    )
     if (error)   return <p className="u-pad dos-danger-text">{t('common.errorPrefix')}: {error}</p>
 
     // ── Derived stat counts ───────────────────────────────────────────────────

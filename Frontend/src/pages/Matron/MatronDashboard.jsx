@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -63,7 +64,15 @@ export function MatronDashboard() {
             .finally(() => setLoading(false))
     }, [])
 
-    if (loading) return <SkeletonStats count={4} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={matronNavItems} secondaryItems={matronSecondaryItems}
+            title={t('nav.dashboard')}
+            user={sessionUser}
+        >
+            <SkeletonStats count={4} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     const dormitory = dashboard.stats.dormitory || t('matron.dashboard.yourDormitory')

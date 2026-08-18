@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
@@ -109,7 +110,15 @@ export function MatronSchedule() {
             .finally(() => setLoading(false))
     }, [])
 
-    if (loading) return <SkeletonTable rows={6} cols={4} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={matronNavItems} secondaryItems={matronSecondaryItems}
+            title={t('matron.schedule.title')}
+            user={sessionUser}
+        >
+            <SkeletonTable rows={6} cols={4} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     const scheduleStats = [

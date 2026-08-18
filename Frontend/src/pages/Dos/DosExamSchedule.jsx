@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import {
@@ -294,7 +295,16 @@ export function DosExamSchedule() {
         }
     }
 
-    if (loading) return <SkeletonTable rows={6} cols={5} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={dosNavItems} secondaryItems={dosSecondaryItems}
+            title={t('dos.examSchedule.title')}
+            subtitle={t('dos.examSchedule.subtitle')}
+            user={sessionUser}
+        >
+            <SkeletonTable rows={6} cols={5} />
+        </PageSkeleton>
+    )
     if (error)   return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     return (

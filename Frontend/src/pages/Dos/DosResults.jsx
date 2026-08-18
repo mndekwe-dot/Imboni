@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
 import { useToast } from '../../context/ToastContext'
@@ -482,7 +483,16 @@ export function DosResults() {
         return true
     })
 
-    if (loading) return <SkeletonTable rows={8} cols={5} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={dosNavItems} secondaryItems={dosSecondaryItems}
+            title={t('nav.results')}
+            subtitle={t('dos.results.subtitle')}
+            user={sessionUser}
+        >
+            <SkeletonTable rows={8} cols={5} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     return (
