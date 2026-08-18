@@ -2072,15 +2072,13 @@ class SchoolConfigView(APIView):
                 status=http_status.HTTP_400_BAD_REQUEST,
             )
 
-        # A year that classes or pupils still sit in cannot be removed — the
-        # records referencing it would be orphaned, and nothing else in the
-        # system would recognise their year code any more.
-        proposed = {
-            structure.normalize_year(entry, section.get('streams'))['name']
-            for section in sections_data
-            for entry in section.get('years') or []
-        }
-        orphaned = sorted(structure.years_in_use() - proposed)
+        proposed_years, proposed_streams = structure.proposed_years_and_streams(sections_data)
+
+        # ── Hard block: structure that real records depend on ────────────────
+        # A year or stream that classes or pupils still sit in cannot be removed
+        # at all, confirmed or not. The records referencing it would be orphaned
+        # and nothing else in the system would recognise their code any more.
+        orphaned = sorted(structure.years_in_use() - proposed_years)
         if orphaned:
             return Response(
                 {'error':
@@ -2088,6 +2086,38 @@ class SchoolConfigView(APIView):
                     f"still in {'that year' if len(orphaned) == 1 else 'those years'}. "
                     'Move them first.'},
                 status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Streams need checking separately: dropping stream A from S1 while
+        # keeping S1 passes the year check above but strands class S1A.
+        orphaned_streams = sorted(
+            (y, s) for y, s in structure.streams_in_use() - proposed_streams
+            if y in proposed_years
+        )
+        if orphaned_streams:
+            listed = ', '.join(f'{s} in {y}' for y, s in orphaned_streams)
+            return Response(
+                {'error':
+                    f'Cannot remove {listed}: classes or students are still in '
+                    f'{"that stream" if len(orphaned_streams) == 1 else "those streams"}. '
+                    'Move them first.'},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        # ── Soft block: anything else this save would take away ──────────────
+        # The settings screen PUTs the whole structure, so a stray click removes
+        # a year as quietly as adding one creates it. Removals therefore need
+        # saying out loud, even when nothing references them yet.
+        removals = structure.describe_removals(sections_data)
+        confirmed = str(request.query_params.get('confirm', '')).lower() in ('1', 'true', 'yes')
+        if removals and not confirmed:
+            return Response(
+                {
+                    'error': 'This change would remove ' + ', '.join(removals) + '.',
+                    'removals': removals,
+                    'confirm_required': True,
+                },
+                status=http_status.HTTP_409_CONFLICT,
             )
 
         with transaction.atomic():
@@ -2098,6 +2128,14 @@ class SchoolConfigView(APIView):
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
                 created.append(serializer.data)
+
+        # Structure changes reshape everything downstream, so who changed what
+        # is worth keeping.
+        from apps.audit.services import audit
+        audit(request.user, 'school.structure_changed',
+              target=', '.join(sorted(proposed_years)) or '(empty)',
+              detail={'removed': removals} if removals else None)
+
         return Response(created)
     
 # ---------------------------------------------------------------------------

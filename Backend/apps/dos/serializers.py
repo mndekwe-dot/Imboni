@@ -392,4 +392,16 @@ class SchoolSettingSerializer(serializers.ModelSerializer):
                 )
             orders.add(order)
 
+        # A term the school has already run cannot be dropped: results,
+        # attendance, timetables and conduct all hang off AcademicTerm, so every
+        # record filed under it would be stranded.
+        stranded = sorted(structure.terms_in_use() - codes)
+        if stranded:
+            raise serializers.ValidationError(
+                f'Cannot remove {", ".join(stranded)}: the school has recorded '
+                f'{"a term" if len(stranded) == 1 else "terms"} under '
+                f'{"that code" if len(stranded) == 1 else "those codes"}. '
+                'Rename the label instead, which is what appears on reports.'
+            )
+
         return value
