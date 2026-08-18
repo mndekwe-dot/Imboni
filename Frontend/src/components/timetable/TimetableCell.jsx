@@ -62,9 +62,7 @@ export function TimetableCell({ cell, editable, onEdit, colIndex }) {
                     className="tt-cell-edit-btn"
                     onClick={() => onEdit(cell)}
                 >
-                    <span
-                        className="material-symbols-rounded"
-                        style={{ fontSize: '0.7rem' }}>
+                    <span className="material-symbols-rounded tt-icon-xs">
                         edit
                     </span>
                 </button>

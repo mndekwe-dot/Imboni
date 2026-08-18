@@ -71,7 +71,7 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
     const schedule = (schedules || academicSchedules)[classId]
 
     if (!schedule) {
-        return <p style={{ color: 'var(--muted-foreground)', padding: '1rem' }}>No timetable found for {classId}.</p>
+        return <p className="tt-note">No timetable found for {classId}.</p>
     }
 
     /* Mon–Sat only — Sunday excluded from academic schedule */
@@ -230,7 +230,7 @@ export function Timetable({
 
     return (
         <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div className="tt-legend-row">
                 <WeekPicker currentMonday={currentMonday} onChange={handleWeekChange} />
                 <TimetableLegend type={type} />
             </div>

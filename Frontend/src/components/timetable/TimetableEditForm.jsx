@@ -122,8 +122,7 @@ export function TimetableEditForm({
                     <button className="btn btn-outline" onClick={onCancel}>Cancel</button>
                     {editingSlot?.cell && (
                         <button
-                            className="btn btn-outline"
-                            style={{ color: 'var(--destructive)', borderColor: 'var(--destructive)' }}
+                            className="btn btn-outline tt-btn-danger"
                             onClick={() => onDelete(editingSlot)}
                         >
                             <span className="material-symbols-rounded icon-sm">delete</span> Delete

@@ -11,9 +11,10 @@ export function AnnouncementItem({
 }) {
     const badgeLabel = type.charAt(0).toUpperCase() + type.slice(1)
     const itemClass = `ann-item ${type}${isUnread ? ' unread' : ' read-item'}`
+        + (onClick ? ' is-clickable' : '')
 
     return (
-        <div className={itemClass} onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
+        <div className={itemClass} onClick={onClick}>
             <div className="ann-item-top">
                 <div className={`ann-item-icon ${type}`}>
                     <span className="material-symbols-rounded">{icon}</span>

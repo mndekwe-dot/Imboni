@@ -31,7 +31,7 @@
     var(--matron-hover) 100%
   );
   color: white;
-  border-radius: var(--radius-lg, 12px);
+  border-radius: var(--radius-lg);
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
   display: flex;
@@ -53,7 +53,7 @@
   background: rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   padding: 0.5rem 1.1rem;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -68,21 +68,11 @@
 .matron-stat-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg, 12px);
+  border-radius: var(--radius-lg);
   padding: 1.25rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-left: 4px solid var(--matron);
-}
-.matron-stat-card.green {
-  border-left-color: var(--success);
-}
-.matron-stat-card.red {
-  border-left-color: var(--destructive);
-}
-.matron-stat-card.amber {
-  border-left-color: #f59e0b;
 }
 .matron-stat-icon {
   width: 44px;
@@ -96,7 +86,7 @@
   color: var(--matron);
 }
 .matron-stat-icon .material-symbols-rounded {
-  font-size: 22px;
+  font-size: 1.4rem;
 }
 .matron-stat-icon.green {
   background: var(--success-light);
@@ -117,7 +107,7 @@
   margin-bottom: 2px;
 }
 .matron-stat-label {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--muted-foreground);
   font-weight: 500;
 }
@@ -184,7 +174,7 @@
   background: #f59e0b;
 }
 .roll-status-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
 }
 .roll-status-label.present {
@@ -206,7 +196,7 @@
 .matron-student-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg, 12px);
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -260,17 +250,17 @@
   gap: 4px;
   background: var(--matron-light);
   color: var(--matron);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 /* ── Incident form ── */
 .incident-form-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg, 12px);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -306,7 +296,7 @@
 .form-field input,
 .form-field textarea {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 0.55rem 0.85rem;
   font-size: 0.875rem;
   background: var(--muted);
@@ -356,7 +346,7 @@
 .matron-schedule-icon {
   width: 30px;
   height: 30px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--matron-light);
   color: var(--matron);
   display: flex;
@@ -441,10 +431,10 @@
 }
 .matron-report-status {
   margin-left: auto;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   flex-shrink: 0;
 }
 .matron-report-status.pending {
@@ -482,7 +472,7 @@
   gap: 0.4rem;
 }
 .matron-section-title .material-symbols-rounded {
-  font-size: 1.1rem;
+  font-size: 1.125rem;
   color: var(--matron);
 }
 
@@ -493,8 +483,7 @@
   gap: 1rem;
   background: var(--card);
   border: 1px solid var(--border);
-  border-top: 3px solid var(--matron);
-  border-radius: var(--radius-lg, 12px);
+  border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
@@ -506,7 +495,7 @@
   gap: 0.35rem;
 }
 .mat-picker-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -515,7 +504,7 @@
 .mat-picker-select {
   padding: 0.45rem 0.75rem;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--background);
   color: var(--foreground);
   font-size: 0.875rem;
@@ -611,7 +600,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
 }
 .stu-name {
@@ -619,12 +608,12 @@
   font-size: 0.875rem;
 }
 .stu-id {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--muted-foreground);
 }
 .class-badge {
   display: inline-block;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 6px;
@@ -638,7 +627,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   padding: 2px 9px;
-  border-radius: 12px;
+  border-radius: var(--radius);
 }
 .status-pill.present {
   background: var(--success-light);
@@ -684,7 +673,6 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-left: 4px solid var(--matron);
   transition: box-shadow var(--transition-base);
 }
 .health-stat-card:hover { box-shadow: var(--shadow-md); }
@@ -721,7 +709,7 @@
   line-height: 1;
 }
 .health-stat-label {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: var(--muted-text);
   margin-top: 0.2rem;
 }
@@ -761,10 +749,10 @@
 .bed-student {
   font-weight: 600;
   color: #0f172a;
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
 }
 .bed-condition {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: #475569;
   margin-top: 0.2rem;
 }
@@ -816,7 +804,7 @@
 }
 .health-form-grid label {
   display: block;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: #374151;
   margin-bottom: 0.35rem;
@@ -827,7 +815,7 @@
   width: 100%;
   padding: 0.6rem 0.8rem;
   border: 1.5px solid var(--border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
   font-family: inherit;
   color: #0f172a;
@@ -987,7 +975,6 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-left: 4px solid var(--matron);
   transition: box-shadow var(--transition-base);
 }
 .comms-stat-card:hover { box-shadow: var(--shadow-md); }
@@ -1023,7 +1010,7 @@
   line-height: 1;
 }
 .comms-stat-label {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: var(--muted-text);
   margin-top: 0.2rem;
 }
@@ -1039,7 +1026,7 @@
 .comms-filter-bar select {
   padding: 0.45rem 0.75rem;
   border: 1.5px solid var(--border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
   font-family: inherit;
   color: #0f172a;
@@ -1070,11 +1057,11 @@
 .comm-type-icon {
   width: 38px;
   height: 38px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.125rem;
   flex-shrink: 0;
   margin-top: 0.1rem;
 }
@@ -1108,10 +1095,10 @@
 .comm-student {
   font-weight: 600;
   color: #0f172a;
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
 }
 .comm-parent {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: #475569;
 }
 .comm-subject {
@@ -1120,7 +1107,7 @@
   margin-bottom: 0.2rem;
 }
 .comm-notes {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: #64748b;
 }
 .comm-meta {
@@ -1135,7 +1122,7 @@
 }
 .comm-status-badge {
   display: inline-block;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
@@ -1173,7 +1160,7 @@
 }
 .comms-form-grid label {
   display: block;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: #374151;
   margin-bottom: 0.35rem;
@@ -1184,7 +1171,7 @@
   width: 100%;
   padding: 0.6rem 0.8rem;
   border: 1.5px solid var(--border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
   font-family: inherit;
   color: #0f172a;
@@ -1204,5 +1191,5 @@
 }
 
 /* ── Schedule banner text ── */
-.banner-title { font-weight: 700; font-size: 0.9375rem; }
-.banner-sub   { font-size: 0.8125rem; opacity: 0.85; }
+.banner-title { font-weight: 700; font-size: 0.95rem; }
+.banner-sub   { font-size: 0.8rem; opacity: 0.85; }

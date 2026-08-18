@@ -118,7 +118,7 @@ export function DataTable({
                     </button>
                     {pages().map((p, i) =>
                         p === '…'
-                            ? <span key={`ellipsis-${i}`} style={{ padding: '0 4px', color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>…</span>
+                            ? <span key={`ellipsis-`} className="dt-ellipsis">…</span>
                             : <button key={p} className={`dt-page-btn${p === safePage ? ' active' : ''}`} onClick={() => setPage(p)}>{p}</button>
                     )}
                     <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(p => p + 1)} title="Next">

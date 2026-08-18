@@ -10,26 +10,12 @@ export function OfflineIndicator() {
 
     if (online && pending === 0) return null
 
-    const offlineStyle = {
-        background: 'rgba(245,158,11,0.12)',
-        color: '#b45309',
-    }
-    const syncingStyle = {
-        background: 'rgba(37,99,235,0.1)',
-        color: '#2563eb',
-    }
-
     return (
         <span
             role="status"
-            style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                fontSize: '0.78rem', fontWeight: 600,
-                padding: '0.25rem 0.7rem', borderRadius: 999,
-                ...(online ? syncingStyle : offlineStyle),
-            }}
+            className={`offline-pill offline-pill--${online ? 'syncing' : 'offline'}`}
         >
-            <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-rounded">
                 {online ? 'cloud_sync' : 'cloud_off'}
             </span>
             {!online && pending === 0 && 'Offline: changes will be saved locally'}

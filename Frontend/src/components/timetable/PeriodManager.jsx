@@ -40,15 +40,15 @@ export function PeriodManager({ periods, onChange, onClose }) {
             <div className="tt-form">
 
                 {/* Column headers */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.75rem', alignItems: 'center' }}>
-                    <span className="form-label" style={{ margin: 0 }}>Label</span>
-                    <span className="form-label" style={{ margin: 0 }}>Time</span>
-                    <span style={{ width: '5rem' }}></span>
+                <div className="tt-period-row">
+                    <span className="form-label">Label</span>
+                    <span className="form-label">Time</span>
+                    <span className="tt-period-spacer"></span>
                 </div>
 
                 {/* One row per period */}
                 {periods.map((p, i) => (
-                    <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.75rem', alignItems: 'center' }}>
+                    <div key={p.id} className="tt-period-row">
                         <input
                             className="form-input"
                             value={p.label}
@@ -63,8 +63,8 @@ export function PeriodManager({ periods, onChange, onClose }) {
                         />
                         {/* Two-step delete: first click arms it, second click confirms */}
                         {pendingDelete === i ? (
-                            <div style={{ display: 'flex', gap: '0.25rem' }}>
-                                <button className="btn btn-outline btn-sm" style={{ color: 'var(--destructive)', borderColor: 'var(--destructive)' }} onClick={() => removeRow(i)}>
+                            <div className="tt-period-confirm">
+                                <button className="btn btn-outline btn-sm tt-btn-danger" onClick={() => removeRow(i)}>
                                     Confirm
                                 </button>
                                 <button className="btn btn-outline btn-sm" onClick={() => setPendingDelete(null)}>
@@ -80,7 +80,7 @@ export function PeriodManager({ periods, onChange, onClose }) {
                 ))}
 
                 {/* Add row + Done actions */}
-                <div className="tt-form-actions" style={{ justifyContent: 'space-between' }}>
+                <div className="tt-form-actions tt-form-actions--split">
                     <button className="btn btn-outline btn-sm" onClick={addRow}>
                         <span className="material-symbols-rounded icon-sm">add</span> Add Row
                     </button>

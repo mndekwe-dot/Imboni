@@ -67,7 +67,7 @@ export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEd
                     onPointerDown={e => e.stopPropagation()}
                     onClick={() => onEdit(cell)}
                 >
-                    <span className="material-symbols-rounded" style={{ fontSize: '0.7rem' }}>edit</span>
+                    <span className="material-symbols-rounded tt-icon-xs">edit</span>
                 </button>
             )}
         </td>

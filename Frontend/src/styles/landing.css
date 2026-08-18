@@ -51,7 +51,7 @@
   object-fit: contain;
 }
 .landing-nav-name {
-  font-size: 1.0625rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.01em;
@@ -83,7 +83,7 @@
   padding: 0.5rem 1.25rem;
   background: linear-gradient(135deg, #003d7a 0%, #005a8f 100%);
   color: #fff;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
@@ -224,7 +224,7 @@
   background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
   color: #fff;
   border-radius: 0.625rem;
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
   font-weight: 700;
   text-decoration: none;
   box-shadow: 0 6px 28px rgba(249, 115, 22, 0.45);
@@ -362,13 +362,13 @@
   gap: 0.625rem;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   padding: 0.5rem 0.625rem;
 }
 .mockup-notif-icon {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -456,7 +456,7 @@
 .portal-card {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   padding: 1.75rem;
   transition: box-shadow 0.25s, border-color 0.25s, transform 0.2s;
   text-decoration: none;
@@ -509,7 +509,7 @@
   margin-bottom: 0.25rem;
 }
 .portal-card-desc {
-  font-size: 0.8375rem;
+  font-size: 0.85rem;
   color: #64748b;
   line-height: 1.6;
 }
@@ -522,7 +522,7 @@
   padding-top: 0.5rem;
 }
 .portal-card-feature {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 500;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
@@ -550,7 +550,7 @@
 .feature-icon {
   width: 46px;
   height: 46px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: linear-gradient(135deg, rgba(0, 61, 122, 0.08), rgba(0, 61, 122, 0.05));
   border: 1px solid rgba(0, 61, 122, 0.1);
   display: flex;
@@ -560,12 +560,12 @@
   font-size: 1.25rem;
 }
 .feature-title {
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #0f172a;
 }
 .feature-desc {
-  font-size: 0.8375rem;
+  font-size: 0.85rem;
   color: #64748b;
   line-height: 1.65;
 }
@@ -584,7 +584,7 @@
 .about-card {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   padding: 2rem 1.75rem;
   display: flex;
   flex-direction: column;
@@ -605,7 +605,7 @@
   align-items: center;
   justify-content: center;
   color: #003d7a;
-  font-size: 1.375rem;
+  font-size: 1.4rem;
 }
 .about-card-title {
   font-size: 1rem;
@@ -613,7 +613,7 @@
   color: #0f172a;
 }
 .about-card-desc {
-  font-size: 0.8375rem;
+  font-size: 0.85rem;
   color: #64748b;
   line-height: 1.65;
 }
@@ -652,11 +652,10 @@
   color: rgba(255, 255, 255, 0.92);
   line-height: 1.65;
   margin: 0 0 0.875rem;
-  border-left: 3px solid #f97316;
   padding-left: 1.25rem;
 }
 .about-quote-source {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.5);
   letter-spacing: 0.04em;
@@ -707,7 +706,7 @@
   margin-bottom: 0.2rem;
 }
 .contact-item-value {
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
   font-weight: 500;
   color: #1e293b;
   line-height: 1.4;
@@ -742,7 +741,7 @@
 .contact-form-input {
   padding: 0.625rem 0.875rem;
   border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
   color: #0f172a;
   background: #f8fafc;
@@ -799,7 +798,7 @@
 .boarding-visual {
   position: relative;
   background: linear-gradient(145deg, #00112b 0%, #002e5e 50%, #003d7a 100%);
-  border-radius: 1.5rem;
+  border-radius: var(--radius-xl);
   padding: 2.5rem;
   color: #fff;
   display: flex;
@@ -839,7 +838,7 @@
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: rgba(255, 255, 255, 0.8);
-  font-size: 0.7375rem;
+  font-size: 0.75rem;
   font-weight: 500;
   padding: 0.3rem 0.75rem;
   border-radius: 999px;
@@ -857,7 +856,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
   color: #334155;
   line-height: 1.55;
 }
@@ -932,7 +931,7 @@
   padding: 1rem 2.375rem;
   background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
   color: #fff;
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
@@ -974,7 +973,7 @@
   gap: 0.75rem;
 }
 .footer-brand-name {
-  font-size: 1.0625rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #fff;
   letter-spacing: -0.01em;
@@ -982,7 +981,7 @@
 .footer-brand-name span { color: #f97316; }
 
 .footer-brand-desc {
-  font-size: 0.8375rem;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.45);
   line-height: 1.7;
   max-width: 280px;
@@ -993,7 +992,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.5);
   line-height: 1.5;
 }
@@ -1025,7 +1024,7 @@
   gap: 0.625rem;
 }
 .footer-col-list a {
-  font-size: 0.8375rem;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.45);
   text-decoration: none;
   transition: color 0.15s;

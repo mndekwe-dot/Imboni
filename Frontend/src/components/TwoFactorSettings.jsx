@@ -63,22 +63,22 @@ export function TwoFactorSettings() {
     if (enabled === null) return null   // loading
 
     return (
-        <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <h4 style={{ margin: '0 0 0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div className="tfa-section">
+            <h4 className="tfa-title">
                 <span className="material-symbols-rounded">encrypted</span>
                 Two-Factor Authentication
             </h4>
-            <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+            <p className="tfa-lead">
                 Add a second step at sign-in using an authenticator app (Google
                 Authenticator, Authy, …). Strongly recommended for staff accounts.
             </p>
 
-            {error && <p style={{ color: 'var(--danger)', marginBottom: '1rem' }}>{error}</p>}
+            {error && <p className="tfa-error">{error}</p>}
 
             {/* Enabled + idle → status badge + disable */}
             {enabled && stage === 'idle' && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--success, #16a34a)', fontWeight: 600 }}>
+                <div className="tfa-row">
+                    <span className="tfa-enabled">
                         <span className="material-symbols-rounded">check_circle</span> Enabled
                     </span>
                     <button className="btn btn-secondary" onClick={() => { setStage('disable'); setError('') }}>
@@ -96,13 +96,12 @@ export function TwoFactorSettings() {
 
             {/* Setup → QR + code entry */}
             {stage === 'setup' && setupData && (
-                <div style={{ maxWidth: 360 }}>
-                    <p style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+                <div className="tfa-panel">
+                    <p className="tfa-step">
                         1. Scan this QR code with your authenticator app:
                     </p>
-                    <img src={setupData.qr} alt="2FA QR code" width={180} height={180}
-                         style={{ background: '#fff', padding: 8, borderRadius: 8, border: '1px solid var(--border)' }} />
-                    <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', margin: '0.5rem 0' }}>
+                    <img src={setupData.qr} alt="2FA QR code" width={180} height={180} className="tfa-qr" />
+                    <p className="tfa-hint">
                         Or enter this key manually: <code>{setupData.secret}</code>
                     </p>
                     <div className="form-group">
@@ -113,7 +112,7 @@ export function TwoFactorSettings() {
                             onChange={e => setCode(e.target.value)}
                         />
                     </div>
-                    <div className="form-actions" style={{ gap: '0.5rem' }}>
+                    <div className="form-actions tfa-actions">
                         <button className="btn btn-primary" onClick={confirmCode} disabled={busy || !code}>
                             {busy ? 'Verifying…' : 'Verify and enable'}
                         </button>
@@ -126,12 +125,11 @@ export function TwoFactorSettings() {
 
             {/* Backup codes — shown once */}
             {stage === 'backup' && (
-                <div style={{ maxWidth: 360 }}>
-                    <p style={{ fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>
+                <div className="tfa-panel">
+                    <p className="tfa-step tfa-step--strong">
                         Save these backup codes somewhere safe. Each works once if you lose your device.
                     </p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem', fontFamily: 'monospace',
-                                  background: 'var(--muted)', padding: '0.75rem', borderRadius: 8, marginBottom: '0.75rem' }}>
+                    <div className="tfa-codes">
                         {backupCodes.map(c => <span key={c}>{c}</span>)}
                     </div>
                     <button className="btn btn-primary" onClick={() => setStage('idle')}>
@@ -142,7 +140,7 @@ export function TwoFactorSettings() {
 
             {/* Disable → password confirm */}
             {stage === 'disable' && (
-                <div style={{ maxWidth: 360 }}>
+                <div className="tfa-panel">
                     <div className="form-group">
                         <label className="form-label">Confirm your password to disable 2FA</label>
                         <input
@@ -151,7 +149,7 @@ export function TwoFactorSettings() {
                             onChange={e => setPassword(e.target.value)}
                         />
                     </div>
-                    <div className="form-actions" style={{ gap: '0.5rem' }}>
+                    <div className="form-actions tfa-actions">
                         <button className="btn btn-primary btn-destructive" onClick={confirmDisable} disabled={busy || !password}>
                             {busy ? 'Disabling…' : 'Disable 2FA'}
                         </button>

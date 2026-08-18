@@ -8,7 +8,7 @@ export function TabGroup({ tabs, value, onChange }) {
                     key={tab.key}
                     className={`tab-btn ${value === tab.key ? 'active' : ''}`}
                     onClick={() => onChange(tab.key)}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>{tab.icon}</span>
+                    <span className="material-symbols-rounded tab-icon">{tab.icon}</span>
                     {tab.label}
                 </button>
             ))}
