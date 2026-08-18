@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
@@ -8,7 +9,8 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
-import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
+import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -85,6 +87,8 @@ function ProgressItem({ label, value, width }) {
 }
 
 export function DosDashboard() {
+    const { t } = useTranslation()
+    const { setting } = useSchoolSettings()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const sessionUser = useSessionUser()
@@ -203,7 +207,7 @@ export function DosDashboard() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="DOS Dashboard"
+                        title={t('dos.dashboard.title')}
                         subtitle={`Welcome back, ${sessionUser.userName}`}
                         {...sessionUser}
                         notifications={liveNotifications}
@@ -213,7 +217,7 @@ export function DosDashboard() {
                     <DashboardContent>
                         <WelcomeBanner
                             name={sessionUser.userName}
-                            role="Director of Studies &bull; Imboni Academy"
+                            role={bannerRole(t, t('roles.dos'), setting.school_name)}
                         />
 
                         <div className="portal-stat-grid">

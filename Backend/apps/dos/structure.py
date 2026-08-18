@@ -377,6 +377,58 @@ def validate_structure(sections):
     return sections
 
 
+def proposed_years_and_streams(sections):
+    """Flatten a structure payload into (years, {(year, stream)})."""
+    years, streams = set(), set()
+    for section in sections:
+        section_streams = section.get('streams') if isinstance(section, dict) else None
+        for entry in (section.get('years') if isinstance(section, dict) else None) or []:
+            year = normalize_year(entry, section_streams)
+            if not year['name']:
+                continue
+            years.add(year['name'])
+            for stream in year['streams']:
+                streams.add((year['name'], stream))
+    return years, streams
+
+
+def describe_removals(sections):
+    """
+    What saving this payload would take away from the school, as plain phrases.
+
+    Editing the structure is one destructive PUT: the settings screen sends the
+    whole thing, so an accidental click removes a year as silently as adding one
+    creates it. The API asks for confirmation when this returns anything, which
+    means the confirmation prompt and the check that triggers it are the same
+    piece of code and cannot drift apart.
+    """
+    from .models import SchoolSection
+
+    # Compare against what is actually STORED, not against `_raw_sections()`.
+    # That falls back to DEFAULT_STRUCTURE when a school has no rows, which
+    # would make a school's very first save look like it was deleting six years
+    # it never had.
+    try:
+        stored = [
+            {'name': row.name, 'years': row.years or [], 'streams': row.streams or []}
+            for row in SchoolSection.objects.filter(is_active=True)
+        ]
+    except Exception:
+        return []
+
+    current_years, current_streams = proposed_years_and_streams(stored)
+    new_years, new_streams = proposed_years_and_streams(sections)
+
+    removals = []
+    for year in sorted(current_years - new_years):
+        removals.append(f'the year {year}')
+    # A stream whose whole year is going is already covered by the line above.
+    for year, stream in sorted(current_streams - new_streams):
+        if year in new_years:
+            removals.append(f'stream {stream} in {year}')
+    return removals
+
+
 def years_in_use():
     """
     Year codes that existing classes or pupils depend on.
@@ -394,3 +446,43 @@ def years_in_use():
     except Exception:
         return set()
     return {u for u in used if u}
+
+
+def streams_in_use():
+    """
+    (year, stream) pairs that existing classes or pupils depend on.
+
+    Streams need their own check: a school can remove stream 'A' from S1 while
+    leaving S1 itself in place, and the year-level check above would not notice.
+    Class S1A and every pupil in it would be left pointing at a stream the school
+    no longer says it has.
+
+    Pairs rather than bare stream names because streams are per-year -- dropping
+    'MPG' from S6 must not be blocked by S5 still using it.
+    """
+    from apps.student.models import Student
+    from apps.teacher.models import Class
+
+    used = set()
+    try:
+        used |= set(Class.objects.values_list('grade', 'section'))
+        used |= set(Student.objects.values_list('grade', 'section'))
+    except Exception:
+        return set()
+    return {(g, s) for g, s in used if g and s}
+
+
+def terms_in_use():
+    """
+    Term codes that recorded terms depend on.
+
+    Results, attendance, timetables and conduct all hang off AcademicTerm, so
+    removing a term a school has already run would strand every record filed
+    under it.
+    """
+    from apps.results.models import AcademicTerm
+
+    try:
+        return {t for t in AcademicTerm.objects.values_list('term', flat=True) if t}
+    except Exception:
+        return set()

@@ -1,13 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { DormitoryCaptainModal } from './DormitoryCaptainModal'
-import { getDisStudents } from '../../api/discipline'
+import { getDisStudents, getDormitories } from '../../api/discipline'
 
 vi.mock('../../api/discipline')
 
 describe('DormitoryCaptainModal', () => {
   beforeEach(() => {
     vi.resetAllMocks()
+    // The modal now reads the school's own dormitories instead of a hardcoded
+    // four, so the test has to supply them.
+    getDormitories.mockResolvedValue([
+      { id: 'd1', name: 'Bisoke',    gender: 'girls' },
+      { id: 'd2', name: 'Karisimbi', gender: 'girls' },
+      { id: 'd3', name: 'Muhabura',  gender: 'boys'  },
+      { id: 'd4', name: 'Sabyinyo',  gender: 'boys'  },
+    ])
   })
 
   it('renders add mode with dormitory select and disabled save', () => {
@@ -39,11 +47,13 @@ describe('DormitoryCaptainModal', () => {
     })))
   })
 
-  it('disables the dormitory select in edit mode', () => {
+  it('disables the dormitory select in edit mode', async () => {
     const captain = { student_uuid: 'u1', student_name: 'Aisha Kamau', student_id: 'ADM-1', grade: 'S1', section: 'A', notes: 'Dormitory: Bisoke' }
     render(<DormitoryCaptainModal captain={captain} onClose={() => {}} onSave={() => {}} />)
     expect(screen.getByText('Edit Dormitory Captain')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Bisoke')).toBeDisabled()
+    // The dormitory options are fetched, so the selected one only has a
+    // matching <option> once that request resolves.
+    await waitFor(() => expect(screen.getByDisplayValue('Bisoke')).toBeDisabled())
   })
 
   it('calls onClose without saving on cancel', () => {

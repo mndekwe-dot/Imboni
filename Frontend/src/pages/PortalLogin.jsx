@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import { requestPasswordReset } from '../api/auth'
 import { useAuth } from '../hooks/useAuth'
 import {Link} from 'react-router'
@@ -7,6 +8,7 @@ import '../styles/login.css'
 import '../styles/components.css'
 
 function ForgotPasswordModal({ onClose }) {
+    const { t } = useTranslation()
     // Form state
     const [email,   setEmail]   = useState('')
     const [sending, setSending] = useState(false) // true while API call is running
@@ -34,7 +36,7 @@ function ForgotPasswordModal({ onClose }) {
                 <div className="modal-header">
                     <div className="modal-header-left">
                         <span className="material-symbols-rounded">lock_reset</span>
-                        <h2 className="modal-title">Reset Password</h2>
+                        <h2 className="modal-title">{t('auth.resetPassword')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}>
                         <span className="material-symbols-rounded">close</span>
@@ -45,24 +47,24 @@ function ForgotPasswordModal({ onClose }) {
                     {/* After sending — show success message instead of the form */}
                     {sent ? (
                         <p className="lg-line16">
-                            A password reset link has been sent to <strong>{email}</strong>.
-                            Check your email and follow the instructions.
+                            {/* <1> in the translation maps to the <strong> below. */}
+                            <Trans i18nKey="auth.resetSent" values={{ email }}>
+                                <strong />
+                            </Trans>
                         </p>
                     ) : (
                         <>
-                            <p className="lg-forgot-intro">
-                                Enter your email address and we will send you a reset link.
-                            </p>
+                            <p className="lg-forgot-intro">{t('auth.resetIntro')}</p>
                             {/* Show server error if request failed */}
                             {error && (
                                 <p className="lg-modal-err">{error}</p>
                             )}
                             <div className="form-group">
-                                <label className="form-label">Email address</label>
+                                <label className="form-label">{t('auth.email')}</label>
                                 <input
                                     type="email"
                                     className="form-input"
-                                    placeholder="Enter your email"
+                                    placeholder={t('auth.emailPlaceholder')}
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
                                 />
@@ -75,18 +77,18 @@ function ForgotPasswordModal({ onClose }) {
                     {/* After sending — only show Done button */}
                     {sent ? (
                         <button className="btn btn-primary u-full" onClick={onClose}>
-                            Done
+                            {t('common.done')}
                         </button>
                     ) : (
                         <>
-                            <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                            <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                             {/* Disabled until email is typed and while request is running */}
                             <button
                                 className="btn btn-primary"
                                 onClick={handleReset}
                                 disabled={sending || !email}
                             >
-                                {sending ? 'Sending...' : 'Send Reset Link'}
+                                {sending ? t('common.sending') : t('auth.sendResetLink')}
                             </button>
                         </>
                     )}
@@ -101,16 +103,19 @@ function ForgotPasswordModal({ onClose }) {
  * PortalLogin — reusable login page for every portal.
  *
  * Props:
- *   portal      — slug sent to the backend  e.g. 'dos'
- *   label       — portal display name       e.g. 'Director of Studies'
- *   subtitle    — short description         e.g. 'Academic oversight and scheduling'
+ *   portal      — slug sent to the backend  e.g. 'dos'; also selects the
+ *                 translated portal name and blurb, so no display text is
+ *                 passed in as a prop
  *   icon        — Material Symbol name      e.g. 'analytics'
  *   accentColor — hex/CSS color             e.g. '#003d7a'
  *   placeholder — email hint                e.g. 'dos@imboni.rw'
  *   redirectTo  — path after login          e.g. '/dos'
  */
-export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeholder, redirectTo }) {
+export function PortalLogin({ portal, icon, accentColor, placeholder, redirectTo }) {
+    const { t } = useTranslation()
     const {login, completeTwoFactor} = useAuth()
+    const label    = t(`portal.${portal}`)
+    const subtitle = t(`portalLogin.${portal}`)
     const [email,      setEmail]      = useState('')
     const [password,   setPassword]   = useState('')
     const [showPw,     setShowPw]     = useState(false)
@@ -173,7 +178,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
 
                     <h2>
                         Imboni<br />
-                        <span>Education Connects</span>
+                        <span>{t('sidebar.tagline')}</span>
                     </h2>
 
                     <p>{subtitle}</p>
@@ -183,15 +188,15 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                     <div className="portal-login-info">
                         <div className="portal-login-info-row">
                             <span className="material-symbols-rounded">verified_user</span>
-                            <span>Secure: your data is encrypted</span>
+                            <span>{t('auth.secure')}</span>
                         </div>
                         <div className="portal-login-info-row">
                             <span className="material-symbols-rounded">lock</span>
-                            <span>Access restricted to authorised users only</span>
+                            <span>{t('auth.restricted')}</span>
                         </div>
                         <div className="portal-login-info-row">
                             <span className="material-symbols-rounded">support_agent</span>
-                            <span>Contact admin@imboni.rw for account issues</span>
+                            <span>{t('auth.contactAdmin', { email: 'admin@imboni.rw' })}</span>
                         </div>
                     </div>
                 </div>
@@ -207,7 +212,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                 {/* Back link */}
                 <Link to="/" className="portal-login-back">
                     <span className="material-symbols-rounded">arrow_back</span>
-                    Back to home
+                    {t('auth.backToHome')}
                 </Link>
 
                 <div className="login-welcome">
@@ -232,11 +237,10 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                 {challenge ? (
                     <form className="login-form" onSubmit={handleVerify} autoComplete="off">
                         <p className="login-subheading lg-mt-0">
-                            Enter the 6-digit code from your authenticator app
-                            (or a backup code) to finish signing in.
+                            {t('auth.twoFactorHint')}
                         </p>
                         <div className="form-group">
-                            <label className="form-label" htmlFor="twofa-code">Verification code</label>
+                            <label className="form-label" htmlFor="twofa-code">{t('auth.verificationCode')}</label>
                             <div className="input-wrap">
                                 <span className="input-icon material-symbols-rounded">password</span>
                                 <input
@@ -256,22 +260,22 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                         </div>
                         <button type="submit" className="login-btn portal-login-btn" disabled={loading}>
                             {loading
-                                ? <><span className="btn-spinner"></span> Verifying...</>
-                                : 'Verify and sign in'}
+                                ? <><span className="btn-spinner"></span> {t('auth.verifying')}</>
+                                : t('auth.verifyAndSignIn')}
                         </button>
                         <button
                             type="button"
                             className="forgot-link portal-forgot-link lg-back-link"
                             onClick={() => { setChallenge(null); setCode(''); setError('') }}
                         >
-                            Back to sign in
+                            {t('auth.backToSignIn')}
                         </button>
                     </form>
                 ) : (
                 <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
 
                     <div className="form-group">
-                        <label className="form-label" htmlFor="email">Email address</label>
+                        <label className="form-label" htmlFor="email">{t('auth.email')}</label>
                         <div className="input-wrap">
                             <span className="input-icon material-symbols-rounded">mail</span>
                             <input
@@ -289,7 +293,7 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label" htmlFor="password">Password</label>
+                        <label className="form-label" htmlFor="password">{t('auth.password')}</label>
                         <div className="input-wrap">
                             <span className="input-icon material-symbols-rounded">lock</span>
                             <input
@@ -297,13 +301,13 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                                 type={showPw ? 'text' : 'password'}
                                 id="password"
                                 name="password"
-                                placeholder="Enter your password"
+                                placeholder={t('auth.passwordPlaceholder')}
                                 autoComplete="current-password"
                                 required
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
                             />
-                            <button type="button" className="pw-toggle" onClick={() => setShowPw(p => !p)} aria-label="Toggle password visibility">
+                            <button type="button" className="pw-toggle" onClick={() => setShowPw(p => !p)} aria-label={t('auth.togglePassword')}>
                                 <span className="material-symbols-rounded">
                                     {showPw ? 'visibility_off' : 'visibility'}
                                 </span>
@@ -314,17 +318,17 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                     <div className="form-options">
                         <label className="remember-label">
                             <input type="checkbox" name="remember" />
-                            Remember me
+                            {t('auth.rememberMe')}
                         </label>
                         <button type="button" className="forgot-link portal-forgot-link" onClick={() => setShowForgot(true)}>
-                            Forgot password?
+                            {t('auth.forgotPassword')}
                         </button>
                     </div>
 
                     <button type="submit" className="login-btn portal-login-btn" disabled={loading}>
                         {loading
-                            ? <><span className="btn-spinner"></span> Signing in...</>
-                            : `Sign in to ${label}`
+                            ? <><span className="btn-spinner"></span> {t('auth.signingIn')}</>
+                            : t('auth.signInTo', { portal: label })
                         }
                     </button>
 
@@ -332,8 +336,8 @@ export function PortalLogin({ portal, label, subtitle, icon, accentColor, placeh
                 )}
 
                 <div className="login-footer">
-                    Imboni Education Connects &copy; {new Date().getFullYear()}.{' '}
-                    <a href="#">Privacy Policy</a>
+                    {t('auth.footer', { year: new Date().getFullYear() })}{' '}
+                    <a href="#">{t('auth.privacyPolicy')}</a>
                 </div>
             </div>
 

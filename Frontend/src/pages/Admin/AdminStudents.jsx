@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -219,6 +220,7 @@ function StudentRow({ student, onView }) {
 }
 
 export function AdminStudents() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const { config }    = useSchoolConfig()
     const [studentList, setStudentList] = useState([])
@@ -274,8 +276,8 @@ export function AdminStudents() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Student Management"
-                        subtitle="Enrollment, admissions and student records"
+                        title={t('admin.students.title')}
+                        subtitle={t('admin.students.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

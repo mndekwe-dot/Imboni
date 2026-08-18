@@ -6,14 +6,14 @@ describe('StaffModal', () => {
   it('renders add mode fields empty', () => {
     render(<StaffModal onClose={() => {}} onSave={() => {}} />)
     expect(screen.getByText('Add Staff Member')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('e.g. Ms. J. Kamau')).toHaveValue('')
+    expect(screen.getByPlaceholderText('e.g. Ms. J. Mukamana')).toHaveValue('')
   })
 
   it('renders edit mode pre-filled with staff data', () => {
     const staff = { name: 'Ms. J. Kamau', role: 'Matron', email: 'j@imboni.edu', ext: '301', duty: '6PM-7AM' }
     render(<StaffModal staff={staff} onClose={() => {}} onSave={() => {}} />)
     expect(screen.getByText('Edit Staff Member')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('e.g. Ms. J. Kamau')).toHaveValue('Ms. J. Kamau')
+    expect(screen.getByPlaceholderText('e.g. Ms. J. Mukamana')).toHaveValue('Ms. J. Kamau')
   })
 
   it('disables save button when required fields are empty', () => {
@@ -26,8 +26,8 @@ describe('StaffModal', () => {
     const onClose = vi.fn()
     render(<StaffModal onClose={onClose} onSave={onSave} />)
 
-    fireEvent.change(screen.getByPlaceholderText('e.g. Ms. J. Kamau'), { target: { value: 'Mr. X' } })
-    fireEvent.change(screen.getByPlaceholderText('e.g. Matron, Kigoma Dormitory'), { target: { value: 'Patron' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Ms. J. Mukamana'), { target: { value: 'Mr. X' } })
+    fireEvent.change(screen.getByPlaceholderText('e.g. Matron, Karisimbi Dormitory'), { target: { value: 'Patron' } })
     fireEvent.click(screen.getByText('Add Staff').closest('button'))
 
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Mr. X', role: 'Patron' }))

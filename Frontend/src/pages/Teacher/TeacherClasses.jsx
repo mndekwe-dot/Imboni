@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -17,11 +18,11 @@ import { sectionsFromClasses } from '../../utils/classes'
 const CARD_BG = ['#eef6ff', '#edfaf4', '#f3f0ff', '#fff7ed', '#e8f8fb', '#fff0f3']
 
 const ASSESSMENT_TYPES = [
-    { value: 'quiz',         label: 'Quiz'         },
-    { value: 'homework',     label: 'Homework'      },
-    { value: 'project',      label: 'Project'       },
-    { value: 'presentation', label: 'Presentation'  },
-    { value: 'lab',          label: 'Lab Work'      },
+    { value: 'quiz',         labelKey: 'teacher.classes.typeQuiz'         },
+    { value: 'homework',     labelKey: 'teacher.classes.typeHomework'     },
+    { value: 'project',      labelKey: 'teacher.classes.typeProject'      },
+    { value: 'presentation', labelKey: 'teacher.classes.typePresentation' },
+    { value: 'lab',          labelKey: 'teacher.classes.typeLab'          },
 ]
 
 function getGrade(pct) {
@@ -34,6 +35,7 @@ function getGrade(pct) {
 
 // ── Class Card ────────────────────────────────────────────────────────────────
 function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
+    const { t } = useTranslation()
     const bg = CARD_BG[colorIndex % CARD_BG.length]
     return (
         <div className="class-detail-card" style={{ background: bg }}>
@@ -47,11 +49,11 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
             <div className="class-stats">
                 <div className="stat-item">
                     <div className="stat-value">{cls.student_count}</div>
-                    <div className="stat-label">Students</div>
+                    <div className="stat-label">{t('teacher.classes.students')}</div>
                 </div>
                 <div className="stat-item">
                     <div className="stat-value">{cls.avg_score != null ? `${cls.avg_score}%` : '-'}</div>
-                    <div className="stat-label">Avg Score</div>
+                    <div className="stat-label">{t('common.avgScore')}</div>
                 </div>
             </div>
 
@@ -75,11 +77,11 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
             <div className="class-actions">
                 <button className="btn btn-primary btn-sm" onClick={() => onOpenStudents(cls)}>
                     <span className="material-symbols-rounded icon-sm">group</span>
-                    View Students
+                    {t('teacher.classes.viewStudents')}
                 </button>
                 <button className="btn btn-outline btn-sm" onClick={() => onEnterResults(cls)}>
                     <span className="material-symbols-rounded icon-sm">edit_note</span>
-                    Enter Results
+                    {t('teacher.classes.enterResults')}
                 </button>
             </div>
         </div>
@@ -88,6 +90,7 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
 
 // ── Students Panel Modal ──────────────────────────────────────────────────────
 function StudentsPanel({ cls, onClose, onEnterResult }) {
+    const { t } = useTranslation()
     const [students, setStudents] = useState([])
     const [loading,  setLoading]  = useState(true)
     const [search,   setSearch]   = useState('')
@@ -96,7 +99,7 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
     useEffect(() => {
         getTeacherStudents({ class_id: cls.class_id })
             .then(s => setStudents(Array.isArray(s) ? s : []))
-            .catch(err => { setStudents([]); setPanelError(err?.message || 'Failed to load students.') })
+            .catch(err => { setStudents([]); setPanelError(err?.message || t('teacher.classes.loadStudentsFailed')) })
             .finally(() => setLoading(false))
     }, [cls.class_id])
 
@@ -106,12 +109,12 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
     )
 
     return (
-        <Modal title={`${cls.class_name} Students`} icon="group" onClose={onClose} size="wide">
+        <Modal title={t('teacher.classes.panelTitle', { class: cls.class_name })} icon="group" onClose={onClose} size="wide">
             <div className="modal-search">
                 <span className="material-symbols-rounded">search</span>
                 <input
                     type="text"
-                    placeholder="Search by name or student code…"
+                    placeholder={t('teacher.classes.searchStudents')}
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                 />
@@ -130,9 +133,9 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
             )}
 
             {loading ? (
-                <p className="tr-empty-pad">Loading students…</p>
+                <p className="tr-empty-pad">{t('common.loadingStudents')}</p>
             ) : filtered.length === 0 ? (
-                <div className="stu-empty">No students found.</div>
+                <div className="stu-empty">{t('teacher.classes.noStudents')}</div>
             ) : (
                 <div className="stu-list">
                     {filtered.map(student => (
@@ -142,13 +145,15 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
                                 <div className="stu-name">{student.full_name}</div>
                                 <div className="stu-meta">
                                     {student.student_code}
-                                    {student.attendance_rate != null ? ` · Attendance: ${student.attendance_rate}%` : ''}
+                                    {student.attendance_rate != null
+                                        ? ' · ' + t('teacher.classes.attendanceMeta', { rate: student.attendance_rate })
+                                        : ''}
                                 </div>
                             </div>
                             <div className="stu-actions">
                                 <button className="btn btn-primary btn-sm" onClick={() => onEnterResult(student)}>
                                     <span className="material-symbols-rounded icon-sm">edit_note</span>
-                                    Results
+                                    {t('teacher.classes.results')}
                                 </button>
                             </div>
                         </div>
@@ -161,6 +166,7 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
 
 // ── Results Modal (assessment picker → score table) ───────────────────────────
 function ResultsModal({ cls, onClose }) {
+    const { t } = useTranslation()
     const [step,       setStep]       = useState('pick')  // 'pick' | 'view' | 'new'
     const [titles,     setTitles]     = useState([])
     const [students,   setStudents]   = useState([])
@@ -271,16 +277,16 @@ function ResultsModal({ cls, onClose }) {
 
     // ── Step: Pick assessment ─────────────────────────────────────────────────
     if (step === 'pick') return (
-        <Modal title={`Enter Results for ${cls.class_name}`} icon="edit_note" onClose={onClose} size="wide">
-            <p className="modal-desc">Select an existing assessment or create a new one for <strong>{cls.class_name}</strong>.</p>
+        <Modal title={t('teacher.classes.enterResultsFor', { class: cls.class_name })} icon="edit_note" onClose={onClose} size="wide">
+            <p className="modal-desc">{t('teacher.classes.pickIntro')} <strong>{cls.class_name}</strong>.</p>
             {loadingInit ? (
-                <p className="u-muted">Loading…</p>
+                <p className="u-muted">{t('common.loading')}</p>
             ) : (
                 <div className="asgn-pick-list">
                     <button className="asgn-pick-btn" onClick={openNew}>
                         <div>
                             <div className="asgn-pick-title">+ New Assessment</div>
-                            <div className="asgn-pick-meta">Create a new assessment and enter scores</div>
+                            <div className="asgn-pick-meta">{t('teacher.classes.createNewMeta')}</div>
                         </div>
                         <span className="material-symbols-rounded asgn-pick-chevron">chevron_right</span>
                     </button>
@@ -288,13 +294,13 @@ function ResultsModal({ cls, onClose }) {
                         <button key={title} className="asgn-pick-btn" onClick={() => openExisting(title)}>
                             <div>
                                 <div className="asgn-pick-title">{title}</div>
-                                <div className="asgn-pick-meta">View or update existing scores</div>
+                                <div className="asgn-pick-meta">{t('teacher.classes.viewExistingMeta')}</div>
                             </div>
                             <span className="material-symbols-rounded asgn-pick-chevron">chevron_right</span>
                         </button>
                     ))}
                     {titles.length === 0 && (
-                        <p className="tc-note-pad">No assessments recorded yet. Click "New Assessment" to start.</p>
+                        <p className="tc-note-pad">{t('teacher.classes.noAssessments')}</p>
                     )}
                 </div>
             )}
@@ -314,29 +320,29 @@ function ResultsModal({ cls, onClose }) {
                     <div className="modal-footer-row">
                         <button className="btn btn-outline btn-sm mr-auto" onClick={() => setStep('pick')}>
                             <span className="material-symbols-rounded icon-sm">arrow_back</span>
-                            Back
+                            {t('common.back')}
                         </button>
                         {error && <span className="results-warning">{error}</span>}
-                        {savedMsg && <span className="tc-saved">Saved!</span>}
-                        <button className="btn btn-outline" onClick={onClose}>Close</button>
+                        {savedMsg && <span className="tc-saved">{t('common.savedBang')}</span>}
+                        <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
                         <button className="btn btn-primary" onClick={handleSaveExisting} disabled={saving}>
-                            {saving ? 'Saving…' : 'Save Changes'}
+                            {saving ? t('common.saving') : t('common.saveChanges')}
                         </button>
                     </div>
                 }
             >
                 <div className="results-info-bar">
                     <div className="results-info-text">
-                        <strong>{cls.class_name}</strong> · {cls.subject_name} · Max: <strong>{max}</strong>
+                        <strong>{cls.class_name}</strong> · {cls.subject_name} · {t('teacher.classes.maxLabel')}<strong>{max}</strong>
                     </div>
                 </div>
                 {loadingRows ? (
-                    <p className="u-muted">Loading scores…</p>
+                    <p className="u-muted">{t('teacher.classes.loadingScores')}</p>
                 ) : (
                     <div className="score-table-body">
                         <div className="score-table-head score-grid-2">
-                            <span>Student</span>
-                            <span className="center">Score / {max}</span>
+                            <span>{t('common.student')}</span>
+                            <span className="center">{t('teacher.classes.scoreOutOf', { max })}</span>
                         </div>
                         {students.map(student => {
                             const scoreVal = scores[student.student_id] ?? ''
@@ -376,7 +382,7 @@ function ResultsModal({ cls, onClose }) {
     // ── Step: New assessment ──────────────────────────────────────────────────
     return (
         <Modal
-            title="New Assessment"
+            title={t('teacher.classes.newAssessment')}
             icon="add"
             onClose={onClose}
             size="wide"
@@ -384,52 +390,52 @@ function ResultsModal({ cls, onClose }) {
                 <div className="modal-footer-row">
                     <button className="btn btn-outline btn-sm mr-auto" onClick={() => setStep('pick')}>
                         <span className="material-symbols-rounded icon-sm">arrow_back</span>
-                        Back
+                        {t('common.back')}
                     </button>
                     {error && <span className="results-warning">{error}</span>}
-                    {savedMsg && <span className="tc-saved">Saved!</span>}
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                    {savedMsg && <span className="tc-saved">{t('common.savedBang')}</span>}
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button
                         className="btn btn-primary"
                         onClick={handleSaveNew}
                         disabled={saving || !newForm.assessment_title || !newForm.max_score}
                     >
-                        {saving ? 'Saving…' : 'Save Results'}
+                        {saving ? t('common.saving') : t('teacher.classes.saveResults')}
                     </button>
                 </div>
             }
         >
             <div className="resp-grid-2 u-gap-sm u-mb-lg">
                 <div className="form-group col-full">
-                    <label className="form-label">Assessment Title *</label>
+                    <label className="form-label">{t('teacher.classes.assessmentTitleRequired')}</label>
                     <input
                         className="form-control"
-                        placeholder="e.g. Mid-Term Exam, CAT 1, Quiz 3…"
+                        placeholder={t('teacher.classes.assessmentNamePlaceholder')}
                         value={newForm.assessment_title}
                         onChange={e => setNewForm(p => ({ ...p, assessment_title: e.target.value }))}
                     />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Type *</label>
+                    <label className="form-label">{t('teacher.classes.typeRequired')}</label>
                     <select className="form-control" value={newForm.assessment_type} onChange={e => setNewForm(p => ({ ...p, assessment_type: e.target.value }))}>
-                        {ASSESSMENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                        {ASSESSMENT_TYPES.map(at => <option key={at.value} value={at.value}>{t(at.labelKey)}</option>)}
                     </select>
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Date *</label>
+                    <label className="form-label">{t('teacher.classes.dateRequired')}</label>
                     <input className="form-control" type="date" value={newForm.date} onChange={e => setNewForm(p => ({ ...p, date: e.target.value }))} />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Max Score *</label>
-                    <input className="form-control" type="number" min="1" placeholder="e.g. 100" value={newForm.max_score} onChange={e => setNewForm(p => ({ ...p, max_score: e.target.value }))} />
+                    <label className="form-label">{t('teacher.classes.maxScoreRequired')}</label>
+                    <input className="form-control" type="number" min="1" placeholder={t('teacher.classes.egHundred')} value={newForm.max_score} onChange={e => setNewForm(p => ({ ...p, max_score: e.target.value }))} />
                 </div>
             </div>
 
-            <div className="section-label-sm">Enter Scores for {cls.class_name}</div>
+            <div className="section-label-sm">{t('teacher.classes.enterScoresFor', { class: cls.class_name })}</div>
             <div className="score-table-body">
                 <div className="score-table-head score-grid-2">
-                    <span>Student</span>
-                    <span className="center">Score / {newForm.max_score || '?'}</span>
+                    <span>{t('common.student')}</span>
+                    <span className="center">{t('teacher.classes.scoreOutOf', { max: newForm.max_score || '?' })}</span>
                 </div>
                 {students.map(student => {
                     const scoreVal = scores[student.student_id] ?? ''
@@ -462,7 +468,7 @@ function ResultsModal({ cls, onClose }) {
                     )
                 })}
                 {students.length === 0 && (
-                    <p className="tc-note-pad">No students found in this class.</p>
+                    <p className="tc-note-pad">{t('teacher.classes.noStudentsInClass')}</p>
                 )}
             </div>
         </Modal>
@@ -471,6 +477,7 @@ function ResultsModal({ cls, onClose }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherClasses() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,       setClasses]       = useState([])
     const [loadingClasses, setLoadingClasses] = useState(true)
@@ -516,7 +523,7 @@ export function TeacherClasses() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             {resultsClass && (
@@ -546,8 +553,8 @@ export function TeacherClasses() {
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="My Classes"
-                        subtitle="View your classes and manage students"
+                        title={t('teacher.classes.title')}
+                        subtitle={t('teacher.classes.subtitle')}
                         userName={fullName}
                         userRole="Teacher"
                         userInitials={initials}
@@ -565,21 +572,21 @@ export function TeacherClasses() {
 
                         <div className="classes-wrap">
                             <div className="classes-wrap-header">
-                                <div className="classes-wrap-title">My Classes</div>
+                                <div className="classes-wrap-title">{t('teacher.classes.myClasses')}</div>
                                 <span className="classes-wrap-count">
                                     {visible.length} class{visible.length !== 1 ? 'es' : ''}
                                 </span>
                             </div>
                             <div className="classes-wrap-body">
                                 {loadingClasses ? (
-                                    <p className="tc-load-pad">Loading classes…</p>
+                                    <p className="tc-load-pad">{t('common.loadingClasses')}</p>
                                 ) : loadError ? (
                                     <div className="tc-load-err">
                                         <span className="material-symbols-rounded tc-load-err-icon">error</span>
                                         {loadError}
                                     </div>
                                 ) : visible.length === 0 ? (
-                                    <div className="classes-wrap-empty">No classes match the selected filter.</div>
+                                    <div className="classes-wrap-empty">{t('teacher.classes.noMatching')}</div>
                                 ) : (
                                     <div className="classes-grid">
                                         {visible.map((cls, i) => (

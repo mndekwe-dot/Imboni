@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
+import { formatDate } from '../../utils/date'
 import {
     getPublishedAnnouncements, getAnnouncementStats,
     markAnnouncementRead, markAllAnnouncementsRead,
@@ -53,7 +55,7 @@ function relDate(dateStr) {
     if (diff === 0) return 'Today'
     if (diff === 1) return 'Yesterday'
     if (diff < 7)  return `${diff}d ago`
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return formatDate(d)
 }
 
 function StatBox({ icon, value, label, color }) {
@@ -128,6 +130,7 @@ function AnnouncementCard({ ann, onMarkRead }) {
 }
 
 export function ParentAnnouncements() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [announcements, setAnnouncements] = useState([])
@@ -184,14 +187,14 @@ export function ParentAnnouncements() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Announcements"
-                        subtitle="Stay updated with school news and notifications"
+                        title={t('nav.announcements')}
+                        subtitle={t('parent.announcements.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

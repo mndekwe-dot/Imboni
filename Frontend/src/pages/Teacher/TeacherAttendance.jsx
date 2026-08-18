@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -36,6 +37,7 @@ function todayISO() {
 }
 
 export function TeacherAttendance() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
@@ -176,7 +178,7 @@ export function TeacherAttendance() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             <div className="dashboard-layout">
@@ -184,8 +186,8 @@ export function TeacherAttendance() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Mark Attendance"
-                        subtitle="Track student attendance for your classes"
+                        title={t('teacher.attendance.title')}
+                        subtitle={t('teacher.attendance.subtitle')}
                         userName={fullName}
                         userRole="Teacher"
                         userInitials={initials}
@@ -195,7 +197,7 @@ export function TeacherAttendance() {
                     />
                     <DashboardContent>
                         {loadingClasses ? (
-                            <EmptyState icon="sync" title="Loading classes…" description="Fetching your assigned classes." />
+                            <EmptyState icon="sync" title={t('common.loadingClasses')} description={t('teacher.attendance.fetchingClasses')} />
                         ) : (
                             <>
                                 <ClassPicker
@@ -237,7 +239,7 @@ export function TeacherAttendance() {
                                 )}
 
                                 {!classKey ? (
-                                    <EmptyState icon="fact_check" title="No class selected" description="Use the picker above to select a section, year, and class to mark attendance." />
+                                    <EmptyState icon="fact_check" title={t('common.noClassSelected')} description={t('teacher.attendance.pickerHintAttendance')} />
                                 ) : loadingStudents ? (
                                     <EmptyState icon="sync" title="Loading…" description={`Fetching students for ${classKey}.`} />
                                 ) : (
@@ -288,7 +290,7 @@ export function TeacherAttendance() {
                                                         <input
                                                             type="text"
                                                             className="input"
-                                                            placeholder="Optional notes…"
+                                                            placeholder={t('common.notesOptional')}
                                                             value={getNotes(s.student_id)}
                                                             onChange={e => setStudentNotes(s.student_id, e.target.value)}
                                                         />
@@ -296,7 +298,7 @@ export function TeacherAttendance() {
                                                 </tr>
                                             )}
                                             emptyIcon="people"
-                                            emptyTitle="No students enrolled"
+                                            emptyTitle={t('teacher.attendance.noStudents')}
                                             emptyDesc={`No students are enrolled in ${classKey} this term.`}
                                         />
 

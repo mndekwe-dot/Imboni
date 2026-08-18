@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { NewActivityModal } from '../../components/modals/NewActivityModal'
@@ -56,6 +57,7 @@ function initials(name = '') {
 // ── Activity Card ─────────────────────────────────────────────────────────────
 
 function ActivityCard({ activity, onEdit, onDelete }) {
+    const { t } = useTranslation()
     const [confirmDelete, setConfirmDelete] = useState(false)
     const cat = CATEGORY_LABELS[activity.category] || activity.category
 
@@ -92,7 +94,7 @@ function ActivityCard({ activity, onEdit, onDelete }) {
                             <span className="material-symbols-rounded icon-sm">delete</span>
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onEdit(activity)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                         </button>
                     </>
                 )}
@@ -104,6 +106,7 @@ function ActivityCard({ activity, onEdit, onDelete }) {
 // ── Prefect Card ──────────────────────────────────────────────────────────────
 
 function PrefectCard({ leader, onEdit, onRemove }) {
+    const { t } = useTranslation()
     const [confirmDelete, setConfirmDelete] = useState(false)
     const cls = `${leader.grade || ''}${leader.section || ''}`
 
@@ -125,7 +128,7 @@ function PrefectCard({ leader, onEdit, onRemove }) {
             <div className="staff-card-actions">
                 {confirmDelete ? (
                     <>
-                        <span className="remove-confirm-text">Remove?</span>
+                        <span className="remove-confirm-text">{t('common.removeConfirm')}</span>
                         <button className="btn btn-primary btn-sm" onClick={() => onRemove(leader.id)}>Yes</button>
                         <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>No</button>
                     </>
@@ -133,7 +136,7 @@ function PrefectCard({ leader, onEdit, onRemove }) {
                     <>
                         <button className="btn btn-secondary btn-sm" onClick={() => setConfirmDelete(true)}>Remove</button>
                         <button className="btn btn-primary btn-sm" onClick={() => onEdit(leader)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                         </button>
                     </>
                 )}
@@ -145,6 +148,7 @@ function PrefectCard({ leader, onEdit, onRemove }) {
 // ── Captain Row ───────────────────────────────────────────────────────────────
 
 function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCancelRemove }) {
+    const { t } = useTranslation()
     const cls = `${leader.grade || ''}${leader.section || ''}`
     const dorm = leader.notes || '-'
     const isConfirming = confirmId === leader.id
@@ -158,14 +162,14 @@ function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCa
             <td className="action-cell">
                 {isConfirming ? (
                     <>
-                        <span className="remove-confirm-text">Remove?</span>
+                        <span className="remove-confirm-text">{t('common.removeConfirm')}</span>
                         <button className="btn btn-primary btn-sm" onClick={() => onConfirmRemove(leader.id)}>Yes</button>
                         <button className="btn btn-outline btn-sm" onClick={onCancelRemove}>No</button>
                     </>
                 ) : (
                     <>
                         <button className="btn btn-outline btn-sm" onClick={() => onEdit(leader)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> Edit
+                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                         </button>
                         <button className="btn btn-outline btn-sm" onClick={() => onRemove(leader.id)}>
                             <span className="material-symbols-rounded icon-sm">delete</span> Remove
@@ -180,6 +184,7 @@ function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCa
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisStudentLife() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [activeTab, setActiveTab] = useState('activities')
@@ -350,8 +355,8 @@ export function DisStudentLife() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Student Life"
-                        subtitle="Extracurricular activities, clubs and student leadership"
+                        title={t('dis.studentLife.title')}
+                        subtitle={t('dis.studentLife.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -360,10 +365,10 @@ export function DisStudentLife() {
 
                         <div className="filter-tabs-bar mb-5">
                             <button className={`filter-tab${activeTab === 'activities' ? ' active' : ''}`} onClick={() => setActiveTab('activities')}>
-                                <span className="material-symbols-rounded">emoji_events</span> Activities & Clubs
+                                <span className="material-symbols-rounded">emoji_events</span> {t('dis.studentLife.activitiesClubs')}
                             </button>
                             <button className={`filter-tab${activeTab === 'leaders' ? ' active' : ''}`} onClick={() => setActiveTab('leaders')}>
-                                <span className="material-symbols-rounded">military_tech</span> Student Leaders
+                                <span className="material-symbols-rounded">military_tech</span> {t('dis.studentLeaders.title')}
                             </button>
                         </div>
 
@@ -385,7 +390,7 @@ export function DisStudentLife() {
                                 <div className="section-toolbar-row">
                                     <FilterBar options={activityFilterOptions} active={actFilter} onChange={setActFilter} />
                                     <button className="btn btn-primary" onClick={() => setShowNewActivity(true)}>
-                                        <span className="material-symbols-rounded">add</span> New Club
+                                        <span className="material-symbols-rounded">add</span> {t('dis.studentLife.newClub')}
                                     </button>
                                 </div>
 
@@ -461,10 +466,10 @@ export function DisStudentLife() {
                                     />
                                     <div className="disc-btn-inline-group">
                                         <button className="btn btn-outline btn-sm" onClick={() => setShowAddLeader('captain')}>
-                                            <span className="material-symbols-rounded icon-sm">add</span> Add Captain
+                                            <span className="material-symbols-rounded icon-sm">add</span> {t('dis.studentLife.addCaptain')}
                                         </button>
                                         <button className="btn btn-primary" onClick={() => setShowAddLeader('prefect')}>
-                                            <span className="material-symbols-rounded">add</span> Add Leader
+                                            <span className="material-symbols-rounded">add</span> {t('dis.studentLife.addLeader')}
                                         </button>
                                     </div>
                                 </div>
@@ -487,7 +492,7 @@ export function DisStudentLife() {
                                         {(leaderFilter === 'all' || leaderFilter === 'captains') && (
                                             <div className="card mt-1-5">
                                                 <div className="card-header">
-                                                    <h2 className="card-title"><span className="material-symbols-rounded">home</span> Dormitory Captains</h2>
+                                                    <h2 className="card-title"><span className="material-symbols-rounded">home</span> {t('dis.studentLife.dormitoryCaptains')}</h2>
                                                 </div>
                                                 <div className="card-content">
                                                     <div className="disc-table-wrap">

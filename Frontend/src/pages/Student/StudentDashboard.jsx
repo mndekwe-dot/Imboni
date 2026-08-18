@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -7,6 +8,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentDashboard } from '../../api/student'
+import { formatDateShort, formatDateWithWeekday } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -20,17 +22,19 @@ function formatTime(timeStr) {
     return `${display}:${m} ${ampm}`
 }
 
-function formatDueDate(dateStr) {
+// Takes `t` rather than calling useTranslation: this is a plain helper, not a
+// component, so it cannot use a hook.
+function formatDueDate(dateStr, t) {
     if (!dateStr) return ''
     const today = new Date()
     const due = new Date(dateStr)
     today.setHours(0, 0, 0, 0)
     due.setHours(0, 0, 0, 0)
     const diff = Math.round((due - today) / 86400000)
-    if (diff === 0) return 'Due today'
-    if (diff === 1) return 'Due tomorrow'
-    if (diff < 0) return 'Overdue'
-    return due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    if (diff === 0) return t('student.dashboard.dueToday')
+    if (diff === 1) return t('student.dashboard.dueTomorrow')
+    if (diff < 0) return t('student.dashboard.overdue')
+    return formatDateShort(due)
 }
 
 function dueDotColor(dateStr) {
@@ -81,6 +85,7 @@ function ScheduleSlot({ start_time, end_time, subject, teacher, room }) {
 }
 
 function AssignItem({ title, subject, due_date }) {
+    const { t } = useTranslation()
     return (
         <div className="assign-item">
             <span className={`assign-subject-dot ${dueDotColor(due_date)}`}></span>
@@ -88,7 +93,7 @@ function AssignItem({ title, subject, due_date }) {
                 <div className="assign-title">{title}</div>
                 <div className="assign-subject">{subject}</div>
             </div>
-            <span className={`assign-due ${dueClass(due_date)}`}>{formatDueDate(due_date)}</span>
+            <span className={`assign-due ${dueClass(due_date)}`}>{formatDueDate(due_date, t)}</span>
         </div>
     )
 }
@@ -105,6 +110,7 @@ function GradeRow({ subject, grade, final_score, term }) {
 }
 
 export function StudentDashboard() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [profile,   setProfile]   = useState(null)
     const [dashboard, setDashboard] = useState(null)
@@ -113,7 +119,7 @@ export function StudentDashboard() {
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
     const lastName   = storedUser.last_name  || ''
-    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Student'
+    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || t('roles.student')
     const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'S'
 
     useEffect(() => {
@@ -128,7 +134,9 @@ export function StudentDashboard() {
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
     const studentCode  = profile?.student_code || ''
-    const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
+    const userRole     = gradeSection
+        ? `${t('roles.student')} · ${gradeSection}`
+        : t('roles.student')
 
     const stats = dashboard?.stats || {}
     const todaySchedule      = dashboard?.today_schedule      || []
@@ -136,24 +144,24 @@ export function StudentDashboard() {
     const recentGrades        = dashboard?.recent_grades       || []
 
     const statCards = [
-        { icon: 'fact_check', value: loading ? '-' : `${stats.attendance_percentage ?? '-'}%`, label: 'Attendance',          trend: 'This term',     trendClass: 'positive', colorClass: 'success' },
-        { icon: 'shield',     value: loading ? '-' : (stats.conduct_grade || '-'),              label: 'Conduct Grade',       trend: 'Current term',  trendClass: '',         colorClass: 'info'    },
-        { icon: 'assignment', value: loading ? '-' : (stats.pending_assignments ?? '-'),         label: 'Pending Assignments', trend: 'Due upcoming',  trendClass: 'negative', colorClass: 'warning' },
-        { icon: 'grade',      value: loading ? '-' : (stats.recent_grade || '-'),               label: 'Latest Grade',        trend: 'Most recent',   trendClass: 'positive', colorClass: ''        },
+        { icon: 'fact_check', value: loading ? '-' : `${stats.attendance_percentage ?? '-'}%`, label: t('student.dashboard.attendance'), trend: t('student.dashboard.thisTerm'),     trendClass: 'positive', colorClass: 'success' },
+        { icon: 'shield',     value: loading ? '-' : (stats.conduct_grade || '-'),              label: t('student.dashboard.conductGrade'), trend: t('student.dashboard.currentTerm'),  trendClass: '',         colorClass: 'info'    },
+        { icon: 'assignment', value: loading ? '-' : (stats.pending_assignments ?? '-'),         label: t('student.dashboard.pendingAssignments'), trend: t('student.dashboard.dueUpcoming'),  trendClass: 'negative', colorClass: 'warning' },
+        { icon: 'grade',      value: loading ? '-' : (stats.recent_grade || '-'),               label: t('student.dashboard.latestGrade'), trend: t('student.dashboard.mostRecent'),   trendClass: 'positive', colorClass: ''        },
     ]
 
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+    const today = formatDateWithWeekday()
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Dashboard"
-                        subtitle={`Welcome back, ${firstName || 'Student'}`}
+                        title={t('nav.dashboard')}
+                        subtitle={t('student.dashboard.welcomeBack', { name: firstName || t('roles.student') })}
                         userName={fullName}
                         userRole={userRole}
                         userInitials={initials}
@@ -166,10 +174,10 @@ export function StudentDashboard() {
                         {/* Welcome Banner */}
                         <div className="student-welcome-banner">
                             <div className="welcome-text">
-                                <h2>Good morning, {firstName || 'Student'}!</h2>
+                                <h2>{t('student.dashboard.greeting', { name: firstName || t('roles.student') })}</h2>
                                 <p>
                                     {gradeSection && <>{gradeSection} &nbsp;•&nbsp;</>}
-                                    {studentCode  && <>Student ID: {studentCode} &nbsp;•&nbsp;</>}
+                                    {studentCode  && <>{t('student.dashboard.studentId', { code: studentCode })} &nbsp;•&nbsp;</>}
                                     {today}
                                 </p>
                             </div>
@@ -186,14 +194,14 @@ export function StudentDashboard() {
                             {/* Today's Schedule */}
                             <div className="today-schedule-card">
                                 <div className="section-card-header">
-                                    <h3><span className="material-symbols-rounded">schedule</span> Today's Schedule</h3>
-                                    <Link to="/student/timetable" className="btn btn-outline btn-sm">Full Timetable</Link>
+                                    <h3><span className="material-symbols-rounded">schedule</span> {t('student.dashboard.todaySchedule')}</h3>
+                                    <Link to="/student/timetable" className="btn btn-outline btn-sm">{t('student.dashboard.fullTimetable')}</Link>
                                 </div>
                                 <div className="section-card-body">
                                     {loading ? (
-                                        <p className="att-empty">Loading…</p>
+                                        <p className="att-empty">{t('common.loading')}</p>
                                     ) : todaySchedule.length === 0 ? (
-                                        <p className="att-empty">No classes scheduled today.</p>
+                                        <p className="att-empty">{t('student.dashboard.noClassesToday')}</p>
                                     ) : (
                                         todaySchedule.map((slot, i) => <ScheduleSlot key={i} {...slot} />)
                                     )}
@@ -203,13 +211,13 @@ export function StudentDashboard() {
                             {/* Upcoming Assignments */}
                             <div className="upcoming-assignments-card">
                                 <div className="section-card-header">
-                                    <h3><span className="material-symbols-rounded">assignment</span> Upcoming Assignments</h3>
-                                    <Link to="/student/assignments" className="btn btn-outline btn-sm">View All</Link>
+                                    <h3><span className="material-symbols-rounded">assignment</span> {t('student.dashboard.upcomingAssignments')}</h3>
+                                    <Link to="/student/assignments" className="btn btn-outline btn-sm">{t('common.viewAll')}</Link>
                                 </div>
                                 {loading ? (
-                                    <p className="att-empty">Loading…</p>
+                                    <p className="att-empty">{t('common.loading')}</p>
                                 ) : upcomingAssignments.length === 0 ? (
-                                    <p className="att-empty">No upcoming assignments.</p>
+                                    <p className="att-empty">{t('student.dashboard.noUpcomingAssignments')}</p>
                                 ) : (
                                     upcomingAssignments.map((item, i) => <AssignItem key={i} {...item} />)
                                 )}
@@ -220,20 +228,20 @@ export function StudentDashboard() {
                         {/* Recent Grades */}
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title">Recent Grades</h3>
-                                <Link to="/student/results" className="btn btn-outline btn-sm">Full Report</Link>
+                                <h3 className="card-title">{t('student.dashboard.recentGrades')}</h3>
+                                <Link to="/student/results" className="btn btn-outline btn-sm">{t('student.dashboard.fullReport')}</Link>
                             </div>
                             <div className="card-content">
                                 {loading ? (
-                                    <p className="u-muted">Loading…</p>
+                                    <p className="u-muted">{t('common.loading')}</p>
                                 ) : recentGrades.length === 0 ? (
-                                    <p className="u-muted">No results yet.</p>
+                                    <p className="u-muted">{t('student.dashboard.noResults')}</p>
                                 ) : (
                                     <div className="table-responsive">
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th>Subject</th><th>Term</th><th>Score</th><th>Grade</th>
+                                                    <th>{t('common.subject')}</th><th>{t('common.term')}</th><th>{t('common.score')}</th><th>{t('common.grade')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

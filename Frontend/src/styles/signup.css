@@ -35,5 +35,5 @@
 .sgn-signin       { text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 1rem; }
 
 /* Field wrapper helpers */
-.sgn-help      { font-size: 0.78rem; color: var(--muted); }
+.sgn-help      { font-size: 0.8rem; color: var(--muted); }
 .sgn-field-err { font-size: 0.8rem; color: var(--danger); }

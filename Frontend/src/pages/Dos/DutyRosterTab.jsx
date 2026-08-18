@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 import { Loading } from '../../components/ui/Loading'
@@ -8,58 +9,58 @@ import {
 } from '../../api/dos'
 
 const DAYS = [
-    { value: 'monday',    label: 'Mon' },
-    { value: 'tuesday',   label: 'Tue' },
-    { value: 'wednesday', label: 'Wed' },
-    { value: 'thursday',  label: 'Thu' },
-    { value: 'friday',    label: 'Fri' },
-    { value: 'saturday',  label: 'Sat' },
-    { value: 'sunday',    label: 'Sun' },
+    { value: 'monday',    labelKey: 'common.mon' },
+    { value: 'tuesday',   labelKey: 'common.tue' },
+    { value: 'wednesday', labelKey: 'common.wed' },
+    { value: 'thursday',  labelKey: 'common.thu' },
+    { value: 'friday',    labelKey: 'common.fri' },
+    { value: 'saturday',  labelKey: 'common.sat' },
+    { value: 'sunday',    labelKey: 'common.sun' },
 ]
-const DAY_LABEL = Object.fromEntries(DAYS.map(d => [d.value, d.label]))
+const DAY_KEY = Object.fromEntries(DAYS.map(d => [d.value, d.labelKey]))
 const WEEKDAYS = DAYS.slice(0, 5).map(d => d.value)
 
 // ── Post manager — the duties the generator rotates staff through ────────────
 
 function PostManager({ posts, onCreate, onUpdate, onDelete }) {
+    const { t } = useTranslation()
     const [draft, setDraft] = useState({ name: '', start_time: '', end_time: '', staff_required: 1 })
     const [error, setError] = useState('')
 
     async function add() {
         if (!draft.name.trim() || !draft.start_time || !draft.end_time) {
-            setError('Name, start and end time are required'); return
+            setError(t('dos.duty.nameTimesRequired')); return
         }
         try {
             await onCreate({ ...draft, name: draft.name.trim(), order: posts.length + 1 })
             setDraft({ name: '', start_time: '', end_time: '', staff_required: 1 })
             setError('')
-        } catch (e) { setError(e.response?.data?.detail || 'Could not add duty post') }
+        } catch (e) { setError(e.response?.data?.detail || t('dos.duty.addPostFailed')) }
     }
 
     return (
         <div className="card mb-5">
             <div className="card-header">
-                <h2 className="card-title">Duty Posts</h2>
-                <span className="u-muted u-sm">{posts.length} post{posts.length !== 1 ? 's' : ''}</span>
+                <h2 className="card-title">{t('dos.duty.posts')}</h2>
+                <span className="u-muted u-sm">{t('dos.duty.postCount', { count: posts.length })}</span>
             </div>
             <div className="card-content">
                 {posts.length === 0 && (
                     <p className="u-muted u-sm">
-                        No duty posts yet. Add one below. The generator rotates staff through
-                        every active post on each selected day.
+                        {t('dos.duty.noPosts')}
                     </p>
                 )}
                 {posts.map(p => (
                     <div key={p.id} className="dset-lesson-row">
                         <span className="dset-lesson-name">{p.name}</span>
                         <span className="u-muted u-sm">{p.start_time?.slice(0,5)}-{p.end_time?.slice(0,5)}</span>
-                        <span className="es-room-chip">{p.staff_required} staff</span>
+                        <span className="es-room-chip">{t('dos.duty.staffCount', { count: p.staff_required })}</span>
                         <label className="u-flex u-gap-05 u-items-center u-sm u-muted">
                             <input type="checkbox" checked={p.is_active}
                                    onChange={e => onUpdate(p.id, { is_active: e.target.checked })} />
-                            Active
+                            {t('common.active')}
                         </label>
-                        <button className="btn-icon-clean dos-danger-text" title="Delete duty post"
+                        <button className="btn-icon-clean dos-danger-text" title={t('dos.duty.deletePost')}
                                 onClick={() => onDelete(p.id)}>
                             <span className="material-symbols-rounded u-fs-095">delete</span>
                         </button>
@@ -67,16 +68,16 @@ function PostManager({ posts, onCreate, onUpdate, onDelete }) {
                 ))}
 
                 <div className="dset-lesson-add mt-1">
-                    <input className="form-input dset-input-lesson" placeholder="Duty name (e.g. Break Supervision)"
+                    <input className="form-input dset-input-lesson" placeholder={t('dos.duty.namePlaceholder')}
                            value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} />
-                    <input type="time" className="form-input" aria-label="Start time"
+                    <input type="time" className="form-input" aria-label={t('common.startTime')}
                            value={draft.start_time} onChange={e => setDraft({ ...draft, start_time: e.target.value })} />
-                    <input type="time" className="form-input" aria-label="End time"
+                    <input type="time" className="form-input" aria-label={t('common.endTime')}
                            value={draft.end_time} onChange={e => setDraft({ ...draft, end_time: e.target.value })} />
                     <input type="number" min="1" max="20" className="form-input dset-input-narrow"
-                           aria-label="Staff required" value={draft.staff_required}
+                           aria-label={t('dos.duty.staffRequired')} value={draft.staff_required}
                            onChange={e => setDraft({ ...draft, staff_required: Number(e.target.value) })} />
-                    <button className="btn btn-primary btn-sm" onClick={add}>Add</button>
+                    <button className="btn btn-primary btn-sm" onClick={add}>{t('common.add')}</button>
                 </div>
                 {error && <p className="u-danger u-fs-085 mt-1">{error}</p>}
             </div>
@@ -87,6 +88,7 @@ function PostManager({ posts, onCreate, onUpdate, onDelete }) {
 // ── Generate modal — preview then commit ─────────────────────────────────────
 
 function GenerateModal({ onClose, onCommitted }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [terms, setTerms] = useState([])
     const [form, setForm] = useState({ term_id: '', days: WEEKDAYS, max_per_day: 1 })
@@ -98,10 +100,10 @@ function GenerateModal({ onClose, onCommitted }) {
             .then(data => {
                 const list = Array.isArray(data) ? data : (data?.results || [])
                 setTerms(list)
-                const current = list.find(t => t.is_current) || list[0]
+                const current = list.find(term => term.is_current) || list[0]
                 if (current) setForm(f => ({ ...f, term_id: String(current.id) }))
             })
-            .catch(() => toast.error('Could not load academic terms.'))
+            .catch(() => toast.error(t('dos.examSchedule.loadTermsFailed')))
     }, [toast])
 
     function update(field, value) {
@@ -123,7 +125,7 @@ function GenerateModal({ onClose, onCommitted }) {
             setPreview(plan)
             plan.warnings?.forEach(w => toast.info(w))
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not generate a roster.')
+            toast.error(err.response?.data?.detail || t('dos.duty.generateFailed'))
         } finally { setBusy(false) }
     }
 
@@ -131,10 +133,10 @@ function GenerateModal({ onClose, onCommitted }) {
         setBusy(true)
         try {
             const result = await commitDutyRoster(form)
-            toast.success(`Saved ${result.created} duty assignment(s).`)
+            toast.success(t('dos.duty.saved', { count: result.created }))
             onCommitted()
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not save the roster.')
+            toast.error(err.response?.data?.detail || t('dos.duty.saveFailed'))
         } finally { setBusy(false) }
     }
 
@@ -142,43 +144,43 @@ function GenerateModal({ onClose, onCommitted }) {
 
     return (
         <Modal
-            title="Generate Duty Roster" icon="auto_awesome" onClose={onClose} size="wide"
+            title={t('dos.duty.generateTitle')} icon="auto_awesome" onClose={onClose} size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
-                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
                     {preview
                         ? <button className="btn btn-primary" onClick={handleCommit}
                                   disabled={busy || preview.summary.filled === 0}>
-                              Save {preview.summary.filled} assignment(s)
+                              {t('dos.duty.saveAssignments', { count: preview.summary.filled })}
                           </button>
                         : <button className="btn btn-primary" onClick={handlePreview} disabled={!canRun}>
-                              {busy ? 'Generating…' : 'Preview'}
+                              {busy ? t('common.generating') : t('dos.examSchedule.preview')}
                           </button>}
                 </div>
             }
         >
             <div className="u-grid u-grid-2 u-gap-1">
                 <div className="form-group">
-                    <label className="form-label">Academic Term *</label>
+                    <label className="form-label">{t('dos.examSchedule.academicTermRequired')}</label>
                     <select className="form-select" value={form.term_id}
                             onChange={e => update('term_id', e.target.value)}>
-                        <option value="">Select term…</option>
-                        {terms.map(t => <option key={t.id} value={t.id}>{t.name} ({t.year})</option>)}
+                        <option value="">{t('dos.examSchedule.selectTerm')}</option>
+                        {terms.map(term => <option key={term.id} value={term.id}>{term.name} ({term.year})</option>)}
                     </select>
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Max duties per person per day</label>
+                    <label className="form-label">{t('dos.duty.maxPerDay')}</label>
                     <input type="number" min="1" max="10" className="form-input" value={form.max_per_day}
                            onChange={e => update('max_per_day', Number(e.target.value))} />
                 </div>
                 <div className="form-group u-col-span-all">
-                    <label className="form-label">Days to cover *</label>
+                    <label className="form-label">{t('dos.duty.daysToCover')}</label>
                     <div className="att-mode-bar">
                         {DAYS.map(d => (
                             <button key={d.value} type="button"
                                     className={`att-mode-btn${form.days.includes(d.value) ? ' active' : ''}`}
                                     onClick={() => toggleDay(d.value)}>
-                                {d.label}
+                                {t(d.labelKey)}
                             </button>
                         ))}
                     </div>
@@ -188,24 +190,32 @@ function GenerateModal({ onClose, onCommitted }) {
             {preview && (
                 <div className="mt-1-5">
                     <div className="es-gen-summary">
-                        <span className="badge badge-published">{preview.summary.filled} filled</span>
+                        <span className="badge badge-published">{t('dos.duty.filled', { count: preview.summary.filled })}</span>
                         {preview.summary.unfilled > 0 &&
-                            <span className="badge badge-draft">{preview.summary.unfilled} unfilled</span>}
+                            <span className="badge badge-draft">{t('dos.duty.unfilled', { count: preview.summary.unfilled })}</span>}
                         <span className="u-muted u-sm">
-                            {preview.summary.staff} staff · {preview.summary.posts} posts ·
-                            load spread {preview.summary.spread}
+                            {t('dos.duty.summary', {
+                                staff: preview.summary.staff,
+                                posts: preview.summary.posts,
+                                spread: preview.summary.spread,
+                            })}
                         </span>
                     </div>
 
                     <div className="es-table-wrap mt-1">
                         <table className="es-table">
                             <thead>
-                                <tr><th>Day</th><th>Duty</th><th>Time</th><th>Staff</th></tr>
+                                <tr>
+                                    <th>{t('common.day')}</th>
+                                    <th>{t('dos.duty.duty')}</th>
+                                    <th>{t('common.time')}</th>
+                                    <th>{t('common.staff')}</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {preview.assignments.map((a, i) => (
                                     <tr key={i}>
-                                        <td className="es-nowrap">{DAY_LABEL[a.day] || a.day}</td>
+                                        <td className="es-nowrap">{DAY_KEY[a.day] ? t(DAY_KEY[a.day]) : a.day}</td>
                                         <td>{a.post_name}</td>
                                         <td className="es-nowrap">{a.start_time}-{a.end_time}</td>
                                         <td>{a.staff_name}</td>
@@ -215,10 +225,10 @@ function GenerateModal({ onClose, onCommitted }) {
                         </table>
                     </div>
 
-                    <h3 className="section-label-sm mt-1-5">Workload</h3>
+                    <h3 className="section-label-sm mt-1-5">{t('dos.duty.workload')}</h3>
                     <div className="es-table-wrap">
                         <table className="es-table">
-                            <thead><tr><th>Staff</th><th>Duties</th></tr></thead>
+                            <thead><tr><th>{t('common.staff')}</th><th>{t('dos.duty.duties')}</th></tr></thead>
                             <tbody>
                                 {preview.load.map(l => (
                                     <tr key={l.staff_id}><td>{l.staff_name}</td><td>{l.duties}</td></tr>
@@ -235,6 +245,7 @@ function GenerateModal({ onClose, onCommitted }) {
 // ── Tab ──────────────────────────────────────────────────────────────────────
 
 export function DutyRosterTab() {
+    const { t } = useTranslation()
     const toast = useToast()
     const [posts, setPosts] = useState([])
     const [roster, setRoster] = useState([])
@@ -249,7 +260,7 @@ export function DutyRosterTab() {
 
     useEffect(() => {
         load()
-            .catch(() => toast.error('Could not load duty roster.'))
+            .catch(() => toast.error(t('dos.duty.loadFailed')))
             .finally(() => setLoading(false))
     }, [load, toast])
 
@@ -257,7 +268,7 @@ export function DutyRosterTab() {
     async function handleUpdate(id, data) { await updateDutyPost(id, data); await load() }
     async function handleDelete(id) {
         try { await deleteDutyPost(id); await load() }
-        catch { toast.error('Could not delete duty post.') }
+        catch { toast.error(t('dos.duty.deletePostFailed')) }
     }
 
     if (loading) return <Loading />
@@ -276,7 +287,7 @@ export function DutyRosterTab() {
                     onClose={() => setShowGenerate(false)}
                     onCommitted={() => {
                         setShowGenerate(false)
-                        load().catch(() => toast.error('Could not reload roster.'))
+                        load().catch(() => toast.error(t('dos.duty.reloadFailed')))
                     }}
                 />
             )}
@@ -286,26 +297,30 @@ export function DutyRosterTab() {
 
             <div className="card">
                 <div className="card-header">
-                    <h2 className="card-title">Duty Roster</h2>
+                    <h2 className="card-title">{t('dos.duty.rosterTitle')}</h2>
                     <div className="es-card-actions">
                         <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}>
-                            <span className="material-symbols-rounded">auto_awesome</span> Generate
+                            <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
                         </button>
                     </div>
                 </div>
                 <div className="card-content">
                     {orderedDays.length === 0 ? (
                         <p className="u-muted u-sm">
-                            No roster saved yet. Configure duty posts above, then use Generate to
-                            rotate staff through them fairly.
+                            {t('dos.duty.noRoster')}
                         </p>
                     ) : orderedDays.map(day => (
                         <div key={day} className="mb-5">
-                            <h3 className="section-label-sm">{DAY_LABEL[day] || day}</h3>
+                            <h3 className="section-label-sm">{DAY_KEY[day] ? t(DAY_KEY[day]) : day}</h3>
                             <div className="es-table-wrap">
                                 <table className="es-table">
                                     <thead>
-                                        <tr><th>Duty</th><th>Time</th><th>Staff</th><th>Role</th></tr>
+                                        <tr>
+                                            <th>{t('dos.duty.duty')}</th>
+                                            <th>{t('common.time')}</th>
+                                            <th>{t('common.staff')}</th>
+                                            <th>{t('common.role')}</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         {byDay[day].map(r => (

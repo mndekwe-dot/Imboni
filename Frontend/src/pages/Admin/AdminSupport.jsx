@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { DashboardContent } from '../../components/layout/DashboardContent'
@@ -8,6 +9,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { getMyTickets, raiseTicket, replyMyTicket } from '../../api/support'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
@@ -72,6 +74,7 @@ function TicketModal({ ticket, onClose, onReplied }) {
 }
 
 export function AdminSupport() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const [tickets, setTickets] = useState([])
@@ -116,8 +119,8 @@ export function AdminSupport() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Support"
-                        subtitle="Get help from the Imboni team"
+                        title={t('nav.support')}
+                        subtitle={t('admin.support.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -165,7 +168,7 @@ export function AdminSupport() {
                                         <div className="card-content">
                                             <div>
                                                 <p className="support-ticket-title">{t.subject}</p>
-                                                <p className="support-ticket-meta">{t.priority} priority · {new Date(t.created_at).toLocaleDateString()}</p>
+                                                <p className="support-ticket-meta">{t.priority} priority · {formatDate(t.created_at)}</p>
                                             </div>
                                             <StatusPill status={t.status} />
                                         </div>

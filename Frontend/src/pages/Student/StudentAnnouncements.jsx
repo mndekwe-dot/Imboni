@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -6,6 +7,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentAnnouncements, getAnnouncementStats } from '../../api/student'
+import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -17,14 +19,19 @@ const CATEGORY_ICON = {
     general:  'campaign',
 }
 
+// Chip identity is a stable key; the visible label is translated at render.
 const CHIPS = ['All', 'Urgent', 'Academic', 'Events', 'General']
+const CHIP_KEY = {
+    All: 'all', Urgent: 'urgent', Academic: 'academic', Events: 'events', General: 'general',
+}
 
 function AnnouncementItem({ ann }) {
+    const { t } = useTranslation()
     const category = ann.category || 'general'
     const icon     = CATEGORY_ICON[category] || 'campaign'
     const date     = ann.published_at || ann.created_at
     const dateStr  = date
-        ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        ? formatDate(date)
         : ''
 
     return (
@@ -39,13 +46,14 @@ function AnnouncementItem({ ann }) {
                 </div>
                 <h4 className="sann-title">{ann.title}</h4>
                 <p className="sann-text">{ann.content}</p>
-                <p className="sann-author">By {ann.author || 'Administration'}</p>
+                <p className="sann-author">{t('student.announcements.by', { author: ann.author || t('student.announcements.administration') })}</p>
             </div>
         </div>
     )
 }
 
 export function StudentAnnouncements() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements, setAnnouncements] = useState([])
     const [stats,         setStats]         = useState(null)
@@ -72,10 +80,10 @@ export function StudentAnnouncements() {
     const eventCount  = announcements.filter(a => a.category === 'event').length
 
     const statCards = [
-        { colorClass: 'info',    icon: 'inbox',             value: loading ? '-' : announcements.length,      label: 'Total',           trend: 'Published'     },
-        { colorClass: 'warning', icon: 'mark_email_unread', value: loading ? '-' : (stats?.unread ?? '-'),    label: 'Unread',          trend: 'New'           },
-        { colorClass: 'danger',  icon: 'priority_high',     value: loading ? '-' : urgentCount,               label: 'Urgent',          trend: 'Action needed' },
-        { colorClass: 'success', icon: 'event',             value: loading ? '-' : eventCount,                label: 'Upcoming Events', trend: 'This month'    },
+        { colorClass: 'info',    icon: 'inbox',             value: loading ? '-' : announcements.length,      label: t('student.announcements.total'),          trend: t('student.announcements.published')     },
+        { colorClass: 'warning', icon: 'mark_email_unread', value: loading ? '-' : (stats?.unread ?? '-'),    label: t('student.announcements.unread'),         trend: t('student.announcements.actionNeeded')           },
+        { colorClass: 'danger',  icon: 'priority_high',     value: loading ? '-' : urgentCount,               label: t('student.announcements.urgent'),         trend: t('student.announcements.actionNeeded') },
+        { colorClass: 'success', icon: 'event',             value: loading ? '-' : eventCount,                label: t('student.announcements.upcomingEvents'), trend: t('student.announcements.thisMonth')    },
     ]
 
     const visible = chip === 'All'
@@ -90,16 +98,16 @@ export function StudentAnnouncements() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Announcements"
-                        subtitle="School notices, class updates & activity alerts"
+                        title={t('nav.announcements')}
+                        subtitle={t('student.announcements.subtitle')}
                         userName={fullName}
-                        userRole="Student"
+                        userRole={t('roles.student')}
                         userInitials={initials}
                         avatarClass="student-av"
                         notifications={liveNotifications}
@@ -120,18 +128,18 @@ export function StudentAnnouncements() {
                                     className={`sann-chip${chip === c ? ' active' : ''}`}
                                     onClick={() => setChip(c)}
                                 >
-                                    {c}
+                                    {t(`student.announcements.${CHIP_KEY[c]}`)}
                                 </button>
                             ))}
                         </div>
 
                         {loading ? (
-                            <p className="u-pad u-muted">Loading announcements…</p>
+                            <p className="u-pad u-muted">{t('student.announcements.loading')}</p>
                         ) : visible.length === 0 ? (
                             <p className="u-pad u-muted">
                                 {chip === 'All'
-                                    ? 'No announcements yet.'
-                                    : 'No announcements match this filter.'}
+                                    ? t('student.announcements.empty')
+                                    : t('student.announcements.emptyFiltered')}
                             </p>
                         ) : (
                             <div className="sann-feed">

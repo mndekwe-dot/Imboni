@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useCurrentTerm } from '../../hooks/useCurrentTerm'
 import { StatCard } from '../../components/layout/StatCard'
 import { AdminPaymentModal } from '../../components/modals/AdminPaymentModal'
 import '../../styles/layout.css'
@@ -9,72 +11,91 @@ import '../../styles/components.css'
 import '../../styles/admin.css'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { sendFeeReminders } from '../../api/admin'
+import { sendFeeReminders, getFeesOverview, getOutstandingFees } from '../../api/admin'
+import { useCurrency, formatMoney } from '../../hooks/useCurrency'
+import { formatDate } from '../../utils/date'
 
 
-const stats = [
-    { icon: 'payments',        value: 'RWF 184M', label: 'Total Fee Expected', trend: 'Term 2 · 2026',  colorClass: ''        },
-    { icon: 'check_circle',    value: 'RWF 173M', label: 'Collected',          trend: '94% of target',  colorClass: 'success' },
-    { icon: 'pending',         value: 'RWF 11M',  label: 'Outstanding',        trend: '143 students',   colorClass: 'warning' },
-    { icon: 'account_balance', value: 'RWF 26M',  label: 'Monthly Expenses',   trend: 'March 2026',     colorClass: 'info'    },
-]
+// This page previously ran on three hardcoded arrays — invented students,
+// amounts and per-class collection rates — shown to every school as if real.
+// Totals and outstanding fees now come from the analytics endpoints that
+// already existed. There is no per-class collection endpoint, so that panel
+// was removed rather than kept on fabricated numbers.
 
-const feeCollectionByClass = [
-    { class: 'S6', collected: '98%', width: '98%' },
-    { class: 'S5', collected: '96%', width: '96%' },
-    { class: 'S4', collected: '95%', width: '95%' },
-    { class: 'S3', collected: '94%', width: '94%' },
-    { class: 'S2', collected: '91%', width: '91%' },
-    { class: 'S1', collected: '89%', width: '89%' },
-]
+function initialsOf(name = '') {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
+}
 
-const initialTransactions = [
-    { initials: 'IB', name: 'Ingabire Belise',    adm: 'ADM-2026-001', amount: 'RWF 580,000', date: 'Mar 8, 2026', type: 'Full Payment', typeClass: 'paid'    },
-    { initials: 'ND', name: 'Ndagijimana Eric',   adm: 'ADM-2026-002', amount: 'RWF 290,000', date: 'Mar 7, 2026', type: 'Partial',      typeClass: 'partial' },
-    { initials: 'KU', name: 'Kayitesi Ursula',    adm: 'ADM-2026-003', amount: 'RWF 580,000', date: 'Mar 7, 2026', type: 'Full Payment', typeClass: 'paid'    },
-    { initials: 'UL', name: 'Uwineza Lydia',      adm: 'ADM-2026-005', amount: 'RWF 580,000', date: 'Mar 5, 2026', type: 'Full Payment', typeClass: 'paid'    },
-    { initials: 'NP', name: 'Nkurunziza Peter',   adm: 'ADM-2026-006', amount: 'RWF 150,000', date: 'Mar 4, 2026', type: 'Partial',      typeClass: 'partial' },
-    { initials: 'BJ', name: 'Bizimana James',     adm: 'ADM-2026-004', amount: '-',            date: '-',           type: 'Overdue',      typeClass: 'overdue' },
-]
-
-function TxRow({ initials, name, adm, amount, date, type, typeClass }) {
+function FeeRow({ student_name, student_code, category, amount, due_date, status, currency }) {
     return (
         <tr>
             <td>
                 <div className="adm-cell">
-                    <div className="adm-av">{initials}</div>
+                    <div className="adm-av">{initialsOf(student_name)}</div>
                     <div>
-                        <div className="adm-name">{name}</div>
-                        <div className="adm-sub">{adm}</div>
+                        <div className="adm-name">{student_name}</div>
+                        <div className="adm-sub">{student_code}</div>
                     </div>
                 </div>
             </td>
-            <td>{amount}</td>
-            <td>{date}</td>
-            <td><span className={`adm-badge ${typeClass}`}>{type}</span></td>
-            <td>
-                <button className="adm-btn">
-                    <span className="material-symbols-rounded">receipt</span> Receipt
-                </button>
-            </td>
+            <td>{formatMoney(amount, currency)}</td>
+            <td>{category}</td>
+            <td>{formatDate(due_date)}</td>
+            <td><span className={`adm-badge ${status}`}>{status}</span></td>
         </tr>
     )
 }
 
 export function AdminFinance() {
+    const { t } = useTranslation()
+    const { term } = useCurrentTerm()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const [txList, setTxList]           = useState(initialTransactions)
+    const currency = useCurrency()
+    const [overview, setOverview]         = useState(null)
+    const [outstanding, setOutstanding]   = useState([])
+    const [loadingFees, setLoadingFees]   = useState(true)
+    const [feesError, setFeesError]       = useState(false)
     const [statusFilter, setStatusFilter] = useState('All')
     const [showPayment, setShowPayment] = useState(false)
     const [exportMsg, setExportMsg]     = useState('')
 
-    const filtered = statusFilter === 'All'
-        ? txList
-        : txList.filter(tx => tx.typeClass === statusFilter.toLowerCase())
+    useEffect(() => {
+        let cancelled = false
+        Promise.all([
+            getFeesOverview().catch(() => null),
+            getOutstandingFees().catch(() => []),
+        ]).then(([ov, out]) => {
+            if (cancelled) return
+            // Both endpoints 404 when no term is marked current — a real state
+            // for a school mid-setup, not an error to hide behind zeros.
+            if (!ov) setFeesError(true)
+            setOverview(ov)
+            setOutstanding(Array.isArray(out) ? out : (out?.results ?? []))
+        }).finally(() => { if (!cancelled) setLoadingFees(false) })
+        return () => { cancelled = true }
+    }, [])
 
-    function handleAddPayment(payment) {
-        setTxList(prev => [payment, ...prev])
+    const filtered = statusFilter === 'All'
+        ? outstanding
+        : outstanding.filter(f => (f.status || '').toLowerCase() === statusFilter.toLowerCase())
+
+    function handleAddPayment() {
+        // Re-read rather than splicing a local row in: the server decides what
+        // the fee's new status and outstanding balance are.
+        getOutstandingFees().then(out =>
+            setOutstanding(Array.isArray(out) ? out : (out?.results ?? []))).catch(() => {})
     }
+
+    const stats = overview ? [
+        { icon: 'payments',     value: formatMoney(overview.total_billed, currency),
+          label: t('admin.finance.totalExpected'), trend: overview.term || '', colorClass: '' },
+        { icon: 'check_circle', value: formatMoney(overview.total_collected, currency),
+          label: t('admin.finance.collected'),
+          trend: t('admin.finance.ofTarget', { rate: overview.collection_rate }), colorClass: 'success' },
+        { icon: 'pending',      value: formatMoney(overview.total_outstanding, currency),
+          label: t('admin.finance.outstanding'),
+          trend: t('admin.finance.overdueCount', { count: overview.overdue_count ?? 0 }), colorClass: 'warning' },
+    ] : []
 
     function handleExport() {
         setExportMsg('Exported!')
@@ -110,8 +131,10 @@ export function AdminFinance() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Finance"
-                        subtitle="Fee collection, payments and school budget (Term 2, 2026)"
+                        title={t('admin.finance.title')}
+                        subtitle={term
+                            ? t('admin.finance.subtitleWithTerm', { term: term.name, year: term.year })
+                            : t('admin.finance.subtitle')}
                         userName={adminUser.userName}
                         userRole={adminUser.userRole}
                         userInitials={adminUser.userInitials}
@@ -130,7 +153,7 @@ export function AdminFinance() {
                             {/* Left: transactions table */}
                             <div className="card">
                                 <div className="card-header">
-                                    <h2 className="card-title">Transactions ({filtered.length})</h2>
+                                    <h2 className="card-title">{t('admin.finance.outstandingTitle')} ({filtered.length})</h2>
                                     <button className="btn btn-outline btn-sm" onClick={handleExport}>
                                         <span className="material-symbols-rounded">download</span>
                                         {exportMsg || 'Export'}
@@ -139,7 +162,7 @@ export function AdminFinance() {
                                 <div className="card-content">
                                     {/* Status filter chips */}
                                     <div className="filter-chips">
-                                        {['All', 'Paid', 'Partial', 'Overdue'].map(f => (
+                                        {['All', 'Due', 'Partial', 'Overdue'].map(f => (
                                             <button
                                                 key={f}
                                                 className={`filter-chip${statusFilter === f ? ' active' : ''}`}
@@ -151,24 +174,23 @@ export function AdminFinance() {
                                         <table className="adm-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Student</th>
-                                                    <th>Amount</th>
-                                                    <th>Date</th>
-                                                    <th>Status</th>
-                                                    <th>Actions</th>
+                                                    <th>{t('admin.finance.student')}</th>
+                                                    <th>{t('common.amount')}</th>
+                                                    <th>{t('admin.finance.category')}</th>
+                                                    <th>{t('admin.finance.dueDate')}</th>
+                                                    <th>{t('common.status')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {filtered.length > 0
-                                                    ? filtered.map((tx, i) => <TxRow key={i} {...tx} />)
-                                                    : (
-                                                        <tr>
-                                                            <td colSpan={5} className="td-empty">
-                                                                No transactions for this filter.
-                                                            </td>
-                                                        </tr>
-                                                    )
-                                                }
+                                                {loadingFees ? (
+                                                    <tr><td colSpan={5} className="td-empty">{t('admin.finance.loading')}</td></tr>
+                                                ) : feesError ? (
+                                                    <tr><td colSpan={5} className="td-empty">{t('admin.finance.unavailable')}</td></tr>
+                                                ) : filtered.length > 0 ? (
+                                                    filtered.map((f, i) => <FeeRow key={i} {...f} currency={currency} />)
+                                                ) : (
+                                                    <tr><td colSpan={5} className="td-empty">{t('admin.finance.noOutstanding')}</td></tr>
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
@@ -178,22 +200,13 @@ export function AdminFinance() {
                             {/* Right: collection by class + quick actions */}
                             <div className="card">
                                 <div className="card-header">
-                                    <h2 className="card-title">Collection by Class</h2>
-                                    <p className="card-description">Term 2 · 2026</p>
+                                    <h2 className="card-title">{t('admin.finance.quickActions')}</h2>
                                 </div>
                                 <div className="card-content">
-                                    {feeCollectionByClass.map((item, i) => (
-                                        <div key={i} className="adm-progress-row">
-                                            <span className="adm-progress-label">{item.class}</span>
-                                            <div className="adm-progress-bar">
-                                                <div className="adm-progress-fill" style={{ width: item.width }}></div>
-                                            </div>
-                                            <span className="adm-progress-value">{item.collected}</span>
-                                        </div>
-                                    ))}
-
+                                    {/* "Collection by Class" lived here on six invented
+                                        percentages. There is no per-class collection
+                                        endpoint, so the panel is gone rather than lying. */}
                                     <div className="quick-actions-section">
-                                        <p className="quick-actions-label">Quick Actions</p>
                                         <div className="quick-actions-btns">
                                             <button
                                                 className="btn btn-outline btn-sm btn-left"

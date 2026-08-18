@@ -59,11 +59,6 @@ const EXAM = {
 
 function mockAllExamDeps({ exams = [] } = {}) {
   getDosExamSchedule.mockResolvedValue(exams)
-  getSubjects.mockResolvedValue(SUBJECTS)
-  getDosClasses.mockResolvedValue(CLASSES)
-  getDosRooms.mockResolvedValue(ROOMS)
-  getDosTeachers.mockResolvedValue(TEACHERS)
-  getCurrentTerm.mockResolvedValue({ id: 1 })
 }
 
 beforeEach(() => {
@@ -71,6 +66,14 @@ beforeEach(() => {
   setSessionUser({ first_name: 'Dr', last_name: 'Ndagijimana', role: 'dos' })
   getSchoolConfig.mockResolvedValue([])
   getSchoolSettings.mockResolvedValue({ timezone: 'Africa/Kigali', school_name: 'Imboni School' })
+  // Reference data loads on mount for every tab: the timetable stat cards
+  // count real subjects, teachers and periods rather than showing fixed
+  // numbers, so these are no longer exam-tab-only dependencies.
+  getSubjects.mockResolvedValue(SUBJECTS)
+  getDosClasses.mockResolvedValue(CLASSES)
+  getDosRooms.mockResolvedValue(ROOMS)
+  getDosTeachers.mockResolvedValue(TEACHERS)
+  getCurrentTerm.mockResolvedValue({ id: 1, name: 'Term 2', year: 2026 })
   localStorage.removeItem('imboni_sessions')
 })
 
@@ -80,6 +83,8 @@ describe('DosScheduling', () => {
     await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
     expect(screen.getByText('Periods per Day')).toBeInTheDocument()
     expect(screen.getByText('Current Term')).toBeInTheDocument()
+    // The term name comes from the API, not from a constant in the file.
+    await waitFor(() => expect(screen.getByText('Term 2')).toBeInTheDocument())
   })
 
   it('does not fetch exam-schedule data until the Exam Schedule tab is selected', async () => {

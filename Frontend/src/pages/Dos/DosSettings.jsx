@@ -1,9 +1,11 @@
 import { useState,useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { updateSchoolSettings, getSubjects, createSubject, updateSubject, deleteSubject, renameSubjectCategory, deleteSubjectCategory, getDosRooms, createDosRoom, deleteDosRoom } from '../../api/dos'
 import '../../styles/layout.css'
@@ -15,62 +17,6 @@ import { Loading } from '../../components/ui/Loading'
 
 // ── Small reusable components ────────────────────────────────────────────────
 
-// Renders a list of chips with a remove button on each
-function TagList({ items, onRemove }) {
-    return (
-        <div className="tag-list">
-            {items.map(item => (
-                <span key={item} className="tag-chip">
-                    {item}
-                    <button className="tag-chip-remove" onClick={() => onRemove(item)}>
-                        <span className="material-symbols-rounded">close</span>
-                    </button>
-                </span>
-            ))}
-            {items.length === 0 && (
-                <span className="tag-chip-empty">None added yet</span>
-            )}
-        </div>
-    )
-}
-
-// Renders a text input + Add button + tag list for one config field
-function ConfigSection({ title, description, items, onAdd, onRemove, placeholder }) {
-    const [input, setInput] = useState('')
-
-    function handleAdd() {
-        const val = input.trim()
-        if (!val || items.includes(val)) return
-        onAdd(val)
-        setInput('')
-    }
-
-    return (
-        <div className="settings-block">
-            <div className="settings-block-label">
-                <p className="settings-block-title">{title}</p>
-                <p className="settings-block-desc">{description}</p>
-            </div>
-            <div className="settings-block-input-row">
-                <input
-                    className="form-input flex-1"
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                    placeholder={placeholder}
-                />
-                <button className="btn btn-primary btn-sm" onClick={handleAdd}>
-                    <span className="material-symbols-rounded icon-sm">add</span>
-                    Add
-                </button>
-            </div>
-            <TagList items={items} onRemove={onRemove} />
-        </div>
-    )
-}
-
-// Compact 1–10 picker for a scheduling weight. `prefix` distinguishes the two
-// (E = exam scheduler, T = timetable generator) without widening the row.
 function WeightSelect({ prefix, value, onChange, title }) {
     return (
         <select
@@ -89,6 +35,7 @@ function WeightSelect({ prefix, value, onChange, title }) {
 
 // ── TypeBlock — one subject type with its lessons ────────────────────────────
 function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson, onRenameLesson, onDeleteLesson, onLessonWeight }) {
+    const { t } = useTranslation()
     const [editingType,  setEditingType]  = useState(false)
     const [typeDraft,    setTypeDraft]    = useState(typeName)
     const [lessonName,   setLessonName]   = useState('')
@@ -104,11 +51,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
     }
 
     async function handleAddLesson() {
-        if (!lessonName.trim() || !lessonCode.trim()) { setLessonErr('Name and code are required'); return }
+        if (!lessonName.trim() || !lessonCode.trim()) { setLessonErr(t('settings.nameCodeRequired')); return }
         try {
             await onAddLesson(lessonName.trim(), lessonCode.trim().toUpperCase(), typeName)
             setLessonName(''); setLessonCode(''); setLessonErr('')
-        } catch (e) { setLessonErr(e.message || 'Could not add lesson') }
+        } catch (e) { setLessonErr(e.message || t('settings.addLessonFailed')) }
     }
 
     function startEditLesson(subject) {
@@ -131,18 +78,18 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                             onChange={e => setTypeDraft(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') commitTypeRename(); if (e.key === 'Escape') { setEditingType(false); setTypeDraft(typeName) } }}
                             autoFocus />
-                        <button className="btn btn-primary btn-sm" onClick={commitTypeRename}>Save</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => { setEditingType(false); setTypeDraft(typeName) }}>Cancel</button>
+                        <button className="btn btn-primary btn-sm" onClick={commitTypeRename}>{t('common.save')}</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => { setEditingType(false); setTypeDraft(typeName) }}>{t('common.cancel')}</button>
                     </>
                 ) : (
                     <>
                         <span className="dset-type-title">{typeName}</span>
-                        <span className="dset-type-count">{subjects.length} lesson{subjects.length !== 1 ? 's' : ''}</span>
-                        <button className="btn-icon-clean dset-icon-muted" onClick={() => setEditingType(true)} title="Rename type">
+                        <span className="dset-type-count">{t('settings.lessonCount', { count: subjects.length })}</span>
+                        <button className="btn-icon-clean dset-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')}>
                             <span className="material-symbols-rounded u-fs-1">edit</span>
                         </button>
                         <div className="dset-spacer" />
-                        <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteType(typeName)} title="Delete type and all its lessons">
+                        <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteType(typeName)} title={t('settings.deleteTypeAndLessons')}>
                             <span className="material-symbols-rounded u-fs-1">delete</span>
                         </button>
                     </>
@@ -158,8 +105,8 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                                 onChange={e => setLessonDraft(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') commitLessonRename(s.id); if (e.key === 'Escape') setEditingLesson(null) }}
                                 autoFocus />
-                            <button className="btn btn-primary btn-sm" onClick={() => commitLessonRename(s.id)}>Save</button>
-                            <button className="btn btn-outline btn-sm" onClick={() => setEditingLesson(null)}>Cancel</button>
+                            <button className="btn btn-primary btn-sm" onClick={() => commitLessonRename(s.id)}>{t('common.save')}</button>
+                            <button className="btn btn-outline btn-sm" onClick={() => setEditingLesson(null)}>{t('common.cancel')}</button>
                         </>
                     ) : (
                         <>
@@ -169,18 +116,18 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                                 prefix="E"
                                 value={s.exam_weight}
                                 onChange={v => onLessonWeight(s.id, { exam_weight: v })}
-                                title={`Exam weight for ${s.name} (1-10): heavier subjects are scheduled first, get morning slots and rest gaps between exams`}
+                                title={t('dos.settings.examWeightTitle', { subject: s.name })}
                             />
                             <WeightSelect
                                 prefix="T"
                                 value={s.timetable_weight}
                                 onChange={v => onLessonWeight(s.id, { timetable_weight: v })}
-                                title={`Timetable weight for ${s.name} (1-10): heavier subjects get first pick of periods and spread more strictly across the week`}
+                                title={t('dos.settings.timetableWeightTitle', { subject: s.name })}
                             />
-                            <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title="Rename">
+                            <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title={t('common.rename')}>
                                 <span className="material-symbols-rounded u-fs-095">edit</span>
                             </button>
-                            <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteLesson(s.id)} title="Delete">
+                            <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')}>
                                 <span className="material-symbols-rounded u-fs-095">delete</span>
                             </button>
                         </>
@@ -188,20 +135,20 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 </div>
             ))}
 
-            {subjects.length === 0 && <p className="dset-lesson-empty">No lessons yet</p>}
+            {subjects.length === 0 && <p className="dset-lesson-empty">{t('settings.noLessons')}</p>}
 
             {/* Add lesson */}
             <div className="dset-lesson-add">
                 <input className="form-input dset-input-lesson"
                     value={lessonName} onChange={e => setLessonName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder="Lesson name e.g. Mathematics" />
+                    placeholder={t('settings.lessonNamePlaceholder')} />
                 <input className="form-input dset-input-code"
                     value={lessonCode} onChange={e => setLessonCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder="Code e.g. MAT" />
+                    placeholder={t('settings.lessonCodePlaceholder')} />
                 <button className="btn btn-outline btn-sm" onClick={handleAddLesson}>
-                    <span className="material-symbols-rounded icon-sm">add</span> Lesson
+                    <span className="material-symbols-rounded icon-sm">add</span> {t('settings.lesson')}
                 </button>
             </div>
             {lessonErr && <p className="dset-inline-err">{lessonErr}</p>}
@@ -209,124 +156,13 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
     )
 }
 
-// ── YearInput — add a new year group ────────────────────────────────────────
-function YearInput({ onAdd }) {
-    const [input, setInput] = useState('')
-    function handle() {
-        const val = input.trim()
-        if (!val) return
-        onAdd(val)
-        setInput('')
-    }
-    return (
-        <div className="settings-block-input-row u-mt-sm">
-            <input
-                className="form-input flex-1"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handle()}
-                placeholder="e.g. S1"
-            />
-            <button className="btn btn-primary btn-sm" onClick={handle}>
-                <span className="material-symbols-rounded icon-sm">add</span> Add Year
-            </button>
-        </div>
-    )
-}
-
-// ── YearBlock — one year with editable name and per-year streams ─────────────
-function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
-    const [editing, setEditing]       = useState(false)
-    const [draft, setDraft]           = useState(year.name)
-    const [streamInput, setStreamInput] = useState('')
-
-    function commitRename() {
-        const val = draft.trim()
-        if (val && val !== year.name) onRename(year.name, val)
-        setEditing(false)
-    }
-
-    function handleAddStream() {
-        const val = streamInput.trim()
-        if (!val) return
-        onAddStream(val)
-        setStreamInput('')
-    }
-
-    return (
-        <div className="dset-editblock">
-            {/* Year header — name + edit + delete */}
-            <div className="dset-head">
-                {editing ? (
-                    <>
-                        <input
-                            className="form-input dset-input-year"
-                            value={draft}
-                            onChange={e => setDraft(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setEditing(false); setDraft(year.name) } }}
-                            autoFocus
-                        />
-                        <button className="btn btn-primary btn-sm" onClick={commitRename}>Save</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => { setEditing(false); setDraft(year.name) }}>Cancel</button>
-                    </>
-                ) : (
-                    <>
-                        <span className="dset-year-title">{year.name}</span>
-                        <button
-                            className="btn-icon-clean dset-icon-muted"
-                            onClick={() => setEditing(true)}
-                            title="Rename year"
-                        >
-                            <span className="material-symbols-rounded u-fs-1">edit</span>
-                        </button>
-                        <div className="dset-spacer" />
-                        <button
-                            className="btn-icon-clean dos-danger-text"
-                            onClick={onRemove}
-                            title="Remove year"
-                        >
-                            <span className="material-symbols-rounded u-fs-1">delete</span>
-                        </button>
-                    </>
-                )}
-            </div>
-
-            {/* Stream chips */}
-            <div className="tag-list u-mb-05">
-                {year.streams.map(s => (
-                    <span key={s} className="tag-chip">
-                        {s}
-                        <button className="tag-chip-remove" onClick={() => onRemoveStream(s)}>
-                            <span className="material-symbols-rounded">close</span>
-                        </button>
-                    </span>
-                ))}
-                {year.streams.length === 0 && <span className="tag-chip-empty">No streams yet</span>}
-            </div>
-
-            {/* Add stream */}
-            <div className="dset-stream-row">
-                <input
-                    className="form-input dset-input-stream"
-                    value={streamInput}
-                    onChange={e => setStreamInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAddStream()}
-                    placeholder="Add stream e.g. A, MPG"
-                />
-                <button className="btn btn-outline btn-sm" onClick={handleAddStream}>
-                    <span className="material-symbols-rounded icon-sm">add</span> Stream
-                </button>
-            </div>
-        </div>
-    )
-}
-
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export function DosSettings() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
-    const { config, saveConfig, loading, error } = useSchoolConfig()
+    const { config, loading, error } = useSchoolConfig()
     const { setting, loading: settingsLoading } = useSchoolSettings()
     const [subjects,  setSubjects]  = useState([])
     const [rooms,     setRooms]     = useState([])
@@ -335,8 +171,6 @@ export function DosSettings() {
     const [timezone,  setTimezone]  = useState('Africa/Kigali')
     const [tzSaving,  setTzSaving]  = useState(false)
     const [tzSaved,   setTzSaved]   = useState(false)
-    const [saving, setSaving] = useState(false)
-    const [saved,  setSaved]  = useState(false)
 
     useEffect(() => {
         if (!settingsLoading) setTimezone(setting.timezone)
@@ -351,7 +185,7 @@ export function DosSettings() {
         const name = roomInput.trim()
         if (!name) return
         if (rooms.some(r => r.name.toLowerCase() === name.toLowerCase())) {
-            setRoomErr('Room already exists'); return
+            setRoomErr(t('settings.roomExists')); return
         }
         try {
             const newRoom = await createDosRoom(name)
@@ -359,7 +193,7 @@ export function DosSettings() {
             setRoomInput('')
             setRoomErr('')
         } catch (e) {
-            setRoomErr(e.message || 'Could not add room')
+            setRoomErr(e.message || t('settings.addRoomFailed'))
         }
     }
 
@@ -431,7 +265,7 @@ export function DosSettings() {
     // ── Loading / error / empty states ───────────────────────────────────────
 
     if (loading) return <Loading fullPage />
-    if (error)   return <p className="u-pad dos-danger-text">Error: {error}</p>
+    if (error)   return <p className="u-pad dos-danger-text">{t('common.errorPrefix')}: {error}</p>
 
     // ── Derived stat counts ───────────────────────────────────────────────────
 
@@ -439,75 +273,10 @@ export function DosSettings() {
     const totalStreams = config.reduce((sum, sec) => sum + sec.years.reduce((s, y) => s + y.streams.length, 0), 0)
 
     const settingsStats = [
-        { iconClass: 'info',    icon: 'layers',         label: 'Sections',      value: config.length },
-        { iconClass: 'success', icon: 'calendar_month', label: 'Year Groups',   value: totalYears    },
-        { iconClass: 'warning', icon: 'groups',         label: 'Stream Classes', value: totalStreams  },
+        { iconClass: 'info',    icon: 'layers',         label: t('dos.settings.statSections'),     value: config.length },
+        { iconClass: 'success', icon: 'calendar_month', label: t('dos.settings.statYearGroups'),   value: totalYears    },
+        { iconClass: 'warning', icon: 'groups',         label: t('dos.settings.statStreamClasses'), value: totalStreams  },
     ]
-
-    // ── Generic update helpers ────────────────────────────────────────────────
-
-    function addSection(name) {
-        if (config.find(s => s.name === name)) return
-        saveConfig([...config, { name, years: [] }])
-    }
-
-    function removeSection(name) {
-        saveConfig(config.filter(s => s.name !== name))
-    }
-
-    function addYear(sectionName, yearName) {
-        if (!yearName.trim()) return
-        const sec = config.find(s => s.name === sectionName)
-        if (!sec || sec.years.find(y => y.name === yearName)) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: [...s.years, { name: yearName, streams: [] }] }
-            : s))
-    }
-
-    function removeYear(sectionName, yearName) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.filter(y => y.name !== yearName) }
-            : s))
-    }
-
-    function renameYear(sectionName, oldName, newName) {
-        if (!newName.trim() || oldName === newName) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === oldName ? { ...y, name: newName } : y) }
-            : s))
-    }
-
-    function addStream(sectionName, yearName, stream) {
-        if (!stream.trim()) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName && !y.streams.includes(stream)
-                ? { ...y, streams: [...y.streams, stream] }
-                : y) }
-            : s))
-    }
-
-    function removeStream(sectionName, yearName, stream) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName
-                ? { ...y, streams: y.streams.filter(st => st !== stream) }
-                : y) }
-            : s))
-    }
-
-    // ── Save to backend ───────────────────────────────────────────────────────
-
-    async function handleSave() {
-        setSaving(true)
-        try {
-            await saveConfig(config)
-            setSaved(true)
-            setTimeout(() => setSaved(false), 3000)
-        } catch (err) {
-            console.error(err)
-        } finally {
-            setSaving(false)
-        }
-    }
 
     async function handleTimezoneSave() {
         setTzSaving(true)
@@ -526,14 +295,14 @@ export function DosSettings() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="School Settings"
-                        subtitle="Configure school structure: sections, year groups and stream classes"
+                        title={t('dos.settings.title')}
+                        subtitle={t('dos.settings.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -564,9 +333,9 @@ export function DosSettings() {
                                 <div className="u-row">
                                     <span className="material-symbols-rounded u-banner-icon">info</span>
                                     <div>
-                                        <p className="u-strong u-mb-025">Getting started</p>
+                                        <p className="u-strong u-mb-025">{t('dos.settings.gettingStarted')}</p>
                                         <p className="dset-notice-desc">
-                                            Add your first section below (e.g. O-Level or A-Level), then add year groups and stream classes to it.
+                                            {t('dos.settings.gettingStartedDesc')}
                                         </p>
                                     </div>
                                 </div>
@@ -576,69 +345,14 @@ export function DosSettings() {
                         {/* Config card */}
                         <div className="card">
                             <div className="card-header">
-                                <h2 className="card-title">Sections, Years &amp; Classes</h2>
+                                <h2 className="card-title">{t('dos.settings.structureTitle')}</h2>
                                 <span className="settings-info-text">
-                                    Each section has its own year groups and stream classes
+                                    {t('dos.settings.structureHint')}
                                 </span>
                             </div>
                             <div className="card-content">
 
-                                {/* Add / remove sections */}
-                                <ConfigSection
-                                    title="Add Section"
-                                    description="Academic divisions e.g. O-Level, A-Level"
-                                    items={config.map(s => s.name)}
-                                    onAdd={addSection}
-                                    onRemove={removeSection}
-                                    placeholder="e.g. O-Level"
-                                />
-
-                                {/* Per-section year and stream config */}
-                                {config.length > 0 && (
-                                    <div className="settings-border-section">
-                                        {config.map(sec => (
-                                            <div key={sec.name} className="sec-config-block">
-                                                <p className="sec-config-block-title">{sec.name}</p>
-
-                                                <div className="settings-block">
-                                                    <div className="settings-block-label">
-                                                        <p className="settings-block-title">Year Groups</p>
-                                                        <p className="settings-block-desc">Each year has its own stream classes</p>
-                                                    </div>
-                                                    <YearInput onAdd={yearName => addYear(sec.name, yearName)} />
-                                                </div>
-
-                                                {sec.years.map(y => (
-                                                    <YearBlock
-                                                        key={y.name}
-                                                        year={y}
-                                                        onRename={(old, next) => renameYear(sec.name, old, next)}
-                                                        onRemove={() => removeYear(sec.name, y.name)}
-                                                        onAddStream={stream => addStream(sec.name, y.name, stream)}
-                                                        onRemoveStream={stream => removeStream(sec.name, y.name, stream)}
-                                                    />
-                                                ))}
-
-                                                {sec.years.length === 0 && (
-                                                    <p className="dset-note">
-                                                        No year groups yet. Add one above
-                                                    </p>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Save button */}
-                                <div className="cloud-save-row">
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={handleSave}
-                                        disabled={saving}
-                                    >
-                                        {saved ? 'Saved!' : saving ? 'Saving...' : 'Save to Database'}
-                                    </button>
-                                </div>
+                                <SchoolStructureEditor showStats={false} />
 
                             </div>
                         </div>
@@ -646,15 +360,18 @@ export function DosSettings() {
                         {/* Subjects / Lessons card */}
                         <div className="card mt-1-5">
                             <div className="card-header">
-                                <h2 className="card-title">Academic Subjects</h2>
-                                <span className="settings-info-text">{Object.keys(subjectsByType).length} type{Object.keys(subjectsByType).length !== 1 ? 's' : ''} · {subjects.filter(s => !s._placeholder).length} lessons</span>
+                                <h2 className="card-title">{t('dos.settings.subjectsTitle')}</h2>
+                                <span className="settings-info-text">
+                                    {t('settings.typeCount', { count: Object.keys(subjectsByType).length })} ·{' '}
+                                    {t('settings.lessonCount', { count: subjects.filter(s => !s._placeholder).length })}
+                                </span>
                             </div>
                             <div className="card-content">
                                 {/* Add type */}
                                 <div className="settings-block">
                                     <div className="settings-block-label">
-                                        <p className="settings-block-title">Add Subject Type</p>
-                                        <p className="settings-block-desc">e.g. Sciences, Languages, Humanities</p>
+                                        <p className="settings-block-title">{t('settings.addSubjectType')}</p>
+                                        <p className="settings-block-desc">{t('settings.addSubjectTypeDesc')}</p>
                                     </div>
                                     <div className="settings-block-input-row u-mt-sm">
                                         <input
@@ -662,10 +379,10 @@ export function DosSettings() {
                                             value={newTypeName}
                                             onChange={e => setNewTypeName(e.target.value)}
                                             onKeyDown={e => e.key === 'Enter' && handleAddType()}
-                                            placeholder="e.g. Sciences"
+                                            placeholder={t('settings.egSciences')}
                                         />
                                         <button className="btn btn-primary btn-sm" onClick={handleAddType}>
-                                            <span className="material-symbols-rounded icon-sm">add</span> Add Type
+                                            <span className="material-symbols-rounded icon-sm">add</span> {t('settings.addType')}
                                         </button>
                                     </div>
                                 </div>
@@ -687,7 +404,7 @@ export function DosSettings() {
 
                                 {Object.keys(subjectsByType).length === 0 && (
                                     <p className="dset-note">
-                                        No subject types yet. Add one above
+                                        {t('settings.noTypes')}
                                     </p>
                                 )}
                             </div>
@@ -696,14 +413,14 @@ export function DosSettings() {
                         {/* Rooms card */}
                         <div className="card mt-1-5">
                             <div className="card-header">
-                                <h2 className="card-title">Rooms &amp; Venues</h2>
-                                <span className="settings-info-text">{rooms.length} room{rooms.length !== 1 ? 's' : ''} configured</span>
+                                <h2 className="card-title">{t('dos.settings.roomsTitle')}</h2>
+                                <span className="settings-info-text">{t('settings.roomCount', { count: rooms.length })}</span>
                             </div>
                             <div className="card-content">
                                 <div className="settings-block">
                                     <div className="settings-block-label">
-                                        <p className="settings-block-title">Add Room</p>
-                                        <p className="settings-block-desc">Classrooms, labs, halls (used when scheduling timetable slots)</p>
+                                        <p className="settings-block-title">{t('settings.addRoom')}</p>
+                                        <p className="settings-block-desc">{t('settings.addRoomDesc')}</p>
                                     </div>
                                     <div className="settings-block-input-row u-mt-sm">
                                         <input
@@ -711,10 +428,10 @@ export function DosSettings() {
                                             value={roomInput}
                                             onChange={e => { setRoomInput(e.target.value); setRoomErr('') }}
                                             onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
-                                            placeholder="e.g. Lab 1, Room 12, Hall A"
+                                            placeholder={t('settings.roomPlaceholder')}
                                         />
                                         <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
-                                            <span className="material-symbols-rounded icon-sm">add</span> Add
+                                            <span className="material-symbols-rounded icon-sm">add</span> {t('common.add')}
                                         </button>
                                     </div>
                                     {roomErr && <p className="dset-inline-err">{roomErr}</p>}
@@ -731,7 +448,7 @@ export function DosSettings() {
                                         </span>
                                     ))}
                                     {rooms.length === 0 && (
-                                        <span className="tag-chip-empty">No rooms yet. Add one above</span>
+                                        <span className="tag-chip-empty">{t('settings.noRooms')}</span>
                                     )}
                                 </div>
                             </div>
@@ -740,14 +457,14 @@ export function DosSettings() {
                         {/* Timezone card */}
                         <div className="card mt-1-5">
                             <div className="card-header">
-                                <h2 className="card-title">School Settings</h2>
-                                <span className="settings-info-text">Timezone used for all dates and times</span>
+                                <h2 className="card-title">{t('dos.settings.schoolSettingsTitle')}</h2>
+                                <span className="settings-info-text">{t('dos.settings.schoolSettingsHint')}</span>
                             </div>
                             <div className="card-content">
                                 <div className="settings-block">
                                     <div className="settings-block-label">
-                                        <p className="settings-block-title">Timezone</p>
-                                        <p className="settings-block-desc">All dates shown to users will use this timezone regardless of their location</p>
+                                        <p className="settings-block-title">{t('settings.timezone')}</p>
+                                        <p className="settings-block-desc">{t('settings.timezoneDesc')}</p>
                                     </div>
                                     <div className="settings-block-input-row">
                                         <select
@@ -755,43 +472,43 @@ export function DosSettings() {
                                             value={timezone}
                                             onChange={e => setTimezone(e.target.value)}
                                         >
-                                            <optgroup label="East Africa">
+                                            <optgroup label={t('settings.tzEastAfrica')}>
                                                 <option value="Africa/Kigali">Africa/Kigali (Rwanda, UTC+3)</option>
                                                 <option value="Africa/Nairobi">Africa/Nairobi (Kenya, Uganda, Tanzania, UTC+3)</option>
                                                 <option value="Africa/Kampala">Africa/Kampala (Uganda, UTC+3)</option>
                                                 <option value="Africa/Dar_es_Salaam">Africa/Dar_es_Salaam (Tanzania, UTC+3)</option>
                                                 <option value="Africa/Addis_Ababa">Africa/Addis_Ababa (Ethiopia, UTC+3)</option>
                                             </optgroup>
-                                            <optgroup label="West Africa">
+                                            <optgroup label={t('settings.tzWestAfrica')}>
                                                 <option value="Africa/Lagos">Africa/Lagos (Nigeria, UTC+1)</option>
                                                 <option value="Africa/Accra">Africa/Accra (Ghana, UTC+0)</option>
                                                 <option value="Africa/Abidjan">Africa/Abidjan (Ivory Coast, UTC+0)</option>
                                                 <option value="Africa/Dakar">Africa/Dakar (Senegal, UTC+0)</option>
                                             </optgroup>
-                                            <optgroup label="Southern Africa">
+                                            <optgroup label={t('settings.tzSouthernAfrica')}>
                                                 <option value="Africa/Johannesburg">Africa/Johannesburg (South Africa, UTC+2)</option>
                                                 <option value="Africa/Harare">Africa/Harare (Zimbabwe, UTC+2)</option>
                                                 <option value="Africa/Lusaka">Africa/Lusaka (Zambia, UTC+2)</option>
                                             </optgroup>
-                                            <optgroup label="North Africa">
+                                            <optgroup label={t('settings.tzNorthAfrica')}>
                                                 <option value="Africa/Cairo">Africa/Cairo (Egypt, UTC+2)</option>
                                                 <option value="Africa/Casablanca">Africa/Casablanca (Morocco, UTC+1)</option>
                                             </optgroup>
-                                            <optgroup label="Europe">
+                                            <optgroup label={t('settings.tzEurope')}>
                                                 <option value="Europe/London">Europe/London (UK, UTC+0/+1)</option>
                                                 <option value="Europe/Paris">Europe/Paris (France, Belgium, UTC+1/+2)</option>
                                                 <option value="Europe/Brussels">Europe/Brussels (Belgium, UTC+1/+2)</option>
                                             </optgroup>
-                                            <optgroup label="Middle East">
+                                            <optgroup label={t('settings.tzMiddleEast')}>
                                                 <option value="Asia/Dubai">Asia/Dubai (UAE, UTC+4)</option>
                                             </optgroup>
-                                            <optgroup label="Americas">
+                                            <optgroup label={t('settings.tzAmericas')}>
                                                 <option value="America/New_York">America/New_York (US East, UTC-5/-4)</option>
                                                 <option value="America/Los_Angeles">America/Los_Angeles (US West, UTC-8/-7)</option>
                                             </optgroup>
                                         </select>
                                         <button className="btn btn-primary btn-sm" onClick={handleTimezoneSave} disabled={tzSaving}>
-                                            {tzSaved ? 'Saved!' : tzSaving ? 'Saving...' : 'Save'}
+                                            {tzSaved ? t('settings.savedBang') : tzSaving ? t('common.saving') : t('common.save')}
                                         </button>
                                     </div>
                                 </div>

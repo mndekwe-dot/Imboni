@@ -227,7 +227,7 @@ export function TeacherStudent() {
                             renderRow={(s, i) => <StudentRow key={i} student={s} onView={setSelected} />}
                             emptyIcon="people"
                             emptyTitle={loading ? 'Loading students…' : 'No students found'}
-                            emptyDesc="No students match your filters."
+                            emptyDesc="No students match the selected filters."
                         />
 
                     </DashboardContent>

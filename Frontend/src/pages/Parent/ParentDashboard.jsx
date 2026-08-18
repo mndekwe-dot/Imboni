@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -6,6 +7,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
+import { formatDateShort } from '../../utils/date'
 import {
     getMyChildren, getChildDashboard,
     getChildAssessments, getChildSummative,
@@ -43,7 +45,7 @@ function initials(name = '') {
 function AssessmentItem({ title, assessment_type, date, score_display, grade }) {
     const { iconClass, icon } = ASSESSMENT_ICON[assessment_type] || { iconClass: 'quiz', icon: 'assignment' }
     const typeLabel = (assessment_type || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    const dateStr = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
+    const dateStr = date ? formatDateShort(date) : ''
     return (
         <div className="assessment-item">
             <div className={`assessment-icon ${iconClass}`}>
@@ -119,6 +121,7 @@ function ChildStats({ stats, loading }) {
 }
 
 export function ParentDashboard() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [children,         setChildren]         = useState([])
@@ -165,14 +168,14 @@ export function ParentDashboard() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={parentNavItems} secondaryItems={parentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Parent Dashboard"
-                        subtitle="Here's what's happening with your children"
+                        title={t('parent.dashboard.title')}
+                        subtitle={t('parent.dashboard.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

@@ -59,7 +59,8 @@ describe('AdminSettings', () => {
     fireEvent.change(screen.getByDisplayValue('Imboni Academy'), { target: { value: 'New Name Academy' } })
     fireEvent.click(screen.getByRole('button', { name: /Save Changes/ }))
 
-    await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith({ school_name: 'New Name Academy', timezone: 'Africa/Kigali' }))
+    await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith(
+      { school_name: 'New Name Academy', timezone: 'Africa/Kigali', currency: 'RWF' }))
     expect(await screen.findByText('Saved!')).toBeInTheDocument()
   })
 
@@ -70,8 +71,10 @@ describe('AdminSettings', () => {
     await waitFor(() => expect(screen.getByText('Getting started')).toBeInTheDocument())
   })
 
-  it('adds a section to the school structure', async () => {
-    updateSchoolConfig.mockResolvedValue([{ name: 'O-Level', years: [] }])
+  it('adds a section to the draft without saving it', async () => {
+    // Editing must not reach the server on click. Every button used to PUT the
+    // whole structure immediately, so one stray tap on a delete icon removed a
+    // year group from a live school.
     renderWithRouter(<AdminSettings />)
     fireEvent.click(screen.getByRole('button', { name: /School Structure/ }))
     await waitFor(() => expect(screen.getByText('Getting started')).toBeInTheDocument())
@@ -79,7 +82,46 @@ describe('AdminSettings', () => {
     fireEvent.change(screen.getByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
     fireEvent.click(screen.getByRole('button', { name: /Add/ }))
 
-    await waitFor(() => expect(updateSchoolConfig).toHaveBeenCalledWith([{ name: 'O-Level', years: [] }]))
+    await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument())
+    expect(updateSchoolConfig).not.toHaveBeenCalled()
+  })
+
+  it('saves the structure only when Save is pressed', async () => {
+    updateSchoolConfig.mockResolvedValue([{ name: 'O-Level', years: [] }])
+    renderWithRouter(<AdminSettings />)
+    fireEvent.click(screen.getByRole('button', { name: /School Structure/ }))
+    await waitFor(() => expect(screen.getByText('Getting started')).toBeInTheDocument())
+
+    fireEvent.change(screen.getByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
+    fireEvent.click(screen.getByRole('button', { name: /Add/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /save changes/i }))
+
+    await waitFor(() => expect(updateSchoolConfig)
+      .toHaveBeenCalledWith([{ name: 'O-Level', years: [] }], { confirm: false }))
+  })
+
+  it('asks before going through with a save that removes something', async () => {
+    // The server answers 409 and names what would go; the prompt repeats it
+    // back rather than asking "are you sure?" about nothing in particular.
+    updateSchoolConfig
+      .mockRejectedValueOnce({
+        response: { status: 409, data: { removals: ['the year S6'], confirm_required: true } },
+      })
+      .mockResolvedValueOnce([{ name: 'O-Level', years: [] }])
+
+    renderWithRouter(<AdminSettings />)
+    fireEvent.click(screen.getByRole('button', { name: /School Structure/ }))
+    await waitFor(() => expect(screen.getByText('Getting started')).toBeInTheDocument())
+
+    fireEvent.change(screen.getByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
+    fireEvent.click(screen.getByRole('button', { name: /Add/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /save changes/i }))
+
+    expect(await screen.findByText('the year S6')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Yes, remove/ }))
+    await waitFor(() => expect(updateSchoolConfig)
+      .toHaveBeenLastCalledWith(expect.anything(), { confirm: true }))
   })
 
   it('shows the empty message for Subjects with no types yet', async () => {
@@ -105,7 +147,7 @@ describe('AdminSettings', () => {
     deleteDosRoom.mockResolvedValue({})
     renderWithRouter(<AdminSettings />)
     fireEvent.click(screen.getByRole('button', { name: /Rooms/ }))
-    await waitFor(() => expect(screen.getByText('No rooms yet. Add one above')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No rooms yet. Add one above.')).toBeInTheDocument())
 
     fireEvent.change(screen.getByPlaceholderText('e.g. Lab 1, Room 12, Hall A'), { target: { value: 'Lab 1' } })
     fireEvent.click(screen.getByRole('button', { name: /Add/ }))

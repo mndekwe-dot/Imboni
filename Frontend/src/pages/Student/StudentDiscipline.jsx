@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -7,6 +8,7 @@ import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentDiscipline } from '../../api/student'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
+import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -90,7 +92,7 @@ function DisciplineRow({ report }) {
     const badge  = reportBadge(report.report_type)
     const points = pointsDisplay(report.report_type)
     const dateStr = report.date
-        ? new Date(report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        ? formatDate(report.date)
         : '-'
     return (
         <tr>
@@ -137,6 +139,7 @@ function AppealStep({ num, title, desc }) {
 }
 
 export function StudentDiscipline() {
+    const { t } = useTranslation()
     const [profile,    setProfile]    = useState(null)
     const [discipline, setDiscipline] = useState(null)
     const [loading,    setLoading]    = useState(true)
@@ -161,7 +164,9 @@ export function StudentDiscipline() {
     }, [])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
-    const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
+    const userRole     = gradeSection
+        ? `${t('roles.student')} · ${gradeSection}`
+        : t('roles.student')
 
     const reports      = discipline?.reports      || []
     const conductGrade = discipline?.conduct_grade || '-'
@@ -182,14 +187,14 @@ export function StudentDiscipline() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Discipline"
-                        subtitle="School rules, your discipline record & appeals"
+                        title={t('nav.discipline')}
+                        subtitle={t('student.discipline.subtitle')}
                         userName={fullName || 'Student'}
                         userRole={userRole}
                         userInitials={initials}

@@ -41,7 +41,12 @@ export const getCurrentTerm = () => client.get("/imboni/results/terms/current/")
 
 //  School Config 
 export const getSchoolConfig = () => client.get("/imboni/dos/school-config/");
-export const updateSchoolConfig = (data) => client.put("/imboni/dos/school-config/", data);
+// `confirm` acknowledges a save that removes a year or stream. Without it the
+// server answers 409 and lists what would go, so a removal is never silent.
+export const updateSchoolConfig = (data, { confirm = false } = {}) =>
+    confirm
+        ? client.put("/imboni/dos/school-config/", data, { params: { confirm: 1 } })
+        : client.put("/imboni/dos/school-config/", data);
 
 // School Settings
 export const getSchoolSettings    = () => client.get('/imboni/dos/school-settings/')

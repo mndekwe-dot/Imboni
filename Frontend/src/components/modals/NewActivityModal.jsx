@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
 
 export function NewActivityModal({ onClose, onSave }) {
+    const { t } = useTranslation()
     const [form, setSaving_form] = useState({
         name: '', category: 'sport', schedule: '', venue: '',
         max_members: 30, description: '', is_active: true,
@@ -40,8 +42,8 @@ export function NewActivityModal({ onClose, onSave }) {
             <div className="modal-box modal-box-lg" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>add_circle</span>
-                        <h2 className="modal-title">New Club / Event</h2>
+                        <span className="material-symbols-rounded modal-title-icon--discipline">add_circle</span>
+                        <h2 className="modal-title">{t('modals.activity.newTitle')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
@@ -49,51 +51,51 @@ export function NewActivityModal({ onClose, onSave }) {
                 <div className="modal-body">
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Club / Event Name *</label>
-                            <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder="e.g. Science Club" />
+                            <label className="form-label">{t('modals.activity.nameRequired')}</label>
+                            <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('modals.activity.egName')} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Category</label>
+                            <label className="form-label">{t('common.category')}</label>
                             <select className="form-input" name="category" value={form.category} onChange={handleChange}>
-                                <option value="sport">Sports</option>
-                                <option value="music">Music</option>
-                                <option value="art">Arts &amp; Crafts</option>
-                                <option value="debate">Debate</option>
-                                <option value="science">Science</option>
-                                <option value="community">Community Service</option>
-                                <option value="leadership">Leadership</option>
-                                <option value="other">Other</option>
+                                <option value="sport">{t('dos.leaders.catSport')}</option>
+                                <option value="music">{t('dos.leaders.catMusic')}</option>
+                                <option value="art">{t('dos.leaders.catArt')}</option>
+                                <option value="debate">{t('dos.leaders.catDebate')}</option>
+                                <option value="science">{t('dos.leaders.catScience')}</option>
+                                <option value="community">{t('dos.leaders.catCommunity')}</option>
+                                <option value="leadership">{t('dos.leaders.catLeadership')}</option>
+                                <option value="other">{t('dos.leaders.catOther')}</option>
                             </select>
                         </div>
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Meeting Schedule</label>
-                            <input className="form-input" name="schedule" value={form.schedule} onChange={handleChange} placeholder="e.g. Tue & Thu, 4:30 PM" />
+                            <label className="form-label">{t('modals.activity.meetingSchedule')}</label>
+                            <input className="form-input" name="schedule" value={form.schedule} onChange={handleChange} placeholder={t('modals.activity.egSchedule')} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Venue / Location</label>
-                            <input className="form-input" name="venue" value={form.venue} onChange={handleChange} placeholder="e.g. Sports Field" />
+                            <label className="form-label">{t('modals.activity.venueLocation')}</label>
+                            <input className="form-input" name="venue" value={form.venue} onChange={handleChange} placeholder={t('modals.activity.egVenue')} />
                         </div>
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Max Members</label>
+                            <label className="form-label">{t('modals.activity.maxMembers')}</label>
                             <input className="form-input" type="number" min="1" max="200" name="max_members" value={form.max_members} onChange={handleChange} />
                         </div>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Description</label>
-                        <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="3" placeholder="Brief description…" />
+                        <label className="form-label">{t('common.description')}</label>
+                        <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="3" placeholder={t('modals.activity.descPlaceholder')} />
                     </div>
-                    {error && <p style={{ color: '#dc2626', fontSize: '0.82rem' }}>{error}</p>}
+                    {error && <p className="dmod-error">{error}</p>}
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !form.name}>
                         <span className="material-symbols-rounded">add_circle</span>
-                        {saving ? 'Creating…' : 'Create Club'}
+                        {saving ? t('modals.activity.creating') : t('modals.activity.createClub')}
                     </button>
                 </div>
             </div>

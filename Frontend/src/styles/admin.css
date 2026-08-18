@@ -35,9 +35,6 @@
    PORTAL STAT GRID  (shared layout from components.css)
    =============================================== */
 
-.portal-stat-card {
-  border-left-color: var(--admin);
-}
 .portal-stat-icon {
   background: var(--admin-light);
   color: var(--admin);
@@ -60,7 +57,7 @@
 .adm-table th {
   padding: 0.625rem 0.875rem;
   text-align: left;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -91,7 +88,7 @@
   border-radius: 50%;
   background: var(--admin-light);
   color: var(--admin);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -106,7 +103,7 @@
 .adm-av.support   { background: rgba(107,114,128,0.12); color: #4b5563; }
 
 .adm-name { font-weight: 600; font-size: 0.875rem; }
-.adm-sub  { font-size: 0.72rem; color: var(--muted-foreground); }
+.adm-sub  { font-size: 0.7rem; color: var(--muted-foreground); }
 
 /* Badges */
 .adm-badge {
@@ -134,7 +131,7 @@
   font-size: 0.7rem;
   font-weight: 600;
   padding: 1px 7px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--muted);
   color: var(--muted-foreground);
   margin-right: 0.25rem;
@@ -182,7 +179,7 @@
 }
 
 .adm-progress-label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   width: 100px;
   flex-shrink: 0;
@@ -253,8 +250,8 @@
 .adm-report-icon.danger  { background: var(--destructive-light); color: var(--destructive); }
 
 .adm-report-title { font-size: 0.9rem; font-weight: 700; color: var(--foreground); }
-.adm-report-desc  { font-size: 0.78rem; color: var(--muted-foreground); line-height: 1.5; }
-.adm-report-meta  { font-size: 0.72rem; color: var(--muted-foreground); display: flex; align-items: center; gap: 0.3rem; margin-top: auto; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.adm-report-desc  { font-size: 0.8rem; color: var(--muted-foreground); line-height: 1.5; }
+.adm-report-meta  { font-size: 0.7rem; color: var(--muted-foreground); display: flex; align-items: center; gap: 0.3rem; margin-top: auto; padding-top: 0.5rem; border-top: 1px solid var(--border); }
 
 /* ===============================================
    SETTINGS PAGE
@@ -294,7 +291,7 @@
 .adm-settings-nav-item:last-child { border-bottom: none; }
 .adm-settings-nav-item:hover { background: var(--muted); color: var(--foreground); }
 .adm-settings-nav-item.active { background: var(--admin-light); color: var(--admin); font-weight: 600; }
-.adm-settings-nav-item .material-symbols-rounded { font-size: 1.1rem; }
+.adm-settings-nav-item .material-symbols-rounded { font-size: 1.125rem; }
 
 /* ===============================================
    MESSAGING (conv avatar colours)
@@ -336,7 +333,7 @@
 .task-body  { flex: 1; min-width: 0; }
 .task-text  { font-size: 0.875rem; margin: 0; }
 .task-text.done { text-decoration: line-through; }
-.task-due   { font-size: 0.72rem; color: var(--muted-foreground); margin: 2px 0 0; }
+.task-due   { font-size: 0.7rem; color: var(--muted-foreground); margin: 2px 0 0; }
 
 .task-dismiss { border: none; background: none; cursor: pointer; color: var(--muted-foreground); padding: 2px; display: flex; flex-shrink: 0; }
 .task-dismiss .material-symbols-rounded { font-size: 1rem; }
@@ -354,7 +351,7 @@
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   border: 1px solid var(--border);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   cursor: pointer;
   background: transparent;
   color: var(--foreground);
@@ -364,7 +361,7 @@
 .filter-chip.active { background: var(--admin); color: #fff; font-weight: 600; border-color: var(--admin); }
 
 .quick-actions-section { margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem; }
-.quick-actions-label   { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.5rem; }
+.quick-actions-label   { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; }
 .quick-actions-btns    { display: flex; flex-direction: column; gap: 0.5rem; }
 .btn-left { justify-content: flex-start; }
 .td-empty { text-align: center; padding: 2rem; color: var(--muted-foreground); }
@@ -387,7 +384,7 @@
 .file-list-icon { color: var(--admin); font-size: 1.4rem; flex-shrink: 0; }
 .file-list-body { flex: 1; min-width: 0; }
 .file-list-name { font-size: 0.875rem; font-weight: 600; }
-.file-list-meta { font-size: 0.72rem; color: var(--muted-foreground); }
+.file-list-meta { font-size: 0.7rem; color: var(--muted-foreground); }
 
 /* ===============================================
    SETTINGS: FORM LAYOUT
@@ -448,22 +445,22 @@
 .chart-tooltip {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 0.5rem 0.875rem;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .chart-tooltip-label { font-weight: 700; margin-bottom: 2px; color: var(--foreground); }
 .chart-legend-row    { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-.chart-legend-item   { display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; color: var(--muted-foreground); }
+.chart-legend-item   { display: flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; color: var(--muted-foreground); }
 .chart-legend-dot-sq { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
 
 /* ── Student detail modal (AdminStudents) ── */
 .adm-student-modal      { max-width: 600px; width: 95vw; }
 .adm-student-av         { width: 40px; height: 40px; font-size: 1rem; flex-shrink: 0; }
-.adm-student-sub        { font-size: 0.78rem; color: var(--muted-foreground); margin: 0; }
+.adm-student-sub        { font-size: 0.8rem; color: var(--muted-foreground); margin: 0; }
 .adm-student-body       { display: flex; flex-direction: column; gap: 1.25rem; }
-.adm-modal-label        { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 0.6rem; }
+.adm-modal-label        { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 0.6rem; }
 
 .adm-profile-grid       { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 1.5rem; }
 .adm-profile-row        { display: flex; gap: 0.4rem; align-items: baseline; }
@@ -472,29 +469,29 @@
 
 /* Attendance mini-bars — fill width/colour stay inline (data-driven) */
 .att-bar                { margin-bottom: 0.6rem; }
-.att-bar-head           { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 0.2rem; }
+.att-bar-head           { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.2rem; }
 .att-bar-track          { height: 6px; background: var(--border); border-radius: 999px; }
 .att-bar-fill           { height: 100%; border-radius: 999px; }
 
 .adm-result-list        { display: flex; flex-direction: column; }
 .adm-result-row         { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
-.adm-result-name        { flex: 1; font-size: 0.82rem; font-weight: 500; }
-.adm-result-score       { font-size: 0.82rem; color: var(--muted-foreground); min-width: 44px; text-align: right; }
+.adm-result-name        { flex: 1; font-size: 0.8rem; font-weight: 500; }
+.adm-result-score       { font-size: 0.8rem; color: var(--muted-foreground); min-width: 44px; text-align: right; }
 .adm-result-grade       { font-weight: 700; font-size: 0.85rem; min-width: 26px; text-align: right; }
 .adm-result-more        { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.4rem; }
-.adm-empty-note         { font-size: 0.82rem; color: var(--muted-foreground); }
+.adm-empty-note         { font-size: 0.8rem; color: var(--muted-foreground); }
 
 /* ── Staff (AdminStaff) ── */
 .adm-invite-success       { text-align: center; padding: 2rem 1rem; }
 .adm-invite-success-icon  { font-size: 2.5rem; color: var(--success, #16a34a); }
 .adm-invite-success-title { font-weight: 600; margin-top: 0.75rem; }
-.adm-invite-success-note  { font-size: 0.83rem; color: var(--muted-foreground); }
+.adm-invite-success-note  { font-size: 0.85rem; color: var(--muted-foreground); }
 
 .adm-kv-row  { display: flex; gap: 0.5rem; }
 .adm-kv-key  { width: 100px; color: var(--muted-foreground); font-size: 0.85rem; flex-shrink: 0; }
 .adm-kv-val  { font-weight: 500; font-size: 0.85rem; }
 
-.adm-count-badge { margin-left: 0.35rem; background: var(--warning, #f59e0b); color: #fff; border-radius: 999px; padding: 0 0.4rem; font-size: 0.68rem; font-weight: 700; }
+.adm-count-badge { margin-left: 0.35rem; background: var(--warning, #f59e0b); color: #fff; border-radius: 999px; padding: 0 0.4rem; font-size: 0.7rem; font-weight: 700; }
 .adm-sent-cell   { font-size: 0.8rem; color: var(--muted-foreground); }
 
 /* Compact muted table cell + row-select checkbox column */
@@ -503,8 +500,8 @@
 
 /* ── Announcements (AdminAnnouncements) ── */
 /* Category colours flow in as --cat-* CSS vars set inline (data-driven). */
-.adm-ann-card    { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--cat-accent, var(--muted-foreground)); border-radius: 12px; padding: 1rem 1.25rem; display: flex; gap: 1rem; }
-.adm-ann-icon    { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; background: var(--cat-badge, var(--muted)); display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+.adm-ann-card    { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; gap: 1rem; }
+.adm-ann-icon    { width: 36px; height: 36px; border-radius: var(--radius-sm); flex-shrink: 0; background: var(--cat-badge, var(--muted)); display: flex; align-items: center; justify-content: center; margin-top: 2px; }
 .adm-ann-icon .material-symbols-rounded { color: var(--cat-text, var(--muted-foreground)); font-size: 1rem; }
 .adm-ann-body    { flex: 1; min-width: 0; }
 .adm-ann-meta    { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
@@ -514,18 +511,18 @@
 .adm-ann-text    { margin: 0 0 0.75rem; font-size: 0.85rem; color: var(--muted-foreground); line-height: 1.55; white-space: pre-wrap; }
 .adm-ann-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
-.adm-eyebrow   { font-size: 0.78rem; font-weight: 600; color: var(--muted-foreground); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.adm-eyebrow   { font-size: 0.8rem; font-weight: 600; color: var(--muted-foreground); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em; }
 .adm-chip-row  { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-.adm-tab-count { margin-left: 0.3rem; font-size: 0.68rem; font-weight: 700; border-radius: 10px; padding: 0.05rem 0.35rem; background: var(--muted); color: var(--muted-foreground); }
+.adm-tab-count { margin-left: 0.3rem; font-size: 0.7rem; font-weight: 700; border-radius: 10px; padding: 0.05rem 0.35rem; background: var(--muted); color: var(--muted-foreground); }
 .adm-tab-count.on { background: rgba(255, 255, 255, 0.25); color: #fff; }
 
 /* ── Settings (AdminSettings) ── */
 .adm-set-note      { color: var(--muted-foreground); }                 /* inline "Loading…" / small notes */
 .adm-set-hint      { color: var(--muted-foreground); font-size: 0.875rem; margin-top: 0.5rem; }
-.adm-set-count     { font-size: 0.82rem; color: var(--muted-foreground); }
+.adm-set-count     { font-size: 0.8rem; color: var(--muted-foreground); }
 
 /* Editable container block (structure years / subject types) */
-.adm-editblock     { border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.875rem 1rem; margin-top: 0.75rem; background: var(--background); }
+.adm-editblock     { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.875rem 1rem; margin-top: 0.75rem; background: var(--background); }
 .adm-editblock-pad { padding: 1rem; }                                    /* TypeBlock uses flat 1rem padding */
 .adm-editblock-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
 .adm-editblock-title { font-weight: 600; font-size: 0.9rem; }
@@ -561,14 +558,14 @@
 .adm-ro-sumrow     { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
 .adm-ro-warn       { color: var(--warning, #d97706); font-size: 0.8rem; margin-top: 0.75rem; }
 .adm-ro-warn-icon  { font-size: 1rem; vertical-align: middle; }
-.adm-ro-danger     { font-size: 0.82rem; color: #dc2626; margin-bottom: 0.75rem; }
-.adm-ro-err        { font-size: 0.82rem; color: #dc2626; }
+.adm-ro-danger     { font-size: 0.8rem; color: #dc2626; margin-bottom: 0.75rem; }
+.adm-ro-err        { font-size: 0.8rem; color: #dc2626; }
 .adm-ro-done       { text-align: center; padding: 1.5rem 0; }
 .adm-ro-done-icon  { font-size: 2.5rem; color: var(--success); }
 .adm-ro-done-title { font-weight: 700; font-size: 1.05rem; margin: 0.5rem 0; }
 
 /* Settings nav "soon" tag */
-.adm-soon-tag      { margin-left: auto; font-size: 0.62rem; color: var(--muted-foreground); font-weight: 400; }
+.adm-soon-tag      { margin-left: auto; font-size: 0.6rem; color: var(--muted-foreground); font-weight: 400; }
 
 /* ── Reports & Analytics (AdminReports) — chart cards + distribution legend.
    Pie/dot colours stay inline (data-driven); recharts LabelList style props
@@ -577,7 +574,7 @@
 .adm-chart-nodata  { color: var(--muted-foreground); font-size: 0.85rem; }
 .adm-dist-row      { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .adm-dist-legend   { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-.adm-dist-item     { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; }
+.adm-dist-item     { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
 .adm-dist-dot      { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .adm-dist-name     { flex: 1; color: var(--foreground); }
 
@@ -585,7 +582,7 @@
 .adm-search-input { max-width: 260px; }
 .adm-audit-note   { color: var(--muted-foreground); padding: 1.5rem 0; }
 .adm-pager        { display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center; margin-top: 0.75rem; }
-.adm-pager-info   { font-size: 0.82rem; color: var(--muted-foreground); }
+.adm-pager-info   { font-size: 0.8rem; color: var(--muted-foreground); }
 
 /* ── Admin Dashboard (AdminDashboard) ── */
 .adm-dash-note { color: var(--muted-foreground); padding: 1rem 0; }

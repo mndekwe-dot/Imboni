@@ -25,6 +25,15 @@ export const getPreferences = (userId) =>
 export const updatePreferences = (userId, data) =>
     client.patch(`/imboni/users/${userId}/preferences/`, data)
 
+// The signed-in user's own preferences (language, theme, timezone, alerts).
+// Prefer these over the two above: the nested /users/<id>/preferences/ list URL
+// only routes GET and POST, so PATCHing it answers 405.
+export const getMyPreferences = () =>
+    client.get('/imboni/account/preferences/')
+
+export const updateMyPreferences = (data) =>
+    client.patch('/imboni/account/preferences/', data)
+
 // Upload a new profile photo.
 // Uses FormData instead of JSON because images are binary files, not text.
 // multipart/form-data tells the server to expect a file, not JSON.

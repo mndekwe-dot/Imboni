@@ -3,6 +3,12 @@
  * crashes, instead of a blank white screen. The error itself has already been
  * reported to Sentry (when configured); this is purely the user-facing recovery
  * UI. `resetError` is provided by Sentry.ErrorBoundary.
+ *
+ * The styles here are INTENTIONALLY inline and every custom property carries a
+ * literal fallback (`var(--foreground, #1e293b)`). This is the screen of last
+ * resort: it has to render correctly even when a stylesheet chunk failed to
+ * load, which is one of the ways we end up here in the first place. Do not
+ * migrate it onto classes in an inline-style sweep.
  */
 export function ErrorFallback({ error, resetError }) {
     return (

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { EmptyState } from '../../components/ui/EmptyState'
@@ -198,6 +199,7 @@ function ConsentRequestsPanel() {
 }
 
 export function DisActivities() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [activities,      setActivities]      = useState([])
@@ -257,7 +259,7 @@ export function DisActivities() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Extracurricular Activities" subtitle="Manage clubs, patron assignments and memberships" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('dis.activities.title')} subtitle={t('dis.activities.subtitle')} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -74,6 +75,7 @@ function StatusBadge({ status }) {
 }
 
 function PendingCard({ report, onReview }) {
+    const { t } = useTranslation()
     const [open,   setOpen]   = useState(false)
     const [notes,  setNotes]  = useState('')
     const [saving, setSaving] = useState(false)
@@ -113,7 +115,7 @@ function PendingCard({ report, onReview }) {
                         <div className="dis-desc">{report.description}</div>
                     )}
                     <div className="dis-foot-meta">
-                        <span>Filed by <strong>{report.reported_by || 'Unknown'}</strong></span>
+                        <span>{t('dis.students.filedBy')} <strong>{report.reported_by || 'Unknown'}</strong></span>
                         {report.location && <span>· {report.location}</span>}
                         {report.marks_deducted != null && (
                             <span className="dis-marks-tag">
@@ -124,7 +126,7 @@ function PendingCard({ report, onReview }) {
                 </div>
                 <button className="btn btn-sm btn-outline u-shrink-0" onClick={() => setOpen(o => !o)}>
                     <span className="material-symbols-rounded icon-sm">{open ? 'expand_less' : 'rate_review'}</span>
-                    Review
+                    {t('dos.results.review')}
                 </button>
             </div>
             {open && (
@@ -135,7 +137,7 @@ function PendingCard({ report, onReview }) {
                     </div>
                     <div className="u-row-sm u-justify-end">
                         <button className="btn btn-sm dis-btn-reject" onClick={() => handle('reject')} disabled={saving}>
-                            <span className="material-symbols-rounded icon-sm">cancel</span> Reject
+                            <span className="material-symbols-rounded icon-sm">cancel</span> {t('common.reject')}
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => handle('approve')} disabled={saving}>
                             <span className="material-symbols-rounded icon-sm">check_circle</span>
@@ -184,6 +186,7 @@ function StudentRow({ student, onView }) {
 }
 
 function ReportRow({ report, onMarkComplete }) {
+    const { t } = useTranslation()
     const typeInfo = REPORT_TYPE_LABELS[report.report_type] || { label: report.report_type, cls: '' }
     const fuStatus = followUpStatus(report)
     const cls      = `${report.grade || ''}${report.section || ''}`
@@ -216,7 +219,7 @@ function ReportRow({ report, onMarkComplete }) {
             <td className="action-cell">
                 {report.follow_up_required && !report.follow_up_completed && (
                     <button className="btn btn-primary btn-sm" onClick={() => onMarkComplete(report.id)}>
-                        Mark Done
+                        {t('dis.students.markDone')}
                     </button>
                 )}
             </td>
@@ -227,6 +230,7 @@ function ReportRow({ report, onMarkComplete }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisStudents() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
@@ -309,8 +313,8 @@ export function DisStudents() {
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Students"
-                        subtitle="Conduct records and incident reports"
+                        title={t('nav.students')}
+                        subtitle={t('dis.students.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -320,7 +324,7 @@ export function DisStudents() {
                         <div className="filter-tabs-bar mb-5">
                             <button className={`filter-tab${activeTab === 'students' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('students')}>
-                                <span className="material-symbols-rounded">people</span> Conduct Records
+                                <span className="material-symbols-rounded">people</span> {t('dis.students.conductRecords')}
                             </button>
                             <button className={`filter-tab${activeTab === 'reports' ? ' active' : ''}`}
                                 onClick={() => setActiveTab('reports')}>
@@ -375,8 +379,8 @@ export function DisStudents() {
                                         columns={['Student', 'Class', 'Student ID', 'Conduct', 'Incidents', 'Actions']}
                                         renderRow={(s, i) => <StudentRow key={s.id || i} student={s} onView={setModal} />}
                                         emptyIcon="people"
-                                        emptyTitle="No students found"
-                                        emptyDesc="No students match the selected filters."
+                                        emptyTitle={t('dis.students.noStudents')}
+                                        emptyDesc={t('dis.students.noStudentsFiltered')}
                                         onClearFilters={() => { setConductFilter('all'); setSection(''); setYear(''); setClassVal('') }}
                                     />
                                 )}
@@ -395,7 +399,7 @@ export function DisStudents() {
                                     </button>
                                     <button className={`filter-tab${reportSubTab === 'approved' ? ' active' : ''}`} onClick={() => setReportSubTab('approved')}>
                                         <span className="material-symbols-rounded">check_circle</span>
-                                        Approved
+                                        {t('common.approved')}
                                     </button>
                                     <button className={`filter-tab${reportSubTab === 'rejected' ? ' active' : ''}`} onClick={() => setReportSubTab('rejected')}>
                                         <span className="material-symbols-rounded">cancel</span>
@@ -428,7 +432,7 @@ export function DisStudents() {
                                         columns={['Student', 'Class', 'Type', 'Description', 'Date', 'Reported By', 'Follow-up', 'Actions']}
                                         renderRow={(r, i) => <ReportRow key={r.id || i} report={r} onMarkComplete={handleMarkComplete} />}
                                         emptyIcon="report"
-                                        emptyTitle="No approved reports"
+                                        emptyTitle={t('dis.students.noApproved')}
                                         emptyDesc="No approved behavior reports on record."
                                         filterBar={
                                             <div className="filter-tabs-bar mt-0 u-mb-sm">
@@ -469,7 +473,7 @@ export function DisStudents() {
                                                                 <div className="dis-reason">Reason: {r.review_notes}</div>
                                                             )}
                                                             <div className="dis-filed">
-                                                                Filed by <strong>{r.reported_by || '-'}</strong>
+                                                                {t('dis.students.filedBy')} <strong>{r.reported_by || '-'}</strong>
                                                                 {r.reviewed_by && <> &nbsp;·&nbsp; Rejected by <strong>{r.reviewed_by}</strong></>}
                                                             </div>
                                                         </div>

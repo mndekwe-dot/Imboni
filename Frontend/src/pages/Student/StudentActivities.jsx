@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
+import { formatDate, formatWeekdayShort } from '../../utils/date'
 import {
     getStudentProfile, getStudentDiscipline,
     getStudentActivities, getStudentActivityEvents,
@@ -38,7 +40,7 @@ function typeFilterMatch(report, filter) {
 function DisciplineRow({ report }) {
     const { label, typeClass } = reportTypeDisplay(report.report_type)
     const dateStr = report.date
-        ? new Date(report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        ? formatDate(report.date)
         : '-'
     const isPos  = report.report_type === 'positive' || report.report_type === 'achievement'
     const isNeg  = report.report_type === 'incident'
@@ -103,6 +105,7 @@ function ActivityCard({ activity, enrolled, onJoin, onWithdraw, joining }) {
 }
 
 export function StudentActivities() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [mainTab,    setMainTab]    = useState('Discipline Records')
     const [typeFilter, setTypeFilter] = useState('All')
@@ -134,7 +137,9 @@ export function StudentActivities() {
     }, [])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
-    const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
+    const userRole     = gradeSection
+        ? `${t('roles.student')} · ${gradeSection}`
+        : t('roles.student')
 
     const reports  = discipline?.reports || []
     const conductGrade = discipline?.conduct_grade || '-'
@@ -181,14 +186,14 @@ export function StudentActivities() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Activities & Discipline"
-                        subtitle="Behaviour record and extracurricular activities"
+                        title={t('student.activities.title')}
+                        subtitle={t('student.activities.subtitle')}
                         userName={fullName}
                         userRole={userRole}
                         userInitials={initials}
@@ -263,7 +268,7 @@ export function StudentActivities() {
                                 <EmptyState
                                     icon="verified_user"
                                     title={`No ${typeFilter.toLowerCase()} records`}
-                                    description="No discipline records match this filter."
+                                    description={t('student.activities.noRecordsFiltered')}
                                     action={{ label: 'Show All', icon: 'refresh', onClick: () => setTypeFilter('All') }}
                                 />
                             ) : (
@@ -296,8 +301,8 @@ export function StudentActivities() {
                             ) : (enrolled.length === 0 && available.length === 0) ? (
                                 <EmptyState
                                     icon="sports_soccer"
-                                    title="No activities found"
-                                    description="Extracurricular activities will appear here when they are available."
+                                    title={t('student.activities.noneFound')}
+                                    description={t('student.activities.noneDesc')}
                                 />
                             ) : (
                                 <>
@@ -334,8 +339,8 @@ export function StudentActivities() {
                             ) : events.length === 0 ? (
                                 <EmptyState
                                     icon="event"
-                                    title="No upcoming events"
-                                    description="Events for your enrolled activities will appear here."
+                                    title={t('student.activities.noEvents')}
+                                    description={t('student.activities.noEventsDesc')}
                                 />
                             ) : (
                                 <div className="act-list-card">
@@ -345,7 +350,7 @@ export function StudentActivities() {
                                     </div>
                                     {events.map(ev => {
                                         const dateStr = ev.date
-                                            ? new Date(ev.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+                                            ? formatWeekdayShort(ev.date)
                                             : '-'
                                         return (
                                             <div key={ev.id} className="assign-item act-event-item">

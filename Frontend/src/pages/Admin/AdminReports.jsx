@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList,
     LineChart, Line, AreaChart, Area, PieChart, Pie, Legend,
@@ -152,6 +153,7 @@ function SubjectChart({ data }) {
 }
 
 export function AdminReports() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [stats,       setStats]       = useState(null)
     const [byGrade,     setByGrade]     = useState([])
@@ -199,8 +201,8 @@ export function AdminReports() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Reports & Analytics"
-                        subtitle="School-wide performance, attendance and enrollment insights"
+                        title={t('admin.reports.title')}
+                        subtitle={t('admin.reports.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}

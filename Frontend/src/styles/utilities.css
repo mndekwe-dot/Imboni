@@ -54,24 +54,24 @@
 .u-strong      { font-weight: 600; }
 .u-bold        { font-weight: 700; }
 .u-sm          { font-size: 0.875rem; }
-.u-xs          { font-size: 0.78rem; }
-.u-lg          { font-size: 1.1rem; }
+.u-xs          { font-size: 0.8rem; }
+.u-lg          { font-size: 1.125rem; }
 .u-xl          { font-size: 1.35rem; }
 .u-danger      { color: var(--danger, #dc2626); }
 .u-center-text { text-align: center; }
 .u-text-right  { text-align: right; }
 .u-capitalize  { text-transform: capitalize; }
-.u-label       { font-size: 0.78rem; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; }
+.u-label       { font-size: 0.8rem; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; }
 
 /* ── Chips (status pills) ───────────────────────────────────────────────────── */
-.u-chip           { display: inline-block; padding: 0.28rem 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+.u-chip           { display: inline-block; padding: 0.28rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
 .u-chip--primary  { background: var(--primary-light); color: var(--primary); }
 .u-chip--success  { background: rgba(22, 163, 74, 0.12); color: var(--success, #16a34a); }
 .u-chip--warn     { background: rgba(217, 119, 6, 0.14); color: #d97706; }
 .u-chip--danger   { background: rgba(220, 38, 38, 0.12); color: var(--danger, #dc2626); }
 
 /* ── Banner (card with a coloured left rule) ────────────────────────────────── */
-.u-banner          { border-left: 4px solid var(--u-accent, var(--primary)); padding: 1rem 1.25rem; }
+.u-banner          {  padding: 1rem 1.25rem; }
 .u-banner--warn    { --u-accent: #d97706; }
 .u-banner--danger  { --u-accent: var(--danger, #dc2626); }
 .u-banner--primary { --u-accent: var(--primary); }
@@ -85,7 +85,7 @@
 .u-meter-fill.unlimited { background: var(--primary-light); }
 
 /* ── Misc ───────────────────────────────────────────────────────────────────── */
-.u-icon-sm    { font-size: 1.15rem; }
+.u-icon-sm    { font-size: 1.125rem; }
 .u-empty-icon { font-size: 2.2rem; display: block; margin-bottom: 0.5rem; }
 .u-pointer    { cursor: pointer; }
 
@@ -94,7 +94,7 @@
 .u-fs-095  { font-size: 0.95rem; }
 .u-fs-085  { font-size: 0.85rem; }
 .u-fs-075  { font-size: 0.75rem; }
-.u-fs-068  { font-size: 0.68rem; }
+.u-fs-068  { font-size: 0.7rem; }
 .u-fs-15   { font-size: 1.5rem; }
 .u-fw-400  { font-weight: 400; }
 .u-mb-05   { margin-bottom: 0.5rem; }

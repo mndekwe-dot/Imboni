@@ -1,24 +1,15 @@
 export const matronNavItems = [
-    { to: '/matron',                      icon: 'dashboard',         label: 'Dashboard',       end: true },
-    { to: '/matron/students',             icon: 'groups',            label: 'My Students'                },
-    { to: '/matron/schedule',             icon: 'schedule',          label: 'Daily Schedule'             },
-    { to: '/matron/incidents',            icon: 'report',            label: 'Report Incident'            },
-    { to: '/matron/health',               icon: 'health_and_safety', label: 'Health & Wellness'          },
-    { to: '/matron/parent-communication', icon: 'family_restroom',   label: 'Parent Comms'               },
-    { to: '/matron/messages',             icon: 'chat',              label: 'Messages'                   },
+    { to: '/matron',                      icon: 'dashboard',         labelKey: 'nav.dashboard',       end: true },
+    { to: '/matron/students',             icon: 'groups',            labelKey: 'nav.myStudents'                },
+    { to: '/matron/schedule',             icon: 'schedule',          labelKey: 'nav.dailySchedule'             },
+    { to: '/matron/incidents',            icon: 'report',            labelKey: 'nav.reportIncident'            },
+    { to: '/matron/health',               icon: 'health_and_safety', labelKey: 'nav.healthWellness'          },
+    { to: '/matron/parent-communication', icon: 'family_restroom',   labelKey: 'nav.parentComms'               },
+    { to: '/matron/messages',             icon: 'chat',              labelKey: 'nav.messages'                   },
 ]
 
 export const matronSecondaryItems = [
-    { to: '/profile?role=matron', icon: 'account_circle', label: 'Profile' },
-    { to: '/login',               icon: 'logout',         label: 'Logout'  },
+    { to: '/profile?role=matron', icon: 'account_circle', labelKey: 'nav.profile' },
+    { to: '/login',               icon: 'logout',         labelKey: 'nav.logout', action: 'logout'  },
 ]
 
-import { notifications } from '../../data/notifications'
-
-export const matronUser = {
-    userName:      'Mrs. Gloriose Hakizimana',
-    userRole:      'Matron, Karisimbi House',
-    userInitials:  'GH',
-    avatarClass:   'matron-av',
-    notifications: notifications.matron,
-}

@@ -1,25 +1,27 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TabGroup } from '../ui/TabGroup'
 import { getStudentBehaviorStats, getStudentBehaviorReports, createDisReport } from '../../api/discipline'
+import { formatDate } from '../../utils/date'
 import '../../styles/components.css'
 
 const TABS = [
-    { key: 'profile', label: 'Profile',      icon: 'person'  },
-    { key: 'log',     label: 'Log Incident', icon: 'report'  },
+    { key: 'profile', labelKey: 'modals.conduct.tabProfile', icon: 'person' },
+    { key: 'log',     labelKey: 'modals.conduct.tabLog',     icon: 'report' },
 ]
 
 const REPORT_TYPE_OPTIONS = [
-    { value: 'incident',    label: 'Incident',    icon: 'warning',       cls: 'negative' },
-    { value: 'warning',     label: 'Warning',     icon: 'error',         cls: 'warning'  },
-    { value: 'positive',    label: 'Positive',    icon: 'thumb_up',      cls: 'positive' },
-    { value: 'achievement', label: 'Achievement', icon: 'emoji_events',  cls: 'positive' },
+    { value: 'incident',    labelKey: 'modals.conduct.typeIncident',    icon: 'warning',      cls: 'negative' },
+    { value: 'warning',     labelKey: 'modals.conduct.typeWarning',     icon: 'error',        cls: 'warning'  },
+    { value: 'positive',    labelKey: 'modals.conduct.typePositive',    icon: 'thumb_up',     cls: 'positive' },
+    { value: 'achievement', labelKey: 'modals.conduct.typeAchievement', icon: 'emoji_events', cls: 'positive' },
 ]
 
 const SEVERITY_OPTIONS = [
-    { value: 'minor',    label: 'Minor'    },
-    { value: 'moderate', label: 'Moderate' },
-    { value: 'serious',  label: 'Serious'  },
-    { value: 'critical', label: 'Critical' },
+    { value: 'minor',    labelKey: 'modals.conduct.sevMinor'    },
+    { value: 'moderate', labelKey: 'modals.conduct.sevModerate' },
+    { value: 'serious',  labelKey: 'modals.conduct.sevSerious'  },
+    { value: 'critical', labelKey: 'modals.conduct.sevCritical' },
 ]
 
 const TYPE_META = {
@@ -30,11 +32,11 @@ const TYPE_META = {
 }
 
 const CONDUCT_COLORS = {
-    A: { bg: '#dcfce7', color: '#15803d', label: 'Excellent'         },
-    B: { bg: '#dbeafe', color: '#1d4ed8', label: 'Good'              },
-    C: { bg: '#fef9c3', color: '#92400e', label: 'Satisfactory'      },
-    D: { bg: '#fee2e2', color: '#b91c1c', label: 'Needs Improvement' },
-    F: { bg: '#fce7f3', color: '#9d174d', label: 'Unsatisfactory'    },
+    A: { bg: '#dcfce7', color: '#15803d', labelKey: 'modals.conduct.gradeExcellent'        },
+    B: { bg: '#dbeafe', color: '#1d4ed8', labelKey: 'modals.conduct.gradeGood'             },
+    C: { bg: '#fef9c3', color: '#92400e', labelKey: 'modals.conduct.gradeSatisfactory'     },
+    D: { bg: '#fee2e2', color: '#b91c1c', labelKey: 'modals.conduct.gradeNeedsImprovement' },
+    F: { bg: '#fce7f3', color: '#9d174d', labelKey: 'modals.conduct.gradeUnsatisfactory'   },
 }
 
 function todayISO() {
@@ -43,12 +45,13 @@ function todayISO() {
 
 function fmtDate(d) {
     if (!d) return ''
-    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return formatDate(d)
 }
 
 // ── Profile tab ────────────────────────────────────────────────────────────────
 
 function ProfileTab({ student, stats, history, histLoading }) {
+    const { t } = useTranslation()
     const grade     = student.grade || ''
     const section   = student.section || ''
     const cls       = grade && section ? `${grade}${section}` : (grade || section || '-')
@@ -57,49 +60,43 @@ function ProfileTab({ student, stats, history, histLoading }) {
 
     const isNeg = r => r.report_type === 'incident' || r.report_type === 'warning'
 
+    const marks = stats?.discipline_marks ?? 40
+
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div className="scm-stack">
 
             {/* Conduct Grade banner */}
-            <div style={{
-                display: 'flex', alignItems: 'center', gap: '1rem',
-                background: conductMeta ? conductMeta.bg : 'var(--muted)',
-                borderRadius: '12px', padding: '1rem 1.25rem',
-            }}>
-                <div style={{
-                    width: '3rem', height: '3rem', borderRadius: '50%',
-                    background: conductMeta ? conductMeta.color : 'var(--muted-foreground)',
-                    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 800, fontSize: '1.4rem',
-                }}>
+            <div
+                className="scm-banner"
+                style={conductMeta ? { '--scm-bg': conductMeta.bg } : undefined}
+            >
+                <div
+                    className="scm-grade-badge"
+                    style={conductMeta ? { '--scm-grade-bg': conductMeta.color } : undefined}
+                >
                     {conductG || '-'}
                 </div>
                 <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
-                        {conductMeta?.label || 'No Conduct Grade'}
+                    <div className="scm-grade-label">
+                        {conductMeta ? t(conductMeta.labelKey) : t('modals.conduct.noGrade')}
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '0.1rem' }}>
-                        Current Term Standing
-                    </div>
+                    <div className="scm-grade-sub">{t('modals.conduct.currentTermStanding')}</div>
                 </div>
                 {stats && (
-                    <div style={{ marginLeft: 'auto', minWidth: '110px' }}>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--muted-foreground)', marginBottom: '0.25rem', textAlign: 'right' }}>
-                            Discipline Marks
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                            <div style={{ flex: 1, height: '6px', borderRadius: '4px', background: 'rgba(0,0,0,0.12)', overflow: 'hidden' }}>
-                                <div style={{
-                                    height: '100%', borderRadius: '4px',
-                                    width: `${((stats.discipline_marks ?? 40) / 40) * 100}%`,
-                                    background: (stats.discipline_marks ?? 40) >= 30 ? '#16a34a'
-                                              : (stats.discipline_marks ?? 40) >= 20 ? '#f59e0b' : '#dc2626',
-                                    transition: 'width 0.3s',
+                    <div className="scm-marks">
+                        <div className="scm-marks-label">{t('modals.conduct.disciplineMarks')}</div>
+                        <div className="scm-marks-row">
+                            <div className="scm-marks-track">
+                                {/* width and threshold colour are data-driven */}
+                                <div className="scm-marks-fill" style={{
+                                    width: `${(marks / 40) * 100}%`,
+                                    background: marks >= 30 ? 'var(--success)'
+                                              : marks >= 20 ? 'var(--warning)' : 'var(--destructive)',
                                 }} />
                             </div>
-                            <span style={{ fontWeight: 800, fontSize: '1rem', whiteSpace: 'nowrap' }}>
-                                {stats.discipline_marks ?? 40}
-                                <span style={{ fontWeight: 400, fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>/40</span>
+                            <span className="scm-marks-value">
+                                {marks}
+                                <span className="scm-marks-max">/40</span>
                             </span>
                         </div>
                     </div>
@@ -107,81 +104,55 @@ function ProfileTab({ student, stats, history, histLoading }) {
             </div>
 
             {/* Student details grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
+            <div className="scm-detail-grid">
                 {[
-                    { label: 'Full Name',   value: student.name       },
-                    { label: 'Adm Number',  value: student.student_id },
-                    { label: 'Class',       value: cls                },
-                    { label: 'Incidents',   value: student.incident_count ?? '-' },
+                    { label: t('modals.disStaff.fullName'), value: student.name       },
+                    { label: t('modals.conduct.admNumber'), value: student.student_id },
+                    { label: t('common.class'),             value: cls                },
+                    { label: t('modals.conduct.incidents'), value: student.incident_count ?? '-' },
                 ].map(({ label, value }) => (
-                    <div key={label} style={{
-                        background: 'var(--muted)', borderRadius: '10px',
-                        padding: '0.625rem 0.875rem',
-                    }}>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.2rem' }}>
-                            {label}
-                        </div>
-                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{value}</div>
+                    <div key={label} className="scm-detail-cell">
+                        <div className="scm-detail-label">{label}</div>
+                        <div className="scm-detail-value">{value}</div>
                     </div>
                 ))}
             </div>
 
             {/* Conduct History */}
             <div>
-                <div style={{
-                    fontWeight: 700, fontSize: '0.875rem', marginBottom: '0.75rem',
-                    display: 'flex', alignItems: 'center', gap: '0.4rem',
-                    color: 'var(--foreground)',
-                }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>history</span>
-                    Conduct History
+                <div className="scm-section-title">
+                    <span className="material-symbols-rounded">history</span>
+                    {t('modals.conduct.conductHistory')}
                 </div>
 
                 {histLoading ? (
-                    <p style={{ color: 'var(--muted-foreground)', fontSize: '0.85rem', padding: '0.5rem 0' }}>Loading history…</p>
+                    <p className="scm-note">{t('modals.conduct.loadingHistory')}</p>
                 ) : history.length === 0 ? (
-                    <div style={{
-                        background: 'var(--muted)', borderRadius: '10px',
-                        padding: '1.25rem', textAlign: 'center',
-                        color: 'var(--muted-foreground)', fontSize: '0.85rem',
-                    }}>
-                        <span className="material-symbols-rounded" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.4rem', opacity: 0.4 }}>
+                    <div className="scm-empty">
+                        <span className="material-symbols-rounded scm-empty-icon">
                             history_toggle_off
                         </span>
-                        No conduct records yet
+                        {t('modals.conduct.noRecords')}
                     </div>
                 ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div className="scm-history">
                         {history.map((item) => {
                             const meta = TYPE_META[item.report_type] || { icon: 'info', cls: '' }
                             const neg  = isNeg(item)
                             return (
-                                <div key={item.id} style={{
-                                    display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
-                                    background: 'var(--muted)', borderRadius: '10px',
-                                    padding: '0.75rem 1rem',
-                                    borderLeft: `3px solid ${neg ? '#ef4444' : '#16a34a'}`,
-                                }}>
-                                    <div className={`disc-activity-icon ${meta.cls}`} style={{ flexShrink: 0 }}>
+                                <div key={item.id} className={`scm-history-item${neg ? ' is-negative' : ''}`}>
+                                    <div className={`disc-activity-icon scm-history-icon ${meta.cls}`}>
                                         <span className="material-symbols-rounded">{meta.icon}</span>
                                     </div>
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{item.title}</div>
+                                    <div className="scm-history-main">
+                                        <div className="scm-history-title">{item.title}</div>
                                         {item.badge && (
-                                            <span style={{
-                                                display: 'inline-block', marginTop: '0.15rem',
-                                                fontSize: '0.7rem', fontWeight: 600,
-                                                padding: '0.1rem 0.5rem', borderRadius: '9px',
-                                                background: neg ? '#fee2e2' : '#dcfce7',
-                                                color: neg ? '#b91c1c' : '#15803d',
-                                            }}>{item.badge}</span>
+                                            <span className="scm-history-badge">{item.badge}</span>
                                         )}
                                         {item.description && (
-                                            <div style={{ fontSize: '0.78rem', color: 'var(--muted-foreground)', marginTop: '0.2rem' }}>
-                                                {item.description}
-                                            </div>
+                                            <div className="scm-history-desc">{item.description}</div>
                                         )}
-                                        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.3rem', fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
+                                        <div className="scm-history-meta">
                                             <span>{fmtDate(item.date)}</span>
                                             {item.reported_by_display && <span>· {item.reported_by_display}</span>}
                                         </div>
@@ -199,6 +170,7 @@ function ProfileTab({ student, stats, history, histLoading }) {
 // ── Log Incident tab ───────────────────────────────────────────────────────────
 
 function LogTab({ student, onReportSaved }) {
+    const { t } = useTranslation()
     const [reportType, setReportType] = useState('incident')
     const [form, setForm] = useState({ title: '', description: '', severity: 'minor', location: '', date: todayISO(), marks_deducted: '' })
     const [saving, setSaving]         = useState(false)
@@ -244,85 +216,69 @@ function LogTab({ student, onReportSaved }) {
 
     if (done) {
         return (
-            <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
-                <div style={{
-                    width: '4rem', height: '4rem', borderRadius: '50%',
-                    background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    margin: '0 auto 1rem',
-                }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '2rem', color: '#15803d' }}>check_circle</span>
+            <div className="scm-done">
+                <div className="scm-done-icon">
+                    <span className="material-symbols-rounded">check_circle</span>
                 </div>
-                <h3 style={{ margin: '0 0 0.4rem', fontSize: '1rem' }}>Report Saved</h3>
-                <p style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-                    Conduct record for <strong>{student.name}</strong> has been filed.
+                <h3 className="scm-done-title">{t('modals.conduct.reportSaved')}</h3>
+                <p className="scm-done-text">
+                    {t('modals.conduct.recordFiled', { name: student.name })}
                 </p>
-                <button className="btn btn-outline btn-sm" onClick={reset}>Log Another</button>
+                <button className="btn btn-outline btn-sm" onClick={reset}>{t('modals.conduct.logAnother')}</button>
             </div>
         )
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="scm-form">
 
             {/* Report type selector */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.4rem' }}>
+            <div className="scm-type-grid">
                 {REPORT_TYPE_OPTIONS.map(opt => (
                     <button
                         key={opt.value}
+                        type="button"
                         onClick={() => setReportType(opt.value)}
-                        style={{
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem',
-                            padding: '0.625rem 0.25rem', borderRadius: '10px', border: '2px solid',
-                            borderColor: reportType === opt.value ? 'var(--primary)' : 'var(--border)',
-                            background: reportType === opt.value ? 'var(--primary)' : 'transparent',
-                            color: reportType === opt.value ? '#fff' : 'var(--foreground)',
-                            cursor: 'pointer', transition: 'all 0.15s',
-                        }}
+                        className={`scm-type-btn${reportType === opt.value ? ' active' : ''}`}
                     >
-                        <span className="material-symbols-rounded" style={{ fontSize: '1.1rem' }}>{opt.icon}</span>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>{opt.label}</span>
+                        <span className="material-symbols-rounded">{opt.icon}</span>
+                        <span className="scm-type-label">{t(opt.labelKey)}</span>
                     </button>
                 ))}
             </div>
 
             <div className="form-group">
-                <label className="form-label">Title *</label>
+                <label className="form-label">{t('common.titleRequired')}</label>
                 <input
                     className="form-input" name="title" value={form.title}
-                    onChange={handleChange} placeholder="Brief title of the report…"
+                    onChange={handleChange} placeholder={t('modals.conduct.titlePlaceholder')}
                 />
             </div>
 
             {isNeg && (
                 <>
                     <div className="form-group">
-                        <label className="form-label">Severity</label>
-                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <label className="form-label">{t('modals.conduct.severity')}</label>
+                        <div className="scm-sev-row">
                             {SEVERITY_OPTIONS.map(s => (
                                 <button
                                     key={s.value}
+                                    type="button"
                                     onClick={() => setForm(prev => ({ ...prev, severity: s.value }))}
-                                    style={{
-                                        padding: '0.3rem 0.75rem', borderRadius: '9px',
-                                        border: '1.5px solid',
-                                        borderColor: form.severity === s.value ? '#dc2626' : 'var(--border)',
-                                        background: form.severity === s.value ? '#fee2e2' : 'transparent',
-                                        color: form.severity === s.value ? '#b91c1c' : 'var(--muted-foreground)',
-                                        fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
-                                    }}
-                                >{s.label}</button>
+                                    className={`scm-sev-btn${form.severity === s.value ? ' active' : ''}`}
+                                >{t(s.labelKey)}</button>
                             ))}
                         </div>
                     </div>
                     <div className="form-group">
                         <label className="form-label">
-                            Marks Deducted
-                            <span style={{ fontWeight: 400, color: 'var(--muted-foreground)', marginLeft: '0.35rem' }}>
-                                (optional · max 40)
+                            {t('modals.conduct.marksDeducted')}
+                            <span className="scm-label-hint">
+                                {t('modals.conduct.marksHint')}
                             </span>
                         </label>
                         <input
-                            className="form-input"
+                            className="form-input scm-marks-input"
                             type="number" min="0" max="40" step="1"
                             name="marks_deducted"
                             value={form.marks_deducted}
@@ -330,25 +286,24 @@ function LogTab({ student, onReportSaved }) {
                                 const v = Math.max(0, Math.min(40, parseInt(e.target.value) || 0))
                                 setForm(prev => ({ ...prev, marks_deducted: e.target.value === '' ? '' : v }))
                             }}
-                            placeholder="e.g. 5"
-                            style={{ maxWidth: '120px' }}
+                            placeholder={t('modals.conduct.egFive')}
                         />
                     </div>
                 </>
             )}
 
             <div className="form-group">
-                <label className="form-label">Description *</label>
+                <label className="form-label">{t('modals.conduct.descriptionRequired')}</label>
                 <textarea
                     className="form-input form-textarea" rows="3"
                     name="description" value={form.description}
-                    onChange={handleChange} placeholder="Describe what happened in detail…"
+                    onChange={handleChange} placeholder={t('modals.conduct.descPlaceholder')}
                 />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div className="scm-form-row-2">
                 <div className="form-group">
-                    <label className="form-label">Date</label>
+                    <label className="form-label">{t('common.date')}</label>
                     <input
                         className="form-input" type="date"
                         name="date" value={form.date}
@@ -356,24 +311,24 @@ function LogTab({ student, onReportSaved }) {
                     />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Location (optional)</label>
+                    <label className="form-label">{t('modals.conduct.locationOptional')}</label>
                     <input
                         className="form-input" name="location" value={form.location}
-                        onChange={handleChange} placeholder="e.g. Dormitory Block A"
+                        onChange={handleChange} placeholder={t('modals.conduct.egLocation')}
                     />
                 </div>
             </div>
 
-            {error && <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: 0 }}>{error}</p>}
+            {error && <p className="scm-error">{error}</p>}
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
+            <div className="scm-actions">
                 <button
                     className="btn btn-primary"
                     onClick={handleSubmit}
                     disabled={saving || !form.title || !form.description}
                 >
                     <span className="material-symbols-rounded">save</span>
-                    {saving ? 'Saving…' : 'Submit Report'}
+                    {saving ? t('common.saving') : t('modals.conduct.submitReport')}
                 </button>
             </div>
         </div>
@@ -383,6 +338,7 @@ function LogTab({ student, onReportSaved }) {
 // ── Modal shell ────────────────────────────────────────────────────────────────
 
 export function StudentConductModal({ student, onClose }) {
+    const { t } = useTranslation()
     const [tab,        setTab]        = useState('profile')
     const [stats,      setStats]      = useState(null)
     const [history,    setHistory]    = useState([])
@@ -432,20 +388,15 @@ export function StudentConductModal({ student, onClose }) {
 
                 {/* Header */}
                 <div className="modal-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{
-                            width: '2.75rem', height: '2.75rem', borderRadius: '50%',
-                            background: 'var(--primary)', color: '#fff',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 700, fontSize: '0.95rem', flexShrink: 0,
-                        }}>
+                    <div className="scm-head">
+                        <div className="scm-avatar">
                             {student.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
                         </div>
                         <div>
-                            <div style={{ fontWeight: 700, fontSize: '1rem' }}>{student.name}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                                {cls && <span style={{ background: 'var(--primary)', color: '#fff', borderRadius: '5px', padding: '0.05rem 0.4rem', fontSize: '0.7rem', fontWeight: 600 }}>{cls}</span>}
-                                <span>Adm: {student.student_id || '-'}</span>
+                            <div className="scm-head-name">{student.name}</div>
+                            <div className="scm-head-meta">
+                                {cls && <span className="scm-head-class">{cls}</span>}
+                                <span>Student ID: {student.student_id || '-'}</span>
                             </div>
                         </div>
                     </div>
@@ -456,7 +407,7 @@ export function StudentConductModal({ student, onClose }) {
 
                 {/* Tabs */}
                 <div className="modal-tabs">
-                    <TabGroup tabs={TABS} value={tab} onChange={setTab} />
+                    <TabGroup tabs={TABS.map(tb => ({ ...tb, label: t(tb.labelKey) }))} value={tab} onChange={setTab} />
                 </div>
 
                 {/* Body */}

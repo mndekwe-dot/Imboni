@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -8,6 +9,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
+import { formatDate } from '../../utils/date'
 import {
     getAdminAnnouncements, createAdminAnnouncement,
     updateAdminAnnouncement, deleteAdminAnnouncement,
@@ -21,10 +23,10 @@ import '../../styles/tables.css'
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const CATEGORY_OPTIONS = [
-    { value: 'general',  label: 'General'  },
-    { value: 'academic', label: 'Academic' },
-    { value: 'event',    label: 'Events'   },
-    { value: 'urgent',   label: 'Urgent'   },
+    { value: 'general',  labelKey: 'announcements.catGeneral'  },
+    { value: 'academic', labelKey: 'announcements.catAcademic' },
+    { value: 'event',    labelKey: 'announcements.catEvents'   },
+    { value: 'urgent',   labelKey: 'announcements.catUrgent'   },
 ]
 
 const CAT_STYLE = {
@@ -35,49 +37,50 @@ const CAT_STYLE = {
 }
 
 const TABS = [
-    { key: 'all',      label: 'All'      },
-    { key: 'academic', label: 'Academic' },
-    { key: 'events',   label: 'Events'   },
-    { key: 'general',  label: 'General'  },
-    { key: 'urgent',   label: 'Urgent'   },
-    { key: 'drafts',   label: 'Drafts'   },
+    { key: 'all',      labelKey: 'common.all'                 },
+    { key: 'academic', labelKey: 'announcements.catAcademic'  },
+    { key: 'events',   labelKey: 'announcements.catEvents'    },
+    { key: 'general',  labelKey: 'announcements.catGeneral'   },
+    { key: 'urgent',   labelKey: 'announcements.catUrgent'    },
+    { key: 'drafts',   labelKey: 'announcements.tabDrafts'    },
 ]
 
 const EMPTY_FORM = { category: 'general', title: '', content: '', audienceKey: 'all', target_grade: '', status: 'published' }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relDate(dateStr) {
+function relDate(dateStr, t) {
     if (!dateStr) return ''
     const d    = new Date(dateStr)
     const diff = Math.floor((Date.now() - d) / 86400000)
-    if (diff === 0) return 'Today'
-    if (diff === 1) return 'Yesterday'
-    if (diff < 7)  return `${diff}d ago`
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    if (diff === 0) return t('common.today')
+    if (diff === 1) return t('common.yesterday')
+    if (diff < 7)  return t('common.daysAgo', { count: diff })
+    return formatDate(d)
 }
 
-function audienceLabel(ann) {
-    if (!ann.target_audience || ann.target_audience === 'all') return 'School-wide'
+function audienceLabel(ann, t) {
+    if (!ann.target_audience || ann.target_audience === 'all') return t('announcements.schoolWide')
     if (ann.target_grade) return ann.target_grade
-    if (ann.target_audience === 'parents') return 'Parents only'
+    if (ann.target_audience === 'parents') return t('announcements.parentsOnly')
     return ann.target_audience
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function DeleteModal({ target, onClose, onConfirm }) {
+    const { t } = useTranslation()
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-box modal-box-sm modal-confirm" onClick={e => e.stopPropagation()}>
-                <h2 className="modal-confirm-title">Delete Announcement?</h2>
+                <h2 className="modal-confirm-title">{t('announcements.deleteTitle')}</h2>
                 <p className="modal-confirm-desc">
-                    "<strong>{target.title}</strong>" will be permanently removed.
+                    {t('announcements.deleteDesc', { title: target.title })}
                 </p>
                 <div className="modal-confirm-actions">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary btn-destructive" onClick={onConfirm}>
-                        <span className="material-symbols-rounded">delete</span> Delete
+                        <span className="material-symbols-rounded">delete</span> {t('common.delete')}
                     </button>
                 </div>
             </div>
@@ -86,6 +89,7 @@ function DeleteModal({ target, onClose, onConfirm }) {
 }
 
 function AnnCard({ ann, onEdit, onDelete, onPublish }) {
+    const { t } = useTranslation()
     const cat  = CAT_STYLE[ann.category] || CAT_STYLE.general
     const date = ann.published_at || ann.created_at
 
@@ -103,14 +107,14 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
                     <span className="adm-ann-cat">{ann.category}</span>
 
                     {ann.status === 'draft' && (
-                        <span className="adm-badge pending u-fs-068">Draft</span>
+                        <span className="adm-badge pending u-fs-068">{t('common.draft')}</span>
                     )}
 
                     <span className="adm-ann-time">
-                        {relDate(date)}
+                        {relDate(date, t)}
                     </span>
                     <span className="adm-ann-time">
-                        · {audienceLabel(ann)}
+                        · {audienceLabel(ann, t)}
                     </span>
                 </div>
 
@@ -123,17 +127,17 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
 
                 <div className="adm-ann-actions">
                     <button className="adm-btn" onClick={() => onEdit(ann)}>
-                        <span className="material-symbols-rounded">edit</span> Edit
+                        <span className="material-symbols-rounded">edit</span> {t('common.edit')}
                     </button>
                     {ann.status === 'draft' && (
                         <button
                             className="adm-btn primary"
                             onClick={() => onPublish(ann)}
                         >
-                            <span className="material-symbols-rounded">send</span> Publish
+                            <span className="material-symbols-rounded">send</span> {t('common.publish')}
                         </button>
                     )}
-                    <button className="adm-btn danger" onClick={() => onDelete(ann)} title="Delete">
+                    <button className="adm-btn danger" onClick={() => onDelete(ann)} title={t('common.delete')}>
                         <span className="material-symbols-rounded">delete</span>
                     </button>
                 </div>
@@ -143,16 +147,17 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
 }
 
 function TemplateChips({ templates, onSelect }) {
+    const { t } = useTranslation()
     if (!templates.length) return null
     return (
         <div className="u-mb-sm">
             <p className="adm-eyebrow">
-                Quick Templates
+                {t('announcements.quickTemplates')}
             </p>
             <div className="adm-chip-row">
-                {templates.map(t => (
-                    <button key={t.key} type="button" className="filter-chip" onClick={() => onSelect(t)}>
-                        {t.label}
+                {templates.map(tmpl => (
+                    <button key={tmpl.key} type="button" className="filter-chip" onClick={() => onSelect(tmpl)}>
+                        {tmpl.label}
                     </button>
                 ))}
             </div>
@@ -181,19 +186,20 @@ function AudienceChips({ options, audienceKey, targetGrade, onChange }) {
 }
 
 function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving }) {
+    const { t } = useTranslation()
     const [form,  setForm]  = useState(initial)
     const [error, setError] = useState('')
 
     function set(key, val) { setForm(f => ({ ...f, [key]: val })); setError('') }
 
-    function applyTemplate(t) {
-        setForm(f => ({ ...f, category: t.category || f.category, title: t.title, content: t.content }))
+    function applyTemplate(tmpl) {
+        setForm(f => ({ ...f, category: tmpl.category || f.category, title: tmpl.title, content: tmpl.content }))
         setError('')
     }
 
     function handleSubmit(status) {
-        if (!form.title.trim())   { setError('Title is required.');   return }
-        if (!form.content.trim()) { setError('Content is required.'); return }
+        if (!form.title.trim())   { setError(t('announcements.titleRequiredError')); return }
+        if (!form.content.trim()) { setError(t('announcements.contentRequiredError')); return }
         onSave({ ...form, status })
     }
 
@@ -203,25 +209,25 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
 
             <div className="adm-title-grid">
                 <div className="form-group form-group-0">
-                    <label className="form-label">Title *</label>
+                    <label className="form-label">{t('common.titleRequired')}</label>
                     <input
                         className="form-input"
                         value={form.title}
                         onChange={e => set('title', e.target.value)}
-                        placeholder="Announcement title"
+                        placeholder={t('announcements.titlePlaceholderPlain')}
                         autoFocus
                     />
                 </div>
                 <div className="form-group form-group-0">
-                    <label className="form-label">Category</label>
+                    <label className="form-label">{t('common.category')}</label>
                     <select className="form-input" value={form.category} onChange={e => set('category', e.target.value)}>
-                        {CATEGORY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        {CATEGORY_OPTIONS.map(o => <option key={o.value} value={o.value}>{t(o.labelKey)}</option>)}
                     </select>
                 </div>
             </div>
 
             <div className="form-group form-group-0">
-                <label className="form-label">Audience</label>
+                <label className="form-label">{t('announcements.audience')}</label>
                 <AudienceChips
                     options={audienceOptions}
                     audienceKey={form.audienceKey}
@@ -231,13 +237,13 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
             </div>
 
             <div className="form-group form-group-0">
-                <label className="form-label">Content *</label>
+                <label className="form-label">{t('common.contentRequired')}</label>
                 <textarea
                     className="form-input"
                     rows={5}
                     value={form.content}
                     onChange={e => set('content', e.target.value)}
-                    placeholder="Write your announcement here…"
+                    placeholder={t('announcements.bodyPlaceholderLong')}
                 />
             </div>
 
@@ -246,13 +252,13 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
             <div className="u-row-sm u-wrap u-pt-xs">
                 <button className="btn btn-primary" disabled={saving} onClick={() => handleSubmit('published')}>
                     <span className="material-symbols-rounded">send</span>
-                    {saving ? 'Publishing…' : 'Publish'}
+                    {saving ? t('announcements.publishing') : t('common.publish')}
                 </button>
                 <button className="btn btn-outline" disabled={saving} onClick={() => handleSubmit('draft')}>
                     <span className="material-symbols-rounded">save</span>
-                    Save Draft
+                    {t('announcements.saveDraft')}
                 </button>
-                <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+                <button className="btn btn-secondary" onClick={onCancel}>{t('common.cancel')}</button>
             </div>
         </div>
     )
@@ -261,6 +267,7 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminAnnouncements() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const [announcements,   setAnnouncements]   = useState([])
@@ -268,8 +275,8 @@ export function AdminAnnouncements() {
     const [urgentCount,     setUrgentCount]     = useState(0)
     const [publishedCount,  setPublishedCount]  = useState(0)
     const [audienceOptions, setAudienceOptions] = useState([
-        { label: 'All Classes',  target_audience: 'all',     target_grade: '' },
-        { label: 'Parents Only', target_audience: 'parents', target_grade: '' },
+        { label: t('announcements.allClasses'),        target_audience: 'all',     target_grade: '' },
+        { label: t('announcements.parentsOnlyOption'), target_audience: 'parents', target_grade: '' },
     ])
     const [templates,       setTemplates]       = useState([])
     const [loading,         setLoading]         = useState(true)
@@ -290,8 +297,8 @@ export function AdminAnnouncements() {
                 setUrgentCount(list.filter(a => a.category === 'urgent').length)
                 setPublishedCount(list.filter(a => a.status === 'published').length)
             })
-            .catch(e => toast.error(errorMessage(e, 'Could not load announcements.')))
-    }, [activeTab])
+            .catch(e => toast.error(errorMessage(e, t('announcements.loadFailed'))))
+    }, [activeTab, t])
 
     useEffect(() => {
         Promise.all([
@@ -329,11 +336,11 @@ export function AdminAnnouncements() {
             }
             setComposing(false)
             setEditing(null)
-            toast.success(editing ? 'Announcement updated.' : 'Announcement created.')
+            toast.success(editing ? t('announcements.updated') : t('announcements.created'))
             setLoading(true)
             await load(activeTab)
         } catch (e) {
-            toast.error(errorMessage(e, 'Could not save the announcement.'))
+            toast.error(errorMessage(e, t('announcements.saveFailedAdmin')))
         }
         finally { setSaving(false); setLoading(false) }
     }
@@ -341,11 +348,11 @@ export function AdminAnnouncements() {
     async function handlePublish(ann) {
         try {
             await updateAdminAnnouncement(ann.id, { status: 'published' })
-            toast.success('Announcement published.')
+            toast.success(t('announcements.publishedToast'))
             setLoading(true)
             await load(activeTab)
         } catch (e) {
-            toast.error(errorMessage(e, 'Could not publish the announcement.'))
+            toast.error(errorMessage(e, t('announcements.publishFailed')))
         } finally { setLoading(false) }
     }
 
@@ -353,11 +360,11 @@ export function AdminAnnouncements() {
         if (!deleteTarget) return
         try {
             await deleteAdminAnnouncement(deleteTarget.id)
-            toast.success('Announcement deleted.')
+            toast.success(t('announcements.deletedToast'))
             setLoading(true)
             await load(activeTab)
         } catch (e) {
-            toast.error(errorMessage(e, 'Could not delete the announcement.'))
+            toast.error(errorMessage(e, t('announcements.deleteFailed')))
         } finally { setDeleteTarget(null); setLoading(false) }
     }
 
@@ -377,10 +384,10 @@ export function AdminAnnouncements() {
         : announcements
 
     const statCards = [
-        { icon: 'campaign',      value: loading ? '-' : publishedCount,         label: 'Published',  trend: 'Live announcements',   colorClass: 'info'    },
-        { icon: 'draft',         value: loading ? '-' : draftCount,             label: 'Drafts',     trend: 'Saved, not sent',      colorClass: 'warning' },
-        { icon: 'priority_high', value: loading ? '-' : urgentCount,            label: 'Urgent',     trend: 'Requires attention',   colorClass: ''        },
-        { icon: 'feed',          value: loading ? '-' : announcements.length,   label: 'Total',      trend: 'This view',            colorClass: 'success' },
+        { icon: 'campaign',      value: loading ? '-' : publishedCount,       label: t('common.published'),          trend: t('announcements.statPublishedTrend'), colorClass: 'info'    },
+        { icon: 'draft',         value: loading ? '-' : draftCount,           label: t('announcements.tabDrafts'),   trend: t('announcements.statDraftsTrend'),    colorClass: 'warning' },
+        { icon: 'priority_high', value: loading ? '-' : urgentCount,          label: t('announcements.catUrgent'),   trend: t('announcements.statUrgentTrend'),    colorClass: ''        },
+        { icon: 'feed',          value: loading ? '-' : announcements.length, label: t('common.total'),              trend: t('announcements.statTotalTrend'),     colorClass: 'success' },
     ]
 
     return (
@@ -393,14 +400,14 @@ export function AdminAnnouncements() {
                 />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Announcements"
-                        subtitle="Compose and broadcast school-wide notices"
+                        title={t('nav.announcements')}
+                        subtitle={t('admin.announcements.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -417,12 +424,12 @@ export function AdminAnnouncements() {
                             <div className="card u-mb-lg">
                                 <div className="card-header">
                                     <h2 className="card-title">
-                                        {editing ? 'Edit Announcement' : 'New Announcement'}
+                                        {editing ? t('announcements.editTitle') : t('announcements.newAnnouncementTitle')}
                                     </h2>
                                     <button
                                         className="btn-icon-clean"
                                         onClick={() => { setComposing(false); setEditing(null) }}
-                                        title="Close"
+                                        title={t('common.close')}
                                     >
                                         <span className="material-symbols-rounded">close</span>
                                     </button>
@@ -450,15 +457,15 @@ export function AdminAnnouncements() {
                         {/* Toolbar: tabs + search + compose button */}
                         <div className="u-row-between u-mb">
                             <div className="filter-chips u-mb-0">
-                                {TABS.map(t => (
+                                {TABS.map(tab => (
                                     <button
-                                        key={t.key}
-                                        className={`filter-chip${activeTab === t.key ? ' active' : ''}`}
-                                        onClick={() => switchTab(t.key)}
+                                        key={tab.key}
+                                        className={`filter-chip${activeTab === tab.key ? ' active' : ''}`}
+                                        onClick={() => switchTab(tab.key)}
                                     >
-                                        {t.label}
-                                        {t.key === 'drafts' && draftCount > 0 && (
-                                            <span className={`adm-tab-count${activeTab === t.key ? ' on' : ''}`}>{draftCount}</span>
+                                        {t(tab.labelKey)}
+                                        {tab.key === 'drafts' && draftCount > 0 && (
+                                            <span className={`adm-tab-count${activeTab === tab.key ? ' on' : ''}`}>{draftCount}</span>
                                         )}
                                     </button>
                                 ))}
@@ -470,7 +477,7 @@ export function AdminAnnouncements() {
                                     onClick={() => { setEditing(null); setComposing(true) }}
                                 >
                                     <span className="material-symbols-rounded">add</span>
-                                    New Announcement
+                                    {t('announcements.newAnnouncementTitle')}
                                 </button>
                             )}
                         </div>
@@ -480,7 +487,7 @@ export function AdminAnnouncements() {
                             <div className="toolbar-search">
                                 <span className="material-symbols-rounded">search</span>
                                 <input
-                                    placeholder="Search by title, content or category…"
+                                    placeholder={t('announcements.searchPlaceholder')}
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                 />
@@ -494,12 +501,12 @@ export function AdminAnnouncements() {
 
                         {/* Feed */}
                         {loading ? (
-                            <p className="u-muted u-pad">Loading…</p>
+                            <p className="u-muted u-pad">{t('common.loading')}</p>
                         ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="campaign"
-                                title={search ? `No results for "${search}"` : 'No announcements'}
-                                desc={search ? 'Try a different search term.' : 'Switch tabs or create a new announcement.'}
+                                title={search ? t('announcements.noResults', { query: search }) : t('announcements.noneTitle')}
+                                desc={search ? t('announcements.trySearch') : t('announcements.switchTabs')}
                             />
                         ) : (
                             <div className="u-stack-sm">

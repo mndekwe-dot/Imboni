@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -316,6 +317,7 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function DisBoarding() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const [students,     setStudents]     = useState([])
@@ -405,7 +407,7 @@ export function DisBoarding() {
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Boarding" subtitle="Dormitory assignments and boarding records" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('dis.boarding.title')} subtitle={t('dis.boarding.subtitle')} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
 
@@ -424,11 +426,11 @@ export function DisBoarding() {
                         <div className="rpt-tab-bar">
                             <button className={`rpt-tab${tab === 'records' ? ' active' : ''}`}
                                     onClick={() => setTab('records')}>
-                                <span className="material-symbols-rounded">hotel</span> Boarding Records
+                                <span className="material-symbols-rounded">hotel</span> {t('dis.boarding.records')}
                             </button>
                             <button className={`rpt-tab${tab === 'planner' ? ' active' : ''}`}
                                     onClick={() => setTab('planner')}>
-                                <span className="material-symbols-rounded">auto_awesome</span> Dorm Planner
+                                <span className="material-symbols-rounded">auto_awesome</span> {t('dis.boarding.dormPlanner')}
                             </button>
                         </div>
 
@@ -445,7 +447,7 @@ export function DisBoarding() {
                                 <div className="card-header">
                                     <h2 className="card-title">
                                         <span className="material-symbols-rounded dis-inline-icon">hotel</span>
-                                        Dormitory Occupancy
+                                        {t('dis.boarding.occupancy')}
                                     </h2>
                                     <span className="dis-occ-note">
                                         {occupancy.total_boarders} boarders / {occupancy.total_capacity} beds
@@ -516,7 +518,7 @@ export function DisBoarding() {
                                 </select>
 
                                 <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-                                    <span className="material-symbols-rounded">add</span> Assign to Boarding
+                                    <span className="material-symbols-rounded">add</span> {t('dis.boarding.assign')}
                                 </button>
                             </div>
                         </div>
@@ -525,7 +527,7 @@ export function DisBoarding() {
                             <p className="u-pad u-muted">Loading boarding records…</p>
                         ) : (
                             <DataTable
-                                title="Boarding Students"
+                                title={t('dis.boarding.students')}
                                 data={visible}
                                 columns={['Student', 'Class', 'Student ID', 'Dormitory', 'Room / Bed', 'Type', 'Check-in', 'Actions']}
                                 renderRow={(r, i) => (

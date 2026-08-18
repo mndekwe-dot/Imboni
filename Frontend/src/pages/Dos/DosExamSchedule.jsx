@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import {
     getDosExamSchedule, deleteDosExamSchedule, updateDosExamSchedule,
@@ -21,17 +22,9 @@ import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 
 
-const examRows = [
-    { num: 1, subject: 'Mathematics',          code: 'MAT 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Mon, 16 Mar 2026', time: '8:00 - 11:00', duration: '3 hrs',   rooms: ['Hall A', 'Hall B'],   invigilator: 'Mr. Rurangwa',    statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 2, subject: 'English Language',     code: 'ENG 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Tue, 17 Mar 2026', time: '8:00 - 10:30', duration: '2.5 hrs', rooms: ['Hall A', 'Hall B'],   invigilator: 'Ms. Uwera',       statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 3, subject: 'Physics',              code: 'PHY 401', classes: 'S4A \u00b7 S4B',             date: 'Wed, 18 Mar 2026', time: '8:00 - 11:00', duration: '3 hrs',   rooms: ['Room 8', 'Room 9'],   invigilator: 'Mr. Ntakirutimana', statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 4, subject: 'Chemistry',            code: 'CHE 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Thu, 19 Mar 2026', time: '8:00 - 11:00', duration: '3 hrs',   rooms: ['Hall A', 'Lab 2'],    invigilator: 'Ms. Umutoni',     statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 5, subject: 'Biology',              code: 'BIO 401', classes: 'S4A \u00b7 S4C',             date: 'Fri, 20 Mar 2026', time: '8:00 - 11:00', duration: '3 hrs',   rooms: ['Hall B', 'Lab 3'],    invigilator: 'Ms. Ingabire',    statusClass: 'badge-upcoming', status: 'Upcoming' },
-    { num: 6, subject: 'Kinyarwanda',          code: 'KIN 401', classes: 'S4A \u00b7 S4B \u00b7 S4C', date: 'Mon, 23 Mar 2026', time: '8:00 - 10:30', duration: '2.5 hrs', rooms: ['Hall A', 'Hall B'],   invigilator: 'Mr. Bizimana',    statusClass: 'badge-draft',    status: 'Draft'    },
-    { num: 7, subject: 'History',              code: 'HIS 301', classes: 'S3A \u00b7 S3B \u00b7 S3C', date: 'Tue, 17 Mar 2026', time: '2:00 - 4:30',  duration: '2.5 hrs', rooms: ['Room 10', 'Room 11'], invigilator: 'Mr. Nsabimana',   statusClass: 'badge-upcoming', status: 'Upcoming' },
-]
 
-function ExamRow({ num, subject, code, classes, date, time, duration, rooms, invigilator, statusClass, status, id, onDelete }) {
+function ExamRow({ num, subject, code, classes, date, time, duration, rooms, invigilator, statusClass, statusKey, id, onDelete }) {
+    const { t } = useTranslation()
     return (
         <tr>
             <td>{num}</td>
@@ -49,7 +42,7 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
             <td>{duration}</td>
             <td>{rooms.map((r, i) => <span key={i} className="es-room-chip">{r}</span>)}</td>
             <td>{invigilator}</td>
-            <td><span className={`badge ${statusClass}`}>{status}</span></td>
+            <td><span className={`badge ${statusClass}`}>{t(statusKey)}</span></td>
             <td>
                 <div className="es-row-actions">
                     <button className="es-icon-btn"><span className="material-symbols-rounded">edit</span></button>
@@ -62,16 +55,17 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
 }
 
 const EXAM_TYPES = [
-    { value: 'midterm', label: 'Mid-Term Exam' },
-    { value: 'final',   label: 'Final Exam' },
-    { value: 'mock',    label: 'Mock Exam' },
-    { value: 'quiz',    label: 'Quiz' },
-    { value: 'other',   label: 'Other' },
+    { value: 'midterm', labelKey: 'dos.scheduling.typeMidterm' },
+    { value: 'final',   labelKey: 'dos.scheduling.typeFinal'   },
+    { value: 'mock',    labelKey: 'dos.scheduling.typeMock'    },
+    { value: 'quiz',    labelKey: 'dos.scheduling.typeQuiz'    },
+    { value: 'other',   labelKey: 'dos.scheduling.typeOther'   },
 ]
 
 // Auto-scheduler modal: collect a window, preview the DSatur-generated plan,
 // then commit it. Nothing is written until the DOS confirms the preview.
 function ExamGenerateModal({ onClose, onCommitted }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [terms,     setTerms]     = useState([])
     const [form,      setForm]      = useState({
@@ -89,10 +83,10 @@ function ExamGenerateModal({ onClose, onCommitted }) {
             .then(data => {
                 const list = Array.isArray(data) ? data : (data?.results || [])
                 setTerms(list)
-                const current = list.find(t => t.is_current) || list[0]
+                const current = list.find(term => term.is_current) || list[0]
                 if (current) setForm(f => ({ ...f, term_id: String(current.id) }))
             })
-            .catch(() => toast.error('Could not load academic terms.'))
+            .catch(() => toast.error(t('dos.examSchedule.loadTermsFailed')))
     }, [toast])
 
     const canRun = form.term_id && form.start_date && !busy
@@ -109,7 +103,7 @@ function ExamGenerateModal({ onClose, onCommitted }) {
             setPreview(plan)
             plan.warnings?.forEach(w => toast.info(w))
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not generate a schedule.')
+            toast.error(err.response?.data?.detail || t('dos.examSchedule.generateFailed'))
         } finally {
             setBusy(false)
         }
@@ -122,7 +116,7 @@ function ExamGenerateModal({ onClose, onCommitted }) {
             toast.success(`Saved ${result.created} exam(s).`)
             onCommitted()
         } catch (err) {
-            toast.error(err.response?.data?.detail || 'Could not save the schedule.')
+            toast.error(err.response?.data?.detail || t('dos.examSchedule.saveFailed'))
         } finally {
             setBusy(false)
         }
@@ -130,49 +124,49 @@ function ExamGenerateModal({ onClose, onCommitted }) {
 
     return (
         <Modal
-            title="Generate Exam Schedule"
+            title={t('dos.examSchedule.generateTitle')}
             icon="auto_awesome"
             onClose={onClose}
             size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
-                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose} disabled={busy}>{t('common.cancel')}</button>
                     {preview
                         ? <button className="btn btn-primary" onClick={handleCommit}
                                   disabled={busy || preview.summary.scheduled === 0}>
-                              Save {preview.summary.scheduled} exam(s)
+                              {t('dos.examSchedule.saveExams', { count: preview.summary.scheduled })}
                           </button>
                         : <button className="btn btn-primary" onClick={handlePreview} disabled={!canRun}>
-                              {busy ? 'Generating…' : 'Preview'}
+                              {busy ? t('common.generating') : t('dos.examSchedule.preview')}
                           </button>}
                 </div>
             }
         >
             <div className="u-grid u-grid-2 u-gap-1">
                 <div className="form-group">
-                    <label className="form-label">Academic Term *</label>
+                    <label className="form-label">{t('dos.examSchedule.academicTermRequired')}</label>
                     <select className="form-select" value={form.term_id}
                             onChange={e => update('term_id', e.target.value)}>
-                        <option value="">Select term…</option>
-                        {terms.map(t => (
-                            <option key={t.id} value={t.id}>{t.name} ({t.year})</option>
+                        <option value="">{t('dos.examSchedule.selectTerm')}</option>
+                        {terms.map(term => (
+                            <option key={term.id} value={term.id}>{term.name} ({term.year})</option>
                         ))}
                     </select>
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Exam Type</label>
+                    <label className="form-label">{t('dos.examSchedule.examType')}</label>
                     <select className="form-select" value={form.exam_type}
                             onChange={e => update('exam_type', e.target.value)}>
-                        {EXAM_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                        {EXAM_TYPES.map(et => <option key={et.value} value={et.value}>{t(et.labelKey)}</option>)}
                     </select>
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Start Date *</label>
+                    <label className="form-label">{t('dos.examSchedule.startDateRequired')}</label>
                     <input type="date" className="form-input" value={form.start_date}
                            onChange={e => update('start_date', e.target.value)} />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Exam Days</label>
+                    <label className="form-label">{t('dos.examSchedule.examDays')}</label>
                     <input type="number" min="1" max="60" className="form-input" value={form.num_days}
                            onChange={e => update('num_days', Number(e.target.value))} />
                 </div>
@@ -180,7 +174,7 @@ function ExamGenerateModal({ onClose, onCommitted }) {
                     <label className="u-flex u-gap-05 u-items-center">
                         <input type="checkbox" checked={form.skip_weekends}
                                onChange={e => update('skip_weekends', e.target.checked)} />
-                        Skip weekends
+                        {t('dos.examSchedule.skipWeekends')}
                     </label>
                 </div>
             </div>
@@ -188,17 +182,25 @@ function ExamGenerateModal({ onClose, onCommitted }) {
             {preview && (
                 <div className="mt-1-5">
                     <div className="es-gen-summary">
-                        <span className="badge badge-published">{preview.summary.scheduled} scheduled</span>
+                        <span className="badge badge-published">{t('dos.examSchedule.scheduled', { count: preview.summary.scheduled })}</span>
                         {preview.summary.unscheduled > 0 &&
-                            <span className="badge badge-draft">{preview.summary.unscheduled} unplaced</span>}
+                            <span className="badge badge-draft">{t('dos.examSchedule.unplaced', { count: preview.summary.unscheduled })}</span>}
                         <span className="u-muted u-sm">
-                            {preview.summary.slots_available} slots · {preview.summary.venues} venue(s)
+                            {t('dos.examSchedule.slotsVenues', { slots: preview.summary.slots_available, venues: preview.summary.venues })}
                         </span>
                     </div>
                     <div className="es-table-wrap mt-1">
                         <table className="es-table">
                             <thead>
-                                <tr><th>Subject</th><th>Wt</th><th>Class</th><th>Date</th><th>Time</th><th>Venue</th><th>Invigilator</th></tr>
+                                <tr>
+                                    <th>{t('common.subject')}</th>
+                                    <th>{t('dos.examSchedule.weightShort')}</th>
+                                    <th>{t('common.class')}</th>
+                                    <th>{t('common.date')}</th>
+                                    <th>{t('common.time')}</th>
+                                    <th>{t('common.venue')}</th>
+                                    <th>{t('common.invigilator')}</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {preview.assignments.map((a, i) => (
@@ -222,10 +224,12 @@ function ExamGenerateModal({ onClose, onCommitted }) {
 }
 
 export function DosExamSchedule() {
+    const { t } = useTranslation()
     const { setting } = useSchoolSettings()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const [exams,   setExams]   = useState(examRows)
+    const [exams,   setExams]   = useState([])
+    const [currentTerm, setCurrentTerm] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error,   setError]   = useState(null)
     const [showGenerate, setShowGenerate] = useState(false)
@@ -237,8 +241,7 @@ export function DosExamSchedule() {
         return getDosExamSchedule()
             .then(data => {
                 setRawExams(Array.isArray(data) ? data : [])
-                if (data.length > 0) {
-                    setExams(data.map((e, i) => ({
+                setExams((Array.isArray(data) ? data : []).map((e, i) => ({
                         num:         i + 1,
                         subject:     e.subject,
                         code:        e.exam_type,
@@ -249,10 +252,9 @@ export function DosExamSchedule() {
                         rooms:       e.venue ? [e.venue] : ['-'],
                         invigilator: e.invigilator || '-',
                         statusClass: 'badge-upcoming',
-                        status:      'Upcoming',
+                        statusKey:   'common.upcoming',
                         id:          e.id,
-                    })))
-                }
+                })))
             })
     }
 
@@ -260,6 +262,14 @@ export function DosExamSchedule() {
         loadExams()
             .catch(err => setError(err.message))
             .finally(() => setLoading(false))
+        // The card heading names the term the schedule belongs to, rather
+        // than a term and year hardcoded into the markup.
+        getTerms()
+            .then(data => {
+                const list = Array.isArray(data) ? data : (data?.results || [])
+                setCurrentTerm(list.find(term => term.is_current) || null)
+            })
+            .catch(() => setCurrentTerm(null))
     }, [])
 
     async function handleDelete(id) {
@@ -277,93 +287,60 @@ export function DosExamSchedule() {
         try {
             await updateDosExamSchedule(id, patch)
             await loadExams()
-            toast.success('Exam rescheduled.')
+            toast.success(t('dos.examSchedule.rescheduled'))
         } catch (err) {
             setRawExams(before)
-            toast.error(err.response?.data?.detail || 'Could not reschedule that exam.')
+            toast.error(err.response?.data?.detail || t('dos.examSchedule.rescheduleFailed'))
         }
     }
 
     if (loading) return <Loading fullPage />
-    if (error)   return <p className="u-pad u-danger">Error: {error}</p>
+    if (error)   return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Exam Schedule"
-                        subtitle="Create and manage examination timetables"
+                        title={t('dos.examSchedule.title')}
+                        subtitle={t('dos.examSchedule.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
                         actions={
-                            <>
-                                <button className="btn btn-secondary" onClick={() => setShowGenerate(true)}>
-                                    <span className="material-symbols-rounded">auto_awesome</span> Generate
-                                </button>
-                                <button className="btn btn-primary">+ Add Exam</button>
-                            </>
+                            <button className="btn btn-secondary" onClick={() => setShowGenerate(true)}>
+                                <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
+                            </button>
                         }
                     />
 
                     <DashboardContent>
-                        {/* Page Tabs */}
-                        <nav className="es-tabs">
-                            <button className="es-tab active">
-                                <span className="material-symbols-rounded">calendar_month</span> Current Schedule
-                            </button>
-                            <button className="es-tab">
-                                <span className="material-symbols-rounded">edit_calendar</span> Plan / Edit
-                            </button>
-                            <button className="es-tab">
-                                <span className="material-symbols-rounded">meeting_room</span> Room Planner
-                            </button>
-                            <button className="es-tab">
-                                <span className="material-symbols-rounded">send</span> Publish
-                            </button>
-                        </nav>
-
                         <div className="card mt-1-5">
                             <div className="card-header">
-                                <h2 className="card-title">Term 1 &middot; 2026 Exam Schedule</h2>
+                                <h2 className="card-title">
+                                    {currentTerm
+                                        ? t('dos.examSchedule.cardTitle', { term: `${currentTerm.name} · ${currentTerm.year}` })
+                                        : t('dos.examSchedule.cardTitleNoTerm')}
+                                </h2>
                                 <div className="es-card-actions">
-                                    <span className="badge badge-published">Published</span>
                                     <button
                                         className={`btn btn-sm ${view === 'table' ? 'btn-primary' : 'btn-secondary'}`}
                                         onClick={() => setView('table')}
                                     >
-                                        <span className="material-symbols-rounded">table_rows</span> Table
+                                        <span className="material-symbols-rounded">table_rows</span> {t('dos.examSchedule.tableView')}
                                     </button>
                                     <button
                                         className={`btn btn-sm ${view === 'calendar' ? 'btn-primary' : 'btn-secondary'}`}
                                         onClick={() => setView('calendar')}
                                     >
-                                        <span className="material-symbols-rounded">calendar_month</span> Calendar
-                                    </button>
-                                    <button className="btn btn-secondary btn-sm">
-                                        <span className="material-symbols-rounded">download</span> Export CSV
-                                    </button>
-                                    <button className="btn btn-secondary btn-sm">
-                                        <span className="material-symbols-rounded">print</span> Print / PDF
+                                        <span className="material-symbols-rounded">calendar_month</span> {t('dos.examSchedule.calendarView')}
                                     </button>
                                 </div>
                             </div>
                             <div className="card-content">
-                                {/* Level filter */}
-                                <div className="att-mode-bar">
-                                    <button className="att-mode-btn active">All Levels</button>
-                                    <button className="att-mode-btn">
-                                        <span className="material-symbols-rounded">school</span> Ordinary (S1-S3)
-                                    </button>
-                                    <button className="att-mode-btn">
-                                        <span className="material-symbols-rounded">workspace_premium</span> Advanced (S4-S6)
-                                    </button>
-                                </div>
-
                                 {view === 'calendar' ? (
                                     <ExamCalendar exams={rawExams} onReschedule={handleReschedule} />
                                 ) : (
@@ -372,19 +349,21 @@ export function DosExamSchedule() {
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
-                                                    <th>Subject</th>
-                                                    <th>Class(es)</th>
-                                                    <th>Date</th>
-                                                    <th>Time</th>
-                                                    <th>Duration</th>
-                                                    <th>Room(s)</th>
-                                                    <th>Invigilator</th>
-                                                    <th>Status</th>
-                                                    <th>Actions</th>
+                                                    <th>{t('common.subject')}</th>
+                                                    <th>{t('dos.examSchedule.classes')}</th>
+                                                    <th>{t('common.date')}</th>
+                                                    <th>{t('common.time')}</th>
+                                                    <th>{t('common.duration')}</th>
+                                                    <th>{t('dos.examSchedule.rooms')}</th>
+                                                    <th>{t('common.invigilator')}</th>
+                                                    <th>{t('common.status')}</th>
+                                                    <th>{t('common.actions')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {exams.map((row, index) => (
+                                                {exams.length === 0 ? (
+                                                    <tr><td colSpan={10} className="dos-empty-hint">{t('dos.examSchedule.empty')}</td></tr>
+                                                ) : exams.map((row, index) => (
                                                     <ExamRow key={index} {...row} onDelete={handleDelete} />
                                                 ))}
                                             </tbody>

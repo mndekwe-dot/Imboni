@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../layout/Sidebar'
 import { DashboardHeader } from '../layout/DashboardHeader'
 import { AnnouncementItem } from './AnnouncementItem'
@@ -8,6 +9,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/pages.css'
 import { DashboardContent } from '../layout/DashboardContent'
+import { formatDate } from '../../utils/date'
 
 const TYPE_OPTIONS = ['general', 'urgent', 'school', 'academic', 'event']
 const AUDIENCE_OPTIONS = ['School-wide', 'Students', 'Teachers', 'Parents', 'Staff', 'Boarding']
@@ -15,6 +17,7 @@ const AUDIENCE_OPTIONS = ['School-wide', 'Students', 'Teachers', 'Parents', 'Sta
 const EMPTY_FORM = { title: '', type: 'general', audience: 'School-wide', body: '' }
 
 function ComposeModal({ onClose, onPublish, authorName }) {
+    const { t } = useTranslation()
     const [form, setForm]     = useState({ ...EMPTY_FORM })
     const [isDraft, setDraft] = useState(false)
 
@@ -32,7 +35,7 @@ function ComposeModal({ onClose, onPublish, authorName }) {
             ...form,
             title:    form.title.trim(),
             body:     form.body.trim(),
-            date:     new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+            date:     formatDate(),
             author:   authorName ?? 'Administration',
             icon:     form.type === 'urgent' ? 'priority_high' : form.type === 'event' ? 'emoji_events' : form.type === 'academic' ? 'school' : 'campaign',
             isUnread: !draft,
@@ -43,45 +46,45 @@ function ComposeModal({ onClose, onPublish, authorName }) {
 
     return (
         <Modal
-            title="New Announcement"
+            title={t('announcements.newAnnouncement')}
             icon="edit_note"
             onClose={onClose}
             size="wide"
             footer={
                 <div className="modal-footer-row">
                     <span className="modal-footer-hint">{!isValid && '* Title and body are required'}</span>
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-outline" disabled={!isValid} onClick={() => submit(true)}>
-                        <span className="material-symbols-rounded icon-sm">save</span>Save Draft
+                        <span className="material-symbols-rounded icon-sm">save</span>{t('common.saveDraft')}
                     </button>
                     <button className="btn btn-primary" disabled={!isValid} onClick={() => submit(false)}>
-                        <span className="material-symbols-rounded icon-sm">send</span>Publish
+                        <span className="material-symbols-rounded icon-sm">send</span>{t('common.publish')}
                     </button>
                 </div>
             }
         >
             <div className="form-group">
-                <label className="form-label">Title *</label>
+                <label className="form-label">{t('common.titleRequired')}</label>
                 <input
                     className="form-control"
                     name="title"
                     value={form.title}
                     onChange={handle}
-                    placeholder="e.g. School closed for Public Holiday, April 28"
+                    placeholder={t('announcements.titlePlaceholder')}
                 />
             </div>
 
-            <div className="resp-grid-2" style={{ gap: '0.75rem', marginBottom: '1rem' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Type</label>
+            <div className="resp-grid-2 resp-grid-2--tight">
+                <div className="form-group form-group--flush">
+                    <label className="form-label">{t('common.type')}</label>
                     <select className="form-control" name="type" value={form.type} onChange={handle}>
                         {TYPE_OPTIONS.map(t => (
                             <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
                         ))}
                     </select>
                 </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Audience</label>
+                <div className="form-group form-group--flush">
+                    <label className="form-label">{t('common.audience')}</label>
                     <select className="form-control" name="audience" value={form.audience} onChange={handle}>
                         {AUDIENCE_OPTIONS.map(a => (
                             <option key={a} value={a}>{a}</option>
@@ -91,14 +94,13 @@ function ComposeModal({ onClose, onPublish, authorName }) {
             </div>
 
             <div className="form-group">
-                <label className="form-label">Body *</label>
+                <label className="form-label">{t('common.bodyRequired')}</label>
                 <textarea
                     className="form-control"
                     name="body"
                     value={form.body}
                     onChange={handle}
-                    placeholder="Write the full announcement here…"
-                    style={{ minHeight: 120, resize: 'vertical' }}
+                    placeholder={t('announcements.bodyPlaceholder')}
                 />
             </div>
 
@@ -115,7 +117,7 @@ function ComposeModal({ onClose, onPublish, authorName }) {
 export function AnnouncementFeed({
     navItems,
     secondaryItems,
-    title = 'Announcements',
+    title,
     subtitle,
     userName,
     userRole,
@@ -129,6 +131,7 @@ export function AnnouncementFeed({
     canCompose = false,
     authorName,
 }) {
+    const { t } = useTranslation()
     const [activeChip, setActiveChip]   = useState(chips[0])
     const [search, setSearch]           = useState('')
     const [selected, setSelected]       = useState(null)
@@ -203,7 +206,7 @@ export function AnnouncementFeed({
                 />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={navItems} secondaryItems={secondaryItems} />
@@ -229,7 +232,7 @@ export function AnnouncementFeed({
                                         <span className="material-symbols-rounded">search</span>
                                         <input
                                             type="text"
-                                            placeholder="Search announcements..."
+                                            placeholder={t('announcements.search')}
                                             value={search}
                                             onChange={e => setSearch(e.target.value)}
                                         />

@@ -33,16 +33,12 @@ export function ConversationItem({
     return (
         <div className={`conv-item${isActive ? ' active' : ''}${isUnread ? ' unread' : ''}`} onClick={onClick}>
             <div
-                className={`conv-avatar ${avatarClass}`}
-                style={{ position: 'relative', ...(avatarStyle || {}) }}
+                className={`conv-avatar has-presence `}
+                style={avatarStyle || undefined}
             >
                 {initials}
                 {isOnline && (
-                    <span style={{
-                        position: 'absolute', bottom: '1px', right: '1px',
-                        width: '10px', height: '10px', borderRadius: '50%',
-                        background: '#22c55e', border: '2px solid white', display: 'block',
-                    }} />
+                    <span className="presence-dot" />
                 )}
             </div>
             <div className="conv-body">

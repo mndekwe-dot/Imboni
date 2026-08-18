@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
 
 function slugify(name) {
@@ -6,6 +7,7 @@ function slugify(name) {
 }
 
 export function DormitoryModal({ dormitory, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEditing = !!dormitory
 
     useEffect(() => {
@@ -68,15 +70,15 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()} style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="modal-box modal-box-sm dmod-box" onClick={e => e.stopPropagation()}>
 
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--discipline, #7c3aed)' }}>
+                        <span className="material-symbols-rounded dmod-title-icon">
                             {isEditing ? 'edit' : 'add_home'}
                         </span>
                         <h2 className="modal-title">
-                            {isEditing ? 'Edit Dormitory' : 'Add Dormitory'}
+                            {isEditing ? t('modals.dormitory.editTitle') : t('modals.dormitory.addTitle')}
                         </h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}>
@@ -89,42 +91,42 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                     {/* ── Basic info ── */}
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Dormitory Name</label>
+                            <label className="form-label">{t('modals.dormitory.dormitoryName')}</label>
                             <input
                                 className="form-input"
                                 name="name"
                                 value={form.name}
                                 onChange={handleChange}
-                                placeholder="e.g. Kigoma"
+                                placeholder={t('modals.dormitory.egName')}
                                 disabled={isEditing}
                             />
                             {isEditing && (
-                                <span style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>Name cannot be changed after creation</span>
+                                <span className="dmod-hint">{t('modals.dormitory.nameLocked')}</span>
                             )}
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Gender</label>
+                            <label className="form-label">{t('dis.settings.gender')}</label>
                             <select className="form-input" name="gender" value={form.gender} onChange={handleChange}>
-                                <option value="Girls">Girls</option>
-                                <option value="Boys">Boys</option>
+                                <option value="Girls">{t('common.girls')}</option>
+                                <option value="Boys">{t('common.boys')}</option>
                             </select>
                         </div>
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Matron / Patron</label>
+                        <label className="form-label">{t('modals.dormitory.matronPatron')}</label>
                         <input
                             className="form-input"
                             name="staff"
                             value={form.staff}
                             onChange={handleChange}
-                            placeholder="e.g. Mrs. Mukamana"
+                            placeholder={t('modals.dormitory.egMatron')}
                         />
                     </div>
 
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Total Rooms</label>
+                            <label className="form-label">{t('modals.dormitory.totalRooms')}</label>
                             <input
                                 className="form-input"
                                 type="number"
@@ -135,7 +137,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Beds Per Room</label>
+                            <label className="form-label">{t('modals.dormitory.bedsPerRoom')}</label>
                             <input
                                 className="form-input"
                                 type="number"
@@ -149,30 +151,30 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                     </div>
 
                     {/* ── Chambers ── */}
-                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                        <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
-                            <span className="material-symbols-rounded" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.25rem' }}>meeting_room</span>
-                            Chambers ({chambers.length})
+                    <div className="dmod-section">
+                        <div className="dmod-section-title">
+                            <span className="material-symbols-rounded">meeting_room</span>
+                            {t('modals.dormitory.chambers', { count: chambers.length })}
                         </div>
 
                         {/* Existing chambers */}
                         {chambers.length === 0 ? (
-                            <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', fontStyle: 'italic', marginBottom: '0.75rem' }}>
-                                No chambers yet. Add one below.
+                            <p className="dmod-empty">
+                                {t('modals.dormitory.noChambers')}
                             </p>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.75rem' }}>
+                            <div className="dmod-list">
                                 {chambers.map(ch => (
-                                    <div key={ch.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--muted)', borderRadius: 'var(--radius-sm)', padding: '0.45rem 0.75rem' }}>
-                                        <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--muted-foreground)' }}>meeting_room</span>
-                                        <span style={{ flex: 1, fontWeight: 600, fontSize: '0.85rem' }}>{ch.name}</span>
-                                        <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>Rooms {ch.roomStart}-{ch.roomEnd}</span>
+                                    <div key={ch.id} className="dmod-row">
+                                        <span className="material-symbols-rounded dmod-row-icon">meeting_room</span>
+                                        <span className="dmod-row-name">{ch.name}</span>
+                                        <span className="dmod-row-meta">{t('modals.dormitory.roomRange', { from: ch.roomStart, to: ch.roomEnd })}</span>
                                         <button
                                             className="btn-icon-clean"
                                             onClick={() => removeChamber(ch.id)}
-                                            title="Remove chamber"
+                                            title={t('modals.dormitory.removeChamber')}
                                         >
-                                            <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: 'var(--destructive)' }}>delete</span>
+                                            <span className="material-symbols-rounded dmod-row-delete">delete</span>
                                         </button>
                                     </div>
                                 ))}
@@ -180,50 +182,46 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                         )}
 
                         {/* Add new chamber */}
-                        <div style={{ background: 'var(--muted)', borderRadius: 'var(--radius-sm)', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--muted-foreground)', marginBottom: '0.1rem' }}>Add Chamber</div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0.5rem' }}>
-                                <div className="form-group" style={{ margin: 0 }}>
+                        <div className="dmod-add">
+                            <div className="dmod-add-title">{t('modals.dormitory.addChamber')}</div>
+                            <div className="dmod-add-grid">
+                                <div className="form-group">
                                     <input
                                         className="form-input"
-                                        placeholder="Chamber name (e.g. Chamber A)"
+                                        placeholder={t('modals.dormitory.chamberNamePlaceholder')}
                                         value={newChamber.name}
                                         onChange={e => setNewChamber(p => ({ ...p, name: e.target.value }))}
-                                        style={{ fontSize: '0.82rem' }}
                                     />
                                 </div>
-                                <div className="form-group" style={{ margin: 0 }}>
+                                <div className="form-group">
                                     <input
                                         className="form-input"
                                         type="number"
-                                        placeholder="Room from"
+                                        placeholder={t('modals.dormitory.roomFrom')}
                                         min={1}
                                         value={newChamber.roomStart}
                                         onChange={e => setNewChamber(p => ({ ...p, roomStart: e.target.value }))}
-                                        style={{ fontSize: '0.82rem' }}
                                     />
                                 </div>
-                                <div className="form-group" style={{ margin: 0 }}>
+                                <div className="form-group">
                                     <input
                                         className="form-input"
                                         type="number"
-                                        placeholder="Room to"
+                                        placeholder={t('modals.dormitory.roomTo')}
                                         min={1}
                                         value={newChamber.roomEnd}
                                         onChange={e => setNewChamber(p => ({ ...p, roomEnd: e.target.value }))}
-                                        style={{ fontSize: '0.82rem' }}
                                     />
                                 </div>
                             </div>
                             {chamberError && (
-                                <span style={{ fontSize: '0.75rem', color: 'var(--destructive)' }}>{chamberError}</span>
+                                <span className="dmod-add-error">{chamberError}</span>
                             )}
                             <button
-                                className="btn btn-outline btn-sm"
-                                style={{ alignSelf: 'flex-start' }}
+                                className="btn btn-outline btn-sm dmod-add-btn"
                                 onClick={addChamber}
                             >
-                                <span className="material-symbols-rounded" style={{ fontSize: '0.9rem' }}>add</span> Add Chamber
+                                <span className="material-symbols-rounded">add</span> {t('modals.dormitory.addChamber')}
                             </button>
                         </div>
                     </div>
@@ -231,10 +229,10 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={!canSave}>
                         <span className="material-symbols-rounded">{isEditing ? 'save' : 'add_home'}</span>
-                        {isEditing ? ' Save Changes' : ' Add Dormitory'}
+                        {isEditing ? t('common.saveChanges') : t('modals.dormitory.addTitle')}
                     </button>
                 </div>
 

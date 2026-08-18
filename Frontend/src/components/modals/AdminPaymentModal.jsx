@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { formatDate } from '../../utils/date'
+import { useCurrency } from '../../hooks/useCurrency'
 import '../../styles/components.css'
 
-const PAYMENT_TYPES = ['Full Payment', 'Partial', 'Bursary', 'Scholarship']
+// The stored value stays English so existing records keep resolving; only
+// the label the user reads is translated.
+const PAYMENT_TYPES = [
+    { value: 'Full Payment', labelKey: 'modals.payment.typeFull'        },
+    { value: 'Partial',      labelKey: 'modals.payment.typePartial'     },
+    { value: 'Bursary',      labelKey: 'modals.payment.typeBursary'     },
+    { value: 'Scholarship',  labelKey: 'modals.payment.typeScholarship' },
+]
 
 export function AdminPaymentModal({ onClose, onSave }) {
+    const { t } = useTranslation()
+    // The school's own currency, not a literal baked into this modal.
+    const CURRENCY = useCurrency()
     useEffect(() => {
         document.body.style.overflow = 'hidden'
         return () => { document.body.style.overflow = '' }
@@ -39,13 +52,13 @@ export function AdminPaymentModal({ onClose, onSave }) {
         if (Object.keys(e).length) { setErrors(e); return }
         const typeClassMap = { 'Full Payment': 'paid', Partial: 'partial', Bursary: 'info', Scholarship: 'info' }
         const initials = form.studentName.trim().split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase()
-        const amountFormatted = form.amount.startsWith('KES') ? form.amount : `KES ${Number(form.amount.replace(/,/g, '')).toLocaleString()}`
+        const amountFormatted = form.amount.startsWith(CURRENCY) ? form.amount : `${CURRENCY} ${Number(form.amount.replace(/,/g, '')).toLocaleString()}`
         onSave({
             initials,
             name:      form.studentName,
             adm:       form.adm || '-',
             amount:    amountFormatted,
-            date:      new Date(form.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            date:      formatDate(form.date),
             type:      form.type,
             typeClass: typeClassMap[form.type] || 'paid',
         })
@@ -58,47 +71,47 @@ export function AdminPaymentModal({ onClose, onSave }) {
 
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded" style={{ color: 'var(--admin, #4f46e5)' }}>payments</span>
-                        <h2 className="modal-title">Record New Payment</h2>
+                        <span className="material-symbols-rounded modal-title-icon--admin">payments</span>
+                        <h2 className="modal-title">{t('modals.payment.title')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}>
                         <span className="material-symbols-rounded">close</span>
                     </button>
                 </div>
 
-                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                <div className="modal-body modal-body--stack">
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Student Name *</label>
+                            <label className="form-label">{t('modals.payment.studentNameRequired')}</label>
                             <input
                                 className={`form-input${errors.studentName ? ' input-error' : ''}`}
                                 name="studentName" value={form.studentName} onChange={handleChange}
-                                placeholder="e.g. Aisha Kamau"
+                                placeholder={t('modals.payment.egStudentName')}
                             />
-                            {errors.studentName && <span style={{ color: 'var(--destructive)', fontSize: '0.75rem' }}>{errors.studentName}</span>}
+                            {errors.studentName && <span className="field-error">{errors.studentName}</span>}
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Admission No.</label>
+                            <label className="form-label">{t('common.admissionNo')}</label>
                             <input
                                 className="form-input"
                                 name="adm" value={form.adm} onChange={handleChange}
-                                placeholder="e.g. ADM-2026-001"
+                                placeholder={t('modals.payment.egAdmission')}
                             />
                         </div>
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Amount (KES) *</label>
+                            <label className="form-label">{t('common.amountWithCurrency', { currency: CURRENCY })}</label>
                             <input
                                 className={`form-input${errors.amount ? ' input-error' : ''}`}
                                 name="amount" value={form.amount} onChange={handleChange}
-                                placeholder="e.g. 58000"
+                                placeholder={t('modals.payment.egAmount')}
                                 type="number" min="0"
                             />
-                            {errors.amount && <span style={{ color: 'var(--destructive)', fontSize: '0.75rem' }}>{errors.amount}</span>}
+                            {errors.amount && <span className="field-error">{errors.amount}</span>}
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Payment Date</label>
+                            <label className="form-label">{t('modals.payment.paymentDate')}</label>
                             <input
                                 className="form-input"
                                 name="date" value={form.date} onChange={handleChange}
@@ -107,26 +120,25 @@ export function AdminPaymentModal({ onClose, onSave }) {
                         </div>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Payment Type</label>
+                        <label className="form-label">{t('modals.payment.paymentType')}</label>
                         <select className="form-input" name="type" value={form.type} onChange={handleChange}>
-                            {PAYMENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                            {PAYMENT_TYPES.map(pt => <option key={pt.value} value={pt.value}>{t(pt.labelKey)}</option>)}
                         </select>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Notes (optional)</label>
+                        <label className="form-label">{t('modals.payment.notesOptional')}</label>
                         <textarea
                             className="form-input" name="notes" value={form.notes} onChange={handleChange}
-                            placeholder="Any additional details..." rows={2}
-                            style={{ resize: 'vertical' }}
+                            placeholder={t('modals.payment.notesPlaceholder')} rows={2}
                         />
                     </div>
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave}>
                         <span className="material-symbols-rounded">add_card</span>
-                        Record Payment
+                        {t('modals.payment.record')}
                     </button>
                 </div>
 

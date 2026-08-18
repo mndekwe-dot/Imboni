@@ -73,18 +73,6 @@ class TestSchoolConfigPut:
         assert 'P2' in response.data['error']
         assert SchoolSection.objects.get().years[1]['name'] == 'P2'
 
-    def test_a_year_nobody_uses_can_be_removed(self, make_authenticated_client):
-        client, _ = make_authenticated_client('dos')
-        client.put(URL, PRIMARY, format='json')
-
-        response = client.put(
-            URL, [{'name': 'Primary', 'years': [{'name': 'P1', 'streams': ['Red']}]}],
-            format='json',
-        )
-
-        assert response.status_code == status.HTTP_200_OK
-        assert [y['name'] for y in SchoolSection.objects.get().years] == ['P1']
-
     def test_a_non_list_payload_is_rejected(self, make_authenticated_client):
         client, _ = make_authenticated_client('dos')
         response = client.put(URL, {'name': 'Primary'}, format='json')
@@ -102,6 +90,92 @@ class TestSchoolConfigPut:
         client, _ = make_authenticated_client('teacher')
         response = client.put(URL, PRIMARY, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_removing_an_unused_year_needs_confirming(self, make_authenticated_client):
+        """
+        The settings screen PUTs the whole structure, so a stray click removes a
+        year as quietly as adding one creates it. Unused or not, a removal has
+        to be said out loud.
+        """
+        client, _ = make_authenticated_client('dos')
+        client.put(URL, PRIMARY, format='json')
+
+        without_p2 = [{'name': 'Primary', 'years': [{'name': 'P1', 'streams': ['Red', 'Blue']}]}]
+        response = client.put(URL, without_p2, format='json')
+
+        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.data['confirm_required'] is True
+        assert response.data['removals'] == ['the year P2']
+        # Nothing changed while the question was outstanding.
+        assert [y['name'] for y in SchoolSection.objects.get().years] == ['P1', 'P2']
+
+    def test_a_confirmed_removal_goes_through(self, make_authenticated_client):
+        client, _ = make_authenticated_client('dos')
+        client.put(URL, PRIMARY, format='json')
+
+        without_p2 = [{'name': 'Primary', 'years': [{'name': 'P1', 'streams': ['Red', 'Blue']}]}]
+        response = client.put(URL + '?confirm=1', without_p2, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert [y['name'] for y in SchoolSection.objects.get().years] == ['P1']
+
+    def test_adding_a_year_needs_no_confirmation(self, make_authenticated_client):
+        """Only removals are dangerous; adding must stay a single click."""
+        client, _ = make_authenticated_client('dos')
+        client.put(URL, PRIMARY, format='json')
+
+        with_p3 = [{'name': 'Primary', 'years': [
+            {'name': 'P1', 'streams': ['Red', 'Blue']},
+            {'name': 'P2', 'streams': ['Red', 'Blue']},
+            {'name': 'P3', 'streams': ['Red']},
+        ]}]
+        response = client.put(URL, with_p3, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_removing_an_unused_stream_needs_confirming(self, make_authenticated_client):
+        client, _ = make_authenticated_client('dos')
+        client.put(URL, PRIMARY, format='json')
+
+        no_blue = [{'name': 'Primary', 'years': [
+            {'name': 'P1', 'streams': ['Red']},
+            {'name': 'P2', 'streams': ['Red', 'Blue']},
+        ]}]
+        response = client.put(URL, no_blue, format='json')
+
+        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.data['removals'] == ['stream Blue in P1']
+
+    def test_a_stream_that_classes_use_cannot_be_removed_even_confirmed(
+        self, make_authenticated_client
+    ):
+        """
+        The gap the year check alone left open: drop stream Red from P1 while
+        keeping P1, and class P1Red is stranded. Unlike an unused removal, no
+        confirmation can force this one.
+        """
+        client, _ = make_authenticated_client('dos')
+        client.put(URL, PRIMARY, format='json')
+        Class.objects.create(name='P1Red', grade='P1', section='Red')
+
+        no_red = [{'name': 'Primary', 'years': [
+            {'name': 'P1', 'streams': ['Blue']},
+            {'name': 'P2', 'streams': ['Red', 'Blue']},
+        ]}]
+        response = client.put(URL + '?confirm=1', no_red, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert 'Red in P1' in response.data['error']
+
+    def test_a_year_in_use_cannot_be_removed_even_confirmed(self, make_authenticated_client):
+        client, _ = make_authenticated_client('dos')
+        client.put(URL, PRIMARY, format='json')
+        Class.objects.create(name='P2Red', grade='P2', section='Red')
+
+        without_p2 = [{'name': 'Primary', 'years': [{'name': 'P1', 'streams': ['Red']}]}]
+        response = client.put(URL + '?confirm=1', without_p2, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_years_in_use_reports_years_that_have_records(self, make_authenticated_client):
         """What the orphan check above is built on."""
@@ -142,6 +216,45 @@ class TestSchoolTermsSetting:
         response = client.patch(SETTINGS_URL, {'terms': [{'label': 'Fall', 'order': 1}]},
                                 format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_a_term_the_school_has_recorded_cannot_be_dropped(self, make_authenticated_client):
+        """
+        Results, attendance, timetables and conduct all hang off AcademicTerm,
+        so removing a term already in use would strand every record filed
+        under it.
+        """
+        client, _ = make_authenticated_client('dos')
+        AcademicTerm.objects.create(
+            name='Term 2 2026', term='term2', year=2026, order=2,
+            start_date=datetime.date(2026, 4, 1),
+            end_date=datetime.date(2026, 7, 1), is_current=True,
+        )
+
+        response = client.patch(SETTINGS_URL, {'terms': [
+            {'code': 'term1', 'label': 'Term 1', 'order': 1},
+            {'code': 'term3', 'label': 'Term 3', 'order': 2},
+        ]}, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert 'term2' in str(response.data)
+
+    def test_a_term_in_use_can_still_be_relabelled(self, make_authenticated_client):
+        """Renaming is the safe operation: the label is what reports show."""
+        client, _ = make_authenticated_client('dos')
+        AcademicTerm.objects.create(
+            name='Term 1 2026', term='term1', year=2026, order=1,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 4, 1), is_current=True,
+        )
+
+        response = client.patch(SETTINGS_URL, {'terms': [
+            {'code': 'term1', 'label': 'Autumn', 'order': 1},
+            {'code': 'term2', 'label': 'Spring', 'order': 2},
+            {'code': 'term3', 'label': 'Summer', 'order': 3},
+        ]}, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert SchoolSetting.get_setting().terms[0]['label'] == 'Autumn'
 
     def test_an_empty_term_list_is_rejected(self, make_authenticated_client):
         """A school with no terms could not record a single result."""

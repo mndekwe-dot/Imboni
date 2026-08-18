@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
@@ -21,6 +22,7 @@ import '../../styles/dos.css'
 import '../../styles/tables.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { formatDate } from '../../utils/date'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = ['#003d7a','#10b981','#f59e0b','#6366f1','#ef4444','#0891b2','#7c3aed','#be185d']
@@ -56,6 +58,7 @@ function apiToStudent(s) {
 
 // ── Student Row ───────────────────────────────────────────────────────────────
 function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, standing, status, onView }) {
+    const { t } = useTranslation()
     return (
         <tr>
             <td>
@@ -64,14 +67,14 @@ function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, stan
                     <div>
                         <span>{name}</span>
                         {status === 'suspended' && (
-                            <span className="dos-suspend-tag">Suspended</span>
+                            <span className="dos-suspend-tag">{t('common.suspended')}</span>
                         )}
                     </div>
                 </div>
             </td>
             <td>{adm}</td><td>{house}</td><td>{t1}</td><td>{t2}</td><td>{curr}</td>
             <td><span className={standClass}>{standing}</span></td>
-            <td><button className="tm-btn" onClick={onView}>View</button></td>
+            <td><button className="tm-btn" onClick={onView}>{t('common.view')}</button></td>
         </tr>
     )
 }
@@ -101,6 +104,7 @@ function downloadTemplate() {
 
 // ── Invite Student Modal ──────────────────────────────────────────────────────
 function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admitStreams }) {
+    const { t } = useTranslation()
     const [tab,     setTab]     = useState('single')   // 'single' | 'bulk'
 
     // single tab
@@ -155,11 +159,11 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
     }
 
     if (sent) return (
-        <Modal title="Invitations Sent" icon="mark_email_read" onClose={onClose}
-            footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>Done</button></div>}>
+        <Modal title={t('dos.students.invitationsSent')} icon="mark_email_read" onClose={onClose}
+            footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>{t('common.done')}</button></div>}>
             <div className="dos-sent-box">
                 <span className="material-symbols-rounded dos-sent-icon">check_circle</span>
-                <p className="dos-sent-title">Invitations sent successfully</p>
+                <p className="dos-sent-title">{t('dos.students.invitationsSentOk')}</p>
                 <p className="dos-sent-note">
                     {student.first_name} will receive a link to create their student account.<br />
                     {parent.first_name} will receive a link to set up their parent account.
@@ -171,18 +175,18 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
     const tabClass = (t) => 'dos-tab' + (tab === t ? ' active' : '')
 
     return (
-        <Modal title="Invite Student" icon="person_add" onClose={onClose} size="wide"
+        <Modal title={t('dos.students.inviteStudent')} icon="person_add" onClose={onClose} size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     {tab === 'single'
                         ? <button className="btn btn-primary" disabled={!isValid || sending} onClick={handleSingleSend}>
                             <span className="material-symbols-rounded icon-sm">send</span>
-                            {sending ? 'Sending...' : 'Send Invitations'}
+                            {sending ? 'Sending…' : 'Send Invitations'}
                           </button>
                         : <button className="btn btn-primary" disabled={!file || bulkSending || !!bulkResult} onClick={handleBulkSend}>
                             <span className="material-symbols-rounded icon-sm">upload_file</span>
-                            {bulkSending ? 'Sending...' : 'Send All Invitations'}
+                            {bulkSending ? 'Sending…' : 'Send All Invitations'}
                           </button>
                     }
                 </div>
@@ -190,8 +194,8 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
         >
             {/* Tab switcher */}
             <div className="dos-tab-bar">
-                <button className={tabClass('single')} onClick={() => setTab('single')}>Single Student</button>
-                <button className={tabClass('bulk')}   onClick={() => setTab('bulk')}>Bulk Upload (CSV)</button>
+                <button className={tabClass('single')} onClick={() => setTab('single')}>{t('dos.students.singleStudent')}</button>
+                <button className={tabClass('bulk')}   onClick={() => setTab('bulk')}>{t('dos.students.bulkUpload')}</button>
             </div>
 
             {/* ── Single tab ── */}
@@ -203,34 +207,34 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                     </p>
                 </div>
 
-                <p className="teacher-modal-section-label">Student Details</p>
+                <p className="teacher-modal-section-label">{t('dos.students.studentDetails')}</p>
                 <div className="settings-form">
                     <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
-                            <label className="form-label">First Name *</label>
-                            <input className="form-control" placeholder="e.g. Amina" autoFocus
+                            <label className="form-label">{t('common.firstNameRequired')}</label>
+                            <input className="form-control" placeholder={t('dos.students.egFirstName')} autoFocus
                                 value={student.first_name} onChange={e => setStudent(p => ({ ...p, first_name: e.target.value }))} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Last Name *</label>
-                            <input className="form-control" placeholder="e.g. Uwase"
+                            <label className="form-label">{t('common.lastNameRequired')}</label>
+                            <input className="form-control" placeholder={t('dos.students.egLastName')}
                                 value={student.last_name} onChange={e => setStudent(p => ({ ...p, last_name: e.target.value }))} />
                         </div>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Email Address *</label>
+                        <label className="form-label">{t('common.emailAddressRequired')}</label>
                         <input className="form-control" type="email" placeholder="student@example.com"
                             value={student.email} onChange={e => setStudent(p => ({ ...p, email: e.target.value }))} />
                     </div>
                     <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
-                            <label className="form-label">Year *</label>
+                            <label className="form-label">{t('dos.students.yearRequired')}</label>
                             <select className="form-control" value={student.year} onChange={e => setStudent(p => ({ ...p, year: e.target.value }))}>
                                 {admitYears.map(y => <option key={y}>{y}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Stream *</label>
+                            <label className="form-label">{t('dos.students.streamRequired')}</label>
                             <select className="form-control" value={student.stream} onChange={e => setStudent(p => ({ ...p, stream: e.target.value }))}>
                                 {admitStreams.map(s => <option key={s}>{s}</option>)}
                             </select>
@@ -240,34 +244,34 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
 
                 <hr className="dos-hr" />
 
-                <p className="teacher-modal-section-label">Parent / Guardian Details</p>
+                <p className="teacher-modal-section-label">{t('dos.students.parentDetails')}</p>
                 <div className="settings-form">
                     <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
-                            <label className="form-label">First Name *</label>
-                            <input className="form-control" placeholder="e.g. Chantal"
+                            <label className="form-label">{t('common.firstNameRequired')}</label>
+                            <input className="form-control" placeholder={t('dos.students.egParentFirstName')}
                                 value={parent.first_name} onChange={e => setParent(p => ({ ...p, first_name: e.target.value }))} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Last Name *</label>
-                            <input className="form-control" placeholder="e.g. Uwase"
+                            <label className="form-label">{t('common.lastNameRequired')}</label>
+                            <input className="form-control" placeholder={t('dos.students.egLastName')}
                                 value={parent.last_name} onChange={e => setParent(p => ({ ...p, last_name: e.target.value }))} />
                         </div>
                     </div>
                     <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
-                            <label className="form-label">Email Address</label>
+                            <label className="form-label">{t('common.emailAddress')}</label>
                             <input className="form-control" type="email" placeholder="parent@example.com"
                                 value={parent.email} onChange={e => setParent(p => ({ ...p, email: e.target.value }))} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Phone Number</label>
-                            <input className="form-control" placeholder="+250 7XX XXX XXX"
+                            <label className="form-label">{t('common.phoneNumber')}</label>
+                            <input className="form-control" placeholder={t('dos.students.phonePlaceholder')}
                                 value={parent.phone_number} onChange={e => setParent(p => ({ ...p, phone_number: e.target.value }))} />
                         </div>
                     </div>
                     <p className="dos-form-note">
-                        At least one of email or phone is required for the parent.
+                        {t('dos.students.parentContactRequired')}
                     </p>
                 </div>
 
@@ -279,16 +283,16 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                 {/* Step 1 – download template */}
                 <div className="dos-step-box">
                     <div>
-                        <p className="dos-step-title">Step 1: Download the template</p>
-                        <p className="dos-step-desc">Fill in student and parent details, one row per student.</p>
+                        <p className="dos-step-title">{t('dos.students.step1')}</p>
+                        <p className="dos-step-desc">{t('dos.students.step1Desc')}</p>
                     </div>
                     <button className="btn btn-outline btn-sm" onClick={downloadTemplate}>
-                        <span className="material-symbols-rounded icon-sm">download</span> Template
+                        <span className="material-symbols-rounded icon-sm">download</span> {t('dos.students.template')}
                     </button>
                 </div>
 
                 {/* Step 2 – upload CSV */}
-                <p className="dos-step2-label">Step 2: Upload completed CSV</p>
+                <p className="dos-step2-label">{t('dos.students.step2')}</p>
                 <label className="dos-upload-label">
                     <span className="material-symbols-rounded dos-upload-icon">upload_file</span>
                     <span className={'dos-upload-text' + (file ? ' has-file' : '')}>
@@ -307,11 +311,11 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                             <table className="dos-preview-table">
                                 <thead>
                                     <tr className="dos-preview-thead">
-                                        <th className="dos-preview-th">Student</th>
-                                        <th className="dos-preview-th">Email</th>
-                                        <th className="dos-preview-th">Year/Stream</th>
-                                        <th className="dos-preview-th">Parent</th>
-                                        <th className="dos-preview-th">Parent Contact</th>
+                                        <th className="dos-preview-th">{t('common.student')}</th>
+                                        <th className="dos-preview-th">{t('common.email')}</th>
+                                        <th className="dos-preview-th">{t('dos.students.yearStream')}</th>
+                                        <th className="dos-preview-th">{t('common.parent')}</th>
+                                        <th className="dos-preview-th">{t('dos.students.parentContact')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -351,17 +355,18 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
 
 // ── Student Detail Modal ──────────────────────────────────────────────────────
 const LEADER_ROLES = [
-    { value: 'head_boy',         label: 'Head Boy'         },
-    { value: 'head_girl',        label: 'Head Girl'        },
-    { value: 'deputy_head_boy',  label: 'Deputy Head Boy'  },
-    { value: 'deputy_head_girl', label: 'Deputy Head Girl' },
-    { value: 'prefect',          label: 'Prefect'          },
-    { value: 'house_captain',    label: 'House Captain'    },
-    { value: 'class_captain',    label: 'Class Captain'    },
-    { value: 'games_captain',    label: 'Games Captain'    },
+    { value: 'head_boy',         labelKey: 'modals.leader.roleHeadBoy'        },
+    { value: 'head_girl',        labelKey: 'modals.leader.roleHeadGirl'       },
+    { value: 'deputy_head_boy',  labelKey: 'modals.leader.roleDeputyHeadBoy'  },
+    { value: 'deputy_head_girl', labelKey: 'modals.leader.roleDeputyHeadGirl' },
+    { value: 'prefect',          labelKey: 'modals.leader.rolePrefect'        },
+    { value: 'house_captain',    labelKey: 'dos.students.roleHouseCaptain'    },
+    { value: 'class_captain',    labelKey: 'modals.leader.roleClassCaptain'   },
+    { value: 'games_captain',    labelKey: 'modals.leader.roleGamesCaptain'   },
 ]
 
 function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
+    const { t } = useTranslation()
     const [student,      setStudent]      = useState(null)
     const [loading,      setLoading]      = useState(true)
     const [actionErr,    setActionErr]    = useState('')
@@ -468,7 +473,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
 
     return (
         <Modal
-            title="Student Profile"
+            title={t('dos.students.studentProfile')}
             icon="person"
             onClose={onClose}
             footer={
@@ -486,11 +491,11 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                         <span className="material-symbols-rounded icon-sm">picture_as_pdf</span>
                         {downloading ? 'Generating…' : 'Report Card'}
                     </button>
-                    <button className="btn btn-primary btn-sm" onClick={onClose}>Close</button>
+                    <button className="btn btn-primary btn-sm" onClick={onClose}>{t('common.close')}</button>
                 </div>
             }
         >
-            {loading && <p className="dos-drawer-loading">Loading…</p>}
+            {loading && <p className="dos-drawer-loading">{t('common.loading')}</p>}
 
             {!loading && student && (
                 <>
@@ -535,7 +540,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     )}
 
                     {/* ── Info ── */}
-                    <p className="teacher-modal-section-label">Information</p>
+                    <p className="teacher-modal-section-label">{t('common.information')}</p>
                     <div className="u-mb">
                         {infoRow('Email',       student.email)}
                         {infoRow('Class',       classLabel)}
@@ -545,9 +550,9 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     </div>
 
                     {/* ── Leadership ── */}
-                    <p className="teacher-modal-section-label">Leadership Roles</p>
+                    <p className="teacher-modal-section-label">{t('dos.students.leadershipRoles')}</p>
                     {(student.leadership || []).length === 0 && !appointOpen && (
-                        <p className="dos-empty-note">No roles this term.</p>
+                        <p className="dos-empty-note">{t('dos.students.noRoles')}</p>
                     )}
                     {(student.leadership || []).map(l => (
                         <div key={l.role} className="dos-role-item">
@@ -565,20 +570,20 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     ) : (
                         <div className="dos-inline-panel u-mb-sm">
                             <div className="form-group dos-mb-half">
-                                <label className="form-label">Role</label>
+                                <label className="form-label">{t('common.role')}</label>
                                 <select className="form-control" value={leaderRole} onChange={e => setLeaderRole(e.target.value)}>
-                                    <option value="">Select a role</option>
+                                    <option value="">{t('dos.students.selectRole')}</option>
                                     {LEADER_ROLES.filter(r => !(student.leadership || []).some(l => l.role === r.value)).map(r => (
                                         <option key={r.value} value={r.value}>{r.label}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className="form-group dos-mb-half">
-                                <label className="form-label">Notes <span className="dos-optional">(optional)</span></label>
-                                <input className="form-control" placeholder="e.g. Elected by class vote" value={leaderNotes} onChange={e => setLeaderNotes(e.target.value)} />
+                                <label className="form-label">{t('common.notes')} <span className="dos-optional">{t('common.optional')}</span></label>
+                                <input className="form-control" placeholder={t('dos.students.egLeaderNotes')} value={leaderNotes} onChange={e => setLeaderNotes(e.target.value)} />
                             </div>
                             <div className="modal-confirm-actions">
-                                <button className="btn btn-outline btn-sm" onClick={() => { setAppointOpen(false); setLeaderRole(''); setLeaderNotes('') }}>Cancel</button>
+                                <button className="btn btn-outline btn-sm" onClick={() => { setAppointOpen(false); setLeaderRole(''); setLeaderNotes('') }}>{t('common.cancel')}</button>
                                 <button className="btn btn-primary btn-sm" onClick={handleAppoint} disabled={!leaderRole || appointing}>
                                     {appointing ? 'Appointing…' : 'Confirm'}
                                 </button>
@@ -587,29 +592,29 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     )}
 
                     {/* ── Change Class ── */}
-                    <p className="teacher-modal-section-label">Class Management</p>
+                    <p className="teacher-modal-section-label">{t('dos.students.classManagement')}</p>
                     {!changeClassOpen ? (
                         <button className="btn btn-outline btn-sm dos-btn-full" onClick={() => setChangeClassOpen(true)}>
-                            <span className="material-symbols-rounded icon-sm">swap_horiz</span> Change Class
+                            <span className="material-symbols-rounded icon-sm">swap_horiz</span> {t('dos.students.changeClass')}
                         </button>
                     ) : (
                         <div className="dos-inline-panel">
                             <div className="dos-class-row">
                                 <div className="flex-1">
-                                    <label className="form-label">Year</label>
+                                    <label className="form-label">{t('common.year')}</label>
                                     <select className="form-control" value={newYear} onChange={e => setNewYear(e.target.value)}>
                                         {availYears.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
                                 </div>
                                 <div className="flex-1">
-                                    <label className="form-label">Stream</label>
+                                    <label className="form-label">{t('common.stream')}</label>
                                     <select className="form-control" value={newStream} onChange={e => setNewStream(e.target.value)}>
                                         {availStreams.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
                                 </div>
                             </div>
                             <div className="modal-confirm-actions">
-                                <button className="btn btn-outline btn-sm" onClick={() => setChangeClassOpen(false)}>Cancel</button>
+                                <button className="btn btn-outline btn-sm" onClick={() => setChangeClassOpen(false)}>{t('common.cancel')}</button>
                                 <button className="btn btn-primary btn-sm" onClick={handleChangeClass} disabled={saving}>
                                     {saving ? 'Saving…' : `Move to ${newYear}${newStream}`}
                                 </button>
@@ -623,13 +628,14 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
 }
 
 const INV_TABS = [
-    { key: 'all',        label: 'All'        },
-    { key: 'pending',    label: 'Pending'    },
-    { key: 'registered', label: 'Registered' },
-    { key: 'expired',    label: 'Expired'    },
+    { key: 'all',        labelKey: 'common.all'          },
+    { key: 'pending',    labelKey: 'common.pending'      },
+    { key: 'registered', labelKey: 'common.registered'   },
+    { key: 'expired',    labelKey: 'common.expired'      },
 ]
 
 function InvitationHistory({ invitations, onResend, onCancel }) {
+    const { t } = useTranslation()
     const [resending,  setResending]  = useState(null)
     const [cancelling, setCancelling] = useState(null)
     const [filter,     setFilter]     = useState('all')
@@ -660,7 +666,7 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
         <div className="card dos-inv-card">
             <div className="dos-inv-header">
                 <span className="material-symbols-rounded dos-inv-header-icon">mark_email_read</span>
-                <span className="dos-inv-title">Student Invitation History</span>
+                <span className="dos-inv-title">{t('dos.students.invitationHistory')}</span>
                 <span className="dos-inv-count">
                     {invitations.length}
                 </span>
@@ -686,13 +692,13 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                 <table className="dos-inv-table">
                     <thead>
                         <tr className="dos-inv-thead">
-                            <th className="dos-inv-th wide">Student</th>
-                            <th className="dos-inv-th">Email</th>
-                            <th className="dos-inv-th">Class</th>
-                            <th className="dos-inv-th">Status</th>
-                            <th className="dos-inv-th">Invited</th>
-                            <th className="dos-inv-th">Expires</th>
-                            <th className="dos-inv-th wide right">Actions</th>
+                            <th className="dos-inv-th wide">{t('common.student')}</th>
+                            <th className="dos-inv-th">{t('common.email')}</th>
+                            <th className="dos-inv-th">{t('common.class')}</th>
+                            <th className="dos-inv-th">{t('common.status')}</th>
+                            <th className="dos-inv-th">{t('dos.students.invited')}</th>
+                            <th className="dos-inv-th">{t('dos.students.expires')}</th>
+                            <th className="dos-inv-th wide right">{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -702,15 +708,15 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                             if (inv.is_used) {
                                 statusEl = (
                                     <span className="dos-inv-status ok dos-inv-status-flex">
-                                        <span className="material-symbols-rounded dos-inv-status-icon">check_circle</span>Registered
+                                        <span className="material-symbols-rounded dos-inv-status-icon">check_circle</span>{t('common.registered')}
                                     </span>
                                 )
                             } else if (inv.is_expired) {
-                                statusEl = <span className="dos-inv-status err">Expired</span>
+                                statusEl = <span className="dos-inv-status err">{t('common.expired')}</span>
                             } else if (inv.delivery_status === 'sent') {
-                                statusEl = <span className="dos-inv-status warn">Pending</span>
+                                statusEl = <span className="dos-inv-status warn">{t('common.pending')}</span>
                             } else {
-                                statusEl = <span className="dos-inv-status err">Failed</span>
+                                statusEl = <span className="dos-inv-status err">{t('common.failed')}</span>
                             }
 
                             return (
@@ -726,7 +732,7 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                                     <td className="dos-inv-td">{statusEl}</td>
                                     <td className="dos-inv-td xs muted">{daysAgo(inv.created_at)}</td>
                                     <td className={'dos-inv-td xs ' + (inv.is_expired && !inv.is_used ? 'danger' : 'muted')}>
-                                        {inv.is_used ? '-' : new Date(inv.expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        {inv.is_used ? '-' : formatDate(inv.expires_at)}
                                     </td>
                                     <td className="dos-inv-td wide">
                                         {!inv.is_used && (
@@ -755,6 +761,7 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function DosStudents() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
     const { config }  = useSchoolConfig()
@@ -866,12 +873,12 @@ export function DosStudents() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
-                    <DashboardHeader title="Student Management" subtitle="Monitor student enrollment and performance" {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
+                    <DashboardHeader title={t('dos.students.title')} subtitle={t('dos.students.subtitle')} {...sessionUser} notifications={liveNotifications} onNotificationRead={markRead} />
 
                     <DashboardContent>
                         <div className="portal-stat-grid">
@@ -891,15 +898,15 @@ export function DosStudents() {
                         <div className="toolbar-card">
                             <div className="toolbar-search">
                                 <span className="material-symbols-rounded">search</span>
-                                <input placeholder="Search by name or admission number..." value={search} onChange={e => setSearch(e.target.value)} />
+                                <input placeholder={t('dos.students.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
                                 {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
                             </div>
                             <div className="toolbar-spacer" />
                             <button className="btn btn-outline btn-sm" onClick={handleExport} disabled={!filtered.length}>
-                                <span className="material-symbols-rounded icon-sm">download</span> Export
+                                <span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}
                             </button>
                             <button className="btn btn-primary btn-sm" onClick={() => setInviteOpen(true)}>
-                                <span className="material-symbols-rounded icon-sm">send</span> Invite Student
+                                <span className="material-symbols-rounded icon-sm">send</span> {t('dos.students.inviteStudent')}
                             </button>
                         </div>
 
@@ -910,13 +917,16 @@ export function DosStudents() {
                         />
 
                         <DataTable
-                            title={`${classLabel}: Students`}
+                            title={t('dos.students.classStudents', { class: classLabel })}
                             data={filtered}
-                            columns={['Student','Adm No.','Dormitory', ...pastTerms, 'Current','Standing','Actions']}
+                            columns={[t('common.student'), t('common.admNo'), t('common.dormitory'),
+                                ...pastTerms, t('common.current'), t('common.standing'), t('common.actions')]}
                             renderRow={s => <StudentRow key={s.adm} {...s} onView={() => setSelectedStudentId(s.id)} />}
                             emptyIcon="people"
-                            emptyTitle="No students found"
-                            emptyDesc={search ? `No results for "${search}"` : `No students found for ${classLabel}.`}
+                            emptyTitle={t('common.noStudentsFound')}
+                            emptyDesc={search
+                                ? t('dos.students.noResultsFor', { query: search })
+                                : t('dos.students.noStudentsFor', { class: classLabel })}
                             onClearFilters={search ? () => setSearch('') : undefined}
                         />
                     </DashboardContent>

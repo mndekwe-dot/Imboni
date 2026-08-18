@@ -28,7 +28,7 @@ describe('StudentConductModal', () => {
 
   it('shows empty conduct history message when there are no records', async () => {
     render(<StudentConductModal student={student} onClose={() => {}} />)
-    await waitFor(() => expect(screen.getByText('No conduct records yet')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No conduct records yet.')).toBeInTheDocument())
   })
 
   it('switches to the Log Incident tab and disables submit until required fields are filled', async () => {

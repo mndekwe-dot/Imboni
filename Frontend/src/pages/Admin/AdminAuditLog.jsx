@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -41,6 +42,7 @@ function formatWhen(iso) {
 }
 
 export function AdminAuditLog() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [entries, setEntries]     = useState([])
     const [total, setTotal]         = useState(0)
@@ -75,8 +77,8 @@ export function AdminAuditLog() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Audit Log"
-                        subtitle="Who did what, and when: sensitive administrative actions"
+                        title={t('nav.auditLog')}
+                        subtitle={t('admin.auditLog.subtitle')}
                         userName={adminUser.userName}
                         userRole={adminUser.userRole}
                         userInitials={adminUser.userInitials}

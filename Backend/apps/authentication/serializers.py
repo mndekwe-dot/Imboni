@@ -48,10 +48,23 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserPreferencesSerializer(serializers.ModelSerializer):
+    # The model field is a plain CharField (no choices), so an unsupported code
+    # would be stored happily and then fall back to English forever with no
+    # sign anything went wrong. Validate against what the frontend ships.
+    SUPPORTED_LANGUAGES = ('en', 'rw')
+
     class Meta:
         model = UserPreferences
         fields = '__all__'
         read_only_fields = ['user']
+
+    def validate_language(self, value):
+        if value not in self.SUPPORTED_LANGUAGES:
+            raise serializers.ValidationError(
+                f"Unsupported language '{value}'. "
+                f"Choose one of: {', '.join(self.SUPPORTED_LANGUAGES)}."
+            )
+        return value
 
 
 class PasswordChangeSerializer(serializers.Serializer):

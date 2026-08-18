@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../layout/Sidebar'
 import { DashboardHeader } from '../layout/DashboardHeader'
 import { ConversationItem } from './ConversationItem'
@@ -42,7 +43,7 @@ export function MessagesPage({
     navItems,
     secondaryItems,
 
-    title = 'Messages',
+    title,
     subtitle,
     userName,
     userRole,
@@ -58,6 +59,7 @@ export function MessagesPage({
 
     extraPanel,
 }) {
+    const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState(0)
     const [showThread, setShowThread] = useState(false)
 
@@ -73,7 +75,7 @@ export function MessagesPage({
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={navItems} secondaryItems={secondaryItems} />
@@ -86,23 +88,23 @@ export function MessagesPage({
                         userInitials={userInitials}
                         avatarClass={avatarClass}
                     />
-                    <div className="dashboard-content" style={{ padding: '1.5rem' }}>
+                    <div className="dashboard-content msg-content-pad">
                         <div className={`msg-page-wrap${showThread ? ' thread-open' : ''}`}>
 
                             {/* ── Left panel: conversation list ──────────────── */}
                             <div className="conv-panel">
                                 <div className="conv-panel-header">
-                                    <h3>Messages</h3>
+                                    <h3>{t('messaging.title')}</h3>
                                     <button className="btn btn-sm btn-primary">
                                         <span className="material-symbols-rounded">edit</span>
-                                        New
+                                        {t('messaging.new')}
                                     </button>
                                 </div>
 
                                 <div className="conv-search">
                                     <div className="conv-search-inner">
                                         <span className="material-symbols-rounded">search</span>
-                                        <input type="text" placeholder="Search messages..." />
+                                        <input type="text" placeholder={t('messaging.search')} />
                                     </div>
                                 </div>
 
@@ -131,19 +133,12 @@ export function MessagesPage({
 
                                     {/* Thread header */}
                                     <div className="thread-head">
-                                        <button className="back-btn" aria-label="Back to conversations" onClick={() => setShowThread(false)}>
+                                        <button className="back-btn" aria-label={t('messaging.backToConversations')} onClick={() => setShowThread(false)}>
                                             <span className="material-symbols-rounded">arrow_back</span>
                                         </button>
-                                        <div
-                                            className={`thread-head-avatar ${contactAvatarClass}`}
-                                            style={{ position: 'relative' }}
-                                        >
+                                        <div className={`thread-head-avatar has-presence `}>
                                             {contactIsOnline && (
-                                                <div style={{
-                                                    position: 'absolute', bottom: '1px', right: '1px',
-                                                    width: '11px', height: '11px', borderRadius: '50%',
-                                                    background: '#22c55e', border: '2px solid white',
-                                                }} />
+                                                <div className="presence-dot presence-dot--lg" />
                                             )}
                                             {contactInitials}
                                         </div>
@@ -162,10 +157,10 @@ export function MessagesPage({
                                             </div>
                                         </div>
                                         <div className="thread-actions">
-                                            <button className="thread-action-btn" title="View profile">
+                                            <button className="thread-action-btn" title={t('messaging.viewProfile')}>
                                                 <span className="material-symbols-rounded">person</span>
                                             </button>
-                                            <button className="thread-action-btn" title="More options">
+                                            <button className="thread-action-btn" title={t('messaging.moreOptions')}>
                                                 <span className="material-symbols-rounded">more_vert</span>
                                             </button>
                                         </div>
@@ -180,7 +175,7 @@ export function MessagesPage({
 
                                     {/* Composer */}
                                     <div className="thread-composer">
-                                        <button className="composer-icon-btn" title="Attach file">
+                                        <button className="composer-icon-btn" title={t('messaging.attachFile')}>
                                             <span className="material-symbols-rounded">attach_file</span>
                                         </button>
                                         <input
@@ -188,10 +183,10 @@ export function MessagesPage({
                                             className="composer-input"
                                             placeholder={composerPlaceholder}
                                         />
-                                        <button className="composer-icon-btn" title="Emoji">
+                                        <button className="composer-icon-btn" title={t('messaging.emoji')}>
                                             <span className="material-symbols-rounded">emoji_emotions</span>
                                         </button>
-                                        <button className="btn btn-primary send-btn" title="Send">
+                                        <button className="btn btn-primary send-btn" title={t('common.send')}>
                                             <span className="material-symbols-rounded">send</span>
                                         </button>
                                     </div>

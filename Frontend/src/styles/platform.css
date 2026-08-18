@@ -18,8 +18,8 @@
 }
 .platform-login-card.is-wide { max-width: 560px; }
 .platform-login-brand { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem; }
-.platform-login-brand img { width: 46px; height: 46px; border-radius: 12px; object-fit: contain; }
-.platform-login-brand h1 { font-size: 1.15rem; font-weight: 700; color: var(--foreground); }
+.platform-login-brand img { width: 46px; height: 46px; border-radius: var(--radius); object-fit: contain; }
+.platform-login-brand h1 { font-size: 1.125rem; font-weight: 700; color: var(--foreground); }
 .platform-login-brand p { font-size: 0.8rem; color: var(--muted-foreground); }
 .platform-login-note { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 1rem; line-height: 1.5; }
 .platform-login-error {
@@ -27,7 +27,7 @@
     background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25);
     color: #dc2626; border-radius: var(--radius-sm); padding: 0.65rem 0.8rem; font-size: 0.85rem;
 }
-.platform-login-error .material-symbols-rounded { font-size: 1.1rem; }
+.platform-login-error .material-symbols-rounded { font-size: 1.125rem; }
 .platform-pw-wrap { position: relative; }
 .platform-pw-wrap .form-input { padding-right: 2.4rem; }
 .platform-pw-toggle {
@@ -40,7 +40,7 @@
 
 /* ── Section heads + titles ──────────────────────────────────────────────────── */
 .platform-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
-.platform-panel-head h2 { font-size: 1.1rem; font-weight: 700; color: var(--foreground); }
+.platform-panel-head h2 { font-size: 1.125rem; font-weight: 700; color: var(--foreground); }
 .platform-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); font-weight: 700; margin: 1.5rem 0 0.75rem; }
 .platform-section-title:first-child { margin-top: 0; }
 .platform-panel-head .platform-section-title { margin: 0; }   /* flush when used as a head label */
@@ -52,13 +52,13 @@
 .platform-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 0.5rem; }
 .portal-stat-card.clickable { cursor: pointer; }
 .portal-stat-card.clickable:hover { border-color: var(--primary); }
-.platform-stat-hint { font-size: 0.72rem; color: var(--muted-foreground); margin-top: 0.15rem; }
+.platform-stat-hint { font-size: 0.7rem; color: var(--muted-foreground); margin-top: 0.15rem; }
 
 /* ── Tables (light, matches the app) ─────────────────────────────────────────── */
 .platform-table-wrap { overflow-x: auto; }
 .platform-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .platform-table th {
-    text-align: left; font-weight: 700; color: var(--muted-foreground); font-size: 0.72rem;
+    text-align: left; font-weight: 700; color: var(--muted-foreground); font-size: 0.7rem;
     text-transform: uppercase; letter-spacing: 0.03em; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);
 }
 .platform-table td { padding: 0.75rem; border-bottom: 1px solid var(--border); color: var(--foreground); }
@@ -69,7 +69,7 @@
 .platform-form > .btn { margin-top: 0.85rem; }              /* submit button under a form */
 
 /* ── Chips ───────────────────────────────────────────────────────────────────── */
-.platform-chip { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: capitalize; }
+.platform-chip { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: capitalize; }
 .platform-chip-ok   { background: var(--success-light); color: var(--success); }
 .platform-chip-info { background: var(--primary-light); color: var(--primary); }
 .platform-chip-warn { background: rgba(245, 158, 11, 0.15); color: #b45309; }
@@ -78,7 +78,7 @@
 /* ── Inline add-forms ────────────────────────────────────────────────────────── */
 .platform-form { background: var(--muted, #f8fafc); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem; }
 .platform-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.85rem; }
-.platform-form-grid label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.78rem; font-weight: 600; color: var(--foreground); }
+.platform-form-grid label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: var(--foreground); }
 
 /* ── Support tickets: master / detail ────────────────────────────────────────── */
 .platform-tickets { display: grid; grid-template-columns: minmax(260px, 350px) 1fr; gap: 1.25rem; align-items: start; }
@@ -92,10 +92,10 @@
 .platform-ticket-row:hover { border-color: var(--border-hover); }
 .platform-ticket-row.is-active { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 .platform-ticket-row-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem; }
-.platform-ticket-row-sub { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; }
+.platform-ticket-row-sub { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
 .platform-thread { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
 .platform-msg { border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; max-width: 85%; }
-.platform-msg-who { font-size: 0.72rem; color: var(--muted-foreground); font-weight: 600; margin-bottom: 0.2rem; }
+.platform-msg-who { font-size: 0.7rem; color: var(--muted-foreground); font-weight: 600; margin-bottom: 0.2rem; }
 .platform-msg-body { white-space: pre-wrap; font-size: 0.9rem; color: var(--foreground); }
 .platform-msg-school { background: var(--muted, #f1f5f9); align-self: flex-start; }
 .platform-msg-operator { background: var(--primary-light); align-self: flex-end; }
@@ -115,7 +115,7 @@
 .pf-nowrap       { white-space: nowrap; }
 .pf-capitalize   { text-transform: capitalize; }
 .pf-pre          { white-space: pre-wrap; }
-.pf-subtle       { font-size: 0.78rem; }
+.pf-subtle       { font-size: 0.8rem; }
 .pf-hint         { font-size: 0.75rem; color: var(--muted-foreground); }
 .pf-clickable    { cursor: pointer; }
 .pf-ml           { margin-left: 0.4rem; }
@@ -124,7 +124,7 @@
 
 /* Field (small label over a value) */
 .pf-field        { display: flex; flex-direction: column; gap: 0.2rem; }
-.pf-field-label  { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted-foreground); }
+.pf-field-label  { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted-foreground); }
 .pf-field-value  { font-weight: 600; color: var(--foreground); }
 
 /* Small list rows (overview modal, thread summaries) */

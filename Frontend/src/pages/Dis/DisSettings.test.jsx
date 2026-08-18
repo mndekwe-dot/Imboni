@@ -95,9 +95,17 @@ describe('DisSettings', () => {
     fireEvent.click(screen.getByRole('button', { name: /School Structure/ }))
     await waitFor(() => expect(screen.getByText('Sections, Years & Classes')).toBeInTheDocument())
 
-    fireEvent.change(screen.getByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
+    // The structure editor loads its own copy of the config, so it settles a
+    // tick after the page does.
+    fireEvent.change(await screen.findByPlaceholderText('e.g. O-Level'), { target: { value: 'O-Level' } })
     fireEvent.click(screen.getByRole('button', { name: /Add/ }))
 
-    await waitFor(() => expect(updateSchoolConfig).toHaveBeenCalledWith([{ name: 'O-Level', years: [] }]))
+    // Staged, not sent: the structure editor no longer saves on every click.
+    await waitFor(() => expect(screen.getByText('Unsaved changes')).toBeInTheDocument())
+    expect(updateSchoolConfig).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: /save changes/i }))
+    await waitFor(() => expect(updateSchoolConfig)
+      .toHaveBeenCalledWith([{ name: 'O-Level', years: [] }], { confirm: false }))
   })
 })

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentResults, getStudentAssessments } from '../../api/student'
+import { formatDateShort } from '../../utils/date'
 import {
     ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
@@ -69,7 +71,7 @@ function SubjectGradeCard({ subject, grade, final_score }) {
 
 function AssessmentRow({ subject_name, title, max_score, score_obtained, percentage, grade, date }) {
     const pct = percentage != null ? `${parseFloat(percentage).toFixed(0)}%` : '-'
-    const dateStr = date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-'
+    const dateStr = date ? formatDateShort(date) : '-'
     return (
         <tr>
             <td><strong>{subject_name}</strong></td>
@@ -84,6 +86,7 @@ function AssessmentRow({ subject_name, title, max_score, score_obtained, percent
 }
 
 export function StudentResults() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [profile,     setProfile]     = useState(null)
     const [terms,       setTerms]       = useState([])
@@ -117,19 +120,21 @@ export function StudentResults() {
     }, [])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
-    const userRole     = gradeSection ? `Student · ${gradeSection}` : 'Student'
+    const userRole     = gradeSection
+        ? `${t('roles.student')} · ${gradeSection}`
+        : t('roles.student')
 
-    const activeTData = terms.find(t => t.term_id === activeTerm) || terms[0]
+    const activeTData = terms.find(term => term.term_id === activeTerm) || terms[0]
     const subjects    = activeTData?.subjects || []
 
     const avgScore = activeTData?.average_score
     const numSubjects = subjects.length
 
     const summaryStats = [
-        { value: avgScore != null ? `${avgScore}%` : '-', label: 'Average Score',   color: 'var(--student)' },
-        { value: numSubjects || '-',                        label: 'Subjects Taken',  color: 'var(--accent)'  },
-        { value: activeTData?.term || '-',                  label: 'Term',            color: null             },
-        { value: activeTData?.year || '-',                  label: 'Year',            color: 'var(--success)' },
+        { value: avgScore != null ? `${avgScore}%` : '-', label: t('student.results.averageScore'), color: 'var(--student)' },
+        { value: numSubjects || '-',                        label: t('student.results.subjectsTaken'), color: 'var(--accent)'  },
+        { value: activeTData?.term || '-',                  label: t('common.term'),                  color: null             },
+        { value: activeTData?.year || '-',                  label: t('student.results.year'),         color: 'var(--success)' },
     ]
 
     // The assessments endpoint is not term-scoped, so every row is shown
@@ -139,22 +144,26 @@ export function StudentResults() {
     // Term-over-term average, oldest first (terms arrive newest-first)
     const trendData = [...terms]
         .reverse()
-        .filter(t => t.average_score != null)
-        .map(t => ({
-            label: t.year && !String(t.term).includes(String(t.year)) ? `${t.term} ${t.year}` : t.term,
-            average: t.average_score,
+        .filter(term => term.average_score != null)
+        .map(term => ({
+            label: term.year && !String(term.term).includes(String(term.year))
+                ? `${term.term} ${term.year}`
+                : term.term,
+            average: term.average_score,
         }))
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={studentNavItems} secondaryItems={studentSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="My Results"
-                        subtitle={gradeSection ? `Academic performance for ${gradeSection}` : 'Academic performance'}
+                        title={t('student.results.title')}
+                        subtitle={gradeSection
+                            ? t('student.results.subtitleWithClass', { class: gradeSection })
+                            : t('student.results.subtitle')}
                         userName={fullName}
                         userRole={userRole}
                         userInitials={initials}
@@ -165,9 +174,9 @@ export function StudentResults() {
                     <DashboardContent>
 
                         {loading ? (
-                            <p className="u-pad u-muted">Loading results…</p>
+                            <p className="u-pad u-muted">{t('student.results.loading')}</p>
                         ) : terms.length === 0 ? (
-                            <p className="u-pad u-muted">No results available yet.</p>
+                            <p className="u-pad u-muted">{t('student.results.empty')}</p>
                         ) : (
                             <>
                                 {/* Term tabs */}
@@ -194,7 +203,7 @@ export function StudentResults() {
                                 {trendData.length >= 2 && (
                                     <div className="card u-mb">
                                         <div className="card-header">
-                                            <h3 className="card-title">My Average Over Time</h3>
+                                            <h3 className="card-title">{t('student.results.averageOverTime')}</h3>
                                         </div>
                                         <div className="card-content results-chart-body">
                                             <ResponsiveContainer width="100%" height="100%">
@@ -206,10 +215,10 @@ export function StudentResults() {
                                                         tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                                                         tickFormatter={v => `${v}%`} />
                                                     <Tooltip
-                                                        formatter={v => [`${v}%`, 'My average']}
+                                                        formatter={v => [`${v}%`, t('student.results.myAverage')]}
                                                         cursor={{ stroke: 'var(--border)', strokeWidth: 1 }}
                                                     />
-                                                    <Line type="monotone" dataKey="average" name="My average"
+                                                    <Line type="monotone" dataKey="average" name={t('student.results.myAverage')}
                                                         stroke="#0891b2" strokeWidth={2}
                                                         dot={{ r: 4, fill: '#0891b2', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
                                                 </LineChart>
@@ -230,19 +239,19 @@ export function StudentResults() {
                                 {/* Detailed assessment table */}
                                 <div className="card">
                                     <div className="card-header">
-                                        <h3 className="card-title">Detailed Assessment Breakdown</h3>
+                                        <h3 className="card-title">{t('student.results.breakdown')}</h3>
                                         {activeTData && <span className="badge badge-student">{activeTData.term}</span>}
                                     </div>
                                     <div className="card-content">
                                         {termAssessments.length === 0 ? (
-                                            <p className="u-muted">No individual assessments recorded.</p>
+                                            <p className="u-muted">{t('student.results.noAssessments')}</p>
                                         ) : (
                                             <div className="table-responsive">
                                                 <table>
                                                     <thead>
                                                         <tr>
-                                                            <th>Subject</th><th>Assessment</th><th>Max</th>
-                                                            <th>Score</th><th>%</th><th>Grade</th><th>Date</th>
+                                                            <th>{t('common.subject')}</th><th>{t('student.results.assessment')}</th><th>{t('student.results.max')}</th>
+                                                            <th>{t('common.score')}</th><th>%</th><th>{t('common.grade')}</th><th>{t('common.date')}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>

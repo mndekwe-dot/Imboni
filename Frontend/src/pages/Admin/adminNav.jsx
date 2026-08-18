@@ -1,20 +1,20 @@
 export const adminNavItems = [
-    { to: '/admin',                 icon: 'dashboard',      label: 'Dashboard',      end: true },
-    { to: '/admin/staff',           icon: 'badge',          label: 'Staff'                     },
-    { to: '/admin/students',        icon: 'people',         label: 'Students'                  },
-    { to: '/admin/approvals',       icon: 'pending_actions',label: 'Approvals'                 },
-    { to: '/admin/reports',         icon: 'bar_chart',      label: 'Reports'                   },
-    { to: '/admin/announcements',   icon: 'announcement',   label: 'Announcements'             },
-    { to: '/admin/messages',        icon: 'chat',           label: 'Messages'                  },
-    { to: '/admin/audit',           icon: 'history',        label: 'Audit Log'                 },
-    { to: '/admin/billing',         icon: 'credit_card',    label: 'Billing'                   },
-    { to: '/admin/support',         icon: 'support_agent',  label: 'Support'                   },
-    { to: '/admin/settings',        icon: 'settings',       label: 'Settings'                  },
+    { to: '/admin',                 icon: 'dashboard',      labelKey: 'nav.dashboard',      end: true },
+    { to: '/admin/staff',           icon: 'badge',          labelKey: 'nav.staff'                     },
+    { to: '/admin/students',        icon: 'people',         labelKey: 'nav.students'                  },
+    { to: '/admin/approvals',       icon: 'pending_actions',labelKey: 'nav.approvals'                 },
+    { to: '/admin/reports',         icon: 'bar_chart',      labelKey: 'nav.reports'                   },
+    { to: '/admin/announcements',   icon: 'announcement',   labelKey: 'nav.announcements'             },
+    { to: '/admin/messages',        icon: 'chat',           labelKey: 'nav.messages'                  },
+    { to: '/admin/audit',           icon: 'history',        labelKey: 'nav.auditLog'                 },
+    { to: '/admin/billing',         icon: 'credit_card',    labelKey: 'nav.billing'                   },
+    { to: '/admin/support',         icon: 'support_agent',  labelKey: 'nav.support'                   },
+    { to: '/admin/settings',        icon: 'settings',       labelKey: 'nav.settings'                  },
 ]
 
 export const adminSecondaryItems = [
-    { to: '/profile?role=admin', icon: 'account_circle', label: 'Profile' },
-    { to: '/login',              icon: 'logout',         label: 'Logout'  },
+    { to: '/profile?role=admin', icon: 'account_circle', labelKey: 'nav.profile' },
+    { to: '/login',              icon: 'logout',         labelKey: 'nav.logout', action: 'logout'  },
 ]
 
 import { notifications } from '../../data/notifications'

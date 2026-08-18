@@ -14,6 +14,8 @@ vi.mock('../../api/dos', () => ({
   getDosTasks: vi.fn(),
   createDosTask: vi.fn(),
   updateDosTask: vi.fn(),
+  // The welcome banner names the school, so the page reads school settings.
+  getSchoolSettings: vi.fn().mockResolvedValue({ school_name: 'Imboni Academy' }),
 }))
 
 vi.mock('../../api/notifications', () => ({

@@ -8,6 +8,8 @@ export function useSchoolSettings(){
     const[setting,setSetting]=useState({
         timezone:'Africa/Kigali',
         school_name:'',
+        // ISO 4217; schools change this in settings.
+        currency:'RWF',
         terms:[
             {code:'term1', label:'Term 1', order:1},
             {code:'term2', label:'Term 2', order:2},

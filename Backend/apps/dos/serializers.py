@@ -326,7 +326,17 @@ class RoomSerializer(serializers.ModelSerializer):
 class SchoolSettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolSetting
-        fields = ['timezone', 'school_name', 'terms']
+        fields = ['timezone', 'school_name', 'terms', 'currency']
+
+    def validate_currency(self, value):
+        # ISO 4217 is three uppercase letters. Stored uppercase so the UI can
+        # print it directly without normalising at every call site.
+        code = (value or '').strip().upper()
+        if not (len(code) == 3 and code.isalpha()):
+            raise serializers.ValidationError(
+                "Currency must be a 3-letter ISO 4217 code, e.g. RWF, KES, USD."
+            )
+        return code
 
     def validate_timezone(self, value):
         try:
@@ -381,5 +391,17 @@ class SchoolSettingSerializer(serializers.ModelSerializer):
                     f'Two terms share the order {order}; each position must be distinct.'
                 )
             orders.add(order)
+
+        # A term the school has already run cannot be dropped: results,
+        # attendance, timetables and conduct all hang off AcademicTerm, so every
+        # record filed under it would be stranded.
+        stranded = sorted(structure.terms_in_use() - codes)
+        if stranded:
+            raise serializers.ValidationError(
+                f'Cannot remove {", ".join(stranded)}: the school has recorded '
+                f'{"a term" if len(stranded) == 1 else "terms"} under '
+                f'{"that code" if len(stranded) == 1 else "those codes"}. '
+                'Rename the label instead, which is what appears on reports.'
+            )
 
         return value

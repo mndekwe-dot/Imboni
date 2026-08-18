@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -15,9 +16,16 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { OfflineIndicator } from '../../components/ui/OfflineIndicator'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useMatronDormitory } from '../../hooks/useMatronDormitory'
+import { formatDate } from '../../utils/date'
 
 
-const conditionLabels = { illness: 'Illness', injury: 'Injury', checkup: 'Check-up', followup: 'Follow-up' }
+const conditionKeys = {
+    illness:  'matron.health.condIllness',
+    injury:   'matron.health.condInjury',
+    checkup:  'matron.health.condCheckup',
+    followup: 'matron.health.condFollowup',
+}
 
 const VISIT_TYPE_TO_CONDITION = {
     sickbay_admission: 'illness',
@@ -29,9 +37,9 @@ const VISIT_TYPE_TO_CONDITION = {
 }
 
 const STATUS_DISPLAY = {
-    in_sick_bay: { statusClass: 'pending',  status: 'In Sick Bay' },
-    observation: { statusClass: 'pending',  status: 'Observation' },
-    cleared:     { statusClass: 'reviewed', status: 'Cleared'     },
+    in_sick_bay: { statusClass: 'pending',  statusKey: 'matron.health.statusInSickBay' },
+    observation: { statusClass: 'pending',  statusKey: 'matron.health.statusObservation' },
+    cleared:     { statusClass: 'reviewed', statusKey: 'matron.health.statusCleared' },
 }
 
 function HealthStat({ iconClass, icon, value, label }) {
@@ -47,12 +55,13 @@ function HealthStat({ iconClass, icon, value, label }) {
 }
 
 function BedCard({ bed, badgeClass, badge, student, condition, since, isEmpty, recordId, onDischarge, discharging }) {
+    const { t } = useTranslation()
     return (
         <div className={`bed-card ${badgeClass}`}>
             <span className={`bed-badge ${badgeClass}`}>{badge}</span>
             <div className="bed-number">{bed}</div>
             {isEmpty ? (
-                <div className="bed-empty-label">Empty</div>
+                <div className="bed-empty-label">{t('common.empty')}</div>
             ) : (
                 <>
                     <div className="bed-student">{student}</div>
@@ -64,7 +73,7 @@ function BedCard({ bed, badgeClass, badge, student, condition, since, isEmpty, r
                             onClick={() => onDischarge(recordId)}
                             disabled={discharging}
                         >
-                            {discharging ? 'Discharging…' : 'Discharge'}
+                            {discharging ? t('matron.health.discharging') : t('matron.health.discharge')}
                         </button>
                     </div>
                 </>
@@ -73,21 +82,23 @@ function BedCard({ bed, badgeClass, badge, student, condition, since, isEmpty, r
     )
 }
 
-function HealthHistoryRow({ date, name, conditionTag, complaint, temp, action, statusClass, status }) {
+function HealthHistoryRow({ date, name, conditionTag, complaint, temp, action, statusClass, statusKey }) {
+    const { t } = useTranslation()
     return (
         <tr>
             <td>{date}</td>
             <td><strong>{name}</strong></td>
-            <td><span className={`condition-tag ${conditionTag}`}>{conditionLabels[conditionTag]}</span></td>
+            <td><span className={`condition-tag ${conditionTag}`}>{t(conditionKeys[conditionTag])}</span></td>
             <td>{complaint}</td>
             <td>{temp}</td>
             <td>{action}</td>
-            <td><span className={`matron-report-status ${statusClass}`}>{status}</span></td>
+            <td><span className={`matron-report-status ${statusClass}`}>{t(statusKey)}</span></td>
         </tr>
     )
 }
 
 function MedicationChecklist({ students }) {
+    const { t } = useTranslation()
     const [checklist, setChecklist] = useState(null)
     const [giving, setGiving]       = useState(null)     // "scheduleId|time" in flight
     const [showAdd, setShowAdd]     = useState(false)
@@ -129,9 +140,9 @@ function MedicationChecklist({ students }) {
     }
 
     async function handleAdd() {
-        const times = form.times.split(',').map(t => t.trim()).filter(Boolean)
+        const times = form.times.split(',').map(s => s.trim()).filter(Boolean)
         if (!form.student_id || !form.medicine_name.trim() || !form.dosage.trim() || !form.start_date || times.length === 0) {
-            setSaveError('Fill in student, medicine, dosage, start date and at least one time.')
+            setSaveError(t('matron.health.medFormRequired'))
             return
         }
         setSaving(true); setSaveError(null)
@@ -148,7 +159,7 @@ function MedicationChecklist({ students }) {
             setShowAdd(false)
             load()
         } catch (e) {
-            setSaveError(e?.response?.data?.error || 'Failed to save the schedule.')
+            setSaveError(e?.response?.data?.error || t('matron.health.saveScheduleFailed'))
         } finally {
             setSaving(false)
         }
@@ -159,18 +170,18 @@ function MedicationChecklist({ students }) {
     return (
         <div className="card mb-1-5">
             <div className="card-header">
-                <h3 className="card-title"><span className="material-symbols-rounded">medication</span> Today&apos;s Medication</h3>
+                <h3 className="card-title"><span className="material-symbols-rounded">medication</span> {t('matron.health.todayMedication')}</h3>
                 <div className="u-row">
                     <OfflineIndicator />
                     {checklist && (
                         <span className="settings-info-text align-self-center">
-                            {checklist.given}/{checklist.total} given
-                            {checklist.overdue > 0 && <span className="u-danger"> &middot; {checklist.overdue} overdue</span>}
+                            {t('matron.health.givenCount', { given: checklist.given, total: checklist.total })}
+                            {checklist.overdue > 0 && <span className="u-danger"> &middot; {t('matron.health.overdueCount', { count: checklist.overdue })}</span>}
                         </span>
                     )}
                     <button className="btn btn-outline btn-sm" onClick={() => setShowAdd(s => !s)}>
                         <span className="material-symbols-rounded icon-sm">add</span>
-                        Add Schedule
+                        {t('matron.health.addSchedule')}
                     </button>
                 </div>
             </div>
@@ -178,41 +189,41 @@ function MedicationChecklist({ students }) {
                 {showAdd && (
                     <div className="med-add-grid">
                         <div>
-                            <label className="form-label" htmlFor="med-student">Student</label>
+                            <label className="form-label" htmlFor="med-student">{t('common.student')}</label>
                             <select id="med-student" className="form-input" value={form.student_id}
                                 onChange={e => setForm(f => ({ ...f, student_id: e.target.value }))}>
-                                <option value="">Select...</option>
+                                <option value="">{t('common.selectEllipsis')}</option>
                                 {students.map(s => <option key={s.id} value={s.id}>{s.name || s.full_name}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-name">Medicine</label>
-                            <input id="med-name" className="form-input" placeholder="e.g. Amoxicillin"
+                            <label className="form-label" htmlFor="med-name">{t('matron.health.medicine')}</label>
+                            <input id="med-name" className="form-input" placeholder={t('matron.health.egMedicine')}
                                 value={form.medicine_name} onChange={e => setForm(f => ({ ...f, medicine_name: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-dosage">Dosage</label>
-                            <input id="med-dosage" className="form-input" placeholder="e.g. 500mg"
+                            <label className="form-label" htmlFor="med-dosage">{t('matron.health.dosage')}</label>
+                            <input id="med-dosage" className="form-input" placeholder={t('matron.health.egDosage')}
                                 value={form.dosage} onChange={e => setForm(f => ({ ...f, dosage: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-times">Times (comma-separated)</label>
+                            <label className="form-label" htmlFor="med-times">{t('matron.health.times')}</label>
                             <input id="med-times" className="form-input" placeholder="08:00, 13:00, 20:00"
                                 value={form.times} onChange={e => setForm(f => ({ ...f, times: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-start">Start</label>
+                            <label className="form-label" htmlFor="med-start">{t('common.start')}</label>
                             <input id="med-start" type="date" className="form-input"
                                 value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="med-end">End (optional)</label>
+                            <label className="form-label" htmlFor="med-end">{t('matron.health.endOptional')}</label>
                             <input id="med-end" type="date" className="form-input"
                                 value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
                         </div>
                         <div className="med-add-actions">
                             <button className="btn btn-primary btn-sm" onClick={handleAdd} disabled={saving}>
-                                {saving ? 'Saving…' : 'Save Schedule'}
+                                {saving ? t('common.saving') : t('matron.health.saveSchedule')}
                             </button>
                         </div>
                         {saveError && <p className="med-add-error">{saveError}</p>}
@@ -220,9 +231,9 @@ function MedicationChecklist({ students }) {
                 )}
 
                 {!checklist ? (
-                    <p className="u-muted">Loading medication checklist…</p>
+                    <p className="u-muted">{t('matron.health.loadingChecklist')}</p>
                 ) : items.length === 0 ? (
-                    <p className="u-muted">No medications scheduled for today.</p>
+                    <p className="u-muted">{t('matron.health.noMedications')}</p>
                 ) : (
                     <div className="med-list">
                         {items.map(item => {
@@ -239,17 +250,17 @@ function MedicationChecklist({ students }) {
                                     {item.given ? (
                                         <span className="med-given">
                                             <span className="material-symbols-rounded">check_circle</span>
-                                            Given
+                                            {t('common.given')}
                                         </span>
                                     ) : (
                                         <>
                                             {item.overdue && (
-                                                <span className="med-overdue-label">Overdue</span>
+                                                <span className="med-overdue-label">{t('common.overdue')}</span>
                                             )}
                                             <button className="btn btn-primary btn-sm"
                                                 disabled={giving === key}
                                                 onClick={() => handleGive(item)}>
-                                                {giving === key ? 'Saving…' : 'Mark Given'}
+                                                {giving === key ? t('common.saving') : t('matron.health.markGiven')}
                                             </button>
                                         </>
                                     )}
@@ -264,6 +275,8 @@ function MedicationChecklist({ students }) {
 }
 
 export const MatronHealth = () => {
+    const { t } = useTranslation()
+    const dormitory = useMatronDormitory()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [data, setData] = useState(null)
@@ -320,7 +333,7 @@ export const MatronHealth = () => {
             resetForm()
             load(historyFilter)
         } catch (e) {
-            setSaveError(e?.response?.data?.error || e?.message || 'Failed to save record.')
+            setSaveError(e?.response?.data?.error || e?.message || t('matron.health.saveRecordFailed'))
         } finally {
             setSaving(false)
         }
@@ -337,17 +350,17 @@ export const MatronHealth = () => {
     }
 
     if (loading) return <Loading fullPage />
-    if (error) return <p className="u-pad u-danger">Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     const healthStats = [
-        { iconClass: 'sick',     icon: 'sick',          value: data.stats.in_sick_bay_now,    label: 'In Sick Bay Now'    },
-        { iconClass: 'recovery', icon: 'healing',       value: data.stats.under_observation,  label: 'Under Observation'  },
-        { iconClass: 'visits',   icon: 'calendar_today',value: data.stats.visits_this_month,  label: 'Visits This Month'  },
-        { iconClass: 'cleared',  icon: 'check_circle',  value: data.stats.cleared_this_month, label: 'Cleared This Month' },
+        { iconClass: 'sick',     icon: 'sick',          value: data.stats.in_sick_bay_now,    label: t('matron.health.inSickBayNow')     },
+        { iconClass: 'recovery', icon: 'healing',       value: data.stats.under_observation,  label: t('matron.health.underObservation') },
+        { iconClass: 'visits',   icon: 'calendar_today',value: data.stats.visits_this_month,  label: t('matron.health.visitsThisMonth')  },
+        { iconClass: 'cleared',  icon: 'check_circle',  value: data.stats.cleared_this_month, label: t('matron.health.clearedThisMonth') },
     ]
 
     const healthHistory = data.history.map(r => ({
-        date: new Date(r.visit_datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        date: formatDate(r.visit_datetime),
         name: r.name,
         conditionTag: r.condition_tag,
         complaint: r.complaint,
@@ -358,7 +371,7 @@ export const MatronHealth = () => {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             <div className="dashboard-layout">
@@ -366,8 +379,10 @@ export const MatronHealth = () => {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Health & Wellness"
-                        subtitle="Sick bay management and student health records for Karisimbi House"
+                        title={t('matron.health.title')}
+                        subtitle={dormitory
+                            ? t('matron.health.subtitle', { house: dormitory })
+                            : t('matron.health.subtitleNoHouse')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -385,7 +400,7 @@ export const MatronHealth = () => {
 
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">bed</span> Sick Bay: Current Residents</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded">bed</span> {t('matron.health.sickBayResidents')}</h3>
                                 <span className="settings-info-text align-self-center">
                                     {data.stats.beds_total} beds total &middot; {data.stats.beds_occupied} occupied &middot; {data.stats.beds_total - data.stats.beds_occupied} free
                                 </span>
@@ -407,14 +422,14 @@ export const MatronHealth = () => {
 
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">add_circle</span> Log Health Visit</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded">add_circle</span> {t('matron.health.logVisit')}</h3>
                             </div>
                             <div className="card-content">
                                 <div className="health-form-grid">
                                     <div>
-                                        <label>Student</label>
+                                        <label>{t('common.student')}</label>
                                         <select value={studentId} onChange={e => setStudentId(e.target.value)}>
-                                            <option value="">Select student...</option>
+                                            <option value="">{t('common.selectStudent')}</option>
                                             {students.map(s => (
                                                 <option key={s.student_pk} value={s.student_pk}>
                                                     {s.full_name} (S{s.grade}{s.section})
@@ -423,74 +438,74 @@ export const MatronHealth = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Visit Type</label>
+                                        <label>{t('matron.health.visitType')}</label>
                                         <select value={visitType} onChange={e => setVisitType(e.target.value)}>
-                                            <option value="sickbay_admission">Sick Bay Admission</option>
-                                            <option value="routine_checkup">Routine Check-up</option>
-                                            <option value="medication">Medication Dispensed</option>
-                                            <option value="follow_up">Follow-up Visit</option>
-                                            <option value="injury">Injury</option>
-                                            <option value="discharge">Discharge</option>
+                                            <option value="sickbay_admission">{t('matron.health.admission')}</option>
+                                            <option value="routine_checkup">{t('matron.health.routineCheckup')}</option>
+                                            <option value="medication">{t('matron.health.medicationDispensed')}</option>
+                                            <option value="follow_up">{t('matron.health.followUpVisit')}</option>
+                                            <option value="injury">{t('matron.health.injury')}</option>
+                                            <option value="discharge">{t('matron.health.discharge')}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Date &amp; Time</label>
+                                        <label>{t('common.dateTime')}</label>
                                         <input type="datetime-local" value={visitDateTime} onChange={e => setVisitDateTime(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label>Temperature (&deg;C, optional)</label>
-                                        <input type="number" step="0.1" min="35" max="42" placeholder="e.g. 37.4" value={temperature} onChange={e => setTemperature(e.target.value)} />
+                                        <label>{t('matron.health.temperature')}</label>
+                                        <input type="number" step="0.1" min="35" max="42" placeholder={t('matron.health.egTemperature')} value={temperature} onChange={e => setTemperature(e.target.value)} />
                                     </div>
                                     <div className="full">
-                                        <label>Complaint / Condition</label>
-                                        <input type="text" placeholder="Brief description of presenting complaint…" value={complaint} onChange={e => setComplaint(e.target.value)} />
+                                        <label>{t('matron.health.complaint')}</label>
+                                        <input type="text" placeholder={t('matron.health.complaintPlaceholder')} value={complaint} onChange={e => setComplaint(e.target.value)} />
                                     </div>
                                     <div className="full">
-                                        <label>Action Taken / Treatment</label>
+                                        <label>{t('matron.health.actionTaken')}</label>
                                         <textarea
-                                            placeholder="Medication given, rest ordered, parent notified, referred to hospital…"
+                                            placeholder={t('matron.health.actionPlaceholder')}
                                             value={actionTaken}
                                             onChange={e => setActionTaken(e.target.value)}
                                         />
                                     </div>
                                     <div>
-                                        <label>Admit to Sick Bay?</label>
+                                        <label>{t('matron.health.admitToSickBay')}</label>
                                         <select value={admitChoice} onChange={e => setAdmitChoice(e.target.value)}>
-                                            <option value="no">No (outpatient visit)</option>
-                                            <option value="yes">Yes (assign to bed)</option>
+                                            <option value="no">{t('matron.health.admitNo')}</option>
+                                            <option value="yes">{t('matron.health.admitYes')}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Notify Parent?</label>
+                                        <label>{t('matron.health.notifyParent')}</label>
                                         <select value={notifyParent} onChange={e => setNotifyParent(e.target.value)}>
-                                            <option value="none">No</option>
-                                            <option value="sms">Yes (send SMS)</option>
-                                            <option value="call">Yes (call parent)</option>
-                                            <option value="both">Yes (both)</option>
+                                            <option value="none">{t('common.no')}</option>
+                                            <option value="sms">{t('matron.health.notifySms')}</option>
+                                            <option value="call">{t('matron.health.notifyCall')}</option>
+                                            <option value="both">{t('matron.health.notifyBoth')}</option>
                                         </select>
                                     </div>
                                 </div>
                                 {saveError && <p className="health-form-error">{saveError}</p>}
                                 <div className="btn-row mt-1-5">
                                     <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !studentId || !complaint.trim()}>
-                                        <span className="material-symbols-rounded">save</span> {saving ? 'Saving…' : 'Save Record'}
+                                        <span className="material-symbols-rounded">save</span> {saving ? t('common.saving') : t('matron.health.saveRecord')}
                                     </button>
-                                    <button className="btn btn-outline" onClick={resetForm}>Clear</button>
+                                    <button className="btn btn-outline" onClick={resetForm}>{t('common.clear')}</button>
                                 </div>
                             </div>
                         </div>
 
                         <div className="card">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">history</span> Health Visit History</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded">history</span> {t('matron.health.visitHistory')}</h3>
                                 <div className="btn-row-sm">
                                     <select className="btn btn-outline btn-sm select-xs" value={historyFilter} onChange={e => setHistoryFilter(e.target.value)}>
-                                        <option value="">All Students</option>
+                                        <option value="">{t('common.allStudents')}</option>
                                         {students.map(s => (
                                             <option key={s.student_pk} value={s.student_pk}>{s.full_name}</option>
                                         ))}
                                     </select>
-                                    <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded">download</span> Export</button>
+                                    <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded">download</span> {t('common.export')}</button>
                                 </div>
                             </div>
                             <div className="card-content">
@@ -498,13 +513,13 @@ export const MatronHealth = () => {
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th>Date</th>
-                                                <th>Student</th>
-                                                <th>Type</th>
-                                                <th>Complaint</th>
-                                                <th>Temp</th>
-                                                <th>Action</th>
-                                                <th>Status</th>
+                                                <th>{t('common.date')}</th>
+                                                <th>{t('common.student')}</th>
+                                                <th>{t('common.type')}</th>
+                                                <th>{t('matron.health.complaintShort')}</th>
+                                                <th>{t('matron.health.tempShort')}</th>
+                                                <th>{t('common.action')}</th>
+                                                <th>{t('common.status')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>

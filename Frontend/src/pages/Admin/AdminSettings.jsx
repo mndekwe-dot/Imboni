@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { yearsFromConfig } from '../../utils/classes'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
@@ -25,171 +27,27 @@ import '../../styles/discipline.css'
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 
+// Sections are identified by a stable id, never by their label: the label is
+// translated, so keying the active section off it would leave every section
+// unreachable the moment the interface is not in English.
 const settingsNav = [
-    { icon: 'info',           label: 'School Info'      },
-    { icon: 'layers',         label: 'School Structure' },
-    { icon: 'book',           label: 'Subjects'         },
-    { icon: 'meeting_room',   label: 'Rooms'            },
-    { icon: 'restart_alt',    label: 'Term Rollover'    },
-    { icon: 'calendar_month', label: 'Academic Calendar'},
-    { icon: 'notifications',  label: 'Notifications'    },
-    { icon: 'security',       label: 'Access & Roles'   },
-    { icon: 'backup',         label: 'Data & Backup'    },
+    { id: 'info',          icon: 'info',           labelKey: 'admin.settings.navInfo'          },
+    { id: 'structure',     icon: 'layers',         labelKey: 'admin.settings.navStructure'     },
+    { id: 'subjects',      icon: 'book',           labelKey: 'admin.settings.navSubjects'      },
+    { id: 'rooms',         icon: 'meeting_room',   labelKey: 'admin.settings.navRooms'         },
+    { id: 'rollover',      icon: 'restart_alt',    labelKey: 'admin.settings.navRollover'      },
+    { id: 'calendar',      icon: 'calendar_month', labelKey: 'admin.settings.navCalendar'      },
+    { id: 'notifications', icon: 'notifications',  labelKey: 'admin.settings.navNotifications' },
+    { id: 'access',        icon: 'security',       labelKey: 'admin.settings.navAccess'        },
+    { id: 'backup',        icon: 'backup',         labelKey: 'admin.settings.navBackup'        },
 ]
 
-const LIVE_SECTIONS = ['School Info', 'School Structure', 'Subjects', 'Rooms', 'Term Rollover']
+const LIVE_SECTIONS = ['info', 'structure', 'subjects', 'rooms', 'rollover']
 
 // ── Shared small components ───────────────────────────────────────────────────
 
-function TagList({ items, onRemove }) {
-    return (
-        <div className="tag-list">
-            {items.map(item => (
-                <span key={item} className="tag-chip">
-                    {item}
-                    <button className="tag-chip-remove" onClick={() => onRemove(item)}>
-                        <span className="material-symbols-rounded">close</span>
-                    </button>
-                </span>
-            ))}
-            {items.length === 0 && <span className="tag-chip-empty">None added yet</span>}
-        </div>
-    )
-}
-
-function ConfigSection({ title, description, items, onAdd, onRemove, placeholder }) {
-    const [input, setInput] = useState('')
-
-    function handleAdd() {
-        const val = input.trim()
-        if (!val || items.includes(val)) return
-        onAdd(val)
-        setInput('')
-    }
-
-    return (
-        <div className="settings-block">
-            <div className="settings-block-label">
-                <p className="settings-block-title">{title}</p>
-                <p className="settings-block-desc">{description}</p>
-            </div>
-            <div className="settings-block-input-row">
-                <input
-                    className="form-input flex-1"
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                    placeholder={placeholder}
-                />
-                <button className="btn btn-primary btn-sm" onClick={handleAdd}>
-                    <span className="material-symbols-rounded icon-sm">add</span> Add
-                </button>
-            </div>
-            <TagList items={items} onRemove={onRemove} />
-        </div>
-    )
-}
-
-function YearInput({ onAdd }) {
-    const [input, setInput] = useState('')
-    function handle() {
-        const val = input.trim()
-        if (!val) return
-        onAdd(val)
-        setInput('')
-    }
-    return (
-        <div className="settings-block-input-row u-mt-sm">
-            <input
-                className="form-input flex-1"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handle()}
-                placeholder="e.g. S1"
-            />
-            <button className="btn btn-primary btn-sm" onClick={handle}>
-                <span className="material-symbols-rounded icon-sm">add</span> Add Year
-            </button>
-        </div>
-    )
-}
-
-function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
-    const [editing,     setEditing]     = useState(false)
-    const [draft,       setDraft]       = useState(year.name)
-    const [streamInput, setStreamInput] = useState('')
-
-    function commitRename() {
-        const val = draft.trim()
-        if (val && val !== year.name) onRename(year.name, val)
-        setEditing(false)
-    }
-
-    function handleAddStream() {
-        const val = streamInput.trim()
-        if (!val) return
-        onAddStream(val)
-        setStreamInput('')
-    }
-
-    return (
-        <div className="adm-editblock">
-            <div className="adm-editblock-head">
-                {editing ? (
-                    <>
-                        <input
-                            className="form-input adm-input-year"
-                            value={draft}
-                            onChange={e => setDraft(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setEditing(false); setDraft(year.name) } }}
-                            autoFocus
-                        />
-                        <button className="btn btn-primary btn-sm" onClick={commitRename}>Save</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => { setEditing(false); setDraft(year.name) }}>Cancel</button>
-                    </>
-                ) : (
-                    <>
-                        <span className="adm-editblock-title">{year.name}</span>
-                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditing(true)} title="Rename year">
-                            <span className="material-symbols-rounded u-fs-1">edit</span>
-                        </button>
-                        <div className="adm-spacer" />
-                        <button className="btn-icon-clean adm-icon-danger" onClick={onRemove} title="Remove year">
-                            <span className="material-symbols-rounded u-fs-1">delete</span>
-                        </button>
-                    </>
-                )}
-            </div>
-
-            <div className="tag-list u-mb-05">
-                {year.streams.map(s => (
-                    <span key={s} className="tag-chip">
-                        {s}
-                        <button className="tag-chip-remove" onClick={() => onRemoveStream(s)}>
-                            <span className="material-symbols-rounded">close</span>
-                        </button>
-                    </span>
-                ))}
-                {year.streams.length === 0 && <span className="tag-chip-empty">No streams yet</span>}
-            </div>
-
-            <div className="u-row-sm">
-                <input
-                    className="form-input adm-input-stream"
-                    value={streamInput}
-                    onChange={e => setStreamInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAddStream()}
-                    placeholder="Add stream e.g. A, MPG"
-                />
-                <button className="btn btn-outline btn-sm" onClick={handleAddStream}>
-                    <span className="material-symbols-rounded icon-sm">add</span> Stream
-                </button>
-            </div>
-        </div>
-    )
-}
-
 function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson, onRenameLesson, onDeleteLesson }) {
+    const { t } = useTranslation()
     const [editingType,   setEditingType]   = useState(false)
     const [typeDraft,     setTypeDraft]     = useState(typeName)
     const [lessonName,    setLessonName]    = useState('')
@@ -205,11 +63,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
     }
 
     async function handleAddLesson() {
-        if (!lessonName.trim() || !lessonCode.trim()) { setLessonErr('Name and code are required'); return }
+        if (!lessonName.trim() || !lessonCode.trim()) { setLessonErr(t('settings.nameCodeRequired')); return }
         try {
             await onAddLesson(lessonName.trim(), lessonCode.trim().toUpperCase(), typeName)
             setLessonName(''); setLessonCode(''); setLessonErr('')
-        } catch (e) { setLessonErr(e.message || 'Could not add lesson') }
+        } catch (e) { setLessonErr(e.message || t('settings.addLessonFailed')) }
     }
 
     function commitLessonRename(id) {
@@ -226,18 +84,18 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                             onChange={e => setTypeDraft(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') commitTypeRename(); if (e.key === 'Escape') { setEditingType(false); setTypeDraft(typeName) } }}
                             autoFocus />
-                        <button className="btn btn-primary btn-sm" onClick={commitTypeRename}>Save</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => { setEditingType(false); setTypeDraft(typeName) }}>Cancel</button>
+                        <button className="btn btn-primary btn-sm" onClick={commitTypeRename}>{t('common.save')}</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => { setEditingType(false); setTypeDraft(typeName) }}>{t('common.cancel')}</button>
                     </>
                 ) : (
                     <>
                         <span className="adm-type-title">{typeName}</span>
-                        <span className="adm-set-count u-fs-075">{subjects.length} lesson{subjects.length !== 1 ? 's' : ''}</span>
-                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title="Rename type">
+                        <span className="adm-set-count u-fs-075">{t('settings.lessonCount', { count: subjects.length })}</span>
+                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')}>
                             <span className="material-symbols-rounded u-fs-1">edit</span>
                         </button>
                         <div className="adm-spacer" />
-                        <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title="Delete type">
+                        <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title={t('settings.deleteType')}>
                             <span className="material-symbols-rounded u-fs-1">delete</span>
                         </button>
                     </>
@@ -252,17 +110,17 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                                 onChange={e => setLessonDraft(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') commitLessonRename(s.id); if (e.key === 'Escape') setEditingLesson(null) }}
                                 autoFocus />
-                            <button className="btn btn-primary btn-sm" onClick={() => commitLessonRename(s.id)}>Save</button>
-                            <button className="btn btn-outline btn-sm" onClick={() => setEditingLesson(null)}>Cancel</button>
+                            <button className="btn btn-primary btn-sm" onClick={() => commitLessonRename(s.id)}>{t('common.save')}</button>
+                            <button className="btn btn-outline btn-sm" onClick={() => setEditingLesson(null)}>{t('common.cancel')}</button>
                         </>
                     ) : (
                         <>
                             <span className="adm-lesson-name">{s.name}</span>
                             <span className="adm-lesson-code">{s.code}</span>
-                            <button className="btn-icon-clean adm-icon-muted" onClick={() => { setEditingLesson(s.id); setLessonDraft(s.name) }} title="Rename">
+                            <button className="btn-icon-clean adm-icon-muted" onClick={() => { setEditingLesson(s.id); setLessonDraft(s.name) }} title={t('common.rename')}>
                                 <span className="material-symbols-rounded u-fs-095">edit</span>
                             </button>
-                            <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteLesson(s.id)} title="Delete">
+                            <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')}>
                                 <span className="material-symbols-rounded u-fs-095">delete</span>
                             </button>
                         </>
@@ -270,19 +128,19 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 </div>
             ))}
 
-            {subjects.length === 0 && <p className="adm-lesson-empty">No lessons yet</p>}
+            {subjects.length === 0 && <p className="adm-lesson-empty">{t('settings.noLessons')}</p>}
 
             <div className="adm-lesson-add">
                 <input className="form-input adm-input-lesson"
                     value={lessonName} onChange={e => setLessonName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder="Lesson name e.g. Mathematics" />
+                    placeholder={t('settings.lessonNamePlaceholder')} />
                 <input className="form-input adm-input-code"
                     value={lessonCode} onChange={e => setLessonCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder="Code e.g. MAT" />
+                    placeholder={t('settings.lessonCodePlaceholder')} />
                 <button className="btn btn-outline btn-sm" onClick={handleAddLesson}>
-                    <span className="material-symbols-rounded icon-sm">add</span> Lesson
+                    <span className="material-symbols-rounded icon-sm">add</span> {t('settings.lesson')}
                 </button>
             </div>
             {lessonErr && <p className="adm-inline-err">{lessonErr}</p>}
@@ -293,10 +151,12 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
 // ── Section components ────────────────────────────────────────────────────────
 
 function SchoolInfoSection() {
+    const { t } = useTranslation()
     const toast = useToast()
     const { setting, loading: settingsLoading } = useSchoolSettings()
     const [schoolName, setSchoolName] = useState('')
     const [timezone,   setTimezone]   = useState('Africa/Kigali')
+    const [currency,   setCurrency]   = useState('RWF')
     const [saving,     setSaving]     = useState(false)
     const [saved,      setSaved]      = useState(false)
 
@@ -304,44 +164,67 @@ function SchoolInfoSection() {
         if (!settingsLoading) {
             setSchoolName(setting.school_name || '')
             setTimezone(setting.timezone || 'Africa/Kigali')
+            setCurrency(setting.currency || 'RWF')
         }
     }, [settingsLoading, setting])
 
     async function handleSave() {
         setSaving(true)
         try {
-            await updateSchoolSettings({ school_name: schoolName, timezone })
+            await updateSchoolSettings({ school_name: schoolName, timezone, currency })
             setSaved(true)
             setTimeout(() => setSaved(false), 3000)
         } catch (e) {
-            toast.error(errorMessage(e, 'Could not save school information.'))
+            toast.error(errorMessage(e, t('admin.settings.saveInfoFailed')))
         }
         finally { setSaving(false) }
     }
 
-    if (settingsLoading) return <p className="adm-set-note">Loading…</p>
+    if (settingsLoading) return <p className="adm-set-note">{t('common.loading')}</p>
 
     return (
         <div className="u-flex u-col u-gap-125">
             <div className="settings-block">
                 <div className="settings-block-label">
-                    <p className="settings-block-title">School Name</p>
-                    <p className="settings-block-desc">Displayed across all portals and reports</p>
+                    <p className="settings-block-title">{t('admin.settings.schoolName')}</p>
+                    <p className="settings-block-desc">{t('admin.settings.schoolNameDesc')}</p>
                 </div>
                 <div className="settings-block-input-row">
                     <input
                         className="form-input flex-1"
                         value={schoolName}
                         onChange={e => { setSchoolName(e.target.value); setSaved(false) }}
-                        placeholder="e.g. Imboni Academy"
+                        placeholder={t('admin.settings.schoolNamePlaceholder')}
                     />
                 </div>
             </div>
 
             <div className="settings-block">
                 <div className="settings-block-label">
-                    <p className="settings-block-title">Timezone</p>
-                    <p className="settings-block-desc">All dates shown to users will use this timezone</p>
+                    <p className="settings-block-title">{t('settings.currency')}</p>
+                    <p className="settings-block-desc">{t('settings.currencyDesc')}</p>
+                </div>
+                <div className="settings-block-input-row">
+                    <select
+                        className="disc-picker-select flex-1"
+                        value={currency}
+                        onChange={e => { setCurrency(e.target.value); setSaved(false) }}
+                    >
+                        <option value="RWF">{t('settings.currencyRwf')}</option>
+                        <option value="KES">{t('settings.currencyKes')}</option>
+                        <option value="UGX">{t('settings.currencyUgx')}</option>
+                        <option value="TZS">{t('settings.currencyTzs')}</option>
+                        <option value="BIF">{t('settings.currencyBif')}</option>
+                        <option value="USD">{t('settings.currencyUsd')}</option>
+                        <option value="EUR">{t('settings.currencyEur')}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div className="settings-block">
+                <div className="settings-block-label">
+                    <p className="settings-block-title">{t('settings.timezone')}</p>
+                    <p className="settings-block-desc">{t('settings.timezoneDesc')}</p>
                 </div>
                 <div className="settings-block-input-row">
                     <select
@@ -349,33 +232,33 @@ function SchoolInfoSection() {
                         value={timezone}
                         onChange={e => { setTimezone(e.target.value); setSaved(false) }}
                     >
-                        <optgroup label="East Africa">
+                        <optgroup label={t('settings.tzEastAfrica')}>
                             <option value="Africa/Kigali">Africa/Kigali (Rwanda, UTC+3)</option>
                             <option value="Africa/Nairobi">Africa/Nairobi (Kenya, Uganda, Tanzania, UTC+3)</option>
                             <option value="Africa/Kampala">Africa/Kampala (Uganda, UTC+3)</option>
                             <option value="Africa/Dar_es_Salaam">Africa/Dar_es_Salaam (Tanzania, UTC+3)</option>
                             <option value="Africa/Addis_Ababa">Africa/Addis_Ababa (Ethiopia, UTC+3)</option>
                         </optgroup>
-                        <optgroup label="West Africa">
+                        <optgroup label={t('settings.tzWestAfrica')}>
                             <option value="Africa/Lagos">Africa/Lagos (Nigeria, UTC+1)</option>
                             <option value="Africa/Accra">Africa/Accra (Ghana, UTC+0)</option>
                             <option value="Africa/Abidjan">Africa/Abidjan (Ivory Coast, UTC+0)</option>
                             <option value="Africa/Dakar">Africa/Dakar (Senegal, UTC+0)</option>
                         </optgroup>
-                        <optgroup label="Southern Africa">
+                        <optgroup label={t('settings.tzSouthernAfrica')}>
                             <option value="Africa/Johannesburg">Africa/Johannesburg (South Africa, UTC+2)</option>
                             <option value="Africa/Harare">Africa/Harare (Zimbabwe, UTC+2)</option>
                             <option value="Africa/Lusaka">Africa/Lusaka (Zambia, UTC+2)</option>
                         </optgroup>
-                        <optgroup label="North Africa">
+                        <optgroup label={t('settings.tzNorthAfrica')}>
                             <option value="Africa/Cairo">Africa/Cairo (Egypt, UTC+2)</option>
                             <option value="Africa/Casablanca">Africa/Casablanca (Morocco, UTC+1)</option>
                         </optgroup>
-                        <optgroup label="Europe">
+                        <optgroup label={t('settings.tzEurope')}>
                             <option value="Europe/London">Europe/London (UK, UTC+0/+1)</option>
                             <option value="Europe/Paris">Europe/Paris (France, Belgium, UTC+1/+2)</option>
                         </optgroup>
-                        <optgroup label="Americas">
+                        <optgroup label={t('settings.tzAmericas')}>
                             <option value="America/New_York">America/New_York (US East, UTC-5/-4)</option>
                             <option value="America/Los_Angeles">America/Los_Angeles (US West, UTC-8/-7)</option>
                         </optgroup>
@@ -386,150 +269,7 @@ function SchoolInfoSection() {
             <div>
                 <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
                     <span className="material-symbols-rounded">{saved ? 'check' : 'save'}</span>
-                    {saved ? 'Saved!' : saving ? 'Saving…' : 'Save Changes'}
-                </button>
-            </div>
-        </div>
-    )
-}
-
-function SchoolStructureSection() {
-    const toast = useToast()
-    const { config, saveConfig, loading, error } = useSchoolConfig()
-    const [saving, setSaving] = useState(false)
-    const [saved,  setSaved]  = useState(false)
-
-    if (loading) return <p className="adm-set-note">Loading…</p>
-    if (error)   return <p className="adm-danger">Error: {error}</p>
-
-    const totalYears   = config.reduce((sum, sec) => sum + sec.years.length, 0)
-    const totalStreams  = config.reduce((sum, sec) => sum + sec.years.reduce((s, y) => s + y.streams.length, 0), 0)
-
-    function addSection(name) {
-        if (config.find(s => s.name === name)) return
-        saveConfig([...config, { name, years: [] }])
-    }
-    function removeSection(name) { saveConfig(config.filter(s => s.name !== name)) }
-
-    function addYear(sectionName, yearName) {
-        if (!yearName.trim()) return
-        const sec = config.find(s => s.name === sectionName)
-        if (!sec || sec.years.find(y => y.name === yearName)) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: [...s.years, { name: yearName, streams: [] }] } : s))
-    }
-    function removeYear(sectionName, yearName) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.filter(y => y.name !== yearName) } : s))
-    }
-    function renameYear(sectionName, oldName, newName) {
-        if (!newName.trim() || oldName === newName) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === oldName ? { ...y, name: newName } : y) } : s))
-    }
-    function addStream(sectionName, yearName, stream) {
-        if (!stream.trim()) return
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName && !y.streams.includes(stream)
-                ? { ...y, streams: [...y.streams, stream] } : y) } : s))
-    }
-    function removeStream(sectionName, yearName, stream) {
-        saveConfig(config.map(s => s.name === sectionName
-            ? { ...s, years: s.years.map(y => y.name === yearName
-                ? { ...y, streams: y.streams.filter(st => st !== stream) } : y) } : s))
-    }
-
-    async function handleSave() {
-        setSaving(true)
-        try {
-            await saveConfig(config)
-            setSaved(true)
-            setTimeout(() => setSaved(false), 3000)
-        } catch (e) {
-            toast.error(errorMessage(e, 'Could not save the school structure.'))
-        } finally { setSaving(false) }
-    }
-
-    return (
-        <div>
-            {config.length > 0 && (
-                <div className="adm-struct-stats">
-                    {[
-                        { icon: 'layers',         label: 'Sections',       value: config.length },
-                        { icon: 'calendar_month', label: 'Year Groups',    value: totalYears    },
-                        { icon: 'groups',         label: 'Stream Classes', value: totalStreams  },
-                    ].map(s => (
-                        <div key={s.label} className="disc-stat-card adm-struct-stat">
-                            <div className="disc-stat-icon info">
-                                <span className="material-symbols-rounded">{s.icon}</span>
-                            </div>
-                            <div>
-                                <div className="disc-stat-value">{s.value}</div>
-                                <div className="disc-stat-label">{s.label}</div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {config.length === 0 && (
-                <div className="card u-banner u-banner--primary u-mb">
-                    <div className="u-row">
-                        <span className="material-symbols-rounded u-banner-icon">info</span>
-                        <div>
-                            <p className="u-strong u-mb-025">Getting started</p>
-                            <p className="u-muted u-sm">
-                                Add your first section (e.g. O-Level or A-Level), then add year groups and stream classes to it.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <ConfigSection
-                title="Add Section"
-                description="Academic divisions e.g. O-Level, A-Level"
-                items={config.map(s => s.name)}
-                onAdd={addSection}
-                onRemove={removeSection}
-                placeholder="e.g. O-Level"
-            />
-
-            {config.length > 0 && (
-                <div className="settings-border-section">
-                    {config.map(sec => (
-                        <div key={sec.name} className="sec-config-block">
-                            <p className="sec-config-block-title">{sec.name}</p>
-                            <div className="settings-block">
-                                <div className="settings-block-label">
-                                    <p className="settings-block-title">Year Groups</p>
-                                    <p className="settings-block-desc">Each year has its own stream classes</p>
-                                </div>
-                                <YearInput onAdd={yearName => addYear(sec.name, yearName)} />
-                            </div>
-                            {sec.years.map(y => (
-                                <YearBlock
-                                    key={y.name}
-                                    year={y}
-                                    onRename={(old, next) => renameYear(sec.name, old, next)}
-                                    onRemove={() => removeYear(sec.name, y.name)}
-                                    onAddStream={stream => addStream(sec.name, y.name, stream)}
-                                    onRemoveStream={stream => removeStream(sec.name, y.name, stream)}
-                                />
-                            ))}
-                            {sec.years.length === 0 && (
-                                <p className="u-muted u-sm u-mt-sm">
-                                    No year groups yet. Add one above
-                                </p>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            <div className="cloud-save-row">
-                <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                    {saved ? 'Saved!' : saving ? 'Saving…' : 'Save to Database'}
+                    {saved ? t('settings.savedBang') : saving ? t('common.saving') : t('admin.settings.saveChanges')}
                 </button>
             </div>
         </div>
@@ -537,12 +277,13 @@ function SchoolStructureSection() {
 }
 
 function SubjectsSection() {
+    const { t } = useTranslation()
     const toast = useToast()
     const [subjects,    setSubjects]    = useState([])
     const [newTypeName, setNewTypeName] = useState('')
 
     useEffect(() => {
-        getSubjects().then(setSubjects).catch(e => toast.error(errorMessage(e, 'Could not load subjects.')))
+        getSubjects().then(setSubjects).catch(e => toast.error(errorMessage(e, t('settings.loadSubjectsFailed'))))
     }, [])
 
     function handleAddType() {
@@ -594,14 +335,14 @@ function SubjectsSection() {
         <div>
             <div className="u-row-sm u-mb">
                 <span className="adm-set-count">
-                    {typeCount} type{typeCount !== 1 ? 's' : ''} · {lessonCount} lesson{lessonCount !== 1 ? 's' : ''}
+                    {t('settings.typeCount', { count: typeCount })} · {t('settings.lessonCount', { count: lessonCount })}
                 </span>
             </div>
 
             <div className="settings-block">
                 <div className="settings-block-label">
-                    <p className="settings-block-title">Add Subject Type</p>
-                    <p className="settings-block-desc">e.g. Sciences, Languages, Humanities</p>
+                    <p className="settings-block-title">{t('settings.addSubjectType')}</p>
+                    <p className="settings-block-desc">{t('settings.addSubjectTypeDesc')}</p>
                 </div>
                 <div className="settings-block-input-row u-mt-sm">
                     <input
@@ -609,10 +350,10 @@ function SubjectsSection() {
                         value={newTypeName}
                         onChange={e => setNewTypeName(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleAddType()}
-                        placeholder="e.g. Sciences"
+                        placeholder={t('settings.egSciences')}
                     />
                     <button className="btn btn-primary btn-sm" onClick={handleAddType}>
-                        <span className="material-symbols-rounded icon-sm">add</span> Add Type
+                        <span className="material-symbols-rounded icon-sm">add</span> {t('settings.addType')}
                     </button>
                 </div>
             </div>
@@ -632,7 +373,7 @@ function SubjectsSection() {
 
             {typeCount === 0 && (
                 <p className="u-muted u-sm u-mt-075">
-                    No subject types yet. Add one above.
+                    {t('settings.noTypes')}
                 </p>
             )}
         </div>
@@ -640,27 +381,28 @@ function SubjectsSection() {
 }
 
 function RoomsSection() {
+    const { t } = useTranslation()
     const toast = useToast()
     const [rooms,     setRooms]     = useState([])
     const [roomInput, setRoomInput] = useState('')
     const [roomErr,   setRoomErr]   = useState('')
 
     useEffect(() => {
-        getDosRooms().then(data => setRooms(data)).catch(e => toast.error(errorMessage(e, 'Could not load rooms.')))
+        getDosRooms().then(data => setRooms(data)).catch(e => toast.error(errorMessage(e, t('settings.loadRoomsFailed'))))
     }, [])
 
     async function handleAddRoom() {
         const name = roomInput.trim()
         if (!name) return
         if (rooms.some(r => r.name.toLowerCase() === name.toLowerCase())) {
-            setRoomErr('Room already exists'); return
+            setRoomErr(t('settings.roomExists')); return
         }
         try {
             const newRoom = await createDosRoom(name)
             setRooms(prev => [...prev, newRoom].sort((a, b) => a.name.localeCompare(b.name)))
             setRoomInput('')
             setRoomErr('')
-        } catch (e) { setRoomErr(e.message || 'Could not add room') }
+        } catch (e) { setRoomErr(e.message || t('settings.addRoomFailed')) }
     }
 
     async function handleDeleteRoom(id) {
@@ -668,7 +410,7 @@ function RoomsSection() {
             await deleteDosRoom(id)
             setRooms(prev => prev.filter(r => r.id !== id))
         } catch (e) {
-            toast.error(errorMessage(e, 'Could not delete the room.'))
+            toast.error(errorMessage(e, t('settings.deleteRoomFailed')))
         }
     }
 
@@ -676,8 +418,8 @@ function RoomsSection() {
         <div>
             <div className="settings-block">
                 <div className="settings-block-label">
-                    <p className="settings-block-title">Add Room</p>
-                    <p className="settings-block-desc">Classrooms, labs, halls (used when scheduling timetable slots)</p>
+                    <p className="settings-block-title">{t('settings.addRoom')}</p>
+                    <p className="settings-block-desc">{t('settings.addRoomDesc')}</p>
                 </div>
                 <div className="settings-block-input-row u-mt-sm">
                     <input
@@ -685,10 +427,10 @@ function RoomsSection() {
                         value={roomInput}
                         onChange={e => { setRoomInput(e.target.value); setRoomErr('') }}
                         onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
-                        placeholder="e.g. Lab 1, Room 12, Hall A"
+                        placeholder={t('settings.roomPlaceholder')}
                     />
                     <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
-                        <span className="material-symbols-rounded icon-sm">add</span> Add
+                        <span className="material-symbols-rounded icon-sm">add</span> {t('common.add')}
                     </button>
                 </div>
                 {roomErr && <p className="adm-inline-err">{roomErr}</p>}
@@ -704,11 +446,11 @@ function RoomsSection() {
                         </button>
                     </span>
                 ))}
-                {rooms.length === 0 && <span className="tag-chip-empty">No rooms yet. Add one above</span>}
+                {rooms.length === 0 && <span className="tag-chip-empty">{t('settings.noRooms')}</span>}
             </div>
 
             <p className="u-xs u-muted u-mt">
-                {rooms.length} room{rooms.length !== 1 ? 's' : ''} configured
+                {t('settings.roomCount', { count: rooms.length })}
             </p>
         </div>
     )
@@ -717,6 +459,7 @@ function RoomsSection() {
 // ── Term Rollover ─────────────────────────────────────────────────────────────
 
 function TermRolloverSection() {
+    const { t } = useTranslation()
     // The school's own terms, not a hard-coded term1/2/3 — a semester system has
     // two and a quarter system four.
     const { setting } = useSchoolSettings()
@@ -755,7 +498,7 @@ function TermRolloverSection() {
             setPreview(data)
             setStep(2)
         } catch (err) {
-            setError(err?.response?.data?.error || 'Preview failed.')
+            setError(err?.response?.data?.error || t('admin.settings.previewFailed'))
         } finally {
             setBusy(false)
         }
@@ -768,54 +511,62 @@ function TermRolloverSection() {
             setResult(data)
             setStep(3)
         } catch (err) {
-            setError(err?.response?.data?.error || 'Rollover failed.')
+            setError(err?.response?.data?.error || t('admin.settings.rolloverFailed'))
         } finally {
             setBusy(false)
         }
     }
 
     const summaryRows = (data) => [
-        { label: 'Mode', value: data.mode === 'promotion' ? 'New academic year: promote students' : 'Same year: carry rosters over' },
-        { label: 'Students promoted', value: data.students_promoted },
-        { label: `Students graduating${finalYear ? ` (${finalYear})` : ''}`, value: data.students_graduated },
-        { label: 'Class rosters created', value: data.rosters_created },
+        {
+            label: t('admin.settings.mode'),
+            value: data.mode === 'promotion' ? t('admin.settings.modePromotion') : t('admin.settings.modeCarry'),
+        },
+        { label: t('admin.settings.studentsPromoted'), value: data.students_promoted },
+        {
+            label: finalYear
+                ? t('admin.settings.studentsGraduatingYear', { year: finalYear })
+                : t('admin.settings.studentsGraduating'),
+            value: data.students_graduated,
+        },
+        { label: t('admin.settings.rostersCreated'), value: data.rosters_created },
     ]
 
     return (
         <div>
             <p className="u-muted u-mb u-fs-085">
-                Current term: <strong>{currentTerm?.name || '-'}</strong>.
-                Rolling over ends the current term, creates the next one and, when a new
-                academic year starts, promotes every active student one year level
-                {finalYear ? ` (${finalYear} graduates)` : ''}.
+                {t('admin.settings.currentTermLabel')} <strong>{currentTerm?.name || '-'}</strong>{' '}
+                {finalYear
+                    ? t('admin.settings.rolloverIntroFinal', { year: finalYear })
+                    : t('admin.settings.rolloverIntro')}
             </p>
 
             {step === 1 && (
                 <>
                     <div className="adm-ro-grid">
                         <div>
-                            <label className="form-label" htmlFor="ro-term">New term</label>
+                            <label className="form-label" htmlFor="ro-term">{t('admin.settings.newTerm')}</label>
                             <select id="ro-term" className="form-input" value={form.term} onChange={e => set('term', e.target.value)}>
-                                {termOptions.map(t => <option key={t.code} value={t.code}>{t.label}</option>)}
+                                {termOptions.map(opt => <option key={opt.code} value={opt.code}>{opt.label}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="ro-year">Year</label>
-                            <input id="ro-year" type="number" className="form-input" placeholder="e.g. 2027"
+                            <label className="form-label" htmlFor="ro-year">{t('common.year')}</label>
+                            <input id="ro-year" type="number" className="form-input" placeholder={t('admin.settings.egYear')}
                                 value={form.year} onChange={e => set('year', e.target.value)} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="ro-name">Display name</label>
-                            <input id="ro-name" className="form-input" placeholder="e.g. Term 1 2027"
+                            <label className="form-label" htmlFor="ro-name">{t('admin.settings.displayName')}</label>
+                            <input id="ro-name" className="form-input" placeholder={t('admin.settings.egTermName')}
                                 value={form.name} onChange={e => set('name', e.target.value)} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="ro-start">Start date</label>
+                            <label className="form-label" htmlFor="ro-start">{t('common.startDate')}</label>
                             <input id="ro-start" type="date" className="form-input"
                                 value={form.start_date} onChange={e => set('start_date', e.target.value)} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="ro-end">End date</label>
+                            <label className="form-label" htmlFor="ro-end">{t('common.endDate')}</label>
                             <input id="ro-end" type="date" className="form-input"
                                 value={form.end_date} onChange={e => set('end_date', e.target.value)} />
                         </div>
@@ -823,7 +574,7 @@ function TermRolloverSection() {
                     {error && <p className="adm-ro-err">{error}</p>}
                     <button className="btn btn-primary" onClick={handlePreview} disabled={!isValid || busy}>
                         <span className="material-symbols-rounded icon-sm">visibility</span>
-                        {busy ? 'Checking…' : 'Preview Rollover'}
+                        {busy ? t('admin.settings.checking') : t('admin.settings.previewRollover')}
                     </button>
                 </>
             )}
@@ -843,21 +594,19 @@ function TermRolloverSection() {
                         {preview.missing_classes?.length > 0 && (
                             <p className="adm-ro-warn">
                                 <span className="material-symbols-rounded adm-ro-warn-icon">warning</span>{' '}
-                                No class exists for: {preview.missing_classes.join(', ')}. Those students will be
-                                promoted but not added to a roster. Create the classes first if needed.
+                                {t('admin.settings.missingClasses', { list: preview.missing_classes.join(', ') })}
                             </p>
                         )}
                     </div>
                     <p className="adm-ro-danger">
-                        This cannot be undone from the interface. Make sure results for
-                        {' '}{preview.current_term} are approved before proceeding.
+                        {t('admin.settings.rolloverDanger', { term: preview.current_term })}
                     </p>
                     {error && <p className="adm-ro-err">{error}</p>}
                     <div className="u-row-sm">
-                        <button className="btn btn-outline" onClick={() => setStep(1)} disabled={busy}>Back</button>
+                        <button className="btn btn-outline" onClick={() => setStep(1)} disabled={busy}>{t('common.back')}</button>
                         <button className="btn btn-primary" onClick={handleExecute} disabled={busy}>
                             <span className="material-symbols-rounded icon-sm">restart_alt</span>
-                            {busy ? 'Rolling over…' : 'Run Rollover'}
+                            {busy ? t('admin.settings.rollingOver') : t('admin.settings.runRollover')}
                         </button>
                     </div>
                 </>
@@ -867,11 +616,14 @@ function TermRolloverSection() {
                 <div className="adm-ro-done">
                     <span className="material-symbols-rounded adm-ro-done-icon">check_circle</span>
                     <p className="adm-ro-done-title">
-                        {result.new_term} is now the current term
+                        {t('admin.settings.rolloverDone', { term: result.new_term })}
                     </p>
                     <p className="u-muted u-fs-085">
-                        {result.students_promoted} promoted · {result.students_graduated} graduated ·{' '}
-                        {result.rosters_created} rosters created
+                        {t('admin.settings.rolloverSummary', {
+                            promoted: result.students_promoted,
+                            graduated: result.students_graduated,
+                            rosters: result.rosters_created,
+                        })}
                     </p>
                 </div>
             )}
@@ -882,19 +634,22 @@ function TermRolloverSection() {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function AdminSettings() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const [activeSection, setActiveSection] = useState('School Info')
+    const [activeSection, setActiveSection] = useState('info')
+
+    const activeItem = settingsNav.find(item => item.id === activeSection)
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Settings"
-                        subtitle="School-wide configuration: structure, subjects, rooms and preferences"
+                        title={t('nav.settings')}
+                        subtitle={t('admin.settings.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -906,14 +661,14 @@ export function AdminSettings() {
                             <nav className="adm-settings-nav">
                                 {settingsNav.map(item => (
                                     <button
-                                        key={item.label}
-                                        className={`adm-settings-nav-item${activeSection === item.label ? ' active' : ''}`}
-                                        onClick={() => setActiveSection(item.label)}
+                                        key={item.id}
+                                        className={`adm-settings-nav-item${activeSection === item.id ? ' active' : ''}`}
+                                        onClick={() => setActiveSection(item.id)}
                                     >
                                         <span className="material-symbols-rounded">{item.icon}</span>
-                                        {item.label}
-                                        {!LIVE_SECTIONS.includes(item.label) && (
-                                            <span className="adm-soon-tag">soon</span>
+                                        {t(item.labelKey)}
+                                        {!LIVE_SECTIONS.includes(item.id) && (
+                                            <span className="adm-soon-tag">{t('common.soon')}</span>
                                         )}
                                     </button>
                                 ))}
@@ -922,21 +677,21 @@ export function AdminSettings() {
                             {/* Right content */}
                             <div className="card">
                                 <div className="card-header">
-                                    <h2 className="card-title">{activeSection}</h2>
+                                    <h2 className="card-title">{activeItem && t(activeItem.labelKey)}</h2>
                                 </div>
                                 <div className="card-content">
 
-                                    {activeSection === 'School Info'      && <SchoolInfoSection />}
-                                    {activeSection === 'School Structure' && <SchoolStructureSection />}
-                                    {activeSection === 'Subjects'         && <SubjectsSection />}
-                                    {activeSection === 'Rooms'            && <RoomsSection />}
-                                    {activeSection === 'Term Rollover'    && <TermRolloverSection />}
+                                    {activeSection === 'info'      && <SchoolInfoSection />}
+                                    {activeSection === 'structure' && <SchoolStructureEditor />}
+                                    {activeSection === 'subjects'  && <SubjectsSection />}
+                                    {activeSection === 'rooms'     && <RoomsSection />}
+                                    {activeSection === 'rollover'  && <TermRolloverSection />}
 
                                     {!LIVE_SECTIONS.includes(activeSection) && (
                                         <div className="coming-soon">
                                             <span className="material-symbols-rounded coming-soon-icon">construction</span>
-                                            <p className="coming-soon-title">{activeSection}</p>
-                                            <p className="coming-soon-desc">Configuration options coming soon.</p>
+                                            <p className="coming-soon-title">{activeItem && t(activeItem.labelKey)}</p>
+                                            <p className="coming-soon-desc">{t('admin.settings.comingSoon')}</p>
                                         </div>
                                     )}
 

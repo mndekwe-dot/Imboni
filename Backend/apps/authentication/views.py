@@ -373,8 +373,10 @@ class UserPreferencesViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'put', 'patch']
 
     def get_queryset(self):
-        # Return all for development
-        return UserPreferences.objects.all()
+        # Scoped to the requester. `get_object` already pins detail routes to
+        # request.user, but the LIST route uses this queryset directly — with
+        # `.all()` it returned every user's preferences in the school.
+        return UserPreferences.objects.filter(user=self.request.user)
 
     def get_object(self):
         preferences, _ = UserPreferences.objects.get_or_create(user=self.request.user)
@@ -394,6 +396,27 @@ class AccountProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class AccountPreferencesView(generics.RetrieveUpdateAPIView):
+    """
+    The signed-in user's own preferences — language, theme, timezone, alerts.
+
+    GET   /imboni/account/preferences/
+    PATCH /imboni/account/preferences/  — e.g. {"language": "rw"}
+
+    Sits alongside account/profile/ rather than on the nested
+    /users/<id>/preferences/ route: that route's *list* URL only maps GET and
+    POST, so a PATCH to it answers 405. Preferences are always the requester's
+    own, so a user id in the path buys nothing.
+    """
+    serializer_class = UserPreferencesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'patch']
+
+    def get_object(self):
+        preferences, _ = UserPreferences.objects.get_or_create(user=self.request.user)
+        return preferences
 
 
 class AccountAvatarView(APIView):

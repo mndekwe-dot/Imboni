@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
-import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
+import { useCurrentTerm } from '../../hooks/useCurrentTerm'
+import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner'
+import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
@@ -37,6 +40,9 @@ const ACTIVITY_ICON = {
 }
 
 export function AdminDashboard() {
+    const { t } = useTranslation()
+    const { setting } = useSchoolSettings()
+    const { term } = useCurrentTerm()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
 
@@ -82,7 +88,9 @@ export function AdminDashboard() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title="Admin Dashboard"
-                        subtitle="School-wide overview (Term 2, 2026)"
+                        subtitle={term
+                            ? t('admin.dashboard.subtitleWithTerm', { term: term.name, year: term.year })
+                            : t('admin.dashboard.subtitle')}
                         {...adminUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -91,8 +99,8 @@ export function AdminDashboard() {
 
                         <WelcomeBanner
                             name={firstName}
-                            role="School Principal &bull; Imboni Academy"
-                            badge="Principal"
+                            role={bannerRole(t, t('roles.principal'), setting.school_name)}
+                            badge={t('roles.principalShort')}
                         />
 
                         <div className="portal-stat-grid">

@@ -42,10 +42,10 @@ export function TeacherScheduleGrid({ currentMonday }) {
             .finally(() => setLoading(false))
     }, [])
 
-    if (loading) return <p style={{ color: 'var(--muted-foreground)', padding: '1rem' }}>Loading timetable…</p>
-    if (error)   return <p style={{ color: 'var(--destructive)',      padding: '1rem' }}>{error}</p>
+    if (loading) return <p className="tt-note">Loading timetable…</p>
+    if (error)   return <p className="tt-note tt-note--error">{error}</p>
     if (slots.length === 0) return (
-        <p style={{ color: 'var(--muted-foreground)', padding: '1rem' }}>
+        <p className="tt-note">
             No lessons scheduled for this term yet.
         </p>
     )
@@ -94,7 +94,7 @@ export function TeacherScheduleGrid({ currentMonday }) {
                                 <td className="tt-time-cell">
                                     <strong>P{ri + 1}</strong>
                                     <span>{fmtTime(row.start)}</span>
-                                    <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>
+                                    <span className="tt-cell-note">
                                         {fmtTime(row.end)}
                                     </span>
                                 </td>

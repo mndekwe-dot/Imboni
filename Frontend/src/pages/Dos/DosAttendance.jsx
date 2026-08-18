@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
@@ -21,6 +22,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { sectionsFromClasses } from '../../utils/classes'
+import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -50,7 +52,7 @@ function todayISO() {
 
 function fmtWeek(start, end) {
     if (!start || !end) return ''
-    const f = d => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    const f = d => formatDate(d + 'T00:00:00')
     return `Week: ${f(start)} - ${f(end)}`
 }
 
@@ -87,6 +89,7 @@ function PaginationBar({ page, totalPages, totalCount, label, onPage }) {
 // ─── Student Attendance Tab ───────────────────────────────────────────────────
 
 function StudentAttendanceTab({ sections }) {
+    const { t } = useTranslation()
     const [section,  setSection]  = useState('')
     const [year,     setYear]     = useState('')
     const [classVal, setClassVal] = useState('')
@@ -133,7 +136,7 @@ function StudentAttendanceTab({ sections }) {
 
             <div className="toolbar-card att-toolbar">
                 <label className="att-week-label">
-                    Week of
+                    {t('dos.attendance.weekOf')}
                 </label>
                 <input
                     type="date"
@@ -156,10 +159,10 @@ function StudentAttendanceTab({ sections }) {
                         </p>
                     </div>
                     <div className="att-legend">
-                        <span className="att-pip present">P</span> Present&nbsp;
-                        <span className="att-pip absent">A</span> Absent&nbsp;
-                        <span className="att-pip late">L</span> Late&nbsp;
-                        <span className="att-pip excused">E</span> Excused
+                        <span className="att-pip present">P</span> {t('common.present')}&nbsp;
+                        <span className="att-pip absent">A</span> {t('common.absent')}&nbsp;
+                        <span className="att-pip late">L</span> {t('common.late')}&nbsp;
+                        <span className="att-pip excused">E</span> {t('common.excused')}
                     </div>
                 </div>
 
@@ -177,10 +180,10 @@ function StudentAttendanceTab({ sections }) {
                                 <table className="tm-table">
                                     <thead>
                                         <tr>
-                                            <th>Student</th>
-                                            {showClassCol && <th>Class</th>}
-                                            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th>
-                                            <th>Present</th><th>Rate</th>
+                                            <th>{t('common.student')}</th>
+                                            {showClassCol && <th>{t('common.class')}</th>}
+                                            <th>{t('common.mon')}</th><th>{t('common.tue')}</th><th>{t('common.wed')}</th><th>{t('common.thu')}</th><th>{t('common.fri')}</th>
+                                            <th>Present</th><th>{t('common.rate')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -219,6 +222,7 @@ function StudentAttendanceTab({ sections }) {
 // ─── Teacher Attendance Tab ───────────────────────────────────────────────────
 
 function TeacherAttendanceTab() {
+    const { t } = useTranslation()
     const [weekOf,  setWeekOf]  = useState(todayISO)
     const [page,    setPage]    = useState(1)
     const [weekData, setWeekData] = useState(null)
@@ -307,7 +311,7 @@ function TeacherAttendanceTab() {
         <>
             <div className="toolbar-card att-toolbar">
                 <label className="att-week-label">
-                    Week of
+                    {t('dos.attendance.weekOf')}
                 </label>
                 <input
                     type="date"
@@ -333,17 +337,17 @@ function TeacherAttendanceTab() {
                         <p className="dos-class-meta">{fmtWeek(weekData?.week_start, weekData?.week_end)}</p>
                     </div>
                     <div className="att-legend">
-                        <span className="att-pip present">P</span> Present&nbsp;
-                        <span className="att-pip absent">A</span> Absent&nbsp;
-                        <span className="att-pip late">L</span> Late&nbsp;
-                        <span className="att-pip excused">E</span> Excused
+                        <span className="att-pip present">P</span> {t('common.present')}&nbsp;
+                        <span className="att-pip absent">A</span> {t('common.absent')}&nbsp;
+                        <span className="att-pip late">L</span> {t('common.late')}&nbsp;
+                        <span className="att-pip excused">E</span> {t('common.excused')}
                     </div>
                 </div>
 
                 <div className="card-content">
                     {!error && loading && <p className="att-state">Loading…</p>}
                     {!error && !loading && teachers.length === 0 && (
-                        <p className="att-state">No teachers found.</p>
+                        <p className="att-state">{t('dos.attendance.noTeachers')}</p>
                     )}
                     {!error && !loading && teachers.length > 0 && (
                         <>
@@ -351,9 +355,9 @@ function TeacherAttendanceTab() {
                                 <table className="tm-table">
                                     <thead>
                                         <tr>
-                                            <th>Teacher</th>
-                                            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th>
-                                            <th>Present</th><th>Rate</th>
+                                            <th>{t('common.teacher')}</th>
+                                            <th>{t('common.mon')}</th><th>{t('common.tue')}</th><th>{t('common.wed')}</th><th>{t('common.thu')}</th><th>{t('common.fri')}</th>
+                                            <th>Present</th><th>{t('common.rate')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -403,6 +407,7 @@ function TeacherAttendanceTab() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function DosAttendance() {
+    const { t } = useTranslation()
     const { setting } = useSchoolSettings()
     const toast = useToast()
     const sessionUser = useSessionUser()
@@ -435,8 +440,8 @@ export function DosAttendance() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Attendance"
-                        subtitle="Track student and teacher attendance by class"
+                        title={t('nav.attendance')}
+                        subtitle={t('dos.attendance.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -446,10 +451,10 @@ export function DosAttendance() {
 
                         <div className="portal-stat-grid">
                             {[
-                                { icon: 'how_to_reg',         colorClass: 'success', value: attStats ? `${attStats.attendance_rate}%` : '-', label: 'Student Attendance',  trend: 'Current term',    trendClass: attStats?.attendance_rate >= 90 ? 'positive' : 'negative' },
+                                { icon: 'how_to_reg',         colorClass: 'success', value: attStats ? `${attStats.attendance_rate}%` : '-', label: t('dos.attendance.studentTab'),  trend: 'Current term',    trendClass: attStats?.attendance_rate >= 90 ? 'positive' : 'negative' },
                                 { icon: 'person_off',         colorClass: 'warning', value: attStats ? attStats.absent_today           : '-', label: 'Absent Today',        trend: 'Needs follow-up', trendClass: 'negative' },
                                 { icon: 'schedule',           colorClass: 'info',    value: attStats ? attStats.late_this_week         : '-', label: 'Late Arrivals',       trend: 'This week',       trendClass: '' },
-                                { icon: 'supervisor_account', colorClass: 'success', value: attStats ? `${attStats.teacher_rate}%`     : '-', label: 'Teacher Attendance',  trend: 'Today',           trendClass: attStats?.teacher_rate >= 90 ? 'positive' : 'negative' },
+                                { icon: 'supervisor_account', colorClass: 'success', value: attStats ? `${attStats.teacher_rate}%`     : '-', label: t('dos.attendance.teacherTab'),  trend: 'Today',           trendClass: attStats?.teacher_rate >= 90 ? 'positive' : 'negative' },
                             ].map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 

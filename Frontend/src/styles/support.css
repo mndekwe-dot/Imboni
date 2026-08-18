@@ -26,7 +26,7 @@
 .support-msg { border-radius: 10px; padding: 0.65rem 0.85rem; max-width: 90%; }
 .support-msg-you { background: var(--muted, #f3f4f6); align-self: flex-start; }
 .support-msg-operator { background: var(--primary-light); align-self: flex-end; }
-.support-msg-who { font-size: 0.72rem; color: var(--muted-foreground); font-weight: 600; margin-bottom: 0.2rem; }
+.support-msg-who { font-size: 0.7rem; color: var(--muted-foreground); font-weight: 600; margin-bottom: 0.2rem; }
 .support-msg-body { white-space: pre-wrap; font-size: 0.9rem; }
 .support-reply { margin-top: 0.85rem; }
 

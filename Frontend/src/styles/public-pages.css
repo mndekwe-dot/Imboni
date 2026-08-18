@@ -65,7 +65,7 @@
 .pub-nav-links a {
     text-decoration: none;
     color: var(--text-muted, #4b5563);
-    font-size: .95rem;
+    font-size: 0.95rem;
     white-space: nowrap;
 }
 
@@ -78,12 +78,12 @@
     align-items: center;
     gap: .4rem;
     padding: .55rem 1.1rem;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: var(--primary, #003d7a);
     color: #fff;
     text-decoration: none;
     font-weight: 600;
-    font-size: .95rem;
+    font-size: 0.95rem;
     white-space: nowrap;
 }
 
@@ -149,9 +149,8 @@
 }
 
 .pub-updated {
-    font-size: .9rem;
+    font-size: 0.9rem;
     color: var(--text-muted, #6b7280);
-    border-left: 3px solid var(--primary, #003d7a);
     padding-left: .75rem;
 }
 
@@ -166,7 +165,7 @@
 
 .pub-plan {
     border: 1px solid var(--border, #e5e7eb);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 1.6rem;
     display: flex;
     flex-direction: column;
@@ -179,7 +178,7 @@
 
 .pub-plan-badge {
     align-self: flex-start;
-    font-size: .72rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: .04em;
     text-transform: uppercase;
@@ -197,7 +196,7 @@
 
 .pub-plan-for {
     color: var(--text-muted, #6b7280);
-    font-size: .92rem;
+    font-size: 0.9rem;
     margin: 0 0 1.1rem;
     min-height: 2.6em;
 }
@@ -218,7 +217,7 @@
 }
 
 .pub-plan-limit-label {
-    font-size: .8rem;
+    font-size: 0.8rem;
     color: var(--text-muted, #6b7280);
 }
 
@@ -234,12 +233,12 @@
     align-items: flex-start;
     gap: .5rem;
     margin-bottom: .5rem;
-    font-size: .93rem;
+    font-size: 0.95rem;
     color: var(--text-muted, #374151);
 }
 
 .pub-plan-features .material-symbols-rounded {
-    font-size: 1.1rem;
+    font-size: 1.125rem;
     color: var(--primary, #003d7a);
     flex-shrink: 0;
 }
@@ -248,7 +247,7 @@
     display: block;
     text-align: center;
     padding: .7rem 1rem;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     text-decoration: none;
     font-weight: 600;
     border: 1px solid var(--primary, #003d7a);
@@ -272,13 +271,13 @@
 
 .pub-find-form label {
     font-weight: 600;
-    font-size: .95rem;
+    font-size: 0.95rem;
 }
 
 .pub-find-form input {
     padding: .7rem .9rem;
     border: 1px solid var(--border, #d1d5db);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 1rem;
     font-family: inherit;
     background: var(--bg, #fff);
@@ -304,7 +303,7 @@
 }
 
 .pub-find-note {
-    font-size: .88rem;
+    font-size: 0.875rem;
     color: var(--text-muted, #6b7280);
     line-height: 1.55;
     margin: .3rem 0 0;
@@ -313,12 +312,11 @@
 .pub-find-error {
     margin: 0;
     color: var(--danger, #b42318);
-    font-size: .92rem;
+    font-size: 0.9rem;
 }
 
 .pub-find-done {
     border: 1px solid var(--border, #e5e7eb);
-    border-left: 3px solid var(--primary, #003d7a);
     border-radius: 10px;
     padding: 1.5rem;
     max-width: 520px;
@@ -358,7 +356,7 @@
 
 .school-brand-sub {
     margin: .2rem 0 0;
-    font-size: .85rem;
+    font-size: 0.85rem;
     color: var(--text-muted, #6b7280);
     letter-spacing: .02em;
 }
@@ -367,10 +365,10 @@
     margin: .6rem auto 0;
     max-width: 380px;
     padding: .5rem .75rem;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: rgba(180, 35, 24, .08);
     color: var(--danger, #b42318);
-    font-size: .85rem;
+    font-size: 0.85rem;
     line-height: 1.5;
 }
 
@@ -385,7 +383,7 @@
 
 .pub-contact-card {
     border: 1px solid var(--border, #e5e7eb);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 1.4rem;
 }
 
@@ -404,7 +402,7 @@
 .pub-contact-card a {
     margin: 0;
     color: var(--text-muted, #4b5563);
-    font-size: .95rem;
+    font-size: 0.95rem;
     text-decoration: none;
     line-height: 1.6;
 }
@@ -425,7 +423,7 @@
 
 .pub-value {
     border: 1px solid var(--border, #e5e7eb);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 1.4rem;
 }
 
@@ -437,13 +435,13 @@
 
 .pub-value h3 {
     margin: 0 0 .4rem;
-    font-size: 1.02rem;
+    font-size: 1rem;
 }
 
 .pub-value p {
     margin: 0;
     color: var(--text-muted, #4b5563);
-    font-size: .93rem;
+    font-size: 0.95rem;
     line-height: 1.6;
 }
 
@@ -471,14 +469,14 @@
 
 .pub-footer-heading {
     font-weight: 700;
-    font-size: .95rem;
+    font-size: 0.95rem;
     margin-bottom: .3rem;
 }
 
 .pub-footer-desc {
     margin: 0;
     color: var(--text-muted, #6b7280);
-    font-size: .9rem;
+    font-size: 0.9rem;
     line-height: 1.6;
     max-width: 34ch;
 }
@@ -486,7 +484,7 @@
 .pub-footer-col a {
     color: var(--text-muted, #4b5563);
     text-decoration: none;
-    font-size: .9rem;
+    font-size: 0.9rem;
 }
 
 .pub-footer-col a:hover {
@@ -502,7 +500,7 @@
     justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
-    font-size: .85rem;
+    font-size: 0.85rem;
     color: var(--text-muted, #6b7280);
 }
 

@@ -49,11 +49,13 @@ describe('useSchoolConfig', () => {
       await result.current.saveConfig(saved)
     })
 
-    expect(updateSchoolConfig).toHaveBeenCalledWith(saved)
+    expect(updateSchoolConfig).toHaveBeenCalledWith(saved, { confirm: false })
     expect(result.current.config).toEqual(saved)
   })
 
-  it('saveConfig sets error message on failure without throwing', async () => {
+  it('saveConfig records the error AND rethrows it', async () => {
+    // It used to swallow the failure, so the caller's catch never ran and a
+    // failed save looked exactly like a successful one.
     getSchoolConfig.mockResolvedValue([])
     updateSchoolConfig.mockRejectedValue(new Error('save failed'))
 
@@ -61,9 +63,23 @@ describe('useSchoolConfig', () => {
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     await act(async () => {
-      await result.current.saveConfig([{ name: 'X' }])
+      await expect(result.current.saveConfig([{ name: 'X' }])).rejects.toThrow('save failed')
     })
 
     expect(result.current.error).toBe('save failed')
+  })
+
+  it('saveConfig passes the confirmation flag through', async () => {
+    getSchoolConfig.mockResolvedValue([])
+    updateSchoolConfig.mockResolvedValue([])
+
+    const { result } = renderHook(() => useSchoolConfig())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    await act(async () => {
+      await result.current.saveConfig([], { confirm: true })
+    })
+
+    expect(updateSchoolConfig).toHaveBeenCalledWith([], { confirm: true })
   })
 })
