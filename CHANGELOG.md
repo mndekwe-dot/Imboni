@@ -19,6 +19,42 @@ Work in the tree, not yet committed.
 
 ### Fixed
 
+- **Database backups no longer vanish on the next deploy.** `backup_database`
+  writes to `settings.BACKUP_DIR`, which defaulted to `BASE_DIR / 'backups'` —
+  `/app/backups` inside the container. Nothing was mounted there: `backend` and
+  `worker` mounted only `imboni_media:/app/media`, and `.env.prod.example` never
+  set `BACKUP_DIR`. Every dump therefore landed in the container's writable
+  layer, which is discarded when the container is recreated — exactly what
+  `up -d --build` does. So the nightly Celery backup survived only until the
+  next deploy, and the pre-deploy backup was destroyed by the deploy it was
+  taken to protect against. `pg_dump` exits zero either way, so the loss was
+  silent and nothing ever looked wrong.
+
+  `docker-compose.prod.yml` now sets `BACKUP_DIR: /app/backups` in the shared
+  backend environment and bind-mounts `./backups` there on `backend`, `worker`
+  **and** `beat`. All three matter, and `worker` most of all: `beat` only
+  schedules `apps.audit.tasks.backup_database_task`, the worker executes it, so
+  mounting `backend` alone would have preserved manual dumps while still losing
+  every automatic one. A host bind mount rather than a named volume, because the
+  point of a backup is getting it off the machine and `rsync`/`scp` can reach
+  `/opt/imboni/backups` directly. Already covered by `.gitignore: backups/`.
+
+  Containers keep their old mounts until recreated, so on the first deploy after
+  this change, rescue what is still inside first:
+  `docker cp imboni-backend-1:/app/backups /opt/imboni/backups`.
+
+- **Container logs are capped.** Docker's `json-file` driver is unbounded by
+  default and neither compose file set a limit. Seven always-restarting services
+  writing logs for months take the root filesystem to 100%, at which point
+  Postgres cannot write its WAL and the whole stack stops — with no deploy
+  anywhere near the event, making it the last place anyone thinks to look. An
+  `x-logging: &default_logging` anchor (10 MB × 3 files, so 30 MB per container)
+  now applies to every service in `docker-compose.yml`, and to `certbot` in the
+  production override. Declared in compose rather than
+  `/etc/docker/daemon.json` so the limit travels with the repository instead of
+  being one more thing to remember on a new server. Also takes effect only on
+  container recreation.
+
 - **Tenant schemas are migrated on every container boot.** The Docker
   entrypoint ran only `migrate_schemas --shared`, which touches the public
   schema. A tenant schema was migrated exactly once, at provisioning time by

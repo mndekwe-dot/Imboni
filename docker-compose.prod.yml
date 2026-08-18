@@ -21,6 +21,18 @@ x-prod-backend-env: &prod_backend_env
   ALLOWED_HOSTS: ${ALLOWED_HOSTS:?set ALLOWED_HOSTS in .env.prod}
   THE_SECRET_KEY: ${THE_SECRET_KEY:?set THE_SECRET_KEY in .env.prod}
   DATABASE_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD in .env.prod}
+  # Must match the bind mount below. settings.BACKUP_DIR would otherwise default
+  # to BASE_DIR/backups, which resolves to the same path here — set explicitly so
+  # the two can never drift apart silently.
+  BACKUP_DIR: /app/backups
+
+# Log rotation is defined once in the base file and inherited by every service
+# it declares; only `certbot` (added below, prod-only) needs its own copy.
+x-logging: &default_logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
 
 services:
   db:
@@ -51,16 +63,37 @@ services:
       --proxy-headers
       --forwarded-allow-ips "*"
       --no-access-log
+    # Backups have to outlive the container. `manage.py backup_database` writes
+    # to BACKUP_DIR, and without a mount here that is the container's writable
+    # layer -- which `up -d --build` discards. Every pre-deploy dump was being
+    # destroyed by the very deploy it was taken to protect against, and pg_dump
+    # exits 0 either way, so nothing ever looked wrong.
+    #
+    # A host bind mount rather than a named volume, deliberately: the whole
+    # point of a backup is getting it OFF this machine, and rsync/scp can reach
+    # ./backups directly. Relative to this file, so it is /opt/imboni/backups on
+    # the VPS. Already gitignored (see .gitignore: backups/).
+    volumes:
+      - ./backups:/app/backups
     restart: always
 
   worker:
     environment: *prod_backend_env
     command: celery -A Imboni worker -l warning --concurrency ${CELERY_CONCURRENCY:-4}
+    # The nightly backup runs HERE, not in `backend`: beat only schedules
+    # apps.audit.tasks.backup_database_task, the worker executes it. Mounting
+    # this on backend alone would still lose every automatic backup.
+    volumes:
+      - ./backups:/app/backups
     restart: always
 
   beat:
     environment: *prod_backend_env
     command: celery -A Imboni beat -l warning
+    # Mounted too, though beat only dispatches the task and never writes a dump
+    # itself -- so that `exec beat ... backup_database` cannot silently vanish.
+    volumes:
+      - ./backups:/app/backups
     restart: always
 
   web:
@@ -121,6 +154,7 @@ services:
       done'
     depends_on:
       - web
+    logging: *default_logging
     restart: always
 
 volumes:

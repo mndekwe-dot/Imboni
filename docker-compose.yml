@@ -34,6 +34,22 @@ x-backend-env: &backend_env
   # its own in-memory layer and a push only reaches sockets on that one worker.
   CHANNEL_LAYERS_REDIS_URL: redis://redis:6379/3
 
+# Docker's json-file log driver is UNBOUNDED by default. Six services with
+# `restart: unless-stopped` writing logs for months will fill the root disk, at
+# which point Postgres can no longer write its WAL and the whole stack stops —
+# with no deploy anywhere near the event, so it is the last thing anyone thinks
+# to check. 10MB x 3 files caps each container at 30MB.
+#
+# Defined here rather than in the prod override so both environments are capped,
+# and in compose rather than /etc/docker/daemon.json so the limit travels with
+# the repo instead of being one more thing to remember on a new server.
+# Existing containers keep their old settings until they are recreated.
+x-logging: &default_logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   db:
     image: postgres:16
@@ -48,6 +64,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    logging: *default_logging
     restart: unless-stopped
 
   redis:
@@ -57,6 +74,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    logging: *default_logging
     restart: unless-stopped
 
   backend:
@@ -85,6 +103,7 @@ services:
       timeout: 5s
       retries: 12
       start_period: 60s
+    logging: *default_logging
     restart: unless-stopped
 
   worker:
@@ -102,6 +121,7 @@ services:
       # migrate_schemas, which is then a harmless no-op).
       backend:
         condition: service_healthy
+    logging: *default_logging
     restart: unless-stopped
 
   beat:
@@ -115,6 +135,7 @@ services:
         condition: service_started
       backend:
         condition: service_healthy
+    logging: *default_logging
     restart: unless-stopped
 
   web:
@@ -124,6 +145,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    logging: *default_logging
     restart: unless-stopped
 
 volumes:
