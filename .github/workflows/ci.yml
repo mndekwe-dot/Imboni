@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, portal-features]
+    branches: [main]
   pull_request:
     branches: [main]
   # Weekly run catches newly-disclosed CVEs in unchanged dependencies.
