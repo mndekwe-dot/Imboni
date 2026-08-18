@@ -1,5 +1,6 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
 import { Link } from 'react-router'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { FilterBar } from '../../components/ui/FilterBar'
 import '../../styles/layout.css'
@@ -131,7 +132,16 @@ export function MatronIncidents() {
         ? pastReports
         : pastReports.filter(r => r.statusClass === filter)
 
-    if (loading) return <SkeletonTable rows={6} cols={5} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={matronNavItems} secondaryItems={matronSecondaryItems}
+            title={t('matron.incidents.title')}
+            subtitle={t('matron.incidents.subtitle')}
+            user={sessionUser}
+        >
+            <SkeletonTable rows={6} cols={5} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     return (

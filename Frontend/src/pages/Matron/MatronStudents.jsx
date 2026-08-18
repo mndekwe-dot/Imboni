@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -111,7 +112,15 @@ export function MatronStudents() {
         { colorClass: '',      iconClass: '',      icon: 'meeting_room', value: [...new Set(visibleStudents.map(s => s.room))].length,               label: 'Rooms Occupied'   },
     ]
 
-    if (loading) return <SkeletonTable rows={8} cols={5} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={matronNavItems} secondaryItems={matronSecondaryItems}
+            title={t('matron.students.title')}
+            user={sessionUser}
+        >
+            <SkeletonTable rows={8} cols={5} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     return (

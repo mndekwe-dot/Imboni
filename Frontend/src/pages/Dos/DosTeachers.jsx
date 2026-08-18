@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { getSubjects } from '../../api/dos'
 import { DataTable } from '../../components/ui/DataTable'
@@ -553,7 +554,16 @@ export function DosTeachers() {
         return true
     })
 
-    if (loading) return <SkeletonTable rows={8} cols={5} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={dosNavItems} secondaryItems={dosSecondaryItems}
+            title={t('dos.teachers.title')}
+            subtitle={t('dos.teachers.subtitle')}
+            user={sessionUser}
+        >
+            <SkeletonTable rows={8} cols={5} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     return (

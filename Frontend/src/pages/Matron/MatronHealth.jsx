@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
+import { PageSkeleton } from '../../components/layout/PageSkeleton'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
@@ -349,7 +350,15 @@ export const MatronHealth = () => {
         }
     }
 
-    if (loading) return <SkeletonTable rows={6} cols={5} />
+    if (loading) return (
+        <PageSkeleton
+            navItems={matronNavItems} secondaryItems={matronSecondaryItems}
+            title={t('matron.health.title')}
+            user={sessionUser}
+        >
+            <SkeletonTable rows={6} cols={5} />
+        </PageSkeleton>
+    )
     if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     const healthStats = [
