@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import {
     getDormitories, createDormitory, patchDormitory, deleteDormitory,
     getDormRooms, createDormRoom, patchDormRoom, deleteDormRoom,
@@ -315,7 +315,7 @@ export function DormPlannerTab({ onCommitted }) {
         catch { toast.error(t('dis.dormPlanner.deleteRoomFailed')) }
     }
 
-    if (loading) return <Loading />
+    if (loading) return <SkeletonTable rows={6} cols={4} />
 
     const totalBeds = rooms.filter(r => r.is_active).reduce((n, r) => n + (r.bed_capacity || 0), 0)
 

@@ -1,0 +1,69 @@
+/* Skeletons — placeholders shaped like the content that is coming.
+
+   These replaced a centred spinner. A spinner says "something is happening";
+   a skeleton says "a table of five rows is arriving here", so the page does
+   not jump when it does. Every shape below should match the real thing's
+   size, or it trades one reflow for another. */
+
+.skel {
+    background: linear-gradient(
+        90deg,
+        var(--muted) 25%,
+        var(--muted-hover) 37%,
+        var(--muted) 63%
+    );
+    background-size: 400% 100%;
+    animation: skel-sheen 1.4s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+}
+
+@keyframes skel-sheen {
+    from { background-position: 100% 50%; }
+    to   { background-position: 0 50%; }
+}
+
+/* A still placeholder is better than a moving one for anyone who has asked
+   the system to stop animating. */
+@media (prefers-reduced-motion: reduce) {
+    .skel { animation: none; background: var(--muted); }
+}
+
+.skel-line {
+    height: 0.85rem;
+    margin-bottom: 0.6rem;
+}
+.skel-line:last-child { margin-bottom: 0; }
+
+.skel-stack   { display: flex; flex-direction: column; gap: 0.75rem; }
+.skel-row     { display: flex; align-items: center; gap: 0.75rem; }
+.skel-avatar  { width: 2.5rem; height: 2.5rem; border-radius: 50%; flex: none; }
+.skel-grow    { flex: 1; }
+
+.skel-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    padding: 1.25rem;
+}
+
+.skel-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.skel-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    padding: 1.1rem 1.25rem;
+}
+.skel-stat-icon { width: 2.75rem; height: 2.75rem; border-radius: var(--radius-sm); flex: none; }
+
+.skel-table { width: 100%; border-collapse: collapse; }
+.skel-table td { padding: 0.7rem 0.75rem; }
+
+.skel-page { padding: 1.5rem; }

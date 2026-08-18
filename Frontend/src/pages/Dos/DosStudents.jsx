@@ -11,7 +11,7 @@ import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
 import { StatCard } from '../../components/layout/StatCard'
 import { Modal } from '../../components/ui/Modal'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import { getDosStudents, getDosStudentStats, inviteDosStudent, bulkInviteDosStudents,
          getDosStudentDetail, suspendDosStudent, changeDosStudentClass, appointStudentLeader, removeStudentLeader,
          downloadStudentReportCard } from '../../api/dos'
@@ -846,7 +846,7 @@ export function DosStudents() {
         setInvitations(arr.filter(inv => inv.role === 'student'))
     }
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonTable rows={8} cols={6} />
     if (error)   return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     // search and year are already applied server-side (see the debounced effect above) —

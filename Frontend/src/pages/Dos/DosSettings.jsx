@@ -13,7 +13,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonCard } from '../../components/ui/Skeleton'
 
 // ── Small reusable components ────────────────────────────────────────────────
 
@@ -264,7 +264,7 @@ export function DosSettings() {
 
     // ── Loading / error / empty states ───────────────────────────────────────
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonCard lines={6} />
     if (error)   return <p className="u-pad dos-danger-text">{t('common.errorPrefix')}: {error}</p>
 
     // ── Derived stat counts ───────────────────────────────────────────────────

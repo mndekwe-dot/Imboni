@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { SkeletonList } from '../../components/ui/Skeleton'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -111,9 +112,11 @@ function ChildCard({ card, fees, docs }) {
 }
 
 function LoadingCard() {
+    // Shaped like the child card that replaces it, so the grid does not
+    // reflow when the real one arrives.
     return (
         <div className="card student-card pchild-loading-card">
-            <p className="u-muted">Loading…</p>
+            <SkeletonList items={1} />
         </div>
     )
 }

@@ -17,7 +17,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import { formatDate } from '../../utils/date'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -553,7 +553,7 @@ export function DosTeachers() {
         return true
     })
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonTable rows={8} cols={5} />
     if (error) return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     return (

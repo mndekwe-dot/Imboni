@@ -12,7 +12,7 @@ import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getMatronDashboard, getMatronNightCheck } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonStats } from '../../components/ui/Skeleton'
 
 
 function initialsOf(name) {
@@ -63,7 +63,7 @@ export function MatronDashboard() {
             .finally(() => setLoading(false))
     }, [])
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonStats count={4} />
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     const dormitory = dashboard.stats.dormitory || t('matron.dashboard.yourDormitory')

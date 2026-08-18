@@ -17,7 +17,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 
@@ -294,7 +294,7 @@ export function DosExamSchedule() {
         }
     }
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonTable rows={6} cols={5} />
     if (error)   return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     return (
