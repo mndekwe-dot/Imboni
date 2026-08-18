@@ -1,13 +1,9 @@
 import { Link } from 'react-router'
 import { NotificationDropdown } from '../NotificationDropdown'
+import { formatDateWithWeekday } from '../../utils/date'
 
 export function DashboardHeader({ title, subtitle, userName, userRole, userInitials, avatarClass, notifications, onNotificationRead, actions }) {
-  const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  const today = formatDateWithWeekday()
 
   return (
     <header className="dashboard-header">

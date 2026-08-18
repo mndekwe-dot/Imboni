@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react'
+import { formatDate } from '../utils/date'
 
 const initialAnnouncements = [
     { id: 'a1',  source: 'teacher', audience: 'students', type: 'urgent',     icon: 'priority_high',    title: 'Exam Schedule Change: Physics Exam Moved to Mar 14',      date: 'Mar 8, 2026 · 3:45 PM',   body: 'The Physics Examination originally scheduled for March 12 has been moved to March 14, 2026. All students must confirm receipt with Ms. Uwera. Venue remains Room 302.',       author: 'Ms. Uwera (Physics)',                   isUnread: true  },
@@ -18,7 +19,7 @@ export function AnnouncementsProvider({ children }) {
     const [announcements, setAnnouncements] = useState(initialAnnouncements)
 
     function addAnnouncement({ title, body, category, audience, author, source }) {
-        const now = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        const now = formatDate()
         setAnnouncements(prev => [
             {
                 id:       `ann-${Date.now()}`,
