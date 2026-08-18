@@ -18,7 +18,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import { classLabel } from '../../utils/classes'
 
 
@@ -111,7 +111,7 @@ export function MatronStudents() {
         { colorClass: '',      iconClass: '',      icon: 'meeting_room', value: [...new Set(visibleStudents.map(s => s.room))].length,               label: 'Rooms Occupied'   },
     ]
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonTable rows={8} cols={5} />
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     return (

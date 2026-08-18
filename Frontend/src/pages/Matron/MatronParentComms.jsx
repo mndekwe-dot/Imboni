@@ -12,7 +12,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonList } from '../../components/ui/Skeleton'
 import { formatDateTime } from '../../utils/date'
 
 
@@ -144,7 +144,7 @@ export function MatronParentComms() {
         }
     }
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonList items={5} />
     if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     const commsStats = [

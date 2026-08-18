@@ -17,7 +17,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonStats } from '../../components/ui/Skeleton'
 
 
 function TrendTooltip({ active, payload, label }) {
@@ -195,7 +195,7 @@ export function DosDashboard() {
 
     const gradePerformance = gradeData
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonStats count={4} />
     if (error) return <p className="u-pad dos-danger-text">Error: {error}</p>
 
     return (

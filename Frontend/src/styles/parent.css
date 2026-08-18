@@ -102,10 +102,6 @@
   min-height: var(--touch-min);
 }
 
-.calendar-day:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
 
 .calendar-day.present {
   background: var(--success);
@@ -251,7 +247,7 @@
 
 .behavior-card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  transform: translateY(var(--hover-lift));
 }
 
 .behavior-header {

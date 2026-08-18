@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
     PieChart, Pie, Legend, AreaChart, Area,
@@ -482,7 +482,7 @@ export function DosResults() {
         return true
     })
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonTable rows={8} cols={5} />
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     return (

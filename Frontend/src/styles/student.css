@@ -807,7 +807,7 @@
 .composer-input { flex: 1; padding: 0.6rem 1.1rem; border: 1px solid var(--border); border-radius: 22px; font-size: 0.875rem; outline: none; background: var(--muted); color: var(--foreground); transition: border-color 0.15s, background 0.15s; }
 .composer-input:focus { border-color: var(--student); background: var(--card); box-shadow: 0 0 0 3px rgba(79,70,229,0.08); }
 .send-btn { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; background: var(--student); border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: opacity 0.15s, transform 0.15s; }
-.send-btn:hover { opacity: 0.9; transform: scale(1.05); }
+.send-btn:hover { opacity: 0.9; transform: scale(var(--hover-scale)); }
 .send-btn .material-symbols-rounded { font-size: 1rem; }
 .msg-right-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.875rem; min-height: 0; }
 
@@ -970,7 +970,6 @@
   padding: 1.1rem 1.25rem;
   transition: box-shadow 0.15s;
 }
-.activity-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
 .activity-top {
   display: flex;

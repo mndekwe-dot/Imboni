@@ -7,7 +7,7 @@ import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 import {
     getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents,
     getMedicationsToday, administerMedication, createMedication,
@@ -349,7 +349,7 @@ export const MatronHealth = () => {
         }
     }
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonTable rows={6} cols={5} />
     if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     const healthStats = [

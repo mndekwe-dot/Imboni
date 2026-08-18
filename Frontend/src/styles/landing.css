@@ -233,7 +233,7 @@
 .hero-cta .material-symbols-rounded { font-size: 1.125rem; }
 .hero-cta:hover {
   opacity: 0.92;
-  transform: translateY(-2px);
+  transform: translateY(var(--hover-lift));
   box-shadow: 0 10px 34px rgba(249, 115, 22, 0.5);
 }
 .hero-cta:active { transform: scale(0.97); }
@@ -481,7 +481,7 @@
 .portal-card:hover {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
   border-color: var(--card-border, rgba(0, 61, 122, 0.2));
-  transform: translateY(-3px);
+  transform: translateY(var(--hover-lift));
 }
 
 .portal-card-icon {
@@ -499,7 +499,7 @@
 .portal-card:hover .portal-card-icon {
   background: var(--card-gradient, linear-gradient(135deg, #003d7a, #005a8f));
   color: #fff;
-  transform: scale(1.05);
+  transform: scale(var(--hover-scale));
 }
 
 .portal-card-title {
@@ -593,7 +593,7 @@
 }
 .about-card:hover {
   box-shadow: 0 10px 36px rgba(0, 61, 122, 0.09);
-  transform: translateY(-3px);
+  transform: translateY(var(--hover-lift));
 }
 .about-card-icon {
   width: 50px;
@@ -779,7 +779,7 @@
 .contact-form-btn .material-symbols-rounded { font-size: 1rem; }
 .contact-form-btn:hover {
   opacity: 0.9;
-  transform: translateY(-1px);
+  transform: translateY(var(--hover-lift));
   box-shadow: 0 6px 20px rgba(0, 61, 122, 0.38);
 }
 
@@ -941,7 +941,7 @@
 .cta-strip-btn .material-symbols-rounded { font-size: 1.125rem; }
 .cta-strip-btn:hover {
   opacity: 0.92;
-  transform: translateY(-2px);
+  transform: translateY(var(--hover-lift));
   box-shadow: 0 12px 36px rgba(249, 115, 22, 0.55);
 }
 

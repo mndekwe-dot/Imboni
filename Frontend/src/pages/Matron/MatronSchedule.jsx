@@ -14,7 +14,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
-import { Loading } from '../../components/ui/Loading'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 
 
 const CHANGE_STATUS_DISPLAY = {
@@ -109,7 +109,7 @@ export function MatronSchedule() {
             .finally(() => setLoading(false))
     }, [])
 
-    if (loading) return <Loading fullPage />
+    if (loading) return <SkeletonTable rows={6} cols={4} />
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 
     const scheduleStats = [
