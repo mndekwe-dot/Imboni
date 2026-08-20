@@ -13,9 +13,7 @@ releases. Each heading is dated with the day that body of work landed on
 
 ---
 
-## [Unreleased]
-
-Work in the tree, not yet committed.
+## 2026-08-20 — UI modernization, and deployment durability
 
 ### Fixed
 
@@ -65,7 +63,144 @@ Work in the tree, not yet committed.
   across all six live schemas. The entrypoint now runs `migrate_schemas
   --tenant` after seeding the public tenant, making a deploy self-healing.
 
+- **Portal stylesheets were overwriting each other.** Vite bundles every
+  portal's CSS into one document and route chunks accumulate as you navigate —
+  they are never unloaded. 108 class names were defined in more than one
+  stylesheet with no scoping, so which definition applied depended on the order
+  the route chunks happened to load, which depends on where the user navigated
+  from. The messaging vocabulary was the worst case: `conv-panel`, `thread-body`
+  and 33 other classes carried a near-copy in five files, and `student.css` /
+  `teacher.css` described a *different layout* (separate bordered cards) from
+  `pages.css` / `discipline.css` (one bordered box). The same page rendered in
+  two different shapes depending on browsing history.
+
+  204 duplicate messaging rules were deleted; `pages.css` is now the single
+  owner and is imported directly by `LiveMessages.jsx` and `MessagesPage.jsx`,
+  so it is guaranteed present wherever messaging renders. Portal-specific
+  theming moved onto a `data-portal` attribute set by a new `usePortalTheme`
+  hook. Verified by diffing the selector set in the built CSS before and after —
+  which caught the one rule that genuinely only existed in a portal copy
+  (`.thread-head-info`) and would otherwise have been lost.
+
+- **Every dashboard's task list was silently empty.** DRF paginates by default
+  in this project (`PAGE_SIZE: 20`) and `TeacherTaskViewSet` never opted out, so
+  `GET /imboni/tasks/` answered with `{count, next, previous, results}`. All
+  three dashboards read it as `Array.isArray(data) ? data : []`, which is
+  `false` for an object — so the list reset to empty on every load. Creating a
+  task appeared to work, because the POST response is not paginated and went
+  straight into component state; refreshing lost it. 19 of 20 registered routes
+  return the paginated envelope, so a new `toList()` helper in `api/client.js`
+  now accepts either shape. Personal lists (tasks, reminders) also stopped
+  paginating server-side — at `PAGE_SIZE: 20` the 21st task would have been
+  unreachable even after the client fix.
+
+- **Conversation avatars never took their role colour.** `ConversationItem`
+  accepted an `avatarClass` prop and never applied it — the className was a
+  template literal with a trailing space where the variable belonged. Every
+  role-specific avatar rule in the messaging stylesheet had been dead code. The
+  `discipline` role additionally had no colour defined at all, despite
+  `roleClass()` emitting it.
+
+- **The "N of N loaded" badge on announcements counted two different things.**
+  It measured the *published* count against an *all-status* server total, and
+  ignored the active filter — so selecting **Draft 0** left "15 of 15 loaded"
+  sitting above an empty list. "Load more" was also gated to the All tab, so a
+  filtered view had no way to reach the rest of the list.
+
+- **The sidebar forgot its own collapse.** `collapsed` was component state in a
+  component that all 64 pages mount their own copy of, so collapsing the panel
+  and then clicking any nav item sprang it straight back open. It is now a
+  stored preference.
+
+- **Focus indicators were missing on 34 controls**, which set `outline: none` in
+  favour of a border that a keyboard user cannot see. `utilities.css` now sets
+  an accessibility floor that component styles cannot override. The sidebar's
+  active nav item sat at roughly 1.5:1 against its background; several CSS
+  custom properties (`--radius-full`, `--scrollbar-*`, `--text-muted`) were
+  referenced but never defined; and `color: var(--muted)` was used as ink in 29
+  places.
+
+- **Generate buttons opened dialogs that could only fail.** The dining planner
+  and duty roster let you configure and submit a plan with no active sittings or
+  posts, discovering the precondition through an error toast afterwards. Both
+  now gate on there being something to schedule.
+
+- **Every portal header rendered an empty pill.** `formatDateWithWeekday()`
+  returns `''` for a missing value by design, and was being called with no
+  argument.
+
+### Changed
+
+- **One type scale instead of 105 font sizes.** Roughly 105 distinct values
+  across the stylesheets collapsed onto a six-step scale (12 / 13 / 15 / 18 /
+  24 / 32px) plus a four-step icon scale; 1,660 declarations now reference a
+  token. The values left raw are all display type above 32px.
+
+- **The palette was rebuilt on five well-separated hue families**, with every
+  foreground/background pairing measured rather than eyeballed. Alpha colours
+  are composited against their backing before measuring, which is where the
+  original checks went wrong. Page, card and border tones were separated enough
+  to actually see a card edge — they had been sitting at 1.05:1.
+
+- **Controls that do the same job are defined once.** `components.css` now owns
+  a shared vocabulary — selection chips, icon buttons, stat cards, filter tabs,
+  pagination, row-delete buttons — rather than each portal forking its own.
+
+- **Borders belong to the container, not to every row.** A list whose rows each
+  carried a full border read as a pile of separate objects; the frame moved to
+  the wrapper, with dividers inside. Recorded as `.u-framed-list`.
+
+- **The class timetable was rewritten.** Every academic cell resolved to a
+  single pale green at 1.05:1, so colour carried no information: subjects now
+  take a hue from a stable hash with collision resolution, shown as an edge bar.
+  The break row printed the word "Break" once per day column and is now one
+  band; the home room is stated once instead of appearing in 25 of 30 cells; the
+  period column and header are sticky; the grid is `table-layout: fixed` so day
+  columns are equal width. The result is roughly 41% shorter, so a full week
+  fits on one screen without scrolling. Printing is supported.
+
+- **Fonts are self-hosted and the icon font is subset.** Material Symbols
+  shipped ~361 KB of glyphs to render 267 icons' worth of UI; the subset is
+  27 KB. With Inter's latin subset that is a font payload of 408 KB → 74 KB, and
+  both files are now precached by the service worker instead of depending on
+  `fonts.googleapis.com` being reachable — which an offline-capable PWA cannot
+  assume. Tabular figures are enabled wherever digits are read as data.
+
+- **The collapsed sidebar rail is usable.** It had no labels of any kind — 11
+  unlabelled icons — and each carried its own tinted box in a rail 4px narrower
+  than its own contents. Labels now become hover tooltips, the boxes are gone,
+  and the collapse toggle moved to the panel edge where it no longer sits on top
+  of the brand tagline.
+
+- Documented the `migrate_schemas` flag distinction in `README.md` and
+  `DOCUMENTATION.md`: `--shared` reaches only the public schema, so a
+  `TENANT_APPS` migration needs `--tenant` (or no flag) to reach schools that
+  already exist.
+- Corrected stale comments that described behaviour the code no longer had:
+  the `VITE_API_BASE` note in `Frontend/Dockerfile` (an empty string means
+  same-origin and has for some time), the gunicorn references in
+  `docker-compose.yml` (the stack runs uvicorn), and the "provisioning should
+  move to Celery" note in `apps/tenants/services.py` (self-serve signup has
+  been async since 2026-07-12).
+
 ### Added
+
+- **`npm run fonts`** (`scripts/fetch-fonts.mjs`) — downloads Inter and builds
+  the Material Symbols subset from a scan of the source. Because the subset is
+  derived from usage, adding an icon without regenerating it would render as a
+  blank box; `src/test/icon-subset.test.js` imports the same scan and fails the
+  build instead of letting that reach production.
+
+- **`PaginationBar`**, **`toList()`**, **`usePortalTheme()`** and
+  **`timetableDisplay.js`** — extracted so pagination, list-response handling,
+  portal theming and timetable formatting each have one implementation.
+
+- **Task management on the dashboards** — delete a single task, or clear all
+  completed ones. The API endpoints already existed and were never called from
+  any UI.
+
+- **A class filter on the timetable tab**, using the same level/class chips the
+  exam tab uses, replacing a dropdown that hid all 18 classes behind a click.
 
 - **`seed_demo_schools` management command** — populates each demo tenant with
   its own distinct school rather than six copies of the same one. Six profiles
@@ -78,19 +213,6 @@ Work in the tree, not yet committed.
 - **`apps/tenants/school_profiles.py`** — the school identities as data,
   separate from the generator's logic, so a profile can be retuned without
   reading the seeding code.
-
-### Changed
-
-- Documented the `migrate_schemas` flag distinction in `README.md` and
-  `DOCUMENTATION.md`: `--shared` reaches only the public schema, so a
-  `TENANT_APPS` migration needs `--tenant` (or no flag) to reach schools that
-  already exist.
-- Corrected stale comments that described behaviour the code no longer had:
-  the `VITE_API_BASE` note in `Frontend/Dockerfile` (an empty string means
-  same-origin and has for some time), the gunicorn references in
-  `docker-compose.yml` (the stack runs uvicorn), and the "provisioning should
-  move to Celery" note in `apps/tenants/services.py` (self-serve signup has
-  been async since 2026-07-12).
 
 ---
 
