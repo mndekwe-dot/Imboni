@@ -85,6 +85,19 @@
   --portal-accent: #003d7a;
   --portal-accent-light: rgba(0, 61, 122, 0.1);
 
+  /* Sidebar geometry
+     Was `width: 20%`, which is not a width so much as a ratio: 384px on a
+     1920px monitor and 512px on a 2560px one, so the navigation grew as the
+     screen grew and the content area never gained the space. Fixed px instead.
+
+     264px sits inside the 240-300px range every current design system uses
+     (240-280 is the usual dashboard band). 64px collapsed is the top of the
+     48-64px icon-rail range - the wider end because the nav items are 48px
+     touch targets and need breathing room either side.
+     See uiuxdesigntrends.com and uxplanet.org, Aug 2026. */
+  --sidebar-w: 264px;
+  --sidebar-w-collapsed: 64px;
+
   /* Sidebar Specific */
   --sidebar: #003d7a;
   --sidebar-foreground: rgba(255, 255, 255, 0.8);
@@ -165,6 +178,230 @@
 
   /* Content inner background */
   --content-bg: #edf0f4;
+
+  /* ---------------------------------------------
+     SEMANTIC PAIRS
+     A `-surface` is the tint a chip/badge/alert sits on; the
+     matching `-text` is ink dark enough to stay legible on it.
+     The bare `--success` &c. above are saturated and were being
+     used for both, which is why small badge text kept coming out
+     too pale to read. Defined globally so a portal that has not
+     been through the palette pass still resolves them.
+     --------------------------------------------- */
+  --surface-2: #f8fafc;
+  --surface-3: #eef2f7;
+  --subtle-foreground: #94a3b8;
+
+  --primary-surface:     rgba(0, 61, 122, 0.08);
+  --success-surface:     rgba(16, 185, 129, 0.12);
+  --success-text:        #047857;
+  --warning-surface:     rgba(245, 158, 11, 0.12);
+  --warning-text:        #92400e;
+  --destructive-surface: rgba(239, 68, 68, 0.12);
+  --destructive-text:    #b91c1c;
+  --info-surface:        rgba(2, 132, 199, 0.10);
+  --info-text:           #075985;
+
+  /* ---------------------------------------------
+     DESIGN SCALE
+     Neutral, portal-independent. Nothing below is a
+     colour — these are the measurements every portal
+     should be built from so spacing, type, radius,
+     shadow and icon sizes stop being invented per file.
+     --------------------------------------------- */
+
+  /* Spacing — 4px base. 1..6 predate this block and keep
+     their original values because ~31 rules already use them. */
+  --space-7: 2.5rem;   /* 40 */
+  --space-8: 3rem;     /* 48 */
+  --space-9: 4rem;     /* 64 */
+
+  /* Type — six semantic steps. Use these, not raw rem.
+     --font-xs..4xl above stay for existing callers. */
+  --text-stat:    2rem;       /* 32 — headline numbers on stat cards */
+  --text-display: 1.5rem;     /* 24 — the one page title */
+  --text-title:   1.125rem;   /* 18 — section / card titles */
+  --text-body:    0.9375rem;  /* 15 — default reading size */
+  --text-sm:      0.8125rem;  /* 13 — secondary text, table cells */
+  --text-caption: 0.75rem;    /* 12 — labels, badges, meta */
+
+  /* Line heights to pair with them */
+  --leading-tight: 1.25;
+  --leading-normal: 1.55;
+
+  /* Radius — `--radius-full` was already referenced by
+     layout.css:232 but never defined, so that rule did nothing. */
+  --radius-full: 999px;
+
+  /* Icons — one of four sizes, never a bare px */
+  --icon-sm: 18px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 28px;
+
+  /* Scrollbar — referenced by layout.css since forever and
+     never defined, which made the dashboard scrollbar invisible. */
+  --scrollbar-track:        transparent;
+  --scrollbar-track-border: transparent;
+  --scrollbar-thumb:        #c7d2e0;
+  --scrollbar-thumb-border: transparent;
+  --scrollbar-thumb-hover:  #a9b8cc;
+}
+
+/* ===============================================
+   PORTAL ACCENTS
+   These used to sit on `:root` inside each portal's own CSS
+   file. Vite bundles all seven stylesheets together, so
+   `:root` meant "every portal" and whichever file the
+   bundler emitted last set the accent for all of them —
+   the DOS dashboard could come out teal. Keyed off the
+   data-portal attribute they stay where they belong.
+   =============================================== */
+
+:root[data-portal="dos"]        { --portal-accent: #1657a0; --portal-accent-light: rgba(22, 87, 160, 0.10); }
+:root[data-portal="parent"]     { --portal-accent: #003d7a; --portal-accent-light: rgba(0, 61, 122, 0.10); }
+:root[data-portal="teacher"]    { --portal-accent: #0891b2; --portal-accent-light: rgba(8, 145, 178, 0.09); }
+:root[data-portal="student"]    { --portal-accent: #0d9488; --portal-accent-light: rgba(13, 148, 136, 0.10); }
+:root[data-portal="admin"]      { --portal-accent: #4f46e5; --portal-accent-light: rgba(79, 70, 229, 0.10); }
+:root[data-portal="discipline"] { --portal-accent: #4f46e5; --portal-accent-light: rgba(79, 70, 229, 0.10); }
+:root[data-portal="matron"]     { --portal-accent: #8b5cf6; --portal-accent-light: rgba(139, 92, 246, 0.10); }
+
+/* ===============================================
+   DOS PORTAL — LIGHT PALETTE
+   Scoped to [data-portal="dos"], which usePortalTheme
+   stamps on <html> from the route. Nothing here reaches
+   another portal: delete this block and DOS is back to
+   the shared palette above.
+   =============================================== */
+
+:root[data-portal="dos"] {
+  /* Surfaces — near-white, layered by luminance not by borders */
+  /* A touch lighter than the sidebar band (#dbe7f6) so the two read as
+     separate surfaces without needing a heavy divider. */
+  --background:   #e9eff6;
+  --content-bg:   #e9eff6;
+  --card:         #ffffff;
+  --surface-2:    #f4f7fb;   /* inset panels, table headers */
+  --surface-3:    #e2eaf4;   /* hover, rails, chips */
+
+  /* Ink */
+  --foreground:        #101828;
+  --card-foreground:   #101828;
+  --muted-foreground:  #56657c;   /* 5.9:1 on --background */
+  --subtle-foreground: #7a8798;   /* 3.4:1 — large text / icons only */
+
+  /* Lines — hairlines, not boxes */
+  /* ONE line colour. Card edges, card-header rules, table row dividers and
+     panel splits all resolve to --border, so every separating line in the
+     portal is the same weight. --card-border is kept only because shared
+     components reference it; it is an alias, not a second value. */
+  --border:        #c4d1e3;
+  --border-hover:  #a9bbd2;
+  --card-border:   var(--border);
+  /* Inputs share the one line colour. This was set darker than --border back
+     when --border was a near-invisible #e5ebf3; after --border was darkened to
+     fix the missing card edges, #c9d5e5 ended up LIGHTER than it, so fields
+     had a weaker outline than the cards containing them. One value now. */
+  --input:         var(--border);
+
+  /* Brand — lifted off the near-black navy so it reads as a
+     colour rather than as ink. 7.2:1 on white. */
+  --primary:            #1657a0;
+  --primary-hover:      #114576;
+  --primary-foreground: #ffffff;
+  --primary-light:      rgba(22, 87, 160, 0.08);
+  --ring:               #1657a0;
+
+  --secondary:            #eef2f8;
+  --secondary-hover:      #e2e9f3;
+  --secondary-foreground: #1657a0;
+
+  --muted:       #f2f5fa;
+  --muted-hover: #e8eef6;
+
+  /* ── FIVE COLOUR FAMILIES ────────────────────────────────────
+     The previous palette had SIX of eleven meaningful colours inside
+     one 40-degree band of blue: primary 212, info 206, ring 212 and
+     the sidebar at 210/211. Six degrees between `primary` and `info`
+     is the same colour to the eye, so "this is information" and "this
+     is a brand action" were indistinguishable, and the whole screen
+     read as one hue at different lightnesses.
+
+     Five families now, smallest gap 22 degrees:
+         brand      212   blue    the one action colour
+         attention   25   amber   needs-your-eye: overdue, pending, active
+         info       190   teal    pulled OUT of the blue band
+         success    155   green
+         danger       0   red
+
+     `warning` is deliberately NOT its own hue. It was gold at 36
+     degrees, eleven from amber, which recreated the same collision one
+     family over. "Warning" and "needs attention" are one idea, so they
+     share the amber family and the palette keeps five clean hues.
+
+     Each family is a triple:
+       --x            solid, for marks (bars, dots, chart series)
+       --x-surface    the tint a chip or icon sits on
+       --x-text       ink legible on BOTH that tint and on white
+     Only brand (7.23:1) and danger (4.73:1) carry white text on the
+     solid, so those two are the only filled buttons. Amber, teal and
+     green fail white text and must never become one. */
+
+  --primary:             #1657a0;
+  --primary-surface:     #d3e4f8;
+  --primary-text:        #0f4478;
+  --primary-light:       #e4eefb;
+
+  --accent:              #f97316;
+  --accent-hover:        #ea580c;
+  --accent-surface:      #ffe3c7;
+  --accent-text:         #9a4a06;
+
+  /* shares the amber family on purpose - see note above */
+  --warning:             #f97316;
+  --warning-surface:     #ffe3c7;
+  --warning-text:        #9a4a06;
+  --warning-light:       #ffe3c7;
+
+  --info:                #0e8fa8;
+  --info-surface:        #c8eaf1;
+  --info-text:           #0a5c6e;
+  --info-light:          #c8eaf1;
+
+  --success:             #0f9d63;
+  --success-surface:     #c8efdd;
+  --success-text:        #07704a;
+  --success-light:       #c8efdd;
+
+  --destructive:         #cf3f3f;
+  --destructive-hover:   #b02f2f;
+  --destructive-surface: #fbd9d9;
+  --destructive-text:    #a12626;
+  --destructive-light:   #fbd9d9;
+  --danger:              #cf3f3f;
+
+  /* Shadows — tinted with the page blue so cards sit on the
+     background instead of casting a grey smudge over it */
+  --shadow-xs: 0 1px 2px rgba(16, 40, 72, 0.04);
+  --shadow-sm: 0 1px 3px rgba(16, 40, 72, 0.06), 0 1px 2px rgba(16, 40, 72, 0.04);
+  --shadow-md: 0 4px 12px rgba(16, 40, 72, 0.07);
+  --shadow-lg: 0 12px 28px rgba(16, 40, 72, 0.09);
+  --shadow-xl: 0 20px 40px rgba(16, 40, 72, 0.10);
+  --card-shadow: var(--shadow-sm);
+
+  /* One radius family, no more 54 different corners */
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --card-radius:    14px;
+  --toolbar-radius: 10px;
+
+  --card-padding: var(--space-5);
+
+  --scrollbar-thumb:       #ccd8e8;
+  --scrollbar-thumb-hover: #adbdd2;
 }
 
 /* ===============================================
@@ -212,12 +449,14 @@ h1, h2, h3, h4, h5, h6 {
   overflow-wrap: break-word;
 }
 
-h1 { font-size: var(--font-3xl); }
-h2 { font-size: var(--font-2xl); }
-h3 { font-size: var(--font-xl); }
-h4 { font-size: var(--font-lg); }
-h5 { font-size: var(--font-base); }
-h6 { font-size: var(--font-sm); }
+/* Bare headings map onto the same six steps as everything else, so an
+   unclassed <h2> and a .card-title are the same size by construction. */
+h1 { font-size: var(--text-display); }
+h2 { font-size: var(--text-title); }
+h3 { font-size: var(--text-title); }
+h4 { font-size: var(--text-body); }
+h5 { font-size: var(--text-sm); }
+h6 { font-size: var(--text-caption); }
 
 p {
   margin-bottom: 0;

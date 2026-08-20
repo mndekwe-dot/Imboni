@@ -708,7 +708,8 @@
       "weekOf": "Icyumweru cyo kuwa"
     },
     "dashboard": {
-      "title": "Imbonerahamwe y'Umuyobozi w'Amasomo"
+      "title": "Imbonerahamwe y'Umuyobozi w'Amasomo",
+      "subtitle": "Ubwitabire, amanota n'abarimu mu ncamake"
     },
     "dining": {
       "addSittingFailed": "Kongeraho icyiciro byanze",
@@ -717,6 +718,7 @@
       "deleteSitting": "Siba icyiciro",
       "deleteSittingFailed": "Gusiba icyiciro byanze.",
       "generateFailed": "Gutegura gahunda yo kurya byanze.",
+      "generateNeedsSittings": "Ongeraho nibura icyiciro kimwe cyo kurya gikora mbere yo gutegura gahunda.",
       "generateTitle": "Tegura gahunda yo kurya",
       "hallOccupancy": "Uko inzu yuzuye",
       "loadFailed": "Gufungura gahunda yo kurya byanze.",
@@ -751,6 +753,7 @@
       "duty": "Inshingano",
       "filled": "{{count}} zuzuye",
       "generateFailed": "Gutegura urutonde byanze.",
+      "generateNeedsPosts": "Ongeraho nibura umurimo umwe ukora mbere yo gutegura gahunda y'imirimo.",
       "generateTitle": "Tegura urutonde rw'inshingano",
       "loadFailed": "Gufungura urutonde rw'inshingano byanze.",
       "maxPerDay": "Inshingano ntarengwa ku muntu ku munsi",

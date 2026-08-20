@@ -91,7 +91,8 @@ describe('LiveMessages', () => {
     renderWithRouter(<LiveMessages {...nav} />)
     await waitFor(() => expect(screen.getByText(/No conversations yet/)).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /New/i }))
+    // Exact: the empty reading pane now offers its own "New Message" button too.
+    fireEvent.click(screen.getByRole('button', { name: 'New' }))
     await waitFor(() => expect(getMessageContacts).toHaveBeenCalled())
     expect(await screen.findByText('Mr Eric Mugabo')).toBeInTheDocument()
 

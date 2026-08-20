@@ -43,7 +43,7 @@
 
 .pub-nav-name {
     font-weight: 700;
-    font-size: 1.05rem;
+    font-size: var(--text-title);
     white-space: nowrap;
 }
 
@@ -65,7 +65,7 @@
 .pub-nav-links a {
     text-decoration: none;
     color: var(--text-muted, #4b5563);
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     white-space: nowrap;
 }
 
@@ -83,7 +83,7 @@
     color: #fff;
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     white-space: nowrap;
 }
 
@@ -105,7 +105,7 @@
 .pub-header-sub {
     margin: 0;
     color: var(--text-muted, #4b5563);
-    font-size: 1.08rem;
+    font-size: var(--text-title);
     line-height: 1.6;
 }
 
@@ -126,12 +126,12 @@
 }
 
 .pub-prose h2 {
-    font-size: 1.25rem;
+    font-size: var(--text-title);
     margin: 2.25rem 0 .6rem;
 }
 
 .pub-prose h3 {
-    font-size: 1.05rem;
+    font-size: var(--text-title);
     margin: 1.5rem 0 .4rem;
 }
 
@@ -149,7 +149,7 @@
 }
 
 .pub-updated {
-    font-size: 0.9rem;
+    font-size: var(--text-body);
     color: var(--text-muted, #6b7280);
     padding-left: .75rem;
 }
@@ -178,7 +178,7 @@
 
 .pub-plan-badge {
     align-self: flex-start;
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     letter-spacing: .04em;
     text-transform: uppercase;
@@ -190,13 +190,13 @@
 }
 
 .pub-plan-name {
-    font-size: 1.3rem;
+    font-size: var(--text-title);
     margin: 0 0 .3rem;
 }
 
 .pub-plan-for {
     color: var(--text-muted, #6b7280);
-    font-size: 0.9rem;
+    font-size: var(--text-body);
     margin: 0 0 1.1rem;
     min-height: 2.6em;
 }
@@ -212,12 +212,12 @@
 
 .pub-plan-limit-value {
     display: block;
-    font-size: 1.35rem;
+    font-size: var(--text-display);
     font-weight: 700;
 }
 
 .pub-plan-limit-label {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--text-muted, #6b7280);
 }
 
@@ -233,12 +233,12 @@
     align-items: flex-start;
     gap: .5rem;
     margin-bottom: .5rem;
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     color: var(--text-muted, #374151);
 }
 
 .pub-plan-features .material-symbols-rounded {
-    font-size: 1.125rem;
+    font-size: var(--icon-sm);
     color: var(--primary, #003d7a);
     flex-shrink: 0;
 }
@@ -271,14 +271,14 @@
 
 .pub-find-form label {
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: var(--text-body);
 }
 
 .pub-find-form input {
     padding: .7rem .9rem;
     border: 1px solid var(--border, #d1d5db);
     border-radius: var(--radius-sm);
-    font-size: 1rem;
+    font-size: var(--text-body);
     font-family: inherit;
     background: var(--bg, #fff);
     color: var(--text, #1a1a1a);
@@ -293,7 +293,7 @@
 .pub-find-form button {
     border: 1px solid var(--primary, #003d7a);
     cursor: pointer;
-    font-size: 1rem;
+    font-size: var(--text-body);
     font-family: inherit;
 }
 
@@ -303,7 +303,7 @@
 }
 
 .pub-find-note {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     color: var(--text-muted, #6b7280);
     line-height: 1.55;
     margin: .3rem 0 0;
@@ -312,7 +312,7 @@
 .pub-find-error {
     margin: 0;
     color: var(--danger, #b42318);
-    font-size: 0.9rem;
+    font-size: var(--text-body);
 }
 
 .pub-find-done {
@@ -348,7 +348,7 @@
 }
 
 .school-brand-name {
-    font-size: 1.35rem;
+    font-size: var(--text-display);
     font-weight: 700;
     margin: 0;
     line-height: 1.25;
@@ -356,7 +356,7 @@
 
 .school-brand-sub {
     margin: .2rem 0 0;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     color: var(--text-muted, #6b7280);
     letter-spacing: .02em;
 }
@@ -368,7 +368,7 @@
     border-radius: var(--radius-sm);
     background: rgba(180, 35, 24, .08);
     color: var(--danger, #b42318);
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     line-height: 1.5;
 }
 
@@ -395,14 +395,14 @@
 
 .pub-contact-card h3 {
     margin: 0 0 .35rem;
-    font-size: 1.05rem;
+    font-size: var(--text-title);
 }
 
 .pub-contact-card p,
 .pub-contact-card a {
     margin: 0;
     color: var(--text-muted, #4b5563);
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     text-decoration: none;
     line-height: 1.6;
 }
@@ -435,13 +435,13 @@
 
 .pub-value h3 {
     margin: 0 0 .4rem;
-    font-size: 1rem;
+    font-size: var(--text-body);
 }
 
 .pub-value p {
     margin: 0;
     color: var(--text-muted, #4b5563);
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     line-height: 1.6;
 }
 
@@ -469,14 +469,14 @@
 
 .pub-footer-heading {
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     margin-bottom: .3rem;
 }
 
 .pub-footer-desc {
     margin: 0;
     color: var(--text-muted, #6b7280);
-    font-size: 0.9rem;
+    font-size: var(--text-body);
     line-height: 1.6;
     max-width: 34ch;
 }
@@ -484,7 +484,7 @@
 .pub-footer-col a {
     color: var(--text-muted, #4b5563);
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: var(--text-body);
 }
 
 .pub-footer-col a:hover {
@@ -500,7 +500,7 @@
     justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     color: var(--text-muted, #6b7280);
 }
 

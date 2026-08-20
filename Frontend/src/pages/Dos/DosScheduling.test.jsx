@@ -215,8 +215,22 @@ describe('DosScheduling', () => {
     renderWithRouter(<DosScheduling />)
     await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
 
-    fireEvent.change(screen.getByLabelText('Class:'), { target: { value: 'S3B' } })
+    fireEvent.click(screen.getByRole('button', { name: 'S3B' }))
     expect(screen.getByText('Class S3B')).toBeInTheDocument()
+  })
+
+  it('narrows the class chips to the selected level, keeping one class chosen', async () => {
+    getSchoolConfig.mockResolvedValue([
+      { name: 'O-Level', years: [{ name: 'S3', streams: ['A', 'B'] }] },
+      { name: 'A-Level', years: [{ name: 'S5', streams: ['A'] }] },
+    ])
+    renderWithRouter(<DosScheduling />)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'S5A' })).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: /A-Level/ }))
+    expect(screen.queryByRole('button', { name: 'S3A' })).not.toBeInTheDocument()
+    // S3A is no longer offered, so the grid falls to the first class that is.
+    expect(screen.getByText('Class S5A')).toBeInTheDocument()
   })
 
   it('opens the Add Slot form in the Timetable tab', async () => {

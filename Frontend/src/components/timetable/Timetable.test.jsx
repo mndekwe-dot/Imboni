@@ -52,6 +52,32 @@ describe('Timetable', () => {
     expect(table).toHaveAttribute('data-day', '2')
   })
 
+  it('collapses the break into one band instead of repeating it per day column', () => {
+    render(<Timetable type="academic" classId="S1A" />)
+    // One <td colspan> across the day columns, not six identical cells.
+    const band = document.querySelectorAll('.tt-break-band .tt-break')
+    expect(band).toHaveLength(1)
+    expect(band[0]).toHaveAttribute('colspan', '6')
+  })
+
+  it('gives each subject its own colour band, and the same subject the same one', () => {
+    render(<Timetable type="academic" classId="S1A" />)
+    const toneOf = (el) => [...el.closest('td').classList].find(c => c.startsWith('tt-tone-'))
+    const maths = [...document.querySelectorAll('.tt-subject')].filter(e => e.textContent === 'Mathematics')
+    const others = [...document.querySelectorAll('.tt-subject')].filter(e => e.textContent === 'English')
+    expect(maths.length).toBeGreaterThan(1)
+    expect(new Set(maths.map(toneOf)).size).toBe(1)          // consistent within a subject
+    expect(toneOf(maths[0])).not.toBe(toneOf(others[0]))     // distinct between subjects
+  })
+
+  it('hides the home room in cells and states it once above the grid', () => {
+    render(<Timetable type="academic" classId="S1A" />)
+    expect(screen.getByText(/Home room/)).toBeInTheDocument()
+    const rooms = [...document.querySelectorAll('.tt-cell-meta .tt-room')].map(e => e.textContent)
+    expect(rooms.length).toBeGreaterThan(0)          // exceptions still show
+    expect(rooms).not.toContain('Room 12')           // the home room does not
+  })
+
   it('uses controlled currentMonday/onWeekChange when provided instead of internal state', () => {
     const onWeekChange = vi.fn()
     const monday = new Date('2026-04-13T00:00:00')

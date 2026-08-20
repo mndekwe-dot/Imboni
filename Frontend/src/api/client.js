@@ -134,4 +134,20 @@ client.interceptors.response.use(
 // Replay any queued offline writes on startup and whenever we come back online
 initOfflineSync(client)
 
+/**
+ * Read a list response whichever shape it arrives in.
+ *
+ * DRF paginates by default in this project (PAGE_SIZE 20), so a list endpoint
+ * returns `{count, next, previous, results}` unless its viewset sets
+ * `pagination_class = None`. Roughly half of ours do and half don't, and a bare
+ * `Array.isArray(data) ? data : []` on a paginated one silently yields an empty
+ * list — the row is created, the POST response renders it, and it vanishes on
+ * the next load. Use this instead of testing the shape at the call site.
+ */
+export function toList(data) {
+    if (Array.isArray(data)) return data
+    if (Array.isArray(data?.results)) return data.results
+    return []
+}
+
 export default client

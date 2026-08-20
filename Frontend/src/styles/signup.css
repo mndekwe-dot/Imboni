@@ -16,24 +16,24 @@
 
 /* Success confirmation */
 .sgn-success-icon  { font-size: 4rem; color: var(--success); }
-.sgn-success-title { margin-top: 0.5rem; font-size: 1.6rem; font-weight: 700; }
+.sgn-success-title { margin-top: 0.5rem; font-size: var(--text-display); font-weight: 700; }
 .sgn-success-sub   { color: var(--muted); margin-top: 0.5rem; }
 .sgn-detail-card   { padding: 1.5rem; margin-top: 1.5rem; text-align: left; }
 .sgn-detail-label  { margin-bottom: 0.35rem; }
 .sgn-detail-link   { color: var(--primary); font-weight: 600; word-break: break-all; }
-.sgn-note          { color: var(--muted); font-size: 0.8rem; margin-top: 1rem; }
+.sgn-note          { color: var(--muted); font-size: var(--text-sm); margin-top: 1rem; }
 
 /* Sign-up form */
 .sgn-header       { text-align: center; margin-bottom: 2rem; }
 .sgn-header-icon  { font-size: 2.5rem; color: var(--primary); }
-.sgn-header-title { margin-top: 0.5rem; font-size: 1.5rem; font-weight: 700; }
-.sgn-header-sub   { color: var(--muted); margin-top: 0.25rem; font-size: 0.9rem; }
+.sgn-header-title { margin-top: 0.5rem; font-size: var(--text-display); font-weight: 700; }
+.sgn-header-sub   { color: var(--muted); margin-top: 0.25rem; font-size: var(--text-body); }
 .sgn-card         { padding: 1.75rem; }
-.sgn-preview      { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; }
-.sgn-error        { color: var(--danger); font-size: 0.875rem; margin: 0 0 0.75rem; }
-.sgn-submitting   { color: var(--muted); font-size: 0.8rem; text-align: center; margin-top: 0.75rem; }
-.sgn-signin       { text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 1rem; }
+.sgn-preview      { font-size: var(--text-sm); color: var(--muted); margin-top: 0.35rem; }
+.sgn-error        { color: var(--danger); font-size: var(--text-sm); margin: 0 0 0.75rem; }
+.sgn-submitting   { color: var(--muted); font-size: var(--text-sm); text-align: center; margin-top: 0.75rem; }
+.sgn-signin       { text-align: center; color: var(--muted); font-size: var(--text-sm); margin-top: 1rem; }
 
 /* Field wrapper helpers */
-.sgn-help      { font-size: 0.8rem; color: var(--muted); }
-.sgn-field-err { font-size: 0.8rem; color: var(--danger); }
+.sgn-help      { font-size: var(--text-sm); color: var(--muted); }
+.sgn-field-err { font-size: var(--text-sm); color: var(--danger); }

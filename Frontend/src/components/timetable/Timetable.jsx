@@ -1,13 +1,41 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { WeekPicker } from './weekPicker'
-import { getThisMonday, getTodayDayIndex } from './dateUtils'
+import { getThisMonday, getTodayDayIndex, getNow } from './dateUtils'
 import { DayTabs } from './DaysTabs'
 import { TimetableCell } from './TimetableCell'
 import { DraggableCell } from './DraggableCell'
+import { assignSubjectTones, homeRoomOf, currentPeriodIndex, shortTeacher } from './timetableDisplay'
 import { DAYS, DAY_SHORT, EXTRA_SLOTS, extraSchedules } from '../../data/extraTimetable'
 import { PERIODS, academicSchedules } from '../../data/academicTimetable'
 import '../../styles/timetable.css'
+
+/* A day column heading. Today is filled with the portal accent, and carries a
+   dot + screen-reader text as well, so the state is not signalled by colour alone. */
+function DayHead({ label, colIndex, isToday }) {
+    return (
+        <th
+            className={`tt-day-head tt-col-${colIndex}${isToday ? ' tt-today' : ''}`}
+            scope="col"
+            aria-current={isToday ? 'date' : undefined}
+        >
+            {label}
+            {isToday && <><span className="tt-today-dot" aria-hidden="true" /><span className="sr-only"> (today)</span></>}
+        </th>
+    )
+}
+
+/* The row label: the time is what people look up, so it leads; "Period 4" is
+   already implied by the row's position and follows as the smaller line. */
+function PeriodHead({ label, time, isNow }) {
+    return (
+        <th className={`tt-time-cell${isNow ? ' tt-now-row' : ''}`} scope="row">
+            <strong>{time}</strong>
+            <span>{label}</span>
+            {isNow && <span className="tt-now-tag">Now</span>}
+        </th>
+    )
+}
 
 /* ─── Extracurricular table ─────────────────────────────────────────────────
    slots     — current EXTRA_SLOTS (may be edited by Dis portal)
@@ -23,24 +51,16 @@ function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, sch
             <table className="tt-table" data-day={selectedDay}>
                 <thead>
                     <tr>
-                        <th className="tt-time-head">Time Slot</th>
+                        <th className="tt-time-head" scope="col">Time Slot</th>
                         {DAYS.map((day, i) => (
-                            <th
-                                key={day}
-                                className={`tt-day-head tt-col-${i + 1}${i === todayDayIndex ? ' tt-today' : ''}`}
-                            >
-                                {DAY_SHORT[i]}
-                            </th>
+                            <DayHead key={day} label={DAY_SHORT[i]} colIndex={i + 1} isToday={i === todayDayIndex} />
                         ))}
                     </tr>
                 </thead>
                 <tbody>
                     {slots.map(slot => (
                         <tr key={slot.id}>
-                            <td className="tt-time-cell">
-                                <strong>{slot.label}</strong>
-                                <span>{slot.time}</span>
-                            </td>
+                            <PeriodHead label={slot.label} time={slot.time} />
                             {DAYS.map((day, i) => (
                                 <TimetableCell
                                     key={day}
@@ -48,6 +68,7 @@ function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, sch
                                     editable={editable}
                                     onEdit={(cell) => onEditCell({ slot, day, cell })}
                                     colIndex={i + 1}
+                                    today={i === todayDayIndex}
                                 />
                             ))}
                         </tr>
@@ -69,6 +90,22 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
     const [activeCell, setActiveCell] = useState(null)   // lesson being dragged (for the overlay)
     const schedule = (schedules || academicSchedules)[classId]
+
+    /* Subject → colour band, and the room the class normally sits in. Both are
+       derived from the whole week, so they must not be recomputed per cell. */
+    const tones = useMemo(
+        () => assignSubjectTones(
+            Object.values(schedule || {}).flat().map(c => c && c.type !== 'break' ? c.subject : null),
+        ),
+        [schedule],
+    )
+    const homeRoom = useMemo(() => homeRoomOf(schedule), [schedule])
+
+    /* The period running right now — only meaningful while looking at today. */
+    const now = getNow()
+    const nowIndex = todayDayIndex >= 0
+        ? currentPeriodIndex(periods, now.getHours() * 60 + now.getMinutes())
+        : -1
 
     if (!schedule) {
         return <p className="tt-note">No timetable found for {classId}.</p>
@@ -102,80 +139,105 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
         <table className="tt-table" data-day={selectedDay}>
             <thead>
                 <tr>
-                    <th className="tt-time-head">Period</th>
+                    <th className="tt-time-head" scope="col">Period</th>
                     {academicDays.map((day, i) => (
-                        <th
-                            key={day}
-                            className={`tt-day-head tt-col-${i + 1}${i === todayDayIndex ? ' tt-today' : ''}`}
-                        >
-                            {academicDayShort[i]}
-                        </th>
+                        <DayHead key={day} label={academicDayShort[i]} colIndex={i + 1} isToday={i === todayDayIndex} />
                     ))}
                 </tr>
             </thead>
             <tbody>
-                {periods.map((period, periodIndex) => (
-                    <tr key={period.id}>
-                        <td className="tt-time-cell">
-                            <strong>{period.label}</strong>
-                            <span>{period.time}</span>
-                        </td>
-                        {academicDays.map((day, i) => {
-                            const raw = schedule[day]?.[periodIndex] ?? null
-                            const cell = raw ? { type: raw.type || 'academic', ...raw } : null
-                            if (dragEnabled) {
+                {periods.map((period, periodIndex) => {
+                    const cells = academicDays.map(day => {
+                        const raw = schedule[day]?.[periodIndex] ?? null
+                        return raw ? { type: raw.type || 'academic', ...raw } : null
+                    })
+                    const isNow = periodIndex === nowIndex
+
+                    /* A break is one band across the whole day, not six identical
+                       cells each repeating the word. Detected from the data rather
+                       than the period id, so a DOS-edited period list still works. */
+                    if (cells.length && cells.every(c => c && c.type === 'break')) {
+                        return (
+                            <tr key={period.id} className="tt-break-band">
+                                {/* No label here — the band alongside already says BREAK,
+                                    and a second line would set the row's height. */}
+                                <PeriodHead time={period.time} isNow={isNow} />
+                                <td className="tt-cell tt-break" colSpan={academicDays.length}>
+                                    {period.label || 'Break'}
+                                </td>
+                            </tr>
+                        )
+                    }
+
+                    return (
+                        <tr key={period.id}>
+                            <PeriodHead label={period.label} time={period.time} isNow={isNow} />
+                            {cells.map((cell, i) => {
+                                const shared = {
+                                    cell,
+                                    colIndex: i + 1,
+                                    editable,
+                                    tone: cell ? tones.get(cell.subject) : null,
+                                    homeRoom,
+                                    today: i === todayDayIndex,
+                                    isNow,
+                                }
+                                const day = academicDays[i]
+                                if (dragEnabled) {
+                                    return (
+                                        <DraggableCell
+                                            key={day} {...shared}
+                                            day={day}
+                                            periodIndex={periodIndex}
+                                            onEdit={(c) => onEditCell({ period, day, cell: c })}
+                                        />
+                                    )
+                                }
                                 return (
-                                    <DraggableCell
-                                        key={day}
-                                        cell={cell}
-                                        day={day}
-                                        periodIndex={periodIndex}
-                                        colIndex={i + 1}
-                                        editable={editable}
+                                    <TimetableCell
+                                        key={day} {...shared}
                                         onEdit={(c) => onEditCell({ period, day, cell: c })}
                                     />
                                 )
-                            }
-                            return (
-                                <TimetableCell
-                                    key={day}
-                                    cell={cell}
-                                    editable={editable}
-                                    onEdit={(c) => onEditCell({ period, day, cell: c })}
-                                    colIndex={i + 1}
-                                />
-                            )
-                        })}
-                    </tr>
-                ))}
+                            })}
+                        </tr>
+                    )
+                })}
             </tbody>
         </table>
     )
 
     return (
-        <div className="tt-wrap">
-            {dragEnabled
-                ? (
-                    <DndContext
-                        sensors={sensors}
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        onDragCancel={() => setActiveCell(null)}
-                    >
-                        {table}
-                        <DragOverlay>
-                            {activeCell ? (
-                                <div className="tt-drag-overlay">
-                                    <div className="tt-subject">{activeCell.subject}</div>
-                                    {activeCell.teacher && <div className="tt-teacher">{activeCell.teacher}</div>}
-                                    {activeCell.room && <div className="tt-room">{activeCell.room}</div>}
-                                </div>
-                            ) : null}
-                        </DragOverlay>
-                    </DndContext>
-                )
-                : table}
-        </div>
+        <>
+            {homeRoom && (
+                <p className="tt-meta">
+                    Home room <strong>{homeRoom}</strong> — only lessons taught elsewhere show a room.
+                </p>
+            )}
+            <div className="tt-wrap">
+                {dragEnabled
+                    ? (
+                        <DndContext
+                            sensors={sensors}
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                            onDragCancel={() => setActiveCell(null)}
+                        >
+                            {table}
+                            <DragOverlay>
+                                {activeCell ? (
+                                    <div className="tt-drag-overlay">
+                                        <div className="tt-subject">{activeCell.subject}</div>
+                                        {activeCell.teacher && <div className="tt-teacher">{shortTeacher(activeCell.teacher)}</div>}
+                                        {activeCell.room && <div className="tt-room">{activeCell.room}</div>}
+                                    </div>
+                                ) : null}
+                            </DragOverlay>
+                        </DndContext>
+                    )
+                    : table}
+            </div>
+        </>
     )
 }
 

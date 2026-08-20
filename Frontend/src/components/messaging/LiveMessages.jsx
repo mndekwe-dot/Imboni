@@ -180,7 +180,7 @@ export function LiveMessages({
                                 <div className="conv-panel-header">
                                     <h3>{t('messaging.title')}</h3>
                                     <button className="btn btn-sm btn-primary" onClick={openNewMessage}>
-                                        <span className="material-symbols-rounded">edit</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">edit</span>
                                         {t('messaging.new')}
                                     </button>
                                 </div>
@@ -218,7 +218,12 @@ export function LiveMessages({
                                 <div className="thread-panel">
                                     {!selectedId ? (
                                         <div className="thread-body lm-thread-empty">
-                                            {t('messaging.selectConversation')}
+                                            <span className="material-symbols-rounded lm-empty-icon" aria-hidden="true">forum</span>
+                                            <p className="lm-empty-title">{t('messaging.selectConversation')}</p>
+                                            <button className="btn btn-primary btn-sm" onClick={openNewMessage}>
+                                                <span className="material-symbols-rounded" aria-hidden="true">edit</span>
+                                                {t('messaging.newMessage')}
+                                            </button>
                                         </div>
                                     ) : (
                                         <>

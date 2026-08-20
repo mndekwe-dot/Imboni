@@ -708,7 +708,8 @@
       "weekOf": "Week of"
     },
     "dashboard": {
-      "title": "DOS Dashboard"
+      "title": "DOS Dashboard",
+      "subtitle": "Attendance, results and staffing at a glance"
     },
     "dining": {
       "addSittingFailed": "Could not add sitting",
@@ -717,6 +718,7 @@
       "deleteSitting": "Delete sitting",
       "deleteSittingFailed": "Could not delete sitting.",
       "generateFailed": "Could not generate a dining plan.",
+      "generateNeedsSittings": "Add at least one active dining sitting before generating a plan.",
       "generateTitle": "Generate Dining Plan",
       "hallOccupancy": "Hall occupancy",
       "loadFailed": "Could not load dining plan.",
@@ -751,6 +753,7 @@
       "duty": "Duty",
       "filled": "{{count}} filled",
       "generateFailed": "Could not generate a roster.",
+      "generateNeedsPosts": "Add at least one active duty post before generating a roster.",
       "generateTitle": "Generate Duty Roster",
       "loadFailed": "Could not load duty roster.",
       "maxPerDay": "Max duties per person per day",

@@ -20,6 +20,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { PaginationBar } from '../../components/ui/PaginationBar'
 import { classLabel } from '../../utils/classes'
 import { formatDate } from '../../utils/date'
 
@@ -382,6 +383,10 @@ export function DosResults() {
     // Filter buttons: 'all', 'pending', 'approved', 'rejected'
     const [statusFilter, setStatusFilter] = useState('all')
     const [search, setSearch] = useState('')
+    // 42 result cards rendered in one column was a long scroll with no way to
+    // judge progress. Same page size as the attendance tables.
+    const [page, setPage] = useState(1)
+    const PAGE_SIZE = 8
     // cards = the grouped, transformed result cards shown in the UI
     const [cards, setCards] = useState([])
     const [loading, setLoading] = useState(true)
@@ -476,11 +481,18 @@ export function DosResults() {
     }))
 
     // Apply the active status filter and search box to reduce the visible cards
-    const visible = cards.filter(c => {
+    const filtered = cards.filter(c => {
         if (statusFilter !== 'all' && c.status !== statusFilter) return false
         if (search && !`${c.title} ${c.submittedBy}`.toLowerCase().includes(search.toLowerCase())) return false
         return true
     })
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+    // Changing a filter can shrink the list past the current page. Clamping on
+    // read (rather than resetting in an effect) avoids a render that shows an
+    // empty page before the effect fires.
+    const safePage = Math.min(page, totalPages)
+    const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
     if (loading) return <Loading fullPage />
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
@@ -530,15 +542,15 @@ export function DosResults() {
                                         <span className="material-symbols-rounded">search</span>
                                         <input
                                             placeholder={t('dos.results.search')}
-                                            value={search} onChange={e => setSearch(e.target.value)}
+                                            value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
                                         />
                                         {search && (
-                                            <button className="toolbar-search-clear" onClick={() => setSearch('')}>
+                                            <button className="toolbar-search-clear" onClick={() => { setSearch(''); setPage(1) }}>
                                                 <span className="material-symbols-rounded">close</span>
                                             </button>
                                         )}
                                     </div>
-                                    <FilterBar options={statusTabsWithCount} active={statusFilter} onChange={setStatusFilter} />
+                                    <FilterBar options={statusTabsWithCount} active={statusFilter} onChange={k => { setStatusFilter(k); setPage(1) }} />
                                 </div>
 
                                 {/* Result cards */}
@@ -548,16 +560,25 @@ export function DosResults() {
                                         No results match the selected filters.
                                     </div>
                                 ) : (
-                                    <div className="settings-form">
-                                        {visible.map(r => (
-                                            <ResultCard key={r.key} result={r}
-                                                onReview={setReviewing}
-                                                onView={setViewing}
-                                                onApprove={handleApprove}
-                                                onReject={handleReject}
-                                            />
-                                        ))}
-                                    </div>
+                                    <>
+                                        <div className="settings-form">
+                                            {visible.map(r => (
+                                                <ResultCard key={r.key} result={r}
+                                                    onReview={setReviewing}
+                                                    onView={setViewing}
+                                                    onApprove={handleApprove}
+                                                    onReject={handleReject}
+                                                />
+                                            ))}
+                                        </div>
+                                        <PaginationBar
+                                            page={safePage}
+                                            totalPages={totalPages}
+                                            totalCount={filtered.length}
+                                            label="results"
+                                            onPage={setPage}
+                                        />
+                                    </>
                                 )}
                             </>
                         )}

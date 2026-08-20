@@ -330,6 +330,7 @@ export function DosScheduling() {
 
     // ── Timetable state ──
     const [classId,           setClassId]           = useState('S3A')
+    const [ttLevel,           setTtLevel]           = useState('all')
     const [editingSlot,       setEditingSlot]       = useState(null)
     const [showForm,          setShowForm]          = useState(false)
     const [periods,           setPeriods]           = useState(PERIODS)
@@ -431,6 +432,22 @@ export function DosScheduling() {
         acc[sec.name] = new Set((sec.years||[]).map(y => y.name))
         return acc
     }, {})
+
+    /* The timetable always shows exactly one class, so the level chips narrow
+       which classes are offered rather than filtering the grid itself. */
+    const ttClasses = ttLevel === 'all'
+        ? allClasses
+        : classesFromConfig((config || []).filter(s => s.name === ttLevel))
+
+    function selectTtLevel(level) {
+        setTtLevel(level)
+        const available = level === 'all'
+            ? allClasses
+            : classesFromConfig((config || []).filter(s => s.name === level))
+        // Keep the current class when the new level still offers it; otherwise the
+        // grid would show a class that no chip is highlighting.
+        if (available.length && !available.includes(classId)) setClassId(available[0])
+    }
 
     const classesInSection = (() => {
         if (sectionFilter === 'all') return []
@@ -692,12 +709,6 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                     <div className="card-header">
                                         <h2 className="card-title">{t('dos.scheduling.classLabel', { name: classId })}</h2>
                                         <div className="flex-row-gap">
-                                            <div className="flex-row-gap-sm">
-                                                <label className="form-label mb-0" htmlFor="timetable-class-select">{t('dos.scheduling.classColon')}</label>
-                                                <select id="timetable-class-select" className="form-input dos-select-auto" value={classId} onChange={e=>setClassId(e.target.value)}>
-                                                    {allClasses.map(c => <option key={c} value={c}>{c}</option>)}
-                                                </select>
-                                            </div>
                                             <button className="btn btn-outline btn-sm" onClick={() => setShowPeriodManager(true)}>
                                                 <span className="material-symbols-rounded icon-sm">schedule</span> {t('dos.scheduling.editPeriods')}
                                             </button>
@@ -707,6 +718,31 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         </div>
                                     </div>
                                     <div className="card-content">
+                                        {/* Class filter — the same level/class chips the exam tab uses, so
+                                            picking a class works identically on both tabs. It replaces a
+                                            dropdown that hid all 18 classes behind a click. */}
+                                        {(config||[]).length > 1 && (
+                                            <div className="es-filter-section">
+                                                <div className="es-filter-section-label"><span className="material-symbols-rounded">layers</span> {t('common.level')}</div>
+                                                <div className="att-mode-bar u-mb-0">
+                                                    <button className={`att-mode-btn${ttLevel==='all'?' active':''}`} onClick={() => selectTtLevel('all')}>{t('dos.scheduling.allLevels')}</button>
+                                                    {(config||[]).map(sec => (
+                                                        <button key={sec.id||sec.name} className={`att-mode-btn${ttLevel===sec.name?' active':''}`} onClick={() => selectTtLevel(sec.name)}>
+                                                            <span className="material-symbols-rounded">school</span> {sec.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="es-filter-section">
+                                            <div className="es-filter-section-label"><span className="material-symbols-rounded">group</span> {t('common.class')}</div>
+                                            <div className="es-class-chips">
+                                                {ttClasses.map(cls => (
+                                                    <button key={cls} className={`es-class-chip-btn${classId===cls?' active':''}`} onClick={() => setClassId(cls)}>{cls}</button>
+                                                ))}
+                                            </div>
+                                        </div>
+
                                         <Timetable type="academic" classId={classId} editable onEditCell={handleEditCell} periods={periods} schedules={schedules}/>
                                     </div>
                                 </div>

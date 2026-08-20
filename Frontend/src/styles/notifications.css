@@ -40,12 +40,12 @@
   padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--border);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--text-body);
   color: var(--foreground);
 }
 
 .notif-unread-count {
-  font-size: 0.75rem;
+  font-size: var(--text-caption);
   font-weight: 600;
   background: var(--primary);
   color: #fff;
@@ -102,21 +102,21 @@
 }
 
 .notif-title {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--foreground);
   margin: 0;
 }
 
 .notif-message {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--muted-foreground, #888);
   margin: 0;
   line-height: 1.4;
 }
 
 .notif-time {
-  font-size: 0.7rem;
+  font-size: var(--text-caption);
   color: var(--muted-foreground, #aaa);
   margin-top: 0.15rem;
 }

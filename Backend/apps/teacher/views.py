@@ -441,6 +441,11 @@ class TeacherTaskViewSet(viewsets.ModelViewSet):
     """
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
+    # A personal to-do list is small and the widget always renders all of it.
+    # With the project-wide PAGE_SIZE of 20 the 21st task would simply never
+    # appear, and the paginated envelope is what made the whole list read as
+    # empty on the dashboards.
+    pagination_class = None
 
     def get_queryset(self):
         return Task.objects.filter(teacher=self.request.user)
@@ -462,6 +467,7 @@ class TeacherReminderViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ReminderSerializer
     permission_classes = [IsTeacher]
+    pagination_class = None          # same reasoning as TeacherTaskViewSet
 
     def get_queryset(self):
         teacher = _get_teacher(self.request)

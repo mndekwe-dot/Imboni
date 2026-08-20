@@ -33,7 +33,7 @@ export function ConversationItem({
     return (
         <div className={`conv-item${isActive ? ' active' : ''}${isUnread ? ' unread' : ''}`} onClick={onClick}>
             <div
-                className={`conv-avatar has-presence `}
+                className={`conv-avatar has-presence ${avatarClass}`}
                 style={avatarStyle || undefined}
             >
                 {initials}
@@ -42,14 +42,18 @@ export function ConversationItem({
                 )}
             </div>
             <div className="conv-body">
+                {/* The name owns the top row. The role tag sits with the preview:
+                    it repeats on nearly every conversation, so giving it fixed width
+                    up here meant the one field that identifies the row was the only
+                    one that truncated. */}
                 <div className="conv-top">
                     <span className="conv-name">{name}</span>
-                    {typeTag && (
-                        <span className={`conv-type-tag ${typeClass}`}>{typeTag}</span>
-                    )}
                     <span className="conv-time">{time}</span>
                 </div>
                 <div className="conv-bottom">
+                    {typeTag && (
+                        <span className={`conv-type-tag ${typeClass}`}>{typeTag}</span>
+                    )}
                     <span className="conv-preview">{preview}</span>
                     {isUnread && <span className="unread-dot"></span>}
                 </div>

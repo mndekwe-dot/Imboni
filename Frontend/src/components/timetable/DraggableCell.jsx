@@ -1,4 +1,5 @@
 import { useDraggable, useDroppable } from '@dnd-kit/core'
+import { shortTeacher } from './timetableDisplay'
 
 /**
  * DraggableCell — an academic timetable <td> that can be dragged (when it holds
@@ -8,8 +9,12 @@ import { useDraggable, useDroppable } from '@dnd-kit/core'
  * A filled cell is a drag source; an empty cell is a drop target. Dropping a
  * lesson on an empty cell moves it there (the page then PATCHes the slot's
  * day/time, which runs the same teacher/room conflict check as manual edits).
+ *
+ * Presentation (subject tone, room suppression, today/now emphasis) mirrors
+ * TimetableCell — the two must stay visually identical, since the same grid
+ * switches between them depending on whether drag is enabled.
  */
-export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEdit }) {
+export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEdit, tone, homeRoom, today, isNow }) {
     const filled = !!(cell && cell._id)
 
     // Both hooks run every render (stable order); `disabled` picks the role.
@@ -25,17 +30,21 @@ export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEd
     })
 
     const setRef = (node) => { drag.setNodeRef(node); drop.setNodeRef(node) }
+    const stateClass = `tt-col-${colIndex}${today ? ' tt-today-col' : ''}${isNow ? ' tt-now-row' : ''}`
 
     if (!filled) {
         return (
             <td
                 ref={setRef}
-                className={`tt-cell tt-empty tt-col-${colIndex}${drop.isOver ? ' tt-drop-over' : ''}`}
+                className={`tt-cell tt-empty ${stateClass}${drop.isOver ? ' tt-drop-over' : ''}`}
             >
                 {cell?.label || '-'}
             </td>
         )
     }
+
+    const toneClass = tone ? ` tt-lesson tt-tone-${tone}` : ''
+    const room = cell.room && cell.room !== homeRoom ? cell.room : null
 
     // The drag activator is an explicit grip handle, NOT the whole cell — so
     // grabbing the text can't start a text-selection instead of a drag, and the
@@ -44,7 +53,7 @@ export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEd
     return (
         <td
             ref={setRef}
-            className={`tt-cell tt-${cell.type || 'academic'} tt-col-${colIndex} tt-draggable${drag.isDragging ? ' tt-dragging' : ''}`}
+            className={`tt-cell tt-${cell.type || 'academic'} ${stateClass} tt-draggable${toneClass}${drag.isDragging ? ' tt-dragging' : ''}`}
         >
             <button
                 type="button"
@@ -58,12 +67,19 @@ export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEd
                 <span className="material-symbols-rounded">drag_indicator</span>
             </button>
 
-            <div className="tt-subject">{cell.subject}</div>
-            {cell.teacher && <div className="tt-teacher">{cell.teacher}</div>}
-            {cell.room && <div className="tt-room">{cell.room}</div>}
+            <div className="tt-subject" title={cell.subject}>{cell.subject}</div>
+            {(cell.teacher || room) && (
+                <div className="tt-cell-meta">
+                    {cell.teacher &&
+                        <span className="tt-teacher" title={cell.teacher}>{shortTeacher(cell.teacher)}</span>}
+                    {room && <span className="tt-room">{room}</span>}
+                </div>
+            )}
             {editable && (
                 <button
                     className="tt-cell-edit-btn"
+                    title={`Edit ${cell.subject}`}
+                    aria-label={`Edit ${cell.subject}`}
                     onPointerDown={e => e.stopPropagation()}
                     onClick={() => onEdit(cell)}
                 >

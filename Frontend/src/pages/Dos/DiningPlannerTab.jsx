@@ -305,6 +305,11 @@ export function DiningPlannerTab() {
     }, {})
     const orderedMeals = MEALS.map(m => m.value).filter(m => byMeal[m]?.length)
 
+    // The planner seats classes into sittings that are switched on, so opening
+    // Generate with none active leads to exactly one outcome: an error toast
+    // after the user has picked a term and meals. Gate the button and say why.
+    const hasActiveSitting = sittings.some(s => s.is_active)
+
     return (
         <>
             {showGenerate && (
@@ -324,7 +329,9 @@ export function DiningPlannerTab() {
                 <div className="card-header">
                     <h2 className="card-title">{t('dos.dining.planTitle')}</h2>
                     <div className="es-card-actions">
-                        <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}>
+                        <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}
+                                disabled={!hasActiveSitting}
+                                title={hasActiveSitting ? undefined : t('dos.dining.generateNeedsSittings')}>
                             <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
                         </button>
                     </div>
