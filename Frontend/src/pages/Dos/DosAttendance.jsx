@@ -23,6 +23,7 @@ import { ClassPicker } from '../../components/ui/ClassPicker'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { sectionsFromClasses } from '../../utils/classes'
 import { formatDate } from '../../utils/date'
+import { PaginationBar } from '../../components/ui/PaginationBar'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -63,28 +64,8 @@ function AttendancePip({ status }) {
     return <span className={`att-pip ${status}`}>{STATUS_MAP[status] ?? status[0].toUpperCase()}</span>
 }
 
-function PaginationBar({ page, totalPages, totalCount, label, onPage }) {
-    if (totalPages <= 1) return null
-    return (
-        <div className="pagination-bar">
-            <span className="pagination-info">{totalCount} {label} (Page {page} of {totalPages})</span>
-            <div className="pagination-controls">
-                <button className="pagination-btn" disabled={page === 1} onClick={() => onPage(1)}>
-                    <span className="material-symbols-rounded">first_page</span>
-                </button>
-                <button className="pagination-btn" disabled={page === 1} onClick={() => onPage(page - 1)}>
-                    <span className="material-symbols-rounded">chevron_left</span>
-                </button>
-                <button className="pagination-btn" disabled={page === totalPages} onClick={() => onPage(page + 1)}>
-                    <span className="material-symbols-rounded">chevron_right</span>
-                </button>
-                <button className="pagination-btn" disabled={page === totalPages} onClick={() => onPage(totalPages)}>
-                    <span className="material-symbols-rounded">last_page</span>
-                </button>
-            </div>
-        </div>
-    )
-}
+// PaginationBar moved to components/ui/PaginationBar.jsx so DosResults can
+// share it rather than growing a second copy that drifts from this one.
 
 // ─── Student Attendance Tab ───────────────────────────────────────────────────
 

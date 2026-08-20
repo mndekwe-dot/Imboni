@@ -420,7 +420,11 @@ export function DosAnnouncement() {
                             <div className="card">
                                 <div className="card-header">
                                     <h2 className="card-title">{t('announcements.recentBroadcasts')}</h2>
-                                    <span className="badge badge-published">{t('announcements.loadedOf', { shown: countByStatus('published'), total })}</span>
+                                    {/* How many are downloaded, not how many are published — the pills
+                                        already carry the per-status counts, and mixing a published
+                                        count with an all-status total made the two numbers
+                                        incomparable. */}
+                                    <span className="badge badge-published">{t('announcements.loadedOf', { shown: announcements.length, total })}</span>
                                 </div>
                                 <div className="card-content">
 
@@ -462,8 +466,10 @@ export function DosAnnouncement() {
                                                 />
                                             ))}
 
-                                            {/* Load more */}
-                                            {hasMore && activeFilter === 'all' && (
+                                            {/* Load more — on every filter, not just All. The counts on
+                                                the pills only cover what is downloaded, so gating this to
+                                                All left a filtered view with no way to reach the rest. */}
+                                            {hasMore && (
                                                 <div className="dos-ann-loadmore">
                                                     <button className="btn btn-outline btn-sm" onClick={loadMore} disabled={loadingMore}>
                                                         <span className="material-symbols-rounded icon-sm">expand_more</span>

@@ -40,19 +40,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: var(--text-title);
     font-weight: 800;
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .student-meta h3 {
     margin: 0;
-    font-size: 1.125rem;
+    font-size: var(--text-title);
     font-weight: 700;
 }
 
 .student-id-tag {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     opacity: 0.9;
     margin: 2px 0 0 0;
 }
@@ -67,7 +67,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 600;
 }
 
@@ -88,14 +88,14 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     color: var(--muted-foreground);
     text-transform: uppercase;
     margin-bottom: 8px;
 }
 
-.section-title .material-symbols-rounded { font-size: 1rem; }
+.section-title .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* Subject Tags */
 .subject-tags {
@@ -109,7 +109,7 @@
     color: var(--muted-foreground);
     padding: 4px 12px;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 500;
 }
 
@@ -127,15 +127,15 @@
 .lesson-status {
     background: var(--info, #0ea5e9);
     color: white;
-    font-size: 0.65rem;
+    font-size: var(--text-caption);
     font-weight: 900;
     padding: 4px 6px;
     border-radius: 4px;
 }
 
-.lesson-name { font-weight: 600; font-size: 0.9rem; margin: 0; }
-.lesson-time { font-size: 0.75rem; color: var(--muted-foreground); margin: 0; }
-.next-up     { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 6px; opacity: 0.75; }
+.lesson-name { font-weight: 600; font-size: var(--text-body); margin: 0; }
+.lesson-time { font-size: var(--text-caption); color: var(--muted-foreground); margin: 0; }
+.next-up     { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 6px; opacity: 0.75; }
 
 /* Finance */
 .financial-brief {
@@ -147,7 +147,7 @@
 .financial-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     margin-bottom: 4px;
 }
 
@@ -171,7 +171,7 @@
     border-radius: var(--radius-sm);
     text-decoration: none;
     color: var(--primary);
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
 }
 
 /* Footer */

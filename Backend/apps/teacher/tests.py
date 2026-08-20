@@ -3,7 +3,7 @@ import datetime
 from rest_framework import status
 from apps.authentication.factories import UserFactory, StudentFactory
 from apps.results.models import Subject, AcademicTerm
-from apps.teacher.models import Class, ClassAssignment, Timetable, Assignment, SubjectTeacherAssignment
+from apps.teacher.models import Class, ClassAssignment, Timetable, Assignment, SubjectTeacherAssignment, Task
 
 
 def _assign_teacher(teacher, subject, class_obj, term):
@@ -627,3 +627,45 @@ class TestDueDateReminderCommand:
         call_command('send_due_date_reminders', stdout=StringIO())
 
         assert Notification.objects.filter(user=student.user).count() == 0
+
+
+@pytest.mark.django_db
+class TestTaskViewSet:
+    """
+    Was a real bug: the global DRF setting paginates every list endpoint, and
+    this viewset did not opt out — so GET /imboni/tasks/ answered with
+    {count, next, previous, results} while all three dashboards read it with
+    `Array.isArray(data) ? data : []`. Creating a task showed it (from the POST
+    response) and refreshing lost it, because the paginated envelope is not an
+    array. The list is per-user and always rendered in full, so it does not
+    page; the 21st task would otherwise have been unreachable as well.
+    """
+
+    def test_created_task_survives_a_reload(self, make_authenticated_client):
+        client, _user = make_authenticated_client('dos')
+
+        created = client.post('/imboni/tasks/', {'title': 'Approve S3 results', 'priority': 'high'})
+        assert created.status_code == status.HTTP_201_CREATED
+
+        listed = client.get('/imboni/tasks/')
+        assert listed.status_code == status.HTTP_200_OK
+        assert isinstance(listed.data, list), 'list must not be a paginated envelope'
+        assert [t['title'] for t in listed.data] == ['Approve S3 results']
+
+    def test_list_is_not_capped_at_the_global_page_size(self, make_authenticated_client):
+        client, user = make_authenticated_client('dos')
+        for i in range(25):
+            Task.objects.create(teacher=user, title=f'Task {i}')
+
+        response = client.get('/imboni/tasks/')
+
+        assert len(response.data) == 25
+
+    def test_tasks_are_scoped_to_their_owner(self, make_authenticated_client):
+        client, user = make_authenticated_client('dos')
+        Task.objects.create(teacher=user, title='Mine')
+        Task.objects.create(teacher=UserFactory(role='teacher'), title='Not mine')
+
+        response = client.get('/imboni/tasks/')
+
+        assert [t['title'] for t in response.data] == ['Mine']

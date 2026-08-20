@@ -3,7 +3,9 @@ import { NotificationDropdown } from '../NotificationDropdown'
 import { formatDateWithWeekday } from '../../utils/date'
 
 export function DashboardHeader({ title, subtitle, userName, userRole, userInitials, avatarClass, notifications, onNotificationRead, actions }) {
-  const today = formatDateWithWeekday()
+  // The date helpers return '' for a missing value on purpose, so calling
+  // this with no argument rendered an empty pill in every portal header.
+  const today = formatDateWithWeekday(new Date())
 
   return (
     <header className="dashboard-header">

@@ -280,6 +280,10 @@ export function DutyRosterTab() {
     }, {})
     const orderedDays = DAYS.map(d => d.value).filter(d => byDay[d]?.length)
 
+    // Same reasoning as the dining planner: the generator rotates staff through
+    // active posts, so with none active Generate can only end in an error toast.
+    const hasActivePost = posts.some(p => p.is_active)
+
     return (
         <>
             {showGenerate && (
@@ -299,7 +303,9 @@ export function DutyRosterTab() {
                 <div className="card-header">
                     <h2 className="card-title">{t('dos.duty.rosterTitle')}</h2>
                     <div className="es-card-actions">
-                        <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}>
+                        <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}
+                                disabled={!hasActivePost}
+                                title={hasActivePost ? undefined : t('dos.duty.generateNeedsPosts')}>
                             <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
                         </button>
                     </div>

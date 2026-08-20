@@ -44,7 +44,7 @@
 }
 
 .not-found-icon .material-symbols-rounded {
-    font-size: 1.5rem;
+    font-size: var(--icon-lg);
     color: var(--foreground);
 }
 
@@ -57,7 +57,7 @@
 }
 
 .not-found-subtitle {
-    font-size: 1.05rem;
+    font-size: var(--text-title);
     color: var(--muted-foreground);
     line-height: 1.6;
     margin: 0 0 2rem;
@@ -76,7 +76,7 @@
     padding: 0.7rem 1.5rem;
     border-radius: var(--radius-md);
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     cursor: pointer;
     text-decoration: none;
     border: none;
@@ -84,7 +84,7 @@
 }
 
 .not-found-btn .material-symbols-rounded {
-    font-size: 1.125rem;
+    font-size: var(--icon-sm);
 }
 
 .not-found-btn-outline {

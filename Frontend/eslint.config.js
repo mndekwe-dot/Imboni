@@ -39,7 +39,12 @@ export default defineConfig([
   {
     // Node-run config/tooling files: give them Node globals so `process`
     // resolves (they are not browser code).
-    files: ['*.config.js', 'vite.config.js', 'playwright.config.js', 'e2e/**/*.js'],
+    // scripts/ is build tooling; icon-subset.test.js reads the repo from disk
+    // rather than rendering anything, so it runs in the Node environment too.
+    files: [
+      '*.config.js', 'vite.config.js', 'playwright.config.js', 'e2e/**/*.js',
+      'scripts/**/*.{js,mjs}', 'src/test/icon-subset.test.js',
+    ],
     languageOptions: { globals: { ...globals.node } },
   },
 ])

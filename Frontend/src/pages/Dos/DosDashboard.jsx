@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
-import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade, getDosWeeklyTrend, getDosTasks, createDosTask, updateDosTask } from '../../api/dos'
+import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade, getDosWeeklyTrend, getDosTasks, createDosTask, updateDosTask, deleteDosTask } from '../../api/dos'
+import { toList } from '../../api/client'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart } from 'recharts'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -151,7 +152,7 @@ export function DosDashboard() {
             .finally(() => setLoading(false))
 
         fetchActivityPage(0, false)
-        getDosTasks().then(data => setTasks(Array.isArray(data) ? data : [])).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
+        getDosTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
     }, [])
 
     async function handleCreateTask() {
@@ -167,6 +168,32 @@ export function DosDashboard() {
             setTaskSaving(false) }
     }
 
+    async function handleDeleteTask(task) {
+        const previous = tasks
+        setTasks(prev => prev.filter(t => t.id !== task.id))   // optimistic
+        try {
+            await deleteDosTask(task.id)
+        } catch (e) {
+            setTasks(previous)                                 // put it back, say why
+            toast.error(errorMessage(e, 'Could not delete the task.'))
+        }
+    }
+
+    async function handleClearCompleted() {
+        const done = tasks.filter(t => t.is_completed)
+        if (!done.length) return
+        if (!window.confirm(`Delete ${done.length} completed task${done.length > 1 ? 's' : ''}? This cannot be undone.`)) return
+        const previous = tasks
+        setTasks(prev => prev.filter(t => !t.is_completed))
+        const results = await Promise.allSettled(done.map(t => deleteDosTask(t.id)))
+        // Any failure means the list on screen no longer matches the server, so
+        // reload rather than guess which ones actually went.
+        if (results.some(r => r.status === 'rejected')) {
+            toast.error('Some tasks could not be deleted.')
+            getDosTasks().then(data => setTasks(toList(data))).catch(() => setTasks(previous))
+        }
+    }
+
     async function toggleTaskDone(task) {
         try {
             const updated = await updateDosTask(task.id, { is_completed: !task.is_completed })
@@ -176,7 +203,7 @@ export function DosDashboard() {
 
     const dosStats = stats ? [
         { icon: 'people', value: stats.total_students, label: 'Total Students', trend: `+${stats.new_students} this term`, trendClass: 'positive', colorClass: '' },
-        { icon: 'school', value: stats.teaching_staff, label: 'Teaching Staff', trend: 'active teachers', trendClass: '', colorClass: 'warning' },
+        { icon: 'school', value: stats.teaching_staff, label: 'Teaching Staff', trend: 'active teachers', trendClass: '', colorClass: 'info' },
         { icon: 'analytics', value: `${stats.avg_performance}%`, label: 'Avg Performance', trend: `${stats.avg_performance_change >= 0 ? '+' : ''}${stats.avg_performance_change}% this term`, trendClass: stats.avg_performance_change >= 0 ? 'positive' : 'negative', colorClass: 'success' },
         { icon: 'pending_actions', value: stats.pending_approvals, label: 'Pending Approvals', trend: 'Requires action', trendClass: 'negative', colorClass: 'warning' },
     ] : []
@@ -215,9 +242,13 @@ export function DosDashboard() {
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
 
                 <main className="dashboard-main" id="main-content">
+                    {/* The subtitle used to read "Welcome back, {name}" — a second
+                        greeting sitting directly above WelcomeBanner's, and the only
+                        DOS subtitle still hard-coded in English. It now says what the
+                        page is for, like every other DOS page. */}
                     <DashboardHeader
                         title={t('dos.dashboard.title')}
-                        subtitle={`Welcome back, ${sessionUser.userName}`}
+                        subtitle={t('dos.dashboard.subtitle')}
                         {...sessionUser}
                         notifications={liveNotifications}
                         onNotificationRead={markRead}
@@ -310,12 +341,12 @@ export function DosDashboard() {
                                             >
                                                 <defs>
                                                     <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
-                                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                        <stop offset="5%" stopColor="#0f9d63" stopOpacity={0.2} />
+                                                        <stop offset="95%" stopColor="#0f9d63" stopOpacity={0} />
                                                     </linearGradient>
                                                     <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
-                                                        <stop offset="5%" stopColor="#003d7a" stopOpacity={0.2} />
-                                                        <stop offset="95%" stopColor="#003d7a" stopOpacity={0} />
+                                                        <stop offset="5%" stopColor="#1657a0" stopOpacity={0.2} />
+                                                        <stop offset="95%" stopColor="#1657a0" stopOpacity={0} />
                                                     </linearGradient>
                                                 </defs>
                                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -337,7 +368,7 @@ export function DosDashboard() {
                                                     type="monotone"
                                                     dataKey="attendance"
                                                     name="Attendance"
-                                                    stroke="#10b981"
+                                                    stroke="#0f9d63"
                                                     strokeWidth={2}
                                                     fill="url(#attGrad)"
                                                     dot={false}
@@ -347,7 +378,7 @@ export function DosDashboard() {
                                                     type="monotone"
                                                     dataKey="performance"
                                                     name="Performance"
-                                                    stroke="#003d7a"
+                                                    stroke="#1657a0"
                                                     strokeWidth={2}
                                                     fill="url(#perfGrad)"
                                                     dot={false}
@@ -356,7 +387,7 @@ export function DosDashboard() {
                                             </AreaChart>
                                         </ResponsiveContainer>
                                         <div className="chart-legend-row">
-                                            {[['#10b981', 'Attendance'], ['#003d7a', 'Performance']].map(([color, label]) => (
+                                            {[['#0f9d63', 'Attendance'], ['#1657a0', 'Performance']].map(([color, label]) => (
                                                 <div key={label} className="chart-legend-item">
                                                     <span className="chart-legend-dot" style={{ background: color }} />
                                                     {label}
@@ -374,6 +405,12 @@ export function DosDashboard() {
                                 <h2 className="card-title">My Tasks</h2>
                                 <div className="u-row-sm">
                                     <span className="badge badge-secondary">{tasks.filter(t => !t.is_completed).length} pending</span>
+                                    {tasks.some(t => t.is_completed) && (
+                                        <button className="btn btn-outline btn-sm" onClick={handleClearCompleted}>
+                                            <span className="material-symbols-rounded icon-sm">playlist_remove</span>
+                                            Clear done
+                                        </button>
+                                    )}
                                     <button className="btn btn-outline btn-sm" onClick={() => setShowTaskForm(v => !v)}>
                                         <span className="material-symbols-rounded icon-sm">{showTaskForm ? 'expand_less' : 'add'}</span>
                                         {showTaskForm ? 'Cancel' : 'Add'}
@@ -411,7 +448,7 @@ export function DosDashboard() {
                                     <p className="dos-note-sm">No tasks yet. Click Add to create one.</p>
                                 ) : (
                                     <div className="dos-task-list">
-                                        {tasks.slice(0, 6).map(task => (
+                                        {tasks.map(task => (
                                             <div key={task.id} className={`dos-task-item${task.is_completed ? ' done' : ''}`}>
                                                 <input
                                                     type="checkbox"
@@ -428,6 +465,14 @@ export function DosDashboard() {
                                                 <span className={`badge ${task.priority === 'high' ? 'badge-high' : task.priority === 'medium' ? 'badge-medium' : 'badge-low'} u-shrink-0`}>
                                                     {task.priority}
                                                 </span>
+                                                <button
+                                                    className="btn-icon-clean task-del-btn"
+                                                    title={`Delete "${task.title}"`}
+                                                    aria-label={`Delete "${task.title}"`}
+                                                    onClick={() => handleDeleteTask(task)}
+                                                >
+                                                    <span className="material-symbols-rounded icon-sm">delete</span>
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
@@ -468,7 +513,7 @@ export function DosDashboard() {
                                             iconSize={10}
                                             wrapperStyle={{ fontSize: '0.78rem', paddingTop: '0.75rem' }}
                                         />
-                                        <Bar dataKey="avg_score" name="Avg Score" fill="#003d7a" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                                        <Bar dataKey="avg_score" name="Avg Score" fill="#1657a0" radius={[4, 4, 0, 0]} maxBarSize={32} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>

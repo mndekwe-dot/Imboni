@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { usePortalTheme } from './hooks/usePortalTheme';
 
 // Entry-path pages stay eager so the first paint (landing / login) needs no
 // extra round-trip. Everything behind a login is code-split below and loads
@@ -133,6 +134,10 @@ function RouteFallback() {
 }
 
 function App() {
+  // Marks <html> with the portal the current route belongs to, so each portal's
+  // CSS can be scoped instead of leaking through :root. See usePortalTheme.
+  usePortalTheme();
+
   // Every portal page above is code-split: the browser downloads a page's chunk
   // only when its route is first visited, instead of shipping all 7 portals in
   // one bundle up front. Suspense shows RouteFallback during that brief fetch.

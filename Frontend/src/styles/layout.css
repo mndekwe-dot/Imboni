@@ -34,14 +34,14 @@
 }
 
 .dashboard-main {
-  margin-left: 20%;
+  margin-left: var(--sidebar-w);
   flex: 1;
   display: flex;
   flex-direction: column;
-  width: calc(100% - 20%);
+  width: calc(100% - var(--sidebar-w));
   transition:
-    margin-left var(--transition-slow),
-    width var(--transition-slow);
+    margin-left 220ms ease-out,
+    width 220ms ease-out;
   height: 100vh;
   max-height: 100vh; /* Ensure it doesn't exceed viewport */
   overflow: hidden; /* Keep this hidden, but dashboard-content will scroll */
@@ -89,7 +89,7 @@
 
 /* Inner wrapper rendered by DashboardContent component */
 .dc-inner {
-  background: #edf0f4;
+  background: var(--content-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
@@ -115,8 +115,8 @@
 }
 
 .sidebar.collapsed ~ .dashboard-main {
-  margin-left: 85px;
-  width: calc(100% - 85px);
+  margin-left: var(--sidebar-w-collapsed);
+  width: calc(100% - var(--sidebar-w-collapsed));
 }
 
 /* ===============================================
@@ -150,15 +150,17 @@
    =============================================== */
 
 .sidebar {
-  width: 20%;
+  width: var(--sidebar-w);
   position: fixed;
   top: 0;
   left: 0;
   background: linear-gradient(180deg, var(--sidebar) 0%, #00254d 100%);
   height: 100vh;
+  /* 220ms ease-out is the collapse timing current design systems settle on
+     (200-250ms); 300ms ease read as sluggish on a 200px width change. */
   transition:
-    width var(--transition-slow),
-    transform var(--transition-slow);
+    width 220ms ease-out,
+    transform 220ms ease-out;
   z-index: var(--z-fixed);
   display: flex;
   flex-direction: column;
@@ -172,7 +174,7 @@
 }
 
 .sidebar.collapsed {
-  width: 85px;
+  width: var(--sidebar-w-collapsed);
 }
 
 /* ===============================================
@@ -209,7 +211,7 @@
 
 .sidebar-brand-name {
   color: #ffffff;
-  font-size: 1.125rem;
+  font-size: var(--text-title);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -217,7 +219,7 @@
 
 .sidebar-brand-tagline {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.6rem;
+  font-size: var(--text-caption);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -284,25 +286,8 @@
   gap: 6px;
 }
 
-.sidebar.collapsed .sidebar-logo .sidebar-toggle {
-  position: static;
-  transform: rotate(180deg);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
-}
-
-.sidebar.collapsed .sidebar-logo .sidebar-toggle:hover {
-  background: rgba(255, 255, 255, 0.22);
-  transform: rotate(180deg) scale(1.1);
-}
-
-.sidebar-logo .sidebar-toggle {
-  font-size: 1.75rem;
-}
-
+/* The collapse toggle is no longer a child of .sidebar-logo — it sits on the
+   panel edge (see COLLAPSE TOGGLE below). Its old descendant rules are gone. */
 .sidebar-logo .menu-toggle {
   display: none;
 }
@@ -340,7 +325,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: var(--text-title);
   flex-shrink: 0;
   border: 2px solid var(--sidebar-border);
   box-shadow: var(--shadow-md);
@@ -364,7 +349,7 @@
 }
 
 .sidebar-user-name {
-  font-size: 0.95rem;
+  font-size: var(--text-body);
   font-weight: 700;
   color: var(--primary-foreground);
   margin: 0 0 2px 0;
@@ -375,7 +360,7 @@
 }
 
 .sidebar-user-role {
-  font-size: 0.75rem;
+  font-size: var(--text-caption);
   font-weight: 500;
   color: var(--muted-foreground);
   margin: 0;
@@ -400,7 +385,7 @@
 .sidebar.collapsed .sidebar-user-avatar {
   width: 44px;
   height: 44px;
-  font-size: 1.25rem;
+  font-size: var(--text-title);
   border-radius: 50%;
   border: 2px solid rgba(249, 115, 22, 0.7);
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
@@ -418,7 +403,14 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 0.5rem 0;
+  /* A dozen nav items never fill the height, so the track was permanently
+     visible for a scrollbar nobody needed. Hidden, not disabled: on a short
+     viewport the list still scrolls by wheel, trackpad, touch and keyboard —
+     there is just no rail drawn down the edge of the panel. */
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* old Edge */
 }
+.sidebar-nav::-webkit-scrollbar { width: 0; height: 0; }
 
 .sidebar-nav .nav-list {
   list-style: none;
@@ -433,7 +425,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 12px 15px;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   font-weight: 600;
   border-radius: var(--radius);
   color: var(--sidebar-foreground);
@@ -467,10 +459,12 @@
   transform: translateX(4px);
 }
 
+/* The accent bar (::before) plus a quiet fill. The drop shadow that used to be
+   here made one selected row shout over an otherwise flat list — three signals
+   for one state. */
 .sidebar-nav-item.active {
   background-color: var(--portal-accent-light);
   color: var(--portal-accent);
-  box-shadow: var(--shadow-md);
 }
 
 .sidebar-nav-item.active::before {
@@ -482,51 +476,56 @@
   width: 1.25rem;
   height: 1.25rem;
   flex-shrink: 0;
-  font-size: 1.25rem;
+  font-size: var(--icon-md);
 }
 
-.sidebar-nav-item span:not(.material-symbols-rounded) {
+.sidebar-nav-label {
   transition:
     opacity var(--transition-slow),
     width var(--transition-slow);
 }
 
+/* Collapsed: an icon, nothing else. Every item used to carry its own tinted
+   box, so the rail read as a stack of eleven grey squares rather than a list.
+   Background is now earned by hover and active only.
+
+   Geometry: the rail is 72px and the list pads 12px a side, so a 48px target
+   fits exactly. The old numbers were 48px inside 10px padding in a 64px rail —
+   68px of content in 64px of space, which is why it looked jammed. */
 .sidebar.collapsed .sidebar-nav-item {
   justify-content: center;
   padding: 0;
   width: 48px;
-  height: 48px;
+  height: 44px;
   min-height: unset;
   border-radius: var(--radius);
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.06);
+  background: transparent;
 }
 
-.sidebar.collapsed .sidebar-nav-item span:not(.material-symbols-rounded) {
-  opacity: 0;
-  width: 0;
-}
+/* Collapsed label handling lives in the SIDEBAR TOOLTIP block below. */
 
 .sidebar.collapsed .sidebar-nav-item .material-symbols-rounded {
-  font-size: 1.4rem;
+  font-size: var(--icon-lg);
   width: 1.375rem;
   height: 1.375rem;
 }
 
+/* No scale: growing a 48px target inside a 72px rail makes the icons jump and
+   clip against the edges. */
 .sidebar.collapsed .sidebar-nav-item:hover {
   background: rgba(255, 255, 255, 0.18);
-  transform: scale(var(--hover-scale));
+  transform: none;   /* opts out of --hover-scale: see the note above */
 }
 
 .sidebar.collapsed .sidebar-nav-item.active {
   background: var(--portal-accent-light);
   border-radius: var(--radius);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
 .sidebar.collapsed .sidebar-nav .nav-list {
-  padding: 0 10px;
-  gap: 6px;
+  padding: 0 12px;
+  gap: 4px;
   align-items: center;
 }
 
@@ -578,7 +577,7 @@
 }
 
 .dashboard-header-title h1 {
-  font-size: var(--font-xl);
+  font-size: var(--text-title);
   font-weight: 700;
   color: #ffffff;
   white-space: nowrap;
@@ -589,7 +588,7 @@
 }
 
 .dashboard-header-title p {
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
   overflow: hidden;
@@ -626,7 +625,7 @@
 }
 
 .header-user-name {
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
@@ -634,7 +633,7 @@
 }
 
 .header-user-role {
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
   line-height: 1.2;
@@ -647,7 +646,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
@@ -708,7 +707,7 @@
 }
 
 .mobile-menu-btn .material-symbols-rounded {
-  font-size: 1.4rem;
+  font-size: var(--icon-lg);
   line-height: 1;
 }
 
@@ -769,7 +768,7 @@
   flex: 1;
   border: none;
   outline: none;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   background: transparent;
   color: #ffffff;
   min-width: 0;
@@ -821,7 +820,7 @@
   background: var(--accent);
   color: #ffffff;
   border-radius: 999px;
-  font-size: 0.5625rem;
+  font-size: var(--text-caption);
   font-weight: 700;
   border: 2px solid var(--sidebar);
   animation: pulse 2s ease-in-out infinite;
@@ -829,7 +828,7 @@
 
 /* Date Display */
 .date-display {
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
   display: none;
@@ -862,10 +861,6 @@
 
   .sidebar.active {
     left: 0;
-  }
-
-  .sidebar-logo .sidebar-toggle {
-    display: none !important;
   }
 
   .sidebar-logo .menu-toggle {
@@ -906,22 +901,22 @@
   .sidebar-user-avatar {
     width: 44px;
     height: 44px;
-    font-size: 1rem;
+    font-size: var(--text-body);
   }
 
   .sidebar-user-name {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
   }
 
   .sidebar-user-role {
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
   }
 }
 
 /* Small Mobile */
 @media (max-width: 767px) {
   .dashboard-header-title h1 {
-    font-size: var(--font-lg);
+    font-size: var(--text-title);
   }
 
   /* Hide subtitle — only show page name */
@@ -956,7 +951,7 @@
     gap: 0.5rem;
   }
   .dashboard-header-title h1 {
-    font-size: 1rem;
+    font-size: var(--text-body);
   }
   .dashboard-content {
     padding: 0.75rem;
@@ -986,7 +981,7 @@
   .header-user-av {
     width: 32px;
     height: 32px;
-    font-size: 0.65rem;
+    font-size: var(--text-caption);
   }
 
   .notification-btn {
@@ -1074,4 +1069,132 @@
   to {
     opacity: 1;
   }
+}
+
+
+/* ===============================================
+   COLLAPSED RAIL — GROUP LABELS AND TOOLTIPS
+   =============================================== */
+
+/* Eyebrow above each group. Kept in the collapsed rail too: it costs one line
+   and it is the only thing telling you where the main nav ends and the account
+   items begin, now that both are just icons. */
+.sidebar-nav-group {
+  margin: 0.75rem 0 0.35rem;
+  padding: 0 18px;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+  transition: padding var(--transition-slow);
+}
+/* Collapsed, the word does not earn its place: it is the widest thing in a 72px
+   rail and .secondary-nav already draws a border-top, so the boundary is shown
+   without spelling it out. Hidden the .sr-only way rather than display:none —
+   the list is aria-labelledby this element, so removing it from the
+   accessibility tree would leave the account group unnamed. */
+.sidebar.collapsed .sidebar-nav-group {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Tooltips ────────────────────────────────────────────────────────────────
+   The label is not deleted when the rail collapses — it is repositioned as a
+   tooltip beside the icon. That means no second copy of the text to keep in
+   sync, no `title` attribute (which waits a second and cannot be styled), and
+   the link keeps a real accessible name for screen readers.
+
+   The nav has to stop clipping for this to be visible. A collapsed rail holds
+   roughly a dozen 44px rows, so it does not need to scroll; if it ever did, the
+   trade would be worth revisiting. */
+.sidebar.collapsed,
+.sidebar.collapsed .sidebar-nav { overflow: visible; }
+
+.sidebar.collapsed .sidebar-nav-label {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  z-index: var(--z-tooltip, 1200);
+
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: #0f2947;
+  color: #ffffff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+
+/* The little arrow pointing back at the icon. */
+.sidebar.collapsed .sidebar-nav-label::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #0f2947;
+}
+
+.sidebar.collapsed .sidebar-nav-item:hover .sidebar-nav-label,
+.sidebar.collapsed .sidebar-nav-item:focus-visible .sidebar-nav-label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar.collapsed .sidebar-nav-label { transition: none; transform: translateY(-50%); }
+}
+
+/* ===============================================
+   COLLAPSE TOGGLE — ON THE PANEL EDGE
+   Inside the header it overlapped the brand tagline. Half-outside the right
+   edge it cannot collide with anything, and it stays in one place instead of
+   moving when the panel narrows.
+   =============================================== */
+.sidebar-toggle {
+  position: absolute;
+  top: 74px;
+  right: -13px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.sidebar-toggle:hover { background: var(--surface-3); }
+.sidebar-toggle .material-symbols-rounded {
+  font-size: var(--icon-sm);
+  transition: transform 220ms ease-out;
+}
+.sidebar.collapsed .sidebar-toggle .material-symbols-rounded { transform: rotate(180deg); }
+
+/* Mobile uses the close button in the header instead. */
+@media (max-width: 1024px) {
+  .sidebar-toggle { display: none; }
 }

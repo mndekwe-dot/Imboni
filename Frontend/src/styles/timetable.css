@@ -21,7 +21,7 @@
 }
 .week-picker-btn:hover { background: var(--muted); }
 .week-picker-label {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     font-weight: 600;
     color: var(--foreground);
     min-width: 120px;
@@ -29,11 +29,11 @@
     white-space: nowrap;
 }
 @media (max-width: 480px) {
-    .week-picker-label { min-width: 90px; font-size: 0.8rem; }
+    .week-picker-label { min-width: 90px; font-size: var(--text-sm); }
     .week-picker-today { display: none; }
 }
 .week-picker-today {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     padding: 0.25rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -54,7 +54,7 @@
     padding: 0.3rem 0.75rem;
     border-radius: 20px;
     border: 1px solid var(--border);
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 500;
     background: var(--card);
     color: var(--muted-foreground);
@@ -68,16 +68,43 @@
 }
 
 /* ─── Timetable Wrapper ────────────────────────────────── */
+/* One border around the whole grid rather than four around every cell. The
+   frame lives on the scroll container, so it stays put while the days scroll
+   under it. */
 .tt-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
 }
+
+/* The note above the grid ("Home room Room 12 — …"). */
+.tt-meta {
+    margin: 0 0 0.4rem;
+    font-size: var(--text-caption);
+    color: var(--muted-foreground);
+}
+.tt-meta strong { color: var(--foreground); font-weight: 600; }
+
+/*
+  border-collapse is `separate`, not `collapse`, for one reason: a collapsed
+  table draws its borders on the table itself, and a `position: sticky` cell
+  leaves them behind when it detaches. Each cell therefore owns its right and
+  bottom edge; the first cell in a row adds the left one and the header row
+  adds the top, so the grid still reads as a single 1px rule everywhere.
+
+  table-layout is fixed so every day column is exactly the same width no matter
+  what it contains. Auto layout sizes columns by their longest lesson, which is
+  what made Mon and Sat visibly different widths.
+*/
 .tt-table {
     display: table;
     width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-    min-width: 700px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--text-sm);
+    min-width: 660px;
 }
 /* Force correct table layout — prevents any outer flex/grid from breaking rows */
 .tt-table thead,
@@ -86,87 +113,223 @@
 .tt-table td,
 .tt-table th     { display: table-cell; }
 
+/* Horizontal rules only. A line down every column turned this into graph
+   paper; the columns are equal width and each lesson carries a colour bar at
+   its left edge, so they read perfectly well without ruling. The one vertical
+   that earns its place is the period column's, which detaches the row labels
+   from the days they label. */
+.tt-table th,
+.tt-table td { border-bottom: 1px solid var(--border); }
+.tt-table tbody tr:last-child > * { border-bottom: none; }
+.tt-time-cell,
+.tt-time-head { border-right: 1px solid var(--border); }
+
 /* ─── Time column ──────────────────────────────────────── */
+/* Sticky so the period stays readable while the days scroll sideways. */
 .tt-time-cell {
-    padding: 0.6rem 0.75rem;
-    background: var(--muted);
-    border: 1px solid var(--border);
-    vertical-align: top;
-    min-width: 100px;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    width: 92px;
+    padding: 0.3rem 0.5rem;
+    background: var(--surface-3);
+    text-align: left;
+    font-weight: 400;
+    vertical-align: middle;
     white-space: nowrap;
 }
-.tt-time-cell strong { display: block; font-size: 0.8rem; color: var(--foreground); }
-.tt-time-cell span   { font-size: 0.7rem; color: var(--muted-foreground); }
+.tt-time-cell strong {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--foreground);
+    line-height: 1.3;
+}
+.tt-time-cell span {
+    display: block;
+    font-size: var(--text-caption);
+    color: var(--muted-foreground);
+    line-height: 1.25;
+}
 
 /* ─── Header row ───────────────────────────────────────── */
-.tt-time-head {
-    background: var(--muted);
-    padding: 0.6rem 0.75rem;
+/* Both header cells share one treatment so the row reads as a single band. */
+.tt-time-head,
+.tt-day-head {
+    position: sticky;
+    top: 0;
+    background: var(--surface-3);
+    padding: 0.4rem 0.6rem;
     text-align: left;
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     color: var(--muted-foreground);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border: 1px solid var(--border);
+    line-height: 1.4;
     white-space: nowrap;
+    z-index: 2;
 }
-.tt-day-head {
-    background: var(--muted);
-    padding: 0.6rem 0.75rem;
-    text-align: center;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--foreground);
-    border: 1px solid var(--border);
-    min-width: 110px;
+.tt-time-head {
+    left: 0;
+    width: 92px;
+    z-index: 3;        /* the corner sits above both sticky axes */
 }
+.tt-day-head { color: var(--foreground); }
 .tt-day-head.tt-today {
     background: var(--portal-accent, var(--primary));
     color: #fff;
 }
+/* Today is not signalled by colour alone. */
+.tt-today-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin-left: 0.35rem;
+    border-radius: 50%;
+    background: currentColor;
+    vertical-align: 0.15em;
+}
 
 /* ─── Cells ────────────────────────────────────────────── */
 .tt-cell {
-    padding: 0.5rem 0.6rem;
-    border: 1px solid var(--border);
+    padding: 0.3rem 0.45rem 0.32rem 0.6rem;
     vertical-align: top;
     position: relative;
+    background-color: var(--card);
 }
-.tt-subject { font-weight: 600; font-size: 0.8rem; margin-bottom: 0.15rem; }
-.tt-teacher { font-size: 0.7rem; color: var(--muted-foreground); }
-.tt-room    { font-size: 0.7rem;  color: var(--muted-foreground); margin-top: 0.1rem; }
+/* Every lesson is exactly two lines, so all rows are the same height and the
+   whole week fits on one screen. The full text is on the title attribute. */
+.tt-subject {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-cell-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    line-height: 1.25;
+    margin-top: 1px;
+}
+.tt-teacher {
+    font-size: var(--text-caption);
+    color: var(--muted-foreground);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-room { font-size: var(--text-caption); color: var(--muted-foreground); }
+/* Only rooms that differ from the class's home room reach the meta line, so
+   there it is always an exception worth noticing — a chip, not a third grey
+   line. Scoped, because MatronSchedule renders .tt-room as a plain block. */
+.tt-cell-meta .tt-room {
+    flex-shrink: 0;
+    margin-left: auto;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--surface-3);
+    color: var(--muted-foreground);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ─── Subject tones ────────────────────────────────────────────────────────
+   Every academic cell used to resolve to one pale green, so colour carried no
+   information at all. Each subject now gets a hue, shown as a saturated 3px
+   edge bar (the part you actually see) over a faint tint (which groups without
+   turning the grid into a quilt). Assignment lives in timetableDisplay.js.
+─────────────────────────────────────────────────────────────────────────── */
+.tt-cell.tt-lesson { background-color: var(--tt-tint); }
+.tt-cell.tt-lesson::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--tt-bar);
+}
+.tt-tone-1  { --tt-tint: #dceafa; --tt-bar: #1f6fb2; }   /* blue      */
+.tt-tone-2  { --tt-tint: #e2e2f8; --tt-bar: #4f56b8; }   /* indigo    */
+.tt-tone-3  { --tt-tint: #ebdff7; --tt-bar: #7a4bb0; }   /* violet    */
+.tt-tone-4  { --tt-tint: #f6dcf1; --tt-bar: #a53f95; }   /* magenta   */
+.tt-tone-5  { --tt-tint: #fadde6; --tt-bar: #b93e63; }   /* rose      */
+.tt-tone-6  { --tt-tint: #fce2cf; --tt-bar: #b35a12; }   /* orange    */
+.tt-tone-7  { --tt-tint: #f2ecc6; --tt-bar: #7e6f10; }   /* gold      */
+.tt-tone-8  { --tt-tint: #dfeecb; --tt-bar: #4d7a17; }   /* olive     */
+.tt-tone-9  { --tt-tint: #d4efe0; --tt-bar: #12805a; }   /* green     */
+.tt-tone-10 { --tt-tint: #d3ecf2; --tt-bar: #0d7488; }   /* teal      */
+
+/* ─── Today / now emphasis ─────────────────────────────────────────────────
+   A background-image wash paints over background-color and under the text, so
+   it layers cleanly on top of a subject tint without touching text contrast.
+─────────────────────────────────────────────────────────────────────────── */
+.tt-cell.tt-today-col {
+    background-image: linear-gradient(var(--tt-today-wash), var(--tt-today-wash));
+}
+/* The current period, marked as a rule across the whole row so it can be found
+   from the time column; box-shadow rather than a border, which would reflow. */
+.tt-cell.tt-now-row,
+.tt-time-cell.tt-now-row { box-shadow: inset 0 2px 0 var(--portal-accent, var(--primary)); }
+/* Where "now" meets "today" is the lesson actually running — ring it. */
+.tt-cell.tt-now-row.tt-today-col { box-shadow: inset 0 0 0 2px var(--portal-accent, var(--primary)); }
+
+.tt-now-tag {
+    display: inline-block;
+    margin-top: 2px;
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    background: var(--portal-accent, var(--primary));
+    color: #fff;
+    font-size: var(--text-caption);
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.03em;
+}
+
+:root { --tt-today-wash: rgba(15, 68, 120, 0.07); }
 
 /* ── Drag-to-move (DOS academic timetable) ─────────────────────────────────── */
 .tt-draggable { position: relative; }
 .tt-dragging { opacity: 0.4; }
 
 /* Grip handle — the only drag activator (avoids text-selection stealing the
-   gesture). touch-action/user-select:none make press-drag work on it. */
+   gesture). touch-action/user-select:none make press-drag work on it.
+   Hidden until the cell is hovered or the handle is focused: it was permanently
+   visible on every lesson, which is a lot of grey dots for a rare action. The
+   subject keeps its indent either way, so revealing it never reflows the cell. */
 .tt-drag-handle {
     position: absolute;
-    top: 3px;
-    left: 3px;
+    top: 2px;
+    left: 5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     border: none;
     background: transparent;
     color: var(--muted-foreground, #94a3b8);
     cursor: grab;
-    opacity: 0.55;
+    opacity: 0;
+    transition: opacity 0.15s ease;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
 }
-.tt-drag-handle:hover { opacity: 1; color: var(--primary, #2563eb); }
+.tt-cell:hover .tt-drag-handle,
+.tt-drag-handle:focus-visible { opacity: 1; }
+.tt-drag-handle:hover { color: var(--primary, #2563eb); }
 .tt-drag-handle:active { cursor: grabbing; }
-.tt-drag-handle .material-symbols-rounded { font-size: 1rem; }
+.tt-drag-handle .material-symbols-rounded { font-size: var(--icon-sm); }
 /* Nudge cell text right so it doesn't sit under the handle */
-.tt-draggable .tt-subject { padding-left: 1.1rem; }
+.tt-draggable .tt-subject { padding-left: 0.95rem; }
 
 /* Empty cell highlighted as a valid drop target while dragging over it */
 .tt-drop-over {
@@ -186,24 +349,44 @@
     pointer-events: none;
 }
 
-/* ─── Cell type colours ────────────────────────────────── */
-.tt-sports   { background: #eff6ff;  }
-.tt-academic { background: #f0fdf4;  }
-.tt-arts     { background: #fdf4ff;  }
-.tt-social   { background: #fff7ed;  }
-.tt-boarding { background: #f8fafc;  }
-.tt-dining   { background: #fefce8;  }
-.tt-empty    { background: var(--muted); color: var(--muted-foreground); text-align: center; font-size: 0.8rem; }
-.tt-break    { background: var(--muted); color: var(--muted-foreground); text-align: center; font-style: italic; font-size: 0.8rem; }
+/* ─── Activity-type colours (extracurricular grid, explained by its legend) ──
+   Deepened from near-white tints to roughly 1.25:1 on the card — the old
+   values sat at 1.05:1, invisible both here and as legend swatches. */
+.tt-sports   { background: #dceafa; }
+.tt-academic { background: #d4efe0; }
+.tt-arts     { background: #ebdff7; }
+.tt-social   { background: #fce2cf; }
+.tt-boarding { background: #e2eaf4; }
+.tt-dining   { background: #f2ecc6; }
+
+.tt-empty {
+    background: var(--surface-2);
+    color: var(--muted-foreground);
+    text-align: center;
+    font-size: var(--text-sm);
+}
+
+/* One band across the day rather than the word "Break" printed once per column. */
+.tt-break {
+    background: var(--surface-3);
+    color: var(--muted-foreground);
+    text-align: center;
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.6rem;
+    vertical-align: middle;
+}
 
 /* ─── Edit button on cell hover (editable mode only) ───── */
 .tt-cell-edit-btn {
     display: none;
     position: absolute;
-    top: 4px;
-    right: 4px;
-    padding: 2px 6px;
-    font-size: 0.7rem;
+    top: 3px;
+    right: 3px;
+    padding: 1px 4px;
+    font-size: var(--text-caption);
     background: var(--portal-accent, var(--primary));
     color: #fff;
     border: none;
@@ -212,11 +395,18 @@
     align-items: center;
     gap: 2px;
 }
-.tt-cell:hover .tt-cell-edit-btn { display: inline-flex; }
+.tt-cell:hover .tt-cell-edit-btn,
+.tt-cell-edit-btn:focus-visible { display: inline-flex; }
 
 /* ─── Legend ───────────────────────────────────────────── */
 .tt-legend { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
-.tt-legend-item { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+.tt-legend-item {
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: var(--text-caption);
+    font-weight: 600;
+    color: var(--foreground);
+}
 
 /* ─── Edit form ────────────────────────────────────────── */
 .tt-form { display: flex; flex-direction: column; gap: 1rem; }
@@ -247,19 +437,60 @@
     .tt-table[data-day="5"] .tt-col-6 { display: table-cell; }
     .tt-table[data-day="6"] .tt-col-7 { display: table-cell; }
 
-    .tt-table { min-width: unset; font-size: 0.85rem; }
+    .tt-table { min-width: unset; font-size: var(--text-sm); }
+    /* One column on screen — nothing scrolls sideways, so drop the sticky
+       column and give the lesson every pixel of the width. */
+    .tt-time-cell,
+    .tt-time-head { position: static; width: 76px; }
 }
+
+/* ─── Print ────────────────────────────────────────────────────────────────
+   A class timetable gets pinned to a wall. Drop the app chrome, keep the
+   subject colours (browsers strip backgrounds by default), and hold the grid
+   on one page. */
+@media print {
+    .tt-legend-row,
+    .day-tabs,
+    .tt-cell-edit-btn,
+    .tt-drag-handle,
+    .tt-now-tag { display: none !important; }
+
+    .tt-wrap  { overflow: visible; }
+    .tt-table {
+        min-width: 0;
+        font-size: 9pt;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    .tt-time-cell,
+    .tt-time-head,
+    .tt-day-head { position: static; }
+
+    .tt-cell,
+    .tt-day-head,
+    .tt-time-cell,
+    .tt-legend-item {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    /* Ink, not screen tint — the wash reads as smudge on paper. */
+    .tt-cell.tt-today-col { background-image: none; }
+    /* Truncation is a screen compromise; on paper there is room to wrap. */
+    .tt-subject,
+    .tt-teacher { overflow: visible; white-space: normal; }
+}
+
 /* ─── Break rows (MatronSchedule) ───────────────────────── */
-.tt-break-row { background: var(--muted); }
+.tt-break-row { background: var(--surface-3); }
 .tt-break-cell {
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.75rem;
     border: 1px solid var(--border);
     text-align: center;
-    font-size: 0.8rem;
+    font-size: var(--text-caption);
     font-weight: 600;
     color: var(--muted-foreground);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
 }
 
 /* Legend swatch for sport periods — the other .tt-legend-item
@@ -282,8 +513,8 @@
 /* Status lines shown in place of a grid (TeacherScheduleGrid.jsx) */
 .tt-note        { color: var(--muted-foreground); padding: 1rem; }
 .tt-note--error { color: var(--destructive); }
-.tt-cell-note   { font-size: 0.7rem; color: var(--muted-foreground); }
-.tt-icon-xs   { font-size: 0.7rem; }
+.tt-cell-note   { font-size: var(--text-caption); color: var(--muted-foreground); }
+.tt-icon-xs   { font-size: var(--icon-sm); }
 .tt-legend-row {
     margin-bottom: 0.5rem;
     display: flex;

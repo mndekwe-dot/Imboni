@@ -3,11 +3,6 @@
    Identity colour: Primary blue #003d7a
    =============================================== */
 
-:root {
-  --portal-accent:       #003d7a;
-  --portal-accent-light: rgba(0, 61, 122, 0.1);
-}
-
 /* Page of parent_dashboard */
 .dashboard-content-grid {
   grid-template-columns: 1fr;
@@ -76,7 +71,7 @@
   text-align: center;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
 }
 
 .calendar-grid {
@@ -94,7 +89,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius);
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   font-weight: 500;
   border: 1px solid var(--border);
   transition: all var(--transition-base);
@@ -143,7 +138,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
 }
 
 .calendar-legend-color,
@@ -260,11 +255,11 @@
   gap: 1rem;
 }
 .behavior-header h4 {
-  font-size: 1rem; 
+  font-size: var(--text-body); 
   margin-bottom: 0.25rem
 }
 .behavior-header p {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--muted-foreground);
 }
 
@@ -275,20 +270,20 @@
   padding: 0.5rem 1rem;
   border-radius: var(--radius-sm);
   font-weight: 600;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .behaviour-icon {
-  font-size: 1.25rem;
+  font-size: var(--icon-md);
 }
 .behavior-badge.positive {
   background: var(--success-light);
   color: var(--success);
 }
 .behavior-badge.positive span{
-  font-size: 1.25rem;
+  font-size: var(--text-title);
 }
 
 .behavior-badge.negative {
@@ -307,13 +302,13 @@
 }
 
 .behavior-date {
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   color: var(--muted-foreground);
   margin-bottom: 0.5rem;
 }
 
 .behavior-description {
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 
@@ -332,14 +327,14 @@
 }
 
 .behavior-meta-label {
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   color: var(--muted-foreground);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .behavior-meta-value {
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--foreground);
 }
@@ -383,11 +378,11 @@
   }
 
   .calendar-day {
-    font-size: var(--font-sm);
+    font-size: var(--text-sm);
   }
 
   .calendar-header {
-    font-size: var(--font-sm);
+    font-size: var(--text-sm);
   }
 }
 
@@ -424,13 +419,13 @@
   }
 
   .calendar-day {
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     min-height: 40px;
   }
 
   .calendar-header {
     gap: 0.25rem;
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
   }
 
   .calendar-legend {
@@ -439,7 +434,7 @@
 
   .calendar-legend-item,
   .legend-item {
-    font-size: var(--font-sm);
+    font-size: var(--text-sm);
   }
 }
 
@@ -455,7 +450,7 @@
 
   .behavior-badge {
     padding: 0.375rem 0.75rem;
-    font-size: var(--font-sm);
+    font-size: var(--text-sm);
   }
 
   .behavior-meta {
@@ -464,12 +459,12 @@
   }
 
   .calendar-day {
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     min-height: 36px;
   }
 
   .calendar-header {
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
   }
 
   .calendar-legend {
@@ -479,7 +474,7 @@
 
   .placeholder-content {
     padding: 2rem 1rem;
-    font-size: var(--font-sm);
+    font-size: var(--text-sm);
   }
 }
 
@@ -488,7 +483,7 @@
   .parent-stats-grid,
   .result-stats { grid-template-columns: 1fr; }
   .children-tabs { gap: 0.25rem; }
-  .child-tab { padding: 0.35rem 0.6rem; font-size: 0.75rem; }
+
 }
 
 /* Touch devices - enhance tap targets */
@@ -571,19 +566,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: var(--text-title);
     font-weight: 800;
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .student-meta h3 {
     margin: 0;
-    font-size: 1.125rem;
+    font-size: var(--text-title);
     font-weight: 700;
 }
 
 .student-id-tag {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     opacity: 0.9;
     margin: 2px 0 0 0;
 }
@@ -598,7 +593,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 600;
 }
 
@@ -621,14 +616,14 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     color: #64748b;
     text-transform: uppercase;
     margin-bottom: 8px;
 }
 
-.section-title .material-symbols-rounded { font-size: 1rem; }
+.section-title .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* Subject Tags */
 .subject-tags {
@@ -642,7 +637,7 @@
     color: #475569;
     padding: 4px 12px;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 500;
 }
 
@@ -660,15 +655,15 @@
 .lesson-status {
     background: #0ea5e9;
     color: white;
-    font-size: 0.65rem;
+    font-size: var(--text-caption);
     font-weight: 900;
     padding: 4px 6px;
     border-radius: 4px;
 }
 
-.lesson-name { font-weight: 600; font-size: 0.9rem; margin: 0; }
-.lesson-time { font-size: 0.75rem; color: #64748b; margin: 0; }
-.next-up { font-size: 0.75rem; color: #94a3b8; margin-top: 6px; }
+.lesson-name { font-weight: 600; font-size: var(--text-body); margin: 0; }
+.lesson-time { font-size: var(--text-caption); color: #64748b; margin: 0; }
+.next-up { font-size: var(--text-caption); color: #94a3b8; margin-top: 6px; }
 
 /* Finance */
 .financial-brief {
@@ -680,7 +675,7 @@
 .financial-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     margin-bottom: 4px;
 }
 
@@ -704,7 +699,7 @@
     border-radius: var(--radius-sm);
     text-decoration: none;
     color: #2563eb;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
 }
 
 /* Footer */
@@ -764,7 +759,7 @@
     right: -5px;
     background: var(--accent);
     color: white;
-    font-size: 0.6rem;
+    font-size: var(--text-caption);
     font-weight: 800;
     padding: 4px 6px;
     border-radius: 10px;
@@ -779,8 +774,8 @@
     backdrop-filter: blur(10px);
 }
 
-.hero-stat .label { display: block; font-size: 0.6rem; text-transform: uppercase; opacity: 0.7; }
-.hero-stat .value { font-size: 1.25rem; font-weight: 800; }
+.hero-stat .label { display: block; font-size: var(--text-caption); text-transform: uppercase; opacity: 0.7; }
+.hero-stat .value { font-size: var(--text-title); font-weight: 800; }
 
 /* --- Subject Styling --- */
 .subject-cell {
@@ -830,7 +825,7 @@
 .teacher-tag {
     display: block;
     text-align: center;
-    font-size: 0.5625rem;
+    font-size: var(--text-caption);
     background: var(--primary);
     color: white;
     border-radius: 4px;
@@ -848,7 +843,7 @@
 
 .stream-bubble .time {
     display: block;
-    font-size: 0.6rem;
+    font-size: var(--text-caption);
     color: var(--muted-foreground);
     margin-top: 8px;
 }
@@ -860,14 +855,14 @@
     color: #92400e;
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     display: flex;
     align-items: center;
     gap: 5px;
 }
 
-.achievement-pill .material-symbols-rounded { font-size: 0.875rem; }
+.achievement-pill .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* --- Achievements Grid --- */
 .achievements-grid {
@@ -894,15 +889,15 @@
     justify-content: center;
     flex-shrink: 0;
 }
-.achievement-icon .material-symbols-rounded { font-size: 1.125rem; }
+.achievement-icon .material-symbols-rounded { font-size: var(--icon-sm); }
 .achievement-title {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     font-weight: 600;
     color: var(--foreground);
     margin: 0;
 }
 .achievement-date {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--muted-foreground);
     margin: 0.1rem 0 0;
 }
@@ -922,7 +917,7 @@
     border-radius: 999px;
     border: 1px solid var(--border);
     background: transparent;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 500;
     color: var(--muted-foreground);
     cursor: pointer;
@@ -943,7 +938,7 @@
     color: var(--muted-foreground);
     border-radius: 999px;
     padding: 0 0.35rem;
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     min-width: 18px;
     text-align: center;
@@ -1008,7 +1003,7 @@
 .assessment-icon.group { background: var(--success-light); color: var(--success); }
 
 .assessment-info { flex: 1; }
-.assessment-score { font-weight: 700; font-size: var(--font-base); }
+.assessment-score { font-weight: 700; font-size: var(--text-body); }
 
 /* Teacher Review Bubble */
 .review-timeline {
@@ -1067,7 +1062,7 @@
     padding: 0.85rem 1rem;
     text-decoration: none;
     color: var(--text-color);
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     font-weight: 500;
     border-radius: var(--radius-sm);
     transition: all 0.2s;
@@ -1103,7 +1098,7 @@
 .settings-card-header h3 {
     color: #fff;
     margin: 0;
-    font-size: 1.125rem;
+    font-size: var(--text-title);
 }
 
 /* Form Styling */
@@ -1124,7 +1119,7 @@
     justify-content: center;
     border-radius: 50%;
     font-weight: 700;
-    font-size: 1.25rem;
+    font-size: var(--text-title);
 }
 
 .form-row {
@@ -1136,7 +1131,7 @@
 
 .form-group label {
     display: block;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 700;
     text-transform: uppercase;
     color: var(--text-muted);
@@ -1181,7 +1176,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: var(--text-body);
     font-weight: 600;
 }
 
@@ -1191,7 +1186,7 @@
 }
 
 .child-brief .id-tag {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--text-muted);
     margin: 0;
 }
@@ -1238,7 +1233,7 @@
     border-bottom: 1px solid var(--border);
 }
 .pmsg-conv-header h2 {
-    font-size: 1rem;
+    font-size: var(--text-body);
     font-weight: 700;
     margin: 0;
 }
@@ -1251,13 +1246,13 @@
     border-bottom: 1px solid var(--border);
     color: var(--muted-foreground);
 }
-.pmsg-search .material-symbols-rounded { font-size: 1.125rem; flex-shrink: 0; }
+.pmsg-search .material-symbols-rounded { font-size: var(--icon-sm); flex-shrink: 0; }
 .pmsg-search-input {
     flex: 1;
     border: none;
     outline: none;
     background: transparent;
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     color: var(--foreground);
 }
 .pmsg-search-input::placeholder { color: var(--muted-foreground); }
@@ -1272,7 +1267,7 @@
     padding: 0.2rem 0.7rem;
     border: 1px solid var(--border);
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     background: transparent;
     cursor: pointer;
     color: var(--muted-foreground);
@@ -1315,7 +1310,7 @@
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     flex-shrink: 0;
 }
 .pmsg-online-dot {
@@ -1331,15 +1326,15 @@
 
 .pmsg-conv-body { flex: 1; min-width: 0; }
 .pmsg-conv-top  { display: flex; justify-content: space-between; align-items: baseline; gap: 0.25rem; }
-.pmsg-conv-name { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pmsg-conv-time { font-size: 0.7rem; color: var(--muted-foreground); flex-shrink: 0; }
-.pmsg-conv-sub  { font-size: 0.7rem; color: var(--muted-foreground); margin: 1px 0 2px; }
-.pmsg-conv-preview { font-size: 0.8rem; color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pmsg-conv-name { font-weight: 600; font-size: var(--text-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pmsg-conv-time { font-size: var(--text-caption); color: var(--muted-foreground); flex-shrink: 0; }
+.pmsg-conv-sub  { font-size: var(--text-caption); color: var(--muted-foreground); margin: 1px 0 2px; }
+.pmsg-conv-preview { font-size: var(--text-sm); color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .pmsg-unread-badge {
     background: var(--parent, #7c3aed);
     color: white;
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     border-radius: 999px;
     padding: 1px 6px;
@@ -1367,13 +1362,13 @@
 .pmsg-thread-info { flex: 1; min-width: 0; }
 .pmsg-thread-name {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: var(--text-body);
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
-.pmsg-online-label { font-size: 0.7rem; color: #22c55e; font-weight: 500; }
-.pmsg-thread-role  { font-size: 0.75rem; color: var(--muted-foreground); }
+.pmsg-online-label { font-size: var(--text-caption); color: #22c55e; font-weight: 500; }
+.pmsg-thread-role  { font-size: var(--text-caption); color: var(--muted-foreground); }
 .pmsg-thread-actions { display: flex; gap: 0.375rem; }
 .pmsg-action-btn {
     width: 34px;
@@ -1389,7 +1384,7 @@
     transition: all 0.15s;
 }
 .pmsg-action-btn:hover { background: var(--muted); color: var(--foreground); }
-.pmsg-action-btn .material-symbols-rounded { font-size: 1.125rem; }
+.pmsg-action-btn .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* Messages scroll area */
 .pmsg-thread-body {
@@ -1412,7 +1407,7 @@
     border-radius: 50%;
     background: var(--parent-av-bg, #7c3aed);
     color: white;
-    font-size: 0.65rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -1423,7 +1418,7 @@
     max-width: 68%;
     padding: 0.65rem 0.9rem;
     border-radius: 14px;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     line-height: 1.5;
     position: relative;
 }
@@ -1439,7 +1434,7 @@
 }
 .pmsg-time {
     display: block;
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     margin-top: 4px;
     opacity: 0.65;
 }
@@ -1458,7 +1453,7 @@
     border: 1px solid var(--border);
     border-radius: 999px;
     padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     outline: none;
     background: var(--muted);
     color: var(--foreground);
@@ -1485,45 +1480,31 @@
     flex-wrap: wrap;
 }
 .child-switcher-label {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--muted-foreground);
     font-weight: 500;
     margin-right: 0.25rem;
 }
-.child-tab {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: transparent;
-    cursor: pointer;
-    font-size: 0.8rem;
-    color: var(--foreground);
-    transition: background 0.15s, border-color 0.15s;
-}
-.child-tab:hover { background: var(--muted); }
-.child-tab.active {
-    background: var(--parent-light, #ede9fe);
-    border-color: var(--parent, #7c3aed);
-    color: var(--parent, #7c3aed);
-    font-weight: 600;
-}
+
+
+
+/* .child-tab is now defined in components.css alongside the other
+   controls that do this job, so the whole family is edited in one place. */
+
 .child-tab-avatar {
     width: 22px;
     height: 22px;
     border-radius: 50%;
     background: var(--parent, #7c3aed);
     color: white;
-    font-size: 0.65rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .child-tab-name { font-weight: 500; }
-.child-tab-grade { opacity: 0.6; font-size: 0.8rem; }
+.child-tab-grade { opacity: 0.6; font-size: var(--text-sm); }
 
 /* ── Quick Stats Grid ─────────────────────────────────────────────────────── */
 .quick-stats-grid {
@@ -1558,20 +1539,20 @@
     background: rgba(255,255,255,0.25);
     color: white;
     font-weight: 700;
-    font-size: 1.125rem;
+    font-size: var(--text-title);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 .conduct-hero-name {
-    font-size: 1.05rem;
+    font-size: var(--text-title);
     font-weight: 700;
     margin: 0;
     color: white;
 }
 .conduct-hero-sub {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     opacity: 0.85;
     margin: 0.15rem 0 0;
     color: white;
@@ -1588,13 +1569,13 @@
     gap: 0.15rem;
 }
 .conduct-stat .label {
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     opacity: 0.75;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
 .conduct-stat .value {
-    font-size: 1.4rem;
+    font-size: var(--text-display);
     font-weight: 800;
     color: white;
 }
@@ -1603,12 +1584,12 @@
 @media (max-width: 600px) {
     .conduct-hero { flex-direction: column; align-items: flex-start; }
     .conduct-hero-stats { gap: 1rem; }
-    .conduct-stat .value { font-size: 1.125rem; }
+    .conduct-stat .value { font-size: var(--text-title); }
 }
 
 .legend-color.holiday { background-color: var(--muted); }
 .badge-accent { background: var(--accent-light); color: var(--accent); font-weight: 700; }
-.icon-14 { font-size: 0.875rem !important; }
+.icon-14 { font-size: var(--icon-sm) !important; }
 
 /* ===============================================
    PARENT ANNOUNCEMENTS PAGE
@@ -1644,15 +1625,15 @@
 }
 .pann-stat-icon .material-symbols-rounded {
     color: var(--stat-color);
-    font-size: 1.2rem;
+    font-size: var(--icon-md);
 }
 .pann-stat-value {
-    font-size: 1.4rem;
+    font-size: var(--text-display);
     font-weight: 700;
     line-height: 1.1;
 }
 .pann-stat-label {
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     color: var(--muted-foreground);
     margin-top: 2px;
 }
@@ -1672,7 +1653,7 @@
     border: 1.5px solid var(--border);
     background: #fff;
     color: var(--foreground);
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 400;
     cursor: pointer;
     transition: all 0.15s;
@@ -1684,7 +1665,7 @@
     font-weight: 600;
 }
 .pann-chip-count {
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 600;
     background: var(--muted);
     color: var(--muted-foreground);
@@ -1704,12 +1685,12 @@
     border: 1px solid var(--border);
     background: #fff;
     color: var(--primary);
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 500;
     cursor: pointer;
 }
 .pann-markall-btn .material-symbols-rounded {
-    font-size: 1rem;
+    font-size: var(--icon-sm);
 }
 
 /* Empty-state icon */
@@ -1748,7 +1729,7 @@
 }
 .pann-card-icon .material-symbols-rounded {
     color: var(--cat-text);
-    font-size: 1.125rem;
+    font-size: var(--icon-sm);
 }
 .pann-card-body {
     flex: 1;
@@ -1762,7 +1743,7 @@
     margin-bottom: 0.35rem;
 }
 .pann-cat-badge {
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     letter-spacing: 0.06em;
     background: var(--cat-badge);
@@ -1772,7 +1753,7 @@
     text-transform: uppercase;
 }
 .pann-meta-text {
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     color: var(--muted-foreground);
 }
 .pann-unread-dot {
@@ -1785,7 +1766,7 @@
 }
 .pann-card-title {
     margin: 0 0 0.35rem;
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     font-weight: 700;
     color: var(--foreground);
     line-height: 1.3;
@@ -1795,7 +1776,7 @@
 }
 .pann-card-content {
     margin: 0 0 0.6rem;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     color: var(--muted-foreground);
     line-height: 1.55;
 }
@@ -1807,12 +1788,12 @@
     gap: 0.5rem;
 }
 .pann-card-author {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--muted-foreground);
     font-style: italic;
 }
 .pann-mark-btn {
-    font-size: 0.75rem;
+    font-size: var(--text-caption);
     padding: 0.2rem 0.65rem;
     border-radius: 6px;
     border: 1px solid var(--cat-border);
@@ -1825,7 +1806,7 @@
     font-weight: 500;
 }
 .pann-mark-btn .material-symbols-rounded {
-    font-size: 0.85rem;
+    font-size: var(--icon-sm);
 }
 
 /* ===============================================
@@ -1860,15 +1841,15 @@
 }
 .pchild-consent-title {
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: var(--text-body);
 }
 .pchild-consent-sub {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--muted-foreground);
     margin-top: 0.15rem;
 }
 .pchild-consent-desc {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     margin: 0.5rem 0 0.75rem;
 }
 .pchild-consent-children {
@@ -1883,12 +1864,12 @@
     flex-wrap: wrap;
 }
 .pchild-consent-name {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     font-weight: 500;
     min-width: 140px;
 }
 .pchild-consent-status {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     font-weight: 600;
     display: inline-flex;
     align-items: center;
@@ -1896,7 +1877,7 @@
     color: var(--pchild-status);   /* data-driven via inline custom prop */
 }
 .pchild-status-icon {
-    font-size: 1rem;
+    font-size: var(--icon-sm);
 }
 .pchild-consent-actions {
     display: flex;
@@ -1930,7 +1911,7 @@
     border-radius: 50%;
     background: var(--parent, #7c3aed);
     color: #fff;
-    font-size: 0.65rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -1940,7 +1921,7 @@
 
 /* Label beside the coloured .dot in .status-indicator */
 .status-text {
-    font-size: 0.7rem;
+    font-size: var(--text-caption);
     font-weight: 600;
     color: var(--muted-foreground);
     text-transform: capitalize;
@@ -1955,7 +1936,7 @@
 
 /* Record-type cell in the recent-activity table */
 .type-submission {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--muted-foreground);
     white-space: nowrap;
 }

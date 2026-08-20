@@ -3,7 +3,7 @@ import { renderWithRouter, screen, fireEvent, waitFor, setSessionUser } from '..
 import { DosDashboard } from './DosDashboard'
 import {
   getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade,
-  getDosWeeklyTrend, getDosTasks, createDosTask, updateDosTask,
+  getDosWeeklyTrend, getDosTasks, createDosTask, updateDosTask, deleteDosTask,
 } from '../../api/dos'
 
 vi.mock('../../api/dos', () => ({
@@ -14,6 +14,7 @@ vi.mock('../../api/dos', () => ({
   getDosTasks: vi.fn(),
   createDosTask: vi.fn(),
   updateDosTask: vi.fn(),
+  deleteDosTask: vi.fn(),
   // The welcome banner names the school, so the page reads school settings.
   getSchoolSettings: vi.fn().mockResolvedValue({ school_name: 'Imboni Academy' }),
 }))
@@ -145,6 +146,71 @@ describe('DosDashboard', () => {
     renderWithRouter(<DosDashboard />)
 
     await waitFor(() => expect(screen.getByText('No tasks yet. Click Add to create one.')).toBeInTheDocument())
+  })
+
+  it('deletes a single task and drops it from the list', async () => {
+    setupHappyPath()
+    deleteDosTask.mockResolvedValue({})
+    renderWithRouter(<DosDashboard />)
+
+    await waitFor(() => expect(screen.getByText('Review timetable')).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: 'Delete "Review timetable"' }))
+
+    await waitFor(() => expect(deleteDosTask).toHaveBeenCalledWith(1))
+    await waitFor(() => expect(screen.queryByText('Review timetable')).not.toBeInTheDocument())
+  })
+
+  it('puts the task back when the delete fails', async () => {
+    setupHappyPath()
+    deleteDosTask.mockRejectedValue(new Error('network'))
+    renderWithRouter(<DosDashboard />)
+
+    await waitFor(() => expect(screen.getByText('Review timetable')).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: 'Delete "Review timetable"' }))
+
+    await waitFor(() => expect(deleteDosTask).toHaveBeenCalled())
+    // Optimistic removal must be undone — the row is still on the server.
+    await waitFor(() => expect(screen.getByText('Review timetable')).toBeInTheDocument())
+  })
+
+  it('clears only the completed tasks, after confirming', async () => {
+    setupHappyPath()
+    deleteDosTask.mockResolvedValue({})
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    renderWithRouter(<DosDashboard />)
+
+    await waitFor(() => expect(screen.getByText('Sign reports')).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: /Clear done/ }))
+
+    await waitFor(() => expect(deleteDosTask).toHaveBeenCalledWith(2))
+    expect(deleteDosTask).toHaveBeenCalledTimes(1)              // the pending one is untouched
+    await waitFor(() => expect(screen.queryByText('Sign reports')).not.toBeInTheDocument())
+    expect(screen.getByText('Review timetable')).toBeInTheDocument()
+    confirmSpy.mockRestore()
+  })
+
+  it('deletes nothing when the clear confirmation is declined', async () => {
+    setupHappyPath()
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    renderWithRouter(<DosDashboard />)
+
+    await waitFor(() => expect(screen.getByText('Sign reports')).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: /Clear done/ }))
+
+    expect(deleteDosTask).not.toHaveBeenCalled()
+    expect(screen.getByText('Sign reports')).toBeInTheDocument()
+    confirmSpy.mockRestore()
+  })
+
+  it('hides "Clear done" when no task is completed', async () => {
+    setupHappyPath()
+    getDosTasks.mockResolvedValue([
+      { id: 1, title: 'Review timetable', priority: 'high', is_completed: false, due_date: null },
+    ])
+    renderWithRouter(<DosDashboard />)
+
+    await waitFor(() => expect(screen.getByText('Review timetable')).toBeInTheDocument())
+    expect(screen.queryByRole('button', { name: /Clear done/ })).not.toBeInTheDocument()
   })
 
   it('shows a "Load more" button for recent activity when has_more is true, and loads the next page', async () => {

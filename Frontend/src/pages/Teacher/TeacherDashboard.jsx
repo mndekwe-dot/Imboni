@@ -10,6 +10,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { classLabel } from '../../utils/classes'
+import { toList } from '../../api/client'
 import { formatDate } from '../../utils/date'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import {
@@ -256,7 +257,7 @@ export function TeacherDashboard() {
         ]).then(([s, sched, taskList, perf, act]) => {
             setStats(s)
             setSchedule(Array.isArray(sched) ? sched : [])
-            setTasks(Array.isArray(taskList) ? taskList : [])
+            setTasks(toList(taskList))
             setPerformance(Array.isArray(perf) ? perf : [])
             if (act && !act._error) {
                 setActivities(act.results || [])

@@ -13,7 +13,12 @@ vi.mock('./client', () => ({
 }))
 
 // Must mirror auth.js — the local .env can override the API base (e.g. port 8001)
-const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+// Mirror auth.js exactly: an empty VITE_API_BASE means "same origin" and is a
+// deliberate setting, not an absent one. `||` collapsed that distinction and
+// kept asserting the absolute localhost URL after .env set it empty.
+const BASE = import.meta.env.VITE_API_BASE === undefined
+    ? 'http://localhost:8000'
+    : import.meta.env.VITE_API_BASE
 
 describe('auth api', () => {
   beforeEach(() => {

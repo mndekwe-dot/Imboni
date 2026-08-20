@@ -53,18 +53,18 @@
 .u-muted       { color: var(--muted-foreground); }
 .u-strong      { font-weight: 600; }
 .u-bold        { font-weight: 700; }
-.u-sm          { font-size: 0.875rem; }
-.u-xs          { font-size: 0.8rem; }
-.u-lg          { font-size: 1.125rem; }
-.u-xl          { font-size: 1.35rem; }
+.u-sm          { font-size: var(--text-sm); }
+.u-xs          { font-size: var(--text-sm); }
+.u-lg          { font-size: var(--text-title); }
+.u-xl          { font-size: var(--text-display); }
 .u-danger      { color: var(--danger, #dc2626); }
 .u-center-text { text-align: center; }
 .u-text-right  { text-align: right; }
 .u-capitalize  { text-transform: capitalize; }
-.u-label       { font-size: 0.8rem; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; }
+.u-label       { font-size: var(--text-sm); color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; }
 
 /* ── Chips (status pills) ───────────────────────────────────────────────────── */
-.u-chip           { display: inline-block; padding: 0.28rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.u-chip           { display: inline-block; padding: 0.28rem 0.7rem; border-radius: 999px; font-size: var(--text-sm); font-weight: 600; }
 .u-chip--primary  { background: var(--primary-light); color: var(--primary); }
 .u-chip--success  { background: rgba(22, 163, 74, 0.12); color: var(--success, #16a34a); }
 .u-chip--warn     { background: rgba(217, 119, 6, 0.14); color: #d97706; }
@@ -75,7 +75,7 @@
 .u-banner--warn    { --u-accent: #d97706; }
 .u-banner--danger  { --u-accent: var(--danger, #dc2626); }
 .u-banner--primary { --u-accent: var(--primary); }
-.u-banner-icon     { color: var(--u-accent); font-size: 1.5rem; }
+.u-banner-icon     { color: var(--u-accent); font-size: var(--icon-lg); }
 
 /* ── Meter / progress bar ───────────────────────────────────────────────────── */
 .u-meter        { height: 8px; border-radius: 999px; background: var(--muted, rgba(0, 0, 0, 0.08)); overflow: hidden; }
@@ -85,17 +85,17 @@
 .u-meter-fill.unlimited { background: var(--primary-light); }
 
 /* ── Misc ───────────────────────────────────────────────────────────────────── */
-.u-icon-sm    { font-size: 1.125rem; }
+.u-icon-sm    { font-size: var(--icon-sm); }
 .u-empty-icon { font-size: 2.2rem; display: block; margin-bottom: 0.5rem; }
 .u-pointer    { cursor: pointer; }
 
 /* ── Exact-value helpers (for otherwise-inline one-offs) ───────────────────── */
-.u-fs-1    { font-size: 1rem; }
-.u-fs-095  { font-size: 0.95rem; }
-.u-fs-085  { font-size: 0.85rem; }
-.u-fs-075  { font-size: 0.75rem; }
-.u-fs-068  { font-size: 0.7rem; }
-.u-fs-15   { font-size: 1.5rem; }
+.u-fs-1    { font-size: var(--text-body); }
+.u-fs-095  { font-size: var(--text-body); }
+.u-fs-085  { font-size: var(--text-sm); }
+.u-fs-075  { font-size: var(--text-caption); }
+.u-fs-068  { font-size: var(--text-caption); }
+.u-fs-15   { font-size: var(--text-display); }
 .u-fw-400  { font-weight: 400; }
 .u-mb-05   { margin-bottom: 0.5rem; }
 .u-mb-025  { margin-bottom: 0.25rem; }
@@ -112,3 +112,37 @@
 .u-col-span-all { grid-column: 1 / -1; }
 .u-bg-accent   { background: var(--accent); }
 .u-empty-icon-lg { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+
+/* ===============================================
+   FOCUS — accessibility floor
+
+   index.css already sets `*:focus-visible`, but 34 rules across
+   the stylesheets set `outline: none` on inputs and buttons in
+   favour of a border/box-shadow ring. Those selectors are more
+   specific than a bare `*`, so a keyboard user tabbing through
+   DOS could lose the indicator entirely on search boxes, the
+   message composer and every `.form-control`.
+
+   utilities.css is the last file main.jsx imports, and !important
+   here is deliberate: a focus ring is not a design choice a
+   component gets to override. Pointer focus is left clean, so
+   clicking a field still does not draw a box around it.
+   =============================================== */
+
+*:focus-visible {
+  outline: 2px solid var(--ring, #1657a0) !important;
+  outline-offset: 2px !important;
+  border-radius: inherit;
+}
+
+/* On a dark surface the blue ring disappears — use white there. Sidebar
+   and header are both dark in every portal, DOS included. */
+.sidebar *:focus-visible,
+.login-page *:focus-visible,
+.dashboard-header *:focus-visible {
+  outline-color: #ffffff !important;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}

@@ -14,7 +14,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   font-weight: 500;
   border-radius: var(--radius);
   border: none;
@@ -66,13 +66,13 @@
 
 .btn-sm {
   padding: 0.375rem 0.75rem;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   min-height: 36px;
 }
 
 .btn-lg {
   padding: 0.75rem 1.5rem;
-  font-size: var(--font-base);
+  font-size: var(--text-body);
 }
 
 .btn-block {
@@ -87,7 +87,7 @@
   background-color: var(--card);
   border: 1px solid var(--card-border);
   border-radius: calc(var(--radius) + 2px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--card-shadow);
   transition: box-shadow var(--transition-base);
   max-width: 100%;
   overflow: hidden;
@@ -113,7 +113,7 @@
 }
 
 .card-title {
-  font-size: var(--font-lg);
+  font-size: var(--text-title);
   font-weight: 600;
   margin-bottom: 0.25rem;
   word-wrap: break-word;
@@ -131,7 +131,7 @@
   border-radius: 999px;
   background: var(--muted);
   color: var(--muted-foreground);
-  font-size: 0.7rem;
+  font-size: var(--text-caption);
   font-weight: 700;
   line-height: 1.4;
 }
@@ -139,13 +139,13 @@
 /* Supporting line under a .card-title */
 .card-subtitle {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   line-height: 1.45;
   color: var(--muted-foreground);
 }
 
 .card-description {
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   color: var(--muted-foreground);
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -203,7 +203,7 @@
 }
 
 .stats-card-title {
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--muted-foreground);
   word-wrap: break-word;
@@ -211,13 +211,13 @@
 }
 
 .stats-card-value {
-  font-size: var(--font-2xl);
+  font-size: var(--text-display);
   font-weight: 700;
   color: var(--card-foreground);
 }
 
 .stats-card-change {
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   font-weight: 500;
 }
 
@@ -274,7 +274,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   font-weight: 500;
   background: none;
   border: none;
@@ -361,7 +361,7 @@ tr:hover td {
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.625rem;
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   font-weight: 600;
   border-radius: calc(var(--radius) - 2px);
   border: 1px solid transparent;
@@ -439,7 +439,7 @@ tr:hover td {
   width: 100%;
   max-width: 100%;
   padding: 0.5rem 0.75rem;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background-color: var(--card);
@@ -463,7 +463,7 @@ tr:hover td {
   width: 100%;
   max-width: 100%;
   padding: 0.5rem 2rem 0.5rem 0.75rem;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background-color: var(--card);
@@ -500,7 +500,7 @@ tr:hover td {
 }
 
 .form-label {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--foreground);
   text-transform: uppercase;
@@ -510,7 +510,7 @@ tr:hover td {
 /* Inline form validation / submit error message */
 .form-error-text {
   color: var(--destructive);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 /* ===============================================
@@ -533,10 +533,10 @@ tr:hover td {
   border-radius: var(--radius);
   background: var(--alert-bg);
   color: var(--alert-fg);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
 }
-.alert .material-symbols-rounded { font-size: 1.05rem; flex-shrink: 0; }
+.alert .material-symbols-rounded { font-size: var(--icon-sm); flex-shrink: 0; }
 
 .alert-danger  { --alert-fg: var(--destructive); --alert-bg: var(--destructive-light); --alert-border: rgba(239, 68, 68, 0.25); }
 .alert-success { --alert-fg: var(--success);     --alert-bg: var(--success-light);     --alert-border: rgba(22, 163, 74, 0.25); }
@@ -627,7 +627,7 @@ tr:hover td {
 }
 
 .schedule-item-time {
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   color: var(--muted-foreground);
 }
 
@@ -662,13 +662,13 @@ tr:hover td {
 .avatar-sm {
   width: 32px;
   height: 32px;
-  font-size: 0.75rem;
+  font-size: var(--text-caption);
 }
 
 .avatar-lg {
   width: 48px;
   height: 48px;
-  font-size: var(--font-lg);
+  font-size: var(--text-title);
 }
 
 .student-info-cell {
@@ -686,7 +686,7 @@ tr:hover td {
 }
 
 .student-id-text {
-  font-size: var(--font-xs);
+  font-size: var(--text-caption);
   color: var(--muted-foreground);
 }
 
@@ -845,10 +845,10 @@ tr:hover td {
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
 }
-.tt-modal-header .material-symbols-rounded { font-size: 1.2rem; color: var(--portal-accent, var(--primary)); }
+.tt-modal-header .material-symbols-rounded { font-size: var(--icon-md); color: var(--portal-accent, var(--primary)); }
 .tt-modal-title {
     flex: 1;
-    font-size: 1rem;
+    font-size: var(--text-body);
     font-weight: 700;
     color: var(--foreground);
     margin: 0;
@@ -872,7 +872,7 @@ tr:hover td {
 .tt-modal-close:hover,
 .modal-close:hover { background: var(--muted); color: var(--foreground); }
 .tt-modal-close .material-symbols-rounded,
-.modal-close .material-symbols-rounded { font-size: 1.125rem; }
+.modal-close .material-symbols-rounded { font-size: var(--icon-sm); }
 .tt-modal-body {
     padding: 1.25rem;
     overflow-y: auto;
@@ -892,7 +892,7 @@ tr:hover td {
     .tt-modal-body   { padding: 1rem; }
     .modal-footer-row { flex-wrap: wrap; gap: 0.5rem; }
     .modal-footer-hint { width: 100%; flex: none; order: -1; margin-bottom: 0.25rem; }
-    .modal-footer-row .btn { flex: 1; justify-content: center; font-size: 0.8rem; padding: 0.5rem 0.625rem; }
+    .modal-footer-row .btn { flex: 1; justify-content: center; font-size: var(--text-sm); padding: 0.5rem 0.625rem; }
 }
 
 /* ===============================================
@@ -973,7 +973,7 @@ tr:hover td {
   }
 
   .stats-card-value {
-    font-size: var(--font-xl);
+    font-size: var(--text-title);
   }
 
   .stats-card-icon {
@@ -990,7 +990,7 @@ tr:hover td {
 @media (max-width: 480px) {
   .tabs-trigger {
     padding: 0.625rem 0.75rem;
-    font-size: var(--font-sm);
+    font-size: var(--text-sm);
   }
 }
 
@@ -1004,11 +1004,11 @@ tr:hover td {
   th,
   td {
     padding: 0.75rem 0.375rem;
-    font-size: var(--font-sm);
+    font-size: var(--text-sm);
   }
 
   th {
-    font-size: var(--font-xs);
+    font-size: var(--text-caption);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -1060,12 +1060,12 @@ tr:hover td {
   /* Tables — tighter on ultra-small */
   th, td {
     padding: 0.5rem 0.35rem;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
   }
 
   .btn {
     padding: 0.5rem 0.875rem;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
   }
 }
 
@@ -1096,7 +1096,7 @@ tr:hover td {
   align-items: center;
   gap: 0.375rem;
   padding: 0.4rem 1rem;
-  font-size: var(--font-sm);
+  font-size: var(--text-sm);
   font-weight: 400;
   border: none;
   border-radius: 7px;
@@ -1139,9 +1139,9 @@ tr:hover td {
   pointer-events: none;
 }
 .welcome-banner-text  { position: relative; display: flex; flex-direction: column; gap: 4px; }
-.welcome-banner-greeting { font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
-.welcome-banner-role     { font-size: 0.85rem; opacity: 0.85; }
-.welcome-banner-extra    { font-size: 0.8rem; opacity: 0.8; margin-top: 4px; }
+.welcome-banner-greeting { font-size: var(--text-display); font-weight: 800; line-height: 1.2; }
+.welcome-banner-role     { font-size: var(--text-sm); opacity: 0.85; }
+.welcome-banner-extra    { font-size: var(--text-sm); opacity: 0.8; margin-top: 4px; }
 .welcome-banner-right {
   position: relative;
   display: flex;
@@ -1153,7 +1153,7 @@ tr:hover td {
   background: rgba(255,255,255,0.2);
   border-radius: 20px;
   padding: 0.5rem 1.1rem;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1198,15 +1198,15 @@ tr:hover td {
   background: var(--portal-accent-light, var(--primary-light));
   color: var(--portal-accent, var(--primary));
 }
-.portal-stat-icon .material-symbols-rounded { font-size: 1.4rem; }
-.portal-stat-icon.success { background: var(--success-light);      color: var(--success); }
-.portal-stat-icon.warning { background: rgba(245,158,11,0.12);     color: #f59e0b; }
-.portal-stat-icon.red     { background: var(--destructive-light);  color: var(--destructive); }
-.portal-stat-icon.info    { background: var(--info-light, rgba(59,130,246,0.1)); color: var(--info, #3b82f6); }
+.portal-stat-icon .material-symbols-rounded { font-size: var(--icon-lg); }
+.portal-stat-icon.success { background: var(--success-surface);    color: var(--success); }
+.portal-stat-icon.warning { background: var(--warning-surface);    color: var(--warning); }
+.portal-stat-icon.red     { background: var(--destructive-surface); color: var(--destructive); }
+.portal-stat-icon.info    { background: var(--info-surface);       color: var(--info); }
 
-.portal-stat-value  { font-size: 1.8rem; font-weight: 800; line-height: 1; margin-bottom: 2px; }
-.portal-stat-label  { font-size: 0.8rem; color: var(--muted-foreground); font-weight: 500; }
-.portal-stat-trend  { font-size: 0.7rem; margin-top: 3px; }
+.portal-stat-value  { font-size: var(--text-stat); font-weight: 800; line-height: 1; margin-bottom: 2px; }
+.portal-stat-label  { font-size: var(--text-sm); color: var(--muted-foreground); font-weight: 500; }
+.portal-stat-trend  { font-size: var(--text-caption); margin-top: 3px; }
 .portal-stat-trend.positive { color: var(--success); }
 .portal-stat-trend.negative { color: var(--destructive); }
 
@@ -1214,14 +1214,14 @@ tr:hover td {
   .portal-stat-grid { grid-template-columns: repeat(2, 1fr); gap: 0.625rem; }
   .portal-stat-card { padding: 0.75rem; gap: 0.625rem; }
   .portal-stat-icon { width: 34px; height: 34px; border-radius: var(--radius-sm); }
-  .portal-stat-icon .material-symbols-rounded { font-size: 1.125rem; }
-  .portal-stat-value { font-size: 1.3rem; }
-  .portal-stat-label { font-size: 0.7rem; }
-  .portal-stat-trend { font-size: 0.7rem; }
+  .portal-stat-icon .material-symbols-rounded { font-size: var(--icon-sm); }
+  .portal-stat-value { font-size: var(--text-title); }
+  .portal-stat-label { font-size: var(--text-caption); }
+  .portal-stat-trend { font-size: var(--text-caption); }
 }
 @media (max-width: 380px) {
   .portal-stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .portal-stat-value { font-size: 1.125rem; }
+  .portal-stat-value { font-size: var(--text-title); }
 }
 
 /* ── Modal ── */
@@ -1265,7 +1265,7 @@ tr:hover td {
 
 .modal-title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--text-title);
   font-weight: 700;
 }
 
@@ -1299,7 +1299,7 @@ tr:hover td {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   padding: 3px 8px 3px 10px;
   border-radius: 6px;
   background: var(--muted);
@@ -1308,23 +1308,23 @@ tr:hover td {
 }
 .tag-chip-portal { background: var(--primary-light, rgba(0,61,122,0.08)); color: var(--primary); }
 .tag-chip-remove { border: none; background: none; cursor: pointer; color: var(--muted-foreground); display: flex; padding: 0; }
-.tag-chip-remove .material-symbols-rounded { font-size: 0.9rem; }
-.tag-chip-empty  { font-size: 0.8rem; color: var(--muted-foreground); font-style: italic; }
+.tag-chip-remove .material-symbols-rounded { font-size: var(--icon-sm); }
+.tag-chip-empty  { font-size: var(--text-sm); color: var(--muted-foreground); font-style: italic; }
 
 /* Config section blocks */
 .settings-block            { margin-bottom: 1.5rem; }
 .settings-block-label      { margin-bottom: 0.5rem; }
-.settings-block-title      { font-weight: 600; font-size: 0.9rem; margin: 0; }
-.settings-block-desc       { font-size: 0.8rem; color: var(--muted-foreground); margin: 0.1rem 0 0; }
+.settings-block-title      { font-weight: 600; font-size: var(--text-body); margin: 0; }
+.settings-block-desc       { font-size: var(--text-sm); color: var(--muted-foreground); margin: 0.1rem 0 0; }
 .settings-block-input-row  { display: flex; gap: 0.5rem; }
-.settings-info-text        { font-size: 0.8rem; color: var(--muted-foreground); }
+.settings-info-text        { font-size: var(--text-sm); color: var(--muted-foreground); }
 .settings-border-section   { margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem; }
-.settings-border-title     { font-weight: 600; font-size: 0.9rem; margin-bottom: 1rem; }
+.settings-border-title     { font-weight: 600; font-size: var(--text-body); margin-bottom: 1rem; }
 .settings-save-row         { padding-top: 0.75rem; }
 
 /* Cloud auto-save indicator */
 .cloud-save-row  { padding-top: 0.75rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.375rem; }
-.cloud-save-icon { font-size: 1rem !important; color: var(--success, #16a34a); }
+.cloud-save-icon { font-size: var(--icon-sm) !important; color: var(--success, #16a34a); }
 
 /* Section toolbar row (filter bar + action button) */
 .section-toolbar-row {
@@ -1337,16 +1337,16 @@ tr:hover td {
 }
 
 /* Confirm / destructive inline text */
-.remove-confirm-text { font-size: 0.8rem; color: var(--muted-foreground); }
+.remove-confirm-text { font-size: var(--text-sm); color: var(--muted-foreground); }
 
 /* Italic empty table cell */
-.td-italic-muted { color: var(--muted-foreground); font-style: italic; font-size: 0.85rem; }
+.td-italic-muted { color: var(--muted-foreground); font-style: italic; font-size: var(--text-sm); }
 
 /* Coming soon placeholder */
 .coming-soon       { text-align: center; padding: 2rem; color: var(--muted-foreground); }
 .coming-soon-icon  { font-size: 2.5rem; display: block; margin: 0 auto 0.5rem; }
 .coming-soon-title { font-weight: 600; margin: 0; }
-.coming-soon-desc  { font-size: 0.875rem; margin: 0.25rem 0 0; }
+.coming-soon-desc  { font-size: var(--text-sm); margin: 0.25rem 0 0; }
 
 /* Spacing utilities */
 .mb-0   { margin-bottom: 0 !important; }
@@ -1359,17 +1359,17 @@ tr:hover td {
 
 /* Confirm modal */
 .modal-confirm         { padding: 1.5rem; }
-.modal-confirm-title   { margin: 0 0 0.5rem; font-size: 1.05rem; }
-.modal-confirm-desc    { margin: 0 0 1.25rem; color: var(--muted-foreground); font-size: 0.875rem; }
+.modal-confirm-title   { margin: 0 0 0.5rem; font-size: var(--text-title); }
+.modal-confirm-desc    { margin: 0 0 1.25rem; color: var(--muted-foreground); font-size: var(--text-sm); }
 .modal-confirm-actions { display: flex; justify-content: flex-end; gap: 0.625rem; }
 .btn-destructive       { background: var(--destructive) !important; border-color: var(--destructive) !important; }
 .btn-saved             { color: var(--success) !important; border-color: var(--success) !important; }
 .btn-left              { justify-content: flex-start; }
-.select-xs             { font-size: var(--font-xs) !important; }
+.select-xs             { font-size: var(--text-caption) !important; }
 .fw-600                { font-weight: 600; }
 .input-140             { width: 140px; }
 .flex-1                { flex: 1; min-width: 0; }
-.section-heading       { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.875rem; }
+.section-heading       { font-size: var(--text-body); font-weight: 700; margin-bottom: 0.875rem; }
 
 /* Section config block (settings pages) */
 .sec-config-block {
@@ -1378,7 +1378,7 @@ tr:hover td {
   background: var(--muted);
   border-radius: var(--radius-sm);
 }
-.sec-config-block-title { font-weight: 700; font-size: 0.95rem; margin: 0 0 1rem; }
+.sec-config-block-title { font-weight: 700; font-size: var(--text-body); margin: 0 0 1rem; }
 
 /* Flex row helpers */
 .flex-row-gap   { display: flex; align-items: center; gap: 0.75rem; }
@@ -1394,8 +1394,8 @@ tr:hover td {
 .btn-destructive-outline { color: var(--destructive) !important; border-color: var(--destructive) !important; }
 
 /* Tab count badge (inside tab/filter buttons) */
-.tab-count { margin-left: 0.35rem; opacity: 0.75; font-size: 0.8rem; }
-.tab-count-sm { margin-left: 0.3rem; opacity: 0.7; font-size: 0.75rem; }
+.tab-count { margin-left: 0.35rem; opacity: 0.75; font-size: var(--text-sm); }
+.tab-count-sm { margin-left: 0.3rem; opacity: 0.7; font-size: var(--text-caption); }
 
 /* Vertical divider */
 .vdivider { width: 1px; height: 20px; background: var(--border); margin: 0 0.25rem; flex-shrink: 0; }
@@ -1410,8 +1410,8 @@ tr:hover td {
 /* ── Toggle switch (Account settings) ── */
 .notif-list { display: flex; flex-direction: column; gap: 1rem; }
 .notif-row  { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.notif-label { font-weight: 500; font-size: 0.9rem; }
-.notif-desc  { font-size: 0.8rem; color: var(--muted-foreground); }
+.notif-label { font-weight: 500; font-size: var(--text-body); }
+.notif-desc  { font-size: var(--text-sm); color: var(--muted-foreground); }
 .toggle-wrap { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
 .toggle-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
 .toggle-thumb { position: absolute; inset: 0; background: var(--primary); border-radius: 999px; cursor: pointer; }
@@ -1423,7 +1423,7 @@ tr:hover td {
 /* Rendered through a portal into <body>, so it is positioned against the
    viewport rather than the .cs-wrap ancestor. Select.jsx supplies top/left. */
 .cs-list--portal { position: fixed; top: auto; left: auto; }
-.cs-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem; white-space: nowrap; line-height: 1.4; }
+.cs-item { padding: 0.5rem 0.75rem; cursor: pointer; font-size: var(--text-sm); white-space: nowrap; line-height: 1.4; }
 .cs-item:hover { background: var(--accent); }
 .cs-item--selected { background: var(--primary); color: var(--primary-foreground); }
 
@@ -1443,7 +1443,7 @@ tr:hover td {
   align-items: center;
   gap: 0.4rem;
 }
-.tfa-lead    { color: var(--muted-foreground); font-size: 0.85rem; margin-bottom: 1rem; }
+.tfa-lead    { color: var(--muted-foreground); font-size: var(--text-sm); margin-bottom: 1rem; }
 .tfa-error   { color: var(--destructive); margin-bottom: 1rem; }
 .tfa-row     { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 .tfa-enabled {
@@ -1454,7 +1454,7 @@ tr:hover td {
   font-weight: 600;
 }
 .tfa-panel   { max-width: 360px; }
-.tfa-step    { font-size: 0.85rem; margin-bottom: 0.5rem; }
+.tfa-step    { font-size: var(--text-sm); margin-bottom: 0.5rem; }
 .tfa-step--strong { font-weight: 600; }
 .tfa-qr {
   background: #fff;
@@ -1462,7 +1462,7 @@ tr:hover td {
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
-.tfa-hint    { font-size: 0.8rem; color: var(--muted-foreground); margin: 0.5rem 0; }
+.tfa-hint    { font-size: var(--text-sm); color: var(--muted-foreground); margin: 0.5rem 0; }
 .tfa-codes {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1512,9 +1512,9 @@ tr:hover td {
   justify-content: center;
 }
 .empty-state-icon .material-symbols-rounded { font-size: 2.2rem; color: var(--primary); }
-.empty-state-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 8px; }
+.empty-state-title { font-weight: 700; font-size: var(--text-title); margin-bottom: 8px; }
 .empty-state-desc {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--muted-foreground);
   margin-bottom: 1.75rem;
   max-width: 340px;
@@ -1542,7 +1542,7 @@ tr:hover td {
 .modal-body--stack { display: flex; flex-direction: column; gap: 0.875rem; }
 
 /* Per-field validation message under an input. */
-.field-error { color: var(--destructive); font-size: 0.75rem; }
+.field-error { color: var(--destructive); font-size: var(--text-caption); }
 
 /* Form-group variants */
 .form-group--flush { margin-bottom: 0; }
@@ -1554,7 +1554,7 @@ tr:hover td {
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 /* Textareas */
@@ -1566,19 +1566,354 @@ tr:hover td {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   padding: 0.25rem 0.7rem;
   border-radius: 999px;
 }
-.offline-pill .material-symbols-rounded { font-size: 1rem; }
+.offline-pill .material-symbols-rounded { font-size: var(--icon-sm); }
 .offline-pill--offline { background: rgba(245, 158, 11, 0.12); color: #b45309; }
 .offline-pill--syncing { background: rgba(37, 99, 235, 0.1);   color: #2563eb; }
 
-/* Small trailing bits that had no rule of their own */
-.dt-ellipsis      { padding: 0 4px; color: var(--muted-foreground); font-size: 0.85rem; }
+/* ===============================================
+   FILTER TABS — the single definition
+
+   `.filter-tab` used to be declared three times, in student.css, teacher.css
+   and discipline.css, each with its own portal colour hard-coded in the
+   `.active` rule. Vite bundles every portal sheet into ONE stylesheet, so
+   those three were never scoped to their portal — the last one the bundler
+   emitted styled the filter tabs of all seven. DOS never declared it at all,
+   so the DOS results and scheduling tabs were being painted indigo by the
+   discipline portal, at whatever size the winning sheet happened to use.
+
+   One definition here, with the active state reading --portal-accent, which
+   usePortalTheme now scopes per portal. Every portal gets its own colour
+   without any of them owning the rule.
+   =============================================== */
+
+.filter-tabs-bar {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
 .filter-tabs-bar--spaced { margin-bottom: 1.25rem; }
-.badge-amber      { background: rgba(245, 158, 11, 0.15); color: #b45309; font-size: 0.7rem; padding: 1px 7px; margin-left: 4px; }
+
+.filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.4rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full, 999px);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font-size: var(--text-sm, 0.8rem);
+  font-weight: 500;
+  font-family: inherit;   /* a bare <button> otherwise falls back to the UA font */
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast);
+}
+
+.filter-tab:hover:not(.active) {
+  background: var(--muted);
+  border-color: var(--border-hover);
+}
+
+.filter-tab.active {
+  background: var(--portal-accent, var(--primary));
+  border-color: var(--portal-accent, var(--primary));
+  color: #fff;
+}
+
+/* Count badge inside a tab; legible on both the resting and active surface. */
+.filter-tab .badge {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  padding: 1px 6px;
+  border-radius: var(--radius-full, 999px);
+  font-size: var(--text-caption, 0.7rem);
+  margin-left: 0;
+}
+.filter-tab.active .badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* Small trailing bits that had no rule of their own */
+.dt-ellipsis      { padding: 0 4px; color: var(--muted-foreground); font-size: var(--text-sm); }
+.badge-amber      { background: rgba(245, 158, 11, 0.15); color: #b45309; font-size: var(--text-caption); padding: 1px 7px; margin-left: 4px; }
 /* Item is clickable (AnnouncementItem.jsx) */
 .is-clickable     { cursor: pointer; }
-.tabs-trigger .tab-icon, .tab-icon { font-size: 1rem; }
+.tabs-trigger .tab-icon, .tab-icon { font-size: var(--icon-sm); }
+
+/* ===============================================
+   PAGINATION BAR
+   Shared by DosAttendance, DosResults and StudentResults; rendered by
+   components/ui/PaginationBar.jsx.
+
+   Moved here from dos.css, where it also referenced three tokens that are
+   defined nowhere in the project: --text-muted, --text and --bg-muted. An
+   unresolvable var() makes the whole declaration invalid, so the summary line
+   and the buttons simply inherited their colour and the hover state did
+   nothing at all. Mapped onto the real tokens below.
+   =============================================== */
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+.pagination-info {
+  font-size: var(--text-sm, 0.8rem);
+  color: var(--muted-foreground);
+}
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+.pagination-btn:hover:not(:disabled) {
+  background: var(--muted);
+  border-color: var(--border-hover);
+}
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.pagination-btn .material-symbols-rounded {
+  font-size: var(--icon-sm, 1.125rem);
+}
+
+
+/* ===============================================================
+   SHARED CONTROL VOCABULARY  —  EDIT CONTROLS HERE, NOWHERE ELSE
+
+   Every control below was previously written once per portal, with small
+   accidental differences each time: a chip was `.3rem .85rem` in DOS,
+   `.25rem .75rem` in Admin, `.3rem .8rem` in the shared pages sheet; a stat
+   card had four separate definitions with three different corner radii. None
+   of those copies were scoped to their portal either — Vite bundles all seven
+   stylesheets into one file, so whichever copy the bundler emitted last styled
+   every portal at once.
+
+   The legacy class names are kept as aliases on the canonical selectors, so no
+   markup had to change. Adding a name to a group here is how a new control
+   joins the system. Change a value here and every portal follows.
+
+   Active states read --portal-accent, which usePortalTheme scopes per portal,
+   so each portal keeps its own colour without owning the rule.
+   =============================================================== */
+
+/* The row that holds them. Was defined twice — pages.css with flex-wrap and
+   dos.css without — and since both are unscoped and land in different chunks,
+   whichever loaded last decided whether the pills could wrap. The no-wrap copy
+   was winning, so the fourth pill ran off the edge of the card. */
+.ann-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ── A LIST IS ONE BOX, NOT N BOXES ─────────────────────────────
+   Where rows repeat, the border belongs to the container and the rows get a
+   divider. Giving every row its own full border stacks outlines 2px apart down
+   the page and reads as a pile of separate objects rather than one list.
+
+   Cards are the exception and keep their own borders — a card is a discrete
+   object, a row is a member of a set.
+
+   Apply by putting this on the wrapper; rows inside need only padding. */
+.u-framed-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  overflow: hidden;
+}
+.u-framed-list > * { border-bottom: 1px solid var(--border); }
+.u-framed-list > *:last-child { border-bottom: none; }
+
+/* ── DELETE A ROW ───────────────────────────────────────────────
+   The destructive action on a list row (task lists on the DOS and Discipline
+   dashboards). Held back until the row is hovered or the button focused, so a
+   list of ten items is not a wall of bins — but it stays reachable by keyboard,
+   and always visible on touch, where there is no hover to reveal it. */
+.task-del-btn {
+  flex-shrink: 0;
+  opacity: 0;
+  color: var(--muted-foreground);
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+.dos-task-item:hover .task-del-btn,
+.dis-task-item:hover .task-del-btn,
+.task-del-btn:focus-visible { opacity: 1; }
+.task-del-btn:hover { color: var(--destructive); }
+
+@media (hover: none) {
+  .task-del-btn { opacity: 1; }
+}
+
+/* ── PICK ONE FROM A SET ────────────────────────────────────────
+   Filter tabs, category pills, mode toggles, class chips. Anything where
+   clicking selects and the selection is visible. Canonical: .filter-tab
+   (defined above) — these are its aliases. */
+.att-mode-btn,
+.ann-filter-pill,
+.es-class-chip-btn,
+.filter-chip,
+.child-tab,
+.ann-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.4rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full, 999px);
+  background: var(--card);
+  color: var(--muted-foreground);
+  font-size: var(--text-sm, 0.8rem);
+  font-weight: 500;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast);
+}
+
+.att-mode-btn:hover:not(.active),
+.ann-filter-pill:hover:not(.active),
+.es-class-chip-btn:hover:not(.active),
+.filter-chip:hover:not(.active),
+.child-tab:hover:not(.active),
+.ann-chip:hover:not(.active) {
+  background: var(--muted);
+  border-color: var(--border-hover);
+}
+
+.att-mode-btn.active,
+.ann-filter-pill.active,
+.es-class-chip-btn.active,
+.filter-chip.active,
+.child-tab.active,
+.ann-chip.active {
+  background: var(--portal-accent, var(--primary));
+  border-color: var(--portal-accent, var(--primary));
+  color: #fff;
+}
+
+/* One exception that is a meaning, not a style: an urgent category stays red
+   when selected, whichever portal it is in. */
+.ann-chip.urgent.active {
+  background: var(--destructive);
+  border-color: var(--destructive);
+}
+
+/* ── ICON BUTTON (bordered) ─────────────────────────────────────
+   Small square actions in a row or card corner: edit, delete, next, previous.
+   Was .ann-icon-btn at 1.8rem/.35rem and .es-icon-btn at 2rem/.4rem — the same
+   control, two sizes, in the same portal. */
+.icon-btn,
+.ann-icon-btn,
+.es-icon-btn,
+.es-cal-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast);
+}
+
+.icon-btn:hover:not(:disabled),
+.ann-icon-btn:hover:not(:disabled),
+.es-icon-btn:hover:not(:disabled),
+.es-cal-nav-btn:hover:not(:disabled) {
+  background: var(--portal-accent, var(--primary));
+  border-color: var(--portal-accent, var(--primary));
+  color: #fff;
+}
+
+/* Destructive variant — same shape, the one colour that means "this deletes". */
+.icon-btn.danger:hover:not(:disabled),
+.ann-icon-btn.danger:hover:not(:disabled),
+.es-icon-btn.danger:hover:not(:disabled) {
+  background: var(--destructive);
+  border-color: var(--destructive);
+  color: #fff;
+}
+
+.icon-btn:disabled,
+.ann-icon-btn:disabled,
+.es-icon-btn:disabled,
+.es-cal-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.icon-btn .material-symbols-rounded,
+.ann-icon-btn .material-symbols-rounded,
+.es-icon-btn .material-symbols-rounded,
+.es-cal-nav-btn .material-symbols-rounded {
+  font-size: var(--icon-sm, 1rem);
+}
+
+/* ── STAT CARD ──────────────────────────────────────────────────
+   The headline-number card at the top of a dashboard. Four definitions
+   existed: .portal-stat-card, .stat-card (DOS), .disc-stat-card and
+   .student-stat-card — same card, three different corner radii and two
+   different hover behaviours. Canonical is .portal-stat-card, defined
+   further up; these are its aliases. */
+.stat-card,
+.disc-stat-card,
+.student-stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius, var(--radius-lg));
+  padding: var(--space-5, 1.25rem) var(--space-6, 1.5rem);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4, 1rem);
+  transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+/* A card that only displays a number is not clickable, so it does not lift —
+   .stat-card used to translateY(-4px), which read as an affordance it lacks. */
+.stat-card:hover,
+.disc-stat-card:hover,
+.student-stat-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-hover);
+}

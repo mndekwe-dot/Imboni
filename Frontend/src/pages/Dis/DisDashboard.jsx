@@ -10,7 +10,8 @@ import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
 import { disNavItems, disSecondaryItems } from './disNav'
-import { getDisDashboard, getDisStaff, getDisTasks, createDisTask, updateDisTask } from '../../api/discipline'
+import { getDisDashboard, getDisStaff, getDisTasks, createDisTask, updateDisTask, deleteDisTask } from '../../api/discipline'
+import { toList } from '../../api/client'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
@@ -95,7 +96,7 @@ export function DisDashboard() {
             setStaff((staffList || []).slice(0, 4))
         }).catch(console.error)
           .finally(() => setLoading(false))
-        getDisTasks().then(data => setTasks(Array.isArray(data) ? data : [])).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
+        getDisTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
     }, [])
 
     async function handleCreateTask() {
@@ -109,6 +110,30 @@ export function DisDashboard() {
             setTaskError(e?.message || 'Failed to save task.')
         } finally {
             setTaskSaving(false)
+        }
+    }
+
+    async function handleDeleteTask(task) {
+        const previous = tasks
+        setTasks(prev => prev.filter(t => t.id !== task.id))   // optimistic
+        try {
+            await deleteDisTask(task.id)
+        } catch (e) {
+            setTasks(previous)                                 // put it back, say why
+            toast.error(errorMessage(e, 'Could not delete the task.'))
+        }
+    }
+
+    async function handleClearCompleted() {
+        const done = tasks.filter(t => t.is_completed)
+        if (!done.length) return
+        if (!window.confirm(`Delete ${done.length} completed task${done.length > 1 ? 's' : ''}? This cannot be undone.`)) return
+        const previous = tasks
+        setTasks(prev => prev.filter(t => !t.is_completed))
+        const results = await Promise.allSettled(done.map(t => deleteDisTask(t.id)))
+        if (results.some(r => r.status === 'rejected')) {
+            toast.error('Some tasks could not be deleted.')
+            getDisTasks().then(data => setTasks(toList(data))).catch(() => setTasks(previous))
         }
     }
 
@@ -201,6 +226,12 @@ export function DisDashboard() {
                                         </h3>
                                         <div className="u-row-sm">
                                             <span className="badge badge-secondary">{tasks.filter(t => !t.is_completed).length}</span>
+                                            {tasks.some(t => t.is_completed) && (
+                                                <button className="btn btn-outline btn-sm" onClick={handleClearCompleted}>
+                                                    <span className="material-symbols-rounded icon-sm">playlist_remove</span>
+                                                    Clear done
+                                                </button>
+                                            )}
                                             <button className="btn btn-outline btn-sm" onClick={() => setShowTaskForm(v => !v)}>
                                                 <span className="material-symbols-rounded icon-sm">{showTaskForm ? 'expand_less' : 'add'}</span>
                                                 {showTaskForm ? 'Cancel' : 'Add'}
@@ -238,7 +269,7 @@ export function DisDashboard() {
                                             <p className="dis-note-sm">No tasks yet.</p>
                                         ) : (
                                             <div className="dis-task-list">
-                                                {tasks.slice(0, 5).map(task => (
+                                                {tasks.map(task => (
                                                     <div key={task.id} className={`dis-task-item${task.is_completed ? ' done' : ''}`}>
                                                         <input
                                                             type="checkbox"
@@ -253,6 +284,14 @@ export function DisDashboard() {
                                                         <span className={`badge ${task.priority === 'high' ? 'badge-high' : task.priority === 'medium' ? 'badge-medium' : 'badge-low'}`}>
                                                             {task.priority}
                                                         </span>
+                                                        <button
+                                                            className="btn-icon-clean task-del-btn"
+                                                            title={`Delete "${task.title}"`}
+                                                            aria-label={`Delete "${task.title}"`}
+                                                            onClick={() => handleDeleteTask(task)}
+                                                        >
+                                                            <span className="material-symbols-rounded icon-sm">delete</span>
+                                                        </button>
                                                     </div>
                                                 ))}
                                             </div>

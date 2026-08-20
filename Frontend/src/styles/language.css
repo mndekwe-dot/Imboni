@@ -9,7 +9,7 @@
   flex-wrap: wrap;
 }
 .lang-switch-label {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--foreground);
   text-transform: uppercase;
@@ -29,7 +29,7 @@
   border-radius: 999px;
   background: transparent;
   color: var(--muted-foreground);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -43,4 +43,4 @@
 }
 .lang-switch-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.lang-switch--compact .lang-switch-btn { padding: 0.25rem 0.65rem; font-size: 0.7rem; }
+.lang-switch--compact .lang-switch-btn { padding: 0.25rem 0.65rem; font-size: var(--text-caption); }
