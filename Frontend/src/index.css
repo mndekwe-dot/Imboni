@@ -1,4 +1,96 @@
 /* ===============================================
+   TABULAR FIGURES
+
+   Inter's default digits are proportional — a "1" is narrower than an "8". In
+   a sentence that is correct; in a column of marks it means the numbers do not
+   line up, and a value that updates (a pending count, a timer) changes width
+   and nudges its neighbours.
+
+   Inter carries a tabular set; this switches it on everywhere digits are read
+   as data rather than as prose. Letters are unaffected.
+   =============================================== */
+/* `*=` not `$=`: an attribute selector matches the whole class string, so
+   [class$="-value"] would miss class="dos-stat-value u-bold" entirely. */
+table,
+[class*="stat-value"],
+[class*="stat-number"],
+[class*="-count"],
+.tt-time-cell,
+.badge,
+.pagination-info {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;   /* older Safari/Firefox honour this form */
+}
+
+/* ===============================================
+   WEB FONTS — self-hosted
+
+   These used to come from fonts.googleapis.com. Three reasons they now ship
+   with the app:
+
+   1. Offline. Imboni is a PWA meant to work without a connection. A font on
+      someone else's origin cannot be precached by our service worker, so
+      offline the text silently fell back to a system font and every layout
+      shifted.
+   2. Speed. A third-party origin costs an extra DNS lookup, TLS handshake and
+      round trip — roughly 250ms before text can paint — on top of loading the
+      app itself.
+   3. The icon font is SUBSET. Material Symbols ships ~361 KB of glyphs; the
+      162 icons this app renders come to 17 KB. That was 85% of the entire
+      font payload, downloaded to show a few dozen little pictures.
+
+   The files are produced by `npm run fonts`. AFTER ADDING A NEW ICON, RUN IT —
+   otherwise the icon is not in the subset and renders as a blank box.
+   src/test/icon-subset.test.js fails the build if you forget.
+   =============================================== */
+
+/* One variable file per subset, carrying the whole 100–900 weight axis.
+   unicode-range means latin-ext is only fetched if a page actually contains
+   one of its characters — English, Kinyarwanda and French all sit in latin. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;   /* block, not swap: a fallback glyph for an icon is a
+                            random letter, which is worse than a brief blank */
+  src: url('/fonts/material-symbols-subset.woff2') format('woff2');
+}
+
+/* Came from Google's stylesheet; needed here now that we serve the font. */
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===============================================
    INDEX.CSS — Global Variables, Reset & Base Styles
    Single source of truth. Loaded once via main.jsx.
    =============================================== */

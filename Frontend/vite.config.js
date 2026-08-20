@@ -78,6 +78,10 @@ export default defineConfig(({ mode }) => {
       workbox: {
         // Precache the built app shell so Imboni opens with no network
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // latin-ext is 83 KB and its unicode-range means English, Kinyarwanda
+        // and French never reach for it — precaching it would nearly double the
+        // offline install for characters this app does not use.
+        globIgnores: ['**/inter-latin-ext.woff2'],
         navigateFallback: '/index.html',
         // API calls are handled by the Dexie layer in src/offline — never by
         // the service worker (denylist keeps SPA navigation fallback away too)
