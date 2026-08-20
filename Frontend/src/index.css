@@ -188,7 +188,7 @@ table,
      touch targets and need breathing room either side.
      See uiuxdesigntrends.com and uxplanet.org, Aug 2026. */
   --sidebar-w: 264px;
-  --sidebar-w-collapsed: 64px;
+  --sidebar-w-collapsed: 72px;   /* 48px target + 12px padding a side */
 
   /* Sidebar Specific */
   --sidebar: #003d7a;
