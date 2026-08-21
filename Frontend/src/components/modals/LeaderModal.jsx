@@ -73,14 +73,14 @@ export function LeaderModal({ leader, onClose, onSave }) {
     }
 
     async function handleSave() {
-        if (!isEditing && !selectedStudent) { setError('Please select a student.'); return }
-        if (!role) { setError('Please select a role.'); return }
+        if (!isEditing && !selectedStudent) { setError(t('common.selectStudentRequired')); return }
+        if (!role) { setError(t('common.selectRoleRequired')); return }
         setSaving(true); setError(null)
         try {
             const data = { role, appointed_date: appointedDate, notes }
             if (!isEditing) data.student_id = selectedStudent.id
             await onSave(data)
-        } catch { setError('Failed to save. Please try again.') }
+        } catch { setError(t('common.genericSaveFailed')) }
         finally   { setSaving(false) }
     }
 

@@ -1,0 +1,13 @@
+{
+  "admin": "Administrateur",
+  "discipline": "Discipline",
+  "disciplineDirector": "Responsable de la discipline",
+  "dos": "Directeur des études",
+  "matron": "Surveillante",
+  "parent": "Parent",
+  "principal": "Chef d'établissement",
+  "principalShort": "Directeur",
+  "staff": "Personnel",
+  "student": "Élève",
+  "teacher": "Enseignant"
+}

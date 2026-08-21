@@ -1,0 +1,121 @@
+{
+  "announcements": {
+    "subtitle": "Compose and broadcast school-wide notices"
+  },
+  "approvals": {
+    "subtitle": "Review and approve exam results submitted by teachers",
+    "title": "Result Approvals",
+    "rejectTitle": "Reject Result",
+    "rejectReasonRequired": "Rejection reason is required.",
+    "rejectFailed": "Failed to reject. Please try again.",
+    "rejecting": "Rejecting…",
+    "rejectingSubject": "Rejecting {{subject}} result for {{student}}. Provide a reason for the teacher.",
+    "rejectReasonLabel": "Rejection Reason *",
+    "rejectReasonPlaceholder": "e.g. Scores do not match the class assessment sheet…"
+  },
+  "auditLog": {
+    "subtitle": "Who did what, and when: sensitive administrative actions"
+  },
+  "billing": {
+    "subtitle": "Manage your school's subscription and plan"
+  },
+  "dashboard": {
+    "subtitle": "School-wide overview",
+    "subtitleWithTerm": "School-wide overview ({{term}}, {{year}})",
+    "title": "Admin Dashboard"
+  },
+  "finance": {
+    "category": "Category",
+    "collected": "Collected",
+    "dueDate": "Due Date",
+    "loading": "Loading fee data…",
+    "noOutstanding": "No outstanding fees this term.",
+    "ofTarget": "{{rate}}% of target",
+    "outstanding": "Outstanding",
+    "outstandingTitle": "Outstanding Fees",
+    "overdueCount": "{{count}} overdue",
+    "quickActions": "Quick Actions",
+    "student": "Student",
+    "subtitle": "Fee collection, payments and school budget",
+    "subtitleWithTerm": "Fee collection, payments and school budget ({{term}}, {{year}})",
+    "title": "Finance",
+    "totalExpected": "Total Fee Expected",
+    "unavailable": "Fee data is unavailable. Check that a term is marked current."
+  },
+  "reports": {
+    "subtitle": "School-wide performance, attendance and enrollment insights",
+    "title": "Reports & Analytics"
+  },
+  "settings": {
+    "checking": "Checking…",
+    "comingSoon": "Configuration options coming soon.",
+    "currentTermLabel": "Current term:",
+    "displayName": "Display name",
+    "egTermName": "e.g. Term 1 2027",
+    "egYear": "e.g. 2027",
+    "missingClasses": "No class exists for: {{list}}. Those students will be promoted but not added to a roster. Create the classes first if needed.",
+    "mode": "Mode",
+    "modeCarry": "Same year: carry rosters over",
+    "modePromotion": "New academic year: promote students",
+    "navAccess": "Access & Roles",
+    "navBackup": "Data & Backup",
+    "navCalendar": "Academic Calendar",
+    "navInfo": "School Info",
+    "navNotifications": "Notifications",
+    "navRollover": "Term Rollover",
+    "navRooms": "Rooms",
+    "navStructure": "School Structure",
+    "navSubjects": "Subjects",
+    "newTerm": "New term",
+    "previewFailed": "Preview failed.",
+    "previewRollover": "Preview Rollover",
+    "rollingOver": "Rolling over…",
+    "rolloverDanger": "This cannot be undone from the interface. Make sure results for {{term}} are approved before proceeding.",
+    "rolloverDone": "{{term}} is now the current term",
+    "rolloverFailed": "Rollover failed.",
+    "rolloverIntro": "Rolling over ends the current term, creates the next one and, when a new academic year starts, promotes every active student one year level.",
+    "rolloverIntroFinal": "Rolling over ends the current term, creates the next one and, when a new academic year starts, promotes every active student one year level ({{year}} graduates).",
+    "rolloverSummary": "{{promoted}} promoted · {{graduated}} graduated · {{rosters}} rosters created",
+    "rostersCreated": "Class rosters created",
+    "runRollover": "Run Rollover",
+    "saveChanges": "Save Changes",
+    "saveInfoFailed": "Could not save school information.",
+    "schoolName": "School Name",
+    "schoolNameDesc": "Displayed across all portals and reports",
+    "schoolNamePlaceholder": "e.g. Imboni Academy",
+    "studentsGraduating": "Students graduating",
+    "studentsGraduatingYear": "Students graduating ({{year}})",
+    "studentsPromoted": "Students promoted",
+    "subtitle": "School-wide configuration: structure, subjects, rooms and preferences"
+  },
+  "staff": {
+    "academic": "Academic",
+    "admin": "Admin",
+    "allDepartments": "All Departments",
+    "allRoles": "All Roles",
+    "disciplineMaster": "Discipline Master",
+    "invitationSent": "Invitation sent!",
+    "invitationSentTo": "An invitation link was sent to",
+    "invitations": "Staff Invitations",
+    "invite": "Invite Staff",
+    "inviteMember": "Invite Staff Member",
+    "list": "Staff List",
+    "loading": "Loading staff…",
+    "noInvitations": "No invitations sent yet. Click",
+    "profile": "Staff Profile",
+    "recipient": "Recipient",
+    "subtitle": "Teachers, welfare and administration staff",
+    "title": "Staff Management",
+    "welfare": "Welfare"
+  },
+  "students": {
+    "subtitle": "Enrollment, admissions and student records",
+    "title": "Student Management"
+  },
+  "support": {
+    "subtitle": "Get help from the Imboni team"
+  },
+  "messages": {
+    "subtitle": "Communicate with staff, department heads and parents"
+  }
+}

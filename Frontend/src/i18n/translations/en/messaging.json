@@ -1,0 +1,17 @@
+{
+  "attachFile": "Attach file",
+  "backToConversations": "Back to conversations",
+  "emoji": "Emoji",
+  "loading": "Loading…",
+  "moreOptions": "More options",
+  "new": "New",
+  "newMessage": "New Message",
+  "noConversations": "No conversations yet. Tap \"New\" to start one.",
+  "noMessages": "No messages yet. Say hello.",
+  "search": "Search messages...",
+  "searchPeople": "Search people you can message…",
+  "selectConversation": "Select a conversation to read it.",
+  "title": "Messages",
+  "typeMessage": "Type your message…",
+  "viewProfile": "View profile"
+}

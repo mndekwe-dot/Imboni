@@ -32,6 +32,7 @@ const BOARDING_TYPE_OPTIONS = [
 // ── Boarding Modal (Add / Edit) ───────────────────────────────────────────────
 
 function BoardingModal({ record, dormitories, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEditing = !!record
 
     // Student search (create only)
@@ -99,10 +100,10 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
     }
 
     async function handleSave() {
-        if (!isEditing && !selectedStudent) { setError('Please select a student.'); return }
-        if (!form.dormitory)     { setError('Please select a dormitory.');    return }
-        if (!form.room_number)   { setError('Room number is required.');      return }
-        if (!form.check_in_date) { setError('Check-in date is required.');    return }
+        if (!isEditing && !selectedStudent) { setError(t('common.selectStudentRequired')); return }
+        if (!form.dormitory)     { setError(t('common.selectDormitoryRequired'));    return }
+        if (!form.room_number)   { setError(t('dis.boarding.roomRequired'));      return }
+        if (!form.check_in_date) { setError(t('dis.boarding.checkInRequired'));    return }
         setSaving(true); setError(null)
         try {
             const data = {
@@ -116,7 +117,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
             if (!isEditing) data.student_id = selectedStudent.id
             await onSave(data)
         } catch(e) {
-            setError(e?.response?.data?.error || 'Failed to save. Please try again.')
+            setError(e?.response?.data?.error || t('common.genericSaveFailed'))
         } finally { setSaving(false) }
     }
 
@@ -132,7 +133,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                         <span className="material-symbols-rounded disc-modal-icon">
                             {isEditing ? 'edit' : 'hotel'}
                         </span>
-                        <h2 className="modal-title">{isEditing ? 'Edit Boarding Record' : 'Assign to Boarding'}</h2>
+                        <h2 className="modal-title">{isEditing ? t('common.edit') : t('dis.boarding.assign')}</h2>
                     </div>
                     <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
                 </div>
@@ -142,7 +143,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                     {/* Student selector */}
                     {isEditing ? (
                         <div className="form-group">
-                            <label className="form-label">Student</label>
+                            <label className="form-label">{t('common.student')}</label>
                             <div className="dis-student-box">
                                 {record.student_name}
                                 {cls && <span className="class-chip dis-chip-inline">{cls}</span>}
@@ -150,13 +151,13 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                         </div>
                     ) : (
                         <div className="form-group u-relative" ref={searchRef}>
-                            <label className="form-label">Student *</label>
+                            <label className="form-label">{t('common.student')} *</label>
                             <div className="u-relative">
                                 <input
                                     className="form-input"
                                     value={query}
                                     onChange={handleSearch}
-                                    placeholder="Search by name or ADM number…"
+                                    placeholder={t('common.searchStudentPlaceholder')}
                                     autoComplete="off"
                                 />
                                 {searching && (
@@ -192,7 +193,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                     {/* Dormitory + boarding type */}
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Dormitory *</label>
+                            <label className="form-label">{t('common.dormitory')} *</label>
                             <select className="form-input" name="dormitory" value={form.dormitory} onChange={handleChange}>
                                 <option value="">Select dormitory...</option>
                                 {dormitories.length > 0 ? (() => {
@@ -220,12 +221,12 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                                         </>
                                     )
                                 })() : (
-                                    <option value="" disabled>No dormitories configured. Add them in Settings</option>
+                                    <option value="" disabled>{t('dis.boarding.noDormitories')}</option>
                                 )}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Boarding Type *</label>
+                            <label className="form-label">{t('dis.boarding.typeRequired')}</label>
                             <select className="form-input" name="boarding_type" value={form.boarding_type} onChange={handleChange}>
                                 {BOARDING_TYPE_OPTIONS.map(o => (
                                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -237,34 +238,34 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                     {/* Room + bed */}
                     <div className="form-row-2">
                         <div className="form-group">
-                            <label className="form-label">Room Number *</label>
+                            <label className="form-label">{t('common.roomNumber')} *</label>
                             <input className="form-input" name="room_number" value={form.room_number} onChange={handleChange} placeholder="e.g. 12A" />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Bed Number</label>
+                            <label className="form-label">{t('modals.dormitory.bedsPerRoom')}</label>
                             <input className="form-input" name="bed_number" value={form.bed_number} onChange={handleChange} placeholder="e.g. 3" />
                         </div>
                     </div>
 
                     {/* Check-in date */}
                     <div className="form-group">
-                        <label className="form-label">Check-in Date *</label>
+                        <label className="form-label">{t('dis.boarding.checkInRequired')}</label>
                         <input className="form-input" type="date" name="check_in_date" value={form.check_in_date} onChange={handleChange} />
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Notes (optional)</label>
-                        <input className="form-input" name="notes" value={form.notes} onChange={handleChange} placeholder="Any relevant notes…" />
+                        <label className="form-label">{t('common.notesOptionalLabel')}</label>
+                        <input className="form-input" name="notes" value={form.notes} onChange={handleChange} placeholder={t('dis.boarding.notesPlaceholder')} />
                     </div>
 
                     {error && <p className="dis-modal-err">{error}</p>}
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || (!isEditing && !selectedStudent)}>
                         <span className="material-symbols-rounded">{isEditing ? 'save' : 'hotel'}</span>
-                        {saving ? 'Saving…' : isEditing ? 'Save Changes' : 'Assign'}
+                        {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('dis.boarding.assign')}
                     </button>
                 </div>
             </div>
@@ -540,8 +541,8 @@ export function DisBoarding() {
                                     />
                                 )}
                                 emptyIcon="hotel"
-                                emptyTitle="No boarding records"
-                                emptyDesc={filter === 'all' ? 'No boarding records on file.' : `No students in ${filter}.`}
+                                emptyTitle={t('dis.boarding.noRecords')}
+                                emptyDesc={filter === 'all' ? t('dis.boarding.noRecordsDesc') : t('dis.boarding.noStudentsIn', { section: filter })}
                                 onClearFilters={filter !== 'all' ? () => setFilter('all') : undefined}
                             />
                         )}

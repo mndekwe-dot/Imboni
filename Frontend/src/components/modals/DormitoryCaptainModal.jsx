@@ -76,8 +76,8 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
     }
 
     async function handleSave() {
-        if (!isEditing && !selectedStudent) { setError('Please select a student.'); return }
-        if (!dormKey) { setError('Please select a dormitory.'); return }
+        if (!isEditing && !selectedStudent) { setError(t('common.selectStudentRequired')); return }
+        if (!dormKey) { setError(t('common.selectDormitoryRequired')); return }
         setSaving(true); setError(null)
         const dormName = DORMITORIES.find(d => d.key === dormKey)?.name || dormKey
         try {
@@ -87,7 +87,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
             }
             if (!isEditing) data.student_id = selectedStudent.id
             await onSave(data)
-        } catch { setError('Failed to save. Please try again.') }
+        } catch { setError(t('common.genericSaveFailed')) }
         finally   { setSaving(false) }
     }
 

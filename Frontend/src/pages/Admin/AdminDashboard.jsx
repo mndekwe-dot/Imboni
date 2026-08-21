@@ -87,7 +87,7 @@ export function AdminDashboard() {
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Admin Dashboard"
+                        title={t('admin.dashboard.title')}
                         subtitle={term
                             ? t('admin.dashboard.subtitleWithTerm', { term: term.name, year: term.year })
                             : t('admin.dashboard.subtitle')}

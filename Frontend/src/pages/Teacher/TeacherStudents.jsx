@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -62,6 +63,7 @@ function StudentRow({ student, onView }) {
 }
 
 export function TeacherStudent() {
+    const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [classes,  setClasses]  = useState([])
     const { config } = useSchoolConfig()
@@ -93,10 +95,10 @@ export function TeacherStudent() {
                 const list = Array.isArray(data) ? data : []
                 setClasses(list)
             })
-            .catch(err => setError(err?.message || 'Failed to load classes.'))
+            .catch(err => setError(err?.message || t('teacher.students.loadClassesFailed')))
         getTeacherStudents()
             .then(data => setStudents(Array.isArray(data) ? data : []))
-            .catch(err => { setStudents([]); setError(err?.message || 'Failed to load students.') })
+            .catch(err => { setStudents([]); setError(err?.message || t('teacher.students.loadStudentsFailed')) })
             .finally(() => setLoading(false))
     }, [])
 
@@ -110,7 +112,7 @@ export function TeacherStudent() {
         setError(null)
         getTeacherStudents(params)
             .then(data => setStudents(Array.isArray(data) ? data : []))
-            .catch(err => { setStudents([]); setError(err?.message || 'Failed to load students.') })
+            .catch(err => { setStudents([]); setError(err?.message || t('teacher.students.loadStudentsFailed')) })
             .finally(() => setLoading(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [year, classVal])
@@ -141,7 +143,7 @@ export function TeacherStudent() {
             <div className="sidebar-overlay"></div>
 
             {selected && (
-                <Modal title="Student Profile" icon="person" onClose={() => setSelected(null)}>
+                <Modal title={t('teacher.students.profileTitle')} icon="person" onClose={() => setSelected(null)}>
                     <div className="student-profile-header">
                         <div className="student-avatar student-profile-avatar">{selected.initials}</div>
                         <div>
@@ -174,8 +176,8 @@ export function TeacherStudent() {
                 <Sidebar navItems={teacherNavItems} secondaryItems={teacherSecondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Students"
-                        subtitle="View and manage students across your classes"
+                        title={t('teacher.students.listTitle')}
+                        subtitle={t('teacher.students.subtitle')}
                         userName={fullName}
                         userRole="Teacher"
                         userInitials={initials}
@@ -220,8 +222,8 @@ export function TeacherStudent() {
                             </div>
                         </div>
 
-                        <DataTable
-                            title="Student List"
+                            <DataTable
+                            title={t('teacher.students.dataTableTitle')}
                             data={visible}
                             columns={['Student', 'Class', 'Attendance', 'Performance', 'Actions']}
                             renderRow={(s, i) => <StudentRow key={i} student={s} onView={setSelected} />}

@@ -68,8 +68,7 @@ function ActivityCard({ activity, onEdit }) {
 }
 
 function ConsentRequestsPanel() {
-    // The years this school teaches, not a hard-coded S1..S6 — a primary school
-    // has none of those.
+    const { t } = useTranslation()
     const { config } = useSchoolConfig()
     const years = yearsFromConfig(config)
 
@@ -91,7 +90,7 @@ function ConsentRequestsPanel() {
 
     async function handleCreate() {
         if (!form.title.trim() || !form.description.trim() || !form.event_date) {
-            setError('Title, description and event date are required.')
+            setError(t('common.formFieldsRequired'))
             return
         }
         setSaving(true); setError(null)
@@ -107,7 +106,7 @@ function ConsentRequestsPanel() {
             setShowForm(false)
             load()
         } catch {
-            setError('Failed to create the request.')
+            setError(t('dis.activities.createRequestFailed'))
         } finally {
             setSaving(false)
         }
@@ -118,48 +117,48 @@ function ConsentRequestsPanel() {
             <div className="card-header">
                 <h2 className="card-title">
                     <span className="material-symbols-rounded dis-inline-icon">approval</span>
-                    Parent Consent Requests
+                    {t('dis.activities.title')}
                 </h2>
                 <button className="btn btn-outline btn-sm" onClick={() => setShowForm(s => !s)}>
                     <span className="material-symbols-rounded icon-sm">add</span>
-                    New Request
+                    {t('dis.activities.newClub')}
                 </button>
             </div>
             <div className="card-content">
                 {showForm && (
                     <div className="cr-form">
                         <div className="cr-col-full">
-                            <label className="form-label" htmlFor="cr-title">Title</label>
-                            <input id="cr-title" className="form-input" placeholder="e.g. Museum Trip"
+                            <label className="form-label" htmlFor="cr-title">{t('dis.activities.titleLabel')}</label>
+                            <input id="cr-title" className="form-input" placeholder={t('dis.activities.titlePlaceholder')}
                                 value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
                         </div>
                         <div className="cr-col-full">
-                            <label className="form-label" htmlFor="cr-desc">Description</label>
+                            <label className="form-label" htmlFor="cr-desc">{t('dis.activities.descriptionLabel')}</label>
                             <textarea id="cr-desc" className="form-input form-textarea" rows="2"
-                                placeholder="What are parents consenting to?"
+                                placeholder={t('dis.activities.descriptionPlaceholder')}
                                 value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="cr-date">Event date</label>
+                            <label className="form-label" htmlFor="cr-date">{t('dis.activities.eventDateLabel')}</label>
                             <input id="cr-date" type="date" className="form-input"
                                 value={form.event_date} onChange={e => setForm(f => ({ ...f, event_date: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="cr-deadline">Respond by (optional)</label>
+                            <label className="form-label" htmlFor="cr-deadline">{t('dis.activities.deadlineLabel')}</label>
                             <input id="cr-deadline" type="date" className="form-input"
                                 value={form.response_deadline} onChange={e => setForm(f => ({ ...f, response_deadline: e.target.value }))} />
                         </div>
                         <div>
-                            <label className="form-label" htmlFor="cr-grade">Grade</label>
+                            <label className="form-label" htmlFor="cr-grade">{t('dis.activities.gradeLabel')}</label>
                             <select id="cr-grade" className="form-select" value={form.grade}
                                 onChange={e => setForm(f => ({ ...f, grade: e.target.value }))}>
-                                <option value="">All grades</option>
+                                <option value="">{t('dis.activities.allGrades')}</option>
                                 {years.map(y => <option key={y} value={y}>{y}</option>)}
                             </select>
                         </div>
                         <div className="cr-actions">
                             <button className="btn btn-primary btn-sm" onClick={handleCreate} disabled={saving}>
-                                {saving ? 'Sending…' : 'Send to Parents'}
+                                {saving ? t('dis.activities.sendingButton') : t('dis.activities.sendButton')}
                             </button>
                         </div>
                         {error && <p className="cr-error">{error}</p>}
@@ -167,10 +166,10 @@ function ConsentRequestsPanel() {
                 )}
 
                 {loading ? (
-                    <p className="u-muted">Loading consent requests…</p>
+                    <p className="u-muted">{t('dis.activities.loading')}</p>
                 ) : requests.length === 0 ? (
                     <p className="u-muted">
-                        No consent requests yet. Create one to collect parent approvals for a trip or activity.
+                        {t('dis.activities.empty')}
                     </p>
                 ) : (
                     <div className="cr-list">

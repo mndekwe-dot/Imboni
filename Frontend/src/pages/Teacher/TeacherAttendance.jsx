@@ -86,7 +86,7 @@ export function TeacherAttendance() {
                 unique.forEach(c => { map[classLabel(c.grade, c.section)] = c.class_id })
                 setClassIdMap(map)
             } catch {
-                setError('Failed to load your classes.')
+                setError(t('teacher.attendance.loadClassesFailed'))
             } finally {
                 setLoadingClasses(false)
             }
@@ -119,7 +119,7 @@ export function TeacherAttendance() {
                 })
                 setAttendance(init)
             } catch {
-                setError('Failed to load attendance data.')
+                setError(t('teacher.attendance.loadDataFailed'))
             } finally {
                 setLoadingStudents(false)
             }
@@ -166,7 +166,7 @@ export function TeacherAttendance() {
                 setSaved(true)
             }
         } catch {
-            setError('Failed to save attendance. Please try again.')
+            setError(t('teacher.attendance.saveFailed'))
         } finally {
             setSaving(false)
         }

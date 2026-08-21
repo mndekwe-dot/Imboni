@@ -96,7 +96,7 @@ export function DisDashboard() {
             setStaff((staffList || []).slice(0, 4))
         }).catch(console.error)
           .finally(() => setLoading(false))
-        getDisTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
+        getDisTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, t('common.loadFailed'))))
     }, [])
 
     async function handleCreateTask() {
@@ -107,7 +107,7 @@ export function DisDashboard() {
             setTasks(prev => [task, ...prev])
             setTaskTitle(''); setTaskDue(''); setShowTaskForm(false)
         } catch (e) {
-            setTaskError(e?.message || 'Failed to save task.')
+            setTaskError(e?.message || t('common.genericSaveFailed'))
         } finally {
             setTaskSaving(false)
         }
@@ -120,7 +120,7 @@ export function DisDashboard() {
             await deleteDisTask(task.id)
         } catch (e) {
             setTasks(previous)                                 // put it back, say why
-            toast.error(errorMessage(e, 'Could not delete the task.'))
+            toast.error(errorMessage(e, t('dis.dashboard.deleteTaskFailed')))
         }
     }
 
@@ -132,7 +132,7 @@ export function DisDashboard() {
         setTasks(prev => prev.filter(t => !t.is_completed))
         const results = await Promise.allSettled(done.map(t => deleteDisTask(t.id)))
         if (results.some(r => r.status === 'rejected')) {
-            toast.error('Some tasks could not be deleted.')
+            toast.error(t('dis.dashboard.deleteTasksFailed'))
             getDisTasks().then(data => setTasks(toList(data))).catch(() => setTasks(previous))
         }
     }

@@ -374,9 +374,9 @@ export function DisStudents() {
                                     <p className="u-pad u-muted">Loading students…</p>
                                 ) : (
                                     <DataTable
-                                        title="Student Conduct Records"
+                                        title={t('dis.students.studentConductRecords')}
                                         data={visibleStudents}
-                                        columns={['Student', 'Class', 'Student ID', 'Conduct', 'Incidents', 'Actions']}
+                                        columns={[t('common.student'), t('common.class'), t('dis.students.studentIdColumn'), t('dis.students.conductColumn'), t('dis.students.incidentsColumn'), t('common.actions')]}
                                         renderRow={(s, i) => <StudentRow key={s.id || i} student={s} onView={setModal} />}
                                         emptyIcon="people"
                                         emptyTitle={t('dis.students.noStudents')}

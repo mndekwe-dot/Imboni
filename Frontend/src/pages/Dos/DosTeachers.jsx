@@ -287,12 +287,12 @@ function InviteTeacherModal({ onClose, onInvite }) {
             await onInvite(form.first_name.trim(), form.last_name.trim(), form.email.trim())
             setSent(true)
         } catch (err) {
-            setError(err.message || 'Failed to send invitation')
+            setError(err.message || t('dos.teachers.sendInvitationFailed'))
         } finally { setSending(false) }
     }
 
     if (sent) return (
-        <Modal title="Invitation Sent" icon="mark_email_read" onClose={onClose}
+        <Modal title={t('dos.teachers.invitationSent')} icon="mark_email_read" onClose={onClose}
             footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>{t('common.done')}</button></div>}>
             <div className="dt-modal-success">
                 <span className="material-symbols-rounded dt-success-icon">check_circle</span>
@@ -306,7 +306,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
     )
 
     return (
-        <Modal title="Invite Teacher" icon="person_add" onClose={onClose} size="wide"
+        <Modal title={t('dos.teachers.inviteTeacher')} icon="person_add" onClose={onClose} size="wide"
             footer={
                 <div className="modal-confirm-actions u-full">
                     <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
@@ -586,11 +586,11 @@ export function DosTeachers() {
                                 <input placeholder={t('dos.teachers.searchTeachers')} value={search} onChange={e => setSearch(e.target.value)} />
                                 {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
                             </div>
-                            <InlineSelect value={subjectFilter} onChange={setSubjectFilter} options={subjects} placeholder="All Subjects" />
-                            <InlineSelect value={typeFilter} onChange={setTypeFilter} options={TYPES} placeholder="All Types" />
+                            <InlineSelect value={subjectFilter} onChange={setSubjectFilter} options={subjects} placeholder={t('dos.teachers.allSubjects')} />
+                            <InlineSelect value={typeFilter} onChange={setTypeFilter} options={TYPES} placeholder={t('dos.teachers.allTypes')} />
                             <div className="toolbar-spacer" />
                             <button className="btn btn-primary" onClick={() => setAddOpen(true)}>
-                                <span className="material-symbols-rounded icon-sm">send</span> Invite Teacher
+                                <span className="material-symbols-rounded icon-sm">send</span> {t('dos.teachers.inviteTeacher')}
                             </button>
                         </div>
 
@@ -601,9 +601,9 @@ export function DosTeachers() {
                         />
 
                         <DataTable
-                            title="All Teachers"
+                            title={t('dos.teachers.allTeachers')}
                             data={filtered}
-                            columns={['Teacher', 'Subject', 'Type', 'Classes Assigned', 'Status', 'Actions']}
+                            columns={[t('common.teacher'), t('common.subject'), t('common.type'), t('dos.teachers.classesAssigned'), t('common.status'), t('common.actions')]}
                             renderRow={teacher => (
                                 <tr key={teacher.id}>
                                     <td>
@@ -629,8 +629,8 @@ export function DosTeachers() {
                                 </tr>
                             )}
                             emptyIcon="school"
-                            emptyTitle="No teachers found"
-                            emptyDesc={search ? `No results for "${search}"` : 'No teachers match the selected filters.'}
+                            emptyTitle={t('dos.teachers.emptyTitle')}
+                            emptyDesc={search ? t('dos.students.noResultsFor', { query: search }) : t('dos.teachers.emptyDescNoFilters')}
                             onClearFilters={() => { setSearch(''); setSubjectFilter(''); setTypeFilter('') }}
                         />
                     </DashboardContent>

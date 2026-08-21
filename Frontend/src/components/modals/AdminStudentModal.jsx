@@ -135,12 +135,12 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
 
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>
-                        {readOnly ? 'Close' : 'Cancel'}
+                        {readOnly ? t('common.close') : t('common.cancel')}
                     </button>
                     {!readOnly && (
                         <button className="btn btn-primary" onClick={handleSave}>
                             <span className="material-symbols-rounded">{isEditing ? 'save' : 'person_add'}</span>
-                            {isEditing ? 'Save Changes' : 'Admit Student'}
+                            {isEditing ? t('common.saveChanges') : t('modals.student.admitTitle')}
                         </button>
                     )}
                 </div>

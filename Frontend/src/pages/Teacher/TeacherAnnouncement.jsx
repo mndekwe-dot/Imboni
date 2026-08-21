@@ -113,14 +113,14 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
                     <button
                         className="btn btn-outline btn-sm"
                         onClick={() => onEdit(ann)}
-                        title="Edit"
+                        title={t('common.edit')}
                     >
                         <span className="material-symbols-rounded icon-sm">edit</span>
                     </button>
                     <button
                         className="btn btn-outline btn-sm btn-destructive-outline"
                         onClick={() => onDelete(ann)}
-                        title="Delete"
+                        title={t('common.delete')}
                     >
                         <span className="material-symbols-rounded icon-sm">delete</span>
                     </button>
@@ -220,7 +220,7 @@ export function TeacherAnnouncement() {
             setAnnouncements(prev => prev.filter(a => a.id !== ann.id))
             if (editingId === ann.id) handleCancelEdit()
         } catch {
-            setError('Failed to delete announcement.')
+            setError(t('teacher.deleteFailed'))
         } finally {
             setBusyId(null)
         }
@@ -231,9 +231,9 @@ export function TeacherAnnouncement() {
         try {
             const updated = await updateTeacherAnnouncement(ann.id, { status: 'published' })
             setAnnouncements(prev => prev.map(a => a.id === ann.id ? updated : a))
-            flash('Announcement published!')
+            flash(t('announcements.publishedToast'))
         } catch {
-            setError('Failed to publish.')
+            setError(t('teacher.publishFailed'))
         } finally {
             setBusyId(null)
         }
@@ -256,15 +256,15 @@ export function TeacherAnnouncement() {
                 const updated = await updateTeacherAnnouncement(editingId, payload)
                 setAnnouncements(prev => prev.map(a => a.id === editingId ? updated : a))
                 handleCancelEdit()
-                flash('Announcement updated.')
+                flash(t('announcements.updated'))
             } else {
                 const created = await createTeacherAnnouncement(payload)
                 setAnnouncements(prev => [created, ...prev])
                 setForm({ ...EMPTY_FORM })
-                flash(status === 'published' ? 'Published!' : 'Saved as draft.')
+                flash(status === 'published' ? t('announcements.publishedToast') : t('announcements.saveDraft'))
             }
         } catch {
-            setError('Failed to save. Please try again.')
+            setError(t('common.genericSaveFailed'))
         } finally {
             setSaving(false)
         }
@@ -446,7 +446,7 @@ export function TeacherAnnouncement() {
                                 icon="campaign"
                                 title={t('teacher.announcements.none')}
                                 description={chip === 'All'
-                                    ? "You haven't published any announcements yet."
+                                    ? t('teacher.announcements.emptyDescription')
                                     : `No ${chip.toLowerCase()} announcements found.`}
                             />
                         ) : (

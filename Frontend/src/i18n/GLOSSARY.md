@@ -126,11 +126,20 @@ brackets), not from a generic word list.
 | Settings | igenamiterere | ok |
 | Dashboard | imbonerahamwe | ok |
 | Profile | umwirondoro | OK |
-| Loading… (94) | Biratangira… | ok |
+| Loading… (94) | Turimo gukura… | OK |
 | Records (19) | inyandiko | ok |
 | Report (18) | raporo | OK |
 | Portal | urubuga (pl. imbuga) | ok |
 
+
+> **`Loading…` corrected 2026-08-21.** It was `Biratangira…`, from *gutangira*
+> (to begin) — so "Loading exams…" read as *"the exams are starting"* and
+> "Loading classes…" as *"the classes are starting"*, which in a school app
+> says something else entirely. All 31 loading strings now use
+> **`Turimo gukura X…`** ("we are fetching X"), matching *gukura* as already
+> used for fetching in `dos.timetable.loadTermsFailed`. Keep the noun in the
+> string — `Turimo gukura amanota…`, not a bare `Turimo gukura…` — so the
+> spinner still says what it is waiting for.
 
 ## 9. Weekdays (timetable / attendance columns)
 
@@ -184,6 +193,23 @@ safe to publish a Kinyarwanda version at all before a lawyer has read it.
 School is now **`ikigo`** (the institution); **`ishuri`** is reserved for a
 *class*. "Ishuri ryanjye" therefore reads unambiguously as "my class". This is
 the reason `School` in section 2 is `ikigo` and not `ishuri`.
+
+**Note A exception — set phrases keep `ishuri` (confirmed 2026-08-21).**
+The split above governs the school *as an actor* — "schools are notified",
+"schools decide how long to keep records". It does **not** override fixed
+expressions where `ishuri` is simply what the phrase is. These are correct as
+they stand and must not be "corrected" to `ikigo`:
+
+| Phrase | Kinyarwanda | Keys |
+|---|---|---|
+| school fees | amafaranga y'ishuri | `settings.currencyDesc`, `privacy.holdsBody` |
+| school hours | amasaha y'ishuri | `terms.availabilityBody` |
+| secondary schools | amashuri yisumbuye | `publicLayout.footerDesc` |
+| school life | ubuzima bw'ishuri | `portalLogin.parent` |
+
+Rule of thumb: if the school is the **subject doing something**, use `ikigo`.
+If `ishuri` is part of a **noun phrase naming a thing** (fees, hours, life,
+a school type), leave it.
 
 **Note B — ACCEPTED as-is.** Subject and lesson both stay `isomo`; context
 carries it. Where the timetable shows both at once, use `isomo` for the subject

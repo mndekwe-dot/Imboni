@@ -1,0 +1,40 @@
+{
+  "announcements": {
+    "subtitle": "Stay updated with school news and notifications"
+  },
+  "attendance": {
+    "subtitle": "Monthly attendance calendar and stats",
+    "title": "Attendance Records"
+  },
+  "behaviour": {
+    "subtitle": "Track your child's conduct and achievements",
+    "title": "Behaviour Reports"
+  },
+  "children": {
+    "subtitle": "Overview of your children's profiles",
+    "title": "My Children"
+  },
+  "dashboard": {
+    "subtitle": "Here's what's happening with your children",
+    "title": "Parent Dashboard"
+  },
+  "messages": {
+    "subtitle": "Communicate with teachers and school staff"
+  },
+  "results": {
+    "noAssessments": "No assessments recorded yet.",
+    "noChildren": "No children linked to your account yet.",
+    "noReviews": "No reviews yet.",
+    "recentAssessments": "Recent Assessments & Projects",
+    "recentFor": "Recent Results for {{name}}",
+    "subtitle": "Performance tracking and term reports",
+    "summative": "Summative Performance",
+    "teacherReviews": "Teacher Reviews",
+    "thisTerm": "This Term",
+    "title": "Academic Results"
+  },
+  "timetable": {
+    "subtitle": "View your child's weekly academic schedule",
+    "title": "Class Timetable"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "activities": {
+    "achievement": "Distinction",
+    "available": "Activités disponibles",
+    "awarded": "Attribuée",
+    "conductGradeTerm": "Note de conduite (trimestre en cours)",
+    "enrolled": "Mes activités",
+    "loadingActivities": "Chargement des activités…",
+    "loadingEvents": "Chargement des événements…",
+    "loadingRecords": "Chargement des dossiers…",
+    "negative": "Négatif",
+    "noEvents": "Aucun événement à venir",
+    "noEventsDesc": "Les événements liés à vos activités apparaîtront ici.",
+    "noRecordsFiltered": "Aucun dossier disciplinaire ne correspond à ce filtre.",
+    "noneDesc": "Les activités extrascolaires apparaîtront ici dès qu'elles seront proposées.",
+    "noneFound": "Aucune activité trouvée",
+    "noted": "Observation",
+    "positive": "Positif",
+    "recordsTitle": "Dossiers de conduite et de discipline",
+    "subtitle": "Dossier de conduite et activités extrascolaires",
+    "title": "Activités et discipline",
+    "upcomingEvents": "Prochains événements d'activités",
+    "warning": "Avertissement"
+  },
+  "announcements": {
+    "academic": "Pédagogique",
+    "actionNeeded": "Action requise",
+    "administration": "Administration",
+    "all": "Toutes",
+    "by": "Par {{author}}",
+    "empty": "Aucune annonce pour le moment.",
+    "emptyFiltered": "Aucune annonce ne correspond à ce filtre.",
+    "events": "Événements",
+    "general": "Général",
+    "loading": "Chargement des annonces…",
+    "published": "Publiée",
+    "subtitle": "Avis de l'école, actualités de la classe et alertes d'activités",
+    "thisMonth": "Ce mois-ci",
+    "total": "Total",
+    "unread": "Non lues",
+    "upcomingEvents": "Prochains événements",
+    "urgent": "Urgent"
+  },
+  "assignments": {
+    "allAssignments": "Tous les devoirs",
+    "emptyFiltered": "Aucun devoir ne correspond à ce filtre pour le moment.",
+    "loading": "Chargement des devoirs…",
+    "onlineQuizzes": "Quiz en ligne",
+    "submitNow": "Rendre maintenant",
+    "subtitle": "Suivez toutes vos tâches et échéances",
+    "takeQuiz": "Passer le quiz",
+    "totalThisTerm": "Total ce trimestre"
+  },
+  "attendance": {
+    "daysAbsent": "Jours d'absence",
+    "daysPresent": "Jours de présence",
+    "lateArrivals": "Retards",
+    "loadingCalendar": "Chargement du calendrier…",
+    "monthlyCalendar": "Calendrier mensuel",
+    "noRecords": "Aucun relevé pour ce mois.",
+    "overallRate": "Taux de présence global",
+    "totalDays": "Total de jours de classe"
+  },
+  "dashboard": {
+    "attendance": "Présences",
+    "conductGrade": "Note de conduite",
+    "currentTerm": "Trimestre en cours",
+    "dueToday": "À rendre aujourd'hui",
+    "dueTomorrow": "À rendre demain",
+    "dueUpcoming": "À rendre prochainement",
+    "fullReport": "Rapport complet",
+    "fullTimetable": "Emploi du temps complet",
+    "greeting": "Bonjour {{name}} !",
+    "latestGrade": "Dernière note",
+    "mostRecent": "La plus récente",
+    "noClassesToday": "Aucun cours prévu aujourd'hui.",
+    "noResults": "Aucun résultat pour le moment.",
+    "noUpcomingAssignments": "Aucun devoir à venir.",
+    "overdue": "En retard",
+    "pendingAssignments": "Devoirs en attente",
+    "recentGrades": "Notes récentes",
+    "studentId": "Matricule : {{code}}",
+    "thisTerm": "Ce trimestre",
+    "todaySchedule": "Emploi du temps du jour",
+    "upcomingAssignments": "Devoirs à venir",
+    "welcomeBack": "Bon retour, {{name}}"
+  },
+  "discipline": {
+    "subtitle": "Règlement de l'école, votre dossier disciplinaire et les recours"
+  },
+  "results": {
+    "assessment": "Évaluation",
+    "averageOverTime": "Ma moyenne dans le temps",
+    "averageScore": "Note moyenne",
+    "breakdown": "Détail des évaluations",
+    "empty": "Aucun résultat disponible pour le moment.",
+    "loading": "Chargement des résultats…",
+    "max": "Max",
+    "myAverage": "Ma moyenne",
+    "noAssessments": "Aucune évaluation individuelle enregistrée.",
+    "subjectsTaken": "Matières suivies",
+    "subtitle": "Résultats scolaires",
+    "subtitleWithClass": "Résultats scolaires de {{class}}",
+    "title": "Mes résultats",
+    "year": "Année"
+  },
+  "timetable": {
+    "loadError": "Impossible de charger les informations de la classe.",
+    "subtitle": "Emploi du temps hebdomadaire",
+    "subtitleWithClass": "Emploi du temps hebdomadaire de la classe {{class}}",
+    "title": "Mon emploi du temps"
+  },
+  "messages": {
+    "subtitle": "Échangez avec vos enseignants"
+  },
+  "quizReview": {
+    "loadFailed": "Impossible de charger votre copie."
+  }
+}

@@ -98,7 +98,7 @@ describe('TeacherAnnouncement', () => {
             target_grade: '',
             status: 'published',
         }))
-        await waitFor(() => expect(screen.getByText('Published!')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText('Announcement published.')).toBeInTheDocument())
     })
 
     it('saves a new announcement as a draft', async () => {

@@ -4,7 +4,7 @@ import { Sidebar } from '../layout/Sidebar'
 import { DashboardHeader } from '../layout/DashboardHeader'
 import { ConversationItem } from './ConversationItem'
 import { ChatBubble } from './ChatBubble'
-import { formatDateShort } from '../../utils/date'
+import { formatDateShort, formatTime } from '../../utils/date'
 import {
     getConversations, getMessages, sendMessage,
     getMessageContacts, startConversation,
@@ -25,14 +25,17 @@ function roleClass(role) {
         ? role : ''
 }
 
-function relativeTime(iso) {
+// `t` is passed in rather than captured: this sits outside the component, and
+// both the clock time and the word "Yesterday" have to follow the active
+// language, not the browser's.
+function relativeTime(iso, t) {
     if (!iso) return ''
     const d = new Date(iso)
     const now = new Date()
     const sameDay = d.toDateString() === now.toDateString()
-    if (sameDay) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    if (sameDay) return formatTime(d)
     const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1)
-    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday'
+    if (d.toDateString() === yesterday.toDateString()) return t('common.yesterday')
     return formatDateShort(d)
 }
 
@@ -202,7 +205,7 @@ export function LiveMessages({
                                                 name={name}
                                                 typeTag={conv.other_participant?.role_label}
                                                 typeClass={roleClass(conv.other_participant?.role)}
-                                                time={relativeTime(conv.last_message?.created_at || conv.updated_at)}
+                                                time={relativeTime(conv.last_message?.created_at || conv.updated_at, t)}
                                                 preview={conv.last_message?.content || 'No messages yet'}
                                                 isUnread={conv.unread_count > 0}
                                                 isActive={conv.id === selectedId}
@@ -254,7 +257,7 @@ export function LiveMessages({
                                                         key={m.id}
                                                         type={m.is_mine ? 'sent' : 'received'}
                                                         text={m.content}
-                                                        time={relativeTime(m.created_at)}
+                                                        time={relativeTime(m.created_at, t)}
                                                         senderInitials={m.is_mine ? undefined : initialsOf(m.sender_name)}
                                                         senderAvatarClass={roleClass(other?.role)}
                                                     />

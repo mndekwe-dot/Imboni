@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -64,6 +65,7 @@ function ReviewQuestion({ q, qi }) {
 }
 
 export function StudentQuizReview() {
+    const { t } = useTranslation()
     const { assignmentId } = useParams()
     const navigate = useNavigate()
     const [review, setReview]   = useState(null)
@@ -73,7 +75,7 @@ export function StudentQuizReview() {
     useEffect(() => {
         getQuizReview(assignmentId)
             .then(setReview)
-            .catch(err => setError(err?.response?.data?.detail || 'Failed to load your submission.'))
+            .catch(err => setError(err?.response?.data?.detail || t('student.quizReview.loadFailed')))
             .finally(() => setLoading(false))
     }, [assignmentId])
 

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { PublicLayout } from '../components/PublicLayout'
 import { findMySchool } from '../api/discovery'
 import { errorMessage } from '../utils/errors'
@@ -15,6 +16,7 @@ import { errorMessage } from '../utils/errors'
  * There is exactly one success state, and it is deliberately vague.
  */
 export function FindSchool() {
+    const { t } = useTranslation()
     const [email, setEmail] = useState('')
     const [sent, setSent] = useState(false)
     const [message, setMessage] = useState('')
@@ -29,13 +31,13 @@ export function FindSchool() {
         setError('')
         try {
             const res = await findMySchool(email)
-            setMessage(res?.detail || 'If that address is registered, we have sent it an email.')
+            setMessage(res?.detail || t('findSchool.sentMessage'))
             setSent(true)
         } catch (err) {
             // Only genuine failures surface: rate limiting, or the server being
             // unreachable. Never "we couldn't find you" -- the API does not say
             // that, and neither should this.
-            setError(errorMessage(err, 'Could not send the reminder. Please try again shortly.'))
+            setError(errorMessage(err, t('findSchool.sendFailed')))
         } finally {
             setBusy(false)
         }
@@ -43,8 +45,8 @@ export function FindSchool() {
 
     return (
         <PublicLayout
-            title="Find your school"
-            subtitle="Every school on Imboni has its own web address. Lost yours? Enter your email and we will send it to you."
+            title={t('findSchool.title')}
+            subtitle={t('findSchool.subtitle')}
         >
             <div className="pub-prose">
                 {sent ? (
@@ -76,7 +78,7 @@ export function FindSchool() {
                         {error && <p className="pub-find-error" role="alert">{error}</p>}
 
                         <button type="submit" className="pub-plan-cta pub-plan-cta--solid" disabled={busy}>
-                            {busy ? 'Sending…' : 'Email me my school link'}
+                            {busy ? t('findSchool.formSubmitting') : t('findSchool.formButton')}
                         </button>
 
                         <p className="pub-find-note">
