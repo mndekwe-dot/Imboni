@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { applyToImboni } from '../api/platform'
 import { errorMessage } from '../utils/errors'
 import logo from '../assets/images/imboni-logo.png'
@@ -12,6 +13,7 @@ const emptyForm = () => ({
 })
 
 export function Apply() {
+    const { t } = useTranslation()
     const [form, setForm]     = useState(emptyForm())
     const [saving, setSaving] = useState(false)
     const [error, setError]   = useState('')
@@ -28,7 +30,7 @@ export function Apply() {
             await applyToImboni(payload)
             setDone(true)
         } catch (err) {
-            setError(errorMessage(err, 'Could not submit your application. Please try again.'))
+            setError(errorMessage(err, t('apply.sendFailed')))
         } finally { setSaving(false) }
     }
 
@@ -38,8 +40,8 @@ export function Apply() {
                 <div className="platform-login-brand">
                     <img src={logo} alt="Imboni" />
                     <div>
-                        <h1>Bring your school to Imboni</h1>
-                        <p>Apply to get your school onboarded</p>
+                        <h1>{t('apply.title')}</h1>
+                        <p>{t('apply.subtitle')}</p>
                     </div>
                 </div>
 
@@ -47,7 +49,7 @@ export function Apply() {
                     <div>
                         <div className="pf-callout pf-row">
                             <span className="material-symbols-rounded">check_circle</span>
-                            Application received. Our team will review it and get back to you.
+                            {t('apply.received')}
                         </div>
                         <Link to="/" className="btn btn-outline pf-mt">Back to home</Link>
                     </div>

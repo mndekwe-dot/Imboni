@@ -1,0 +1,119 @@
+{
+  "activities": {
+    "achievement": "Icyagezweho",
+    "available": "Ibikorwa bihari",
+    "awarded": "Byahawe",
+    "conductGradeTerm": "Urwego rw'imyitwarire (igihembwe kiriho)",
+    "enrolled": "Ibikorwa niyandikishijemo",
+    "loadingActivities": "Turimo gukura ibikorwa…",
+    "loadingEvents": "Turimo gukura ibirori…",
+    "loadingRecords": "Turimo gukura inyandiko…",
+    "negative": "Bibi",
+    "noEvents": "Nta birori biri imbere",
+    "noEventsDesc": "Ibirori by'ibikorwa wiyandikishijemo bizagaragara hano.",
+    "noRecordsFiltered": "Nta nyandiko z'imyitwarire zihuye n'iyi muyunguruzo.",
+    "noneDesc": "Ibikorwa byo kwidagadura bizagaragara hano nibiba bihari.",
+    "noneFound": "Nta bikorwa byabonetse",
+    "noted": "Byanditswe",
+    "positive": "Byiza",
+    "recordsTitle": "Inyandiko z'imyitwarire",
+    "subtitle": "Inyandiko y'imyitwarire n'ibikorwa byo kwidagadura",
+    "title": "Ibikorwa n'imyitwarire",
+    "upcomingEvents": "Ibirori by'ibikorwa biri imbere",
+    "warning": "Umuburo"
+  },
+  "announcements": {
+    "academic": "Amasomo",
+    "actionNeeded": "Bisaba igikorwa",
+    "administration": "Ubuyobozi",
+    "all": "Byose",
+    "by": "Byatanzwe na {{author}}",
+    "empty": "Nta matangazo arahari.",
+    "emptyFiltered": "Nta matangazo ahuye n'iyi muyunguruzo.",
+    "events": "Ibirori",
+    "general": "Rusange",
+    "loading": "Turimo gukura amatangazo…",
+    "published": "Byatangajwe",
+    "subtitle": "Amatangazo y'ikigo, amakuru y'ishuri n'ibikorwa",
+    "thisMonth": "Uku kwezi",
+    "total": "Byose hamwe",
+    "unread": "Bitarasomwa",
+    "upcomingEvents": "Ibirori biri imbere",
+    "urgent": "Byihutirwa"
+  },
+  "assignments": {
+    "allAssignments": "Imikoro yose",
+    "emptyFiltered": "Nta mikoro ihuye n'iyi muyunguruzo.",
+    "loading": "Turimo gukura imikoro…",
+    "onlineQuizzes": "Ibizamini byo kuri interineti",
+    "submitNow": "Tanga nonaha",
+    "subtitle": "Kurikirana imikoro yawe n'ibihe ntarengwa",
+    "takeQuiz": "Kora ikizamini",
+    "totalThisTerm": "Byose muri iki gihembwe"
+  },
+  "attendance": {
+    "daysAbsent": "Iminsi yasibye",
+    "daysPresent": "Iminsi yaje",
+    "lateArrivals": "Inshuro yatinze",
+    "loadingCalendar": "Turimo gukura kalendari…",
+    "monthlyCalendar": "Kalendari y'ukwezi",
+    "noRecords": "Nta nyandiko z'uku kwezi.",
+    "overallRate": "Igipimo rusange cy'ubwitabire",
+    "totalDays": "Iminsi yose y'amasomo"
+  },
+  "dashboard": {
+    "attendance": "Ubwitabire",
+    "conductGrade": "Urwego rw'imyitwarire",
+    "currentTerm": "Igihembwe kiriho",
+    "dueToday": "Bigomba gutangwa uyu munsi",
+    "dueTomorrow": "Bigomba gutangwa ejo",
+    "dueUpcoming": "Igihe kiregereje",
+    "fullReport": "Raporo yuzuye",
+    "fullTimetable": "Gahunda yuzuye",
+    "greeting": "Mwaramutse, {{name}}!",
+    "latestGrade": "Urwego ruheruka",
+    "mostRecent": "Ibiheruka",
+    "noClassesToday": "Nta masomo ateganyijwe uyu munsi.",
+    "noResults": "Nta manota arahari.",
+    "noUpcomingAssignments": "Nta mikoro iri imbere.",
+    "overdue": "Igihe cyarenze",
+    "pendingAssignments": "Imikoro itaratangwa",
+    "recentGrades": "Amanota aheruka",
+    "studentId": "Nomero y'umunyeshuri: {{code}}",
+    "thisTerm": "Iki gihembwe",
+    "todaySchedule": "Gahunda y'uyu munsi",
+    "upcomingAssignments": "Imikoro iri imbere",
+    "welcomeBack": "Murakaza neza, {{name}}"
+  },
+  "discipline": {
+    "subtitle": "Amategeko y'ikigo, inyandiko y'imyitwarire yawe n'ubujurire"
+  },
+  "results": {
+    "assessment": "Isuzuma",
+    "averageOverTime": "Impuzandengo yanjye mu gihe",
+    "averageScore": "Impuzandengo y'amanota",
+    "breakdown": "Isesengura ry'amasuzuma",
+    "empty": "Nta manota arahari.",
+    "loading": "Turimo gukura amanota…",
+    "max": "Ntarengwa",
+    "myAverage": "Impuzandengo yanjye",
+    "noAssessments": "Nta masuzuma yihariye yanditswe.",
+    "subjectsTaken": "Amasomo yatswe",
+    "subtitle": "Imikorere mu masomo",
+    "subtitleWithClass": "Imikorere mu masomo ya {{class}}",
+    "title": "Amanota yanjye",
+    "year": "Umwaka"
+  },
+  "timetable": {
+    "loadError": "Ntibyashobotse kubona amakuru y'ishuri.",
+    "subtitle": "Gahunda y'icyumweru",
+    "subtitleWithClass": "Gahunda y'icyumweru y'ishuri {{class}}",
+    "title": "Gahunda yanjye"
+  },
+  "messages": {
+    "subtitle": "Vugana n'abarimu bawe"
+  },
+  "quizReview": {
+    "loadFailed": "Gufungura igisubizo byanze."
+  }
+}

@@ -201,7 +201,7 @@ function LogTab({ student, onReportSaved }) {
             setDone(true)
             if (onReportSaved) onReportSaved()
         } catch {
-            setError('Failed to save. Please try again.')
+            setError(t('common.genericSaveFailed'))
         } finally {
             setSaving(false)
         }

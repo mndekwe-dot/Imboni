@@ -1,0 +1,9 @@
+{
+  "admin": "School administration, staff management and system settings",
+  "discipline": "Student behaviour, boarding management and activities",
+  "dos": "Academic oversight, scheduling, results approval and analytics",
+  "matron": "Student health, welfare and dormitory management",
+  "parent": "Monitor your child's academic progress and school life",
+  "student": "Access your results, timetable, assignments and activities",
+  "teacher": "Manage your classes, mark attendance and enter results"
+}

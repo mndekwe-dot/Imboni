@@ -6,6 +6,7 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { getAuditLog } from '../../api/admin'
+import { formatDateTime } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
@@ -28,17 +29,6 @@ const ACTION_BADGE = {
     'student.suspended':    { label: 'Suspended',        cls: 'overdue' },
     'student.reinstated':   { label: 'Reinstated',       cls: 'paid'    },
     'fees.reminders_sent':  { label: 'Fee Reminders',    cls: 'partial' },
-}
-
-function formatWhen(iso) {
-    try {
-        return new Date(iso).toLocaleString(undefined, {
-            day: 'numeric', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit',
-        })
-    } catch {
-        return iso
-    }
 }
 
 export function AdminAuditLog() {
@@ -131,7 +121,7 @@ export function AdminAuditLog() {
                                                     const badge = ACTION_BADGE[e.action] || { label: e.action, cls: 'partial' }
                                                     return (
                                                         <tr key={e.id}>
-                                                            <td className="u-nowrap">{formatWhen(e.created_at)}</td>
+                                                            <td className="u-nowrap">{formatDateTime(e.created_at)}</td>
                                                             <td>
                                                                 <div className="adm-name">{e.actor_name || 'System'}</div>
                                                                 <div className="adm-sub">{e.actor_role}</div>

@@ -33,7 +33,7 @@ export function NewActivityModal({ onClose, onSave }) {
                 max_members: parseInt(form.max_members) || 30,
                 description: form.description,
             })
-        } catch { setError('Failed to create. Please try again.') }
+        } catch { setError(t('common.genericCreateFailed')) }
         finally   { setSaving(false) }
     }
 

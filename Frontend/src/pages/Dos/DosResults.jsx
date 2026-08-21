@@ -411,7 +411,7 @@ export function DosResults() {
                 setAnalyticsData(data)
                 if (!activeTermId && data.current_term_id) setActiveTermId(data.current_term_id)
             })
-            .catch(e => toast.error(errorMessage(e, 'Could not load analytics.')))
+            .catch(e => toast.error(errorMessage(e, t('dos.results.loadAnalyticsFailed'))))
             .finally(() => setAnalyticsLoading(false))
     }, [activeTab, activeTermId])
 

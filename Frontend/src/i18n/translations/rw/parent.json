@@ -1,0 +1,40 @@
+{
+  "announcements": {
+    "subtitle": "Menya amakuru n'integuza z'ikigo"
+  },
+  "attendance": {
+    "subtitle": "Kalendari y'ubwitabire n'imibare y'ukwezi",
+    "title": "Inyandiko z'ubwitabire"
+  },
+  "behaviour": {
+    "subtitle": "Kurikirana imyitwarire n'ibyo umwana wawe agezeho",
+    "title": "Raporo z'imyitwarire"
+  },
+  "children": {
+    "subtitle": "Incamake y'imyirondoro y'abana bawe",
+    "title": "Abana banjye"
+  },
+  "dashboard": {
+    "subtitle": "Dore ibirimo kubera abana bawe",
+    "title": "Imbonerahamwe y'umubyeyi"
+  },
+  "messages": {
+    "subtitle": "Vugana n'abarimu n'abakozi b'ikigo"
+  },
+  "results": {
+    "noAssessments": "Nta bizamini byanditswe.",
+    "noChildren": "Nta mwana ufitanye isano na konti yawe.",
+    "noReviews": "Nta bitekerezo birahaboneka.",
+    "recentAssessments": "Ibizamini n'imishinga biheruka",
+    "recentFor": "Amanota aheruka ya {{name}}",
+    "subtitle": "Gukurikirana imikorere na raporo z'igihembwe",
+    "summative": "Imikorere y'igihembwe",
+    "teacherReviews": "Ibitekerezo by'abarimu",
+    "thisTerm": "Iki gihembwe",
+    "title": "Amanota y'amasomo"
+  },
+  "timetable": {
+    "subtitle": "Reba gahunda y'icyumweru y'umwana wawe",
+    "title": "Gahunda y'ishuri"
+  }
+}

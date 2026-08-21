@@ -1,0 +1,40 @@
+{
+  "announcements": {
+    "subtitle": "Restez informé des actualités et des notifications de l'école"
+  },
+  "attendance": {
+    "subtitle": "Calendrier mensuel des présences et statistiques",
+    "title": "Relevés de présence"
+  },
+  "behaviour": {
+    "subtitle": "Suivez la conduite et les réussites de votre enfant",
+    "title": "Rapports de conduite"
+  },
+  "children": {
+    "subtitle": "Vue d'ensemble des profils de vos enfants",
+    "title": "Mes enfants"
+  },
+  "dashboard": {
+    "subtitle": "Voici ce qui se passe pour vos enfants",
+    "title": "Tableau de bord parent"
+  },
+  "messages": {
+    "subtitle": "Échangez avec les enseignants et le personnel de l'école"
+  },
+  "results": {
+    "noAssessments": "Aucune évaluation enregistrée pour le moment.",
+    "noChildren": "Aucun enfant n'est encore rattaché à votre compte.",
+    "noReviews": "Aucune appréciation pour le moment.",
+    "recentAssessments": "Évaluations et projets récents",
+    "recentFor": "Résultats récents de {{name}}",
+    "subtitle": "Suivi des performances et bulletins du trimestre",
+    "summative": "Performance sommative",
+    "teacherReviews": "Appréciations des enseignants",
+    "thisTerm": "Ce trimestre",
+    "title": "Résultats scolaires"
+  },
+  "timetable": {
+    "subtitle": "Consultez l'emploi du temps hebdomadaire de votre enfant",
+    "title": "Emploi du temps de la classe"
+  }
+}

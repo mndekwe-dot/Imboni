@@ -116,7 +116,7 @@ export function AdminBilling() {
         let alive = true
         getBillingStatus()
             .then(data => { if (alive) setBilling(data) })
-            .catch(err => { if (alive) setError(err?.response?.data?.detail || err.message || 'Could not load billing status.') })
+            .catch(err => { if (alive) setError(err?.response?.data?.detail || err.message || t('admin.billing.loadFailed')) })
             .finally(() => { if (alive) setLoading(false) })
         return () => { alive = false }
     }, [])
@@ -130,10 +130,10 @@ export function AdminBilling() {
                 window.location.assign(checkout_url)
                 return
             }
-            setActionError('No checkout URL was returned.')
+            setActionError(t('admin.billing.noCheckoutUrl'))
             setCheckingOut(null)
         } catch (err) {
-            setActionError(err?.response?.data?.detail || err.message || 'Could not start checkout.')
+            setActionError(err?.response?.data?.detail || err.message || t('admin.billing.checkoutFailed'))
             setCheckingOut(null)
         }
     }

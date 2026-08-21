@@ -1,0 +1,121 @@
+{
+  "announcements": {
+    "subtitle": "Kwandika no gutangaza amatangazo ku kigo cyose"
+  },
+  "approvals": {
+    "subtitle": "Suzuma kandi wemeze amanota yatanzwe n'abarimu",
+    "title": "Kwemeza amanota",
+    "rejectTitle": "Anga amanota",
+    "rejectReasonRequired": "Impamvu yo kwanga irakenewe.",
+    "rejectFailed": "Kwanga byanze. Ongera ugerageze.",
+    "rejecting": "Birangwa…",
+    "rejectingSubject": "Ukwanga amanota ya {{subject}} ya {{student}}. Tangira impamvu umwarimu.",
+    "rejectReasonLabel": "Impamvu yo kwanga *",
+    "rejectReasonPlaceholder": "urugero: Amanota ntabwo ahuye n'ishuri ryawe…"
+  },
+  "auditLog": {
+    "subtitle": "Uwakoze iki n'igihe: ibikorwa by'ubuyobozi byitonderwa"
+  },
+  "billing": {
+    "subtitle": "Cunga ifatabuguzi na gahunda y'ikigo cyawe"
+  },
+  "dashboard": {
+    "subtitle": "Incamake y'ikigo cyose",
+    "subtitleWithTerm": "Incamake y'ikigo cyose ({{term}}, {{year}})",
+    "title": "Imbonerahamwe y'ubuyobozi"
+  },
+  "finance": {
+    "category": "Icyiciro",
+    "collected": "Yakusanyijwe",
+    "dueDate": "Itariki ntarengwa",
+    "loading": "Turimo gukura amakuru y'amafaranga…",
+    "noOutstanding": "Nta mafaranga asigaye muri iki gihembwe.",
+    "ofTarget": "{{rate}}% by'intego",
+    "outstanding": "Asigaye",
+    "outstandingTitle": "Amafaranga asigaye",
+    "overdueCount": "{{count}} yarengeje igihe",
+    "quickActions": "Ibikorwa byihuse",
+    "student": "Umunyeshuri",
+    "subtitle": "Ikusanya ry'amafaranga, ubwishyu n'ingengo y'imari",
+    "subtitleWithTerm": "Ikusanya ry'amafaranga, ubwishyu n'ingengo y'imari ({{term}}, {{year}})",
+    "title": "Imari",
+    "totalExpected": "Amafaranga yose ateganyijwe",
+    "unavailable": "Amakuru y'amafaranga ntaboneka. Reba niba hari igihembwe cyagenwe."
+  },
+  "reports": {
+    "subtitle": "Isesengura ry'imikorere, ubwitabire no kwiyandikisha",
+    "title": "Raporo n'isesengura"
+  },
+  "settings": {
+    "checking": "Birasuzumwa…",
+    "comingSoon": "Uburyo bwo kuboneza buraza vuba.",
+    "currentTermLabel": "Igihembwe kiriho:",
+    "displayName": "Izina rigaragara",
+    "egTermName": "urugero: Igihembwe 1 2027",
+    "egYear": "urugero: 2027",
+    "missingClasses": "Nta shuri ririho kuri: {{list}}. Abo banyeshuri bazazamurwa ariko ntibashyirwe ku rutonde. Rema ayo mashuri mbere niba bikenewe.",
+    "mode": "Uburyo",
+    "modeCarry": "Umwaka umwe: gukomeza urutonde rw'amashuri",
+    "modePromotion": "Umwaka mushya w'amashuri: kuzamura abanyeshuri",
+    "navAccess": "Kwinjira n'inshingano",
+    "navBackup": "Amakuru no kubika",
+    "navCalendar": "Kalendari y'amasomo",
+    "navInfo": "Umwirondoro w'ikigo",
+    "navNotifications": "Integuza",
+    "navRollover": "Guhindura igihembwe",
+    "navRooms": "Ibyumba",
+    "navStructure": "Imiterere y'ikigo",
+    "navSubjects": "Amasomo",
+    "newTerm": "Igihembwe gishya",
+    "previewFailed": "Kureba mbere byanze.",
+    "previewRollover": "Reba mbere guhindura",
+    "rollingOver": "Birahindurwa…",
+    "rolloverDanger": "Ibi ntibishobora gusubizwa inyuma uhereye ku rubuga. Menya neza ko amanota y'{{term}} yemejwe mbere yo gukomeza.",
+    "rolloverDone": "{{term}} ni cyo gihembwe kiriho ubu",
+    "rolloverFailed": "Guhindura igihembwe byanze.",
+    "rolloverIntro": "Guhindura igihembwe bisoza igihembwe kiriho, bigatangiza igikurikira, kandi iyo umwaka mushya w'amashuri utangiye, bikazamura buri munyeshuri uri mu ishuri urwego rumwe.",
+    "rolloverIntroFinal": "Guhindura igihembwe bisoza igihembwe kiriho, bigatangiza igikurikira, kandi iyo umwaka mushya w'amashuri utangiye, bikazamura buri munyeshuri uri mu ishuri urwego rumwe ({{year}} barangiza).",
+    "rolloverSummary": "{{promoted}} bazamuwe · {{graduated}} barangije · {{rosters}} ntonde zaremwe",
+    "rostersCreated": "Intonde z'amashuri zaremwe",
+    "runRollover": "Kora ihinduka",
+    "saveChanges": "Bika impinduka",
+    "saveInfoFailed": "Kubika umwirondoro w'ikigo byanze.",
+    "schoolName": "Izina ry'ikigo",
+    "schoolNameDesc": "Rigaragara ku mbuga zose no muri raporo",
+    "schoolNamePlaceholder": "urugero: Imboni Academy",
+    "studentsGraduating": "Abanyeshuri barangiza",
+    "studentsGraduatingYear": "Abanyeshuri barangiza ({{year}})",
+    "studentsPromoted": "Abanyeshuri bazamuwe",
+    "subtitle": "Igenamiterere ry'ikigo: imiterere, amasomo, ibyumba n'ibyifuzo"
+  },
+  "staff": {
+    "academic": "Amasomo",
+    "admin": "Ubuyobozi",
+    "allDepartments": "Amashami yose",
+    "allRoles": "Inshingano zose",
+    "disciplineMaster": "Ushinzwe imyitwarire",
+    "invitationSent": "Ubutumire bwoherejwe!",
+    "invitationSentTo": "Umuyoboro w'ubutumire woherejwe kuri",
+    "invitations": "Ubutumire bw'abakozi",
+    "invite": "Tumira abakozi",
+    "inviteMember": "Tumira umukozi",
+    "list": "Urutonde rw'abakozi",
+    "loading": "Turimo gukura abakozi…",
+    "noInvitations": "Nta butumire bwoherejwe. Kanda",
+    "profile": "Umwirondoro w'umukozi",
+    "recipient": "Uwoherejwe",
+    "subtitle": "Abarimu, abita ku mibereho n'abakozi b'ubuyobozi",
+    "title": "Gucunga abakozi",
+    "welfare": "Imibereho"
+  },
+  "students": {
+    "subtitle": "Kwiyandikisha, kwakirwa n'inyandiko z'abanyeshuri",
+    "title": "Gucunga abanyeshuri"
+  },
+  "support": {
+    "subtitle": "Saba ubufasha ku itsinda rya Imboni"
+  },
+  "messages": {
+    "subtitle": "Vugana n'abakozi, abayobozi b'inzego n'ababyeyi"
+  }
+}

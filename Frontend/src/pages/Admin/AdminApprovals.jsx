@@ -31,6 +31,7 @@ function gradeColor(grade) {
 }
 
 function RejectModal({ result, onClose, onDone }) {
+    const { t } = useTranslation()
     const [reason,  setReason]  = useState('')
     const [loading, setLoading] = useState(false)
     const [error,   setError]   = useState('')
@@ -41,14 +42,14 @@ function RejectModal({ result, onClose, onDone }) {
 
     async function handleSubmit(e) {
         e.preventDefault()
-        if (!reason.trim()) { setError('Rejection reason is required.'); return }
+        if (!reason.trim()) { setError(t('admin.approvals.rejectReasonRequired')); return }
         setLoading(true)
         try {
             await rejectResult(result.id, { rejection_reason: reason })
             onDone()
             onClose()
         } catch {
-            setError('Failed to reject. Please try again.')
+            setError(t('admin.approvals.rejectFailed'))
         } finally {
             setLoading(false)
         }
@@ -58,32 +59,32 @@ function RejectModal({ result, onClose, onDone }) {
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2 className="modal-title">Reject Result</h2>
+                    <h2 className="modal-title">{t('admin.approvals.rejectTitle')}</h2>
                     <button className="modal-close" onClick={onClose}>
                         <span className="material-symbols-rounded">close</span>
                     </button>
                 </div>
                 <form className="modal-body u-stack-1" onSubmit={handleSubmit}>
                     <p className="u-muted u-fs-085">
-                        Rejecting <strong>{subject}</strong> result for <strong>{studentName}</strong>. Provide a reason for the teacher.
+                        {t('admin.approvals.rejectingSubject', { subject, student: studentName })}
                     </p>
                     <div className="form-group form-group-0">
-                        <label className="form-label">Rejection Reason *</label>
+                        <label className="form-label">{t('admin.approvals.rejectReasonLabel')}</label>
                         <textarea
                             className="form-input"
                             rows={3}
                             value={reason}
                             onChange={e => { setReason(e.target.value); setError('') }}
-                            placeholder="e.g. Scores do not match the class assessment sheet…"
+                            placeholder={t('admin.approvals.rejectReasonPlaceholder')}
                             autoFocus
                         />
                     </div>
                     {error && <p className="form-error-text">{error}</p>}
                     <div className="u-row-sm u-justify-end">
-                        <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
+                        <button type="button" className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                         <button type="submit" className="btn btn-primary btn-destructive" disabled={loading}>
                             <span className="material-symbols-rounded">cancel</span>
-                            {loading ? 'Rejecting…' : 'Reject Result'}
+                            {loading ? t('admin.approvals.rejecting') : t('admin.approvals.rejectTitle')}
                         </button>
                     </div>
                 </form>
@@ -93,6 +94,7 @@ function RejectModal({ result, onClose, onDone }) {
 }
 
 function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) {
+    const { t } = useTranslation()
     const studentName = result.student_name || result.student?.name ||
         `${result.student?.first_name || ''} ${result.student?.last_name || ''}`.trim() || '-'
     const subject     = result.subject_name || result.subject?.name || '-'
@@ -125,10 +127,10 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
             {status === 'pending' && (
                 <td>
                     <div className="u-flex u-gap-035">
-                        <button className="adm-btn u-success" title="Approve" onClick={() => onApprove(result.id)}>
+                        <button className="adm-btn u-success" title={t('common.approve')} onClick={() => onApprove(result.id)}>
                             <span className="material-symbols-rounded">check_circle</span>
                         </button>
-                        <button className="adm-btn u-destructive" title="Reject" onClick={() => onReject(result)}>
+                        <button className="adm-btn u-destructive" title={t('common.reject')} onClick={() => onReject(result)}>
                             <span className="material-symbols-rounded">cancel</span>
                         </button>
                     </div>

@@ -1,0 +1,13 @@
+{
+  "admin": "Administrator",
+  "discipline": "Discipline",
+  "disciplineDirector": "Director of Discipline",
+  "dos": "Director of Studies",
+  "matron": "Matron",
+  "parent": "Parent",
+  "principal": "School Principal",
+  "principalShort": "Principal",
+  "staff": "Staff",
+  "student": "Student",
+  "teacher": "Teacher"
+}

@@ -1,0 +1,121 @@
+{
+  "announcements": {
+    "subtitle": "Rédigez et diffusez des avis à toute l'école"
+  },
+  "approvals": {
+    "subtitle": "Examinez et validez les résultats d'examen saisis par les enseignants",
+    "title": "Validation des résultats",
+    "rejectTitle": "Rejeter le résultat",
+    "rejectReasonRequired": "Le motif du rejet est obligatoire.",
+    "rejectFailed": "Échec du rejet. Veuillez réessayer.",
+    "rejecting": "Rejet…",
+    "rejectingSubject": "Rejet du résultat de {{subject}} pour {{student}}. Indiquez un motif à l'enseignant.",
+    "rejectReasonLabel": "Motif du rejet *",
+    "rejectReasonPlaceholder": "ex. Les notes ne correspondent pas à la grille d'évaluation de la classe…"
+  },
+  "auditLog": {
+    "subtitle": "Qui a fait quoi, et quand : les actions administratives sensibles"
+  },
+  "billing": {
+    "subtitle": "Gérez l'abonnement et la formule de votre école"
+  },
+  "dashboard": {
+    "subtitle": "Vue d'ensemble de l'école",
+    "subtitleWithTerm": "Vue d'ensemble de l'école ({{term}}, {{year}})",
+    "title": "Tableau de bord administrateur"
+  },
+  "finance": {
+    "category": "Catégorie",
+    "collected": "Encaissé",
+    "dueDate": "Date d'échéance",
+    "loading": "Chargement des données de frais…",
+    "noOutstanding": "Aucun impayé ce trimestre.",
+    "ofTarget": "{{rate}} % de l'objectif",
+    "outstanding": "Impayé",
+    "outstandingTitle": "Frais impayés",
+    "overdueCount": "{{count}} en retard",
+    "quickActions": "Actions rapides",
+    "student": "Élève",
+    "subtitle": "Recouvrement des frais, paiements et budget de l'école",
+    "subtitleWithTerm": "Recouvrement des frais, paiements et budget de l'école ({{term}}, {{year}})",
+    "title": "Finances",
+    "totalExpected": "Total des frais attendus",
+    "unavailable": "Les données de frais sont indisponibles. Vérifiez qu'un trimestre est marqué comme trimestre en cours."
+  },
+  "reports": {
+    "subtitle": "Analyses des performances, des présences et des inscriptions à l'échelle de l'école",
+    "title": "Rapports et analyses"
+  },
+  "settings": {
+    "checking": "Vérification…",
+    "comingSoon": "Options de configuration à venir.",
+    "currentTermLabel": "Trimestre en cours :",
+    "displayName": "Nom affiché",
+    "egTermName": "ex. Trimestre 1 2027",
+    "egYear": "ex. 2027",
+    "missingClasses": "Aucune classe n'existe pour : {{list}}. Ces élèves seront promus mais ne seront pas inscrits sur une liste. Créez d'abord les classes si nécessaire.",
+    "mode": "Mode",
+    "modeCarry": "Même année : reconduire les listes de classe",
+    "modePromotion": "Nouvelle année scolaire : faire passer les élèves au niveau supérieur",
+    "navAccess": "Accès et rôles",
+    "navBackup": "Données et sauvegarde",
+    "navCalendar": "Calendrier scolaire",
+    "navInfo": "Informations sur l'école",
+    "navNotifications": "Notifications",
+    "navRollover": "Passage de trimestre",
+    "navRooms": "Salles",
+    "navStructure": "Structure de l'école",
+    "navSubjects": "Matières",
+    "newTerm": "Nouveau trimestre",
+    "previewFailed": "Échec de l'aperçu.",
+    "previewRollover": "Aperçu du passage",
+    "rollingOver": "Passage en cours…",
+    "rolloverDanger": "Cette opération ne peut pas être annulée depuis l'interface. Assurez-vous que les résultats de {{term}} sont validés avant de continuer.",
+    "rolloverDone": "{{term}} est désormais le trimestre en cours",
+    "rolloverFailed": "Échec du passage de trimestre.",
+    "rolloverIntro": "Le passage clôt le trimestre en cours, crée le suivant et, au début d'une nouvelle année scolaire, fait passer chaque élève actif au niveau supérieur.",
+    "rolloverIntroFinal": "Le passage clôt le trimestre en cours, crée le suivant et, au début d'une nouvelle année scolaire, fait passer chaque élève actif au niveau supérieur (la promotion {{year}} sort de l'école).",
+    "rolloverSummary": "{{promoted}} promus · {{graduated}} sortants · {{rosters}} listes créées",
+    "rostersCreated": "Listes de classe créées",
+    "runRollover": "Lancer le passage",
+    "saveChanges": "Enregistrer les modifications",
+    "saveInfoFailed": "Impossible d'enregistrer les informations de l'école.",
+    "schoolName": "Nom de l'école",
+    "schoolNameDesc": "Affiché sur tous les portails et dans tous les rapports",
+    "schoolNamePlaceholder": "ex. Imboni Academy",
+    "studentsGraduating": "Élèves sortants",
+    "studentsGraduatingYear": "Élèves sortants ({{year}})",
+    "studentsPromoted": "Élèves promus",
+    "subtitle": "Configuration de l'école : structure, matières, salles et préférences"
+  },
+  "staff": {
+    "academic": "Pédagogique",
+    "admin": "Administration",
+    "allDepartments": "Tous les départements",
+    "allRoles": "Tous les rôles",
+    "disciplineMaster": "Responsable de la discipline",
+    "invitationSent": "Invitation envoyée !",
+    "invitationSentTo": "Un lien d'invitation a été envoyé à",
+    "invitations": "Invitations du personnel",
+    "invite": "Inviter un membre du personnel",
+    "inviteMember": "Inviter un membre du personnel",
+    "list": "Liste du personnel",
+    "loading": "Chargement du personnel…",
+    "noInvitations": "Aucune invitation envoyée pour le moment. Cliquez sur",
+    "profile": "Fiche du personnel",
+    "recipient": "Destinataire",
+    "subtitle": "Enseignants, personnel de vie scolaire et d'administration",
+    "title": "Gestion du personnel",
+    "welfare": "Vie scolaire"
+  },
+  "students": {
+    "subtitle": "Inscriptions, admissions et dossiers des élèves",
+    "title": "Gestion des élèves"
+  },
+  "support": {
+    "subtitle": "Obtenez de l'aide auprès de l'équipe Imboni"
+  },
+  "messages": {
+    "subtitle": "Échangez avec le personnel, les chefs de département et les parents"
+  }
+}

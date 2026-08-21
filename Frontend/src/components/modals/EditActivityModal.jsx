@@ -38,7 +38,7 @@ export function EditActivityModal({ activity, onClose, onSave }) {
                 description: form.description,
                 is_active:   form.is_active,
             })
-        } catch { setError('Failed to save. Please try again.') }
+        } catch { setError(t('common.genericSaveFailed')) }
         finally   { setSaving(false) }
     }
 

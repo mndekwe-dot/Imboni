@@ -1,0 +1,17 @@
+{
+  "attachFile": "Joindre un fichier",
+  "backToConversations": "Retour aux conversations",
+  "emoji": "Émoji",
+  "loading": "Chargement…",
+  "moreOptions": "Plus d'options",
+  "new": "Nouveau",
+  "newMessage": "Nouveau message",
+  "noConversations": "Aucune conversation pour le moment. Appuyez sur « Nouveau » pour en démarrer une.",
+  "noMessages": "Aucun message pour le moment. Dites bonjour.",
+  "search": "Rechercher des messages...",
+  "searchPeople": "Rechercher des personnes à qui écrire…",
+  "selectConversation": "Sélectionnez une conversation pour la lire.",
+  "title": "Messages",
+  "typeMessage": "Écrivez votre message…",
+  "viewProfile": "Voir le profil"
+}

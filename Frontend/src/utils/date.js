@@ -46,6 +46,12 @@ export const formatDateTime = value => {
     }) : ''
 }
 
+/** "2:30 PM" — clock time only, for same-day timestamps in message lists. */
+export const formatTime = value => {
+    const d = toDate(value)
+    return d ? d.toLocaleTimeString(locale(), { hour: 'numeric', minute: '2-digit' }) : ''
+}
+
 /** "Aug 15" — when the year is obvious from context. */
 export const formatDateShort = value =>
     fmt(value, { month: 'short', day: 'numeric' })

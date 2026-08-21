@@ -24,6 +24,7 @@ const PLAN_TYPE_CLS   = { full_board: 'success',    half_board: 'warning',    da
 // ── Dining Modal ──────────────────────────────────────────────────────────────
 
 function DiningModal({ plan, onClose, onSave }) {
+    const { t } = useTranslation()
     const isEditing = !!plan
 
     const [query,           setQuery]           = useState(plan?.student_name || '')
@@ -78,7 +79,7 @@ function DiningModal({ plan, onClose, onSave }) {
     }
 
     async function handleSave() {
-        if (!isEditing && !selectedStudent) { setError('Please select a student.'); return }
+        if (!isEditing && !selectedStudent) { setError(t('common.selectStudentRequired')); return }
         setSaving(true); setError(null)
         try {
             const data = isEditing
@@ -86,7 +87,7 @@ function DiningModal({ plan, onClose, onSave }) {
                 : { student_id: selectedStudent.id, plan_type: planType }
             await onSave(data)
         } catch (e) {
-            setError(e?.response?.data?.error || 'Failed to save. Please try again.')
+            setError(e?.response?.data?.error || t('common.genericSaveFailed'))
         } finally { setSaving(false) }
     }
 

@@ -67,7 +67,7 @@ function SectionModal({ section, onClose, onSave }) {
         setSaving(true); setError(null)
         try {
             await onSave({ name: form.name.trim(), gender: form.gender, description: form.description })
-        } catch { setError('Failed to save. Please try again.') }
+        } catch { setError(t('common.genericSaveFailed')) }
         finally   { setSaving(false) }
     }
 
@@ -187,7 +187,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
     const typeInfo = FACILITY_TYPES.find(ft => ft.key === form.facility_type)
 
     async function handleSave() {
-        if (!form.name.trim()) { setError('Name is required.'); return }
+        if (!form.name.trim()) { setError(t('dis.settings.nameRequired')); return }
         setSaving(true); setError(null)
         try {
             await onSave({
@@ -198,7 +198,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                 capacity:      form.capacity ? parseInt(form.capacity) : null,
                 description:   form.description,
             })
-        } catch { setError('Failed to save. Please try again.') }
+        } catch { setError(t('common.genericSaveFailed')) }
         finally   { setSaving(false) }
     }
 

@@ -1,0 +1,119 @@
+{
+  "activities": {
+    "achievement": "Achievement",
+    "available": "Available Activities",
+    "awarded": "Awarded",
+    "conductGradeTerm": "Conduct Grade (Current Term)",
+    "enrolled": "My Enrolled Activities",
+    "loadingActivities": "Loading activities…",
+    "loadingEvents": "Loading events…",
+    "loadingRecords": "Loading records…",
+    "negative": "Negative",
+    "noEvents": "No upcoming events",
+    "noEventsDesc": "Events for your enrolled activities will appear here.",
+    "noRecordsFiltered": "No discipline records match this filter.",
+    "noneDesc": "Extracurricular activities will appear here when they are available.",
+    "noneFound": "No activities found",
+    "noted": "Noted",
+    "positive": "Positive",
+    "recordsTitle": "Behaviour & Discipline Records",
+    "subtitle": "Behaviour record and extracurricular activities",
+    "title": "Activities & Discipline",
+    "upcomingEvents": "Upcoming Activity Events",
+    "warning": "Warning"
+  },
+  "announcements": {
+    "academic": "Academic",
+    "actionNeeded": "Action needed",
+    "administration": "Administration",
+    "all": "All",
+    "by": "By {{author}}",
+    "empty": "No announcements yet.",
+    "emptyFiltered": "No announcements match this filter.",
+    "events": "Events",
+    "general": "General",
+    "loading": "Loading announcements…",
+    "published": "Published",
+    "subtitle": "School notices, class updates & activity alerts",
+    "thisMonth": "This month",
+    "total": "Total",
+    "unread": "Unread",
+    "upcomingEvents": "Upcoming Events",
+    "urgent": "Urgent"
+  },
+  "assignments": {
+    "allAssignments": "All Assignments",
+    "emptyFiltered": "No assignments match this filter right now.",
+    "loading": "Loading assignments…",
+    "onlineQuizzes": "Online Quizzes",
+    "submitNow": "Submit Now",
+    "subtitle": "Track all your tasks and deadlines",
+    "takeQuiz": "Take Quiz",
+    "totalThisTerm": "Total This Term"
+  },
+  "attendance": {
+    "daysAbsent": "Days Absent",
+    "daysPresent": "Days Present",
+    "lateArrivals": "Late Arrivals",
+    "loadingCalendar": "Loading calendar…",
+    "monthlyCalendar": "Monthly Calendar",
+    "noRecords": "No records for this month.",
+    "overallRate": "Overall Attendance Rate",
+    "totalDays": "Total School Days"
+  },
+  "dashboard": {
+    "attendance": "Attendance",
+    "conductGrade": "Conduct Grade",
+    "currentTerm": "Current term",
+    "dueToday": "Due today",
+    "dueTomorrow": "Due tomorrow",
+    "dueUpcoming": "Due upcoming",
+    "fullReport": "Full Report",
+    "fullTimetable": "Full Timetable",
+    "greeting": "Good morning, {{name}}!",
+    "latestGrade": "Latest Grade",
+    "mostRecent": "Most recent",
+    "noClassesToday": "No classes scheduled today.",
+    "noResults": "No results yet.",
+    "noUpcomingAssignments": "No upcoming assignments.",
+    "overdue": "Overdue",
+    "pendingAssignments": "Pending Assignments",
+    "recentGrades": "Recent Grades",
+    "studentId": "Student ID: {{code}}",
+    "thisTerm": "This term",
+    "todaySchedule": "Today's Schedule",
+    "upcomingAssignments": "Upcoming Assignments",
+    "welcomeBack": "Welcome back, {{name}}"
+  },
+  "discipline": {
+    "subtitle": "School rules, your discipline record & appeals"
+  },
+  "results": {
+    "assessment": "Assessment",
+    "averageOverTime": "My Average Over Time",
+    "averageScore": "Average Score",
+    "breakdown": "Detailed Assessment Breakdown",
+    "empty": "No results available yet.",
+    "loading": "Loading results…",
+    "max": "Max",
+    "myAverage": "My average",
+    "noAssessments": "No individual assessments recorded.",
+    "subjectsTaken": "Subjects Taken",
+    "subtitle": "Academic performance",
+    "subtitleWithClass": "Academic performance for {{class}}",
+    "title": "My Results",
+    "year": "Year"
+  },
+  "timetable": {
+    "loadError": "Could not load class information.",
+    "subtitle": "Weekly Schedule",
+    "subtitleWithClass": "Class {{class}} Weekly Schedule",
+    "title": "My Timetable"
+  },
+  "messages": {
+    "subtitle": "Communicate with your teachers"
+  },
+  "quizReview": {
+    "loadFailed": "Failed to load your submission."
+  }
+}

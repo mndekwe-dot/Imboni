@@ -208,7 +208,7 @@ function ResultsModal({ cls, onClose }) {
                 setScores(scoreMap)
                 setRows(results)
             })
-            .catch(() => setError('Failed to load results.'))
+            .catch(() => setError(t('teacher.classes.loadResultsFailed')))
             .finally(() => setLoadingRows(false))
         setStep('view')
     }
@@ -224,7 +224,7 @@ function ResultsModal({ cls, onClose }) {
         const entries = students
             .filter(s => scores[s.student_id] !== undefined && scores[s.student_id] !== '')
             .map(s => ({ student_id: s.student_id, score_obtained: parseFloat(scores[s.student_id]) || 0 }))
-        if (entries.length === 0) { setError('Enter at least one score.'); return }
+        if (entries.length === 0) { setError(t('teacher.classes.enterScoreRequired')); return }
         setSaving(true)
         setError(null)
         try {
@@ -241,7 +241,7 @@ function ResultsModal({ cls, onClose }) {
             setTimeout(() => setSavedMsg(false), 3000)
             setTitles(prev => prev.includes(newForm.assessment_title) ? prev : [...prev, newForm.assessment_title])
         } catch {
-            setError('Failed to save results.')
+            setError(t('teacher.classes.saveResultsFailed'))
         } finally {
             setSaving(false)
         }
@@ -253,7 +253,7 @@ function ResultsModal({ cls, onClose }) {
         const entries = students
             .filter(s => scores[s.student_id] !== undefined && scores[s.student_id] !== '')
             .map(s => ({ student_id: s.student_id, score_obtained: parseFloat(scores[s.student_id]) || 0 }))
-        if (entries.length === 0) { setError('No scores to save.'); return }
+        if (entries.length === 0) { setError(t('teacher.classes.noScoresToSave')); return }
         setSaving(true)
         setError(null)
         try {
@@ -269,7 +269,7 @@ function ResultsModal({ cls, onClose }) {
             setSavedMsg(true)
             setTimeout(() => setSavedMsg(false), 3000)
         } catch {
-            setError('Failed to save results.')
+            setError(t('teacher.classes.saveResultsFailed'))
         } finally {
             setSaving(false)
         }
@@ -285,7 +285,7 @@ function ResultsModal({ cls, onClose }) {
                 <div className="asgn-pick-list">
                     <button className="asgn-pick-btn" onClick={openNew}>
                         <div>
-                            <div className="asgn-pick-title">+ New Assessment</div>
+                            <div className="asgn-pick-title">{t('teacher.classes.newAssessment')}</div>
                             <div className="asgn-pick-meta">{t('teacher.classes.createNewMeta')}</div>
                         </div>
                         <span className="material-symbols-rounded asgn-pick-chevron">chevron_right</span>
