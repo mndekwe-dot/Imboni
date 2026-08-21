@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { usePortalTheme } from './hooks/usePortalTheme';
+import { useSyncStoredLanguage } from './hooks/useLanguage';
 
 // Entry-path pages stay eager so the first paint (landing / login) needs no
 // extra round-trip. Everything behind a login is code-split below and loads
@@ -137,6 +138,11 @@ function App() {
   // Marks <html> with the portal the current route belongs to, so each portal's
   // CSS can be scoped instead of leaking through :root. See usePortalTheme.
   usePortalTheme();
+
+  // Reconciles the signed-in user's language with their account, so the choice
+  // follows them to a new device instead of living only in this browser. Guards
+  // on the access token itself, so public routes never fire an authed request.
+  useSyncStoredLanguage();
 
   // Every portal page above is code-split: the browser downloads a page's chunk
   // only when its route is first visited, instead of shipping all 7 portals in

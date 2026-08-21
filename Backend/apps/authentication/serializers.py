@@ -51,7 +51,7 @@ class UserPreferencesSerializer(serializers.ModelSerializer):
     # The model field is a plain CharField (no choices), so an unsupported code
     # would be stored happily and then fall back to English forever with no
     # sign anything went wrong. Validate against what the frontend ships.
-    SUPPORTED_LANGUAGES = ('en', 'rw')
+    SUPPORTED_LANGUAGES = ('en', 'rw', 'fr')
 
     class Meta:
         model = UserPreferences

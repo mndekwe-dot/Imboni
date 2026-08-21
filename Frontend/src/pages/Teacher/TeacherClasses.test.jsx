@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
-import { renderWithRouter, screen, fireEvent, waitFor } from '../../test/test-utils'
+import { renderWithRouter, screen, fireEvent, waitFor, within } from '../../test/test-utils'
 import { TeacherClasses } from './TeacherClasses'
 import {
   getTeacherMyClasses, getTeacherStudents, getTeacherResultList, bulkSaveResults,
@@ -48,7 +48,9 @@ describe('TeacherClasses', () => {
     getTeacherMyClasses.mockResolvedValue(CLASSES)
     renderWithRouter(<TeacherClasses />)
     await waitFor(() => expect(screen.getByText('Mathematics')).toBeInTheDocument())
-    expect(screen.getByText('English')).toBeInTheDocument()
+    // Scoped to <main>: the sidebar language switcher has a button
+    // labelled "English" too, so a document-wide query is ambiguous.
+    expect(within(screen.getByRole('main')).getByText('English')).toBeInTheDocument()
   })
 
   it('shows student counts on each class card', async () => {

@@ -1,4 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { renderWithRouter, screen } from '../test/test-utils'
 import { Sidebar } from '../components/layout/Sidebar'
@@ -93,10 +95,22 @@ describe('translation files', () => {
     })
 
     it('ships a file for exactly the languages the backend accepts', () => {
-        // Backend UserPreferencesSerializer.SUPPORTED_LANGUAGES is ('en', 'fr', 'rw');
-        // if these drift, saving a preference 400s.
-        expect(SUPPORTED_LANGUAGES.map(l => l.code).sort()).toEqual(['en', 'fr', 'rw'])
-        expect(Object.keys(ALL).sort()).toEqual(SUPPORTED_LANGUAGES.map(l => l.code).sort())
+        // Read the backend's tuple rather than restate it. An earlier version of
+        // this test asserted a hardcoded ['en','fr','rw'] and *said in a comment*
+        // that it matched UserPreferencesSerializer — which by then only allowed
+        // ('en', 'rw'). The test passed while picking French in the UI died on a
+        // 400. A copy of a value does not guard that value.
+        // Resolved from this file, not the working directory: no `process`
+        // needed, so this stays browser-env code like the rest of the suite.
+        const serializer = readFileSync(
+            join(import.meta.dirname, '../../../Backend/apps/authentication/serializers.py'), 'utf8')
+        const tuple = serializer.match(/SUPPORTED_LANGUAGES\s*=\s*\(([^)]*)\)/)
+        expect(tuple, 'SUPPORTED_LANGUAGES not found in serializers.py').toBeTruthy()
+        const backend = [...tuple[1].matchAll(/['"]([a-z]{2})['"]/g)].map(m => m[1]).sort()
+
+        const frontend = SUPPORTED_LANGUAGES.map(l => l.code).sort()
+        expect(frontend).toEqual(backend)          // saving a preference would 400
+        expect(Object.keys(ALL).sort()).toEqual(frontend)   // and a file must exist
     })
 })
 

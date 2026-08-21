@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest'
-import { render, screen, fireEvent, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router'
+import { renderWithRouter, screen, fireEvent, within } from '../../test/test-utils'
 import { AnnouncementFeed } from './AnnouncementFeed'
 
 beforeAll(() => {
@@ -13,17 +12,17 @@ const ANNOUNCEMENTS = [
   { id: 2, type: 'school', title: 'Library Hours', date: 'Mar 5', body: 'Open late.', author: 'Admin', isUnread: false },
 ]
 
+// The shared helper, not a bare render: AnnouncementFeed draws a Sidebar, and
+// the sidebar's language switcher reports save failures through the toast context.
 function renderFeed(props = {}) {
-  return render(
-    <MemoryRouter>
-      <AnnouncementFeed
-        navItems={[]}
-        secondaryItems={[]}
-        announcements={ANNOUNCEMENTS}
-        chips={['All', 'Urgent', 'School']}
-        {...props}
-      />
-    </MemoryRouter>
+  return renderWithRouter(
+    <AnnouncementFeed
+      navItems={[]}
+      secondaryItems={[]}
+      announcements={ANNOUNCEMENTS}
+      chips={['All', 'Urgent', 'School']}
+      {...props}
+    />
   )
 }
 

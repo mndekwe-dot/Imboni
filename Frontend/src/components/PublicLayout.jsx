@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from './ui/LanguageSwitcher'
 import logo from '../assets/images/imboni-logo.png'
 import '../styles/public-pages.css'
 
@@ -32,6 +33,7 @@ export function PublicLayout({ title, subtitle, children }) {
                         <Link to="/contact">{t('publicNav.contact')}</Link>
                         <Link to="/signup">{t('publicNav.signUpSchool')}</Link>
                     </div>
+                    <LanguageSwitcher compact />
                     <Link to="/login" className="pub-nav-signin">
                         <span className="material-symbols-rounded">login</span>
                         {t('publicNav.signIn')}
@@ -78,6 +80,7 @@ export function PublicLayout({ title, subtitle, children }) {
                 <div className="pub-footer-base">
                     <span>{t('publicLayout.copyright', { year })}</span>
                     <span>info@imboni.edu.rw</span>
+                    <LanguageSwitcher compact />
                 </div>
             </footer>
         </div>
