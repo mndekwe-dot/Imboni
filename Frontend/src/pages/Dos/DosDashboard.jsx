@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useToast } from '../../context/ToastContext'
@@ -19,7 +19,6 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { SkeletonStats } from '../../components/ui/Skeleton'
 
 
 function TrendTooltip({ active, payload, label }) {
@@ -224,13 +223,11 @@ export function DosDashboard() {
     const gradePerformance = gradeData
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.dashboard.title')}
             user={sessionUser}
-        >
-            <SkeletonStats count={4} />
-        </PageSkeleton>
+        />
     )
     if (error) return <p className="u-pad dos-danger-text">Error: {error}</p>
 

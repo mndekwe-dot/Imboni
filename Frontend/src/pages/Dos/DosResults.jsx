@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
-import { SkeletonTable } from '../../components/ui/Skeleton'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
     PieChart, Pie, Legend, AreaChart, Area,
@@ -496,14 +495,12 @@ export function DosResults() {
     const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('nav.results')}
             subtitle={t('dos.results.subtitle')}
             user={sessionUser}
-        >
-            <SkeletonTable rows={8} cols={5} />
-        </PageSkeleton>
+        />
     )
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 

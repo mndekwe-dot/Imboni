@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
@@ -15,7 +15,6 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
-import { SkeletonTable } from '../../components/ui/Skeleton'
 
 
 const CHANGE_STATUS_DISPLAY = {
@@ -111,13 +110,11 @@ export function MatronSchedule() {
     }, [])
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('matron.schedule.title')}
             user={sessionUser}
-        >
-            <SkeletonTable rows={6} cols={4} />
-        </PageSkeleton>
+        />
     )
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 

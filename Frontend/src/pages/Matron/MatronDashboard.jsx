@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -13,7 +13,6 @@ import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getMatronDashboard, getMatronNightCheck } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
-import { SkeletonStats } from '../../components/ui/Skeleton'
 
 
 function initialsOf(name) {
@@ -65,13 +64,11 @@ export function MatronDashboard() {
     }, [])
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('nav.dashboard')}
             user={sessionUser}
-        >
-            <SkeletonStats count={4} />
-        </PageSkeleton>
+        />
     )
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 

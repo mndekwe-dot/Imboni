@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
@@ -8,7 +8,6 @@ import '../../styles/components.css'
 import '../../styles/matron.css'
 import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { SkeletonTable } from '../../components/ui/Skeleton'
 import {
     getMatronHealth, createHealthRecord, updateHealthRecord, getMatronStudents,
     getMedicationsToday, administerMedication, createMedication,
@@ -351,13 +350,11 @@ export const MatronHealth = () => {
     }
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('matron.health.title')}
             user={sessionUser}
-        >
-            <SkeletonTable rows={6} cols={5} />
-        </PageSkeleton>
+        />
     )
     if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 

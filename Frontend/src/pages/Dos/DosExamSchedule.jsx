@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import {
@@ -18,7 +18,6 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
-import { SkeletonTable } from '../../components/ui/Skeleton'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 
@@ -296,14 +295,12 @@ export function DosExamSchedule() {
     }
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.examSchedule.title')}
             subtitle={t('dos.examSchedule.subtitle')}
             user={sessionUser}
-        >
-            <SkeletonTable rows={6} cols={5} />
-        </PageSkeleton>
+        />
     )
     if (error)   return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
