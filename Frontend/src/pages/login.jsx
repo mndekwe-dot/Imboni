@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LanguageSwitcher } from '../components/ui/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
@@ -137,6 +138,13 @@ export function LogIn() {
                 {/* Mobile logo — hidden on desktop */}
                 <div className="login-right-logo">
                     <img src={logo} alt="Imboni Logo" />
+                </div>
+
+                {/* Above the form on purpose. Someone who cannot read this page
+                    has to be able to fix that before they try to fill it in,
+                    and there is no header here to put it in. */}
+                <div className="login-lang">
+                    <LanguageSwitcher compact />
                 </div>
 
                 {/* The school's own name, so a parent lands somewhere that looks

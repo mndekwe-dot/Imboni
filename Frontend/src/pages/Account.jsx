@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { changePassword, getProfile, updateProfile, uploadAvatar } from '../api/account'
+import { LanguageSwitcher } from '../components/ui/LanguageSwitcher'
 import { PageSkeleton } from '../components/layout/PageSkeleton'
 import { getMyChildren } from '../api/parent'
 import { useTranslation } from 'react-i18next'
@@ -189,6 +190,9 @@ export function Account() {
                                     <a href="#notifications" className="settings-nav-item">
                                         <span className="material-symbols-rounded">notifications</span> {t('account.navNotifications')}
                                     </a>
+                                    <a href="#language" className="settings-nav-item">
+                                        <span className="material-symbols-rounded">translate</span> {t('language.label')}
+                                    </a>
                                     {role === 'parent' && (
                                         <a href="#family" className="settings-nav-item">
                                             <span className="material-symbols-rounded">family_restroom</span> {t('account.navFamily')}
@@ -351,6 +355,21 @@ export function Account() {
                                         <div className="form-actions">
                                             <button className="btn btn-primary">{t('account.savePreferences')}</button>
                                         </div>
+                                    </div>
+                                </section>
+
+                                {/* Language.
+                                    Also reachable from the sidebar and, signed
+                                    out, from the login page — this is the
+                                    deliberate home for it, not the only one.
+                                    Saving here writes to the account, so the
+                                    choice follows the user to another device. */}
+                                <section id="language" className="card settings-section-card">
+                                    <div className="settings-card-header">
+                                        <h3>{t('language.label')}</h3>
+                                    </div>
+                                    <div className="card-content">
+                                        <LanguageSwitcher />
                                     </div>
                                 </section>
 

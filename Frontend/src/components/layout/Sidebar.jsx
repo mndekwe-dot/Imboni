@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { LanguageSwitcher } from '../ui/LanguageSwitcher'
 import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
@@ -138,6 +139,16 @@ export function Sidebar({ navItems, secondaryItems }) {
               </li>
             ))}
           </ul>
+
+          {/* Sits with Profile and Logout because it is the same kind of thing:
+              something you change about your own account, not a place to go.
+              Hidden while collapsed — the rail is icon-width and these are
+              words, not icons. */}
+          {!collapsed && (
+            <div className="sidebar-lang">
+              <LanguageSwitcher compact />
+            </div>
+          )}
 
         </nav>
       </aside>

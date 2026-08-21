@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { MemoryRouter } from 'react-router'
+import { renderWithRouter, screen, fireEvent } from '../../test/test-utils'
 import { MessagesPage } from './MessagesPage'
 
 const CONVERSATIONS = [
@@ -13,20 +12,20 @@ const MESSAGES = [
   { type: 'sent', text: 'Hello back', time: '10:05 AM' },
 ]
 
+// The shared helper, not a bare render: MessagesPage draws a Sidebar, and the
+// sidebar's language switcher reports save failures through the toast context.
 function renderPage(props = {}) {
-  return render(
-    <MemoryRouter>
-      <MessagesPage
-        navItems={[]}
-        secondaryItems={[]}
-        conversations={CONVERSATIONS}
-        tabs={['All', 'Unread']}
-        messages={MESSAGES}
-        activeContact={{ initials: 'CU', name: 'Ms. C. Umutoni', typeTag: 'Teacher', isOnline: true }}
-        composerPlaceholder="Type a message…"
-        {...props}
-      />
-    </MemoryRouter>
+  return renderWithRouter(
+    <MessagesPage
+      navItems={[]}
+      secondaryItems={[]}
+      conversations={CONVERSATIONS}
+      tabs={['All', 'Unread']}
+      messages={MESSAGES}
+      activeContact={{ initials: 'CU', name: 'Ms. C. Umutoni', typeTag: 'Teacher', isOnline: true }}
+      composerPlaceholder="Type a message…"
+      {...props}
+    />
   )
 }
 

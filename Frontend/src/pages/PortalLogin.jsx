@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LanguageSwitcher } from '../components/ui/LanguageSwitcher'
 import { useTranslation, Trans } from 'react-i18next'
 import { requestPasswordReset } from '../api/auth'
 import { useAuth } from '../hooks/useAuth'
@@ -209,11 +210,16 @@ export function PortalLogin({ portal, icon, accentColor, placeholder, redirectTo
                     <img src={logo} alt="Imboni Logo" />
                 </div>
 
-                {/* Back link */}
-                <Link to="/" className="portal-login-back">
-                    <span className="material-symbols-rounded">arrow_back</span>
-                    {t('auth.backToHome')}
-                </Link>
+                {/* Back link, paired with the language toggle: both are ways
+                    out for someone who landed on the wrong portal or the wrong
+                    language, and both belong above the form rather than under it. */}
+                <div className="portal-login-topbar">
+                    <Link to="/" className="portal-login-back">
+                        <span className="material-symbols-rounded">arrow_back</span>
+                        {t('auth.backToHome')}
+                    </Link>
+                    <LanguageSwitcher compact />
+                </div>
 
                 <div className="login-welcome">
                     <div className="login-welcome-icon portal-login-icon-wrap">

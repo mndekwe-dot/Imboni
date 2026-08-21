@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderWithRouter, screen, waitFor, setSessionUser } from '../../test/test-utils'
+import { renderWithRouter, screen, waitFor, within, setSessionUser } from '../../test/test-utils'
 import { DosAnalytics } from './DosAnalytics'
 import { getDosAnalytics, getAtRiskStudents, getChronicAbsence } from '../../api/dos'
 
@@ -72,7 +72,9 @@ describe('DosAnalytics', () => {
 
     expect(screen.getByText('Subject Performance')).toBeInTheDocument()
     expect(screen.getByText('Mathematics')).toBeInTheDocument()
-    expect(screen.getByText('English')).toBeInTheDocument()
+    // Scoped to <main>: the sidebar language switcher has a button
+    // labelled "English" too, so a document-wide query is ambiguous.
+    expect(within(screen.getByRole('main')).getByText('English')).toBeInTheDocument()
     expect(screen.getByText('65%')).toBeInTheDocument()
     expect(screen.getByText('80%')).toBeInTheDocument()
   })

@@ -44,3 +44,50 @@
 .lang-switch-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .lang-switch--compact .lang-switch-btn { padding: 0.25rem 0.65rem; font-size: var(--text-caption); }
+
+/* ── Placements ────────────────────────────────────────────────────────────
+   The switcher itself is layout-agnostic; these position it per surface.
+   .pub-nav-right and .pub-footer-base are already flex rows with a gap, so
+   the public pages need nothing here. */
+
+/* Login pages: above the form, right-aligned. .login-right centres its
+   children vertically, so this rides at the top of that centred stack. */
+.login-lang {
+  align-self: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+/* Portal login: shares a row with the back link — both are exits. */
+.portal-login-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.portal-login-topbar .portal-login-back { margin-bottom: 0; }
+
+/* Sidebar: last item in the Account group. Only rendered while expanded.
+   The nav pushes this block to the very bottom of the rail, so it needs real
+   bottom padding of its own — without it the pill sits flush on the viewport
+   edge. The rail is narrow, so the three names get a tighter pill than
+   elsewhere and are allowed to wrap rather than overflow it. */
+.sidebar-lang {
+  padding: 0.75rem 0.9rem 1.25rem;
+}
+.sidebar-lang .lang-switch-options {
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.sidebar-lang .lang-switch-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: var(--text-caption);
+}
+
+/* Three languages do not fit a phone-width nav; let the pill wrap instead of
+   pushing Sign In off the edge. */
+@media (max-width: 480px) {
+  .lang-switch-options { flex-wrap: wrap; }
+}

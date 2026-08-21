@@ -1,4 +1,5 @@
 import '../styles/landing.css'
+import { LanguageSwitcher } from '../components/ui/LanguageSwitcher'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import logo from '../assets/images/imboni-logo.png'
@@ -129,6 +130,7 @@ export function LandingPage() {
                         <Link to="/contact">{t('publicNav.contact')}</Link>
                         <Link to="/signup">{t('publicNav.signUpSchool')}</Link>
                     </div>
+                    <LanguageSwitcher compact />
                     <Link to="/login" className="landing-nav-signin">
                         <span className="material-symbols-rounded">login</span>
                         {t('publicNav.signIn')}

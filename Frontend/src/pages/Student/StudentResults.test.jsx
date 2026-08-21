@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderWithRouter, screen, fireEvent, waitFor } from '../../test/test-utils'
+import { renderWithRouter, screen, fireEvent, waitFor, within } from '../../test/test-utils'
 import { StudentResults } from './StudentResults'
 import { getStudentProfile, getStudentResults, getStudentAssessments } from '../../api/student'
 
@@ -63,7 +63,9 @@ describe('StudentResults', () => {
     fireEvent.click(screen.getByText('Term 2'))
 
     expect(screen.getAllByText('75%').length).toBeGreaterThan(0)
-    expect(screen.getByText('English')).toBeInTheDocument()
+    // Scoped to <main>: the sidebar language switcher has a button
+    // labelled "English" too, so a document-wide query is ambiguous.
+    expect(within(screen.getByRole('main')).getByText('English')).toBeInTheDocument()
   })
 
   it('shows the term-over-term trend chart when at least two terms have averages', async () => {
