@@ -108,11 +108,10 @@ function ForgotPasswordModal({ onClose }) {
  *                 translated portal name and blurb, so no display text is
  *                 passed in as a prop
  *   icon        — Material Symbol name      e.g. 'analytics'
- *   accentColor — hex/CSS color             e.g. '#003d7a'
  *   placeholder — email hint                e.g. 'dos@imboni.rw'
  *   redirectTo  — path after login          e.g. '/dos'
  */
-export function PortalLogin({ portal, icon, accentColor, placeholder, redirectTo }) {
+export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
     const { t } = useTranslation()
     const {login, completeTwoFactor} = useAuth()
     const label    = t(`portal.${portal}`)
@@ -156,8 +155,13 @@ export function PortalLogin({ portal, icon, accentColor, placeholder, redirectTo
         }
     }
 
+    // No accent is passed in any more. Each route used to hand this a literal
+    // that agreed with nothing: /login/student was cyan while the student
+    // portal is emerald, /login/teacher violet while teacher is cyan,
+    // /login/parent orange. The palette in index.css is the one source now,
+    // and login.css falls through to var(--primary).
     return (
-        <div className="login-page" style={{ '--portal-login-accent': accentColor }}>
+        <div className="login-page">
 
             {/* ── Left panel ─────────────────────────────────────────────── */}
             <div className="login-left portal-login-left">

@@ -111,6 +111,11 @@
 }
 
 .login-left h2 {
+  /* Explicit, because the panel is always a dark gradient. Without it the
+     heading fell through to the global `h1..h6 { color: var(--card-foreground) }`
+     and rendered near-black on navy - about 1.4:1. Its sibling `p` below
+     already set light ink; the heading was simply missed. */
+  color: #ffffff;
   font-size: 2.1rem;
   font-weight: 800;
   margin-bottom: 0.75rem;
@@ -533,7 +538,7 @@
 /* ── Portal Login additions ─────────────────────────────────────── */
 
 .portal-login-left .orb-accent {
-  background: var(--portal-login-accent, #003d7a);
+  background: var(--primary);
 }
 
 .portal-login-badge {
@@ -593,11 +598,11 @@
 .portal-login-back .material-symbols-rounded { font-size: var(--icon-sm); }
 
 .portal-login-icon-wrap {
-  background: var(--portal-login-accent, #003d7a) !important;
+  background: var(--primary) !important;
 }
 
 .portal-login-btn {
-  background: var(--portal-login-accent, #003d7a) !important;
+  background: var(--primary) !important;
 }
 
 .portal-login-btn:disabled {
@@ -623,7 +628,7 @@
 }
 
 .portal-forgot-link {
-  color: var(--portal-login-accent, #f97316) !important;
+  color: var(--accent) !important;
 }
 .portal-forgot-link:hover {
   opacity: 0.8;

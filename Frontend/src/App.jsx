@@ -172,37 +172,37 @@ function App() {
       {/* ── Portal-specific login pages ── */}
       <Route path="/login/student" element={
         <PortalLogin portal="student"
-          icon="school" accentColor="#0891b2"
+          icon="school"
           placeholder="student@imboni.rw" redirectTo="/student" />
       } />
       <Route path="/login/teacher" element={
         <PortalLogin portal="teacher"
-          icon="cast_for_education" accentColor="#7c3aed"
+          icon="cast_for_education"
           placeholder="teacher@imboni.rw" redirectTo="/teacher" />
       } />
       <Route path="/login/parent" element={
         <PortalLogin portal="parent"
-          icon="family_restroom" accentColor="#f97316"
+          icon="family_restroom"
           placeholder="parent@gmail.com" redirectTo="/parent" />
       } />
       <Route path="/login/dos" element={
         <PortalLogin portal="dos"
-          icon="analytics" accentColor="#003d7a"
+          icon="analytics"
           placeholder="dos@imboni.rw" redirectTo="/dos" />
       } />
       <Route path="/login/discipline" element={
         <PortalLogin portal="discipline"
-          icon="shield_person" accentColor="#dc2626"
+          icon="shield_person"
           placeholder="discipline@imboni.rw" redirectTo="/discipline" />
       } />
       <Route path="/login/matron" element={
         <PortalLogin portal="matron"
-          icon="health_and_safety" accentColor="#be185d"
+          icon="health_and_safety"
           placeholder="matron@imboni.rw" redirectTo="/matron" />
       } />
       <Route path="/login/admin" element={
         <PortalLogin portal="admin"
-          icon="admin_panel_settings" accentColor="#4f46e5"
+          icon="admin_panel_settings"
           placeholder="admin@imboni.rw" redirectTo="/admin" />
       } />
       {/* ── Platform (vendor) console — all schools; served on the bare domain ── */}
