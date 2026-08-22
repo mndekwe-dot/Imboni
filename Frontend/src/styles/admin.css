@@ -11,9 +11,11 @@
 }
 
 /* ── Portal accent (used by StatCard, WelcomeBanner, etc.) ── */
+/* Points at the palette rather than at a second copy of the indigo, so the
+   admin portal cannot drift from :root[data-portal="admin"] in index.css. */
 .admin-portal {
-  --portal-accent:       var(--admin);
-  --portal-accent-light: var(--admin-light);
+  --portal-accent:       var(--primary);
+  --portal-accent-light: var(--primary-light);
 }
 
 /* ── Header avatar ── */

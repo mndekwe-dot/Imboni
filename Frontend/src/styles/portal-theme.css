@@ -1,0 +1,584 @@
+/* ===============================================
+   PORTAL LIGHT THEME
+
+   The shared chrome for every signed-in portal. Scoped to
+   [data-portal], which usePortalTheme stamps on <html> from the
+   route, so it reaches the seven portals and nothing else — the
+   landing page, the login screens and the platform admin keep
+   the plain look.
+
+   This began as a DOS-only pilot inside dos.css. Almost every
+   rule in it targeted SHARED chrome (.sidebar, .dashboard-header,
+   .card, .btn-*, .badge-*, .form-input, .data-table,
+   .portal-stat-*), so rolling it to the other six by copying
+   would have meant ~800 duplicated rules that drift apart on the
+   first edit. One file, seven palettes.
+
+   The palettes live in index.css under :root[data-portal="…"];
+   this file only spends them. Anything that differs BETWEEN
+   portals must therefore be a token, not a literal — the two
+   chrome colours are --chrome-from / --chrome-to.
+
+   Four things it is doing, in order of how much they matter:
+     1. Light canvas   — the saturated blue page gradient and the
+                         grey box nested inside it both go.
+     2. Hierarchy      — one page title, section titles a step
+                         down, stat numbers large, primary action
+                         visually louder than secondary.
+     3. Proximity      — related things share an edge; unrelated
+                         things get a full space step between them.
+     4. States         — one focus ring, one hover, one disabled.
+   =============================================== */
+/* ── 1. Canvas ───────────────────────────────────────────── */
+
+/* The shared body paints a #f1faff→#cbe4ff gradient. At full
+   height behind white cards it reads as a tint over everything;
+   a flat near-white lets the cards be the only bright surface.
+   Each portal tints that near-white with its own hue. */
+:root[data-portal] body {
+  background: var(--background);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+}
+
+/* The sidebar stays the darkest surface in the portal. The light-sidebar
+   experiments are in the git history if you want them back: the short version
+   is that a mid-lightness band has a dead zone where neither white nor dark
+   text reaches 4.5:1, so a "light" sidebar forces the ink dark and loses the
+   brand weight. --chrome-from/--chrome-to are dark enough that white text
+   clears 6:1 in every portal (measured: 6.05 teacher to 9.87 parent).
+
+   The gradient is the only place a portal's identity covers real area, which
+   is why it is a token rather than a literal - see the palettes in index.css. */
+[data-portal] .sidebar {
+  background: linear-gradient(180deg, var(--chrome-from) 0%, var(--chrome-to) 100%);
+  box-shadow: none;
+  /* No border-right. It ran the full height, including alongside the header,
+     drawing a seam down the one place the two are meant to read as a single
+     piece of chrome. The header starts at the gradient's top colour, so the
+     corner joins with nothing between them. */
+  border-right: none;
+}
+
+/* The shared rule sets the active nav item to
+   `background: --portal-accent-light; color: --portal-accent`, which on a
+   navy sidebar is a translucent blue wash under blue text — roughly 1.5:1,
+   so the item you are actually on was the hardest one to read. On a dark
+   surface the active state has to be lighter, not more saturated. */
+[data-portal] .sidebar-nav-item.active,
+[data-portal] .sidebar.collapsed .sidebar-nav-item.active {
+  background-color: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  box-shadow: none;
+}
+[data-portal] .sidebar-nav-item.active::before {
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Hover slid the item 4px sideways. A row that moves under the cursor is
+   harder to click than one that just lights up. */
+[data-portal] .sidebar-nav-item:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+  transform: none;
+}
+[data-portal] .sidebar.collapsed .sidebar-nav-item:hover { transform: none; }
+
+/* ── 2. Header ───────────────────────────────────────────── */
+
+/* Blue header, matched to the TOP of the sidebar gradient (var(--chrome-from)) so the
+   two meet as one continuous piece of chrome rather than as two panels.
+   White on var(--chrome-from) is 8.10:1.
+
+   Worth knowing: this puts the sidebar and the header both in the strongest
+   colour on screen, which is the arrangement that made the original design
+   feel heavy - the loudest colour covering the most area leaves the accent
+   nothing to stand out against. The content area is much lighter than it was,
+   so it should hold up; if it still feels top-heavy, the fix is to lighten
+   this bar rather than to re-lighten the page. */
+[data-portal] .dashboard-header {
+  background: var(--chrome-from);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: none;
+  min-height: 68px;
+}
+
+[data-portal] .dashboard-header-title h1 {
+  color: #ffffff;
+  font-size: var(--text-display);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+[data-portal] .dashboard-header-title p {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: var(--text-caption);
+}
+
+[data-portal] .header-user {
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+[data-portal] .header-user-name { color: #ffffff; }
+[data-portal] .header-user-role { color: rgba(255, 255, 255, 0.72); }
+
+[data-portal] .header-user-av.dos-av {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.38);
+  box-shadow: none;
+}
+
+[data-portal] .date-display {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+[data-portal] .notification-btn,
+[data-portal] .mobile-menu-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+[data-portal] .notification-btn:hover,
+[data-portal] .mobile-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transform: none;
+}
+
+/* The badge ring has to match whatever it sits on, or it draws a pale halo. */
+[data-portal] .notification-badge {
+  border-color: var(--chrome-from);
+}
+
+[data-portal] .search-box {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+[data-portal] .search-box:focus-within {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: none;
+}
+[data-portal] .search-box svg { color: rgba(255, 255, 255, 0.65); }
+[data-portal] .search-box:focus-within svg { color: rgba(255, 255, 255, 0.9); }
+[data-portal] .search-box input { color: #ffffff; }
+/* 0.6 alpha composites to #a2b9d1 = 4.01:1, under AA. 0.7 clears it. */
+[data-portal] .search-box input::placeholder { color: rgba(255, 255, 255, 0.7); }
+
+/* ── 3. Content shell ────────────────────────────────────── */
+
+/* There were three nested containers: tinted page → bordered grey
+   box (.dc-inner) → white cards. The middle one adds a frame
+   around content that is already framed, so it goes transparent
+   and the cards sit straight on the page. */
+[data-portal] .dashboard-content {
+  padding: var(--space-6);
+  gap: 0;
+}
+
+[data-portal] .dc-inner {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  gap: var(--space-5);
+}
+
+@media (max-width: 767px) {
+  [data-portal] .dashboard-content { padding: var(--space-4); }
+  [data-portal] .dc-inner { padding: 0; gap: var(--space-4); }
+}
+
+/* ── 4. Welcome banner ───────────────────────────────────── */
+
+/* Full-bleed accent block at the top of every page competes with
+   the page title for first read. Tinted, it introduces the page
+   without shouting over it. */
+[data-portal] .welcome-banner {
+  background: var(--primary-surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: 0;
+}
+[data-portal] .welcome-banner::before { display: none; }
+[data-portal] .welcome-banner h2,
+[data-portal] .welcome-banner h3 {
+  color: var(--foreground);
+  font-size: var(--text-title);
+}
+[data-portal] .welcome-banner p { color: var(--muted-foreground); }
+
+/* The greeting was 1.4rem/800 — heavier than the page title it sits
+   under. Dropped a step so the title is read first. */
+[data-portal] .welcome-banner-greeting {
+  font-size: var(--text-title);
+  font-weight: 600;
+  color: var(--foreground);
+}
+[data-portal] .welcome-banner-role,
+[data-portal] .welcome-banner-extra {
+  color: var(--muted-foreground);
+  opacity: 1;
+  font-size: var(--text-sm);
+}
+/* rgba(255,255,255,0.2) — invisible now the banner is a light tint. */
+[data-portal] .welcome-banner-badge {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
+}
+[data-portal] .welcome-banner-icon {
+  color: var(--primary);
+  opacity: 0.45;
+}
+
+/* ── 5. Cards ────────────────────────────────────────────── */
+
+[data-portal] .card,
+[data-portal] .toolbar-card,
+[data-portal] .overview-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Hover lift is for things you can click. A card that only holds
+   content is not clickable, so it does not move. */
+[data-portal] .card:hover { box-shadow: var(--shadow-sm); }
+
+[data-portal] .card-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-portal] .card-content {
+  padding: var(--space-5);
+}
+
+/* Cards inside the Overview panel are already inside a bordered box —
+   a second border around each is a frame in a frame. They keep their
+   white surface and lose the outline, so the grid reads as one panel. */
+[data-portal] .overview-panel { margin-bottom: 0; }
+[data-portal] .overview-panel-header {
+  background: var(--surface-2);
+  padding: var(--space-3) var(--space-5);
+}
+[data-portal] .overview-panel-body {
+  padding: var(--space-5);
+  gap: var(--space-4);
+  background: var(--surface-2);
+}
+[data-portal] .overview-panel-body > .card {
+  box-shadow: none;
+  border-color: var(--border);
+}
+
+/* ── 6. Type hierarchy ───────────────────────────────────── */
+
+/* Six steps, and only one thing at each level per screen:
+   display = the page title (in the header, once)
+   title   = a card or section heading
+   body    = prose and controls
+   sm      = table cells, secondary lines
+   caption = labels, badges, meta */
+[data-portal] .card-title,
+[data-portal] .overview-panel-title {
+  font-size: var(--text-title);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  margin-bottom: 0;
+}
+
+[data-portal] .section-label-sm,
+[data-portal] .form-label,
+[data-portal] .teacher-modal-section-label {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  letter-spacing: 0.01em;
+}
+
+[data-portal] .u-muted,
+[data-portal] .settings-info-text,
+[data-portal] .dos-empty-hint {
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+}
+
+/* ── 7. Stat cards ───────────────────────────────────────── */
+
+/* The number is the reason the card exists, so it gets the size.
+   Label sits under it, quiet. Tabular figures stop the row from
+   jittering as counts change. */
+[data-portal] .portal-stat-grid {
+  gap: var(--space-4);
+  margin-bottom: 0;
+}
+
+[data-portal] .portal-stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-5);
+  gap: var(--space-4);
+}
+
+[data-portal] .portal-stat-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-hover);
+}
+
+[data-portal] .portal-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--primary-surface);
+  color: var(--primary);
+}
+[data-portal] .portal-stat-icon .material-symbols-rounded { font-size: var(--icon-lg); }
+[data-portal] .portal-stat-icon.success { background: var(--success-surface); color: var(--success-text); }
+[data-portal] .portal-stat-icon.warning { background: var(--warning-surface); color: var(--warning-text); }
+[data-portal] .portal-stat-icon.red     { background: var(--destructive-surface); color: var(--destructive-text); }
+[data-portal] .portal-stat-icon.info    { background: var(--info-surface); color: var(--info-text); }
+
+[data-portal] .portal-stat-value {
+  font-size: var(--text-stat);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+[data-portal] .portal-stat-label {
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+[data-portal] .portal-stat-trend { font-size: var(--text-caption); margin-top: var(--space-1); }
+[data-portal] .portal-stat-trend.positive { color: var(--success-text); }
+[data-portal] .portal-stat-trend.negative { color: var(--destructive-text); }
+
+/* ── 8. Buttons ──────────────────────────────────────────── */
+
+/* One dominant action per view. Primary is the only filled
+   button; everything beside it is an outline or bare text, so
+   the eye lands on the thing you probably came to do. */
+[data-portal] .btn {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  border-radius: var(--radius);
+  padding: 0.55rem var(--space-4);
+  min-height: 40px;
+  transition: background-color var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+
+[data-portal] .btn-sm {
+  font-size: var(--text-caption);
+  padding: 0.35rem var(--space-3);
+  min-height: 32px;
+}
+
+[data-portal] .btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: var(--shadow-xs);
+}
+[data-portal] .btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-portal] .btn-secondary {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  box-shadow: none;
+}
+[data-portal] .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
+
+[data-portal] .btn-outline {
+  background-color: var(--card);
+  border: 1px solid var(--input);
+  color: var(--foreground);
+  box-shadow: none;
+}
+[data-portal] .btn-outline:hover:not(:disabled) {
+  background-color: var(--surface-3);
+  border-color: var(--border-hover);
+}
+
+[data-portal] .btn-danger,
+[data-portal] .btn-destructive {
+  background-color: var(--destructive);
+  color: #fff;
+}
+[data-portal] .btn-danger:hover:not(:disabled),
+[data-portal] .btn-destructive:hover:not(:disabled) { background-color: var(--destructive-hover); }
+
+/* One disabled treatment, not five */
+[data-portal] .btn:disabled,
+[data-portal] .btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+[data-portal] .btn-icon-clean {
+  color: var(--muted-foreground);
+  border-radius: var(--radius-sm);
+}
+[data-portal] .btn-icon-clean:hover {
+  color: var(--primary);
+  background: var(--primary-surface);
+}
+
+/* ── 9. Inputs ───────────────────────────────────────────── */
+
+[data-portal] .form-input,
+[data-portal] .form-control,
+[data-portal] .form-select,
+[data-portal] .input {
+  font-size: var(--text-sm);
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  background-color: var(--card);
+  min-height: 40px;
+}
+
+[data-portal] .form-input:hover:not(:disabled),
+[data-portal] .form-control:hover:not(:disabled),
+[data-portal] .form-select:hover:not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+[data-portal] .form-input:focus,
+[data-portal] .form-control:focus,
+[data-portal] .form-select:focus,
+[data-portal] .input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+[data-portal] .form-group { gap: var(--space-2); }
+
+/* ── 10. Tables ──────────────────────────────────────────── */
+
+/* Named tables only. A bare `[data-portal] table tbody td` would
+   score higher than `.tt-cell` and repaint every timetable cell. */
+[data-portal] .es-table th,
+[data-portal] .dos-inv-th,
+[data-portal] .dos-preview-th,
+[data-portal] .pinv-th,
+[data-portal] .data-table th {
+  background: var(--surface-2);
+  color: var(--muted-foreground);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--border);
+}
+
+[data-portal] .es-table td,
+[data-portal] .dos-inv-td,
+[data-portal] .dos-preview-td,
+[data-portal] .pinv-td,
+[data-portal] .data-table td {
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-portal] .es-table tbody tr:hover td,
+[data-portal] .data-table tbody tr:hover td { background: var(--surface-2); }
+
+/* ── 11. Badges ──────────────────────────────────────────── */
+
+/* Tinted surface with matching dark ink, so a badge reads at
+   small size without becoming a block of saturated colour. */
+[data-portal] .badge {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.5rem;
+  border: none;
+}
+[data-portal] .badge-primary   { background: var(--primary-surface);     color: var(--primary); }
+[data-portal] .badge-secondary { background: var(--surface-3);           color: var(--muted-foreground); }
+[data-portal] .badge-success,
+[data-portal] .badge-published { background: var(--success-surface);     color: var(--success-text); }
+[data-portal] .badge-warning   { background: var(--warning-surface);     color: var(--warning-text); }
+[data-portal] .badge-danger,
+[data-portal] .badge-destructive { background: var(--destructive-surface); color: var(--destructive-text); }
+[data-portal] .badge-info      { background: var(--info-surface);        color: var(--info-text); }
+
+[data-portal] .dos-danger-text,
+[data-portal] .u-danger { color: var(--destructive-text); }
+
+/* ── 12. Empty and loading ───────────────────────────────── */
+
+[data-portal] .empty-state,
+[data-portal] .es-empty {
+  background: var(--card);
+  border: 1px dashed var(--border-hover);
+  border-radius: var(--card-radius);
+  padding: var(--space-7) var(--space-5);
+  color: var(--muted-foreground);
+}
+[data-portal] .empty-state .material-symbols-rounded {
+  color: var(--subtle-foreground);
+}
+
+/* ── 13. Icons ───────────────────────────────────────────── */
+
+[data-portal] .icon-sm { font-size: var(--icon-sm); }
+[data-portal] .btn .material-symbols-rounded { font-size: var(--icon-sm); }
+
+/* ── 14. Scrollbars ──────────────────────────────────────── */
+
+[data-portal] .dashboard-content::-webkit-scrollbar { width: 10px; }
+[data-portal] .dashboard-content::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 3px solid var(--background);
+  border-radius: var(--radius-full);
+}
+[data-portal] .dashboard-content::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* ── 15. Portal sign-in ──────────────────────────────────────
+   /login/<portal> carries data-portal too, so the sign-in screen is already
+   themed on the right-hand side - the button, the badge and the links all
+   resolve to the portal's primary. The left panel did not follow: it kept a
+   hardcoded navy gradient, so a matron signing in met a magenta form beside a
+   blue panel. Scoped to [data-portal] so plain /login, which has no portal to
+   express, keeps the neutral navy it was designed with. */
+[data-portal] .portal-login-left {
+  background: linear-gradient(145deg, var(--chrome-to) 0%, var(--chrome-from) 55%, var(--primary) 100%);
+}
+
+/* The lower decorative orb is a hardcoded rgba(0, 98, 158, .55) blue, which
+   left a blue glow burning through the corner of every non-blue portal's
+   panel. The upper orb is the shared amber and stays as it is - that one is
+   the accent, not the brand. */
+[data-portal] .portal-login-left::after {
+  background: radial-gradient(circle,
+              color-mix(in srgb, var(--primary) 55%, transparent) 0%,
+              transparent 70%);
+}
