@@ -2215,13 +2215,8 @@ body.tm-panel-open { overflow: hidden; }
 .exam-cal-class { font-size: var(--text-caption); color:var(--muted-foreground); }
 
 /* Table */
-.es-table-wrap { overflow-x:auto; }
-.es-table { width:100%; border-collapse:collapse; font-size: var(--text-sm); }
-.es-table th { background:var(--muted); font-weight:600; font-size: var(--text-caption); text-transform:uppercase;
-                letter-spacing:.04em; color:var(--muted-foreground); padding:.75rem 1rem; text-align:left; white-space:nowrap; }
-.es-table td { padding:.85rem 1rem; border-bottom:1px solid var(--border); vertical-align:middle; }
-.es-table tr:last-child td { border-bottom:none; }
-.es-table tr:hover td { background:var(--muted); }
+/* Table moved to .data-table in tables.css - its padding became the
+   canonical value, since .es-table had the most pages using it. */
 .es-subject-name { font-weight:600; color:var(--foreground); }
 .es-subject-code { font-size: var(--text-caption); color:var(--muted-foreground); }
 .es-time-chip { display:inline-flex; align-items:center; gap:.3rem; background:rgba(59,130,246,.08);

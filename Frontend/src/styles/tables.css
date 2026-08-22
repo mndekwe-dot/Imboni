@@ -284,3 +284,49 @@
   .dt-table td { padding: var(--space-2) var(--space-3); }
   .toolbar-card { padding: var(--space-2) var(--space-3); }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PLAIN TABLE (.data-table)
+
+   The canonical table for markup that is NOT a DataTable - planners,
+   timetables, rosters, anything that manages its own rows. DataTable's
+   .dt-* set above is a different thing: it brings pagination, a header
+   count and an empty state, which a planner grid must not have.
+
+   This replaces .adm-table, .disc-table and .es-table, which were three
+   names for the same three declarations. Colour comes from
+   portal-theme.css, which already themed `.data-table` before anything
+   used it; this file owns structure and spacing only.
+   ═══════════════════════════════════════════════════════════════ */
+
+.data-table-wrap { overflow-x: auto; }
+
+/* A framed variant for tables that sit directly on the page rather than
+   inside a card. Was .tm-table-wrap. */
+.data-table-wrap.framed {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.data-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: var(--muted); }

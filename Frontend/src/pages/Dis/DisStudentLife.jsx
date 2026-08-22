@@ -484,8 +484,8 @@ export function DisStudentLife() {
                                                     <h2 className="card-title"><span className="material-symbols-rounded">home</span> {t('dis.studentLife.dormitoryCaptains')}</h2>
                                                 </div>
                                                 <div className="card-content">
-                                                    <div className="disc-table-wrap">
-                                                        <table className="disc-table">
+                                                    <div className="data-table-wrap">
+                                                        <table className="data-table">
                                                             <thead>
                                                                 <tr><th>Dormitory</th><th>Captain</th><th>ADM</th><th>Since</th><th>Actions</th></tr>
                                                             </thead>

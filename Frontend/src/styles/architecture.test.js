@@ -34,7 +34,11 @@ const read = f => readFileSync(f, 'utf8')
    own class names without importing the real one. */
 const HAND_ROLLED = {
     StatCard: /className="[^"]*\b[a-z]+-stat-(card|value|label|icon)\b/,
-    DataTable: /className="[^"]*\b[a-z]+-table-wrap\b/,
+    // A portal-prefixed wrapper only. `.data-table-wrap` is the sanctioned
+    // plain table in tables.css: markup that manages its own rows (planners,
+    // timetables, rosters) is meant to use it rather than DataTable, which
+    // brings pagination and an empty state a planner grid must not have.
+    DataTable: /className="[^"]*\b(?!data-)[a-z]+-table-wrap\b/,
     EmptyState: /className="[^"]*\b[a-z]+-empty-(note|hint|state)\b/,
     WelcomeBanner: /className="[^"]*\b[a-z]+-welcome-(banner|title|sub|greeting)\b/,
 }
@@ -77,8 +81,8 @@ function foreignPrefixUses() {
 
 describe('style architecture', () => {
     // Lower these as pages migrate. Never raise them.
-    const MAX_HAND_ROLLED = 38
-    const MAX_FOREIGN_PREFIX = 60
+    const MAX_HAND_ROLLED = 27
+    const MAX_FOREIGN_PREFIX = 58
 
     it('does not hand-roll components that already exist', () => {
         const found = handRolledPages()

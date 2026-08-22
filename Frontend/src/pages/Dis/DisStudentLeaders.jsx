@@ -143,8 +143,8 @@ export function DisStudentLeaders() {
                                         {captains.length === 0 ? (
                                             <p className="text-muted">No house captains appointed this term.</p>
                                         ) : (
-                                            <div className="disc-table-wrap">
-                                                <table className="disc-table">
+                                            <div className="data-table-wrap">
+                                                <table className="data-table">
                                                     <thead>
                                                         <tr>
                                                             <th>Student</th>

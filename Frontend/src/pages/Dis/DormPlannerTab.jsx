@@ -230,8 +230,8 @@ function GenerateModal({ dorms, onClose, onCommitted }) {
                     </div>
 
                     <h3 className="section-label-sm mt-1-5">{t('dis.dormPlanner.roomOccupancy')}</h3>
-                    <div className="es-table-wrap">
-                        <table className="es-table">
+                    <div className="data-table-wrap">
+                        <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>{t('common.dormitory')}</th>
@@ -258,8 +258,8 @@ function GenerateModal({ dorms, onClose, onCommitted }) {
                     {preview.unplaced.length > 0 && (
                         <>
                             <h3 className="section-label-sm mt-1-5">{t('dis.dormPlanner.couldNotPlace')}</h3>
-                            <div className="es-table-wrap">
-                                <table className="es-table">
+                            <div className="data-table-wrap">
+                                <table className="data-table">
                                     <thead><tr><th>{t('common.student')}</th><th>{t('common.class')}</th><th>{t('common.reason')}</th></tr></thead>
                                     <tbody>
                                         {preview.unplaced.map(u => (

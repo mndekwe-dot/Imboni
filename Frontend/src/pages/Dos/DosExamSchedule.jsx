@@ -189,8 +189,8 @@ function ExamGenerateModal({ onClose, onCommitted }) {
                             {t('dos.examSchedule.slotsVenues', { slots: preview.summary.slots_available, venues: preview.summary.venues })}
                         </span>
                     </div>
-                    <div className="es-table-wrap mt-1">
-                        <table className="es-table">
+                    <div className="data-table-wrap mt-1">
+                        <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>{t('common.subject')}</th>
@@ -351,8 +351,8 @@ export function DosExamSchedule() {
                                 {view === 'calendar' ? (
                                     <ExamCalendar exams={rawExams} onReschedule={handleReschedule} />
                                 ) : (
-                                    <div className="es-table-wrap">
-                                        <table className="es-table">
+                                    <div className="data-table-wrap">
+                                        <table className="data-table">
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
