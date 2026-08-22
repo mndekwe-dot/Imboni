@@ -481,46 +481,11 @@
    DOS WELCOME BANNER
    =============================================== */
 
-.dos-welcome-banner {
-  background: linear-gradient(135deg, var(--primary) 0%, #005299 100%);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  color: white;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.dos-welcome-text h2 {
-  font-size: var(--text-display);
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-}
-
-.dos-welcome-text p {
-  font-size: var(--text-sm);
-  opacity: 0.85;
-  margin: 0;
-}
-
-.dos-welcome-icon {
-  width: 64px;
-  height: 64px;
-  background: rgba(255,255,255,0.15);
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.dos-welcome-icon .material-symbols-rounded {
-  font-size: 2.25rem;
-  color: white;
-}
+/* The per-portal welcome banner that was here is gone. Three portals each
+   had one, all a gradient + white text + a badge, and all hardcoding a
+   colour literal outside index.css. Greeting banners now use
+   <WelcomeBanner>; page-intro and standing-notice banners use
+   .notice-banner in components.css. */
 
 /* ===============================================
    LEADER CARDS — Student Leaders page
@@ -2361,7 +2326,6 @@ body.tm-panel-open { overflow: hidden; }
 .es-cal-legend-dot  { width:.5rem; height:.5rem; border-radius:50%; flex-shrink:0; }
 
 /* ── Empty state ────────────────────────────────────────────────────── */
-.es-empty-msg   { padding:1rem; color:var(--muted-foreground); font-size: var(--text-sm); }
 .es-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center;
                    padding:3rem 1rem; color:var(--muted-foreground); text-align:center; }
 .es-empty-icon  { font-size:3rem; opacity:.3; margin-bottom:.75rem; }
@@ -2798,7 +2762,6 @@ body.tm-panel-open { overflow: hidden; }
 
 /* ── Students Needing Attention (DosAnalytics) ── */
 /* Empty / "no data" note under a card (muted, 0.85rem) */
-.dos-empty-hint { color: var(--muted-foreground); font-size: var(--text-sm); }
 
 .dos-attention-flag-icon { color: var(--warning); vertical-align: middle; margin-right: 0.4rem; }
 
@@ -3002,7 +2965,6 @@ body.tm-panel-open { overflow: hidden; }
 .dos-info-row-value { font-size: var(--text-sm); font-weight: 500; }
 
 /* Detail drawer: leadership list */
-.dos-empty-note  { color: var(--muted-foreground); font-size: var(--text-sm); margin-bottom: 0.5rem; }
 .dos-role-item   { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0.6rem; background: var(--surface-2, #f8f9fa); border-radius: 6px; margin-bottom: 0.3rem; }
 .dos-role-name   { font-weight: 600; font-size: var(--text-sm); }
 .dos-role-since  { color: var(--muted-foreground); font-weight: 400; font-size: var(--text-caption); }

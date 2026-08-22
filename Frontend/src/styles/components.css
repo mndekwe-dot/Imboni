@@ -1943,3 +1943,39 @@ tr:hover td {
   box-shadow: var(--shadow-sm);
   border-color: var(--border-hover);
 }
+
+/* ── Inline empty note ───────────────────────────────────────────────────
+   The one-line "nothing here yet" that sits inside a card, as opposed to
+   <EmptyState>, which is the full-panel version with an icon and actions.
+
+   This was .adm-empty-note, .es-empty-msg, .dos-empty-hint and
+   .dos-empty-note - four names for `font-size: var(--text-sm);
+   color: var(--muted-foreground)`. That exact pair was the most-repeated
+   declaration block in the codebase, 38 copies across the portal
+   stylesheets. */
+.empty-note        { font-size: var(--text-sm); color: var(--muted-foreground); }
+.empty-note.padded { padding: 1rem; }
+.empty-note.spaced { margin-bottom: 0.5rem; }
+
+/* ── Notice banner ───────────────────────────────────────────────────────
+   A standing statement at the top of a page - "this is read-only", "issued
+   by another office". Not <WelcomeBanner>, which greets a person by name,
+   and not an alert, which reports something that just happened.
+
+   MatronSchedule was rendering this with .disc-welcome-banner, so it drew
+   its colour from --discipline and editing the Discipline stylesheet
+   restyled a Matron page. It uses the viewing portal's own brand now. */
+.notice-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  color: #fff;
+}
+.notice-banner .banner-title { font-weight: 700; font-size: var(--text-body); }
+.notice-banner .banner-sub   { font-size: var(--text-sm); opacity: 0.85; margin-top: 2px; }
+/* Title on the left, a large glyph pushed to the right. */
+.notice-banner--split { justify-content: space-between; }
+.notice-banner-icon   { font-size: 2rem; opacity: 0.9; }

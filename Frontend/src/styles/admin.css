@@ -445,7 +445,6 @@
 .adm-result-score       { font-size: var(--text-sm); color: var(--muted-foreground); min-width: 44px; text-align: right; }
 .adm-result-grade       { font-weight: 700; font-size: var(--text-sm); min-width: 26px; text-align: right; }
 .adm-result-more        { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 0.4rem; }
-.adm-empty-note         { font-size: var(--text-sm); color: var(--muted-foreground); }
 
 /* ── Staff (AdminStaff) ── */
 .adm-invite-success       { text-align: center; padding: 2rem 1rem; }

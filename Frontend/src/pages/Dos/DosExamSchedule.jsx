@@ -369,7 +369,7 @@ export function DosExamSchedule() {
                                             </thead>
                                             <tbody>
                                                 {exams.length === 0 ? (
-                                                    <tr><td colSpan={10} className="dos-empty-hint">{t('dos.examSchedule.empty')}</td></tr>
+                                                    <tr><td colSpan={10} className="empty-note">{t('dos.examSchedule.empty')}</td></tr>
                                                 ) : exams.map((row, index) => (
                                                     <ExamRow key={index} {...row} onDelete={handleDelete} />
                                                 ))}

@@ -39,7 +39,12 @@ const HAND_ROLLED = {
     // timetables, rosters) is meant to use it rather than DataTable, which
     // brings pagination and an empty state a planner grid must not have.
     DataTable: /className="[^"]*\b(?!data-)[a-z]+-table-wrap\b/,
-    EmptyState: /className="[^"]*\b[a-z]+-empty-(note|hint|state)\b/,
+    /* The full-panel empty state only. `-empty-note` / `-empty-hint` were also
+       matched here at first, but those are the one-line "nothing yet" inside a
+       card - rendering <EmptyState>'s icon circle and coloured strip there
+       would be wrong. They are now the shared `.empty-note` in components.css,
+       which is a style, not a component. */
+    EmptyState: /className="[^"]*\b[a-z]+-empty-state\b/,
     WelcomeBanner: /className="[^"]*\b[a-z]+-welcome-(banner|title|sub|greeting)\b/,
 }
 
@@ -81,8 +86,8 @@ function foreignPrefixUses() {
 
 describe('style architecture', () => {
     // Lower these as pages migrate. Never raise them.
-    const MAX_HAND_ROLLED = 27
-    const MAX_FOREIGN_PREFIX = 58
+    const MAX_HAND_ROLLED = 19
+    const MAX_FOREIGN_PREFIX = 56
 
     it('does not hand-roll components that already exist', () => {
         const found = handRolledPages()

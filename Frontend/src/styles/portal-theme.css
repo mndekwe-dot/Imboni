@@ -312,7 +312,7 @@
 
 [data-portal] .u-muted,
 [data-portal] .settings-info-text,
-[data-portal] .dos-empty-hint {
+[data-portal] .empty-note {
   color: var(--muted-foreground);
   font-size: var(--text-sm);
 }

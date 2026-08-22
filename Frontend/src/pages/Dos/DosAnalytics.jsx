@@ -145,7 +145,7 @@ export function DosAnalytics() {
                                 </div>
                                 <div className="card-content">
                                     {data.grade_performance.length === 0
-                                        ? <p className="dos-empty-hint">No approved results yet.</p>
+                                        ? <p className="empty-note">No approved results yet.</p>
                                         : (
                                             <div className="perf-list">
                                                 {data.grade_performance.map((row, i) => (
@@ -163,7 +163,7 @@ export function DosAnalytics() {
                                 </div>
                                 <div className="card-content">
                                     {data.subject_averages.length === 0
-                                        ? <p className="dos-empty-hint">No approved results yet.</p>
+                                        ? <p className="empty-note">No approved results yet.</p>
                                         : (
                                             <div className="perf-list">
                                                 {data.subject_averages.map((row, i) => (
@@ -186,7 +186,7 @@ export function DosAnalytics() {
                             </div>
                             <div className="card-content">
                                 {attention.length === 0 ? (
-                                    <p className="dos-empty-hint">
+                                    <p className="empty-note">
                                         No students flagged: averages are above 50% and attendance above 80%.
                                     </p>
                                 ) : (

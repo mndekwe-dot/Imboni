@@ -143,7 +143,7 @@ function StudentDetailModal({ student, onClose }) {
                                     {absentPct != null && <AttBar label="Absent"  value={absentPct} color="#dc2626" />}
                                 </>
                             ) : (
-                                <p className="adm-empty-note">No attendance data available.</p>
+                                <p className="empty-note">No attendance data available.</p>
                             )}
                         </div>
 
@@ -151,7 +151,7 @@ function StudentDetailModal({ student, onClose }) {
                         <div>
                             <p className="adm-modal-label">Term Results</p>
                             {results.length === 0 ? (
-                                <p className="adm-empty-note">No results submitted yet.</p>
+                                <p className="empty-note">No results submitted yet.</p>
                             ) : (
                                 <div className="adm-result-list">
                                     {results.slice(0, 8).map((r, i) => {
