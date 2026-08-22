@@ -15,6 +15,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { disNavItems, disSecondaryItems } from './disNav'
+import { StatCard } from '../../components/layout/StatCard'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -482,15 +483,9 @@ export function DisSettings() {
                         {activeTab === 'facilities' && (
                             <>
                                 {!facLoading && (
-                                    <div className="disc-stat-grid mb-1-5">
+                                    <div className="portal-stat-grid mb-1-5">
                                         {facStats.map((s, i) => (
-                                            <div key={i} className="disc-stat-card">
-                                                <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
-                                                <div>
-                                                    <div className="disc-stat-value">{s.value}</div>
-                                                    <div className="disc-stat-label">{s.label}</div>
-                                                </div>
-                                            </div>
+                                            <StatCard key={i} icon={s.icon} value={s.value} label={s.label} colorClass={s.iconClass} />
                                         ))}
                                     </div>
                                 )}
@@ -643,16 +638,13 @@ export function DisSettings() {
                                 ) : (
                                     <>
                                         {(config || []).length > 0 && (
-                                            <div className="disc-stat-grid mb-1-5">
+                                            <div className="portal-stat-grid mb-1-5">
                                                 {[
                                                     { iconClass: 'info',    icon: 'layers',         label: t('common.sections'),      value: (config||[]).length },
                                                     { iconClass: 'success', icon: 'calendar_month', label: t('common.yearGroups'),    value: totalYears          },
                                                     { iconClass: 'warning', icon: 'groups',         label: t('common.streamClasses'), value: totalStreams        },
                                                 ].map((s, i) => (
-                                                    <div key={i} className="disc-stat-card">
-                                                        <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
-                                                        <div><div className="disc-stat-value">{s.value}</div><div className="disc-stat-label">{s.label}</div></div>
-                                                    </div>
+                                                    <StatCard key={i} icon={s.icon} value={s.value} label={s.label} colorClass={s.iconClass} />
                                                 ))}
                                             </div>
                                         )}

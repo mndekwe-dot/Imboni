@@ -45,31 +45,11 @@
   white-space: nowrap;
 }
 
-/* ── Stat grid ── */
-.disc-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.disc-stat-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: var(--discipline-light);
-  color: var(--discipline);
-}
-.disc-stat-icon .material-symbols-rounded { font-size: var(--icon-lg); }
-.disc-stat-icon.green  { background: var(--success-light);      color: var(--success); }
-.disc-stat-icon.red    { background: var(--destructive-light);  color: var(--destructive); }
-.disc-stat-icon.amber  { background: rgba(245,158,11,0.12);     color: #f59e0b; }
-.disc-stat-value { font-size: var(--text-stat); font-weight: 800; line-height: 1; margin-bottom: 2px; }
-.disc-stat-label { font-size: var(--text-sm); color: var(--muted-foreground); font-weight: 500; }
+/* The stat tile lived here as .disc-stat-*, a copy of the shared StatCard with
+   different class names. Nine pages used it - including DosSettings,
+   MatronSchedule and the shared SchoolStructureEditor, so editing this file
+   restyled three other portals. They all render <StatCard> now and the rules
+   live once in components.css / portal-theme.css. */
 
 /* .filter-tabs-bar / .filter-tab now live once in components.css, with the
    active state driven by --portal-accent. Three copies of this block (here,
@@ -231,16 +211,6 @@
 }
 .disc-section-title .material-symbols-rounded { font-size: var(--icon-sm); color: var(--discipline); }
 
-/* ── Stat icon colour aliases ── */
-.disc-stat-icon.info     { background: rgba(30,64,175,0.1);   color: var(--primary); }
-.disc-stat-icon.success  { background: var(--success-light);  color: var(--success); }
-.disc-stat-icon.warning  { background: rgba(245,158,11,0.12); color: #f59e0b; }
-.disc-stat-icon.positive { background: var(--success-light);  color: var(--success); }
-
-/* ── Stat trend label ── */
-.disc-stat-trend { font-size: var(--text-caption); font-weight: 600; margin-top: 4px; }
-.disc-stat-trend.positive { color: var(--success); }
-.disc-stat-trend.negative { color: var(--destructive); }
 
 /* ── Activity icon colour modifiers (all variants in one place) ── */
 .disc-activity-icon.purple   { background: rgba(139,92,246,0.1);  color: #8b5cf6; }
@@ -1064,7 +1034,6 @@ td .class-chip { margin-left: 4px; }
   .disc-two-col { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-  .disc-stat-grid { grid-template-columns: repeat(2, 1fr); }
   .staff-cards-grid { grid-template-columns: 1fr; }
   
   
@@ -1085,26 +1054,9 @@ td .class-chip { margin-left: 4px; }
   .tt-form-row  { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 480px) {
-  /* Collapse stat cards into a single horizontal strip */
-  .disc-stat-grid {
-    display: flex;
-    flex-direction: row;
-    gap: 0;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 1rem;
-  }
-
-
-/* .disc-stat-card is now defined in components.css alongside the other
-   controls that do this job, so the whole family is edited in one place. */
-
-  .disc-stat-icon { display: none; }
-  .disc-stat-value { font-size: var(--text-title); margin-bottom: 0; }
-  .disc-stat-label { font-size: var(--text-caption); line-height: 1.2; }
-  .disc-stat-trend { display: none; }
+  /* The stat strip that used to sit here is gone with the rest of
+     .disc-stat-*. Discipline now gets the shared small-screen treatment from
+     components.css (two columns, smaller icon) instead of its own. */
 
   .disc-welcome-banner { flex-direction: column; align-items: flex-start; }
   .sched-badge { font-size: var(--text-caption); padding: 1px 6px; }
@@ -1119,7 +1071,6 @@ td .class-chip { margin-left: 4px; }
 }
 
 @media (max-width: 374px) {
-  .disc-stat-grid { grid-template-columns: repeat(2, 1fr); }
   .disc-picker-group { min-width: unset; flex: 1; }
 }
 

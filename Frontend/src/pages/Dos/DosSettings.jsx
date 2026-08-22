@@ -14,6 +14,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
+import { StatCard } from '../../components/layout/StatCard'
 
 // ── Small reusable components ────────────────────────────────────────────────
 
@@ -319,17 +320,10 @@ export function DosSettings() {
 
                         {/* Stat cards — only when sections exist */}
                         {config.length > 0 && (
-                            <div className="disc-stat-grid mb-1-5">
+                            <div className="portal-stat-grid mb-1-5">
                                 {settingsStats.map(s => (
-                                    <div key={s.label} className="disc-stat-card">
-                                        <div className={`disc-stat-icon ${s.iconClass}`}>
-                                            <span className="material-symbols-rounded">{s.icon}</span>
-                                        </div>
-                                        <div>
-                                            <div className="disc-stat-value">{s.value}</div>
-                                            <div className="disc-stat-label">{s.label}</div>
-                                        </div>
-                                    </div>
+                                    <StatCard key={s.label} icon={s.icon} value={s.value}
+                                              label={s.label} colorClass={s.iconClass} />
                                 ))}
                             </div>
                         )}

@@ -9,10 +9,13 @@
  *   trend       — optional sub-text
  *   trendClass  — 'positive' | 'negative' | ''
  *   colorClass  — 'success' | 'warning' | 'red' | 'info' | '' (default = portal accent)
+ *   className   — one extra modifier for a page that needs a tweak. Reach for
+ *                 this before copying the tile; nine copies of this markup is
+ *                 how the portals drifted apart in the first place.
  */
-export function StatCard({ icon, value, label, trend, trendClass = '', colorClass = '' }) {
+export function StatCard({ icon, value, label, trend, trendClass = '', colorClass = '', className = '' }) {
     return (
-        <div className={`portal-stat-card${colorClass ? ' ' + colorClass : ''}`}>
+        <div className={`portal-stat-card${colorClass ? ' ' + colorClass : ''}${className ? ' ' + className : ''}`}>
             <div className={`portal-stat-icon${colorClass ? ' ' + colorClass : ''}`}>
                 <span className="material-symbols-rounded">{icon}</span>
             </div>

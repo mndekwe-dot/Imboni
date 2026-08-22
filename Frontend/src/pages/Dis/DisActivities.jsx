@@ -17,6 +17,7 @@ import '../../styles/components.css'
 import '../../styles/discipline.css'
 import '../../styles/tables.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { StatCard } from '../../components/layout/StatCard'
 
 const filterOptions = [
     { key: 'all',      label: 'All Activities' },
@@ -234,7 +235,7 @@ export function DisActivities() {
     const stats = [
         { iconClass: 'info',    icon: 'emoji_events',       value: activities.filter(a => a.is_active).length, label: 'Active Clubs'    },
         { iconClass: 'success', icon: 'groups',             value: activities.reduce((s, a) => s + (a.enrolled_count || 0), 0), label: 'Enrolled Students' },
-        { iconClass: 'positive',icon: 'supervisor_account', value: new Set(activities.filter(a => a.teacher_name).map(a => a.teacher_name)).size, label: 'Patron Teachers' },
+        { iconClass: 'success',icon: 'supervisor_account', value: new Set(activities.filter(a => a.teacher_name).map(a => a.teacher_name)).size, label: 'Patron Teachers' },
     ]
 
     return (
@@ -262,15 +263,9 @@ export function DisActivities() {
 
                     <DashboardContent>
 
-                        <div className="disc-stat-grid">
+                        <div className="portal-stat-grid">
                             {stats.map((s, i) => (
-                                <div key={i} className="disc-stat-card">
-                                    <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
-                                    <div>
-                                        <div className="disc-stat-value">{loading ? '-' : s.value}</div>
-                                        <div className="disc-stat-label">{s.label}</div>
-                                    </div>
-                                </div>
+                                <StatCard key={i} icon={s.icon} value={loading ? '-' : s.value} label={s.label} colorClass={s.iconClass} />
                             ))}
                         </div>
 

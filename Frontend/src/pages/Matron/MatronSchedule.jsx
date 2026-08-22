@@ -15,6 +15,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
+import { StatCard } from '../../components/layout/StatCard'
 
 
 const CHANGE_STATUS_DISPLAY = {
@@ -22,16 +23,11 @@ const CHANGE_STATUS_DISPLAY = {
     applied: { dotClass: 'reviewed', statusClass: 'reviewed', status: 'Applied' },
 }
 
+// Thin alias over the shared tile. It used to re-implement the markup with
+// discipline.css class names, so editing a Discipline stylesheet silently
+// restyled the Matron schedule.
 function ScheduleStat({ iconClass, icon, value, label }) {
-    return (
-        <div className="disc-stat-card">
-            <div className={`disc-stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-            <div>
-                <div className="disc-stat-value">{value}</div>
-                <div className="disc-stat-label">{label}</div>
-            </div>
-        </div>
-    )
+    return <StatCard icon={icon} value={value} label={label} colorClass={iconClass} />
 }
 
 function ScheduleChange({ dotClass, title, meta, statusClass, status }) {
@@ -122,7 +118,7 @@ export function MatronSchedule() {
         { iconClass: 'info',     icon: 'calendar_view_week', value: data.stats.days_in_schedule,                label: 'Days in Schedule'  },
         { iconClass: 'success',  icon: 'event_available',    value: data.stats.total_activities,                label: 'Total Activities'  },
         { iconClass: 'warning',  icon: 'update',             value: data.stats.changes_this_week,               label: 'Changes This Week' },
-        { iconClass: 'positive', icon: 'verified',           value: data.stats.current_term,                    label: 'Current Term'      },
+        { iconClass: 'success', icon: 'verified',           value: data.stats.current_term,                    label: 'Current Term'      },
     ]
 
     const scheduleChanges = data.changes.map(c => ({
@@ -160,7 +156,7 @@ export function MatronSchedule() {
                             </div>
                         </div>
 
-                        <div className="disc-stat-grid mb-5">
+                        <div className="portal-stat-grid mb-5">
                             {scheduleStats.map((stat, index) => (
                                 <ScheduleStat key={index} {...stat} />
                             ))}

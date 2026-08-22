@@ -20,6 +20,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { StatCard } from '../../components/layout/StatCard'
 
 const CATEGORY_LABELS = {
     sport:      'Sports',
@@ -290,14 +291,14 @@ export function DisStudentLife() {
         { iconClass: 'info',    icon: 'emoji_events',       value: activities.filter(a => a.is_active).length, label: 'Active Clubs'       },
         { iconClass: 'success', icon: 'groups',             value: totalEnrolled,                              label: 'Enrolled Students'  },
         { iconClass: 'warning', icon: 'report',             value: incidents.length,                           label: 'Recent Incidents'   },
-        { iconClass: 'positive',icon: 'supervisor_account', value: activities.filter(a => a.teacher_name).length, label: 'Patron Teachers' },
+        { iconClass: 'success',icon: 'supervisor_account', value: activities.filter(a => a.teacher_name).length, label: 'Patron Teachers' },
     ]
 
     const leaderStats = [
         { iconClass: 'info',    icon: 'military_tech', value: prefects.length,  label: 'Prefects & Leaders'  },
         { iconClass: 'success', icon: 'home',          value: captains.length,  label: 'Dormitory Captains'  },
         { iconClass: 'warning', icon: 'groups',        value: activities.length,label: 'Active Clubs'        },
-        { iconClass: 'positive',icon: 'report',        value: incidents.length, label: 'Recent Incidents'    },
+        { iconClass: 'success',icon: 'report',        value: incidents.length, label: 'Recent Incidents'    },
     ]
 
     const TYPE_META = {
@@ -375,15 +376,9 @@ export function DisStudentLife() {
                         {/* ── ACTIVITIES TAB ── */}
                         {activeTab === 'activities' && (
                             <>
-                                <div className="disc-stat-grid">
+                                <div className="portal-stat-grid">
                                     {activityStats.map((s, i) => (
-                                        <div key={i} className="disc-stat-card">
-                                            <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
-                                            <div>
-                                                <div className="disc-stat-value">{s.value}</div>
-                                                <div className="disc-stat-label">{s.label}</div>
-                                            </div>
-                                        </div>
+                                        <StatCard key={i} icon={s.icon} value={s.value} label={s.label} colorClass={s.iconClass} />
                                     ))}
                                 </div>
 
@@ -442,15 +437,9 @@ export function DisStudentLife() {
                         {/* ── LEADERS TAB ── */}
                         {activeTab === 'leaders' && (
                             <>
-                                <div className="disc-stat-grid">
+                                <div className="portal-stat-grid">
                                     {leaderStats.map((s, i) => (
-                                        <div key={i} className="disc-stat-card">
-                                            <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
-                                            <div>
-                                                <div className="disc-stat-value">{s.value}</div>
-                                                <div className="disc-stat-label">{s.label}</div>
-                                            </div>
-                                        </div>
+                                        <StatCard key={i} icon={s.icon} value={s.value} label={s.label} colorClass={s.iconClass} />
                                     ))}
                                 </div>
 

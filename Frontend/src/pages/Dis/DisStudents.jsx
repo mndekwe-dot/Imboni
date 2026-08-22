@@ -15,6 +15,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { StatCard } from '../../components/layout/StatCard'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -353,20 +354,14 @@ export function DisStudents() {
                                     </div>
                                 </div>
 
-                                <div className="disc-stat-grid">
+                                <div className="portal-stat-grid">
                                     {[
                                         { iconClass: 'info',    icon: 'groups',  value: visibleStudents.length,                                                        label: 'Students Shown'     },
                                         { iconClass: 'success', icon: 'star',    value: visibleStudents.filter(s => conductInfo(s.conduct_grade).cls === 'excellent').length, label: 'Excellent Standing' },
                                         { iconClass: 'warning', icon: 'warning', value: visibleStudents.filter(s => conductInfo(s.conduct_grade).cls === 'fair').length,      label: 'Fair / At Risk'     },
                                         { iconClass: 'red',     icon: 'cancel',  value: visibleStudents.filter(s => conductInfo(s.conduct_grade).cls === 'poor').length,      label: 'Poor Conduct'       },
                                     ].map((s, i) => (
-                                        <div key={i} className="disc-stat-card">
-                                            <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
-                                            <div>
-                                                <div className="disc-stat-value">{s.value}</div>
-                                                <div className="disc-stat-label">{s.label}</div>
-                                            </div>
-                                        </div>
+                                        <StatCard key={i} icon={s.icon} value={s.value} label={s.label} colorClass={s.iconClass} />
                                     ))}
                                 </div>
 

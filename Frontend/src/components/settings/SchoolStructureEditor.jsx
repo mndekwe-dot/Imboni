@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { StatCard } from '../layout/StatCard'
 
 /**
  * The school's year groups and streams — the one editor for all three portals.
@@ -262,15 +263,8 @@ export function SchoolStructureEditor({ showStats = true }) {
                         { icon: 'calendar_month', label: t('common.yearGroups'),                 value: totalYears   },
                         { icon: 'groups',         label: t('settings.structure.streamClasses'), value: totalStreams },
                     ].map(s => (
-                        <div key={s.icon} className="disc-stat-card adm-struct-stat">
-                            <div className="disc-stat-icon info">
-                                <span className="material-symbols-rounded">{s.icon}</span>
-                            </div>
-                            <div>
-                                <div className="disc-stat-value">{s.value}</div>
-                                <div className="disc-stat-label">{s.label}</div>
-                            </div>
-                        </div>
+                        <StatCard key={s.icon} icon={s.icon} value={s.value}
+                                  label={s.label} colorClass="info" className="adm-struct-stat" />
                     ))}
                 </div>
             )}
