@@ -24,6 +24,7 @@ import { parentNavItems, parentSecondaryItems } from './Parent/parentNav'
 import { matronNavItems, matronSecondaryItems } from './Matron/matronNav'
 import { disNavItems, disSecondaryItems } from './Dis/disNav'
 import { adminNavItems, adminSecondaryItems } from './Admin/adminNav'
+import { TabGroup } from '../components/ui/TabGroup'
 
 // Lookup table — given a role string, returns the correct sidebar nav items.
 // Each portal exports its own nav from its own file — one source of truth.
@@ -257,23 +258,14 @@ export function Account() {
                                 the fold on every visit. Each panel now stands
                                 alone and the set is short enough to read at a
                                 glance. */}
-                            <div className="settings-tabs" role="tablist" aria-label={t('account.title')}>
-                                {TABS_FOR(role).map(item => (
-                                    <button
-                                        key={item.id}
-                                        role="tab"
-                                        type="button"
-                                        id={`tab-${item.id}`}
-                                        aria-selected={tab === item.id}
-                                        aria-controls={`panel-${item.id}`}
-                                        className={`settings-tab${tab === item.id ? ' active' : ''}`}
-                                        onClick={() => setTab(item.id)}
-                                    >
-                                        <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
-                                        {t(item.labelKey)}
-                                    </button>
-                                ))}
-                            </div>
+                            <TabGroup
+                                label={t('account.title')}
+                                value={tab}
+                                onChange={setTab}
+                                tabs={TABS_FOR(role).map(item => ({
+                                    key: item.id, icon: item.icon, label: t(item.labelKey),
+                                }))}
+                            />
 
                             <div className="settings-sections">
 
