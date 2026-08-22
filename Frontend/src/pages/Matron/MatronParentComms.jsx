@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import '../../styles/layout.css'
@@ -13,7 +13,6 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
-import { SkeletonList } from '../../components/ui/Skeleton'
 import { formatDateTime } from '../../utils/date'
 
 
@@ -146,13 +145,11 @@ export function MatronParentComms() {
     }
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('matron.parentComms.title')}
             user={sessionUser}
-        >
-            <SkeletonList items={5} />
-        </PageSkeleton>
+        />
     )
     if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 

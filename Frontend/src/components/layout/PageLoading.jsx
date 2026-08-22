@@ -4,13 +4,12 @@ import { DashboardHeader } from './DashboardHeader'
 import { DashboardContent } from './DashboardContent'
 
 /**
- * PageSkeleton — the dashboard shell with a skeleton where the data goes.
+ * PageLoading — the dashboard shell with a spinner where the data goes.
  *
  * Pages used to do `if (loading) return <Skeleton… />`, which returned INSTEAD
  * of the page: the sidebar and header disappeared, then the whole thing
- * reappeared at once. This keeps the chrome on screen and skeletons only the
- * part that is actually waiting, so nothing moves when the data lands and you
- * can navigate away while it loads.
+ * reappeared at once. This keeps the chrome on screen so nothing moves when the
+ * data lands and you can navigate away while it loads.
  *
  * It exists as a shell rather than as a `{loading ? … }` inside each page
  * because the guard is doing double duty: several pages derive values from the
@@ -18,8 +17,14 @@ import { DashboardContent } from './DashboardContent'
  * `data.stats.calls_this_month`). Those run on null and throw if the early
  * return is simply removed. Returning early — but returning the shell — keeps
  * them skipped.
+ *
+ * This was PageSkeleton, which took skeleton children shaped like the page
+ * underneath. Keeping thirteen of those in step with the layouts they imitated
+ * was its own maintenance job, and a skeleton that no longer matches reads as a
+ * broken page rather than a loading one. One spinner cannot fall out of date.
+ * `Skeleton` itself is still there for the panels that use it directly.
  */
-export function PageSkeleton({ navItems, secondaryItems, title, subtitle, user = {}, children }) {
+export function PageLoading({ navItems, secondaryItems, title, subtitle, user = {} }) {
     const { t } = useTranslation()
     return (
         <>
@@ -29,7 +34,14 @@ export function PageSkeleton({ navItems, secondaryItems, title, subtitle, user =
                 <Sidebar navItems={navItems} secondaryItems={secondaryItems} />
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader title={title} subtitle={subtitle} {...user} notifications={[]} />
-                    <DashboardContent>{children}</DashboardContent>
+                    <DashboardContent>
+                        {/* role="status" so a screen reader announces the wait
+                            instead of reading an empty page. */}
+                        <div className="route-fallback" role="status" aria-live="polite">
+                            <div className="route-fallback-spinner" />
+                            <span className="sr-only">{t('common.loading')}</span>
+                        </div>
+                    </DashboardContent>
                 </main>
             </div>
         </>

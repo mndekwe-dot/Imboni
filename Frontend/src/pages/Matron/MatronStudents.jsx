@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
@@ -19,7 +19,6 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
-import { SkeletonTable } from '../../components/ui/Skeleton'
 import { classLabel } from '../../utils/classes'
 
 
@@ -113,13 +112,11 @@ export function MatronStudents() {
     ]
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('matron.students.title')}
             user={sessionUser}
-        >
-            <SkeletonTable rows={8} cols={5} />
-        </PageSkeleton>
+        />
     )
     if (error) return <p className="u-pad u-danger">Error: {error}</p>
 

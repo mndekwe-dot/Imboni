@@ -12,7 +12,6 @@ vi.mock('../hooks/useAuth', () => ({
 const baseProps = {
   portal: 'teacher',
   icon: 'person_book',
-  accentColor: '#0891b2',
   placeholder: 'teacher@imboni.edu',
   redirectTo: '/teacher',
 }

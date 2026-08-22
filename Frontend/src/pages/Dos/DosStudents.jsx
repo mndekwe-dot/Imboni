@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -12,7 +12,6 @@ import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
 import { StatCard } from '../../components/layout/StatCard'
 import { Modal } from '../../components/ui/Modal'
-import { SkeletonTable } from '../../components/ui/Skeleton'
 import { getDosStudents, getDosStudentStats, inviteDosStudent, bulkInviteDosStudents,
          getDosStudentDetail, suspendDosStudent, changeDosStudentClass, appointStudentLeader, removeStudentLeader,
          downloadStudentReportCard } from '../../api/dos'
@@ -848,14 +847,12 @@ export function DosStudents() {
     }
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.students.title')}
             subtitle={t('dos.students.subtitle')}
             user={sessionUser}
-        >
-            <SkeletonTable rows={8} cols={6} />
-        </PageSkeleton>
+        />
     )
     if (error)   return <p className="u-pad dos-danger-text">Error: {error}</p>
 

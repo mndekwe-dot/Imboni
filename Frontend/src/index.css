@@ -354,108 +354,64 @@ table,
 }
 
 /* ===============================================
-   PORTAL ACCENTS
-   These used to sit on `:root` inside each portal's own CSS
-   file. Vite bundles all seven stylesheets together, so
-   `:root` meant "every portal" and whichever file the
-   bundler emitted last set the accent for all of them —
-   the DOS dashboard could come out teal. Keyed off the
-   data-portal attribute they stay where they belong.
+   PORTAL PALETTES
+
+   usePortalTheme stamps data-portal on <html> from the route.
+   These used to sit on `:root` inside each portal's own CSS file;
+   Vite bundles all seven stylesheets together, so `:root` meant
+   "every portal" and whichever file the bundler emitted last set
+   the accent for all of them - the DOS dashboard could come out
+   teal. Keyed off the attribute they stay where they belong.
+
+   Everything a portal does NOT vary - ink, semantic colour
+   families, shadows, radii - is defined once under the bare
+   [data-portal] block below. Each portal then overrides only the
+   nineteen tokens that carry its hue. portal-theme.css spends
+   them and never names a colour of its own.
    =============================================== */
 
-:root[data-portal="dos"]        { --portal-accent: #1657a0; --portal-accent-light: rgba(22, 87, 160, 0.10); }
-:root[data-portal="parent"]     { --portal-accent: #003d7a; --portal-accent-light: rgba(0, 61, 122, 0.10); }
-:root[data-portal="teacher"]    { --portal-accent: #0891b2; --portal-accent-light: rgba(8, 145, 178, 0.09); }
-:root[data-portal="student"]    { --portal-accent: #0d9488; --portal-accent-light: rgba(13, 148, 136, 0.10); }
-:root[data-portal="admin"]      { --portal-accent: #4f46e5; --portal-accent-light: rgba(79, 70, 229, 0.10); }
-:root[data-portal="discipline"] { --portal-accent: #4f46e5; --portal-accent-light: rgba(79, 70, 229, 0.10); }
-:root[data-portal="matron"]     { --portal-accent: #8b5cf6; --portal-accent-light: rgba(139, 92, 246, 0.10); }
+/* ── Shared by every portal ──────────────────────────────── */
+:root[data-portal] {
+  --card:               #ffffff;
+  --card-border:        var(--border);
+  --input:              var(--border);
+  --primary-foreground: #ffffff;
+  --ring:               var(--primary);
+  --secondary-foreground: var(--primary);
 
-/* ===============================================
-   DOS PORTAL — LIGHT PALETTE
-   Scoped to [data-portal="dos"], which usePortalTheme
-   stamps on <html> from the route. Nothing here reaches
-   another portal: delete this block and DOS is back to
-   the shared palette above.
-   =============================================== */
-
-:root[data-portal="dos"] {
-  /* Surfaces — near-white, layered by luminance not by borders */
-  /* A touch lighter than the sidebar band (#dbe7f6) so the two read as
-     separate surfaces without needing a heavy divider. */
-  --background:   #e9eff6;
-  --content-bg:   #e9eff6;
-  --card:         #ffffff;
-  --surface-2:    #f4f7fb;   /* inset panels, table headers */
-  --surface-3:    #e2eaf4;   /* hover, rails, chips */
-
-  /* Ink */
   --foreground:        #101828;
   --card-foreground:   #101828;
-  --muted-foreground:  #56657c;   /* 5.9:1 on --background */
-  --subtle-foreground: #7a8798;   /* 3.4:1 — large text / icons only */
-
-  /* Lines — hairlines, not boxes */
-  /* ONE line colour. Card edges, card-header rules, table row dividers and
-     panel splits all resolve to --border, so every separating line in the
-     portal is the same weight. --card-border is kept only because shared
-     components reference it; it is an alias, not a second value. */
-  --border:        #c4d1e3;
-  --border-hover:  #a9bbd2;
-  --card-border:   var(--border);
-  /* Inputs share the one line colour. This was set darker than --border back
-     when --border was a near-invisible #e5ebf3; after --border was darkened to
-     fix the missing card edges, #c9d5e5 ended up LIGHTER than it, so fields
-     had a weaker outline than the cards containing them. One value now. */
-  --input:         var(--border);
-
-  /* Brand — lifted off the near-black navy so it reads as a
-     colour rather than as ink. 7.2:1 on white. */
-  --primary:            #1657a0;
-  --primary-hover:      #114576;
-  --primary-foreground: #ffffff;
-  --primary-light:      rgba(22, 87, 160, 0.08);
-  --ring:               #1657a0;
-
-  --secondary:            #eef2f8;
-  --secondary-hover:      #e2e9f3;
-  --secondary-foreground: #1657a0;
-
-  --muted:       #f2f5fa;
-  --muted-hover: #e8eef6;
+  --muted-foreground:  #56657c;   /* 5.9:1 on the page background */
+  --subtle-foreground: #7a8798;   /* 3.4:1 - large text / icons only */
 
   /* ── FIVE COLOUR FAMILIES ────────────────────────────────────
-     The previous palette had SIX of eleven meaningful colours inside
-     one 40-degree band of blue: primary 212, info 206, ring 212 and
-     the sidebar at 210/211. Six degrees between `primary` and `info`
-     is the same colour to the eye, so "this is information" and "this
-     is a brand action" were indistinguishable, and the whole screen
-     read as one hue at different lightnesses.
+     The palette this replaced had SIX of eleven meaningful colours
+     inside one 40-degree band of blue: primary 212, info 206, ring
+     212 and the sidebar at 210/211. Six degrees between `primary`
+     and `info` is the same colour to the eye, so "this is
+     information" and "this is a brand action" were
+     indistinguishable, and the whole screen read as one hue at
+     different lightnesses.
 
      Five families now, smallest gap 22 degrees:
-         brand      212   blue    the one action colour
-         attention   25   amber   needs-your-eye: overdue, pending, active
-         info       190   teal    pulled OUT of the blue band
-         success    155   green
-         danger       0   red
+         brand      per portal  the one action colour
+         attention   25  amber  needs-your-eye: overdue, pending, active
+         info       190  teal   pulled OUT of the blue band
+         success    155  green
+         danger       0  red
 
      `warning` is deliberately NOT its own hue. It was gold at 36
-     degrees, eleven from amber, which recreated the same collision one
-     family over. "Warning" and "needs attention" are one idea, so they
-     share the amber family and the palette keeps five clean hues.
+     degrees, eleven from amber, which recreated the same collision
+     one family over. "Warning" and "needs attention" are one idea,
+     so they share the amber family and the palette keeps five
+     clean hues.
 
      Each family is a triple:
        --x            solid, for marks (bars, dots, chart series)
        --x-surface    the tint a chip or icon sits on
        --x-text       ink legible on BOTH that tint and on white
-     Only brand (7.23:1) and danger (4.73:1) carry white text on the
-     solid, so those two are the only filled buttons. Amber, teal and
-     green fail white text and must never become one. */
-
-  --primary:             #1657a0;
-  --primary-surface:     #d3e4f8;
-  --primary-text:        #0f4478;
-  --primary-light:       #e4eefb;
+     Amber, teal and green fail white text and must never become a
+     filled button; brand and danger are the only two that pass. */
 
   --accent:              #f97316;
   --accent-hover:        #ea580c;
@@ -485,8 +441,9 @@ table,
   --destructive-light:   #fbd9d9;
   --danger:              #cf3f3f;
 
-  /* Shadows — tinted with the page blue so cards sit on the
-     background instead of casting a grey smudge over it */
+  /* Shadows - tinted dark blue so cards sit on the background
+     instead of casting a grey smudge over it. At 4-10% alpha the
+     hue is imperceptible, so one tint serves all seven. */
   --shadow-xs: 0 1px 2px rgba(16, 40, 72, 0.04);
   --shadow-sm: 0 1px 3px rgba(16, 40, 72, 0.06), 0 1px 2px rgba(16, 40, 72, 0.04);
   --shadow-md: 0 4px 12px rgba(16, 40, 72, 0.07);
@@ -504,9 +461,193 @@ table,
   --toolbar-radius: 10px;
 
   --card-padding: var(--space-5);
+}
 
+/* ── Per portal ──────────────────────────────────────────────
+   Primaries are chosen, not generated: each keeps the family the
+   portal already had, dark enough to carry white text (all >=5.3:1
+   on white; the old teacher, student and matron accents sat at
+   3.7, 3.7 and 4.2 and could not). Admin and discipline used to be
+   the SAME indigo and parent sat 2 degrees from DOS, so those two
+   moved - they had no distinct identity to protect. The remaining
+   tokens are derived from each primary using DOS's own offsets in
+   OKLCH, which is why DOS comes out byte-identical to the pilot.
+
+   Closest pair is now dE 9.5 (teacher/DOS). It was 0.0. */
+
+/* Student  — emerald */
+:root[data-portal="student"] {
+  --primary:               #047857;
+  --primary-hover:         #205e44;
+  --primary-surface:       #d4e8dd;
+  --primary-text:          #1a5e43;
+  --primary-light:         #e4f1ea;
+  --chrome-from:           #206d4f;
+  --chrome-to:             #144d38;
+  --background:            #e9f0ec;
+  --content-bg:            #e9f0ec;
+  --surface-2:             #f4f8f6;
+  --surface-3:             #e2ece7;
+  --border:                #c3d5cd;
+  --border-hover:          #a8c0b5;
+  --secondary:             #edf3f1;
+  --secondary-hover:       #e1ebe7;
+  --muted:                 #f1f6f4;
+  --muted-hover:           #e8f0ec;
+  --scrollbar-thumb:       #cbdbd4;
+  --scrollbar-thumb-hover: #acc1b7;
+  --portal-accent:         #047857;
+  --portal-accent-light:   #e4f1ea;
+}
+
+/* Teacher  — cyan */
+:root[data-portal="teacher"] {
+  --primary:               #0e7490;
+  --primary-hover:         #1d5d6e;
+  --primary-surface:       #d2e6ed;
+  --primary-text:          #185d6f;
+  --primary-light:         #e3eff4;
+  --chrome-from:           #1e6b80;
+  --chrome-to:             #164c5c;
+  --background:            #e9f0f2;
+  --content-bg:            #e9f0f2;
+  --surface-2:             #f4f7f9;
+  --surface-3:             #e2ebef;
+  --border:                #c3d3da;
+  --border-hover:          #a8bdc6;
+  --secondary:             #edf3f5;
+  --secondary-hover:       #e1eaee;
+  --muted:                 #f1f6f8;
+  --muted-hover:           #e8eff2;
+  --scrollbar-thumb:       #cbdae0;
+  --scrollbar-thumb-hover: #acbfc7;
+  --portal-accent:         #0e7490;
+  --portal-accent-light:   #e3eff4;
+}
+
+/* DOS      — blue (the pilot; unchanged) */
+:root[data-portal="dos"] {
+  --primary:               #1657a0;
+  --primary-hover:         #114576;
+  --primary-surface:       #d3e4f8;
+  --primary-text:          #0f4478;
+  --primary-light:         #e4eefb;
+  --chrome-from:           #17518c;
+  --chrome-to:             #0e3560;
+  --background:            #e9eff6;
+  --content-bg:            #e9eff6;
+  --surface-2:             #f4f7fb;
+  --surface-3:             #e2eaf4;
+  --border:                #c4d1e3;
+  --border-hover:          #a9bbd2;
+  --secondary:             #eef2f8;
+  --secondary-hover:       #e2e9f3;
+  --muted:                 #f2f5fa;
+  --muted-hover:           #e8eef6;
   --scrollbar-thumb:       #ccd8e8;
   --scrollbar-thumb-hover: #adbdd2;
+  --portal-accent:         #1657a0;
+  --portal-accent-light:   #e4eefb;
+}
+
+/* Admin    — indigo (unchanged) */
+:root[data-portal="admin"] {
+  --primary:               #4f46e5;
+  --primary-hover:         #3841ad;
+  --primary-surface:       #d9e1ff;
+  --primary-text:          #393eb0;
+  --primary-light:         #e8ecff;
+  --chrome-from:           #4449c9;
+  --chrome-to:             #31328f;
+  --background:            #eaeefc;
+  --content-bg:            #eaeefc;
+  --surface-2:             #f5f6fe;
+  --surface-3:             #e4e8fc;
+  --border:                #c8cdf1;
+  --border-hover:          #aeb6e4;
+  --secondary:             #eff1fc;
+  --secondary-hover:       #e4e7fb;
+  --muted:                 #f3f4fe;
+  --muted-hover:           #eaecfc;
+  --scrollbar-thumb:       #cfd5f4;
+  --scrollbar-thumb-hover: #b1b9e2;
+  --portal-accent:         #4f46e5;
+  --portal-accent-light:   #e8ecff;
+}
+
+/* Parent   — violet */
+:root[data-portal="parent"] {
+  --primary:               #5b21b6;
+  --primary-hover:         #3f2286;
+  --primary-surface:       #e1ddff;
+  --primary-text:          #401e88;
+  --primary-light:         #edeaff;
+  --chrome-from:           #4e289f;
+  --chrome-to:             #33156b;
+  --background:            #eeedfa;
+  --content-bg:            #eeedfa;
+  --surface-2:             #f7f6fd;
+  --surface-3:             #e9e7f9;
+  --border:                #d1cbeb;
+  --border-hover:          #bab3dd;
+  --secondary:             #f2f0fb;
+  --secondary-hover:       #e9e6f7;
+  --muted:                 #f6f3fc;
+  --muted-hover:           #eeebfa;
+  --scrollbar-thumb:       #d7d2f0;
+  --scrollbar-thumb-hover: #bcb5dc;
+  --portal-accent:         #5b21b6;
+  --portal-accent-light:   #edeaff;
+}
+
+/* Matron   — magenta */
+:root[data-portal="matron"] {
+  --primary:               #a21caf;
+  --primary-hover:         #7a298b;
+  --primary-surface:       #f4d7f9;
+  --primary-text:          #7c248b;
+  --primary-light:         #f9e6fa;
+  --chrome-from:           #8f2b9f;
+  --chrome-to:             #671e70;
+  --background:            #f5eaf6;
+  --content-bg:            #f5eaf6;
+  --surface-2:             #fbf4fb;
+  --surface-3:             #f2e3f4;
+  --border:                #e1c5e1;
+  --border-hover:          #ceacd1;
+  --secondary:             #f8eef7;
+  --secondary-hover:       #f2e3f2;
+  --muted:                 #faf2f9;
+  --muted-hover:           #f5e9f6;
+  --scrollbar-thumb:       #e6cee7;
+  --scrollbar-thumb-hover: #cfafd1;
+  --portal-accent:         #a21caf;
+  --portal-accent-light:   #f9e6fa;
+}
+
+/* Discipline — slate */
+:root[data-portal="discipline"] {
+  --primary:               #475569;
+  --primary-hover:         #36414f;
+  --primary-surface:       #dee2e8;
+  --primary-text:          #35414f;
+  --primary-light:         #eaedf1;
+  --chrome-from:           #414d5e;
+  --chrome-to:             #29323e;
+  --background:            #edeef0;
+  --content-bg:            #edeef0;
+  --surface-2:             #f6f7f8;
+  --surface-3:             #e7e9ec;
+  --border:                #cdd0d5;
+  --border-hover:          #b5bac0;
+  --secondary:             #f1f2f3;
+  --secondary-hover:       #e7e8eb;
+  --muted:                 #f4f5f6;
+  --muted-hover:           #ecedf0;
+  --scrollbar-thumb:       #d4d7dc;
+  --scrollbar-thumb-hover: #b8bcc2;
+  --portal-accent:         #475569;
+  --portal-accent-light:   #eaedf1;
 }
 
 /* ===============================================

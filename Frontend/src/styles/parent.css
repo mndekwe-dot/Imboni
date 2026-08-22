@@ -1038,10 +1038,9 @@
 /* design for account page */
 /* Account Settings Grid Layout */
 .account-settings-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
-    align-items: start;
 }
 
 /* Settings Nav Sidebar */
@@ -1091,14 +1090,31 @@
 }
 
 .settings-card-header {
-    background: var(--primary);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
     padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
 }
 
 .settings-card-header h3 {
-    color: #fff;
     margin: 0;
+    color: var(--foreground);
     font-size: var(--text-title);
+}
+
+.settings-card-sub {
+    margin: 0.25rem 0 0;
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+}
+
+.settings-card-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-shrink: 0;
 }
 
 /* Form Styling */
@@ -1939,4 +1955,184 @@
     font-size: var(--text-sm);
     color: var(--muted-foreground);
     white-space: nowrap;
+}
+
+/* ===============================================
+   ACCOUNT SETTINGS — tabs, two-column rows, photo drop zone
+   pages/Account.jsx
+   =============================================== */
+
+/* Tabs replace the old vertical anchor list. Scrollable rather than wrapping:
+   a parent sees five, and wrapping them pushed the panel down a whole row. */
+.settings-tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.settings-tabs::-webkit-scrollbar { display: none; }
+
+.settings-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    border: none;
+    border-radius: calc(var(--radius) - 2px);
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background var(--transition-base), color var(--transition-base);
+}
+.settings-tab .material-symbols-rounded { font-size: 1.1rem; }
+.settings-tab:hover:not(.active) { color: var(--foreground); }
+.settings-tab.active {
+    background: var(--card);
+    color: var(--primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10);
+}
+
+/* Label left, control right — the label column is fixed so every row's fields
+   start on the same edge no matter how long the label runs. */
+.settings-row {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.settings-row:last-of-type { border-bottom: none; }
+
+.settings-row-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+/* Says where a read-only value comes from, so "why can't I edit my email"
+   answers itself. */
+.settings-row-hint {
+    font-weight: 400;
+    color: var(--muted-foreground);
+}
+
+.settings-row-field { min-width: 0; }
+
+.settings-row-field--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.settings-row-field--photo {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+}
+.settings-row-field--photo .avatar-large {
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.upload-drop {
+    flex: 1;
+    min-width: 0;
+    padding: 1.25rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    transition: border-color var(--transition-base), background var(--transition-base);
+}
+.upload-drop.dragging {
+    border-color: var(--primary);
+    background: var(--muted);
+}
+.upload-drop-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+}
+.upload-drop-text {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+}
+/* A real button, not a styled span: the drop zone is a convenience and the
+   keyboard path has to reach the file picker too. */
+.upload-drop-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--primary);
+    font-size: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+.upload-drop-link:hover { text-decoration: underline; }
+.upload-drop-hint {
+    margin: 0.25rem 0 0;
+    font-size: var(--text-caption);
+    color: var(--muted-foreground);
+}
+
+.settings-dirty {
+    margin: 1rem 0 0;
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+}
+
+@media (max-width: 900px) {
+    .settings-row { grid-template-columns: 1fr; gap: 0.6rem; }
+    .settings-row-field--photo { flex-direction: column; align-items: stretch; }
+    .settings-row-field--split { grid-template-columns: 1fr; }
+    .settings-card-header { flex-direction: column; }
+    .settings-card-actions { width: 100%; }
+    .settings-card-actions .btn { flex: 1; }
+}
+
+/* Inputs on this page had no styling at all: .form-input is defined in
+   discipline.css and dos.css, and Account imports neither, so every field fell
+   back to the browser default. Defined here, scoped to the settings card, so
+   the portals that already style .form-input keep their own look. */
+.settings-section-card .form-input {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--foreground);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+.settings-section-card .form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+.settings-section-card .form-input[readonly] {
+    background: var(--muted);
+    color: var(--muted-foreground);
+    cursor: default;
+}
+.settings-section-card .form-input[readonly]:focus {
+    border-color: var(--border);
+    box-shadow: none;
 }

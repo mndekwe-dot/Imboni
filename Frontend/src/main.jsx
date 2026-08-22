@@ -9,6 +9,11 @@ import { ErrorFallback } from './components/ErrorFallback'
 // the very first paint is already in the user's language.
 import './i18n'
 import './index.css'
+/* Shared chrome for the seven signed-in portals. Imported here rather
+   than from a page so the ties break the same way they did when this
+   block lived at the top of dos.css: a portal stylesheet loaded later
+   still wins an equal-specificity match. */
+import './styles/portal-theme.css'
 import './styles/utilities.css'
 import App from './App.jsx'
 

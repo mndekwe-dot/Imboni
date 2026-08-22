@@ -1,5 +1,5 @@
 import { useState,useEffect } from 'react'
-import { PageSkeleton } from '../../components/layout/PageSkeleton'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -14,7 +14,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
-import { SkeletonCard } from '../../components/ui/Skeleton'
+import { StatCard } from '../../components/layout/StatCard'
 
 // ── Small reusable components ────────────────────────────────────────────────
 
@@ -266,14 +266,12 @@ export function DosSettings() {
     // ── Loading / error / empty states ───────────────────────────────────────
 
     if (loading) return (
-        <PageSkeleton
+        <PageLoading
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.settings.title')}
             subtitle={t('dos.settings.subtitle')}
             user={sessionUser}
-        >
-            <SkeletonCard lines={6} />
-        </PageSkeleton>
+        />
     )
     if (error)   return <p className="u-pad dos-danger-text">{t('common.errorPrefix')}: {error}</p>
 
@@ -322,17 +320,10 @@ export function DosSettings() {
 
                         {/* Stat cards — only when sections exist */}
                         {config.length > 0 && (
-                            <div className="disc-stat-grid mb-1-5">
+                            <div className="portal-stat-grid mb-1-5">
                                 {settingsStats.map(s => (
-                                    <div key={s.label} className="disc-stat-card">
-                                        <div className={`disc-stat-icon ${s.iconClass}`}>
-                                            <span className="material-symbols-rounded">{s.icon}</span>
-                                        </div>
-                                        <div>
-                                            <div className="disc-stat-value">{s.value}</div>
-                                            <div className="disc-stat-label">{s.label}</div>
-                                        </div>
-                                    </div>
+                                    <StatCard key={s.label} icon={s.icon} value={s.value}
+                                              label={s.label} colorClass={s.iconClass} />
                                 ))}
                             </div>
                         )}

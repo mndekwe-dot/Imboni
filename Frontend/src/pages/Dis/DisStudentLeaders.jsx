@@ -10,6 +10,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { StatCard } from '../../components/layout/StatCard'
 
 const ROLE_DISPLAY = {
     head_boy:          'Head Boy',
@@ -109,15 +110,9 @@ export function DisStudentLeaders() {
 
                     <DashboardContent>
 
-                        <div className="disc-stat-grid">
+                        <div className="portal-stat-grid">
                             {stats.map((s, i) => (
-                                <div key={i} className="disc-stat-card">
-                                    <div className={`disc-stat-icon ${s.iconClass}`}><span className="material-symbols-rounded">{s.icon}</span></div>
-                                    <div>
-                                        <div className="disc-stat-value">{loading ? '-' : s.value}</div>
-                                        <div className="disc-stat-label">{s.label}</div>
-                                    </div>
-                                </div>
+                                <StatCard key={i} icon={s.icon} value={loading ? '-' : s.value} label={s.label} colorClass={s.iconClass} />
                             ))}
                         </div>
 
