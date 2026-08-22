@@ -14,6 +14,7 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
+import { StatCard } from '../../components/layout/StatCard'
 
 const CATEGORY_COLOR = {
     urgent:   { bg: '#fef2f2', border: '#ef4444', badge: '#fee2e2', text: '#dc2626', icon: 'priority_high'  },
@@ -58,18 +59,12 @@ function relDate(dateStr) {
     return formatDate(d)
 }
 
-function StatBox({ icon, value, label, color }) {
-    return (
-        <div className="pann-stat" style={{ '--stat-color': color, '--stat-bg': color + '18' }}>
-            <div className="pann-stat-icon">
-                <span className="material-symbols-rounded">{icon}</span>
-            </div>
-            <div>
-                <div className="pann-stat-value">{value}</div>
-                <div className="pann-stat-label">{label}</div>
-            </div>
-        </div>
-    )
+// Was a copy of the shared tile taking a raw hex per box (#3b82f6, #f59e0b,
+// #ef4444, #8b5cf6) - colour literals in JSX, disconnected from the palette
+// and from any meaning. The boxes now name a semantic family instead, so
+// "urgent" is the same red here as everywhere else in the app.
+function StatBox({ icon, value, label, tone }) {
+    return <StatCard icon={icon} value={value} label={label} colorClass={tone} />
 }
 
 function AnnouncementCard({ ann, onMarkRead }) {
@@ -202,10 +197,10 @@ export function ParentAnnouncements() {
                     <DashboardContent>
                         {/* Stats row */}
                         <div className="pann-stats-row">
-                            <StatBox icon="inbox"             value={loading ? '-' : announcements.length} label="Total"          color="#3b82f6" />
-                            <StatBox icon="mark_email_unread" value={loading ? '-' : unreadCount}          label="Unread"         color="#f59e0b" />
-                            <StatBox icon="priority_high"     value={loading ? '-' : urgentCount}          label="Urgent"         color="#ef4444" />
-                            <StatBox icon="event"             value={loading ? '-' : eventCount}           label="Upcoming Events" color="#8b5cf6" />
+                            <StatBox icon="inbox"             value={loading ? '-' : announcements.length} label="Total"          tone="info" />
+                            <StatBox icon="mark_email_unread" value={loading ? '-' : unreadCount}          label="Unread"         tone="warning" />
+                            <StatBox icon="priority_high"     value={loading ? '-' : urgentCount}          label="Urgent"         tone="red" />
+                            <StatBox icon="event"             value={loading ? '-' : eventCount}           label="Upcoming Events" tone="" />
                         </div>
 
                         {/* Toolbar: chips + mark all */}

@@ -12,6 +12,14 @@ import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { StatCard } from '../../components/layout/StatCard'
+
+// The Student pages named colours (blue, teal, orange, amber, purple) where
+// the rest of the app names meanings. purple was never even defined in
+// student.css, so that tile rendered an unstyled icon. Mapped once here:
+// brand-ish hues fall back to the portal accent, the rest to their family.
+const TONE = { green: 'success', red: 'red', orange: 'warning', amber: 'warning',
+               yellow: 'warning', blue: '', teal: '', purple: '' }
 
 // Static school policy data — not from DB
 const conductCategories = [
@@ -206,17 +214,10 @@ export function StudentDiscipline() {
                     <DashboardContent>
 
                         {/* Conduct stat cards */}
-                        <div className="student-stats-grid mb-1-5">
+                        <div className="portal-stat-grid mb-1-5">
                             {conductStats.map((stat, i) => (
-                                <div key={i} className="student-stat-card">
-                                    <div className={`stat-icon ${stat.iconClass}`}>
-                                        <span className="material-symbols-rounded">{stat.icon}</span>
-                                    </div>
-                                    <div className="stat-body">
-                                        <div className="stat-value" style={{ color: stat.valueColor }}>{stat.value}</div>
-                                        <div className="stat-label">{stat.label}</div>
-                                    </div>
-                                </div>
+                                <StatCard key={i} icon={stat.icon} value={stat.value}
+                                          label={stat.label} colorClass={TONE[stat.iconClass] ?? ''} />
                             ))}
                         </div>
 

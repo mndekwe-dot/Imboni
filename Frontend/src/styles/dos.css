@@ -586,46 +586,8 @@
    LEADERS TABLE — list view
    =============================================== */
 
-.leaders-table-wrap {
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  margin-bottom: 1.5rem;
-}
+/* Table moved to .data-table in tables.css. */
 
-.leaders-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.leaders-table th {
-  background: var(--muted);
-  padding: 0.875rem 1rem;
-  text-align: left;
-  font-size: var(--text-caption);
-  font-weight: 700;
-  color: var(--muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 2px solid var(--border);
-}
-
-.leaders-table td {
-  padding: 1rem;
-  font-size: var(--text-sm);
-  color: var(--foreground);
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-.leaders-table tr:last-child td {
-  border-bottom: none;
-}
-
-.leaders-table tr:hover td {
-  background: var(--muted);
-}
 
 .leader-cell {
   display: flex;
@@ -1251,43 +1213,8 @@
 }
 
 /* Table wrapper */
-.tm-table-wrap {
-  overflow-x: auto;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-}
+/* Table moved to .data-table in tables.css. */
 
-.tm-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-}
-
-.tm-table thead {
-  background: var(--muted);
-}
-
-.tm-table th {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: var(--muted-foreground);
-  font-size: var(--text-caption);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  border-bottom: 1px solid var(--border);
-}
-
-.tm-table td {
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-.tm-table tbody tr:last-child td { border-bottom: none; }
-
-.tm-table tbody tr:hover { background: var(--muted); }
 
 /* Teacher cell: avatar + name */
 .tm-teacher-cell {
@@ -2326,9 +2253,7 @@ body.tm-panel-open { overflow: hidden; }
 .es-cal-legend-dot  { width:.5rem; height:.5rem; border-radius:50%; flex-shrink:0; }
 
 /* ── Empty state ────────────────────────────────────────────────────── */
-.es-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center;
-                   padding:3rem 1rem; color:var(--muted-foreground); text-align:center; }
-.es-empty-icon  { font-size:3rem; opacity:.3; margin-bottom:.75rem; }
+/* Empty list panel moved to .list-empty in components.css. */
 
 /* ── Detail modal ───────────────────────────────────────────────────── */
 .es-detail-modal     { min-width:320px; }
@@ -2501,14 +2426,7 @@ body.tm-panel-open { overflow: hidden; }
 
 /* ── Mini stat cells (result overview) ── */
 .dos-mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
-.dos-mini-stat {
-  background: var(--muted);
-  border-radius: 10px;
-  padding: 0.75rem;
-  text-align: center;
-}
-.dos-mini-stat-value { font-size: var(--text-display); font-weight: 800; color: var(--primary); }
-.dos-mini-stat-label { font-size: var(--text-caption); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); margin-top: 2px; }
+/* Mini stat moved to .mini-stat in components.css. */
 
 /* ── Review block (modal overview) ── */
 .dos-review-block { background: var(--muted); border-radius: 10px; padding: 0.875rem 1rem; margin-bottom: 1rem; }

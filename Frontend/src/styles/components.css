@@ -1991,3 +1991,58 @@ tr:hover td {
 /* Title on the left, a large glyph pushed to the right. */
 .notice-banner--split { justify-content: space-between; }
 .notice-banner-icon   { font-size: 2rem; opacity: 0.9; }
+
+/* ── Mini stat ───────────────────────────────────────────────────────────
+   A number and a caption, no icon - the compact figure that goes inside a
+   modal or a panel. <StatCard> is the full tile with an icon chip; this is
+   deliberately not that, which is why it stays a style rather than becoming
+   a component.
+
+   Merged from .mini-stat in teacher.css (a bordered card) and .dos-mini-stat
+   in dos.css (a centred muted block). teacher.css declared its version with
+   NO portal prefix, so in a bundle with no route scoping it was already
+   reaching every portal - it just had no competition until now. */
+.mini-stat {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+}
+.mini-stat-value { font-size: var(--text-display); font-weight: 800; color: var(--primary); }
+.mini-stat-label {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+
+/* ── Empty list panel ────────────────────────────────────────────────────
+   A centred icon and one line, filling the body of a panel that has nothing
+   in it yet. The third and last tier of "nothing here":
+
+     .empty-note   one muted line inside a card
+     .list-empty   this - a panel body with an icon
+     <EmptyState>  a bordered card with a coloured strip and actions
+
+   <EmptyState> is deliberately not used for this: it is itself a card, and
+   nesting a bordered, strip-topped card inside the card that already holds
+   the list reads as a mistake.
+
+   Was .es-empty-state in dos.css, used identically by DosAnnouncement and
+   DisAnnouncements - so a Discipline page was styled from a DOS prefix. */
+.list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+.list-empty-icon { font-size: 3rem; opacity: 0.3; margin-bottom: 0.75rem; }

@@ -10,6 +10,7 @@ import { formatDate, formatWeekday } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { StatCard } from '../../components/layout/StatCard'
 
 const MONTH_NAMES = [
     '', 'January', 'February', 'March', 'April', 'May', 'June',
@@ -124,10 +125,10 @@ export function StudentAttendance() {
     const totalDays    = daysPresent + daysAbsent + lateArrivals + excused
 
     const statCards = [
-        { materialSymbols: 'check_circle', statValueColor: 'var(--success)',     statValue: daysPresent,  statLabel: t('student.attendance.daysPresent')  },
-        { materialSymbols: 'cancel',       statValueColor: 'var(--destructive)', statValue: daysAbsent,   statLabel: t('student.attendance.daysAbsent')   },
-        { materialSymbols: 'schedule',     statValueColor: 'var(--warning)',     statValue: lateArrivals, statLabel: t('student.attendance.lateArrivals') },
-        { materialSymbols: 'event_note',   statValueColor: 'var(--primary)',     statValue: totalDays,    statLabel: 'Total Days'    },
+        { materialSymbols: 'check_circle', tone: 'success', statValue: daysPresent,  statLabel: t('student.attendance.daysPresent')  },
+        { materialSymbols: 'cancel',       tone: 'red',     statValue: daysAbsent,   statLabel: t('student.attendance.daysAbsent')   },
+        { materialSymbols: 'schedule',     tone: 'warning', statValue: lateArrivals, statLabel: t('student.attendance.lateArrivals') },
+        { materialSymbols: 'event_note',   tone: '',        statValue: totalDays,    statLabel: 'Total Days'    },
     ]
 
     const grid = buildCalendarGrid(year, month, records)
@@ -182,13 +183,9 @@ export function StudentAttendance() {
                         {/* Stat cards */}
                         <div className="student-stats-grid">
                             {statCards.map((row, i) => (
-                                <div key={i} className="student-stat-card">
-                                    <div className="stat-icon green"><span className="material-symbols-rounded">{row.materialSymbols}</span></div>
-                                    <div className="stat-body">
-                                        <div className="stat-value" style={{ color: row.statValueColor }}>{loading ? '-' : row.statValue}</div>
-                                        <div className="stat-label">{row.statLabel}</div>
-                                    </div>
-                                </div>
+                                <StatCard key={i} icon={row.materialSymbols}
+                                          value={loading ? '-' : row.statValue}
+                                          label={row.statLabel} colorClass={row.tone} />
                             ))}
                         </div>
 

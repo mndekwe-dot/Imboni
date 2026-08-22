@@ -13,6 +13,7 @@ import { formatDate, formatDateLong } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { StatCard } from '../../components/layout/StatCard'
 
 const STATUS_TABS = ['All', 'Pending', 'Submitted', 'Overdue']
 
@@ -72,16 +73,17 @@ function gradeStyle(grade) {
     return { background: 'var(--warning-light)', color: 'var(--warning)' }
 }
 
-function AssignmentStat({ iconClass, icon, value, valueColor, label }) {
-    return (
-        <div className="student-stat-card">
-            <div className={`stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-            <div className="stat-body">
-                <div className="stat-value" style={valueColor ? { color: valueColor } : {}}>{value}</div>
-                <div className="stat-label">{label}</div>
-            </div>
-        </div>
-    )
+// The Student pages named colours (blue, teal, orange, amber, purple) where
+// the rest of the app names meanings. purple was never even defined in
+// student.css, so that tile rendered an unstyled icon. Mapped once here:
+// brand-ish hues fall back to the portal accent, the rest to their family.
+const TONE = { green: 'success', red: 'red', orange: 'warning', amber: 'warning',
+               yellow: 'warning', blue: '', teal: '', purple: '' }
+
+// valueColor is dropped: the icon already carries the colour, and no other
+// portal tints the number. One tile everywhere beats a Student-only variant.
+function AssignmentStat({ iconClass, icon, value, label }) {
+    return <StatCard icon={icon} value={value} label={label} colorClass={TONE[iconClass] ?? ''} />
 }
 
 function AssignmentCard({ assignment, onSubmit }) {

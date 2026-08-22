@@ -1650,17 +1650,8 @@
 
 /* ── Mini stat cards (Attendance / Results) ── */
 .mini-stats-row { display: flex; gap: var(--space-3, 0.75rem); flex-wrap: wrap; }
-.mini-stat {
-  flex: 1;
-  min-width: 80px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
-  box-shadow: var(--card-shadow, 0 2px 8px rgba(0,0,0,0.08));
-}
-.mini-stat-value { font-size: var(--text-display); font-weight: 700; }
-.mini-stat-label { font-size: var(--text-caption); color: var(--muted-foreground); }
+/* Mini stat moved to .mini-stat in components.css - it was declared here
+   with no portal prefix, so it already applied app-wide. */
 
 /* ── Student profile card (modal) ── */
 .student-profile-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }

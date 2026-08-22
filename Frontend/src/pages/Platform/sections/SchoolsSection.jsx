@@ -61,8 +61,8 @@ export function SchoolsSection() {
                 ) : schools.length === 0 ? (
                     <p className="platform-muted">No schools yet. Provision one with the <code>provision_school</code> command.</p>
                 ) : (
-                    <div className="platform-table-wrap">
-                        <table className="platform-table">
+                    <div className="data-table-wrap">
+                        <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>School</th><th>Domain</th><th>Plan</th><th>Status</th>

@@ -14,6 +14,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { formatDateTime } from '../../utils/date'
+import { StatCard } from '../../components/layout/StatCard'
 
 
 const OUTCOME_DISPLAY = {
@@ -26,16 +27,9 @@ const OUTCOME_DISPLAY = {
 }
 
 
+// Alias over the shared tile - see the note on MatronHealth's HealthStat.
 function CommsStat({ iconClass, icon, value, label }) {
-    return (
-        <div className="comms-stat-card">
-            <div className={`comms-stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-            <div>
-                <div className="comms-stat-value">{value}</div>
-                <div className="comms-stat-label">{label}</div>
-            </div>
-        </div>
-    )
+    return <StatCard icon={icon} value={value} label={label} colorClass={iconClass} />
 }
 
 function CommEntry({ typeClass, typeIcon, student, parent, subject, notes, meta, statusClass, statusKey }) {

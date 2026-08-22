@@ -33,7 +33,13 @@ const read = f => readFileSync(f, 'utf8')
 /* A page "hand-rolls" a component when it uses that component's shape under its
    own class names without importing the real one. */
 const HAND_ROLLED = {
-    StatCard: /className="[^"]*\b[a-z]+-stat-(card|value|label|icon)\b/,
+    /* Two exclusions, both genuine:
+       `mini-` is the shared .mini-stat in components.css - a number and a
+       caption with no icon chip, which is a different control from StatCard,
+       not a copy of it.
+       `mockup-` is the fake dashboard drawn inside the landing page's product
+       shot. It is an illustration of a stat card, not one. */
+    StatCard: /className="[^"]*\b(?!mini-|mockup-)[a-z]+-stat-(card|value|label|icon)\b/,
     // A portal-prefixed wrapper only. `.data-table-wrap` is the sanctioned
     // plain table in tables.css: markup that manages its own rows (planners,
     // timetables, rosters) is meant to use it rather than DataTable, which
@@ -86,8 +92,10 @@ function foreignPrefixUses() {
 
 describe('style architecture', () => {
     // Lower these as pages migrate. Never raise them.
-    const MAX_HAND_ROLLED = 19
-    const MAX_FOREIGN_PREFIX = 56
+    // MAX_HAND_ROLLED reached 0: every page that had copied a shared component
+    // now renders it instead. Keep it there - any rise is a new copy.
+    const MAX_HAND_ROLLED = 0
+    const MAX_FOREIGN_PREFIX = 54
 
     it('does not hand-roll components that already exist', () => {
         const found = handRolledPages()

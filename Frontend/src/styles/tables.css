@@ -301,11 +301,19 @@
 
 .data-table-wrap { overflow-x: auto; }
 
-/* A framed variant for tables that sit directly on the page rather than
-   inside a card. Was .tm-table-wrap. */
-.data-table-wrap.framed {
-  border: 1px solid var(--border);
+/* Two variants for a table that sits on the page rather than inside a card.
+   `framed` draws an edge (was .tm-table-wrap); `raised` makes the table its
+   own card (was .leaders-table-wrap). Both clip corners so the header fill
+   does not square off the rounding. */
+.data-table-wrap.framed,
+.data-table-wrap.raised {
   border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.data-table-wrap.framed { border: 1px solid var(--border); }
+.data-table-wrap.raised {
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
 }
 
 .data-table {

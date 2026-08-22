@@ -18,6 +18,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { formatDate } from '../../utils/date'
+import { StatCard } from '../../components/layout/StatCard'
 
 
 const conditionKeys = {
@@ -42,16 +43,10 @@ const STATUS_DISPLAY = {
     cleared:     { statusClass: 'reviewed', statusKey: 'matron.health.statusCleared' },
 }
 
+// Alias over the shared tile. It used to re-implement the markup under
+// health-stat-* names, which needed its own copy of the CSS in matron.css.
 function HealthStat({ iconClass, icon, value, label }) {
-    return (
-        <div className="health-stat-card">
-            <div className={`health-stat-icon ${iconClass}`}><span className="material-symbols-rounded">{icon}</span></div>
-            <div>
-                <div className="health-stat-value">{value}</div>
-                <div className="health-stat-label">{label}</div>
-            </div>
-        </div>
-    )
+    return <StatCard icon={icon} value={value} label={label} colorClass={iconClass} />
 }
 
 function BedCard({ bed, badgeClass, badge, student, condition, since, isEmpty, recordId, onDischarge, discharging }) {

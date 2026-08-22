@@ -55,15 +55,8 @@
 .platform-stat-hint { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 0.15rem; }
 
 /* ── Tables (light, matches the app) ─────────────────────────────────────────── */
-.platform-table-wrap { overflow-x: auto; }
-.platform-table { width: 100%; border-collapse: collapse; font-size: var(--text-body); }
-.platform-table th {
-    text-align: left; font-weight: 700; color: var(--muted-foreground); font-size: var(--text-caption);
-    text-transform: uppercase; letter-spacing: 0.03em; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);
-}
-.platform-table td { padding: 0.75rem; border-bottom: 1px solid var(--border); color: var(--foreground); }
-.platform-table tbody tr:last-child td { border-bottom: none; }
-.platform-table tbody tr:hover { background: var(--muted, #f8fafc); }
+/* Table moved to .data-table in tables.css. Platform cells were
+   var(--text-body); they take the canonical var(--text-sm) now. */
 .platform-col-action { text-align: right; white-space: nowrap; }
 .platform-col-action .btn + .btn { margin-left: 0.4rem; }   /* space between row actions */
 .platform-form > .btn { margin-top: 0.85rem; }              /* submit button under a form */

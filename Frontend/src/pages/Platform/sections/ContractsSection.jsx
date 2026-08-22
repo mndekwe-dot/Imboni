@@ -127,8 +127,8 @@ export function ContractsSection() {
                 ) : items.length === 0 ? (
                     <p className="platform-muted">No contracts yet. Create one and sign it to start tracking its lifecycle.</p>
                 ) : (
-                    <div className="platform-table-wrap">
-                        <table className="platform-table">
+                    <div className="data-table-wrap">
+                        <table className="data-table">
                             <thead>
                                 <tr><th>School</th><th>Contract</th><th>Amount</th><th>Term</th><th>Remaining</th><th>Status</th><th className="platform-col-action">Actions</th></tr>
                             </thead>

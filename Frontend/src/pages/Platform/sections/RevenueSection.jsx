@@ -113,8 +113,8 @@ export function RevenueSection() {
                     ) : payments.length === 0 ? (
                         <p className="platform-muted">No payments yet. They&apos;ll appear automatically once Stripe is live, or record one manually.</p>
                     ) : (
-                        <div className="platform-table-wrap">
-                            <table className="platform-table">
+                        <div className="data-table-wrap">
+                            <table className="data-table">
                                 <thead>
                                     <tr><th>Date</th><th>School</th><th>Plan</th><th>Amount</th><th>Status</th><th className="platform-col-action">Action</th></tr>
                                 </thead>

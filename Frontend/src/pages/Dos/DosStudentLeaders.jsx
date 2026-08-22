@@ -411,8 +411,8 @@ export function DosStudentLeaders() {
                                         </button>
                                     </div>
                                     <div className="card-content">
-                                        <div className="leaders-table-wrap">
-                                            <table className="leaders-table">
+                                        <div className="data-table-wrap raised">
+                                            <table className="data-table">
                                                 <thead>
                                                     <tr>
                                                         <th>{t('common.student')}</th>
