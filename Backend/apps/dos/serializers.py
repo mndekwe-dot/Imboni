@@ -3,6 +3,7 @@ from rest_framework import serializers
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from . import structure
 from .models import SchoolSection, SchoolSetting, Room
+from apps.authentication.validators import validate_avatar
 from apps.results.models import Subject
 
 
@@ -324,9 +325,13 @@ class RoomSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'is_active']
 
 class SchoolSettingSerializer(serializers.ModelSerializer):
+    # Same rules as the profile avatar - JPG/PNG, 2MB - so a school cannot
+    # discover a different limit here than the one it met on its own profile.
+    logo = serializers.ImageField(validators=[validate_avatar], required=False, allow_null=True)
+
     class Meta:
         model = SchoolSetting
-        fields = ['timezone', 'school_name', 'terms', 'currency']
+        fields = ['timezone', 'school_name', 'terms', 'currency', 'logo']
 
     def validate_currency(self, value):
         # ISO 4217 is three uppercase letters. Stored uppercase so the UI can

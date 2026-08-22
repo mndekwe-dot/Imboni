@@ -113,6 +113,20 @@ table,
   --primary: #003d7a;
   --primary-hover: #00629e;
   --primary-foreground: #ffffff;
+
+  /* ── Chrome: one colour, every portal, every school ──────────────
+     The sidebar and header were per-portal, then briefly considered
+     per-school. Both were dropped on purpose: a school choosing its own
+     chrome colour can choose one that swallows the sidebar, and no amount
+     of derivation makes "pale yellow behind white text" a good idea.
+
+     So the chrome is fixed and the school's identity is carried by its
+     logo and name instead. White on --chrome-from is 8.10:1.
+
+     Portal identity has not gone anywhere - it moved to the parts that can
+     safely carry it: the active nav marker, stat icons, buttons, links. */
+  --chrome-from: #17518c;
+  --chrome-to:   #0e3560;
   --primary-light: rgba(0, 61, 122, 0.1);
 
   /* Secondary Colors */
@@ -482,8 +496,6 @@ table,
   --primary-surface:       #d4e8dd;
   --primary-text:          #1a5e43;
   --primary-light:         #e4f1ea;
-  --chrome-from:           #206d4f;
-  --chrome-to:             #144d38;
   --background:            #e9f0ec;
   --content-bg:            #e9f0ec;
   --surface-2:             #f4f8f6;
@@ -507,8 +519,6 @@ table,
   --primary-surface:       #d2e6ed;
   --primary-text:          #185d6f;
   --primary-light:         #e3eff4;
-  --chrome-from:           #1e6b80;
-  --chrome-to:             #164c5c;
   --background:            #e9f0f2;
   --content-bg:            #e9f0f2;
   --surface-2:             #f4f7f9;
@@ -532,8 +542,6 @@ table,
   --primary-surface:       #d3e4f8;
   --primary-text:          #0f4478;
   --primary-light:         #e4eefb;
-  --chrome-from:           #17518c;
-  --chrome-to:             #0e3560;
   --background:            #e9eff6;
   --content-bg:            #e9eff6;
   --surface-2:             #f4f7fb;
@@ -557,8 +565,6 @@ table,
   --primary-surface:       #d9e1ff;
   --primary-text:          #393eb0;
   --primary-light:         #e8ecff;
-  --chrome-from:           #4449c9;
-  --chrome-to:             #31328f;
   --background:            #eaeefc;
   --content-bg:            #eaeefc;
   --surface-2:             #f5f6fe;
@@ -582,8 +588,6 @@ table,
   --primary-surface:       #e1ddff;
   --primary-text:          #401e88;
   --primary-light:         #edeaff;
-  --chrome-from:           #4e289f;
-  --chrome-to:             #33156b;
   --background:            #eeedfa;
   --content-bg:            #eeedfa;
   --surface-2:             #f7f6fd;
@@ -607,8 +611,6 @@ table,
   --primary-surface:       #f4d7f9;
   --primary-text:          #7c248b;
   --primary-light:         #f9e6fa;
-  --chrome-from:           #8f2b9f;
-  --chrome-to:             #671e70;
   --background:            #f5eaf6;
   --content-bg:            #f5eaf6;
   --surface-2:             #fbf4fb;
@@ -632,8 +634,6 @@ table,
   --primary-surface:       #dee2e8;
   --primary-text:          #35414f;
   --primary-light:         #eaedf1;
-  --chrome-from:           #414d5e;
-  --chrome-to:             #29323e;
   --background:            #edeef0;
   --content-bg:            #edeef0;
   --surface-2:             #f6f7f8;

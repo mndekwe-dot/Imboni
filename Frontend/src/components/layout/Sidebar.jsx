@@ -4,6 +4,7 @@ import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import logo from '../../assets/images/imboni-logo.png'
+import { useSchoolBranding } from '../../hooks/useSchoolBranding'
 
 /* Every page mounts its own <Sidebar> — 64 of them — so component state alone
    meant collapsing it and then clicking any nav item sprang it back open. The
@@ -18,6 +19,7 @@ export function Sidebar({ navItems, secondaryItems }) {
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { logout } = useAuth()
+  const { schoolName, logo: schoolLogo } = useSchoolBranding()
   const { t } = useTranslation()
 
   // Remember the choice. localStorage throws in some privacy modes, and a
@@ -61,12 +63,19 @@ export function Sidebar({ navItems, secondaryItems }) {
 
       <aside className={sidebarClass}>
         <header className="sidebar-logo">
+          {/* The school's own mark and name when it has set them, the Imboni
+              ones otherwise. A school that has not uploaded a logo is the
+              normal case, not a broken one, so both halves fall back
+              independently: a school can have a name and no logo. */}
           <div className="logo-wrapper">
             <div className="sidebar-logo-icon">
-              <img src={logo} alt={t('sidebar.logoAlt')} />
+              <img src={schoolLogo || logo}
+                   alt={schoolName || t('sidebar.logoAlt')} />
             </div>
             <div className="sidebar-logo-text">
-              <span className="sidebar-brand-name">Imboni</span>
+              <span className="sidebar-brand-name" title={schoolName || 'Imboni'}>
+                {schoolName || 'Imboni'}
+              </span>
               <span className="sidebar-brand-tagline">{t('sidebar.tagline')}</span>
             </div>
           </div>

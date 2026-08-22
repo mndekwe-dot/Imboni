@@ -215,6 +215,13 @@
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.01em;
+  /* The parent clips with overflow:hidden and white-space:nowrap (both needed
+     for the collapse animation), so without this a long school name is cut
+     mid-word - "Green Hills Secondary" became "Green Hills Second". An
+     ellipsis at least reads as truncation, and the element carries a title
+     attribute with the full name. */
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .sidebar-brand-tagline {

@@ -12,6 +12,7 @@ from apps.results.models import AcademicTerm, Result
 from apps.student.models import Student
 from apps.tenants.limits import enforce_capacity, remaining_seats
 
+from rest_framework import permissions
 from rest_framework import status as http_status
 
 from .serializers import (
@@ -2160,6 +2161,34 @@ class SchoolSettingsView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+
+class SchoolBrandingView(APIView):
+    """
+    GET /imboni/dos/branding/  — the school's name and logo, unauthenticated.
+
+    The sign-in screen has to show whose school this is BEFORE anyone signs in,
+    so this cannot sit behind IsDOSOrAdmin like the rest of school-settings.
+
+    It returns two fields and nothing else. The tenant is already decided by
+    the Host header (django-tenants resolves the subdomain), so this leaks
+    nothing that visiting the subdomain did not already reveal - but that is
+    only true while the field list stays exactly this short. Do not widen it:
+    timezone, currency and terms are operational details, and an unauthenticated
+    endpoint is not the place to hand them out.
+    """
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        settings = SchoolSetting.get_setting()
+        logo = getattr(settings, 'logo', None)
+        return Response({
+            'school_name': settings.school_name or '',
+            # Absolute, because the sign-in page may be served from a different
+            # origin than the media host in some deployments.
+            'logo': request.build_absolute_uri(logo.url) if logo else None,
+        })
 
 
 # ---------------------------------------------------------------------------
