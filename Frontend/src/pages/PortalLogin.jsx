@@ -4,9 +4,9 @@ import { useTranslation, Trans } from 'react-i18next'
 import { requestPasswordReset } from '../api/auth'
 import { useAuth } from '../hooks/useAuth'
 import {Link} from 'react-router'
-import logo from '../assets/images/imboni-logo.png'
 import '../styles/login.css'
 import '../styles/components.css'
+import { useSchoolBranding } from '../hooks/useSchoolBranding'
 
 function ForgotPasswordModal({ onClose }) {
     const { t } = useTranslation()
@@ -114,6 +114,7 @@ function ForgotPasswordModal({ onClose }) {
 export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
     const { t } = useTranslation()
     const {login, completeTwoFactor} = useAuth()
+    const { schoolName, logo: schoolLogo } = useSchoolBranding()
     const label    = t(`portal.${portal}`)
     const subtitle = t(`portalLogin.${portal}`)
     const [email,      setEmail]      = useState('')
@@ -163,75 +164,37 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
     return (
         <div className="login-page">
 
-            {/* ── Left panel ─────────────────────────────────────────────── */}
-            <div className="login-left portal-login-left">
-                <div className="orb-accent"></div>
-                <div className="login-left-grid"></div>
+            {/* One centred card. The branding column that used to sit on the
+                left carried a logo, a tagline and three reassurance lines;
+                the two that still say something (secure, restricted) moved
+                under the form, and the rest went. */}
+            <div className="login-card">
 
-                <div className="login-left-content">
-                    <div className="login-logo-wrap">
-                        <img src={logo} alt="Imboni Logo" />
+                {/* Both are ways out for someone who landed on the wrong portal
+                    or the wrong language, so both sit above the form. The
+                    switcher is centred here exactly as it is on /login - the two
+                    sign-in screens should not differ in where their controls sit. */}
+                <Link to="/" className="portal-login-back">
+                    <span className="material-symbols-rounded">arrow_back</span>
+                    {t('auth.backToHome')}
+                </Link>
+                <div className="login-lang">
+                    <LanguageSwitcher variant="dropdown" />
+                </div>
+
+                <div className="login-welcome">
+                    <div className="login-welcome-icon">
+                        {schoolLogo
+                            ? <img src={schoolLogo} alt={schoolName || ''} />
+                            : <span className="material-symbols-rounded">{icon}</span>}
                     </div>
-
-                    {/* Portal badge */}
                     <div className="portal-login-badge">
                         <div className="portal-login-badge-icon">
                             <span className="material-symbols-rounded">{icon}</span>
                         </div>
                         <span>{label}</span>
                     </div>
-
-                    <h2>
-                        Imboni<br />
-                        <span>{t('sidebar.tagline')}</span>
-                    </h2>
-
-                    <p>{subtitle}</p>
-
-                    <div className="left-divider"></div>
-
-                    <div className="portal-login-info">
-                        <div className="portal-login-info-row">
-                            <span className="material-symbols-rounded">verified_user</span>
-                            <span>{t('auth.secure')}</span>
-                        </div>
-                        <div className="portal-login-info-row">
-                            <span className="material-symbols-rounded">lock</span>
-                            <span>{t('auth.restricted')}</span>
-                        </div>
-                        <div className="portal-login-info-row">
-                            <span className="material-symbols-rounded">support_agent</span>
-                            <span>{t('auth.contactAdmin', { email: 'admin@imboni.rw' })}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* ── Right panel ────────────────────────────────────────────── */}
-            <div className="login-right">
-
-                <div className="login-right-logo">
-                    <img src={logo} alt="Imboni Logo" />
-                </div>
-
-                {/* Back link, paired with the language toggle: both are ways
-                    out for someone who landed on the wrong portal or the wrong
-                    language, and both belong above the form rather than under it. */}
-                <div className="portal-login-topbar">
-                    <Link to="/" className="portal-login-back">
-                        <span className="material-symbols-rounded">arrow_back</span>
-                        {t('auth.backToHome')}
-                    </Link>
-                    <LanguageSwitcher compact />
-                </div>
-
-                <div className="login-welcome">
-                    <div className="login-welcome-icon portal-login-icon-wrap">
-                        <span className="material-symbols-rounded">{icon}</span>
-                    </div>
-                    <div>
-                        <h1 className="login-heading">{label}</h1>
-                    </div>
+                    <h1 className="login-heading">{schoolName || label}</h1>
                 </div>
 
                 <p className="login-subheading">{subtitle}</p>

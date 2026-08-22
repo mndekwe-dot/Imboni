@@ -7,7 +7,7 @@ import { useSchoolIdentity } from '../hooks/useSchoolIdentity'
 import '../styles/login.css'
 import '../styles/components.css'
 import '../styles/public-pages.css'
-import logo from '../assets/images/imboni-logo.png'
+import { useSchoolBranding } from '../hooks/useSchoolBranding'
 
 function ForgotPasswordModal({ onClose }) {
     const { t } = useTranslation()
@@ -50,14 +50,11 @@ function ForgotPasswordModal({ onClose }) {
     )
 }
 
-const ROLE_KEYS = [
-    'roles.student', 'roles.teacher', 'roles.parent',
-    'roles.dos', 'roles.discipline', 'roles.matron',
-]
 
 export function LogIn() {
     const { t } = useTranslation()
     const { login, completeTwoFactor } = useAuth()
+    const { schoolName, logo: schoolLogo } = useSchoolBranding()
     // Decorative only: null on the bare domain or if the lookup fails.
     const { school } = useSchoolIdentity()
     const [email,      setEmail]      = useState('')
@@ -103,48 +100,16 @@ export function LogIn() {
     return (
         <div className="login-page">
 
-            {/* ── Left panel — branding ── */}
-            <div className="login-left">
-                <div className="orb-accent"></div>
-                <div className="login-left-grid"></div>
-
-                <div className="login-left-content">
-                    <div className="login-logo-wrap">
-                        <img src={logo} alt="Imboni Logo" />
-                    </div>
-
-                    <h2>
-                        Imboni<br />
-                        <span>{t('auth.brandTagline')}</span>
-                    </h2>
-
-                    <p>
-                        {t('auth.leftIntro')}
-                    </p>
-
-                    <div className="left-divider"></div>
-
-                    <div className="login-left-roles">
-                        {ROLE_KEYS.map(key => (
-                            <span key={key} className="role-pill">{t(key)}</span>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* ── Right panel — form ── */}
-            <div className="login-right">
-
-                {/* Mobile logo — hidden on desktop */}
-                <div className="login-right-logo">
-                    <img src={logo} alt="Imboni Logo" />
-                </div>
+            {/* One centred card. This was a two-panel split with a branding
+                column on the left; the column carried a logo, a tagline and a
+                row of role pills, none of which helped anyone sign in. */}
+            <div className="login-card">
 
                 {/* Above the form on purpose. Someone who cannot read this page
                     has to be able to fix that before they try to fill it in,
                     and there is no header here to put it in. */}
                 <div className="login-lang">
-                    <LanguageSwitcher compact />
+                    <LanguageSwitcher variant="dropdown" />
                 </div>
 
                 {/* The school's own name, so a parent lands somewhere that looks
@@ -165,7 +130,9 @@ export function LogIn() {
 
                 <div className="login-welcome">
                     <div className="login-welcome-icon">
-                        <span className="material-symbols-rounded">school</span>
+                        {schoolLogo
+                            ? <img src={schoolLogo} alt={schoolName || ''} />
+                            : <span className="material-symbols-rounded">school</span>}
                     </div>
                     <div>
                         <h1 className="login-heading">{t('auth.welcomeBack')}</h1>

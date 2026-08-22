@@ -18,8 +18,14 @@ import '../../styles/language.css'
  *
  * `compact` drops the visible "Language" label for tight rows (navs, sidebar);
  * the group keeps its aria-label either way.
+ *
+ * `variant="dropdown"` collapses the three buttons into a select. Three pills
+ * side by side need most of the width of a 400px sign-in card, which left the
+ * card's own content squeezed. A native <select> is used rather than a custom
+ * menu: it is keyboard-navigable and screen-reader-labelled without any work,
+ * and it opens as the platform's own picker on a phone.
  */
-export function LanguageSwitcher({ compact = false }) {
+export function LanguageSwitcher({ compact = false, variant = 'buttons' }) {
     const { t, i18n } = useTranslation()
     const { language, change, saving, languages } = useLanguage()
     const toast = useToast()
@@ -35,6 +41,28 @@ export function LanguageSwitcher({ compact = false }) {
         } catch (e) {
             toast.error(errorMessage(e, 'Could not save your language preference.'))
         }
+    }
+
+    if (variant === 'dropdown') {
+        return (
+            <div className="lang-select-wrap">
+                <span className="material-symbols-rounded lang-select-icon" aria-hidden="true">translate</span>
+                <select
+                    className="lang-select"
+                    value={language}
+                    disabled={saving}
+                    aria-label={t('language.label')}
+                    onChange={e => pick(e.target.value)}
+                >
+                    {languages.map(l => (
+                        // Labelled in its own language: someone stuck in a
+                        // language they cannot read still has to find the way out.
+                        <option key={l.code} value={l.code} lang={l.code}>{l.nativeLabel}</option>
+                    ))}
+                </select>
+                <span className="material-symbols-rounded lang-select-caret" aria-hidden="true">expand_more</span>
+            </div>
+        )
     }
 
     return (

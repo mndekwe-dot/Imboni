@@ -19,11 +19,37 @@ describe('LogIn (/login)', () => {
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument()
   })
 
-  it('renders a role pill for every supported portal', () => {
+  /* The role pills this used to assert lived in a branding column beside the
+     form. The page is one centred card now and the column is gone, pills and
+     all - they named the portals without linking to any of them, and this
+     page does not need the user to pick one: useAuth redirects by role. What
+     the card must still carry is the two ways out for someone who landed
+     here wrong, and they belong above the form, not under it. */
+  it('offers a language switcher above the form', () => {
     renderWithRouter(<LogIn />)
-    expect(screen.getByText('Student')).toBeInTheDocument()
-    expect(screen.getByText('Teacher')).toBeInTheDocument()
-    expect(screen.getByText('Parent')).toBeInTheDocument()
+    const card = document.querySelector('.login-card')
+    const lang = card.querySelector('.login-lang')
+    const form = card.querySelector('.login-form')
+    expect(lang).toBeInTheDocument()
+    // compareDocumentPosition: FOLLOWING means the form comes after the switcher.
+    expect(lang.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('renders as a single centred card, not the old two-panel split', () => {
+    renderWithRouter(<LogIn />)
+    expect(document.querySelector('.login-card')).toBeInTheDocument()
+    expect(document.querySelector('.login-left')).toBeNull()
+    expect(document.querySelector('.login-right')).toBeNull()
+  })
+
+  it('offers no self-signup or social sign-in', () => {
+    /* Portal accounts are issued by the school. The reference design this was
+       built from had Google, GitHub and a Sign up link; none of them can work
+       here, and a button that cannot work is worse than no button. */
+    renderWithRouter(<LogIn />)
+    expect(screen.queryByText(/sign up/i)).toBeNull()
+    expect(screen.queryByText(/google/i)).toBeNull()
+    expect(screen.queryByText(/github/i)).toBeNull()
   })
 
   it('calls login with the entered email and password on submit', async () => {
