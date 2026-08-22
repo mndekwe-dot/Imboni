@@ -8,6 +8,13 @@ vi.mock('../../hooks/useAuth', () => ({
   useAuth: () => ({ logout: mockLogout }),
 }))
 
+// Branding arrives from an unauthenticated endpoint via a hook; these cases
+// drive it directly rather than going near the network.
+let branding = { schoolName: '', logo: null, loaded: true }
+vi.mock('../../hooks/useSchoolBranding', () => ({
+  useSchoolBranding: () => branding,
+}))
+
 // Nav items carry a translation key, not display text. Logout is flagged by
 // `action` rather than by its label — the label is translated, so matching on
 // it would break the moment the user switches language.
@@ -24,6 +31,7 @@ describe('Sidebar', () => {
   beforeEach(() => {
     mockLogout.mockClear()
     localStorage.clear()   // the collapse choice persists between mounts now
+    branding = { schoolName: '', logo: null, loaded: true }
   })
 
   it('renders nav items and secondary items', () => {
@@ -37,6 +45,41 @@ describe('Sidebar', () => {
   it('renders the brand name', () => {
     renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
     expect(screen.getByText('Imboni')).toBeInTheDocument()
+  })
+
+  it('shows the school name once branding has loaded', () => {
+    branding = { schoolName: 'Green Hills Secondary', logo: null, loaded: true }
+    renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
+    expect(screen.getByText('Green Hills Secondary')).toBeInTheDocument()
+    expect(screen.queryByText('Imboni')).toBeNull()
+  })
+
+  it('falls back to Imboni when the school has set no name', () => {
+    // The common case - most schools never set one, and that is not an error.
+    branding = { schoolName: '', logo: null, loaded: true }
+    renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
+    expect(screen.getByText('Imboni')).toBeInTheDocument()
+  })
+
+  it('keeps the full school name in a title attribute', () => {
+    /* The visible name is clipped: the container needs overflow:hidden and
+       white-space:nowrap for the collapse animation, so a long name shows as
+       "Kigali Internatio…". The title is the only way to read the rest.
+
+       Only half of that bug is testable here - jsdom does no layout, so
+       scrollWidth is always 0 and the truncation itself cannot be asserted.
+       The CSS side (text-overflow: ellipsis) is verified by eye. */
+    const long = 'Kigali International Secondary School for Girls'
+    branding = { schoolName: long, logo: null, loaded: true }
+    renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
+    expect(screen.getByText(long)).toHaveAttribute('title', long)
+  })
+
+  it('shows the school logo when it has one', () => {
+    branding = { schoolName: 'Green Hills', logo: 'https://x/logo.png', loaded: true }
+    renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
+    expect(screen.getByRole('img', { name: 'Green Hills' })).toHaveAttribute(
+      'src', 'https://x/logo.png')
   })
 
   it('calls logout when the Logout button is clicked', () => {
