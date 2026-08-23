@@ -6,9 +6,14 @@ import { DayTabs } from './DaysTabs'
 import { TimetableCell } from './TimetableCell'
 import { DraggableCell } from './DraggableCell'
 import { assignSubjectTones, homeRoomOf, currentPeriodIndex, shortTeacher } from './timetableDisplay'
+import { teacherSlotsToSchedule } from './teacherSchedule'
 import { DAYS, DAY_SHORT, EXTRA_SLOTS, extraSchedules } from '../../data/extraTimetable'
 import { PERIODS, academicSchedules } from '../../data/academicTimetable'
 import '../../styles/timetable.css'
+
+/* The academic grid looks a schedule up by class id. A teacher's week is not
+   any one class's, so it is filed under a key no class can collide with. */
+const TEACHER_KEY = '__teacher__'
 
 /* A day column heading. Today is filled with the portal accent, and carries a
    dot + screen-reader text as well, so the state is not signalled by colour alone. */
@@ -243,7 +248,10 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
 
 /* ─── Legend (extracurricular only) ─────────────────────────────────────── */
 function TimetableLegend({ type }) {
-    if (type === 'academic') return null
+    /* The legend explains the activity-type colours, which only the
+       extracurricular grid uses. The academic grid — and the teacher's, which
+       is the same grid — colours by subject and names it in the cell. */
+    if (type !== 'extracurricular') return null
     return (
         <div className="tt-legend">
             <span className="tt-legend-item tt-sport">Sports</span>
@@ -257,7 +265,12 @@ function TimetableLegend({ type }) {
 
 /* ─── Main Timetable component ──────────────────────────────────────────────
    Props:
-     type       'academic' | 'extracurricular'
+     type       'academic' | 'extracurricular' | 'teacher'
+
+     'teacher' renders the academic grid from a teacher's own live timetable
+     rows (`teacherSlots`) instead of the static class-keyed data. It is the
+     same grid every other portal gets — the teacher's data is simply pivoted
+     into the shape it reads. See teacherSchedule.js.
      classId    required for academic
      editable   true = edit buttons visible (DOS, Dis portals)
      onEditCell called with { period/slot, day, cell } on edit click
@@ -268,6 +281,8 @@ function TimetableLegend({ type }) {
 export function Timetable({
     type = 'extracurricular',
     classId,
+    teacherSlots = null,
+    freeLabel    = 'Free',
     editable = false,
     onEditCell,
     periods      = PERIODS,
@@ -278,6 +293,19 @@ export function Timetable({
     currentMonday: controlledMonday = null,
     onMoveSlot   = null,
 }) {
+    /* A teacher's rows are pivoted into the academic grid's shape once per
+       change, not per render — the tone map and home room downstream are
+       memoised on schedule identity, so a fresh object every render would
+       recompute the whole week each time. */
+    const { periods: teacherPeriods, schedule: teacherSchedule } = useMemo(
+        () => teacherSlotsToSchedule(teacherSlots || [], { freeLabel }),
+        [teacherSlots, freeLabel],
+    )
+    const teacherSchedules = useMemo(
+        () => ({ [TEACHER_KEY]: teacherSchedule }),
+        [teacherSchedule],
+    )
+
     const [internalMonday, setInternalMonday] = useState(() => getThisMonday())
     const currentMonday = controlledMonday ?? internalMonday
     const [selectedDay, setSelectedDay] = useState(0)
@@ -299,7 +327,20 @@ export function Timetable({
 
             <DayTabs selected={selectedDay} onChange={setSelectedDay} />
 
-            {type === 'extracurricular' ? (
+            {type === 'teacher' && teacherPeriods.length === 0 ? (
+                <p className="tt-note">No lessons scheduled for this term yet.</p>
+            ) : type === 'teacher' ? (
+                <AcademicTimetable
+                    classId={TEACHER_KEY}
+                    editable={false}
+                    onEditCell={() => {}}
+                    selectedDay={selectedDay}
+                    periods={teacherPeriods}
+                    schedules={teacherSchedules}
+                    todayDayIndex={todayDayIndex}
+                    onMoveSlot={null}
+                />
+            ) : type === 'extracurricular' ? (
                 <ExtraTimetable
                     weekKey={weekKey}
                     editable={editable}

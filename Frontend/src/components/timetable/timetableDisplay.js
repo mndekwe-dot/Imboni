@@ -102,15 +102,42 @@ export function homeRoomOf(schedule) {
 export function parsePeriodTimes(periods) {
     let previousStart = -1
     return periods.map(period => {
-        const match = String(period?.time || '').match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/)
+        const match = String(period?.time || '')
+            .match(/(\d{1,2}):(\d{2})\s*(AM|PM)?\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)?/i)
         if (!match) return null
-        let start = Number(match[1]) * 60 + Number(match[2])
-        let end = Number(match[3]) * 60 + Number(match[4])
-        while (start < previousStart) { start += 720; end += 720 }
-        if (end < start) end += 720          // a period that crosses noon
+        const [, h1, m1, mer1, h2, m2, mer2] = match
+
+        /* A written AM/PM is an answer, not a hint — when it is there, use it
+           and skip the roll-forward guesswork below entirely. The static
+           timetables write "2:00 - 2:40" meaning the afternoon and rely on
+           that guesswork; the teacher's own timetable comes from the clock and
+           says "2:00 PM" outright. Both have to land on the same minute. */
+        let start = toMinutes(h1, m1, mer1)
+        let end   = toMinutes(h2, m2, mer2 || mer1)
+
+        if (!mer1) {
+            /* 12-hour with no meridiem: a period can only start later in the
+               day than the one above it, so a start that goes backwards must
+               have crossed noon. */
+            while (start < previousStart) { start += 720; end += 720 }
+            if (end < start) end += 720
+        }
         previousStart = start
         return { start, end }
     })
+}
+
+/* Hours and minutes to minutes-since-midnight, honouring a meridiem if given.
+   12 AM is midnight and 12 PM is noon — the one case where the arithmetic is
+   not simply "add twelve hours for PM". */
+function toMinutes(h, m, meridiem) {
+    let hour = Number(h)
+    if (meridiem) {
+        const pm = meridiem.toUpperCase() === 'PM'
+        if (pm && hour !== 12) hour += 12
+        if (!pm && hour === 12) hour = 0
+    }
+    return hour * 60 + Number(m)
 }
 
 /**
