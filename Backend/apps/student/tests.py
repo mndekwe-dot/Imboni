@@ -5,7 +5,7 @@ from rest_framework import status
 from apps.authentication.factories import (
     UserFactory, StudentFactory, SubjectFactory, AcademicTermFactory,
 )
-from apps.student.models import Activity, ActivityEnrollment, Assignment
+from apps.student.models import Activity, ActivityEnrollment
 
 
 @pytest.mark.django_db
@@ -227,19 +227,33 @@ class TestStudentActivityApplyView:
 
 @pytest.mark.django_db
 class TestStudentAssignmentSubmitView:
+    """
+    Note the models used here: apps.teacher.Assignment, not the legacy
+    apps.student.Assignment this test was originally written against. That
+    older model is a table nothing writes, so a test that built its fixture
+    there passed while the real endpoint returned nothing to real students.
+    See apps/teacher/test_assignment_workflow.py for the full journey.
+    """
+
     def test_cannot_submit_twice(self, api_client):
-        from apps.teacher.models import Class
-        from apps.student.models import AssignmentSubmission
+        from apps.teacher.models import (
+            Class, ClassAssignment,
+            Assignment as TeacherAssignment,
+            AssignmentSubmission as TeacherSubmission,
+        )
 
         term = AcademicTermFactory(is_current=True)
         subject = SubjectFactory()
         teacher = UserFactory(role='teacher')
         class_obj = Class.objects.create(name='S4A', grade='S4', section='A')
         student = StudentFactory()
+        # The student has to be in the class for the assignment to be theirs.
+        ClassAssignment.objects.create(student=student, class_obj=class_obj, term=term)
 
-        assignment = Assignment.objects.create(
+        assignment = TeacherAssignment.objects.create(
             title='Essay', subject=subject, class_obj=class_obj,
-            teacher=teacher, term=term, due_date=date.today() + timedelta(days=7),
+            teacher=teacher, due_date=date.today() + timedelta(days=7),
+            max_score=20, mode='paper', status='active',
         )
 
         api_client.force_authenticate(student.user)
@@ -248,4 +262,4 @@ class TestStudentAssignmentSubmitView:
 
         second = api_client.post(f'/imboni/student/assignments/{assignment.id}/submit/', {'notes': 'done again'})
         assert second.status_code == status.HTTP_400_BAD_REQUEST
-        assert AssignmentSubmission.objects.filter(assignment=assignment, student=student).count() == 1
+        assert TeacherSubmission.objects.filter(assignment=assignment, student=student).count() == 1

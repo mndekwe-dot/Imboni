@@ -157,8 +157,8 @@ function StudentAttendanceTab({ sections }) {
                     )}
                     {!error && !loading && students.length > 0 && (
                         <>
-                            <div className="tm-table-wrap">
-                                <table className="tm-table">
+                            <div className="data-table-wrap framed">
+                                <table className="data-table">
                                     <thead>
                                         <tr>
                                             <th>{t('common.student')}</th>
@@ -332,8 +332,8 @@ function TeacherAttendanceTab() {
                     )}
                     {!error && !loading && teachers.length > 0 && (
                         <>
-                            <div className="tm-table-wrap">
-                                <table className="tm-table">
+                            <div className="data-table-wrap framed">
+                                <table className="data-table">
                                     <thead>
                                         <tr>
                                             <th>{t('common.teacher')}</th>

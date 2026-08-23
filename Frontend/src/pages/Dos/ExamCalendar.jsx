@@ -120,8 +120,8 @@ export function ExamCalendar({ exams, onReschedule }) {
             </p>
             {notice && <p className="u-danger u-fs-085 mb-1" role="status">{notice}</p>}
 
-            <div className="es-table-wrap">
-                <table className="es-table exam-cal">
+            <div className="data-table-wrap">
+                <table className="data-table exam-cal">
                     <thead>
                         <tr>
                             <th>Day</th>

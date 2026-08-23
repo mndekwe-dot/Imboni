@@ -337,8 +337,8 @@ export function AdminApprovals() {
                                         No {activeTab} results.
                                     </div>
                                 ) : (
-                                    <div className="adm-table-wrap">
-                                        <table className="adm-table">
+                                    <div className="data-table-wrap">
+                                        <table className="data-table">
                                             <thead>
                                                 <tr>
                                                     {activeTab === 'pending' && (

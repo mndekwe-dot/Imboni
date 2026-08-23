@@ -12,6 +12,7 @@ import { formatDateShort, formatDateWithWeekday } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 
 function formatTime(timeStr) {
     if (!timeStr) return ''
@@ -171,17 +172,15 @@ export function StudentDashboard() {
                     />
                     <DashboardContent>
 
-                        {/* Welcome Banner */}
-                        <div className="student-welcome-banner">
-                            <div className="welcome-text">
-                                <h2>{t('student.dashboard.greeting', { name: firstName || t('roles.student') })}</h2>
-                                <p>
-                                    {gradeSection && <>{gradeSection} &nbsp;•&nbsp;</>}
-                                    {studentCode  && <>{t('student.dashboard.studentId', { code: studentCode })} &nbsp;•&nbsp;</>}
-                                    {today}
-                                </p>
-                            </div>
-                        </div>
+                        {/* The hand-rolled version used student.dashboard.greeting,
+                            which is hardcoded "Good morning, {{name}}!" - students
+                            opening it after class were greeted with the wrong time of
+                            day. WelcomeBanner picks the greeting from the hour. */}
+                        <WelcomeBanner
+                            name={firstName || t('roles.student')}
+                            role={[gradeSection, studentCode && t('student.dashboard.studentId', { code: studentCode }), today]
+                                    .filter(Boolean).join(' · ')}
+                        />
 
                         {/* Stats Grid */}
                         <div className="portal-stat-grid">

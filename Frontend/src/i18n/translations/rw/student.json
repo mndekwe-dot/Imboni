@@ -43,13 +43,19 @@
   },
   "assignments": {
     "allAssignments": "Imikoro yose",
+    "chooseFile": "Hitamo dosiye yo gutanga",
     "emptyFiltered": "Nta mikoro ihuye n'iyi muyunguruzo.",
     "loading": "Turimo gukura imikoro…",
+    "markDone": "Menyekanisha ko wawurangije",
     "onlineQuizzes": "Ibizamini byo kuri interineti",
+    "submitFailed": "Ntibyashobotse gutanga umukoro wawe.",
     "submitNow": "Tanga nonaha",
+    "submittedToast": "Umukoro watanzwe.",
     "subtitle": "Kurikirana imikoro yawe n'ibihe ntarengwa",
     "takeQuiz": "Kora ikizamini",
-    "totalThisTerm": "Byose muri iki gihembwe"
+    "teacherFeedback": "Igitekerezo cy’umwarimu",
+    "totalThisTerm": "Byose muri iki gihembwe",
+    "worksheet": "Urupapuro rw’imyitozo"
   },
   "attendance": {
     "daysAbsent": "Iminsi yasibye",
@@ -88,6 +94,12 @@
   "discipline": {
     "subtitle": "Amategeko y'ikigo, inyandiko y'imyitwarire yawe n'ubujurire"
   },
+  "messages": {
+    "subtitle": "Vugana n'abarimu bawe"
+  },
+  "quizReview": {
+    "loadFailed": "Gufungura igisubizo byanze."
+  },
   "results": {
     "assessment": "Isuzuma",
     "averageOverTime": "Impuzandengo yanjye mu gihe",
@@ -109,11 +121,5 @@
     "subtitle": "Gahunda y'icyumweru",
     "subtitleWithClass": "Gahunda y'icyumweru y'ishuri {{class}}",
     "title": "Gahunda yanjye"
-  },
-  "messages": {
-    "subtitle": "Vugana n'abarimu bawe"
-  },
-  "quizReview": {
-    "loadFailed": "Gufungura igisubizo byanze."
   }
 }

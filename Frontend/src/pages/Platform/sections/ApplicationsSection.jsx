@@ -126,8 +126,8 @@ export function ApplicationsSection() {
                 ) : apps.length === 0 ? (
                     <p className="platform-muted">No applications. Prospective schools apply at <code>/apply</code>.</p>
                 ) : (
-                    <div className="platform-table-wrap">
-                        <table className="platform-table">
+                    <div className="data-table-wrap">
+                        <table className="data-table">
                             <thead>
                                 <tr><th>School</th><th>Address</th><th>Contact</th><th>Received</th><th>Status</th><th className="platform-col-action">Review</th></tr>
                             </thead>

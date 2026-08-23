@@ -23,7 +23,7 @@ const PROFILE = { grade: 'S4', section: 'A' }
 
 const ASSIGNMENTS = [
   { id: 1, title: 'Essay', subject: 'English', teacher: 'Ms. Umutoni', due_date: '2026-01-01', status: 'pending' },
-  { id: 2, title: 'Lab Report', subject: 'Chemistry', teacher: 'Mr. Bizimana', due_date: '2026-01-05', status: 'submitted', grade: 88 },
+  { id: 2, title: 'Lab Report', subject: 'Chemistry', teacher: 'Mr. Bizimana', due_date: '2026-01-05', status: 'submitted', grade: 88, max_score: 100 },
 ]
 
 describe('StudentAssignments', () => {
@@ -47,7 +47,10 @@ describe('StudentAssignments', () => {
 
     await waitFor(() => expect(screen.getByText('Essay')).toBeInTheDocument())
     expect(screen.getByText('Lab Report')).toBeInTheDocument()
-    expect(screen.getByText('88%')).toBeInTheDocument()
+    /* A mark over what it was out of. This asserted "88%", which happened to
+       read correctly only because the fixture was out of 100 - the badge
+       printed the raw score with a % sign, so 18 out of 20 showed as "18%". */
+    expect(screen.getByText('88/100')).toBeInTheDocument()
   })
 
   it('shows the empty state for a filter with no matches', async () => {
@@ -73,7 +76,7 @@ describe('StudentAssignments', () => {
     expect(screen.getByText('Lab Report')).toBeInTheDocument()
   })
 
-  it('submits a pending assignment via Upload', async () => {
+  it('hands in a pending assignment', async () => {
     getStudentProfile.mockResolvedValue(PROFILE)
     getStudentAssignments.mockResolvedValueOnce(ASSIGNMENTS).mockResolvedValueOnce(
       [{ ...ASSIGNMENTS[0], status: 'submitted' }, ASSIGNMENTS[1]]
@@ -83,7 +86,10 @@ describe('StudentAssignments', () => {
     renderWithRouter(<StudentAssignments />)
     await waitFor(() => expect(screen.getByText('Essay')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: 'Upload' }))
+    /* "Upload" used to send an empty body and open no picker at all. Handing
+       in without a file is still allowed - an exercise book is handed in
+       physically - so that is the button asserted here. */
+    fireEvent.click(screen.getByRole('button', { name: /Mark as done/i }))
 
     await waitFor(() => expect(submitAssignment).toHaveBeenCalledWith(1, {}))
   })

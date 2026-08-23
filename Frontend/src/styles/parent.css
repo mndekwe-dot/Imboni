@@ -1964,40 +1964,9 @@
 
 /* Tabs replace the old vertical anchor list. Scrollable rather than wrapping:
    a parent sees five, and wrapping them pushed the panel down a whole row. */
-.settings-tabs {
-    display: flex;
-    gap: 0.25rem;
-    padding: 0.3rem;
-    background: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-.settings-tabs::-webkit-scrollbar { display: none; }
-
-.settings-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 1rem;
-    border: none;
-    border-radius: calc(var(--radius) - 2px);
-    background: transparent;
-    color: var(--muted-foreground);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: background var(--transition-base), color var(--transition-base);
-}
-.settings-tab .material-symbols-rounded { font-size: 1.1rem; }
-.settings-tab:hover:not(.active) { color: var(--foreground); }
-.settings-tab.active {
-    background: var(--card);
-    color: var(--primary);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10);
-}
+/* .settings-tabs / .settings-tab moved into .tab-group / .tab-btn in
+   components.css - they were the same control under two names, and this
+   one was the better of the two, so it became the shared version. */
 
 /* Label left, control right — the label column is fixed so every row's fields
    start on the same edge no matter how long the label runs. */

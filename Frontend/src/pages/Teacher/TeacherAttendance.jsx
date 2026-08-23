@@ -253,7 +253,7 @@ export function TeacherAttendance() {
                                                 { label: 'Weekly Rate', value: stats ? `${stats.weekly_rate}%` : '-', color: 'var(--primary)' },
                                             ].map(s => (
                                                 <div key={s.label} className="mini-stat">
-                                                    <div className="mini-stat-value" style={{ color: s.color }}>{s.value}</div>
+                                                    <div className="mini-stat-value">{s.value}</div>
                                                     <div className="mini-stat-label">{s.label}</div>
                                                 </div>
                                             ))}

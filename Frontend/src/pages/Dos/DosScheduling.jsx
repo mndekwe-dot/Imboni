@@ -843,7 +843,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
                                         {/* ── Month calendar ── */}
                                         {examsLoading ? (
-                                            <p className="es-empty-msg">{t('dos.scheduling.loadingExams')}</p>
+                                            <p className="empty-note padded">{t('dos.scheduling.loadingExams')}</p>
                                         ) : (
                                             <div className="es-cal-month-wrap">
 

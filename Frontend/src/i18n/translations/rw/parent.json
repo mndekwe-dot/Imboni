@@ -2,6 +2,30 @@
   "announcements": {
     "subtitle": "Menya amakuru n'integuza z'ikigo"
   },
+  "assignments": {
+    "title": "Imikoro",
+    "subtitle": "Imikoro yahawe umwana wawe, n'uko ayikora",
+    "loadFailed": "Ntibyashobotse kuzana imikoro.",
+    "tableTitle": "Imikoro ya {{name}}",
+    "due": "Igihe ntarengwa",
+    "score": "Amanota",
+    "onlineQuiz": "Ikizamini cyo kuri interineti",
+    "statTotal": "Imikoro yose",
+    "statOutstanding": "Itaratangwa",
+    "statMarked": "Yatanzweho amanota",
+    "statAverage": "Impuzandengo y'amanota",
+    "emptyTitle": "Nta mukoro urahari",
+    "emptyDesc": "Imikoro igaragara hano ako kanya umwarimu ayitanze.",
+    "emptyFiltered": "Nta mukoro uhuye n'iri hitamo.",
+    "filter": {
+      "all": "Byose",
+      "pending": "Igomba gukorwa",
+      "overdue": "Igihe cyarenze",
+      "submitted": "Yatanzwe",
+      "graded": "Yatanzweho amanota",
+      "late": "Yatinze"
+    }
+  },
   "attendance": {
     "subtitle": "Kalendari y'ubwitabire n'imibare y'ukwezi",
     "title": "Inyandiko z'ubwitabire"
@@ -10,6 +34,7 @@
     "subtitle": "Kurikirana imyitwarire n'ibyo umwana wawe agezeho",
     "title": "Raporo z'imyitwarire"
   },
+  "child": "Umwana",
   "children": {
     "subtitle": "Incamake y'imyirondoro y'abana bawe",
     "title": "Abana banjye"
@@ -21,6 +46,7 @@
   "messages": {
     "subtitle": "Vugana n'abarimu n'abakozi b'ikigo"
   },
+  "noChildren": "Nta mwana urahuzwa na konti yawe.",
   "results": {
     "noAssessments": "Nta bizamini byanditswe.",
     "noChildren": "Nta mwana ufitanye isano na konti yawe.",

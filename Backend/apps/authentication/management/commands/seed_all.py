@@ -16,8 +16,15 @@ User = get_user_model()
 # ── Lazy model imports (avoid circular import issues) ──────────────────────────
 def get_models():
     from apps.results.models     import Subject, AcademicTerm, Result, Assessment
-    from apps.student.models     import Student, Activity, ActivityEnrollment, ActivityEvent, Assignment, AssignmentSubmission
-    from apps.teacher.models     import Class, ClassAssignment, SubjectTeacherAssignment, Timetable, Task, TeacherClassList
+    from apps.student.models     import Student, Activity, ActivityEnrollment, ActivityEvent
+    # Assignments live in the teacher app - that is the table the teacher portal
+    # writes and the student and parent portals read. The student app used to
+    # carry a second pair of models with the same names; seeding those put demo
+    # homework somewhere no teacher could ever have created it.
+    from apps.teacher.models     import (
+        Class, ClassAssignment, SubjectTeacherAssignment, Timetable, Task, TeacherClassList,
+        Assignment, AssignmentSubmission,
+    )
     from apps.attendance.models  import AttendanceRecord, AttendanceSummary
     from apps.behavior.models    import BehaviorReport, ConductGrade
     from apps.announcements.models import Announcement
@@ -1060,6 +1067,28 @@ class Command(BaseCommand):
                     en_count += 1
         self.stdout.write(self.style.SUCCESS(f'  {en_count} enrollments created'))
 
+        def submission_defaults(student, assignment, sub_status, grade, feedback):
+            """
+            Map the seed's (status, grade, feedback) onto the real submission.
+
+            The teacher model does not store a status column - it derives one
+            from is_graded and is_late, so that a mark and a state can never
+            disagree. Nor does it have a feedback field: the student and parent
+            portals read a teacher's comment from `notes`.
+            """
+            max_score = assignment.max_score or 0
+            score = grade if grade is not None else 0
+            return {
+                'student_name': student.full_name,
+                'student_code': student.student_id,
+                'score':        score,
+                'max_score':    max_score,
+                'percentage':   round(score / max_score * 100, 2) if max_score and grade is not None else 0,
+                'is_graded':    sub_status == 'graded',
+                'is_late':      sub_status == 'late',
+                'notes':        feedback or '',
+            }
+
         # ── 23. Assignments + Submissions ─────────────────────────────────────
         self.stdout.write('Creating assignments...')
         Assignment         = m['Assignment']
@@ -1086,13 +1115,20 @@ class Command(BaseCommand):
                 teacher = users.get(teacher_email)
                 if not subj or not teacher:
                     continue
+                # Published, paper mode: what a teacher setting homework in the
+                # portal produces, so the demo shows the real workflow rather
+                # than rows only a seeder could have made.
                 obj, created = Assignment.objects.get_or_create(
-                    title=title, class_obj=s4a_class, term=current_term,
+                    title=title, class_obj=s4a_class,
                     defaults={
                         'subject': subj,
                         'teacher': teacher,
                         'due_date': due_d,
-                        'description': desc,
+                        'instructions': desc,
+                        'mode': 'paper',
+                        'status': 'active',
+                        'max_score': 20,
+                        'published_at': timezone.now(),
                     }
                 )
                 ass_objs[title] = obj
@@ -1114,7 +1150,7 @@ class Command(BaseCommand):
                     if ass:
                         _, created = AssignmentSubmission.objects.get_or_create(
                             assignment=ass, student=amina,
-                            defaults={'status': sub_status, 'grade': grade, 'feedback': feedback, 'notes': ''}
+                            defaults=submission_defaults(amina, ass, sub_status, grade, feedback),
                         )
                         if created:
                             sub_count += 1
@@ -1398,8 +1434,12 @@ class Command(BaseCommand):
             if not cls or not subj or not teacher:
                 continue
             _, created = Assignment.objects.get_or_create(
-                title=title, class_obj=cls, term=current_term,
-                defaults={'subject': subj, 'teacher': teacher, 'due_date': due_d, 'description': desc}
+                title=title, class_obj=cls,
+                defaults={
+                    'subject': subj, 'teacher': teacher, 'due_date': due_d,
+                    'instructions': desc, 'mode': 'paper', 'status': 'active',
+                    'max_score': 20, 'published_at': timezone.now(),
+                }
             )
             if created:
                 other_ass_count += 1
@@ -1434,12 +1474,12 @@ class Command(BaseCommand):
             cls     = classes.get(class_name)
             if not student or not cls:
                 continue
-            ass = Assignment.objects.filter(title=ass_title, class_obj=cls, term=current_term).first()
+            ass = Assignment.objects.filter(title=ass_title, class_obj=cls).first()
             if not ass:
                 continue
             _, created = AssignmentSubmission.objects.get_or_create(
                 assignment=ass, student=student,
-                defaults={'status': sub_status, 'grade': grade, 'feedback': feedback, 'notes': ''}
+                defaults=submission_defaults(student, ass, sub_status, grade, feedback),
             )
             if created:
                 extra_sub_count += 1

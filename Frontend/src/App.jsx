@@ -59,12 +59,14 @@ const TeacherAttendance   = load(() => import('./pages/Teacher/TeacherAttendance
 const TeacherMessages     = load(() => import('./pages/Teacher/TeacherMessages'), 'TeacherMessages');
 const TeacherAnnouncement = load(() => import('./pages/Teacher/TeacherAnnouncement'), 'TeacherAnnouncement');
 const TeacherAssignments  = load(() => import('./pages/Teacher/TeacherAssignments'), 'TeacherAssignments');
+const TeacherAssignmentForm = load(() => import('./pages/Teacher/TeacherAssignmentForm'), 'TeacherAssignmentForm');
 const TeacherTimetable    = load(() => import('./pages/Teacher/TeacherTimetable'), 'TeacherTimetable');
 const TeacherResults      = load(() => import('./pages/Teacher/TeacherResults'), 'TeacherResults');
 const TeacherStudent      = load(() => import('./pages/Teacher/TeacherStudents'), 'TeacherStudent');
 
 // ── Parent ──
 const ParentDashboard     = load(() => import('./pages/Parent/ParentDashboard'), 'ParentDashboard');
+const ParentAssignments   = load(() => import('./pages/Parent/ParentAssignments'), 'ParentAssignments');
 const ParentChildren      = load(() => import('./pages/Parent/ParentChildren'), 'ParentChildren');
 const ParentResults       = load(() => import('./pages/Parent/ParentResults'), 'ParentResults');
 const ParentAttendance    = load(() => import('./pages/Parent/ParentAttendance'), 'ParentAttendance');
@@ -239,6 +241,7 @@ function App() {
       <Route path="/parent" element={<ProtectedRoute><ParentDashboard /></ProtectedRoute>} />
       <Route path="/parent/children" element={<ProtectedRoute><ParentChildren /></ProtectedRoute>} />
       <Route path="/parent/results" element={<ProtectedRoute><ParentResults /></ProtectedRoute>} />
+      <Route path="/parent/assignments" element={<ProtectedRoute><ParentAssignments /></ProtectedRoute>} />
       <Route path="/parent/attendance" element={<ProtectedRoute><ParentAttendance /></ProtectedRoute>} />
       <Route path="/parent/behaviour" element={<ProtectedRoute><ParentBehaviour /></ProtectedRoute>} />
       <Route path="/parent/announcements" element={<ProtectedRoute><ParentAnnouncements /></ProtectedRoute>} />
@@ -298,6 +301,8 @@ function App() {
       <Route path="/student/discipline" element={<ProtectedRoute><StudentDiscipline /></ProtectedRoute>} />
       {/* ── Teacher extra routes ── */}
       <Route path="/teacher/assignments" element={<ProtectedRoute><TeacherAssignments /></ProtectedRoute>} />
+      <Route path="/teacher/assignments/new" element={<ProtectedRoute><TeacherAssignmentForm /></ProtectedRoute>} />
+      <Route path="/teacher/assignments/:id/edit" element={<ProtectedRoute><TeacherAssignmentForm /></ProtectedRoute>} />
       <Route path="/teacher/timetable"   element={<ProtectedRoute><TeacherTimetable /></ProtectedRoute>} />
       <Route path="/teacher/results"     element={<ProtectedRoute><TeacherResults /></ProtectedRoute>} />
       <Route path="/teacher/students"    element={<ProtectedRoute><TeacherStudent /></ProtectedRoute>} />

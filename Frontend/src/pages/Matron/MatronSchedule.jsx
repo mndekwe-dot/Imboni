@@ -148,7 +148,7 @@ export function MatronSchedule() {
 
                     <DashboardContent>
 
-                        <div className="disc-welcome-banner mb-5">
+                        <div className="notice-banner mb-5">
                             <span className="material-symbols-rounded u-fs-15">verified</span>
                             <div>
                                 <div className="banner-title">Standing boarding routine, issued by the Discipline Office</div>

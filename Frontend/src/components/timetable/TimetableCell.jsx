@@ -52,6 +52,19 @@ export function TimetableCell({ cell, editable, onEdit, colIndex, tone, homeRoom
     /* Only show a room that differs from the class's usual one. */
     const room = cell.room && cell.room !== homeRoom ? cell.room : null
 
+    /* The second line of a cell answers "who else is in this lesson with me?",
+       and the answer depends on whose timetable it is. A class looking at its
+       own week wants the teacher, shortened to a surname so six columns fit.
+       A teacher looking at their own week already knows the teacher, and wants
+       the class instead — that arrives as `meta` and is printed verbatim,
+       because "S3A" is not a person's name and must not be shortened like one. */
+    const secondary = cell.meta ?? (cell.teacher ? shortTeacher(cell.teacher) : '')
+
+    /* The shortened name is what fits; the full one is what the hover is for.
+       Where the line is already printed in full there is nothing left to
+       reveal, so the title is just the same string. */
+    const secondaryTitle = cell.meta ?? cell.teacher ?? ''
+
     return (
         <td className={`tt-cell tt-${cell.type} ${stateClass}${toneClass}`}>
 
@@ -63,11 +76,11 @@ export function TimetableCell({ cell, editable, onEdit, colIndex, tone, homeRoom
             {/* Teacher and room share one line: the teacher truncates, the room
                 is short and never should. Skipped entirely when both are absent,
                 which keeps a bare cell to a single line. */}
-            {(cell.teacher || room) && (
+            {(secondary || room) && (
                 <div className="tt-cell-meta">
-                    {cell.teacher &&
-                        <span className="tt-teacher" title={cell.teacher}>
-                            {shortTeacher(cell.teacher)}
+                    {secondary &&
+                        <span className="tt-teacher" title={secondaryTitle}>
+                            {secondary}
                         </span>
                     }
                     {room && <span className="tt-room">{room}</span>}

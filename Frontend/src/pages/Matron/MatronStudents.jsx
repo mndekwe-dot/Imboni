@@ -20,24 +20,17 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { classLabel } from '../../utils/classes'
+import { StatCard } from '../../components/layout/StatCard'
 
 
 function initialsOf(name) {
     return name.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()
 }
 
+// Alias over the shared tile. colorClass and iconClass were always passed the
+// same value, so StatCard's single colorClass covers both.
 function StudentStat({ colorClass, iconClass, icon, value, label }) {
-    return (
-        <div className={`matron-stat-card${colorClass ? ` ${colorClass}` : ''}`}>
-            <div className={`matron-stat-icon${iconClass ? ` ${iconClass}` : ''}`}>
-                <span className="material-symbols-rounded">{icon}</span>
-            </div>
-            <div>
-                <div className="matron-stat-value">{value}</div>
-                <div className="matron-stat-label">{label}</div>
-            </div>
-        </div>
-    )
+    return <StatCard icon={icon} value={value} label={label} colorClass={colorClass || iconClass} />
 }
 
 function StudentRow({ initials, name, studentCode, year, classBadge, room, dormitory, boardingType }) {

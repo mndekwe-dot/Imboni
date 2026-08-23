@@ -30,6 +30,13 @@ app.conf.beat_schedule = {
         'task': 'apps.teacher.tasks.send_due_date_reminders_task',
         'schedule': crontab(hour=18, minute=0),
     },
+    # Every day at 00:30 — close assignments past their due date that were set
+    # not to accept late work. Just after midnight so an assignment due today
+    # stays open for the whole of today.
+    'close-overdue-assignments': {
+        'task': 'apps.teacher.tasks.close_overdue_assignments_task',
+        'schedule': crontab(hour=0, minute=30),
+    },
     # Every Friday at 17:00 — email parents their children's weekly summary
     'send-weekly-digest': {
         'task': 'apps.parents.tasks.send_weekly_digest_task',

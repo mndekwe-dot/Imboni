@@ -25,28 +25,11 @@
    DASHBOARD - Student/student.html
    =============================================== */
 
-.student-welcome-banner {
-  background: linear-gradient(135deg, var(--primary), #1d4ed8);
-  border-radius: var(--radius);
-  padding: clamp(1.25rem, 3vw, 1.75rem) clamp(1.25rem, 3vw, 2rem);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-.welcome-text h2 {
-  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-  font-weight: 700;
-  margin: 0 0 0.3rem;
-}
-.welcome-text p {
-  font-size: var(--text-sm);
-  opacity: 0.85;
-  margin: 0;
-}
+/* The per-portal welcome banner that was here is gone. Three portals each
+   had one, all a gradient + white text + a badge, and all hardcoding a
+   colour literal outside index.css. Greeting banners now use
+   <WelcomeBanner>; page-intro and standing-notice banners use
+   .notice-banner in components.css. */
 .welcome-chips {
   display: flex;
   gap: 0.75rem;
@@ -1233,3 +1216,29 @@
 .score-pos  { color: var(--success); }
 .score-neg  { color: var(--destructive); }
 .score-hist { color: var(--muted-foreground); }
+
+/* The worksheet handed out with an assignment. A link, not a button: it goes
+   somewhere rather than doing something. */
+.assignment-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  font-size: var(--text-sm);
+  color: var(--primary);
+  text-decoration: none;
+}
+.assignment-attachment:hover { text-decoration: underline; }
+
+/* The feedback block used to render bare italics, which read as part of the
+   assignment description. Labelling it says whose words these are - and they
+   are the teacher's now, not the student's own submission note. */
+.assignment-feedback-label {
+  display: block;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.15rem;
+}

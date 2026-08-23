@@ -46,36 +46,10 @@
    ADMIN TABLE  (staff / students / finance)
    =============================================== */
 
-.adm-table-wrap {
-  overflow-x: auto;
-}
 
-.adm-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-}
-
-.adm-table th {
-  padding: 0.625rem 0.875rem;
-  text-align: left;
-  font-size: var(--text-caption);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted-foreground);
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.adm-table td {
-  padding: 0.75rem 0.875rem;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-.adm-table tr:last-child td { border-bottom: none; }
-.adm-table tr:hover td { background: var(--muted); }
+/* The table that was here is now .data-table in tables.css - admin,
+   discipline and DOS all had the same three declarations under three
+   names. Admin cells gain a little padding as a result. */
 
 /* Cell: avatar + name + sub */
 .adm-cell {
@@ -428,10 +402,10 @@
   .adm-settings-grid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 600px) {
-  .adm-table th:nth-child(n+4),
-  .adm-table td:nth-child(n+4) { display: none; }
-}
+/* Admin used to hide every column past the third below 600px. Dropped with
+   .adm-table: the other six portals all let .data-table-wrap scroll instead,
+   and silently deleting columns hides data rather than making it reachable.
+   Admin tables now scroll like everyone else's. */
 
 /* ── Recharts tooltip & legend (admin dashboard) ── */
 .chart-tooltip {
@@ -471,7 +445,6 @@
 .adm-result-score       { font-size: var(--text-sm); color: var(--muted-foreground); min-width: 44px; text-align: right; }
 .adm-result-grade       { font-weight: 700; font-size: var(--text-sm); min-width: 26px; text-align: right; }
 .adm-result-more        { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 0.4rem; }
-.adm-empty-note         { font-size: var(--text-sm); color: var(--muted-foreground); }
 
 /* ── Staff (AdminStaff) ── */
 .adm-invite-success       { text-align: center; padding: 2rem 1rem; }

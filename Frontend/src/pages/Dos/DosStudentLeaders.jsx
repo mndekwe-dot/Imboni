@@ -347,14 +347,15 @@ export function DosStudentLeaders() {
                     />
 
                     <DashboardContent>
-                        <div className="dos-welcome-banner">
-                            <div className="dos-welcome-text">
-                                <h2>{t('dos.leaders.bannerTitle')}</h2>
-                                <p>{t('dos.leaders.bannerDesc', { year: new Date().getFullYear() })}</p>
+                        {/* A page-intro banner, not a greeting - it names the page
+                            rather than the reader, so it is .notice-banner rather
+                            than <WelcomeBanner>. */}
+                        <div className="notice-banner notice-banner--split">
+                            <div>
+                                <div className="banner-title">{t('dos.leaders.bannerTitle')}</div>
+                                <div className="banner-sub">{t('dos.leaders.bannerDesc', { year: new Date().getFullYear() })}</div>
                             </div>
-                            <div className="dos-welcome-icon">
-                                <span className="material-symbols-rounded">military_tech</span>
-                            </div>
+                            <span className="material-symbols-rounded notice-banner-icon">military_tech</span>
                         </div>
 
                         <div className="portal-stat-grid">
@@ -387,7 +388,7 @@ export function DosStudentLeaders() {
                                     <div className="card-content">
                                         <div className="leaders-grid">
                                             {prefectList.length === 0
-                                                ? <p className="dos-empty-hint">{t('dos.leaders.noPrefects')}</p>
+                                                ? <p className="empty-note">{t('dos.leaders.noPrefects')}</p>
                                                 : prefectList.map((p, index) => (
                                                     <PrefectCard
                                                         key={index} {...p}
@@ -410,8 +411,8 @@ export function DosStudentLeaders() {
                                         </button>
                                     </div>
                                     <div className="card-content">
-                                        <div className="leaders-table-wrap">
-                                            <table className="leaders-table">
+                                        <div className="data-table-wrap raised">
+                                            <table className="data-table">
                                                 <thead>
                                                     <tr>
                                                         <th>{t('common.student')}</th>
@@ -424,7 +425,7 @@ export function DosStudentLeaders() {
                                                 </thead>
                                                 <tbody>
                                                     {captainList.length === 0
-                                                        ? <tr><td colSpan={6} className="dos-empty-hint dos-empty-cell">{t('dos.leaders.noCaptains')}</td></tr>
+                                                        ? <tr><td colSpan={6} className="empty-note dos-empty-cell">{t('dos.leaders.noCaptains')}</td></tr>
                                                         : captainList.map((hc, index) => (
                                                             <HouseCaptainRow
                                                                 key={index} {...hc}

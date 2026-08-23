@@ -122,9 +122,9 @@ function ResultCard({ result, onReview, onView }) {
                     { label: 'Average', value: result.avg },
                     { label: 'Highest', value: result.highest },
                 ].map(s => (
-                    <div key={s.label} className="dos-mini-stat">
-                        <div className="dos-mini-stat-value">{s.value}</div>
-                        <div className="dos-mini-stat-label">{s.label}</div>
+                    <div key={s.label} className="mini-stat">
+                        <div className="mini-stat-value">{s.value}</div>
+                        <div className="mini-stat-label">{s.label}</div>
                     </div>
                 ))}
             </div>

@@ -1083,34 +1083,46 @@ tr:hover td {
    TAB GROUP (pill-style switcher)
    =============================================== */
 
+/* Absorbed .settings-tabs from parent.css, which was the better of the two:
+   it has an edge so the bar reads as a control, and it scrolls sideways
+   instead of wrapping when a portal has more tabs than fit. */
 .tab-group {
   display: flex;
+  gap: 0.25rem;
+  padding: 0.3rem;
   background: var(--muted);
-  border-radius: 10px;
-  padding: 4px;
-  width: fit-content;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.tab-group::-webkit-scrollbar { display: none; }
 
 .tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.4rem 1rem;
-  font-size: var(--text-sm);
-  font-weight: 400;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
   border: none;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: all var(--transition-base);
+  border-radius: calc(var(--radius) - 2px);
   background: transparent;
   color: var(--muted-foreground);
-}
-
-.tab-btn.active {
+  font-size: var(--text-sm);
   font-weight: 600;
-  background: var(--primary);
-  color: var(--primary-foreground);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--transition-base), color var(--transition-base);
+}
+.tab-btn .material-symbols-rounded { font-size: 1.1rem; }
+.tab-btn:hover:not(.active) { color: var(--foreground); }
+
+/* A raised white chip rather than a filled primary bar: the active tab reads
+   as lifted off the track, and the label keeps the brand colour instead of
+   reversing out of it. */
+.tab-btn.active {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10);
 }
 
 /* ===============================================
@@ -1942,4 +1954,220 @@ tr:hover td {
 .student-stat-card:hover {
   box-shadow: var(--shadow-sm);
   border-color: var(--border-hover);
+}
+
+/* ── Inline empty note ───────────────────────────────────────────────────
+   The one-line "nothing here yet" that sits inside a card, as opposed to
+   <EmptyState>, which is the full-panel version with an icon and actions.
+
+   This was .adm-empty-note, .es-empty-msg, .dos-empty-hint and
+   .dos-empty-note - four names for `font-size: var(--text-sm);
+   color: var(--muted-foreground)`. That exact pair was the most-repeated
+   declaration block in the codebase, 38 copies across the portal
+   stylesheets. */
+.empty-note        { font-size: var(--text-sm); color: var(--muted-foreground); }
+.empty-note.padded { padding: 1rem; }
+.empty-note.spaced { margin-bottom: 0.5rem; }
+
+/* ── Notice banner ───────────────────────────────────────────────────────
+   A standing statement at the top of a page - "this is read-only", "issued
+   by another office". Not <WelcomeBanner>, which greets a person by name,
+   and not an alert, which reports something that just happened.
+
+   MatronSchedule was rendering this with .disc-welcome-banner, so it drew
+   its colour from --discipline and editing the Discipline stylesheet
+   restyled a Matron page. It uses the viewing portal's own brand now. */
+.notice-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  color: #fff;
+}
+.notice-banner .banner-title { font-weight: 700; font-size: var(--text-body); }
+.notice-banner .banner-sub   { font-size: var(--text-sm); opacity: 0.85; margin-top: 2px; }
+/* Title on the left, a large glyph pushed to the right. */
+.notice-banner--split { justify-content: space-between; }
+.notice-banner-icon   { font-size: 2rem; opacity: 0.9; }
+
+/* ── Mini stat ───────────────────────────────────────────────────────────
+   A number and a caption, no icon - the compact figure that goes inside a
+   modal or a panel. <StatCard> is the full tile with an icon chip; this is
+   deliberately not that, which is why it stays a style rather than becoming
+   a component.
+
+   Merged from .mini-stat in teacher.css (a bordered card) and .dos-mini-stat
+   in dos.css (a centred muted block). teacher.css declared its version with
+   NO portal prefix, so in a bundle with no route scoping it was already
+   reaching every portal - it just had no competition until now. */
+.mini-stat {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+}
+.mini-stat-value { font-size: var(--text-display); font-weight: 800; color: var(--primary); }
+.mini-stat-label {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+
+/* ── Empty list panel ────────────────────────────────────────────────────
+   A centred icon and one line, filling the body of a panel that has nothing
+   in it yet. The third and last tier of "nothing here":
+
+     .empty-note   one muted line inside a card
+     .list-empty   this - a panel body with an icon
+     <EmptyState>  a bordered card with a coloured strip and actions
+
+   <EmptyState> is deliberately not used for this: it is itself a card, and
+   nesting a bordered, strip-topped card inside the card that already holds
+   the list reads as a mistake.
+
+   Was .es-empty-state in dos.css, used identically by DosAnnouncement and
+   DisAnnouncements - so a Discipline page was styled from a DOS prefix. */
+.list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+.list-empty-icon { font-size: 3rem; opacity: 0.3; margin-bottom: 0.75rem; }
+
+/* ── Form action bar ───────────────────────────────────────────────────────
+   The save/cancel row for a form that lives on a page rather than in a modal.
+
+   A modal's footer is always in view because the dialog is sized to fit. A
+   page's is not: an online quiz runs to twenty questions, and a teacher typing
+   the last one would otherwise have to scroll back up to save. So this sticks
+   to the bottom of the viewport and keeps the buttons reachable from anywhere
+   in the form.
+
+   Mirrors .modal-footer-row deliberately - the same buttons in the same order
+   with the same hint on the left - so moving a form out of a dialog does not
+   change what its controls look like. */
+.form-actions-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow-md);
+}
+/* The hint takes the slack so the buttons stay hard right. */
+.form-actions-bar .modal-footer-hint { flex: 1; }
+
+@media (max-width: 640px) {
+  .form-actions-bar { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem; }
+  /* The hint owns the first line; the buttons share the second evenly. */
+  .form-actions-bar .modal-footer-hint { flex-basis: 100%; }
+  .form-actions-bar .btn {
+    flex: 1;
+    justify-content: center;
+    font-size: var(--text-sm);
+    padding: 0.5rem 0.625rem;
+  }
+}
+
+/* ── Quiz answer review ────────────────────────────────────────────────────
+   One question from a student's quiz, with the marking open to correction.
+   Short-answer questions are auto-marked by exact string match, so a teacher
+   needs to see the two answers side by side to judge a near miss. The left
+   border carries the verdict, which is why it is the only thing that changes
+   colour: the text stays at full contrast either way. */
+.quiz-review-q {
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  padding: 0.75rem 0.875rem;
+  margin-bottom: 0.75rem;
+  background: var(--card);
+}
+.quiz-review-q.correct { border-left-color: var(--success); }
+.quiz-review-q.wrong   { border-left-color: var(--destructive); }
+
+.quiz-review-q-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.quiz-review-row {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+  font-size: var(--text-sm);
+}
+/* A fixed label column so the two answers line up under each other and the
+   difference between them is the thing you notice. */
+.quiz-review-row > span:first-child { flex: 0 0 7.5rem; }
+
+.quiz-review-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.quiz-review-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* ── Horizontal bar chart ──────────────────────────────────────────────────
+   Used for the spread of marks on an assignment. Bars are sized against the
+   busiest band rather than the class size, so a small class still reads. */
+.stat-bars { display: flex; flex-direction: column; gap: 0.4rem; }
+.stat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: var(--text-sm);
+}
+.stat-bar-label { flex: 0 0 4.5rem; color: var(--muted-foreground); }
+.stat-bar-track {
+  flex: 1;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  /* A band with nobody in it still needs to be visibly a zero, not a gap. */
+  min-width: 2px;
+}
+.stat-bar-value { flex: 0 0 2rem; text-align: right; font-weight: 600; }
+
+/* Row of actions in a submissions table — download, review, note. */
+.asgn-work-cell { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+/* One line of a table cell that must not stretch the column. */
+.u-truncate {
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -410,8 +410,8 @@ export function AdminStaff() {
                                             No invitations sent yet. Click <strong>Invite Staff</strong> to get started.
                                         </div>
                                     ) : (
-                                        <div className="adm-table-wrap">
-                                            <table className="adm-table">
+                                        <div className="data-table-wrap">
+                                            <table className="data-table">
                                                 <thead>
                                                     <tr>
                                                         <th>{t('admin.staff.recipient')}</th>

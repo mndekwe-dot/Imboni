@@ -43,13 +43,19 @@
   },
   "assignments": {
     "allAssignments": "Tous les devoirs",
+    "chooseFile": "Choisir un fichier à rendre",
     "emptyFiltered": "Aucun devoir ne correspond à ce filtre pour le moment.",
     "loading": "Chargement des devoirs…",
+    "markDone": "Marquer comme fait",
     "onlineQuizzes": "Quiz en ligne",
+    "submitFailed": "Impossible de rendre votre devoir.",
     "submitNow": "Rendre maintenant",
+    "submittedToast": "Devoir rendu.",
     "subtitle": "Suivez toutes vos tâches et échéances",
     "takeQuiz": "Passer le quiz",
-    "totalThisTerm": "Total ce trimestre"
+    "teacherFeedback": "Commentaire de l’enseignant",
+    "totalThisTerm": "Total ce trimestre",
+    "worksheet": "Fiche de travail"
   },
   "attendance": {
     "daysAbsent": "Jours d'absence",
@@ -88,6 +94,12 @@
   "discipline": {
     "subtitle": "Règlement de l'école, votre dossier disciplinaire et les recours"
   },
+  "messages": {
+    "subtitle": "Échangez avec vos enseignants"
+  },
+  "quizReview": {
+    "loadFailed": "Impossible de charger votre copie."
+  },
   "results": {
     "assessment": "Évaluation",
     "averageOverTime": "Ma moyenne dans le temps",
@@ -109,11 +121,5 @@
     "subtitle": "Emploi du temps hebdomadaire",
     "subtitleWithClass": "Emploi du temps hebdomadaire de la classe {{class}}",
     "title": "Mon emploi du temps"
-  },
-  "messages": {
-    "subtitle": "Échangez avec vos enseignants"
-  },
-  "quizReview": {
-    "loadFailed": "Impossible de charger votre copie."
   }
 }

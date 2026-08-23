@@ -104,7 +104,10 @@
     border-collapse: separate;
     border-spacing: 0;
     font-size: var(--text-sm);
-    min-width: 660px;
+    /* Wide enough that six day columns each hold a subject name without
+       ellipsing it. Below this the wrapper scrolls sideways rather than
+       squeezing the columns to unreadable. */
+    min-width: 820px;
 }
 /* Force correct table layout — prevents any outer flex/grid from breaking rows */
 .tt-table thead,
@@ -130,8 +133,12 @@
     position: sticky;
     left: 0;
     z-index: 1;
-    width: 92px;
-    padding: 0.3rem 0.5rem;
+    /* Sized to the longest range a school day produces - "10:20 - 11:00" is
+       13 characters. At 92px that string was wider than its own column, and
+       because the row is nowrap inside a fixed-layout table it did not clip:
+       it printed straight over the Monday lesson beside it. */
+    width: 116px;
+    padding: 0.45rem 0.6rem;
     background: var(--surface-3);
     text-align: left;
     font-weight: 400;
@@ -159,7 +166,7 @@
     position: sticky;
     top: 0;
     background: var(--surface-3);
-    padding: 0.4rem 0.6rem;
+    padding: 0.55rem 0.7rem;
     text-align: left;
     font-size: var(--text-caption);
     font-weight: 700;
@@ -172,7 +179,7 @@
 }
 .tt-time-head {
     left: 0;
-    width: 92px;
+    width: 116px;   /* must match .tt-time-cell or the column steps */
     z-index: 3;        /* the corner sits above both sticky axes */
 }
 .tt-day-head { color: var(--foreground); }
@@ -193,7 +200,7 @@
 
 /* ─── Cells ────────────────────────────────────────────── */
 .tt-cell {
-    padding: 0.3rem 0.45rem 0.32rem 0.6rem;
+    padding: 0.5rem 0.5rem 0.52rem 0.7rem;
     vertical-align: top;
     position: relative;
     background-color: var(--card);

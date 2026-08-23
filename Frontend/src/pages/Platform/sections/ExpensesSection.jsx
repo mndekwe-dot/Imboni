@@ -111,8 +111,8 @@ export function ExpensesSection() {
                 ) : items.length === 0 ? (
                     <p className="platform-muted">No bills tracked yet. Add the services you pay for to see upcoming and overdue amounts.</p>
                 ) : (
-                    <div className="platform-table-wrap">
-                        <table className="platform-table">
+                    <div className="data-table-wrap">
+                        <table className="data-table">
                             <thead>
                                 <tr><th>Service</th><th>Vendor</th><th>Amount</th><th>Recurs</th><th>Due date</th><th>Status</th><th className="platform-col-action">Action</th></tr>
                             </thead>

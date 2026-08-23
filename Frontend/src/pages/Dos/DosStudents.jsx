@@ -552,7 +552,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     {/* ── Leadership ── */}
                     <p className="teacher-modal-section-label">{t('dos.students.leadershipRoles')}</p>
                     {(student.leadership || []).length === 0 && !appointOpen && (
-                        <p className="dos-empty-note">{t('dos.students.noRoles')}</p>
+                        <p className="empty-note spaced">{t('dos.students.noRoles')}</p>
                     )}
                     {(student.leadership || []).map(l => (
                         <div key={l.role} className="dos-role-item">

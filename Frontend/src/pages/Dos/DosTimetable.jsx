@@ -187,8 +187,8 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
                             {t('dos.timetable.slotsVenues', { slots: preview.summary.slots_available, venues: preview.summary.venues })}
                         </span>
                     </div>
-                    <div className="es-table-wrap mt-1">
-                        <table className="es-table">
+                    <div className="data-table-wrap mt-1">
+                        <table className="data-table">
                             <thead>
                                 <tr><th>{t('common.subject')}</th><th>{t('dos.timetable.weightAbbr')}</th><th>{t('common.class')}</th><th>{t('common.day')}</th><th>{t('common.time')}</th><th>{t('common.teacher')}</th><th>{t('common.room')}</th></tr>
                             </thead>

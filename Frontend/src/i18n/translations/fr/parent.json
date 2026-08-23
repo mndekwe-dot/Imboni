@@ -2,6 +2,30 @@
   "announcements": {
     "subtitle": "Restez informé des actualités et des notifications de l'école"
   },
+  "assignments": {
+    "title": "Devoirs",
+    "subtitle": "Les devoirs donnés à votre enfant, et où il en est",
+    "loadFailed": "Impossible de charger les devoirs.",
+    "tableTitle": "Devoirs de {{name}}",
+    "due": "À rendre le",
+    "score": "Note",
+    "onlineQuiz": "Quiz en ligne",
+    "statTotal": "Total donné",
+    "statOutstanding": "Encore à rendre",
+    "statMarked": "Corrigés",
+    "statAverage": "Note moyenne",
+    "emptyTitle": "Aucun devoir pour le moment",
+    "emptyDesc": "Les devoirs apparaissent ici dès qu'un enseignant les publie.",
+    "emptyFiltered": "Aucun devoir ne correspond à ce filtre.",
+    "filter": {
+      "all": "Tous",
+      "pending": "À faire",
+      "overdue": "En retard",
+      "submitted": "Rendu",
+      "graded": "Corrigé",
+      "late": "Rendu en retard"
+    }
+  },
   "attendance": {
     "subtitle": "Calendrier mensuel des présences et statistiques",
     "title": "Relevés de présence"
@@ -10,6 +34,7 @@
     "subtitle": "Suivez la conduite et les réussites de votre enfant",
     "title": "Rapports de conduite"
   },
+  "child": "Enfant",
   "children": {
     "subtitle": "Vue d'ensemble des profils de vos enfants",
     "title": "Mes enfants"
@@ -21,6 +46,7 @@
   "messages": {
     "subtitle": "Échangez avec les enseignants et le personnel de l'école"
   },
+  "noChildren": "Aucun enfant n'est encore lié à votre compte.",
   "results": {
     "noAssessments": "Aucune évaluation enregistrée pour le moment.",
     "noChildren": "Aucun enfant n'est encore rattaché à votre compte.",

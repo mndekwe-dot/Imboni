@@ -229,6 +229,13 @@ class SchoolSetting(models.Model):
     timezone = models.CharField(max_length=50 ,default='Africa/Kigali')
     school_name = models.CharField(max_length=100,blank=True,default='')
 
+    # The school's own mark, shown in the sidebar and on its sign-in screen.
+    # Branding stops here on purpose: schools get a logo and a name, not
+    # colour control. A school free to pick its own chrome colour is a school
+    # free to pick one that swallows its own sidebar, and no amount of
+    # derivation makes pale-yellow-behind-white-text readable.
+    logo = models.ImageField(upload_to='school-logos/', null=True, blank=True)
+
     # ISO 4217 code the school bills in. Amounts were formatted with a literal
     # in the UI ('KES' in one modal, 'RWF' elsewhere), so a school outside
     # Rwanda had no way to correct it and the two disagreed with each other.

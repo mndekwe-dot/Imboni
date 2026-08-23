@@ -202,8 +202,8 @@ function GenerateModal({ onClose, onCommitted }) {
                         </span>
                     </div>
 
-                    <div className="es-table-wrap mt-1">
-                        <table className="es-table">
+                    <div className="data-table-wrap mt-1">
+                        <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>{t('common.day')}</th>
@@ -226,8 +226,8 @@ function GenerateModal({ onClose, onCommitted }) {
                     </div>
 
                     <h3 className="section-label-sm mt-1-5">{t('dos.duty.workload')}</h3>
-                    <div className="es-table-wrap">
-                        <table className="es-table">
+                    <div className="data-table-wrap">
+                        <table className="data-table">
                             <thead><tr><th>{t('common.staff')}</th><th>{t('dos.duty.duties')}</th></tr></thead>
                             <tbody>
                                 {preview.load.map(l => (
@@ -318,8 +318,8 @@ export function DutyRosterTab() {
                     ) : orderedDays.map(day => (
                         <div key={day} className="mb-5">
                             <h3 className="section-label-sm">{DAY_KEY[day] ? t(DAY_KEY[day]) : day}</h3>
-                            <div className="es-table-wrap">
-                                <table className="es-table">
+                            <div className="data-table-wrap">
+                                <table className="data-table">
                                     <thead>
                                         <tr>
                                             <th>{t('dos.duty.duty')}</th>

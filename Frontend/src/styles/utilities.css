@@ -49,6 +49,11 @@
 .u-p-0     { padding: 0; }
 .u-pt-xs   { padding-top: 0.25rem; }
 
+/* .dashboard-content is a flex column, so anything placed directly in it
+   stretches to the full page width. Fine for cards; wrong for a single
+   button, which otherwise becomes a full-width bar. */
+.u-self-start { align-self: flex-start; }
+
 /* ── Text ───────────────────────────────────────────────────────────────────── */
 .u-muted       { color: var(--muted-foreground); }
 .u-strong      { font-weight: 600; }

@@ -201,8 +201,8 @@ function GenerateModal({ onClose, onCommitted }) {
                     </div>
 
                     <h3 className="section-label-sm mt-1-5">{t('dos.dining.hallOccupancy')}</h3>
-                    <div className="es-table-wrap">
-                        <table className="es-table">
+                    <div className="data-table-wrap">
+                        <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>{t('dos.dining.sitting')}</th>
@@ -227,8 +227,8 @@ function GenerateModal({ onClose, onCommitted }) {
                     </div>
 
                     <h3 className="section-label-sm mt-1-5">{t('dos.dining.seating')}</h3>
-                    <div className="es-table-wrap">
-                        <table className="es-table">
+                    <div className="data-table-wrap">
+                        <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>{t('common.meal')}</th>
@@ -344,8 +344,8 @@ export function DiningPlannerTab() {
                     ) : orderedMeals.map(meal => (
                         <div key={meal} className="mb-5">
                             <h3 className="section-label-sm">{MEAL_KEY[meal] ? t(MEAL_KEY[meal]) : meal}</h3>
-                            <div className="es-table-wrap">
-                                <table className="es-table">
+                            <div className="data-table-wrap">
+                                <table className="data-table">
                                     <thead>
                                         <tr>
                                             <th>{t('dos.dining.sitting')}</th>

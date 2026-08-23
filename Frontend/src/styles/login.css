@@ -1,585 +1,401 @@
 /* ===============================================
-   LOGIN.CSS - Login page only
-   Scoped under .login-page to avoid bleeding into
-   other pages. Reset is handled by index.css.
+   LOGIN.CSS — sign-in screens
+
+   One centred card on a full-page gradient, replacing the two-panel split
+   (branding on the left, form on the right) this used to be.
+
+   Two deliberate departures from the reference design it was built from:
+
+     1. The gradient is built from the app's own chrome tokens, not the
+        template's purple. A purple sign-in screen handing over to a navy
+        app announces itself as a different product. Change --login-from /
+        --login-to below if the literal purple is wanted.
+
+     2. No social buttons and no "Sign up" link. Portal accounts are issued
+        by the school; there is no self-registration to link to, and a
+        Google button that cannot work is worse than no button.
+
+   Used by exactly two pages — login.jsx and PortalLogin.jsx — so the class
+   names here are free to be specific to them.
    =============================================== */
 
 .login-page {
+  --login-from: #1d5fa8;
+  --login-to: #0e3560;
+
   min-height: 100vh;
   display: flex;
-  background: #001a3a;
-}
-
-/* ══════════════════════════════════════
-         LEFT PANEL — branding
-      ══════════════════════════════════════ */
-.login-left {
-  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, var(--login-from) 0%, var(--login-to) 100%);
   position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 4rem 3rem;
-  background: linear-gradient(145deg, #001a3a 0%, #003d7a 55%, #004f99 100%);
 }
 
-/* Decorative glowing orbs */
-.login-left::before {
+/* Two soft lights behind the card so the gradient has some depth rather than
+   reading as a flat wash. Purely decorative and non-interactive. */
+.login-page::before,
+.login-page::after {
   content: "";
   position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.login-page::before {
   width: 520px;
   height: 520px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(249, 115, 22, 0.22) 0%,
-    transparent 70%
-  );
-  top: -140px;
-  right: -160px;
-  pointer-events: none;
+  top: -160px;
+  right: -140px;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.18) 0%, transparent 70%);
 }
-.login-left::after {
-  content: "";
-  position: absolute;
-  width: 380px;
-  height: 380px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(0, 98, 158, 0.55) 0%,
-    transparent 70%
-  );
-  bottom: -120px;
-  left: -100px;
-  pointer-events: none;
+.login-page::after {
+  width: 460px;
+  height: 460px;
+  bottom: -150px;
+  left: -120px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, transparent 70%);
 }
 
-/* Extra accent orb */
-.orb-accent {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(249, 115, 22, 0.15) 0%,
-    transparent 70%
-  );
-  bottom: 25%;
-  right: 8%;
-  pointer-events: none;
-}
+/* ── The card ───────────────────────────────────────────────────── */
 
-/* Subtle grid overlay */
-.login-left-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-}
-
-.login-left-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  color: #fff;
+.login-card {
+  position: relative;      /* above the decorative lights */
+  z-index: 1;
+  width: 100%;
   max-width: 400px;
-}
-
-.login-logo-wrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 76px;
-  height: 76px;
+  padding: 2.5rem 2rem;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(8px);
-  margin-bottom: 1.75rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-.login-logo-wrap img {
-  width: 48px;
-  height: 48px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  /* Frosted, where the browser supports it. The card stays legible without
+     it — the fill alone carries enough contrast. */
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
-.login-left h2 {
-  /* Explicit, because the panel is always a dark gradient. Without it the
-     heading fell through to the global `h1..h6 { color: var(--card-foreground) }`
-     and rendered near-black on navy - about 1.4:1. Its sibling `p` below
-     already set light ink; the heading was simply missed. */
-  color: #ffffff;
-  font-size: 2.1rem;
-  font-weight: 800;
-  margin-bottom: 0.75rem;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-.login-left h2 span {
-  background: linear-gradient(90deg, #f97316, #fb923c);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.login-left p {
-  font-size: var(--text-body);
-  color: rgba(255, 255, 255, 0.72);
-  line-height: 1.65;
-  margin-bottom: 2.25rem;
-}
-
-/* Divider line */
-.left-divider {
-  width: 48px;
-  height: 3px;
-  background: linear-gradient(90deg, #f97316, #fb923c);
-  border-radius: 2px;
-  margin: 0 auto 2rem;
-}
-
-.login-left-roles {
+/* Above the form on purpose. Someone who cannot read this page has to be
+   able to fix that before filling it in, and there is no header to put it in. */
+.login-lang {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
   justify-content: center;
-}
-.role-pill {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.9);
-  font-size: var(--text-caption);
-  font-weight: 500;
-  padding: 0.35rem 0.875rem;
-  border-radius: 999px;
-  backdrop-filter: blur(6px);
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-}
-.role-pill:hover {
-  background: rgba(249, 115, 22, 0.2);
-  border-color: rgba(249, 115, 22, 0.5);
+  margin-bottom: 1.5rem;
 }
 
-/* Stats row at the bottom */
-.left-stats {
-  display: flex;
-  gap: 2rem;
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+/* The select's own styling is built for the app's light surfaces; on the card
+   it needs the same translucent treatment as the fields. The <option> list is
+   drawn by the OS, so it gets solid colours - a translucent option list is not
+   something a browser will render. */
+.login-card .lang-select {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
-.left-stat-item {
-  text-align: center;
-}
-.left-stat-value {
-  font-size: var(--text-display);
-  font-weight: 800;
-  color: #f97316;
-  line-height: 1;
-}
-.left-stat-label {
-  font-size: var(--text-caption);
-  color: rgba(255, 255, 255, 0.55);
-  margin-top: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
+.login-card .lang-select:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
+.login-card .lang-select option { background: #14406e; color: #fff; }
+.login-card .lang-select-icon,
+.login-card .lang-select-caret { color: rgba(255, 255, 255, 0.7); }
 
-/* ══════════════════════════════════════
-         RIGHT PANEL — form
-      ══════════════════════════════════════ */
-.login-right {
-  width: 500px;
-  min-height: 100vh;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 3.5rem 3rem;
-  position: relative;
-  box-shadow: -8px 0 48px rgba(0, 0, 0, 0.18);
-}
-
-/* Orange top accent bar */
-.login-right::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #003d7a 0%, #f97316 60%, #fb923c 100%);
-}
-
-/* Mobile logo — hidden on desktop */
-.login-right-logo {
-  display: none;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-.login-right-logo img {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius);
-}
+/* ── Heading ────────────────────────────────────────────────────── */
 
 .login-welcome {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
+
+/* The school's mark when it has one, the portal glyph otherwise. */
 .login-welcome-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #003d7a 0%, #005a8f 100%);
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
-  font-size: var(--icon-sm);
-  flex-shrink: 0;
+  overflow: hidden;
 }
+.login-welcome-icon .material-symbols-rounded { font-size: 1.75rem; }
+.login-welcome-icon img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
 
 .login-heading {
-  font-size: var(--text-display);
+  font-size: 1.6rem;
   font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-.login-subheading {
-  font-size: var(--text-body);
-  color: #64748b;
-  margin-bottom: 2rem;
-  margin-top: 0.35rem;
+  color: #fff;
+  text-align: center;
+  letter-spacing: -0.015em;
+  margin: 0;
 }
 
-/* Error banner */
-.login-error {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #dc2626;
-  border-radius: 0.625rem;
-  padding: 0.75rem 1rem;
+.login-subheading {
   font-size: var(--text-sm);
-  margin-bottom: 1.25rem;
-  display: none;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  margin: 0 0 1.75rem;
+}
+
+/* The school's own name, so a parent lands somewhere that looks like their
+   school rather than generic software. */
+.school-brand { text-align: center; margin-bottom: 1rem; }
+.school-brand-name {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.school-brand-sub {
+  font-size: var(--text-caption);
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+.school-brand-warn {
+  font-size: var(--text-caption);
+  color: #ffd9a0;
+  margin: 0.35rem 0 0;
+}
+
+/* ── Error banner ───────────────────────────────────────────────── */
+
+.login-error {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  background: rgba(207, 63, 63, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: var(--text-sm);
 }
-.login-error::before {
-  content: "⚠";
-  font-size: var(--text-body);
-  flex-shrink: 0;
-}
+.login-error .material-symbols-rounded { font-size: var(--icon-sm); }
 
-/* Form fields */
-.form-group {
-  margin-bottom: 1.25rem;
-}
-/* Scoped to the login panel on purpose. components.css is imported after this
-   file and sets .form-label to uppercase/700 for the dashboards, which quietly
-   overrode the sentence case this page was written for. */
-.login-right .form-label {
+/* ── Fields ─────────────────────────────────────────────────────── */
+
+.form-group { margin-bottom: 1rem; }
+
+/* Scoped to the card on purpose. components.css is imported after this file
+   and sets .form-label to uppercase/700 for the dashboards, which quietly
+   overrode the sentence case this page is written for. */
+.login-card .form-label {
   display: block;
   font-size: var(--text-sm);
   font-weight: 600;
-  color: #374151;
+  color: rgba(255, 255, 255, 0.85);
   margin-bottom: 0.45rem;
   text-transform: none;
   letter-spacing: normal;
 }
 
-.input-wrap {
-  position: relative;
-}
+.input-wrap { position: relative; display: flex; align-items: center; }
+
 .input-icon {
   position: absolute;
-  left: 0.875rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
+  left: 0.85rem;
   font-size: var(--icon-sm);
+  color: rgba(255, 255, 255, 0.6);
   pointer-events: none;
-  line-height: 1;
-  z-index: 1;
-}
-/* Scoped to .login-form so discipline.css global .form-input doesn't override padding */
-.login-form .form-input {
-  width: 100%;
-  padding: 0.7rem 0.875rem 0.7rem 2.625rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 0.625rem;
-  font-size: var(--text-body);
-  font-family: inherit;
-  color: #0f172a;
-  background: #fff;
-  transition:
-    border-color 0.15s,
-    background 0.15s,
-    box-shadow 0.15s;
-  outline: none;
-}
-.login-form .form-input:focus {
-  border-color: #003d7a;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(0, 61, 122, 0.1);
-}
-.login-form .form-input.error {
-  border-color: #ef4444;
-}
-.login-form .form-input::placeholder {
-  color: #b0bac5;
 }
 
-/* Toggle password visibility */
+.login-card .form-input {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 2.6rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: var(--text-body);
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.login-card .form-input::placeholder { color: rgba(255, 255, 255, 0.55); }
+.login-card .form-input:hover { background: rgba(255, 255, 255, 0.18); }
+.login-card .form-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+/* Autofill repaints the field white with dark ink, which on a translucent
+   card looks like a rendering fault. The inset shadow is the only way to
+   override the UA's own background. */
+.login-card .form-input:-webkit-autofill,
+.login-card .form-input:-webkit-autofill:hover,
+.login-card .form-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px rgba(29, 74, 122, 0.92) inset;
+  caret-color: #fff;
+}
+
 .pw-toggle {
   position: absolute;
-  right: 0.875rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
+  right: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
   border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  color: #94a3b8;
-  padding: 0;
-  line-height: 1;
-  font-size: var(--text-body);
-  transition: color 0.15s;
+  border-radius: 6px;
 }
-.pw-toggle:hover {
-  color: #003d7a;
-}
+.pw-toggle:hover { color: #fff; }
+.pw-toggle .material-symbols-rounded { font-size: var(--icon-sm); }
+
+/* ── Remember / forgot ──────────────────────────────────────────── */
 
 .form-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Was flush against the password field: .form-group carries no bottom
-     margin, so this row had nothing holding it off. */
   margin-top: 1rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
 }
+
 .remember-label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   font-size: var(--text-sm);
-  color: #374151;
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
-  user-select: none;
 }
 .remember-label input {
-  accent-color: #003d7a;
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
+  accent-color: #fff;
+  cursor: pointer;
 }
+
 .forgot-link {
   font-size: var(--text-sm);
-  color: #f97316;
   font-weight: 600;
-  text-decoration: none;
-  transition: color 0.15s;
+  color: rgba(255, 255, 255, 0.85);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+  text-decoration: none;
 }
-.forgot-link:hover {
-  color: #ea580c;
-}
+.forgot-link:hover { color: #fff; text-decoration: underline; }
 
-/* Sign-in button */
+/* ── Submit ─────────────────────────────────────────────────────── */
+
 .login-btn {
   width: 100%;
-  padding: 0.825rem;
-  background: linear-gradient(135deg, #003d7a 0%, #005a8f 100%);
-  color: #fff;
-  border: none;
-  border-radius: 0.625rem;
-  font-size: var(--text-body);
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition:
-    opacity 0.15s,
-    transform 0.1s,
-    box-shadow 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 50px;
-  box-shadow: 0 4px 14px rgba(0, 61, 122, 0.35);
-  letter-spacing: 0.01em;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  /* The one place the accent appears on this screen, so it is the only thing
+     competing for attention with the fields. */
+  background: linear-gradient(90deg, #2b7fd4 0%, #6d5ae0 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  transition: filter 0.15s, transform 0.05s;
 }
-.login-btn:hover {
-  opacity: 0.92;
-  box-shadow: 0 6px 20px rgba(0, 61, 122, 0.4);
-}
-.login-btn:active {
-  transform: scale(0.985);
-}
-.login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
-}
+.login-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.login-btn:active:not(:disabled) { transform: translateY(1px); }
+.login-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
 .btn-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
   border-top-color: #fff;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  display: none;
+  animation: login-spin 0.7s linear infinite;
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes login-spin { to { transform: rotate(360deg); } }
 
-/* Divider */
+/* ── Below the form ─────────────────────────────────────────────── */
+
 .form-divider {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin: 1.5rem 0;
-  color: #cbd5e1;
-  font-size: var(--text-sm);
+  gap: 0.75rem;
+  margin: 1.5rem 0 1rem;
+  font-size: var(--text-caption);
+  color: rgba(255, 255, 255, 0.55);
 }
 .form-divider::before,
 .form-divider::after {
   content: "";
   flex: 1;
   height: 1px;
-  background: #e2e8f0;
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Help badge */
 .login-help {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.625rem;
-  padding: 0.75rem 1rem;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
   font-size: var(--text-sm);
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.8);
 }
-.login-help-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, #f97316, #fb923c);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: var(--icon-sm);
-  flex-shrink: 0;
-}
-.login-help strong {
-  color: #374151;
-}
+.login-help-icon { color: rgba(255, 255, 255, 0.7); font-size: var(--icon-sm); }
 
-/* Footer */
 .login-footer {
-  margin-top: 1.75rem;
+  margin-top: 1.5rem;
   text-align: center;
-  font-size: var(--text-sm);
-  color: #94a3b8;
+  font-size: var(--text-caption);
+  color: rgba(255, 255, 255, 0.6);
 }
-.login-footer a {
-  color: #003d7a;
-  font-weight: 600;
-  text-decoration: none;
-}
-.login-footer a:hover {
-  color: #f97316;
-}
+.login-footer a { color: rgba(255, 255, 255, 0.85); font-weight: 600; }
 
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .login-right {
-    width: 460px;
-    padding: 3rem 2.25rem;
-  }
-}
-@media (max-width: 768px) {
-  .login-left {
-    display: none;
-  }
-  .login-right {
-    width: 100%;
-    min-height: 100vh;
-    padding: 2.5rem 1.5rem;
-    box-shadow: none;
-  }
-  .login-right-logo {
-    display: block;
-  }
-}
+/* ── Portal sign-in ─────────────────────────────────────────────── */
 
-/* ── Portal Login additions ─────────────────────────────────────── */
-
-.portal-login-left .orb-accent {
-  background: var(--primary);
-}
-
+/* Which portal you are signing in to, under the heading. */
 .portal-login-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
-  padding: 0.35rem 0.9rem 0.35rem 0.5rem;
-  font-size: var(--text-sm);
+  padding: 0.3rem 0.85rem 0.3rem 0.4rem;
+  font-size: var(--text-caption);
   font-weight: 600;
   color: #fff;
-  margin-bottom: 1.5rem;
 }
-
 .portal-login-badge-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.portal-login-badge-icon .material-symbols-rounded { font-size: 0.95rem; }
 
-.portal-login-badge-icon .material-symbols-rounded { font-size: var(--icon-sm); }
-
-.portal-login-info { display: flex; flex-direction: column; gap: 0.6rem; }
-
+.portal-login-info { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
 .portal-login-info-row {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  font-size: var(--text-sm);
-  color: rgba(255,255,255,0.75);
+  font-size: var(--text-caption);
+  color: rgba(255, 255, 255, 0.7);
 }
-
 .portal-login-info-row .material-symbols-rounded {
   font-size: var(--icon-sm);
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .portal-login-back {
@@ -588,37 +404,21 @@
   gap: 0.35rem;
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--muted-foreground);
+  color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
-  margin-bottom: 1.5rem;
   transition: color 0.15s;
 }
-
-.portal-login-back:hover { color: var(--foreground); }
+.portal-login-back:hover { color: #fff; }
 .portal-login-back .material-symbols-rounded { font-size: var(--icon-sm); }
 
-.portal-login-icon-wrap {
-  background: var(--primary) !important;
-}
+/* The back link sits on its own line above the centred switcher. They were
+   on one row, which wrapped inside a 400px card and left the switcher
+   half-aligned - and put it somewhere different from /login. */
+.portal-login-back { margin-bottom: 0.85rem; }
 
-.portal-login-btn {
-  background: var(--primary) !important;
-}
-
-.portal-login-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.portal-login-error-visible {
-  display: flex !important;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.portal-login-error-visible .material-symbols-rounded { font-size: var(--icon-sm); }
-
-.portal-login-contact-row {
+.portal-login-error-visible { display: flex !important; }
+.portal-login-contact-row,
+.lg-contact-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -626,23 +426,25 @@
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
 }
+.portal-forgot-link { color: rgba(255, 255, 255, 0.85); }
+.portal-forgot-link:hover { color: #fff; }
 
-.portal-forgot-link {
-  color: var(--accent) !important;
-}
-.portal-forgot-link:hover {
-  opacity: 0.8;
-}
-
-/* ── Forgot-password modal + 2FA form helpers (login page migration) ── */
+/* ── Forgot-password modal + 2FA helpers ────────────────────────── */
+/* These render inside a Modal on the app's own surface, not on the card, so
+   they keep the normal palette rather than the translucent white. */
 .lg-forgot-intro  { margin-bottom: 1rem; line-height: 1.6; }
-.lg-contact-row   { display: flex; align-items: center; gap: 0.75rem; background: var(--muted); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
 .lg-contact-icon  { color: var(--primary); }
 .lg-contact-label { font-weight: 600; font-size: var(--text-sm); }
 .lg-contact-value { font-size: var(--text-sm); }
 .lg-mt-0          { margin-top: 0; }
 .lg-back-link     { margin-top: 0.75rem; }
+.lg-line16        { line-height: 1.6; }
+.lg-modal-err     { color: var(--danger); margin-bottom: 0.75rem; }
 
-/* ── Portal-login forgot modal extras ── */
-.lg-line16   { line-height: 1.6; }
-.lg-modal-err { color: var(--danger); margin-bottom: 0.75rem; }
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .login-page { padding: 1rem 0.75rem; }
+  .login-card { padding: 2rem 1.25rem; border-radius: 16px; }
+  .login-heading { font-size: 1.4rem; }
+}

@@ -445,10 +445,10 @@ export function DosAnnouncement() {
 
                                     {/* List */}
                                     {loading ? (
-                                        <p className="es-empty-msg">{t('announcements.loading')}</p>
+                                        <p className="empty-note padded">{t('announcements.loading')}</p>
                                     ) : filtered.length === 0 ? (
-                                        <div className="es-empty-state">
-                                            <span className="material-symbols-rounded es-empty-icon">campaign</span>
+                                        <div className="list-empty">
+                                            <span className="material-symbols-rounded list-empty-icon">campaign</span>
                                             <p>{activeFilter === 'all'
                                                 ? t('announcements.noneYet')
                                                 : t('announcements.noneOfStatus', { status: t(FILTER_KEYS[activeFilter]).toLowerCase() })}</p>

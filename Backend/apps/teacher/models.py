@@ -204,6 +204,34 @@ class Assignment(models.Model):
     created_at          = models.DateTimeField(auto_now_add=True)
     published_at        = models.DateTimeField(null=True, blank=True)
 
+    # A worksheet, reading or past paper handed out with the assignment. Set
+    # work often IS a document; without this a teacher had to paste everything
+    # into the instructions box or send it another way entirely.
+    attachment          = models.FileField(upload_to='assignment-materials/',
+                                           blank=True, null=True)
+
+    # Whether work is still taken after the due date. Submissions used to be
+    # accepted indefinitely and merely flagged late, with no way to say
+    # otherwise.
+    accept_late_submissions = models.BooleanField(default=True)
+
+    # Online quizzes only. More than one attempt is a deliberate choice by the
+    # teacher (a practice quiz), not the default - the review screen shows the
+    # correct answers, so an unlimited retake is a free full mark.
+    max_attempts        = models.PositiveSmallIntegerField(default=1)
+
+    # Marks reach the student the moment they are entered unless a teacher
+    # chooses to hold the whole class back until they are all done.
+    release_marks_immediately = models.BooleanField(default=True)
+
+    # The noticeboard post made when this was published. Kept so that deleting
+    # or re-publishing an assignment can clean up after itself instead of
+    # leaving "New Assignment: X" pointing at nothing.
+    announcement        = models.ForeignKey(
+        'announcements.Announcement', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='+',
+    )
+
     class Meta:
         db_table = 'teacher_assignments'
         ordering = ['-created_at']
@@ -213,7 +241,14 @@ class Assignment(models.Model):
 
 
 class AssignmentSubmission(models.Model):
-    """A student's answers for an online quiz assignment."""
+    """
+    One student's response to one assignment, in either mode.
+
+    Online quizzes fill `answers`, `score` and `percentage` automatically when
+    the student submits. Paper assignments have no answers to store: the
+    student may hand in a file through the portal, and the teacher enters the
+    score later from the grading sheet.
+    """
     id           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assignment   = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='submissions')
     student      = models.ForeignKey('student.Student', on_delete=models.SET_NULL,
@@ -228,11 +263,61 @@ class AssignmentSubmission(models.Model):
     is_graded    = models.BooleanField(default=False)
     is_late      = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(auto_now_add=True)
+    # Paper mode only: what the student handed in, and anything they said with
+    # it. An online quiz carries its work in `answers` instead.
+    file         = models.FileField(upload_to='assignments/', blank=True, null=True)
+    notes        = models.TextField(blank=True)
+    # The teacher's comment on the work, written when marking. Kept separate
+    # from `notes`, which belongs to the student: the two were conflated, so
+    # the "teacher feedback" panel in the student portal was echoing the
+    # student's own submission note back at them.
+    feedback     = models.TextField(blank=True)
+
+    # Online quizzes: when the paper was opened, and how long it was held. The
+    # time limit used to be a browser countdown and nothing more - closing the
+    # tab or posting straight to the API ignored it completely.
+    started_at   = models.DateTimeField(null=True, blank=True)
+    time_spent_seconds = models.PositiveIntegerField(default=0)
+    attempt_count = models.PositiveSmallIntegerField(default=1)
+
+    # When the mark was made visible to the student and their parents. Null
+    # means marked but held back - see Assignment.release_marks_immediately.
+    released_at  = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table        = 'quiz_submissions'
         ordering        = ['-submitted_at']
         unique_together = ['assignment', 'student']
+
+    @property
+    def is_submitted(self):
+        """
+        Whether the student has actually handed anything in.
+
+        There is exactly one kind of row that is not a submission: one created
+        by opening an online quiz, which records when the clock started and
+        nothing else. It is recognisable by having a start time but no answers
+        and no mark.
+
+        Everything else counts - including a paper hand-in with no file and no
+        note attached, which is still a hand-in.
+        """
+        opened_but_not_sat = bool(self.started_at) and not self.answers and not self.is_graded
+        return not opened_but_not_sat
+
+    @property
+    def status(self):
+        """
+        What the student sees. Graded outranks late: once a mark exists, that
+        is the news, and the lateness is already reflected in it.
+        """
+        if not self.is_submitted:
+            return 'pending'
+        if self.is_graded and self.released_at:
+            return 'graded'
+        # Marked but held back reads as submitted: the student has handed in
+        # and is waiting, which is exactly what they should be told.
+        return 'late' if self.is_late else 'submitted'
 
     def __str__(self):
         return f"{self.student_name or 'Unknown'} ({self.assignment.title})"

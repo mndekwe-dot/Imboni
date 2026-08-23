@@ -312,7 +312,7 @@
 
 [data-portal] .u-muted,
 [data-portal] .settings-info-text,
-[data-portal] .dos-empty-hint {
+[data-portal] .empty-note {
   color: var(--muted-foreground);
   font-size: var(--text-sm);
 }
@@ -482,7 +482,6 @@
 
 /* Named tables only. A bare `[data-portal] table tbody td` would
    score higher than `.tt-cell` and repaint every timetable cell. */
-[data-portal] .es-table th,
 [data-portal] .dos-inv-th,
 [data-portal] .dos-preview-th,
 [data-portal] .pinv-th,
@@ -495,7 +494,6 @@
   border-bottom: 1px solid var(--border);
 }
 
-[data-portal] .es-table td,
 [data-portal] .dos-inv-td,
 [data-portal] .dos-preview-td,
 [data-portal] .pinv-td,
@@ -505,7 +503,6 @@
   border-bottom: 1px solid var(--border);
 }
 
-[data-portal] .es-table tbody tr:hover td,
 [data-portal] .data-table tbody tr:hover td { background: var(--surface-2); }
 
 /* ── 11. Badges ──────────────────────────────────────────── */
