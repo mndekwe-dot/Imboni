@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { TeacherAssignments } from './TeacherAssignments'
+
+const navigate = vi.fn()
+vi.mock('react-router', async () => ({
+  ...await vi.importActual('react-router'),
+  useNavigate: () => navigate,
+}))
 import {
   getTeacherMyClasses, getTeacherSubjects, getTeacherAssignments,
   createTeacherAssignment, updateTeacherAssignment, deleteTeacherAssignment,
@@ -73,15 +79,31 @@ describe('TeacherAssignments', () => {
     expect(screen.getByText('Mathematics · S1A')).toBeInTheDocument()
   })
 
-  it('opens the New Assignment modal', async () => {
+  it('sends New Assignment to its own page rather than a dialog', async () => {
+    /* Building a quiz needs the whole viewport, so the form is a route now.
+       Both entry points - the toolbar button and the empty state's action -
+       have to reach it. */
     getTeacherAssignments.mockResolvedValue([])
     renderWithRouter(<TeacherAssignments />)
     await waitFor(() => expect(screen.getByText('No assignments yet')).toBeInTheDocument())
 
-    // Two "New Assignment" buttons: toolbar + EmptyState action; click the first
-    fireEvent.click(screen.getAllByRole('button', { name: /New Assignment/ })[0])
+    for (const button of screen.getAllByRole('button', { name: /New Assignment/ })) {
+      navigate.mockClear()
+      fireEvent.click(button)
+      expect(navigate).toHaveBeenCalledWith('/teacher/assignments/new')
+    }
+  })
 
-    expect(screen.getByRole('heading', { name: /New Assignment/ })).toBeInTheDocument()
+  it('sends Edit to the page for that assignment', async () => {
+    getTeacherAssignments.mockResolvedValue(ASSIGNMENTS)
+    renderWithRouter(<TeacherAssignments />)
+    await waitFor(() => expect(screen.getByText('Chapter 6 Quiz')).toBeInTheDocument())
+
+    // By title, not by name: the grading button's edit_note icon ligature
+    // renders as text and also matches /edit/i.
+    fireEvent.click(screen.getAllByTitle('Edit')[0])
+
+    expect(navigate).toHaveBeenCalledWith('/teacher/assignments/1/edit')
   })
 
   it('opens the grading queue for an active paper assignment and saves scores', async () => {
@@ -106,11 +128,38 @@ describe('TeacherAssignments', () => {
     fireEvent.change(screen.getByLabelText('Score for Alice M'), { target: { value: '25' } })
     fireEvent.click(screen.getByRole('button', { name: /Save Scores/ }))
 
+    // Each record now carries the teacher's comment alongside the mark; the
+    // student and parent portals read it as feedback.
     await waitFor(() => expect(saveAssignmentGrades).toHaveBeenCalledWith(1, [
-      { student_id: 's2', score: '20' },
-      { student_id: 's1', score: '25' },
+      { student_id: 's2', score: '20', feedback: '' },
+      { student_id: 's1', score: '25', feedback: '' },
     ]))
     await waitFor(() => expect(screen.getByText('Saved 2 scores.')).toBeInTheDocument())
+  })
+
+  it('sends the feedback typed beside a mark', async () => {
+    /* The student portal used to show them their own submission note under a
+       "feedback" heading, because there was no teacher comment field at all. */
+    getTeacherAssignments.mockResolvedValue(ASSIGNMENTS)
+    getAssignmentGradeSheet.mockResolvedValue({
+      assignment_id: '1', title: 'Chapter 6 Quiz', max_score: 30, class_name: 'S1A',
+      students: [{ student_id: 's1', full_name: 'Alice M', student_code: 'STU001', score: null }],
+    })
+    saveAssignmentGrades.mockResolvedValue({ saved: 1, errors: [] })
+    renderWithRouter(<TeacherAssignments />)
+    await waitFor(() => expect(screen.getByText('Chapter 6 Quiz')).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: /Grade/ }))
+    await waitFor(() => expect(screen.getByText('Alice M')).toBeInTheDocument())
+
+    fireEvent.change(screen.getByLabelText('Score for Alice M'), { target: { value: '25' } })
+    fireEvent.change(screen.getByLabelText('Feedback for Alice M'),
+      { target: { value: 'Good working throughout.' } })
+    fireEvent.click(screen.getByRole('button', { name: /Save Scores/ }))
+
+    await waitFor(() => expect(saveAssignmentGrades).toHaveBeenCalledWith(1, [
+      { student_id: 's1', score: '25', feedback: 'Good working throughout.' },
+    ]))
   })
 
   it('filters to only draft assignments when the Draft tab is clicked', async () => {

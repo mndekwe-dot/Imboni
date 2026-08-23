@@ -2,6 +2,30 @@
   "announcements": {
     "subtitle": "Stay updated with school news and notifications"
   },
+  "assignments": {
+    "title": "Assignments",
+    "subtitle": "Homework set for your child, and how they are doing with it",
+    "loadFailed": "Could not load assignments.",
+    "tableTitle": "{{name}}'s assignments",
+    "due": "Due",
+    "score": "Score",
+    "onlineQuiz": "Online quiz",
+    "statTotal": "Total set",
+    "statOutstanding": "Still to hand in",
+    "statMarked": "Marked",
+    "statAverage": "Average mark",
+    "emptyTitle": "No assignments yet",
+    "emptyDesc": "Assignments appear here as soon as a teacher publishes them.",
+    "emptyFiltered": "No assignments match this filter.",
+    "filter": {
+      "all": "All",
+      "pending": "To do",
+      "overdue": "Overdue",
+      "submitted": "Handed in",
+      "graded": "Marked",
+      "late": "Late"
+    }
+  },
   "attendance": {
     "subtitle": "Monthly attendance calendar and stats",
     "title": "Attendance Records"
@@ -10,6 +34,7 @@
     "subtitle": "Track your child's conduct and achievements",
     "title": "Behaviour Reports"
   },
+  "child": "Child",
   "children": {
     "subtitle": "Overview of your children's profiles",
     "title": "My Children"
@@ -21,6 +46,7 @@
   "messages": {
     "subtitle": "Communicate with teachers and school staff"
   },
+  "noChildren": "No children linked to your account yet.",
   "results": {
     "noAssessments": "No assessments recorded yet.",
     "noChildren": "No children linked to your account yet.",

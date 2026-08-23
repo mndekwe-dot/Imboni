@@ -43,13 +43,19 @@
   },
   "assignments": {
     "allAssignments": "All Assignments",
+    "chooseFile": "Choose a file to hand in",
     "emptyFiltered": "No assignments match this filter right now.",
     "loading": "Loading assignments…",
+    "markDone": "Mark as done",
     "onlineQuizzes": "Online Quizzes",
+    "submitFailed": "Could not hand in your assignment.",
     "submitNow": "Submit Now",
+    "submittedToast": "Assignment handed in.",
     "subtitle": "Track all your tasks and deadlines",
     "takeQuiz": "Take Quiz",
-    "totalThisTerm": "Total This Term"
+    "teacherFeedback": "Teacher’s feedback",
+    "totalThisTerm": "Total This Term",
+    "worksheet": "Worksheet"
   },
   "attendance": {
     "daysAbsent": "Days Absent",
@@ -88,6 +94,12 @@
   "discipline": {
     "subtitle": "School rules, your discipline record & appeals"
   },
+  "messages": {
+    "subtitle": "Communicate with your teachers"
+  },
+  "quizReview": {
+    "loadFailed": "Failed to load your submission."
+  },
   "results": {
     "assessment": "Assessment",
     "averageOverTime": "My Average Over Time",
@@ -109,11 +121,5 @@
     "subtitle": "Weekly Schedule",
     "subtitleWithClass": "Class {{class}} Weekly Schedule",
     "title": "My Timetable"
-  },
-  "messages": {
-    "subtitle": "Communicate with your teachers"
-  },
-  "quizReview": {
-    "loadFailed": "Failed to load your submission."
   }
 }

@@ -1216,3 +1216,29 @@
 .score-pos  { color: var(--success); }
 .score-neg  { color: var(--destructive); }
 .score-hist { color: var(--muted-foreground); }
+
+/* The worksheet handed out with an assignment. A link, not a button: it goes
+   somewhere rather than doing something. */
+.assignment-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  font-size: var(--text-sm);
+  color: var(--primary);
+  text-decoration: none;
+}
+.assignment-attachment:hover { text-decoration: underline; }
+
+/* The feedback block used to render bare italics, which read as part of the
+   assignment description. Labelling it says whose words these are - and they
+   are the teacher's now, not the student's own submission note. */
+.assignment-feedback-label {
+  display: block;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.15rem;
+}

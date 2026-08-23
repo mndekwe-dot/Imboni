@@ -2046,3 +2046,128 @@ tr:hover td {
   color: var(--muted-foreground);
 }
 .list-empty-icon { font-size: 3rem; opacity: 0.3; margin-bottom: 0.75rem; }
+
+/* ── Form action bar ───────────────────────────────────────────────────────
+   The save/cancel row for a form that lives on a page rather than in a modal.
+
+   A modal's footer is always in view because the dialog is sized to fit. A
+   page's is not: an online quiz runs to twenty questions, and a teacher typing
+   the last one would otherwise have to scroll back up to save. So this sticks
+   to the bottom of the viewport and keeps the buttons reachable from anywhere
+   in the form.
+
+   Mirrors .modal-footer-row deliberately - the same buttons in the same order
+   with the same hint on the left - so moving a form out of a dialog does not
+   change what its controls look like. */
+.form-actions-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow-md);
+}
+/* The hint takes the slack so the buttons stay hard right. */
+.form-actions-bar .modal-footer-hint { flex: 1; }
+
+@media (max-width: 640px) {
+  .form-actions-bar { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem; }
+  /* The hint owns the first line; the buttons share the second evenly. */
+  .form-actions-bar .modal-footer-hint { flex-basis: 100%; }
+  .form-actions-bar .btn {
+    flex: 1;
+    justify-content: center;
+    font-size: var(--text-sm);
+    padding: 0.5rem 0.625rem;
+  }
+}
+
+/* ── Quiz answer review ────────────────────────────────────────────────────
+   One question from a student's quiz, with the marking open to correction.
+   Short-answer questions are auto-marked by exact string match, so a teacher
+   needs to see the two answers side by side to judge a near miss. The left
+   border carries the verdict, which is why it is the only thing that changes
+   colour: the text stays at full contrast either way. */
+.quiz-review-q {
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  padding: 0.75rem 0.875rem;
+  margin-bottom: 0.75rem;
+  background: var(--card);
+}
+.quiz-review-q.correct { border-left-color: var(--success); }
+.quiz-review-q.wrong   { border-left-color: var(--destructive); }
+
+.quiz-review-q-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.quiz-review-row {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+  font-size: var(--text-sm);
+}
+/* A fixed label column so the two answers line up under each other and the
+   difference between them is the thing you notice. */
+.quiz-review-row > span:first-child { flex: 0 0 7.5rem; }
+
+.quiz-review-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.quiz-review-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* ── Horizontal bar chart ──────────────────────────────────────────────────
+   Used for the spread of marks on an assignment. Bars are sized against the
+   busiest band rather than the class size, so a small class still reads. */
+.stat-bars { display: flex; flex-direction: column; gap: 0.4rem; }
+.stat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: var(--text-sm);
+}
+.stat-bar-label { flex: 0 0 4.5rem; color: var(--muted-foreground); }
+.stat-bar-track {
+  flex: 1;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  /* A band with nobody in it still needs to be visibly a zero, not a gap. */
+  min-width: 2px;
+}
+.stat-bar-value { flex: 0 0 2rem; text-align: right; font-weight: 600; }
+
+/* Row of actions in a submissions table — download, review, note. */
+.asgn-work-cell { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+/* One line of a table cell that must not stretch the column. */
+.u-truncate {
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

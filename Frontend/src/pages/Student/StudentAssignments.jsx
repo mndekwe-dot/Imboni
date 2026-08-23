@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
@@ -8,6 +8,8 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAssignments, submitAssignment } from '../../api/student'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { getStudentQuizzes } from '../../api/teacher'
 import { formatDate, formatDateLong } from '../../utils/date'
 import '../../styles/layout.css'
@@ -66,11 +68,21 @@ function formatDueDate(dateStr, status) {
     return `Due ${formatDateLong(due)}`
 }
 
-function gradeStyle(grade) {
-    if (grade == null) return null
-    if (grade >= 80) return { background: 'var(--success-light)', color: 'var(--success)' }
-    if (grade >= 60) return { background: 'var(--student-light)', color: 'var(--student)' }
+/* The band is a proportion of the marks available, so it needs both numbers.
+   It used to take the raw score as if it were already a percentage, which put
+   a perfect 18 out of 20 in the same red band as a genuine 18%. */
+function gradeStyle(percent) {
+    if (percent == null) return null
+    if (percent >= 80) return { background: 'var(--success-light)', color: 'var(--success)' }
+    if (percent >= 60) return { background: 'var(--student-light)', color: 'var(--student)' }
     return { background: 'var(--warning-light)', color: 'var(--warning)' }
+}
+
+/* A mark out of the marks available. Returns null when there is nothing to
+   divide by, so a badge is never rendered from a guess. */
+function gradePercent(grade, maxScore) {
+    if (grade == null || !maxScore) return null
+    return (grade / maxScore) * 100
 }
 
 // The Student pages named colours (blue, teal, orange, amber, purple) where
@@ -88,12 +100,17 @@ function AssignmentStat({ iconClass, icon, value, label }) {
 
 function AssignmentCard({ assignment, onSubmit }) {
     const { t } = useTranslation()
-    const { id, title, subject, teacher, due_date, status: rawStatus, grade, feedback } = assignment
+    /* The button was labelled "Upload" and opened nothing - there was no file
+       input anywhere in the student pages, and the submit call sent an empty
+       body. The API has always accepted a file. */
+    const fileRef = useRef(null)
+    const { id, title, subject, teacher, due_date, status: rawStatus, grade, max_score: maxScore, feedback, attachment } = assignment
     const status  = normaliseStatus(rawStatus)
     const icon    = subjectIcon(subject)
     const dueText = formatDueDate(due_date, status)
     const dueColor = dueDateColor(due_date, status)
-    const gs       = gradeStyle(grade)
+    const percent  = gradePercent(grade, maxScore)
+    const gs       = gradeStyle(percent)
 
     const cardClass  = status === 'Submitted' ? 'submitted' : status === 'Overdue' ? 'overdue' : 'pending'
     const tagClass   = `tag-${cardClass}`
@@ -112,26 +129,56 @@ function AssignmentCard({ assignment, onSubmit }) {
                     </span>
                     <span className={`assignment-status-tag ${tagClass}`}>{status}</span>
                 </div>
+                {attachment && (
+                    <a className="assignment-attachment" href={attachment}
+                       target="_blank" rel="noreferrer">
+                        <span className="material-symbols-rounded icon-sm">attach_file</span>
+                        {t('student.assignments.worksheet')}
+                    </a>
+                )}
                 {feedback && (
                     <div className="assignment-feedback">
+                        <span className="assignment-feedback-label">
+                            {t('student.assignments.teacherFeedback')}
+                        </span>
                         <em>{feedback}</em>
                     </div>
                 )}
             </div>
             <div className="assignment-actions">
-                {status === 'Overdue' && (
-                    <button className="btn btn-sm btn-outline btn-destructive-outline" onClick={() => onSubmit(id)}>
-                        {t('student.assignments.submitNow')}
-                    </button>
-                )}
-                {status === 'Pending' && (
-                    <button className="btn btn-sm btn-primary" onClick={() => onSubmit(id)}>
-                        {t('common.upload')}
-                    </button>
+                {(status === 'Overdue' || status === 'Pending') && (
+                    <>
+                        <input ref={fileRef} type="file" className="u-hidden"
+                            aria-label={t('student.assignments.chooseFile')}
+                            onChange={e => {
+                                const file = e.target.files?.[0]
+                                onSubmit(id, file)
+                                // Cleared so picking the same file again still fires.
+                                e.target.value = ''
+                            }} />
+                        <button
+                            className={`btn btn-sm ${status === 'Overdue'
+                                ? 'btn-outline btn-destructive-outline' : 'btn-primary'}`}
+                            onClick={() => fileRef.current?.click()}>
+                            <span className="material-symbols-rounded icon-sm">upload_file</span>
+                            {status === 'Overdue'
+                                ? t('student.assignments.submitNow')
+                                : t('common.upload')}
+                        </button>
+                        {/* Not every assignment is a file - a hand-written
+                            exercise book is handed in physically, and the
+                            student still needs to say they have done it. */}
+                        <button className="btn btn-sm btn-outline" onClick={() => onSubmit(id, null)}>
+                            {t('student.assignments.markDone')}
+                        </button>
+                    </>
                 )}
                 {gs && (
                     <span className="badge assignment-grade-badge" style={gs}>
-                        {grade != null ? `${parseFloat(grade).toFixed(0)}%` : '-'}
+                        {/* The mark as the teacher entered it, over what it was
+                            out of. This printed the raw score with a % sign, so
+                            18 out of 20 read as "18%". */}
+                        {grade != null ? `${parseFloat(grade)}/${maxScore}` : '-'}
                     </span>
                 )}
             </div>
@@ -143,6 +190,7 @@ export function StudentAssignments() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
+    const toast = useToast()
     const [profile,     setProfile]     = useState(null)
     const [assignments, setAssignments] = useState([])
     const [quizzes,     setQuizzes]     = useState([])
@@ -167,13 +215,24 @@ export function StudentAssignments() {
         }).finally(() => setLoading(false))
     }, [])
 
-    async function handleSubmit(id) {
+    async function handleSubmit(id, file) {
         try {
-            await submitAssignment(id, {})
+            /* FormData only when there is a file: an empty one still sets a
+               multipart content type, which the plain JSON path handles worse. */
+            let payload = {}
+            if (file) {
+                payload = new FormData()
+                payload.append('file', file)
+            }
+            await submitAssignment(id, payload)
             const updated = await getStudentAssignments().catch(() => assignments)
             setAssignments(Array.isArray(updated) ? updated : assignments)
-        } catch {
-            // submission error — silently ignore for now
+            toast.success(t('student.assignments.submittedToast'))
+        } catch (e) {
+            /* This used to swallow the error. Handing work in is the one action
+               on this page a student needs confirmation of - failing quietly
+               leaves them believing it went in. */
+            toast.error(errorMessage(e, t('student.assignments.submitFailed')))
         }
     }
 
@@ -182,25 +241,35 @@ export function StudentAssignments() {
         ? `${t('roles.student')} · ${gradeSection}`
         : t('roles.student')
 
-    const pendingCount   = assignments.filter(a => normaliseStatus(a.status) === 'Pending').length
-    const submittedCount = assignments.filter(a => normaliseStatus(a.status) === 'Submitted').length
-    const overdueCount   = assignments.filter(a => normaliseStatus(a.status) === 'Overdue').length
+    /* The list below is headed "paper assignments" and offers a hand-in button,
+       so it must hold only those. Online quizzes are in their own section above
+       with the controls a quiz needs - a timer, a start button, a review link.
+       Before this filter they appeared in both places, the second time with a
+       hand-in button the backend rejects. */
+    const paperAssignments = assignments.filter(a => a.mode !== 'online')
+
+    const pendingCount   = paperAssignments.filter(a => normaliseStatus(a.status) === 'Pending').length
+    const submittedCount = paperAssignments.filter(a => normaliseStatus(a.status) === 'Submitted').length
+    const overdueCount   = paperAssignments.filter(a => normaliseStatus(a.status) === 'Overdue').length
 
     const statData = [
         { iconClass: 'orange', icon: 'pending',    value: pendingCount,   valueColor: 'var(--warning)',     label: 'Pending'         },
         { iconClass: 'green',  icon: 'task_alt',   value: submittedCount, valueColor: 'var(--success)',     label: 'Submitted'       },
         { iconClass: 'red',    icon: 'warning',    value: overdueCount,   valueColor: 'var(--destructive)', label: 'Overdue'         },
+        /* Everything the student has been set, both modes - the tiles summarise
+           the page, and the quizzes above are part of the same workload. */
         { iconClass: 'blue',   icon: 'assignment', value: assignments.length, valueColor: null,             label: 'Total This Term' },
     ]
 
+    /* The tabs filter the list they sit above, so they count the same set. */
     function countFor(tab) {
-        if (tab === 'All') return assignments.length
-        return assignments.filter(a => normaliseStatus(a.status) === tab).length
+        if (tab === 'All') return paperAssignments.length
+        return paperAssignments.filter(a => normaliseStatus(a.status) === tab).length
     }
 
     const filtered = statusFilter === 'All'
-        ? assignments
-        : assignments.filter(a => normaliseStatus(a.status) === statusFilter)
+        ? paperAssignments
+        : paperAssignments.filter(a => normaliseStatus(a.status) === statusFilter)
 
     return (
         <>

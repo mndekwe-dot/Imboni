@@ -9,6 +9,7 @@ export const getChildCard       = (id) => client.get(`/imboni/parents/${id}/card
 export const getChildFees       = (id) => client.get(`/imboni/parents/${id}/fees/`)
 export const getChildDocuments  = (id) => client.get(`/imboni/parents/${id}/documents/`)
 export const getChildSchedule   = (id) => client.get(`/imboni/parents/${id}/schedule/today/`)
+export const getChildAssignments = (id) => client.get(`/imboni/parents/${id}/assignments/`)
 
 // ── Results ──────────────────────────────────────────────────────────────────
 export const getChildAssessments = (id) => client.get(`/imboni/results/students/${id}/assessments/`)
