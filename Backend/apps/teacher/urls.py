@@ -68,4 +68,6 @@ urlpatterns = [
     path('teacher/assignments/<pk>/submissions/', views.AssignmentSubmissionsView.as_view(), name='assignment-submissions'),
     # Paper assignment grading queue (roster + bulk score entry)
     path('teacher/assignments/<pk>/grade/', views.PaperAssignmentGradeView.as_view(), name='assignment-grade'),
+    # One student's quiz, for checking and correcting an auto-mark.
+    path('teacher/submissions/<pk>/', views.QuizSubmissionReviewView.as_view(), name='submission-review'),
 ] + router.urls

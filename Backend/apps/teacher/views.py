@@ -1,7 +1,10 @@
+import logging
 from datetime import date, timedelta
 from django.db.models import Avg, Count, Max, Q
 from django.utils import timezone
 from rest_framework import generics, viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.authentication.models import User
@@ -31,6 +34,9 @@ def _get_teacher(request):
     if request.user.is_authenticated:
         return request.user
     return User.objects.filter(role='teacher').first()
+
+
+logger = logging.getLogger(__name__)
 
 
 def _current_term():
@@ -1598,7 +1604,191 @@ class AssignmentViewSet(viewsets.ModelViewSet):
             instance.save(update_fields=['published_at'])
             self._notify_class(instance)
 
+    @action(detail=True, methods=['post'])
+    def close(self, request, pk=None):
+        """
+        POST /imboni/teacher/assignments/<id>/close/ — stop accepting work.
+
+        `closed` was a declared status that nothing could reach: the student
+        and parent lists already read it, the teacher UI already had a Closed
+        tab, but no code path ever set it. So an assignment stayed open to
+        submissions indefinitely, months past its due date.
+
+        Closing keeps the assignment and its marks visible to everyone; it only
+        refuses new submissions (see StudentAssignmentSubmitView).
+        """
+        assignment = self.get_object()
+        if assignment.status == 'draft':
+            return Response(
+                {'error': 'A draft has not been published, so there is nothing to close.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        assignment.status = 'closed'
+        assignment.save(update_fields=['status'])
+        return Response(AssignmentSerializer(assignment).data)
+
+    @action(detail=True, methods=['post'])
+    def reopen(self, request, pk=None):
+        """Undo a close - a deadline extended, or one closed by mistake."""
+        assignment = self.get_object()
+        if assignment.status != 'closed':
+            return Response({'error': 'This assignment is not closed.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        assignment.status = 'active'
+        assignment.save(update_fields=['status'])
+        return Response(AssignmentSerializer(assignment).data)
+
+    def perform_destroy(self, instance):
+        """
+        Deleting cascades to every submission, so a graded assignment cannot
+        go quietly.
+
+        AssignmentSubmission.assignment is CASCADE: deleting an assignment with
+        marks in it destroys every student's work and score with no warning and
+        no way back. A teacher who wants it out of the way should close it.
+        Deleting stays possible only while nothing has been handed in.
+        """
+        if AssignmentSubmission.objects.filter(assignment=instance).exists():
+            raise ValidationError({
+                'detail': 'This assignment has submissions and cannot be deleted. '
+                          'Close it instead - that stops new work coming in and '
+                          'keeps the marks already given.',
+            })
+        # The noticeboard post outlives the assignment otherwise, advertising
+        # something no longer there and linking to a page that 404s.
+        if instance.announcement_id:
+            from apps.announcements.models import Announcement
+            Announcement.objects.filter(pk=instance.announcement_id).delete()
+        instance.delete()
+
+    @action(detail=True, methods=['post'])
+    def release(self, request, pk=None):
+        """
+        POST /imboni/teacher/assignments/<id>/release/ — publish held marks.
+
+        The other half of release_marks_immediately=False: mark the whole class
+        in your own time, then let everyone see their result at once. Without
+        this there was no return step at all - a score became visible to the
+        student and their parents the instant it was typed.
+        """
+        assignment = self.get_object()
+        pending = AssignmentSubmission.objects.filter(
+            assignment=assignment, is_graded=True, released_at__isnull=True,
+        ).select_related('student__user')
+
+        graded = [(sub.student, float(sub.score)) for sub in pending if sub.student]
+        count = pending.update(released_at=timezone.now())
+
+        if graded:
+            _notify_graded(assignment, graded, assignment.max_score)
+            _record_assessments(assignment, graded, assignment.max_score)
+
+        return Response({'released': count})
+
+    @action(detail=True, methods=['get'])
+    def stats(self, request, pk=None):
+        """
+        GET /imboni/teacher/assignments/<id>/stats/ — how the class did.
+
+        A teacher could see every individual mark and no summary at all: no
+        average, no spread, and for a quiz no sense of which question the class
+        actually struggled with, even though every graded answer is stored.
+        """
+        assignment = self.get_object()
+        subs = [s for s in AssignmentSubmission.objects.filter(assignment=assignment)
+                if s.is_submitted]
+        marked = [s for s in subs if s.is_graded]
+
+        from apps.teacher.models import ClassAssignment
+
+        term = _current_term()
+        total_students = ClassAssignment.objects.filter(
+            class_obj=assignment.class_obj, term=term).count() if term else 0
+
+        scores = sorted(float(s.score) for s in marked)
+        percentages = [float(s.percentage) for s in marked]
+
+        def median(values):
+            if not values:
+                return None
+            mid = len(values) // 2
+            return values[mid] if len(values) % 2 else (values[mid - 1] + values[mid]) / 2
+
+        # Bands rather than raw scores: the shape of the class is the point,
+        # and it stays comparable between a paper out of 20 and one out of 100.
+        bands = [('0-39', 0, 40), ('40-54', 40, 55), ('55-69', 55, 70),
+                 ('70-84', 70, 85), ('85-100', 85, 101)]
+        distribution = [
+            {'label': label, 'count': sum(1 for p in percentages if lo <= p < hi)}
+            for label, lo, hi in bands
+        ]
+
+        return Response({
+            'assignment_id':  str(assignment.id),
+            'title':          assignment.title,
+            'max_score':      assignment.max_score,
+            'total_students': total_students,
+            'submitted':      len(subs),
+            'marked':         len(marked),
+            'late':           sum(1 for s in subs if s.is_late),
+            'not_submitted':  max(total_students - len(subs), 0),
+            'average':        round(sum(percentages) / len(percentages), 1) if percentages else None,
+            'median':         median(scores),
+            'highest':        scores[-1] if scores else None,
+            'lowest':         scores[0] if scores else None,
+            'pass_rate':      round(sum(1 for p in percentages if p >= 50) / len(percentages) * 100, 1)
+                              if percentages else None,
+            'distribution':   distribution,
+            'questions':      _question_stats(assignment, marked),
+        })
+
     def _notify_class(self, assignment):
+        """
+        Tell the class an assignment has been published.
+
+        Two things happen, because they reach different places. The
+        announcement puts it on the noticeboard, where it stays and can be
+        read back later. The notification puts it in the bell, where it is
+        seen today - which is what matters for something with a due date.
+        Publishing used to do only the first, so a new assignment was quieter
+        than an absence mark.
+        """
+        self._announce(assignment)
+        self._notify_students(assignment)
+
+    def _notify_students(self, assignment):
+        from apps.student.models import Student
+        from apps.teacher.models import ClassAssignment
+        from apps.notifications.services import notify_users
+
+        term = _current_term()
+        students = Student.objects.filter(
+            id__in=ClassAssignment.objects
+                .filter(class_obj=assignment.class_obj, term=term)
+                .values_list('student_id', flat=True),
+        ).select_related('user')
+
+        users = [s.user for s in students if s.user_id]
+        if not users:
+            return
+
+        path = (f'/student/quiz/{assignment.id}' if assignment.mode == 'online'
+                else '/student/assignments')
+        try:
+            notify_users(
+                users,
+                f'New assignment: {assignment.title}',
+                f'{assignment.subject.name} - due {assignment.due_date}.',
+                'assignment',
+                path,
+            )
+        except Exception:
+            # The assignment is published either way; the nudge is not worth
+            # failing the request over.
+            logger.warning('Could not notify class of assignment %s',
+                           assignment.pk, exc_info=True)
+
+    def _announce(self, assignment):
         from apps.announcements.models import Announcement
         class_name = assignment.class_obj.name
         content = (
@@ -1609,7 +1799,9 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         )
         if assignment.instructions:
             content += f"\n\nInstructions: {assignment.instructions}"
-        Announcement.objects.create(
+        # Updated in place on a re-publish rather than posted again: active →
+        # draft → active used to leave a second identical notice on the board.
+        fields = dict(
             title          = f"New Assignment: {assignment.title}",
             content        = content,
             category       = 'academic',
@@ -1619,6 +1811,11 @@ class AssignmentViewSet(viewsets.ModelViewSet):
             status         = 'published',
             published_at   = timezone.now(),
         )
+        if assignment.announcement_id:
+            Announcement.objects.filter(pk=assignment.announcement_id).update(**fields)
+        else:
+            assignment.announcement = Announcement.objects.create(**fields)
+            assignment.save(update_fields=['announcement'])
 
 
 # ---------------------------------------------------------------------------
@@ -1737,6 +1934,23 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
         except Assignment.DoesNotExist:
             return Response({'detail': 'Quiz not found or not published.'}, status=404)
 
+        # The clock starts on the server, not in the browser. Without a start
+        # recorded here the time limit was a countdown the client could simply
+        # not run - close the tab, or POST straight to submit, and it never
+        # applied. Only the first open counts: re-fetching must not buy time.
+        student = getattr(request.user, 'student_profile', None)
+        if student is not None:
+            AssignmentSubmission.objects.get_or_create(
+                assignment=assignment, student=student,
+                defaults={
+                    'student_name': student.full_name,
+                    'student_code': student.student_id,
+                    'max_score':    assignment.max_score,
+                    'started_at':   timezone.now(),
+                    'is_graded':    False,
+                },
+            )
+
         questions = [
             {k: v for k, v in q.items() if k not in ('correct', 'correct_answer')}
             for q in (assignment.questions or [])
@@ -1844,7 +2058,46 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
         except Exception:
             student_name = request.user.get_full_name() or request.user.username
 
-        submission, created = AssignmentSubmission.objects.update_or_create(
+        # `retrieve` leaves an un-submitted row behind holding the start time,
+        # so an existing row is not by itself a completed attempt.
+        existing = AssignmentSubmission.objects.filter(
+            assignment=assignment, student=student).first()
+        attempts_used = existing.attempt_count if (existing and existing.answers) else 0
+
+        # Attempts are capped. update_or_create alone silently overwrote the
+        # previous try, and the review screen hands back the correct answers
+        # and explanations - so sit the quiz, read the review, sit it again for
+        # full marks. The paper path always refused a second hand-in.
+        if attempts_used >= (assignment.max_attempts or 1):
+            return Response(
+                {'error': 'You have used all your attempts at this quiz.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Work handed in after the due date is refused outright when the
+        # teacher has turned late submissions off.
+        if is_late and not assignment.accept_late_submissions:
+            return Response(
+                {'error': 'The due date has passed and this assignment is not accepting late work.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # The time limit, measured against the server's own start time. A small
+        # grace covers the round trip and a slow last click - the point is to
+        # stop someone sitting the paper all evening, not to punish a few
+        # seconds of latency.
+        started_at = existing.started_at if existing else None
+        elapsed = int((timezone.now() - started_at).total_seconds()) if started_at else 0
+        if assignment.time_limit_minutes and started_at:
+            allowed = assignment.time_limit_minutes * 60 + 30
+            if elapsed > allowed:
+                return Response(
+                    {'error': 'Your time for this quiz has run out.',
+                     'time_limit_minutes': assignment.time_limit_minutes},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        submission, _ = AssignmentSubmission.objects.update_or_create(
             assignment=assignment,
             student=student,
             defaults={
@@ -1856,8 +2109,17 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
                 'percentage':   pct,
                 'is_graded':    True,
                 'is_late':      is_late,
+                'attempt_count': attempts_used + 1,
+                'time_spent_seconds': elapsed,
+                'started_at':   started_at,
+                # An auto-marked quiz is released as it is marked unless the
+                # teacher is holding the whole class back.
+                'released_at':  timezone.now() if assignment.release_marks_immediately else None,
             },
         )
+        if assignment.release_marks_immediately:
+            _record_assessments(assignment, [(student, score)], max_score)
+
         return Response({
             'submitted': True,
             'score':     score,
@@ -1865,16 +2127,259 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
             'percentage': pct,
             'is_late':   is_late,
             'answers':   graded,
-        }, status=201 if created else 200)
+            'attempt':   attempts_used + 1,
+            'attempts_allowed': assignment.max_attempts or 1,
+        # 201 for a first sitting, 200 for a permitted retake. Not `created`:
+        # opening the quiz already made the row to start the clock, so that
+        # flag now says whether the paper was fetched, not whether it was sat.
+        }, status=201 if attempts_used == 0 else 200)
 
 
 class AssignmentSubmissionsView(APIView):
-    """GET /imboni/teacher/assignments/<pk>/submissions/ — teacher sees all submissions."""
+    """
+    GET /imboni/teacher/assignments/<pk>/submissions/ — the teacher's own
+    submissions for one assignment.
+
+    Scoped to the assignment's owner. It used to filter on the assignment id
+    alone, so any authenticated teacher holding a UUID could read another
+    teacher's class list - student names, student codes, marks and all. Every
+    sibling endpoint scopes this way (AssignmentViewSet.get_queryset,
+    PaperAssignmentGradeView); this one did not.
+    """
     permission_classes = [IsTeacher]
 
     def get(self, request, pk):
-        subs = AssignmentSubmission.objects.filter(assignment_id=pk).select_related('student__user')
+        if not Assignment.objects.filter(pk=pk, teacher=request.user).exists():
+            # 404 rather than 403: a teacher has no business learning whether
+            # another teacher's assignment id exists.
+            return Response({'detail': 'Assignment not found.'}, status=404)
+
+        subs = (AssignmentSubmission.objects
+                .filter(assignment_id=pk)
+                .select_related('student__user'))
         return Response(AssignmentSubmissionSerializer(subs, many=True).data)
+
+
+def _question_stats(assignment, marked):
+    """
+    Per-question performance for an online quiz.
+
+    Every graded submission already stores which questions each student got
+    right (AssignmentSubmission.answers), so the hardest question in a paper is
+    sitting in the database - it was simply never aggregated. Teaching to it is
+    the whole point of setting a quiz.
+    """
+    if assignment.mode != 'online':
+        return []
+
+    questions = assignment.questions or []
+    if not questions:
+        return []
+
+    correct = {}
+    answered = {}
+    for sub in marked:
+        for row in (sub.answers or []):
+            qid = str(row.get('question_id', ''))
+            answered[qid] = answered.get(qid, 0) + 1
+            if row.get('is_correct'):
+                correct[qid] = correct.get(qid, 0) + 1
+
+    out = []
+    for index, q in enumerate(questions, start=1):
+        qid = str(q.get('id', ''))
+        seen = answered.get(qid, 0)
+        got = correct.get(qid, 0)
+        out.append({
+            'question_id':    qid,
+            'number':         index,
+            'text':           q.get('text', ''),
+            'type':           q.get('type', 'mcq'),
+            'points':         q.get('points', 1),
+            'answered':       seen,
+            'correct':        got,
+            'percent_correct': round(got / seen * 100, 1) if seen else None,
+        })
+    return out
+
+
+def _notify_graded(assignment, graded, max_score):
+    """
+    Tell each student their work has been marked, and their parents with
+    them.
+
+    Marking used to be silent: the score landed in the database and the
+    student found out only if they went looking. A parent had no way to
+    find out at all.
+
+    Notifications are per student rather than one broadcast because each
+    one carries that student's own mark, and are best-effort - a mark that
+    saved must not be rolled back because a message failed to send.
+    """
+    if not graded:
+        return
+    from apps.notifications.services import notify_user, notify_parents_of
+
+    for student, score in graded:
+        body = f'{assignment.title}: {score:g}/{max_score}.'
+        try:
+            if student.user_id:
+                notify_user(
+                    student.user, 'Assignment marked', body,
+                    'assignment', '/student/assignments',
+                )
+            notify_parents_of(
+                student,
+                f'{student.full_name} - assignment marked',
+                body, 'assignment', '/parent/assignments',
+            )
+        except Exception:
+            logger.warning('Could not notify about grade for %s', student.pk,
+                           exc_info=True)
+
+
+def _record_assessments(assignment, graded, max_score):
+    """
+    Mirror assignment marks into the gradebook as continuous assessment.
+
+    Assignment marks used to live only on the assignment. Nothing carried them
+    into apps.results, so the term report's continuous-assessment component was
+    typed in by hand from marks the system already held, and the teacher's own
+    "homework submission" dashboard widget - which counts Assessment rows - was
+    blind to every assignment actually set.
+
+    One Assessment row per student per assignment, keyed on the assignment's
+    title so re-marking updates rather than duplicates. Best-effort: a mark that
+    saved must not be lost because the mirror failed.
+    """
+    from apps.results.models import Assessment
+
+    term = _current_term()
+    if not term or not graded:
+        return
+
+    kind = 'quiz' if assignment.mode == 'online' else 'homework'
+    for student, score in graded:
+        try:
+            Assessment.objects.update_or_create(
+                student=student,
+                subject=assignment.subject,
+                term=term,
+                title=assignment.title,
+                defaults={
+                    'assessment_type': kind,
+                    'date':            assignment.due_date,
+                    'max_score':       max_score,
+                    'score_obtained':  score,
+                    # Assessment.save recomputes this, but it is non-null in the
+                    # schema so it has to be given something on insert.
+                    'percentage':      (score / max_score * 100) if max_score else 0,
+                },
+            )
+        except Exception:
+            logger.warning('Could not mirror assignment %s to the gradebook for %s',
+                           assignment.pk, student.pk, exc_info=True)
+
+
+class QuizSubmissionReviewView(APIView):
+    """
+    Read and correct one student's quiz.
+
+    GET   /imboni/teacher/submissions/<pk>/   — the answers, with the marking
+    PATCH /imboni/teacher/submissions/<pk>/   — override marks and add feedback
+          Body: { answers: [{question_id, is_correct, points_earned}], feedback }
+
+    Short-answer and fill-blank questions are auto-marked by exact string
+    match, so "8 cm" against a stored "8cm" is wrong. The code that does it
+    said the teacher could override later; nothing implemented that. There was
+    no endpoint, and no screen in the product showed what a student had even
+    written - so a wrong auto-mark was permanent.
+    """
+    permission_classes = [IsTeacher]
+
+    def _get(self, request, pk):
+        return (AssignmentSubmission.objects
+                .filter(pk=pk, assignment__teacher=request.user)
+                .select_related('assignment', 'student__user')
+                .first())
+
+    def get(self, request, pk):
+        sub = self._get(request, pk)
+        if not sub:
+            return Response({'detail': 'Submission not found.'}, status=404)
+        return Response(self._payload(sub))
+
+    def patch(self, request, pk):
+        sub = self._get(request, pk)
+        if not sub:
+            return Response({'detail': 'Submission not found.'}, status=404)
+
+        overrides = {
+            str(row.get('question_id')): row
+            for row in request.data.get('answers', [])
+            if row.get('question_id') is not None
+        }
+
+        answers = sub.answers or []
+        for row in answers:
+            override = overrides.get(str(row.get('question_id')))
+            if not override:
+                continue
+            if 'is_correct' in override:
+                row['is_correct'] = bool(override['is_correct'])
+            if 'points_earned' in override:
+                try:
+                    earned = float(override['points_earned'])
+                except (TypeError, ValueError):
+                    return Response({'detail': 'points_earned must be a number.'}, status=400)
+                cap = float(row.get('max_points', 0) or 0)
+                if earned < 0 or (cap and earned > cap):
+                    return Response(
+                        {'detail': f"points_earned must be between 0 and {cap:g}."}, status=400)
+                row['points_earned'] = earned
+            elif 'is_correct' in override:
+                # Marking an answer right without saying what it is worth gives
+                # it the full marks for that question, which is the ordinary case.
+                row['points_earned'] = row.get('max_points', 0) if row['is_correct'] else 0
+            row['overridden'] = True
+
+        score = sum(float(r.get('points_earned', 0) or 0) for r in answers)
+        max_score = sub.max_score or sum(float(r.get('max_points', 0) or 0) for r in answers)
+
+        sub.answers = answers
+        sub.score = score
+        sub.max_score = max_score
+        sub.percentage = round(score / max_score * 100, 2) if max_score else 0
+        if 'feedback' in request.data:
+            sub.feedback = request.data.get('feedback') or ''
+        sub.is_graded = True
+        sub.save(update_fields=['answers', 'score', 'max_score', 'percentage',
+                                'feedback', 'is_graded'])
+
+        # A corrected mark has to reach the gradebook too, or the report card
+        # keeps the auto-marked one.
+        if sub.released_at and sub.student:
+            _record_assessments(sub.assignment, [(sub.student, score)], max_score)
+
+        return Response(self._payload(sub))
+
+    def _payload(self, sub):
+        return {
+            'id':           str(sub.id),
+            'student_name': sub.student_name,
+            'student_code': sub.student_code,
+            'score':        float(sub.score),
+            'max_score':    sub.max_score,
+            'percentage':   float(sub.percentage),
+            'is_late':      sub.is_late,
+            'feedback':     sub.feedback,
+            'released':     sub.released_at is not None,
+            'time_spent_seconds': sub.time_spent_seconds,
+            'answers':      sub.answers or [],
+            # The correct answer and the explanation, so a teacher checking an
+            # auto-mark can see what it was compared against.
+            'questions':    sub.assignment.questions or [],
+        }
 
 
 class PaperAssignmentGradeView(APIView):
@@ -1928,6 +2433,7 @@ class PaperAssignmentGradeView(APIView):
                     'full_name':    ca.student.full_name,
                     'student_code': ca.student.student_id,
                     'score':        float(existing[ca.student.id].score) if ca.student.id in existing else None,
+                    'feedback':     existing[ca.student.id].feedback if ca.student.id in existing else '',
                 }
                 for ca in roster
             ],
@@ -1946,9 +2452,11 @@ class PaperAssignmentGradeView(APIView):
         max_score = assignment.max_score or 0
         saved = 0
         errors = []
+        graded = []      # (student, score) pairs to notify once all are saved
         for rec in records:
             sid = rec.get('student_id')
             raw = rec.get('score')
+            feedback = (rec.get('feedback') or '').strip()
             if raw in (None, ''):
                 continue
             try:
@@ -1965,7 +2473,8 @@ class PaperAssignmentGradeView(APIView):
                 continue
 
             pct = round(score / max_score * 100, 1) if max_score else 0
-            AssignmentSubmission.objects.update_or_create(
+            released = timezone.now() if assignment.release_marks_immediately else None
+            _, created = AssignmentSubmission.objects.update_or_create(
                 assignment=assignment,
                 student=student,
                 defaults={
@@ -1975,11 +2484,26 @@ class PaperAssignmentGradeView(APIView):
                     'max_score':    max_score,
                     'percentage':   pct,
                     'is_graded':    True,
+                    'feedback':     feedback,
+                    'released_at':  released,
                 },
             )
+            graded.append((student, score))
             saved += 1
 
-        return Response({'saved': saved, 'errors': errors})
+        if assignment.release_marks_immediately:
+            _notify_graded(assignment, graded, max_score)
+        # Marks entered under a hold are announced by the release step instead -
+        # telling a student their work is marked while withholding the mark
+        # would be worse than saying nothing.
+
+        # Assignment marks are part of continuous assessment, so they belong in
+        # the gradebook, not only on this page. See _record_assessments.
+        _record_assessments(assignment, graded, max_score)
+
+        return Response({'saved': saved, 'errors': errors,
+                         'released': assignment.release_marks_immediately})
+
 
 
 # ---------------------------------------------------------------------------

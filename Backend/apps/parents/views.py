@@ -1,5 +1,6 @@
 from rest_framework import viewsets, generics, status, permissions
 from rest_framework.response import Response
+from rest_framework.views import APIView as _APIView
 from django.db import transaction
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
@@ -317,6 +318,94 @@ class StudentTodayScheduleView(generics.ListAPIView):
         )
 
 
+class StudentAssignmentListView(_APIView):
+    """
+    GET /imboni/parents/<pk>/assignments/
+    Every assignment set for this child's class, with how the child is doing.
+
+    Parents could already see results, attendance and behaviour but not
+    homework - the one thing they are most often asked about at home. The
+    marks here are per assignment as the teacher enters them, which is
+    earlier and more granular than the end-of-term result.
+
+    Scoped by _verify_parent_owns_student, like every other child-scoped view:
+    a parent sees their own children and no one else's.
+    """
+    permission_classes = [IsParent]
+
+    def get(self, request, pk):
+        from apps.results.models import AcademicTerm
+        from apps.teacher.models import (
+            ClassAssignment,
+            Assignment as TeacherAssignment,
+            AssignmentSubmission as TeacherSubmission,
+        )
+
+        student = _verify_parent_owns_student(request, pk)
+        if student is None:
+            raise Http404
+
+        term = AcademicTerm.objects.filter(is_current=True).first()
+        if not term:
+            return Response([])
+
+        placement = (
+            ClassAssignment.objects
+            .filter(student=student, term=term)
+            .select_related('class_obj')
+            .first()
+        )
+        if not placement:
+            return Response([])
+
+        assignments = (
+            TeacherAssignment.objects
+            .filter(class_obj=placement.class_obj, status__in=['active', 'closed'])
+            .select_related('subject', 'teacher')
+            .order_by('-due_date')
+        )
+
+        subs = {
+            sub.assignment_id: sub
+            for sub in TeacherSubmission.objects.filter(
+                student=student, assignment__in=assignments,
+            )
+        }
+
+        today = timezone.now().date()
+        out = []
+        for a in assignments:
+            sub = subs.get(a.id)
+            # A row can exist merely because the student opened a quiz;
+            # that is not a submission (see AssignmentSubmission.is_submitted).
+            if sub and sub.is_submitted:
+                state = sub.status
+            elif a.due_date < today:
+                state = 'overdue'
+            else:
+                state = 'pending'
+
+            out.append({
+                'id':        str(a.id),
+                'title':     a.title,
+                'subject':   a.subject.name,
+                'teacher':   a.teacher.get_full_name(),
+                'due_date':  str(a.due_date),
+                'mode':      a.mode,
+                'status':    state,
+                # Released marks only - a parent must not see a mark before
+                # the student it belongs to.
+                'score':     float(sub.score) if sub and sub.is_graded and sub.released_at else None,
+                'max_score': a.max_score,
+                'percentage': float(sub.percentage) if sub and sub.is_graded and sub.released_at else None,
+                # What the teacher actually said about the work - the reason a
+                # parent opens this page rather than reading a number.
+                'feedback':  sub.feedback if sub and sub.released_at else '',
+            })
+
+        return Response(out)
+
+
 class ParentStudentRelationshipViewSet(viewsets.ModelViewSet):
     serializer_class = ParentStudentRelationshipSerializer
 
@@ -375,7 +464,6 @@ class LinkStudentView(generics.CreateAPIView):
 # Parent Dashboard Stats
 # ---------------------------------------------------------------------------
 
-from rest_framework.views import APIView as _APIView
 
 
 class ParentDashboardStatsView(_APIView):

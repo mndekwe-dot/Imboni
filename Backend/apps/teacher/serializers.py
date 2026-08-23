@@ -291,6 +291,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
             'time_limit_minutes', 'shuffle_questions',
             'class_id', 'class_name', 'subject_id', 'subject_name',
             'created_at', 'published_at', 'submitted', 'total',
+            'attachment', 'accept_late_submissions', 'max_attempts',
+            'release_marks_immediately',
         ]
         read_only_fields = ['id', 'created_at', 'published_at']
 
@@ -301,12 +303,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
         return str(obj.subject_id)
 
     def get_submitted(self, obj):
-        if obj.status != 'active' or obj.mode != 'online':
+        # Paper assignments now carry submissions too, so the count is no
+        # longer online-only. Rows with no answers are quizzes that were opened
+        # and never handed in - they must not inflate the tally.
+        if obj.status == 'draft':
             return None
-        return obj.submissions.count()
+        return sum(1 for sub in obj.submissions.all() if sub.is_submitted)
 
     def get_total(self, obj):
-        if obj.status != 'active':
+        if obj.status == 'draft':
             return None
         from apps.teacher.models import ClassAssignment
         term = AcademicTerm.objects.filter(is_current=True).first()
@@ -316,13 +321,24 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
 
 class AssignmentWriteSerializer(serializers.ModelSerializer):
+    """
+    Fields a teacher may set. `id` is read-only but returned, because a create
+    response that does not say what it created leaves the caller unable to edit,
+    publish or delete the thing it just made.
+    """
     class Meta:
         model  = Assignment
         fields = [
+            'id',
             'title', 'instructions', 'mode', 'status',
             'due_date', 'max_score', 'questions', 'class_obj', 'subject',
             'time_limit_minutes', 'shuffle_questions',
+            # A worksheet handed out with the work, and the rules for handing
+            # it back in.
+            'attachment', 'accept_late_submissions', 'max_attempts',
+            'release_marks_immediately',
         ]
+        read_only_fields = ['id']
 
 
 # Update AssignmentSerializer to include new fields and real submission counts
@@ -345,13 +361,23 @@ class QuizSubmitSerializer(serializers.Serializer):
 class AssignmentSubmissionSerializer(serializers.ModelSerializer):
     student_name = serializers.SerializerMethodField()
     student_code = serializers.SerializerMethodField()
+    released     = serializers.SerializerMethodField()
+    status       = serializers.ReadOnlyField()
 
     class Meta:
         model  = AssignmentSubmission
         fields = [
             'id', 'student_name', 'student_code', 'answers',
             'score', 'max_score', 'percentage', 'is_graded', 'is_late', 'submitted_at',
+            # What the student handed in, and what the teacher said back. The
+            # file field existed on the model but was never serialised, so a
+            # teacher could not reach the work they were meant to be marking.
+            'file', 'notes', 'feedback', 'released', 'status',
+            'time_spent_seconds', 'attempt_count',
         ]
+
+    def get_released(self, obj):
+        return obj.released_at is not None
 
     def get_student_name(self, obj):
         if obj.student:

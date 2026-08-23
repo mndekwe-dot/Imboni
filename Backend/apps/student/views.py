@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from django.db.models import Avg
 from rest_framework import generics
@@ -5,13 +6,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.authentication.permissions import IsStudent
 
-from .models import Activity, ActivityEnrollment, ActivityEvent, Assignment, AssignmentSubmission
+logger = logging.getLogger(__name__)
+
+from .models import Activity, ActivityEnrollment, ActivityEvent
 from .serializers import (
     ActivitySerializer,
     ActivityEnrollmentSerializer,
     ActivityEventSerializer,
-    AssignmentWithStatusSerializer,
-    AssignmentSubmissionSerializer,
 )
 
 
@@ -39,7 +40,11 @@ class StudentDashboardView(APIView):
 
         from apps.results.models import AcademicTerm, Result
         from apps.behavior.models import ConductGrade
-        from apps.teacher.models import ClassAssignment, Timetable
+        from apps.teacher.models import (
+            ClassAssignment, Timetable,
+            Assignment as TeacherAssignment,
+            AssignmentSubmission as TeacherSubmission,
+        )
 
         today = date.today()
         current_term = AcademicTerm.objects.filter(is_current=True).first()
@@ -63,15 +68,18 @@ class StudentDashboardView(APIView):
                 .first()
             )
             if student_class_assignment:
-                total = Assignment.objects.filter(
+                # apps.teacher.Assignment, not apps.student.Assignment: the
+                # latter is a legacy table nothing writes, so this count was
+                # always zero however much homework had been set.
+                total = TeacherAssignment.objects.filter(
                     class_obj=student_class_assignment.class_obj,
-                    term=current_term,
+                    status='active',
                     due_date__gte=today,
                 ).count()
-                submitted = AssignmentSubmission.objects.filter(
+                submitted = TeacherSubmission.objects.filter(
                     student=student,
                     assignment__class_obj=student_class_assignment.class_obj,
-                    assignment__term=current_term,
+                    assignment__status='active',
                 ).count()
                 pending_assignments = max(total - submitted, 0)
 
@@ -115,10 +123,10 @@ class StudentDashboardView(APIView):
         upcoming_list = []
         if current_term and student_class_assignment:
             upcoming = (
-                Assignment.objects
+                TeacherAssignment.objects
                 .filter(
                     class_obj=student_class_assignment.class_obj,
-                    term=current_term,
+                    status='active',
                     due_date__gte=today,
                 )
                 .select_related('subject')
@@ -127,7 +135,7 @@ class StudentDashboardView(APIView):
             # Pre-fetch all submissions in one query instead of one per assignment
             subs_map = {
                 s.assignment_id: s
-                for s in AssignmentSubmission.objects.filter(
+                for s in TeacherSubmission.objects.filter(
                     student=student, assignment__in=upcoming
                 )
             }
@@ -656,19 +664,34 @@ class StudentActivityEventsView(generics.ListAPIView):
 
 class StudentAssignmentsView(APIView):
     """
-    All assignments for the student's class with submission status.
+    Every assignment published to this student's class, with their own status.
 
     GET /imboni/student/assignments/
     Optional: ?status=pending|submitted|graded|late|overdue
+
+    Reads apps.teacher.Assignment - the table the teacher portal writes when a
+    teacher creates an assignment. It used to read apps.student.Assignment,
+    a separate table with a similar shape that nothing has ever written to, so
+    this endpoint returned an empty list no matter how many assignments the
+    teachers had set. Paper assignments reached students only as an
+    announcement, and never appeared here at all.
+
+    Drafts are excluded: an assignment is a draft precisely because the teacher
+    has not decided to show it yet.
     """
     permission_classes = [IsStudent]
+
     def get(self, request):
         student = _get_student(request)
         if not student:
             return Response({'error': 'Student profile not found.'}, status=404)
 
         from apps.results.models import AcademicTerm
-        from apps.teacher.models import ClassAssignment
+        from apps.teacher.models import (
+            ClassAssignment,
+            Assignment as TeacherAssignment,
+            AssignmentSubmission as TeacherSubmission,
+        )
 
         current_term = AcademicTerm.objects.filter(is_current=True).first()
         if not current_term:
@@ -684,8 +707,8 @@ class StudentAssignmentsView(APIView):
             return Response([])
 
         assignments = (
-            Assignment.objects
-            .filter(class_obj=student_class.class_obj, term=current_term)
+            TeacherAssignment.objects
+            .filter(class_obj=student_class.class_obj, status__in=['active', 'closed'])
             .select_related('subject', 'teacher')
             .order_by('due_date')
         )
@@ -693,11 +716,11 @@ class StudentAssignmentsView(APIView):
         status_filter = request.query_params.get('status')
         today = date.today()
 
-        # Pre-fetch all submissions in one query instead of one per assignment
+        # One query for every submission rather than one per assignment.
         subs_map = {
-            s.assignment_id: s
-            for s in AssignmentSubmission.objects.filter(
-                student=student, assignment__in=assignments
+            sub.assignment_id: sub
+            for sub in TeacherSubmission.objects.filter(
+                student=student, assignment__in=assignments,
             )
         }
 
@@ -705,7 +728,9 @@ class StudentAssignmentsView(APIView):
         for a in assignments:
             sub = subs_map.get(a.id)
 
-            if sub:
+            # A row can exist merely because the student opened a quiz;
+            # that is not a submission (see AssignmentSubmission.is_submitted).
+            if sub and sub.is_submitted:
                 computed_status = sub.status
             elif a.due_date < today:
                 computed_status = 'overdue'
@@ -716,16 +741,33 @@ class StudentAssignmentsView(APIView):
                 continue
 
             result.append({
-                'id': str(a.id),
-                'title': a.title,
-                'description': a.description,
-                'subject': a.subject.name,
-                'teacher': a.teacher.get_full_name(),
-                'due_date': str(a.due_date),
-                'status': computed_status,
-                'grade': float(sub.grade) if sub and sub.grade else None,
-                'feedback': sub.feedback if sub else '',
-                'has_attachment': bool(a.attachment),
+                'id':          str(a.id),
+                'title':       a.title,
+                'description': a.instructions,
+                'subject':     a.subject.name,
+                'teacher':     a.teacher.get_full_name(),
+                'due_date':    str(a.due_date),
+                'status':      computed_status,
+                # A mark exists for the student only once it has been released.
+                # Marked-but-held-back reads the same as not yet marked, which
+                # is the point of holding it back.
+                'grade':       float(sub.score) if sub and sub.is_graded and sub.released_at else None,
+                'max_score':   a.max_score,
+                # The teacher's comment. This used to read `notes`, which is
+                # the student's own note submitted with their work - so the
+                # feedback panel showed them their own words back.
+                'feedback':    sub.feedback if sub and sub.released_at else '',
+                # The student portal sends online assignments to the quiz page
+                # and paper ones to the hand-in control, so it has to know which.
+                'mode':        a.mode,
+                'question_count': len(a.questions or []) if a.mode == 'online' else 0,
+                'time_limit_minutes': a.time_limit_minutes,
+                'has_attachment': bool(sub and sub.file),
+                # The worksheet the teacher handed out with the work.
+                'attachment': request.build_absolute_uri(a.attachment.url) if a.attachment else None,
+                'accept_late_submissions': a.accept_late_submissions,
+                'max_attempts': a.max_attempts,
+                'closed': a.status == 'closed',
             })
 
         return Response(result)
@@ -733,40 +775,84 @@ class StudentAssignmentsView(APIView):
 
 class StudentAssignmentSubmitView(APIView):
     """
-    Submit an assignment.
+    Hand in a paper assignment.
 
     POST /imboni/student/assignments/<pk>/submit/
     Body: { file (optional), notes (optional) }
+
+    Online quizzes do not come through here - they are answered and marked at
+    /imboni/quiz/<pk>/submit/, which records the answers and the score.
     """
     permission_classes = [IsStudent]
+
     def post(self, request, pk):
+        from apps.teacher.models import (
+            Assignment as TeacherAssignment,
+            AssignmentSubmission as TeacherSubmission,
+        )
+
         student = _get_student(request)
         if not student:
             return Response({'error': 'Student profile not found.'}, status=404)
 
         try:
-            assignment = Assignment.objects.get(pk=pk)
-        except Assignment.DoesNotExist:
+            assignment = TeacherAssignment.objects.select_related('teacher').get(pk=pk)
+        except TeacherAssignment.DoesNotExist:
             return Response({'error': 'Assignment not found.'}, status=404)
 
-        if AssignmentSubmission.objects.filter(assignment=assignment, student=student).exists():
+        if assignment.status != 'active':
+            # A draft was never published; a closed one has stopped accepting work.
+            return Response({'error': 'This assignment is not open for submission.'}, status=400)
+
+        if assignment.mode == 'online':
+            return Response(
+                {'error': 'Online quizzes are submitted from the quiz page.'},
+                status=400,
+            )
+
+        existing = TeacherSubmission.objects.filter(
+            assignment=assignment, student=student).first()
+        if existing and existing.is_submitted:
             return Response({'error': 'Already submitted.'}, status=400)
 
-        today = date.today()
-        sub_status = 'late' if assignment.due_date < today else 'submitted'
+        is_late = assignment.due_date < date.today()
+        if is_late and not assignment.accept_late_submissions:
+            return Response(
+                {'error': 'The due date has passed and this assignment is not accepting late work.'},
+                status=400,
+            )
 
-        submission = AssignmentSubmission.objects.create(
-            assignment=assignment,
-            student=student,
-            file=request.FILES.get('file'),
-            notes=request.data.get('notes', ''),
-            status=sub_status,
+        submission, _ = TeacherSubmission.objects.update_or_create(
+            assignment=assignment, student=student,
+            defaults={
+                'student_name': student.full_name,
+                'student_code': student.student_id,
+                'max_score':    assignment.max_score,
+                'file':         request.FILES.get('file'),
+                'notes':        request.data.get('notes', ''),
+                'is_late':      is_late,
+            },
         )
+
+        # The teacher has a pile to mark and no reason to keep refreshing the
+        # page; tell them the work has come in.
+        try:
+            from apps.notifications.services import notify_user
+            notify_user(
+                assignment.teacher,
+                'Assignment submitted',
+                f'{student.full_name} submitted "{assignment.title}".',
+                'assignment',
+                '/teacher/assignments',
+            )
+        except Exception:
+            # A submission that saved must not fail because a notification did.
+            logger.warning('Could not notify teacher of submission', exc_info=True)
 
         return Response({
             'message': 'Assignment submitted successfully.',
-            'id': str(submission.id),
-            'status': sub_status,
+            'id':      str(submission.id),
+            'status':  submission.status,
         }, status=201)
 
 
