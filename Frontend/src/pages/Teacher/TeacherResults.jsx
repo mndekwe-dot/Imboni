@@ -408,7 +408,7 @@ export function TeacherResults() {
                         title={t('teacher.results.title')}
                         subtitle={t('teacher.results.subtitle')}
                         userName={fullName}
-                        userRole="Teacher"
+                        userRole={t('roles.teacher')}
                         userInitials={initials}
                         avatarClass="teacher-av"
                         notifications={liveNotifications}

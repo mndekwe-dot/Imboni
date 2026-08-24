@@ -221,91 +221,91 @@ function App() {
       {/* ── Public registration routes ── */}
       <Route path="/register/:uid/:token" element={<TeacherRegistration />} />
       {/* ── Student routes ── */}
-      <Route path="/student" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
-      <Route path="/student/results" element={<ProtectedRoute><StudentResults /></ProtectedRoute>} />
-      <Route path="/student/attendance" element={<ProtectedRoute><StudentAttendance /></ProtectedRoute>} />
-      <Route path="/student/timetable" element={<ProtectedRoute><StudentTimetable /></ProtectedRoute>} />
-      <Route path="/student/assignments" element={<ProtectedRoute><StudentAssignments /></ProtectedRoute>} />
-      <Route path="/student/quiz/:assignmentId" element={<ProtectedRoute><StudentQuizPage /></ProtectedRoute>} />
-      <Route path="/student/quiz/:assignmentId/review" element={<ProtectedRoute><StudentQuizReview /></ProtectedRoute>} />
-      <Route path="/student/activities" element={<ProtectedRoute><StudentActivities /></ProtectedRoute>} />
-      <Route path="/student/announcements" element={<ProtectedRoute><StudentAnnouncements /></ProtectedRoute>} />
-      <Route path="/student/messages" element={<ProtectedRoute><StudentMessages /></ProtectedRoute>} />
+      <Route path="/student" element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>} />
+      <Route path="/student/results" element={<ProtectedRoute role="student"><StudentResults /></ProtectedRoute>} />
+      <Route path="/student/attendance" element={<ProtectedRoute role="student"><StudentAttendance /></ProtectedRoute>} />
+      <Route path="/student/timetable" element={<ProtectedRoute role="student"><StudentTimetable /></ProtectedRoute>} />
+      <Route path="/student/assignments" element={<ProtectedRoute role="student"><StudentAssignments /></ProtectedRoute>} />
+      <Route path="/student/quiz/:assignmentId" element={<ProtectedRoute role="student"><StudentQuizPage /></ProtectedRoute>} />
+      <Route path="/student/quiz/:assignmentId/review" element={<ProtectedRoute role="student"><StudentQuizReview /></ProtectedRoute>} />
+      <Route path="/student/activities" element={<ProtectedRoute role="student"><StudentActivities /></ProtectedRoute>} />
+      <Route path="/student/announcements" element={<ProtectedRoute role="student"><StudentAnnouncements /></ProtectedRoute>} />
+      <Route path="/student/messages" element={<ProtectedRoute role="student"><StudentMessages /></ProtectedRoute>} />
       {/* ── Teacher routes ── */}
-      <Route path="/teacher" element={<ProtectedRoute><TeacherDashboard /></ProtectedRoute>} />
-      <Route path="/teacher/classes" element={<ProtectedRoute><TeacherClasses /></ProtectedRoute>} />
-      <Route path="/teacher/attendance" element={<ProtectedRoute><TeacherAttendance /></ProtectedRoute>} />
-      <Route path="/teacher/announcements" element={<ProtectedRoute><TeacherAnnouncement /></ProtectedRoute>} />
-      <Route path="/teacher/messages" element={<ProtectedRoute><TeacherMessages /></ProtectedRoute>} />
+      <Route path="/teacher" element={<ProtectedRoute role="teacher"><TeacherDashboard /></ProtectedRoute>} />
+      <Route path="/teacher/classes" element={<ProtectedRoute role="teacher"><TeacherClasses /></ProtectedRoute>} />
+      <Route path="/teacher/attendance" element={<ProtectedRoute role="teacher"><TeacherAttendance /></ProtectedRoute>} />
+      <Route path="/teacher/announcements" element={<ProtectedRoute role="teacher"><TeacherAnnouncement /></ProtectedRoute>} />
+      <Route path="/teacher/messages" element={<ProtectedRoute role="teacher"><TeacherMessages /></ProtectedRoute>} />
       {/* ── Parent routes ── */}
-      <Route path="/parent" element={<ProtectedRoute><ParentDashboard /></ProtectedRoute>} />
-      <Route path="/parent/children" element={<ProtectedRoute><ParentChildren /></ProtectedRoute>} />
-      <Route path="/parent/results" element={<ProtectedRoute><ParentResults /></ProtectedRoute>} />
-      <Route path="/parent/assignments" element={<ProtectedRoute><ParentAssignments /></ProtectedRoute>} />
-      <Route path="/parent/attendance" element={<ProtectedRoute><ParentAttendance /></ProtectedRoute>} />
-      <Route path="/parent/behaviour" element={<ProtectedRoute><ParentBehaviour /></ProtectedRoute>} />
-      <Route path="/parent/announcements" element={<ProtectedRoute><ParentAnnouncements /></ProtectedRoute>} />
-      <Route path="/parent/messages" element={<ProtectedRoute><ParentMessages /></ProtectedRoute>} />
+      <Route path="/parent" element={<ProtectedRoute role="parent"><ParentDashboard /></ProtectedRoute>} />
+      <Route path="/parent/children" element={<ProtectedRoute role="parent"><ParentChildren /></ProtectedRoute>} />
+      <Route path="/parent/results" element={<ProtectedRoute role="parent"><ParentResults /></ProtectedRoute>} />
+      <Route path="/parent/assignments" element={<ProtectedRoute role="parent"><ParentAssignments /></ProtectedRoute>} />
+      <Route path="/parent/attendance" element={<ProtectedRoute role="parent"><ParentAttendance /></ProtectedRoute>} />
+      <Route path="/parent/behaviour" element={<ProtectedRoute role="parent"><ParentBehaviour /></ProtectedRoute>} />
+      <Route path="/parent/announcements" element={<ProtectedRoute role="parent"><ParentAnnouncements /></ProtectedRoute>} />
+      <Route path="/parent/messages" element={<ProtectedRoute role="parent"><ParentMessages /></ProtectedRoute>} />
       {/* ── Discipline routes ── */}
-      <Route path="/discipline" element={<ProtectedRoute><DisDashboard /></ProtectedRoute>} />
-      <Route path="/discipline/students" element={<ProtectedRoute><DisStudents /></ProtectedRoute>} />
-      <Route path="/discipline/student-life" element={<ProtectedRoute><DisStudentLife /></ProtectedRoute>} />
-      <Route path="/discipline/boarding" element={<ProtectedRoute><DisBoarding /></ProtectedRoute>} />
-      <Route path="/discipline/staff" element={<ProtectedRoute><DisStaff /></ProtectedRoute>} />
-      <Route path="/discipline/announcements" element={<ProtectedRoute><DisAnnouncements /></ProtectedRoute>} />
-      <Route path="/discipline/messages" element={<ProtectedRoute><DisMessages /></ProtectedRoute>} />
-      <Route path="/discipline/timetable" element={<ProtectedRoute><DisTimetable /></ProtectedRoute>} />
+      <Route path="/discipline" element={<ProtectedRoute role="discipline"><DisDashboard /></ProtectedRoute>} />
+      <Route path="/discipline/students" element={<ProtectedRoute role="discipline"><DisStudents /></ProtectedRoute>} />
+      <Route path="/discipline/student-life" element={<ProtectedRoute role="discipline"><DisStudentLife /></ProtectedRoute>} />
+      <Route path="/discipline/boarding" element={<ProtectedRoute role="discipline"><DisBoarding /></ProtectedRoute>} />
+      <Route path="/discipline/staff" element={<ProtectedRoute role="discipline"><DisStaff /></ProtectedRoute>} />
+      <Route path="/discipline/announcements" element={<ProtectedRoute role="discipline"><DisAnnouncements /></ProtectedRoute>} />
+      <Route path="/discipline/messages" element={<ProtectedRoute role="discipline"><DisMessages /></ProtectedRoute>} />
+      <Route path="/discipline/timetable" element={<ProtectedRoute role="discipline"><DisTimetable /></ProtectedRoute>} />
       {/* legacy routes kept for compatibility */}
-      <Route path="/discipline/activities" element={<ProtectedRoute><DisActivities /></ProtectedRoute>} />
-      <Route path="/discipline/dining" element={<ProtectedRoute><DisDining /></ProtectedRoute>} />
-      <Route path="/discipline/leaders" element={<ProtectedRoute><DisStudentLeaders /></ProtectedRoute>} />
-      <Route path="/discipline/settings" element={<ProtectedRoute><DisSettings /></ProtectedRoute>} />
+      <Route path="/discipline/activities" element={<ProtectedRoute role="discipline"><DisActivities /></ProtectedRoute>} />
+      <Route path="/discipline/dining" element={<ProtectedRoute role="discipline"><DisDining /></ProtectedRoute>} />
+      <Route path="/discipline/leaders" element={<ProtectedRoute role="discipline"><DisStudentLeaders /></ProtectedRoute>} />
+      <Route path="/discipline/settings" element={<ProtectedRoute role="discipline"><DisSettings /></ProtectedRoute>} />
       {/* ── DOS routes ── */}
-      <Route path="/dos" element={<ProtectedRoute><DosDashboard /></ProtectedRoute>} />
-      <Route path="/dos/results" element={<ProtectedRoute><DosResults /></ProtectedRoute>} />
-      <Route path="/dos/teachers" element={<ProtectedRoute><DosTeachers /></ProtectedRoute>} />
-      <Route path="/dos/students" element={<ProtectedRoute><DosStudents /></ProtectedRoute>} />
-      <Route path="/dos/attendance" element={<ProtectedRoute><DosAttendance /></ProtectedRoute>} />
-      <Route path="/dos/scheduling" element={<ProtectedRoute><DosScheduling /></ProtectedRoute>} />
-      <Route path="/dos/announcements" element={<ProtectedRoute><DosAnnouncement /></ProtectedRoute>} />
-      <Route path="/dos/messages" element={<ProtectedRoute><DosMessages /></ProtectedRoute>} />
-      <Route path="/dos/leaders" element={<ProtectedRoute><DosStudentLeaders /></ProtectedRoute>} />
-      <Route path="/dos/settings" element={<ProtectedRoute><DosSettings /></ProtectedRoute>} />
+      <Route path="/dos" element={<ProtectedRoute role="dos"><DosDashboard /></ProtectedRoute>} />
+      <Route path="/dos/results" element={<ProtectedRoute role="dos"><DosResults /></ProtectedRoute>} />
+      <Route path="/dos/teachers" element={<ProtectedRoute role="dos"><DosTeachers /></ProtectedRoute>} />
+      <Route path="/dos/students" element={<ProtectedRoute role="dos"><DosStudents /></ProtectedRoute>} />
+      <Route path="/dos/attendance" element={<ProtectedRoute role="dos"><DosAttendance /></ProtectedRoute>} />
+      <Route path="/dos/scheduling" element={<ProtectedRoute role="dos"><DosScheduling /></ProtectedRoute>} />
+      <Route path="/dos/announcements" element={<ProtectedRoute role="dos"><DosAnnouncement /></ProtectedRoute>} />
+      <Route path="/dos/messages" element={<ProtectedRoute role="dos"><DosMessages /></ProtectedRoute>} />
+      <Route path="/dos/leaders" element={<ProtectedRoute role="dos"><DosStudentLeaders /></ProtectedRoute>} />
+      <Route path="/dos/settings" element={<ProtectedRoute role="dos"><DosSettings /></ProtectedRoute>} />
       {/* legacy routes kept for compatibility */}
-      <Route path="/dos/timetable" element={<ProtectedRoute><DosTimetable /></ProtectedRoute>} />
-      <Route path="/dos/exams" element={<ProtectedRoute><DosExamSchedule /></ProtectedRoute>} />
-      <Route path="/dos/analytics" element={<ProtectedRoute><DosAnalytics /></ProtectedRoute>} />
+      <Route path="/dos/timetable" element={<ProtectedRoute role="dos"><DosTimetable /></ProtectedRoute>} />
+      <Route path="/dos/exams" element={<ProtectedRoute role="dos"><DosExamSchedule /></ProtectedRoute>} />
+      <Route path="/dos/analytics" element={<ProtectedRoute role="dos"><DosAnalytics /></ProtectedRoute>} />
       {/* ── Matron routes ── */}
-      <Route path="/matron" element={<ProtectedRoute><MatronDashboard /></ProtectedRoute>} />
-      <Route path="/matron/health" element={<ProtectedRoute><MatronHealth /></ProtectedRoute>} />
-      <Route path="/matron/incidents" element={<ProtectedRoute><MatronIncidents /></ProtectedRoute>} />
-      <Route path="/matron/messages" element={<ProtectedRoute><MatronMessages /></ProtectedRoute>} />
-      <Route path="/matron/students" element={<ProtectedRoute><MatronStudents /></ProtectedRoute>} />
-      <Route path="/matron/parent-communication" element={<ProtectedRoute><MatronParentComms /></ProtectedRoute>} />
-      <Route path="/matron/schedule" element={<ProtectedRoute><MatronSchedule /></ProtectedRoute>} />
+      <Route path="/matron" element={<ProtectedRoute role="matron"><MatronDashboard /></ProtectedRoute>} />
+      <Route path="/matron/health" element={<ProtectedRoute role="matron"><MatronHealth /></ProtectedRoute>} />
+      <Route path="/matron/incidents" element={<ProtectedRoute role="matron"><MatronIncidents /></ProtectedRoute>} />
+      <Route path="/matron/messages" element={<ProtectedRoute role="matron"><MatronMessages /></ProtectedRoute>} />
+      <Route path="/matron/students" element={<ProtectedRoute role="matron"><MatronStudents /></ProtectedRoute>} />
+      <Route path="/matron/parent-communication" element={<ProtectedRoute role="matron"><MatronParentComms /></ProtectedRoute>} />
+      <Route path="/matron/schedule" element={<ProtectedRoute role="matron"><MatronSchedule /></ProtectedRoute>} />
       {/* ── Admin routes ── */}
-      <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-      <Route path="/admin/staff" element={<ProtectedRoute><AdminStaff /></ProtectedRoute>} />
-      <Route path="/admin/students" element={<ProtectedRoute><AdminStudents /></ProtectedRoute>} />
-      <Route path="/admin/approvals" element={<ProtectedRoute><AdminApprovals /></ProtectedRoute>} />
-      <Route path="/admin/reports" element={<ProtectedRoute><AdminReports /></ProtectedRoute>} />
-      <Route path="/admin/announcements" element={<ProtectedRoute><AdminAnnouncements /></ProtectedRoute>} />
-      <Route path="/admin/messages" element={<ProtectedRoute><AdminMessages /></ProtectedRoute>} />
-      <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
-      <Route path="/admin/audit" element={<ProtectedRoute><AdminAuditLog /></ProtectedRoute>} />
-      <Route path="/admin/billing" element={<ProtectedRoute><AdminBilling /></ProtectedRoute>} />
-      <Route path="/admin/support" element={<ProtectedRoute><AdminSupport /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/staff" element={<ProtectedRoute role="admin"><AdminStaff /></ProtectedRoute>} />
+      <Route path="/admin/students" element={<ProtectedRoute role="admin"><AdminStudents /></ProtectedRoute>} />
+      <Route path="/admin/approvals" element={<ProtectedRoute role="admin"><AdminApprovals /></ProtectedRoute>} />
+      <Route path="/admin/reports" element={<ProtectedRoute role="admin"><AdminReports /></ProtectedRoute>} />
+      <Route path="/admin/announcements" element={<ProtectedRoute role="admin"><AdminAnnouncements /></ProtectedRoute>} />
+      <Route path="/admin/messages" element={<ProtectedRoute role="admin"><AdminMessages /></ProtectedRoute>} />
+      <Route path="/admin/settings" element={<ProtectedRoute role="admin"><AdminSettings /></ProtectedRoute>} />
+      <Route path="/admin/audit" element={<ProtectedRoute role="admin"><AdminAuditLog /></ProtectedRoute>} />
+      <Route path="/admin/billing" element={<ProtectedRoute role="admin"><AdminBilling /></ProtectedRoute>} />
+      <Route path="/admin/support" element={<ProtectedRoute role="admin"><AdminSupport /></ProtectedRoute>} />
       {/* ── Shared routes ── */}
       <Route path="/profile" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       {/* ── Student extra routes ── */}
-      <Route path="/student/discipline" element={<ProtectedRoute><StudentDiscipline /></ProtectedRoute>} />
+      <Route path="/student/discipline" element={<ProtectedRoute role="student"><StudentDiscipline /></ProtectedRoute>} />
       {/* ── Teacher extra routes ── */}
-      <Route path="/teacher/assignments" element={<ProtectedRoute><TeacherAssignments /></ProtectedRoute>} />
-      <Route path="/teacher/assignments/new" element={<ProtectedRoute><TeacherAssignmentForm /></ProtectedRoute>} />
-      <Route path="/teacher/assignments/:id/edit" element={<ProtectedRoute><TeacherAssignmentForm /></ProtectedRoute>} />
-      <Route path="/teacher/timetable"   element={<ProtectedRoute><TeacherTimetable /></ProtectedRoute>} />
-      <Route path="/teacher/results"     element={<ProtectedRoute><TeacherResults /></ProtectedRoute>} />
-      <Route path="/teacher/students"    element={<ProtectedRoute><TeacherStudent /></ProtectedRoute>} />
+      <Route path="/teacher/assignments" element={<ProtectedRoute role="teacher"><TeacherAssignments /></ProtectedRoute>} />
+      <Route path="/teacher/assignments/new" element={<ProtectedRoute role="teacher"><TeacherAssignmentForm /></ProtectedRoute>} />
+      <Route path="/teacher/assignments/:id/edit" element={<ProtectedRoute role="teacher"><TeacherAssignmentForm /></ProtectedRoute>} />
+      <Route path="/teacher/timetable"   element={<ProtectedRoute role="teacher"><TeacherTimetable /></ProtectedRoute>} />
+      <Route path="/teacher/results"     element={<ProtectedRoute role="teacher"><TeacherResults /></ProtectedRoute>} />
+      <Route path="/teacher/students"    element={<ProtectedRoute role="teacher"><TeacherStudent /></ProtectedRoute>} />
       {/* ── Not Found route ── */}
       <Route path="*"    element={<NotFound/>} />
     </Routes>

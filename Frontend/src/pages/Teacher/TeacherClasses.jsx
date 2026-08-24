@@ -556,7 +556,7 @@ export function TeacherClasses() {
                         title={t('teacher.classes.title')}
                         subtitle={t('teacher.classes.subtitle')}
                         userName={fullName}
-                        userRole="Teacher"
+                        userRole={t('roles.teacher')}
                         userInitials={initials}
                         avatarClass="teacher-av"
                         notifications={liveNotifications}
