@@ -1,8 +1,11 @@
 from datetime import date, timedelta
+from django.http import Http404
 from django.db.models import Sum
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from apps.authentication.access import can_view_student
+from rest_framework.permissions import IsAuthenticated
 from apps.authentication.permissions import IsTeacherOrDOS, IsDOSOrAdmin
 from apps.authentication.models import User
 from apps.notifications.models import Notification
@@ -30,9 +33,12 @@ class StudentAttendanceStatsView(APIView):
         late_arrivals       — total late days
         late_label          — e.g. "Below average" / "On track"
     """
-    # permission_classes = [permissions.IsAuthenticated]
-
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk):
+        # The pk comes from the URL, so it is the caller's claim, not a fact.
+        if not can_view_student(request.user, pk):
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
         summaries = AttendanceSummary.objects.filter(student_id=pk)
 
         totals = summaries.aggregate(
@@ -83,10 +89,15 @@ class StudentAttendanceCalendarView(generics.ListAPIView):
     Defaults to the current month/year when query params are omitted.
     status values: present (green) | absent (red) | late (orange) | excused (grey)
     """
+    permission_classes = [IsAuthenticated]
     serializer_class = AttendanceRecordSerializer
-    # permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if not can_view_student(self.request.user, self.kwargs['pk']):
+            # Returning none() here would read as "this child has no
+            # attendance", which is a different and misleading answer.
+            raise Http404
+
         today = date.today()
         month = int(self.request.query_params.get('month', today.month))
         year  = int(self.request.query_params.get('year',  today.year))

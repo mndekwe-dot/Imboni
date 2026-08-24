@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from .models import Announcement, AnnouncementRead
 from .serializers import AnnouncementSerializer, AnnouncementWriteSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 def _get_teacher(request):
@@ -183,7 +184,7 @@ class AnnouncementTemplatesView(APIView):
     Returns the Quick Templates list. Each template provides pre-filled
     category, title, and content the frontend injects into the form.
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         return Response(_TEMPLATES)
@@ -204,7 +205,7 @@ class AnnouncementAudienceOptionsView(APIView):
 
     Class list is scoped to the teacher's current term.
     """
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         from apps.teacher.models import SubjectTeacherAssignment, Class
@@ -261,6 +262,7 @@ class PublishedAnnouncementListView(APIView):
       others  → all published
     Also annotates each announcement with is_read (bool) for the current user.
     """
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         from django.db.models import Q
 
@@ -312,6 +314,7 @@ class PublishedAnnouncementListView(APIView):
 
 class AnnouncementMarkReadView(APIView):
     """POST /imboni/announcements/mark-read/<pk>/"""
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         from .models import Announcement, AnnouncementRead
@@ -329,6 +332,7 @@ class AnnouncementMarkReadView(APIView):
 
 class AnnouncementMarkAllReadView(APIView):
     """POST /imboni/announcements/mark-all-read/"""
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         from .models import Announcement, AnnouncementRead
@@ -347,6 +351,7 @@ class AnnouncementMarkAllReadView(APIView):
 
 class AnnouncementStatsView(APIView):
     """GET /imboni/announcements/stats/"""
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
 

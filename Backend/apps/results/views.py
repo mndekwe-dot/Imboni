@@ -1,4 +1,6 @@
 from django.utils import timezone
+from django.http import Http404
+from apps.authentication.access import can_view_student
 from rest_framework import generics, viewsets, status, permissions 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -44,6 +46,10 @@ class StudentAssessmentListView(generics.ListAPIView):
     permission_classes = [IsParentOrTeacherOrDOS]
 
     def get_queryset(self):
+        # The student id is the caller's claim, not a fact: IsParentOrTeacherOrDOS
+        # proves *a* parent is asking, never that it is this child's parent.
+        if not can_view_student(self.request.user, self.kwargs['student_pk']):
+            raise Http404
         return (
             Assessment.objects
             .filter(student_id=self.kwargs['student_pk'])
@@ -62,6 +68,10 @@ class StudentResultListView(generics.ListAPIView):
     permission_classes = [IsParentOrTeacherOrDOS]
 
     def get_queryset(self):
+        # The student id is the caller's claim, not a fact: IsParentOrTeacherOrDOS
+        # proves *a* parent is asking, never that it is this child's parent.
+        if not can_view_student(self.request.user, self.kwargs['student_pk']):
+            raise Http404
         qs = (
             Result.objects
             .filter(student_id=self.kwargs['student_pk'])
@@ -83,6 +93,10 @@ class StudentTeacherReviewsView(generics.ListAPIView):
     permission_classes = [IsParentOrTeacherOrDOS]
 
     def get_queryset(self):
+        # The student id is the caller's claim, not a fact: IsParentOrTeacherOrDOS
+        # proves *a* parent is asking, never that it is this child's parent.
+        if not can_view_student(self.request.user, self.kwargs['student_pk']):
+            raise Http404
         return (
             Result.objects
             .filter(

@@ -1516,6 +1516,7 @@ class TeacherPerformanceTrendsView(APIView):
 
 class TeacherReportIncidentView(APIView):
     """POST /imboni/teacher/incidents/  — teacher logs a behaviour incident."""
+    permission_classes = [IsTeacher]
 
     def post(self, request):
         from apps.behavior.models import BehaviorReport
