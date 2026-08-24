@@ -60,6 +60,9 @@ const TeacherMessages     = load(() => import('./pages/Teacher/TeacherMessages')
 const TeacherAnnouncement = load(() => import('./pages/Teacher/TeacherAnnouncement'), 'TeacherAnnouncement');
 const TeacherAssignments  = load(() => import('./pages/Teacher/TeacherAssignments'), 'TeacherAssignments');
 const TeacherAssignmentForm = load(() => import('./pages/Teacher/TeacherAssignmentForm'), 'TeacherAssignmentForm');
+const TeacherExams = load(() => import('./pages/Teacher/TeacherExams'), 'TeacherExams');
+const TeacherExamForm = load(() => import('./pages/Teacher/TeacherExamForm'), 'TeacherExamForm');
+const DosExamPapers = load(() => import('./pages/Dos/DosExamPapers'), 'DosExamPapers');
 const TeacherTimetable    = load(() => import('./pages/Teacher/TeacherTimetable'), 'TeacherTimetable');
 const TeacherResults      = load(() => import('./pages/Teacher/TeacherResults'), 'TeacherResults');
 const TeacherStudent      = load(() => import('./pages/Teacher/TeacherStudents'), 'TeacherStudent');
@@ -303,6 +306,10 @@ function App() {
       <Route path="/teacher/assignments" element={<ProtectedRoute role="teacher"><TeacherAssignments /></ProtectedRoute>} />
       <Route path="/teacher/assignments/new" element={<ProtectedRoute role="teacher"><TeacherAssignmentForm /></ProtectedRoute>} />
       <Route path="/teacher/assignments/:id/edit" element={<ProtectedRoute role="teacher"><TeacherAssignmentForm /></ProtectedRoute>} />
+      <Route path="/teacher/exams" element={<ProtectedRoute role="teacher"><TeacherExams /></ProtectedRoute>} />
+      <Route path="/teacher/exams/new" element={<ProtectedRoute role="teacher"><TeacherExamForm /></ProtectedRoute>} />
+      <Route path="/teacher/exams/:id/edit" element={<ProtectedRoute role="teacher"><TeacherExamForm /></ProtectedRoute>} />
+      <Route path="/dos/exam-papers" element={<ProtectedRoute role="dos"><DosExamPapers /></ProtectedRoute>} />
       <Route path="/teacher/timetable"   element={<ProtectedRoute role="teacher"><TeacherTimetable /></ProtectedRoute>} />
       <Route path="/teacher/results"     element={<ProtectedRoute role="teacher"><TeacherResults /></ProtectedRoute>} />
       <Route path="/teacher/students"    element={<ProtectedRoute role="teacher"><TeacherStudent /></ProtectedRoute>} />

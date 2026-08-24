@@ -84,6 +84,42 @@
     "unfilled": "{{count}} unfilled",
     "workload": "Workload"
   },
+  "examPapers": {
+    "approve": "Approve",
+    "approveFailed": "Could not approve this paper.",
+    "approved": "Approved",
+    "className": "Class",
+    "confirmSendBack": "Send it back",
+    "drafts": "Drafts",
+    "durationMinutes": "{{minutes}} minutes",
+    "emptyMessage": "No exam papers match this filter.",
+    "emptyTitle": "Nothing here",
+    "loadFailed": "Could not load exam papers.",
+    "marks": "Marks",
+    "outOf": "Out of {{marks}} marks",
+    "paper": "Paper",
+    "printFailed": "Could not produce the PDF.",
+    "printPaper": "Print the paper",
+    "printScheme": "Print the marking scheme",
+    "qMarks": "{{marks}} marks",
+    "reasonHint": "The teacher sees this, so say enough for them to act on it.",
+    "reasonLabel": "What needs changing?",
+    "reasonPlaceholder": "e.g. Section B is outside the syllabus for this term",
+    "reasonRequired": "Say what needs changing.",
+    "rejectFailed": "Could not send this paper back.",
+    "review": "Read and decide",
+    "sendBack": "Send back",
+    "sentBack": "Sent back",
+    "setBy": "Set by",
+    "subtitle": "Read, approve and print the papers teachers have set",
+    "tabAll": "All",
+    "tabApproved": "Approved",
+    "tabDraft": "Drafts",
+    "tabRejected": "Sent back",
+    "tabSubmitted": "Awaiting approval",
+    "title": "Exam papers",
+    "waiting": "Awaiting approval"
+  },
   "examSchedule": {
     "academicTermRequired": "Academic Term *",
     "calendarView": "Calendar",
@@ -159,6 +195,9 @@
     "title": "Student Leaders",
     "typeCaptain": "Dormitory Captain",
     "typePrefect": "School Prefect"
+  },
+  "messages": {
+    "subtitle": "Communicate with teachers, staff and parents"
   },
   "results": {
     "attendanceTrend": "Attendance Trend",
@@ -353,8 +392,5 @@
     "weekly": "Weekly Timetable",
     "weeklyFor": "Class {{name}}: Weekly Timetable",
     "weightAbbr": "Wt"
-  },
-  "messages": {
-    "subtitle": "Communicate with teachers, staff and parents"
   }
 }

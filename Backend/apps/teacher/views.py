@@ -11,7 +11,8 @@ from apps.authentication.models import User
 from apps.authentication.permissions import IsTeacher
 from rest_framework.permissions import IsAuthenticated
 from apps.results.models import AcademicTerm
-from .models import Timetable, Task, Reminder, Assignment, AssignmentSubmission, QuestionBank
+from .models import (Timetable, Task, Reminder, Assignment, AssignmentSubmission,
+                     QuestionBank, ExamPaper)
 from .serializers import (
     TeacherSerializer, TimetableSerializer, ScheduleItemSerializer,
     MyClassSerializer, HomeworkStatusSerializer, TaskSerializer, ReminderSerializer,
@@ -22,6 +23,7 @@ from .serializers import (
     GradeDistributionSerializer, PerformanceTrendSerializer,
     AssignmentSerializer, AssignmentWriteSerializer,
     AssignmentSubmissionSerializer, QuizSubmitSerializer, QuestionBankSerializer,
+    ExamPaperSerializer,
 )
 
 
@@ -2558,3 +2560,104 @@ class QuestionBankViewSet(viewsets.ModelViewSet):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied('You can only delete your own questions.')
         instance.delete()
+
+
+# ---------------------------------------------------------------------------
+# Exam papers — the teacher's side
+# ---------------------------------------------------------------------------
+
+class ExamPaperViewSet(viewsets.ModelViewSet):
+    """
+    A teacher writes an exam paper and hands it up for the DOS to vet.
+
+    GET/POST   /imboni/teacher/exam-papers/
+    GET/PATCH/DELETE /imboni/teacher/exam-papers/<id>/
+    POST       /imboni/teacher/exam-papers/<id>/submit/
+    """
+    serializer_class   = ExamPaperSerializer
+    permission_classes = [IsTeacher]
+
+    def get_queryset(self):
+        # Scoped to the author. A paper under review is confidential, and the
+        # id in the URL is the caller's claim, not proof of authorship.
+        return (ExamPaper.objects
+                .filter(teacher=self.request.user)
+                .select_related('subject', 'class_obj', 'term', 'approved_by'))
+
+    def perform_create(self, serializer):
+        # Default to the term being taught rather than making the teacher say.
+        extra = {'teacher': self.request.user}
+        if not serializer.validated_data.get('term'):
+            current = AcademicTerm.objects.filter(is_current=True).first()
+            if current is None:
+                raise ValidationError(
+                    {'term': 'No term is marked current, so a paper cannot be filed '
+                             'against one. Ask the DOS to set the current term.'})
+            extra['term'] = current
+        serializer.save(**extra)
+
+    def _refuse_if_locked(self, paper):
+        if not paper.is_editable:
+            return Response(
+                {'detail': 'This paper is with the DOS and cannot be changed. '
+                           'Ask for it to be sent back if it needs an edit.'},
+                status=status.HTTP_409_CONFLICT)
+        return None
+
+    def update(self, request, *args, **kwargs):
+        locked = self._refuse_if_locked(self.get_object())
+        return locked or super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        locked = self._refuse_if_locked(self.get_object())
+        return locked or super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        paper = self.get_object()
+        # An approved paper is a record of what the school agreed to set.
+        if paper.status == 'approved':
+            return Response(
+                {'detail': 'An approved paper cannot be deleted.'},
+                status=status.HTTP_409_CONFLICT)
+        return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'])
+    def submit(self, request, pk=None):
+        """Hand the paper up for approval."""
+        paper = self.get_object()
+        if paper.status == 'submitted':
+            return Response({'detail': 'Already with the DOS.'},
+                            status=status.HTTP_409_CONFLICT)
+        if paper.status == 'approved':
+            return Response({'detail': 'Already approved.'},
+                            status=status.HTTP_409_CONFLICT)
+        # Refusing an empty paper here saves the DOS from opening it to find out.
+        if paper.question_count == 0:
+            return Response({'detail': 'Add at least one question first.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        paper.status = 'submitted'
+        paper.submitted_at = timezone.now()
+        # Clear the previous refusal so the teacher is not still reading why a
+        # version they have since rewritten was sent back.
+        paper.rejection_reason = ''
+        paper.save(update_fields=['status', 'submitted_at', 'rejection_reason', 'updated_at'])
+
+        _notify_dos_of_paper(paper)
+        return Response(ExamPaperSerializer(paper).data)
+
+
+def _notify_dos_of_paper(paper):
+    """Tell the DOS a paper is waiting, so vetting isn't gated on them looking."""
+    from apps.authentication.models import User as _User
+    from apps.notifications.models import Notification
+    for dos in _User.objects.filter(role__in=['dos', 'admin'], is_active=True):
+        Notification.objects.create(
+            user=dos,
+            title='Exam paper awaiting approval',
+            message=f'{paper.teacher.get_full_name()} submitted "{paper.title}" '
+                    f'for {paper.class_obj.name}.',
+            type='exam',
+            # Land them on the vetting list rather than the dashboard.
+            path='/dos/exam-papers',
+        )

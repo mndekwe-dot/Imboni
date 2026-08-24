@@ -14,6 +14,7 @@ router.register(r'teacher/reminders',    views.TeacherReminderViewSet,  basename
 router.register(r'teacher/assignments',  views.AssignmentViewSet,       basename='teacher-assignment')
 router.register(r'teacher/question-bank', views.QuestionBankViewSet,   basename='question-bank')
 router.register(r'quiz',                 views.QuizSubmissionViewSet,   basename='quiz')
+router.register(r'teacher/exam-papers', views.ExamPaperViewSet, basename='exam-paper')
 router.register(r'teacher',              views.TeacherViewSet,          basename='teacher')
 
 urlpatterns = [

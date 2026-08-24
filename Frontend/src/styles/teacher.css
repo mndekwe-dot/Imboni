@@ -2382,3 +2382,58 @@
 .ta-form-error    { color: var(--destructive); font-size: var(--text-sm); margin: 0; }
 .ta-chip-count    { margin-left: 0.25rem; background: rgba(0,0,0,0.15); border-radius: 9px; padding: 0 5px; font-size: var(--text-caption); }
 .ta-loading       { color: var(--muted-foreground); padding: 1rem 0; }
+
+/* ── Exam paper authoring ──────────────────────────────────────────────────
+   A paper is written in nested pieces — section, question, sub-question — and
+   without a visible nesting the form reads as one flat wall of inputs. Each
+   level steps in and takes a lighter ground. */
+
+.exam-question {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+    background: var(--surface);
+}
+
+.exam-extras {
+    border-top: 1px dashed var(--border);
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+}
+
+.exam-part {
+    border-left: 3px solid var(--border-strong, var(--border));
+    padding: var(--space-2) 0 var(--space-2) var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.exam-part-space { flex-wrap: wrap; }
+
+/* The passage sits above the questions that refer to it, and reads as
+   material rather than as another form field. */
+.exam-stimulus {
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+    background: var(--surface-muted, var(--surface));
+}
+
+.exam-stimulus-img {
+    max-width: 100%;
+    margin-top: var(--space-2);
+    border-radius: var(--radius-sm);
+}
+
+/* Code keeps its whitespace or it stops being code. */
+.code-input {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.u-mb-xs { margin-bottom: var(--space-2); }
+.u-mt-xs { margin-top: var(--space-2); }

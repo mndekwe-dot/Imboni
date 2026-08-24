@@ -84,6 +84,42 @@
     "unfilled": "{{count}} non pourvus",
     "workload": "Charge de travail"
   },
+  "examPapers": {
+    "approve": "Approuver",
+    "approveFailed": "Impossible d’approuver ce sujet.",
+    "approved": "Approuvés",
+    "className": "Classe",
+    "confirmSendBack": "Renvoyer le sujet",
+    "drafts": "Brouillons",
+    "durationMinutes": "{{minutes}} minutes",
+    "emptyMessage": "Aucun sujet ne correspond à ce filtre.",
+    "emptyTitle": "Rien ici",
+    "loadFailed": "Impossible de charger les sujets d’examen.",
+    "marks": "Points",
+    "outOf": "Sur {{marks}} points",
+    "paper": "Sujet",
+    "printFailed": "Impossible de produire le PDF.",
+    "printPaper": "Imprimer le sujet",
+    "printScheme": "Imprimer le corrigé",
+    "qMarks": "{{marks}} points",
+    "reasonHint": "L’enseignant le lira : soyez assez précis pour qu’il puisse corriger.",
+    "reasonLabel": "Qu’est-ce qui doit changer ?",
+    "reasonPlaceholder": "ex. La section B sort du programme de ce trimestre",
+    "reasonRequired": "Indiquez ce qui doit changer.",
+    "rejectFailed": "Impossible de renvoyer ce sujet.",
+    "review": "Lire et décider",
+    "sendBack": "Renvoyer",
+    "sentBack": "Renvoyés",
+    "setBy": "Rédigé par",
+    "subtitle": "Lire, approuver et imprimer les sujets rédigés par les enseignants",
+    "tabAll": "Tous",
+    "tabApproved": "Approuvés",
+    "tabDraft": "Brouillons",
+    "tabRejected": "Renvoyés",
+    "tabSubmitted": "En attente",
+    "title": "Sujets d’examen",
+    "waiting": "En attente"
+  },
   "examSchedule": {
     "academicTermRequired": "Trimestre scolaire *",
     "calendarView": "Calendrier",
@@ -159,6 +195,9 @@
     "title": "Délégués des élèves",
     "typeCaptain": "Capitaine de dortoir",
     "typePrefect": "Préfet de l'école"
+  },
+  "messages": {
+    "subtitle": "Échangez avec les enseignants, le personnel et les parents"
   },
   "results": {
     "attendanceTrend": "Évolution des présences",
@@ -353,8 +392,5 @@
     "weekly": "Emploi du temps hebdomadaire",
     "weeklyFor": "Classe {{name}} : emploi du temps hebdomadaire",
     "weightAbbr": "Coef."
-  },
-  "messages": {
-    "subtitle": "Échangez avec les enseignants, le personnel et les parents"
   }
 }

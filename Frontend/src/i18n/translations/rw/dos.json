@@ -84,6 +84,42 @@
     "unfilled": "{{count}} zitujuje",
     "workload": "Umutwaro w'akazi"
   },
+  "examPapers": {
+    "approve": "Emeza",
+    "approveFailed": "Ntibyashobotse kwemeza iki kizamini.",
+    "approved": "Byemejwe",
+    "className": "Ishuri",
+    "confirmSendBack": "Kisubize inyuma",
+    "drafts": "Inyandiko",
+    "durationMinutes": "iminota {{minutes}}",
+    "emptyMessage": "Nta kizamini gihuye n’iyi muyunguruzi.",
+    "emptyTitle": "Nta kintu kiri hano",
+    "loadFailed": "Ntibyashobotse kuzana impapuro z’ibizamini.",
+    "marks": "Amanota",
+    "outOf": "Ku manota {{marks}}",
+    "paper": "Ikizamini",
+    "printFailed": "Ntibyashobotse gukora PDF.",
+    "printPaper": "Capa ikizamini",
+    "printScheme": "Capa uburyo bwo gutanga amanota",
+    "qMarks": "amanota {{marks}}",
+    "reasonHint": "Umwarimu arabibona, bityo vuga bihagije kugira ngo abikosore.",
+    "reasonLabel": "Ni iki kigomba guhinduka?",
+    "reasonPlaceholder": "urugero: Igice B kiri hanze y’integanyanyigisho z’iki gihembwe",
+    "reasonRequired": "Vuga icyo kigomba guhinduka.",
+    "rejectFailed": "Ntibyashobotse gusubiza iki kizamini.",
+    "review": "Soma kandi ufate icyemezo",
+    "sendBack": "Subiza inyuma",
+    "sentBack": "Byasubijwe",
+    "setBy": "Cyanditswe na",
+    "subtitle": "Soma, wemeze kandi ucape ibizamini abarimu banditse",
+    "tabAll": "Byose",
+    "tabApproved": "Byemejwe",
+    "tabDraft": "Inyandiko",
+    "tabRejected": "Byasubijwe",
+    "tabSubmitted": "Bitegereje kwemezwa",
+    "title": "Impapuro z’ibizamini",
+    "waiting": "Bitegereje kwemezwa"
+  },
   "examSchedule": {
     "academicTermRequired": "Igihembwe cy'amasomo *",
     "calendarView": "Kalendari",
@@ -159,6 +195,9 @@
     "title": "Abayobozi b'abanyeshuri",
     "typeCaptain": "Umukuru w'icumbi",
     "typePrefect": "Umuyobozi w'abanyeshuri"
+  },
+  "messages": {
+    "subtitle": "Vugana n'abarimu, abakozi n'ababyeyi"
   },
   "results": {
     "attendanceTrend": "Uko ubwitabire buhinduka",
@@ -353,8 +392,5 @@
     "weekly": "Gahunda y'icyumweru",
     "weeklyFor": "Ishuri {{name}}: gahunda y'icyumweru",
     "weightAbbr": "Uburemere"
-  },
-  "messages": {
-    "subtitle": "Vugana n'abarimu, abakozi n'ababyeyi"
   }
 }

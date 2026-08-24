@@ -106,3 +106,11 @@ export const getStudentQuizzes  = ()        => client.get('/imboni/quiz/')
 export const getQuizForStudent  = id        => client.get(`/imboni/quiz/${id}/`)
 export const submitQuizAnswers  = (id, d)   => client.post(`/imboni/quiz/${id}/submit/`, d)
 export const getQuizReview      = id        => client.get(`/imboni/quiz/${id}/review/`)
+
+// Exam papers — written here, vetted by the DOS before they can be printed.
+export const getTeacherExamPapers  = (params) => client.get('/imboni/teacher/exam-papers/', { params })
+export const getTeacherExamPaper   = id       => client.get(`/imboni/teacher/exam-papers/${id}/`)
+export const createTeacherExamPaper = d       => client.post('/imboni/teacher/exam-papers/', d)
+export const updateTeacherExamPaper = (id, d) => client.patch(`/imboni/teacher/exam-papers/${id}/`, d)
+export const deleteTeacherExamPaper = id      => client.delete(`/imboni/teacher/exam-papers/${id}/`)
+export const submitTeacherExamPaper = id      => client.post(`/imboni/teacher/exam-papers/${id}/submit/`)

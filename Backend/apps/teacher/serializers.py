@@ -2,7 +2,8 @@ from django.utils import timezone
 from rest_framework import serializers
 from apps.authentication.models import User
 from apps.results.models import AcademicTerm
-from .models import Timetable, Task, Reminder, Assignment, AssignmentSubmission, QuestionBank
+from .models import (Timetable, Task, Reminder, Assignment, AssignmentSubmission,
+                     QuestionBank, ExamPaper)
 
 
 class TeacherSerializer(serializers.ModelSerializer):
@@ -414,3 +415,76 @@ class QuestionBankSerializer(serializers.ModelSerializer):
     def get_is_mine(self, obj):
         request = self.context.get('request')
         return bool(request and obj.teacher_id == request.user.id)
+
+
+class ExamPaperSerializer(serializers.ModelSerializer):
+    """
+    Read shape for an exam paper.
+
+    `total_marks` and `question_count` are computed on the model rather than
+    stored, so a paper can never drift out of step with the questions actually
+    on it - and `total_marks` respects "answer any three of six".
+    """
+    subject_name   = serializers.ReadOnlyField(source='subject.name')
+    class_name     = serializers.ReadOnlyField(source='class_obj.name')
+    term_label     = serializers.SerializerMethodField()
+    teacher_name   = serializers.SerializerMethodField()
+    approved_by_name = serializers.SerializerMethodField()
+    total_marks    = serializers.ReadOnlyField()
+    question_count = serializers.ReadOnlyField()
+    is_editable    = serializers.ReadOnlyField()
+    # A teacher writing a paper is writing it for the term they are teaching.
+    # Asking them to pick it is a question with one right answer.
+    term           = serializers.PrimaryKeyRelatedField(
+        queryset=AcademicTerm.objects.all(), required=False)
+
+    class Meta:
+        model  = ExamPaper
+        fields = [
+            'id', 'title', 'exam_type', 'duration_minutes', 'instructions',
+            'sections', 'status', 'rejection_reason',
+            'subject', 'subject_name', 'class_obj', 'class_name',
+            'term', 'term_label', 'exam_schedule',
+            'teacher_name', 'approved_by_name',
+            'total_marks', 'question_count', 'is_editable',
+            'submitted_at', 'approved_at', 'created_at', 'updated_at',
+        ]
+        # Status moves only through the submit/approve/reject actions, never
+        # by a client PATCHing the field directly.
+        read_only_fields = [
+            'id', 'status', 'rejection_reason', 'submitted_at', 'approved_at',
+            'created_at', 'updated_at',
+        ]
+
+    def get_term_label(self, obj):
+        return f'{obj.term.term} {obj.term.year}' if obj.term_id else ''
+
+    def get_teacher_name(self, obj):
+        return obj.teacher.get_full_name() if obj.teacher_id else ''
+
+    def get_approved_by_name(self, obj):
+        return obj.approved_by.get_full_name() if obj.approved_by_id else ''
+
+    def validate_sections(self, value):
+        """
+        A paper that cannot be sat is not a draft, it is a mistake.
+
+        Checked here rather than at print time because the teacher is the one
+        who can fix it, and telling them at the moment they are writing costs
+        them nothing.
+        """
+        if not isinstance(value, list):
+            raise serializers.ValidationError('Sections must be a list.')
+        for i, section in enumerate(value, start=1):
+            if not isinstance(section, dict):
+                raise serializers.ValidationError(f'Section {i} is malformed.')
+            questions = section.get('questions') or []
+            choose = int(section.get('choose_count') or 0)
+            if choose < 0:
+                raise serializers.ValidationError(
+                    f'Section {i}: cannot ask for fewer than none.')
+            if choose > len(questions):
+                raise serializers.ValidationError(
+                    f'Section {i}: asks the candidate to answer {choose} '
+                    f'questions but offers only {len(questions)}.')
+        return value

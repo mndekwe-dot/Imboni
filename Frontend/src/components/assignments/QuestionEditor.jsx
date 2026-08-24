@@ -9,9 +9,15 @@ import { QUESTION_TYPES } from './quizModel'
  * the frame around the answers - number, type row, image, points, explanation -
  * is identical for all of them and only the answer block differs.
  */
-export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onMoveDown, isFirst, isLast }) {
+/**
+ * `types` lets a caller narrow or widen what a question may be. A quiz only
+ * offers what can be auto-marked; a printed exam paper also wants essay and
+ * structured questions, which a machine cannot mark and a person will.
+ */
+export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onMoveDown,
+                                 isFirst, isLast, types = QUESTION_TYPES }) {
     const { t } = useTranslation()
-    const qType = QUESTION_TYPES.find(qt => qt.value === q.type)
+    const qType = types.find(qt => qt.value === q.type)
 
     function set(field, value) { onChange({ ...q, [field]: value }) }
 
@@ -45,13 +51,14 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                 {/* Type selector */}
                 <div className="quiz-q-type-col">
                     <div className="quiz-q-type-row">
-                        {QUESTION_TYPES.map(qt => (
+                        {types.map(qt => (
                             <button key={qt.value} type="button"
                                 onClick={() => {
                                     const updated = { ...q, type: qt.value }
                                     if (qt.value === 'true_false') { updated.options = []; updated.correct = 0 }
                                     else if (qt.value === 'mcq' && q.options.length === 0) { updated.options = ['', '', '', '']; updated.correct = 0 }
                                     else if (qt.value === 'short_answer' || qt.value === 'fill_blank') { updated.options = []; updated.correct = '' }
+                                    else if (qt.value === 'essay' || qt.value === 'structured') { updated.options = []; updated.correct = '' }
                                     onChange(updated)
                                 }}
                                 className={`quiz-q-type-btn${q.type === qt.value ? ' active' : ''}`}>

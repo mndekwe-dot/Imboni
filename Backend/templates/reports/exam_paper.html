@@ -1,0 +1,277 @@
+{% load exam_extras %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* xhtml2pdf understands a narrow slice of CSS: no flexbox, no grid.
+           Everything below is tables, floats and margins on purpose. */
+        @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: Arial, sans-serif; font-size: 11pt; color: #000; line-height: 1.45; }
+
+        .school       { text-align: center; font-size: 13pt; font-weight: bold;
+                        text-transform: uppercase; letter-spacing: 1px; }
+        .school-sub   { text-align: center; font-size: 9pt; margin-bottom: 10px; }
+
+        .paper-title  { text-align: center; border: 2px solid #000; padding: 7px;
+                        margin: 8px 0 12px 0; font-size: 13pt; font-weight: bold;
+                        text-transform: uppercase; }
+
+        .meta         { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10pt; }
+        .meta td      { padding: 2px 6px; }
+        .meta .label  { font-weight: bold; width: 90px; }
+
+        .candidate    { border: 1px solid #000; padding: 8px; margin-bottom: 12px; font-size: 10pt; }
+
+        .instructions { border: 1px solid #000; padding: 8px; margin-bottom: 14px; font-size: 10pt; }
+        .instructions .h { font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+
+        .section        { margin-bottom: 14px; }
+        .section-head   { font-weight: bold; text-transform: uppercase;
+                          border-bottom: 1px solid #000; padding-bottom: 3px;
+                          margin-bottom: 7px; font-size: 11pt; }
+        .section-note   { font-style: italic; font-size: 9.5pt; margin-bottom: 7px; }
+
+        /* A passage, a historical source or a data table that several questions
+           refer to. Boxed and kept together so it reads as one thing. */
+        .stimulus       { border: 1px solid #000; padding: 9px; margin-bottom: 11px;
+                          background: #fafafa; }
+        .stimulus-title { font-weight: bold; margin-bottom: 4px; font-size: 10pt;
+                          text-transform: uppercase; }
+        .stimulus-body  { font-size: 10.5pt; }
+        .stimulus-src   { font-style: italic; font-size: 9pt; margin-top: 5px; text-align: right; }
+        .stimulus img   { max-width: 100%; margin-top: 6px; }
+
+        .q              { margin-bottom: 10px; }
+        .q-num          { font-weight: bold; }
+        .q-marks        { float: right; font-weight: bold; font-size: 9.5pt; }
+        .q-options      { margin: 3px 0 0 22px; font-size: 10pt; }
+        .q-option       { margin-bottom: 1px; }
+        .q-image        { margin: 5px 0 0 22px; }
+        .q-image img    { max-width: 70%; }
+
+        /* Sub-questions: (a), (b) and, below them, (i), (ii). */
+        .part           { margin: 6px 0 0 22px; }
+        .part-label     { font-weight: bold; }
+
+        /* Answer space, chosen per question. A structured science question
+           needs ruled lines; a maths question needs a blank box to work in;
+           a graph needs squares. Without this a paper prints with nowhere to
+           write and the candidate answers in the margin. */
+        .lines          { margin: 4px 0 0 22px; }
+        .line           { border-bottom: 1px dotted #555; height: 16px; }
+        .workbox        { margin: 5px 0 0 22px; border: 1px solid #555; height: 90px; }
+        .workbox-tall   { height: 150px; }
+        .grid           { margin: 5px 0 0 22px; border: 1px solid #555; height: 150px;
+                          background: #fff; }
+        .grid-note      { font-size: 8pt; font-style: italic; color: #444; padding: 2px 4px; }
+
+        /* Code must keep its whitespace or it stops being code. */
+        .code           { margin: 5px 0 0 22px; font-family: Courier, monospace;
+                          font-size: 9.5pt; background: #f2f2f2; border: 1px solid #999;
+                          padding: 6px; white-space: pre; }
+
+        /* Matching: two lettered/numbered columns and a blank to join them. */
+        .match          { margin: 5px 0 0 22px; width: 88%; border-collapse: collapse;
+                          font-size: 10pt; }
+        .match td       { border: 1px solid #555; padding: 4px 6px; vertical-align: top; }
+        .match .ans     { width: 40px; text-align: center; }
+
+        .answer         { margin: 3px 0 0 22px; font-size: 10pt;
+                          border-left: 3px solid #000; padding-left: 7px; }
+        .answer .label  { font-weight: bold; }
+        .explanation    { font-style: italic; font-size: 9.5pt; margin-top: 2px; }
+
+        .scheme-banner  { text-align: center; border: 2px solid #000; padding: 5px;
+                          margin-bottom: 10px; font-weight: bold;
+                          text-transform: uppercase; font-size: 11pt; }
+        .draft-mark     { text-align: center; font-weight: bold; font-size: 10pt;
+                          border: 1px dashed #000; padding: 4px; margin-bottom: 10px; }
+
+        .foot           { position: fixed; bottom: -10mm; left: 0; right: 0;
+                          text-align: center; font-size: 8pt; color: #444; }
+        .end            { text-align: center; font-weight: bold; margin-top: 14px;
+                          text-transform: uppercase; font-size: 10pt; }
+    </style>
+</head>
+<body>
+
+    <div class="foot">
+        {{ paper.title }} — {{ paper.class_obj.name }}
+        {% if draft %} — DRAFT, NOT FOR ISSUE{% endif %}
+        — page <pdf:pagenumber> of <pdf:pagecount>
+    </div>
+
+    <div class="school">{{ school_name }}</div>
+    <div class="school-sub">{{ paper.term.term }} {{ paper.term.year }}</div>
+
+    {% if draft %}
+        <div class="draft-mark">Draft — awaiting approval. Not to be issued to candidates.</div>
+    {% endif %}
+    {% if scheme %}
+        <div class="scheme-banner">Marking scheme — confidential</div>
+    {% endif %}
+
+    <div class="paper-title">{{ paper.title }}</div>
+
+    <table class="meta">
+        <tr>
+            <td class="label">Subject</td><td>{{ paper.subject.name }}</td>
+            <td class="label">Duration</td><td>{{ paper.duration_minutes }} minutes</td>
+        </tr>
+        <tr>
+            <td class="label">Class</td><td>{{ paper.class_obj.name }}</td>
+            <td class="label">Total marks</td><td>{{ total_marks }}</td>
+        </tr>
+    </table>
+
+    {% if not scheme %}
+        <div class="candidate">
+            Candidate name: ...............................................................
+            &nbsp;&nbsp; Class: ..................... &nbsp;&nbsp; Index no: .....................
+        </div>
+    {% endif %}
+
+    {% if paper.instructions %}
+        <div class="instructions">
+            <div class="h">Instructions to candidates</div>
+            {{ paper.instructions|linebreaksbr }}
+        </div>
+    {% endif %}
+
+    {% for section in sections %}
+        <div class="section">
+            {% if section.title %}<div class="section-head">{{ section.title }}</div>{% endif %}
+
+            {% if section.choose_count %}
+                <div class="section-note">
+                    Answer any {{ section.choose_count }} of the
+                    {{ section.questions|length }} questions in this section.
+                </div>
+            {% endif %}
+            {% if section.instructions %}
+                <div class="section-note">{{ section.instructions }}</div>
+            {% endif %}
+
+            {# The passage, source or data every question below refers to. #}
+            {% if section.stimulus.text or section.stimulus.image %}
+                <div class="stimulus">
+                    {% if section.stimulus.title %}
+                        <div class="stimulus-title">{{ section.stimulus.title }}</div>
+                    {% endif %}
+                    {% if section.stimulus.text %}
+                        <div class="stimulus-body">{{ section.stimulus.text|scientific|linebreaksbr }}</div>
+                    {% endif %}
+                    {% if section.stimulus.image %}
+                        <img src="{{ section.stimulus.image }}" alt="">
+                    {% endif %}
+                    {% if section.stimulus.source_note %}
+                        <div class="stimulus-src">{{ section.stimulus.source_note }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% for q in section.questions %}
+                <div class="q">
+                    <span class="q-marks">({{ q|question_marks }} mark{{ q|question_marks|pluralize }})</span>
+                    <span class="q-num">{{ q.number }}.</span>
+                    <span>{{ q.text|scientific }}</span>
+
+                    {% if q.image %}
+                        <div class="q-image"><img src="{{ q.image }}" alt=""></div>
+                    {% endif %}
+
+                    {% if q.type == 'code' and q.code %}
+                        <div class="code">{{ q.code }}</div>
+                    {% endif %}
+
+                    {% if q.options %}
+                        <div class="q-options">
+                            {% for option in q.options %}
+                                <div class="q-option">
+                                    {{ forloop.counter0|option_letter }}) {{ option|scientific }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if q.type == 'matching' and q.pairs %}
+                        <table class="match">
+                            <tr><td><strong>Column A</strong></td><td class="ans"></td>
+                                <td><strong>Column B</strong></td></tr>
+                            {% for pair in q.pairs %}
+                                <tr>
+                                    <td>{{ forloop.counter }}. {{ pair.left|scientific }}</td>
+                                    <td class="ans">......</td>
+                                    {% comment %}Column B keeps the authored order: shuffling
+                                    it here would leave the marking scheme unreadable beside
+                                    the paper.{% endcomment %}
+                                    <td>{{ forloop.counter0|option_letter }}) {{ pair.right|scientific }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    {% endif %}
+
+                    {% comment %}Sub-questions. Marks sit on the part, since that
+                    is where they are earned.{% endcomment %}
+                    {% for part in q.parts %}
+                        <div class="part">
+                            <span class="q-marks">({{ part.points|default:0 }} mark{{ part.points|pluralize }})</span>
+                            <span class="part-label">({{ forloop.counter0|part_letter }})</span>
+                            <span>{{ part.text|scientific }}</span>
+
+                            {% if scheme and part.answer %}
+                                <div class="answer">
+                                    <span class="label">Answer:</span> {{ part.answer|scientific }}
+                                </div>
+                            {% elif not scheme %}
+                                {% if part.answer_space == 'working' %}
+                                    <div class="workbox"></div>
+                                {% elif part.answer_space == 'grid' %}
+                                    <div class="grid"><div class="grid-note">Graph paper</div></div>
+                                {% elif part.answer_space != 'none' %}
+                                    <div class="lines">
+                                        {% for _ in part.lines|default:2|times %}<div class="line"></div>{% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    {% if scheme %}
+                        {% if not q.parts %}
+                            <div class="answer">
+                                <span class="label">Answer:</span> {{ q|scheme_answer }}
+                                {% if q.explanation %}
+                                    <div class="explanation">{{ q.explanation }}</div>
+                                {% endif %}
+                            </div>
+                        {% elif q.explanation %}
+                            <div class="answer"><div class="explanation">{{ q.explanation }}</div></div>
+                        {% endif %}
+                    {% else %}
+                        {% comment %}Only the stem gets answer space when it has no
+                        parts; otherwise each part carries its own.{% endcomment %}
+                        {% if not q.parts %}
+                            {% if q.answer_space == 'working' %}
+                                <div class="workbox {% if q.type == 'essay' %}workbox-tall{% endif %}"></div>
+                            {% elif q.answer_space == 'grid' %}
+                                <div class="grid"><div class="grid-note">Graph paper</div></div>
+                            {% elif q.answer_space == 'lines' or q.type == 'essay' or q.type == 'structured' or q.type == 'short_answer' %}
+                                <div class="lines">
+                                    {% for _ in q.lines|default:3|times %}<div class="line"></div>{% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <div class="end">— End of {% if scheme %}marking scheme{% else %}paper{% endif %} —</div>
+
+</body>
+</html>
