@@ -6,21 +6,6 @@
 
 ---
 
-## Screenshots
-
-**Landing Page**
-![Landing Page](/Screenshots/Screenshot%202026-03-24%20144243.png)
-
-**Director of Studies — Dashboard**
-![DOS Dashboard](/Screenshots/Screenshot%202026-03-24%20144355.png)
-
-**Student Portal — Results**
-![Student Portal](/Screenshots/Screenshot%202026-03-24%20144408.png)
-
-**Mobile View — Responsive Design**
-![Mobile View](/Screenshots/Screenshot%202026-03-24%20144429.png)
-
----
 
 ## Portals
 
