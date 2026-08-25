@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -9,7 +9,8 @@ import { disNavItems, disSecondaryItems } from './disNav'
 import { DormPlannerTab } from './DormPlannerTab'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
-    getDisFacilities, getDisStudents, getDisOccupancy,
+    getDisFacilities, getDisOccupancy,
+    searchDisStudents,
 } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -17,6 +18,7 @@ import '../../styles/discipline.css'
 import '../../styles/tables.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
+import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 
 const BOARDING_TYPE_LABEL = {
     full_boarder:   'Full Boarder',
@@ -36,16 +38,10 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
     const { t } = useTranslation()
     const isEditing = !!record
 
-    // Student search (create only)
-    const [query,           setQuery]           = useState(record?.student_name || '')
-    const [searchResults,   setSearchResults]   = useState([])
+    // Student search handled by shared StudentSearchPicker
     const [selectedStudent, setSelectedStudent] = useState(
         record ? { id: null, name: record.student_name, student_id: record.student_id } : null
     )
-    const [searching,    setSearching]    = useState(false)
-    const [dropdownOpen, setDropdownOpen] = useState(false)
-    const searchRef   = useRef(null)
-    const debounceRef = useRef(null)
 
     const [form, setForm] = useState({
         dormitory:    record?.dormitory     || (dormitories[0]?.name || ''),
@@ -62,38 +58,6 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
         document.body.style.overflow = 'hidden'
         return () => { document.body.style.overflow = '' }
     }, [])
-
-    useEffect(() => {
-        function handler(e) {
-            if (searchRef.current && !searchRef.current.contains(e.target)) setDropdownOpen(false)
-        }
-        document.addEventListener('mousedown', handler)
-        return () => document.removeEventListener('mousedown', handler)
-    }, [])
-
-    function handleSearch(e) {
-        const q = e.target.value
-        setQuery(q)
-        setSelectedStudent(null)
-        clearTimeout(debounceRef.current)
-        if (q.length < 2) { setSearchResults([]); setDropdownOpen(false); return }
-        debounceRef.current = setTimeout(async () => {
-            setSearching(true)
-            try {
-                const results = await getDisStudents({ search: q })
-                setSearchResults(Array.isArray(results) ? results.slice(0, 8) : [])
-                setDropdownOpen(true)
-            } catch { setSearchResults([]) }
-            finally   { setSearching(false) }
-        }, 300)
-    }
-
-    function selectStudent(s) {
-        setSelectedStudent(s)
-        setQuery(s.name)
-        setDropdownOpen(false)
-        setSearchResults([])
-    }
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -151,44 +115,12 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                             </div>
                         </div>
                     ) : (
-                        <div className="form-group u-relative" ref={searchRef}>
-                            <label className="form-label">{t('common.student')} *</label>
-                            <div className="u-relative">
-                                <input
-                                    className="form-input"
-                                    value={query}
-                                    onChange={handleSearch}
-                                    placeholder={t('common.searchStudentPlaceholder')}
-                                    autoComplete="off"
-                                />
-                                {searching && (
-                                    <span className="material-symbols-rounded dis-search-spin">
-                                        progress_activity
-                                    </span>
-                                )}
-                            </div>
-                            {dropdownOpen && searchResults.length > 0 && (
-                                <div className="dis-search-menu">
-                                    {searchResults.map(s => (
-                                        <div key={s.id} onClick={() => selectStudent(s)} className="dis-search-item">
-                                            <div className="dis-search-av">
-                                                {s.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
-                                            </div>
-                                            <div>
-                                                <div className="dis-search-name">{s.name}</div>
-                                                <div className="dis-search-sub">{s.student_id} · {s.grade}{s.section}</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            {selectedStudent && (
-                                <div className="dis-selected-ok">
-                                    ✓ {selectedStudent.name} ({selectedStudent.student_id})
-                                    {cls && <span className="class-chip dis-chip-inline-sm">{cls}</span>}
-                                </div>
-                            )}
-                        </div>
+                        <StudentSearchPicker
+                            value={selectedStudent}
+                            onChange={setSelectedStudent}
+                            fetchStudents={searchDisStudents}
+                            required
+                        />
                     )}
 
                     {/* Dormitory + boarding type */}
@@ -200,7 +132,6 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                                 {dormitories.length > 0 ? (() => {
                                     // Group by section_name; fall back to flat list if no sections
                                     const sectionNames = [...new Set(dormitories.map(d => d.section_name).filter(Boolean))]
-                                    const grouped      = dormitories.filter(d => d.section_name)
                                     const ungrouped    = dormitories.filter(d => !d.section_name)
                                     if (sectionNames.length === 0) {
                                         return dormitories.map(d => (
@@ -454,10 +385,7 @@ export function DisBoarding() {
                                     <div className="dis-occ-grid">
                                         {occupancy.dormitories.map(d => {
                                             const pct = d.occupancy_pct
-                                            const barColor = pct == null ? 'var(--muted-foreground)'
-                                                : pct >= 95 ? '#dc2626'
-                                                : pct >= 80 ? 'var(--warning, #d97706)'
-                                                : 'var(--success, #16a34a)'
+                                            const state = pct == null ? '' : pct >= 95 ? 'is-danger' : pct >= 80 ? 'is-warning' : 'is-success'
                                             return (
                                                 <div key={d.id} className="dis-occ-card">
                                                     <div className="dis-occ-row">
@@ -467,15 +395,15 @@ export function DisBoarding() {
                                                                 <span className="dis-occ-sec">{d.section_name}</span>
                                                             )}
                                                         </div>
-                                                        <span className="dis-occ-count" style={{ color: barColor }}>
+                                                        <span className={`dis-occ-count ${state}`}>
                                                             {d.capacity ? `${d.occupied}/${d.capacity}` : `${d.occupied}`}
                                                         </span>
                                                     </div>
                                                     <div className="progress dis-occ-bar">
-                                                        <div className="progress-bar" style={{
-                                                            width: pct != null ? `${Math.min(100, pct)}%` : '0%',
-                                                            background: barColor,
-                                                        }} />
+                                                        <div
+                                                            className={`progress-bar ${state}`}
+                                                            style={{ width: pct != null ? `${Math.min(100, pct)}%` : '0%' }}
+                                                        />
                                                     </div>
                                                     <div className="dis-occ-free">
                                                         {d.capacity

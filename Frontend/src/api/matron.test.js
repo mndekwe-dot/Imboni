@@ -58,13 +58,18 @@ describe('matron api', () => {
     expect(client.post).toHaveBeenCalledWith('/imboni/matron/night-check/', data)
   })
 
-  it('parent comms', () => {
-    matron.getParentComms({ studentId: 3 })
-    expect(client.get).toHaveBeenCalledWith('/imboni/matron/parent-comms/', { params: { studentId: 3 } })
+  // Parent communications moved to the discipline API: contacting a family is
+  // the office's decision, not the dormitory's. See api/discipline.js.
+  it('does not reach parent communications from the matron portal', () => {
+    expect(matron.getParentComms).toBeUndefined()
+    expect(matron.sendParentComm).toBeUndefined()
+  })
 
-    const data = { message: 'hi' }
-    matron.sendParentComm(data)
-    expect(client.post).toHaveBeenCalledWith('/imboni/matron/parent-comms/', data)
+  it('searches students by the query the server actually reads', () => {
+    matron.searchMatronStudents('Uwase')
+    expect(client.get).toHaveBeenCalledWith('/imboni/matron/students/', {
+      params: { search: 'Uwase' },
+    })
   })
 
   it('messages', () => {

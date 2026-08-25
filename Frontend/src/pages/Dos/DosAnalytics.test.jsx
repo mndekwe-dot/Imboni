@@ -72,9 +72,7 @@ describe('DosAnalytics', () => {
 
     expect(screen.getByText('Subject Performance')).toBeInTheDocument()
     expect(screen.getByText('Mathematics')).toBeInTheDocument()
-    // Scoped to <main>: the sidebar language switcher has a button
-    // labelled "English" too, so a document-wide query is ambiguous.
-    expect(within(screen.getByRole('main')).getByText('English')).toBeInTheDocument()
+    expect(within(screen.getByRole('main')).getByText('English', { selector: '.perf-row-header span' })).toBeInTheDocument()
     expect(screen.getByText('65%')).toBeInTheDocument()
     expect(screen.getByText('80%')).toBeInTheDocument()
   })

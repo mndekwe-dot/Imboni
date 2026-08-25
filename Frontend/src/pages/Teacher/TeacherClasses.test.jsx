@@ -48,9 +48,7 @@ describe('TeacherClasses', () => {
     getTeacherMyClasses.mockResolvedValue(CLASSES)
     renderWithRouter(<TeacherClasses />)
     await waitFor(() => expect(screen.getByText('Mathematics')).toBeInTheDocument())
-    // Scoped to <main>: the sidebar language switcher has a button
-    // labelled "English" too, so a document-wide query is ambiguous.
-    expect(within(screen.getByRole('main')).getByText('English')).toBeInTheDocument()
+    expect(within(screen.getByRole('main')).getByText('English', { selector: '.class-subject' })).toBeInTheDocument()
   })
 
   it('shows student counts on each class card', async () => {

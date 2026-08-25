@@ -29,7 +29,6 @@
   transition: all 0.2s;
 }
 
-
 .class-header {
   display: flex;
   justify-content: space-between;
@@ -183,7 +182,6 @@
   overflow: hidden;
 }
 
-
 .message {
   max-width: 80%;
   padding: 0.75rem 1rem;
@@ -210,7 +208,6 @@
   margin-top: 0.25rem;
   text-align: right;
 }
-
 
 /* students-table and results-table styles are in pages.css */
 
@@ -652,7 +649,6 @@
   transition: all 0.2s ease;
 }
 
-
 .activity-icon-wrapper {
   width: 40px;
   height: 40px;
@@ -786,10 +782,8 @@
   margin-bottom: 1.5rem;
 }
 
-
 /* .stat-card is now defined in components.css alongside the other
    controls that do this job, so the whole family is edited in one place. */
-
 
 .stat-card-header {
   display: flex;
@@ -928,7 +922,6 @@
   transition: all 0.2s;
   position: relative;
 }
-
 
 .calendar-day.today {
   background: var(--primary);
@@ -1397,12 +1390,9 @@
    MESSAGES PAGE - Teacher/teacher-messages.html
    =============================================== */
 
-
 /* Left: Conversation panel */
 
-
 /* Right: Thread panel */
-
 
 .dot-online {
   width: 6px;
@@ -1411,9 +1401,7 @@
   background: #22c55e;
 }
 
-
 /* Messages scroll area */
-
 
 .date-sep {
   text-align: center;
@@ -1436,7 +1424,6 @@
 /* msg-* styles are defined once in pages.css using var(--portal-accent) */
 
 /* Composer */
-
 
 /* Quick replies panel */
 .quick-replies-card {
@@ -1475,7 +1462,6 @@
 }
 
 /* Right column wrapper */
-
 
 /* ===============================================
    CLASS PICKER - Section→Year→Class Cascade
@@ -1647,7 +1633,6 @@
   .stat-cards-grid { grid-template-columns: 1fr; }
 }
 
-
 /* ── Mini stat cards (Attendance / Results) ── */
 .mini-stats-row { display: flex; gap: var(--space-3, 0.75rem); flex-wrap: wrap; }
 /* Mini stat moved to .mini-stat in components.css - it was declared here
@@ -1724,53 +1709,6 @@
   padding: 1rem 1.25rem;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
-
-/* ── Form select (teacher portal) ── */
-.form-select-wrap { position: relative; }
-.form-select-btn:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--teacher-light); }
-.form-select-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--card);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  color: var(--muted-foreground);
-  transition: border-color 0.15s;
-  text-align: left;
-}
-.form-select-btn.has-value { color: var(--foreground); }
-.form-select-btn .material-symbols-rounded { font-size: var(--icon-sm); color: var(--muted-foreground); flex-shrink: 0; }
-.form-select-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  z-index: 300;
-  max-height: 220px;
-  overflow-y: auto;
-}
-.form-select-opt {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 0.55rem 0.875rem;
-  border: none;
-  cursor: pointer;
-  font-size: var(--text-sm);
-  font-weight: 400;
-  background: transparent;
-  color: var(--foreground);
-}
-.form-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
 
 /* ── Assignment card ── */
 .asgn-card { padding: 1rem; display: flex; align-items: flex-start; gap: 0.875rem; }
@@ -2082,7 +2020,6 @@
    =============================================== */
 
 /* Form select — disabled state */
-.form-select-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── Quiz question editor internals ── */
 .quiz-q-header.top { align-items: flex-start; }

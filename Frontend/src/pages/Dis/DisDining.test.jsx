@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, screen, waitFor, fireEvent } from '../../test/test-utils'
 import { DisDining } from './DisDining'
 import {
-    getDisDining, createDisDining, patchDisDining, deleteDisDining, getDisStudents,
+    getDisDining, createDisDining, patchDisDining, deleteDisDining, getDisStudents, searchDisStudents,
 } from '../../api/discipline'
 import { getNotifications } from '../../api/notifications'
 
@@ -12,6 +12,7 @@ vi.mock('../../api/discipline', () => ({
     patchDisDining: vi.fn(),
     deleteDisDining: vi.fn(),
     getDisStudents: vi.fn(),
+    searchDisStudents: vi.fn(),
 }))
 vi.mock('../../api/notifications', () => ({
     getNotifications: vi.fn(),
@@ -69,7 +70,7 @@ describe('DisDining', () => {
 
     it('creates a new dining plan after searching and selecting a student', async () => {
         getDisDining.mockResolvedValue([])
-        getDisStudents.mockResolvedValue([{ id: 5, name: 'Amina U.', student_id: 'ADM005', grade: 'S1', section: 'B' }])
+        searchDisStudents.mockResolvedValue([{ id: 5, name: 'Amina U.', student_id: 'ADM005', grade: 'S1', section: 'B' }])
         createDisDining.mockResolvedValue({ id: 2, student_name: 'Amina U.', student_id: 'ADM005', plan_type: 'full_board', term_name: 'Term 2' })
 
         renderWithRouter(<DisDining />)
@@ -78,7 +79,7 @@ describe('DisDining', () => {
         fireEvent.click(screen.getByRole('button', { name: /Add Dining Plan/i }))
         fireEvent.change(screen.getByPlaceholderText(/Search by name or ADM number/i), { target: { value: 'Amina' } })
 
-        await waitFor(() => expect(getDisStudents).toHaveBeenCalledWith({ search: 'Amina' }), { timeout: 2000 })
+        await waitFor(() => expect(searchDisStudents).toHaveBeenCalledWith('Amina'), { timeout: 2000 })
         await waitFor(() => expect(screen.getByText('Amina U.')).toBeInTheDocument())
         fireEvent.click(screen.getByText('Amina U.'))
 

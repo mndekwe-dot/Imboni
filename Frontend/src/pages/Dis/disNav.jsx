@@ -7,6 +7,7 @@ export const disNavItems = [
     { to: '/discipline/boarding',      icon: 'hotel',          labelKey: 'nav.boarding'               },
     { to: '/discipline/staff',         icon: 'badge',          labelKey: 'nav.staff'                  },
     { to: '/discipline/announcements', icon: 'campaign',       labelKey: 'nav.announcements'          },
+    { to: '/discipline/parent-comms',  icon: 'family_restroom', labelKey: 'nav.parentComms'           },
     { to: '/discipline/messages',      icon: 'chat',           labelKey: 'nav.messages'               },
     { to: '/discipline/timetable',     icon: 'calendar_month', labelKey: 'nav.timetable'              },
 ]

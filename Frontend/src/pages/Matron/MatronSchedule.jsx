@@ -1,15 +1,14 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
+import '../../styles/timetable.css'
 import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
-import { useSchoolSettings } from '../../hooks/useSchoolSetting'
-import { formatSchoolDate } from '../../utils/date'
+import { TimetableCell } from '../../components/timetable/TimetableCell'
 import { getMatronBoardingSchedule } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -17,17 +16,92 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { StatCard } from '../../components/layout/StatCard'
 
+/**
+ * The standing boarding routine, as issued by the Discipline Office.
+ *
+ * The weekday routine is one row per time slot, not five. The server stores it
+ * that way too — BoardingScheduleSlot.day_type is 'weekday' | 'saturday' |
+ * 'sunday', and 'weekday' means Monday through Friday — because a boarding
+ * house wakes at the same hour every school day. This used to render each slot
+ * into five identical columns, which implied a variation between Monday and
+ * Thursday that neither the routine nor the model has.
+ */
 
 const CHANGE_STATUS_DISPLAY = {
-    new:     { dotClass: 'pending',  statusClass: 'pending',  status: 'New'     },
-    applied: { dotClass: 'reviewed', statusClass: 'reviewed', status: 'Applied' },
+    new:     { dotClass: 'pending',  statusClass: 'pending',  labelKey: 'matron.schedule.changeNew'     },
+    applied: { dotClass: 'reviewed', statusClass: 'reviewed', labelKey: 'matron.schedule.changeApplied' },
 }
 
-// Thin alias over the shared tile. It used to re-implement the markup with
-// discipline.css class names, so editing a Discipline stylesheet silently
-// restyled the Matron schedule.
-function ScheduleStat({ iconClass, icon, value, label }) {
-    return <StatCard icon={icon} value={value} label={label} colorClass={iconClass} />
+function TimeCell({ time, label }) {
+    return (
+        <td className="tt-time-cell">
+            <strong>{time}</strong>
+            <span>{label}</span>
+        </td>
+    )
+}
+
+/**
+ * One routine table. Weekdays have a single activity column, the weekend has
+ * one per day — the shape is the only thing that differs, so the shell is
+ * written once rather than copied per card.
+ */
+function RoutineTable({ headings, rows, cellsFor }) {
+    const { t } = useTranslation()
+    return (
+        <div className="tt-wrap">
+            <table className="tt-table">
+                <thead>
+                    <tr>
+                        <th className="tt-time-head">{t('common.time')}</th>
+                        {headings.map(h => <th key={h} className="tt-day-head">{h}</th>)}
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows.map((row, index) => (
+                        row.isBreak ? (
+                            <tr key={index} className="tt-break-row">
+                                <TimeCell time={row.time} label={row.label} />
+                                <td colSpan={headings.length} className="tt-break-cell">
+                                    {row.breakText}
+                                </td>
+                            </tr>
+                        ) : (
+                            <tr key={index}>
+                                <TimeCell time={row.time} label={row.label} />
+                                {cellsFor(row).map((cell, i) => (
+                                    <TimetableCell
+                                        key={i}
+                                        cell={{
+                                            type: cell?.cellClass,
+                                            subject: cell?.subject,
+                                            teacher: cell?.teacher,
+                                            room: cell?.room,
+                                        }}
+                                        editable={false}
+                                        onEdit={() => {}}
+                                        colIndex={i + 1}
+                                        today={false}
+                                        isNow={false}
+                                    />
+                                ))}
+                            </tr>
+                        )
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    )
+}
+
+function ReadOnlyBadge() {
+    const { t } = useTranslation()
+    return (
+        <span className="badge-readonly">
+            <span className="material-symbols-rounded" aria-hidden="true">lock</span>
+            {t('matron.schedule.readOnly')}
+        </span>
+    )
 }
 
 function ScheduleChange({ dotClass, title, meta, statusClass, status }) {
@@ -43,57 +117,11 @@ function ScheduleChange({ dotClass, title, meta, statusClass, status }) {
     )
 }
 
-function TtCell({ cellClass, subject, teacher, room }) {
-    return (
-        <td className={`tt-cell ${cellClass}`}>
-            <div className="tt-subject">{subject}</div>
-            <div className="tt-teacher">{teacher}</div>
-            <div className="tt-room">{room}</div>
-        </td>
-    )
-}
-
-function WeekdayRow({ time, label, isBreak, breakText, cellClass, subject, teacher, room }) {
-    if (isBreak) {
-        return (
-            <tr className="tt-break-row">
-                <td className="tt-time-cell"><strong>{time}</strong><span>{label}</span></td>
-                <td colSpan={5} className="tt-break-cell">{breakText}</td>
-            </tr>
-        )
-    }
-    return (
-        <tr>
-            <td className="tt-time-cell"><strong>{time}</strong><span>{label}</span></td>
-            {[0,1,2,3,4].map(i => <TtCell key={i} cellClass={cellClass} subject={subject} teacher={teacher} room={room} />)}
-        </tr>
-    )
-}
-
-function WeekendRow({ time, label, isBreak, breakText, sat, sun }) {
-    if (isBreak) {
-        return (
-            <tr className="tt-break-row">
-                <td className="tt-time-cell"><strong>{time}</strong><span>{label}</span></td>
-                <td colSpan={2} className="tt-break-cell">{breakText}</td>
-            </tr>
-        )
-    }
-    return (
-        <tr>
-            <td className="tt-time-cell"><strong>{time}</strong><span>{label}</span></td>
-            <TtCell {...sat} />
-            <TtCell {...sun} />
-        </tr>
-    )
-}
-
 export function MatronSchedule() {
     const { t } = useTranslation()
     const dormitory = useMatronDormitory()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const { setting } = useSchoolSettings()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -112,24 +140,32 @@ export function MatronSchedule() {
             user={sessionUser}
         />
     )
-    if (error) return <p className="u-pad u-danger">Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
 
     const scheduleStats = [
-        { iconClass: 'info',     icon: 'calendar_view_week', value: data.stats.days_in_schedule,                label: 'Days in Schedule'  },
-        { iconClass: 'success',  icon: 'event_available',    value: data.stats.total_activities,                label: 'Total Activities'  },
-        { iconClass: 'warning',  icon: 'update',             value: data.stats.changes_this_week,               label: 'Changes This Week' },
-        { iconClass: 'success', icon: 'verified',           value: data.stats.current_term,                    label: 'Current Term'      },
+        { colorClass: 'info',    icon: 'calendar_view_week', value: data.stats.days_in_schedule,  label: t('matron.schedule.daysInSchedule')  },
+        { colorClass: 'success', icon: 'event_available',    value: data.stats.total_activities,  label: t('matron.schedule.totalActivities') },
+        { colorClass: 'warning', icon: 'update',             value: data.stats.changes_this_week, label: t('matron.schedule.changesThisWeek') },
+        { colorClass: 'success', icon: 'verified',           value: data.stats.current_term,      label: t('matron.schedule.currentTerm')     },
     ]
 
-    const scheduleChanges = data.changes.map(c => ({
-        title: c.description,
-        meta: `${c.changed_by_name ? 'Updated by ' + c.changed_by_name + ' · ' : ''}${c.change_date}`,
-        ...(CHANGE_STATUS_DISPLAY[c.status] || CHANGE_STATUS_DISPLAY.new),
-    }))
+    const scheduleChanges = data.changes.map(c => {
+        const display = CHANGE_STATUS_DISPLAY[c.status] || CHANGE_STATUS_DISPLAY.new
+        return {
+            title: c.description,
+            meta: [
+                c.changed_by_name && t('matron.schedule.updatedBy', { name: c.changed_by_name }),
+                c.change_date,
+            ].filter(Boolean).join(' · '),
+            dotClass: display.dotClass,
+            statusClass: display.statusClass,
+            status: t(display.labelKey),
+        }
+    })
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             <div className="dashboard-layout">
@@ -137,7 +173,7 @@ export function MatronSchedule() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Boarding Schedule"
+                        title={t('matron.schedule.boardingSchedule')}
                         subtitle={dormitory
                             ? t('matron.schedule.subtitle', { house: dormitory })
                             : t('matron.schedule.subtitleNoHouse')}
@@ -149,85 +185,62 @@ export function MatronSchedule() {
                     <DashboardContent>
 
                         <div className="notice-banner mb-5">
-                            <span className="material-symbols-rounded u-fs-15">verified</span>
+                            <span className="material-symbols-rounded u-fs-15" aria-hidden="true">verified</span>
                             <div>
-                                <div className="banner-title">Standing boarding routine, issued by the Discipline Office</div>
-                                <div className="banner-sub">{data.stats.current_term} &middot; Read-only, contact the Discipline Master to request changes</div>
+                                <div className="banner-title">{t('matron.schedule.standingRoutine')}</div>
+                                <div className="banner-sub">
+                                    {data.stats.current_term} &middot; {t('matron.schedule.readOnlyNote')}
+                                </div>
                             </div>
                         </div>
 
                         <div className="portal-stat-grid mb-5">
                             {scheduleStats.map((stat, index) => (
-                                <ScheduleStat key={index} {...stat} />
+                                <StatCard key={index} {...stat} />
                             ))}
                         </div>
 
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">calendar_view_week</span> Monday to Friday
+                                    <span className="material-symbols-rounded" aria-hidden="true">calendar_view_week</span>
+                                    {' '}{t('matron.schedule.mondayToFriday')}
                                 </h3>
-                                <span className="did-direct-badge">
-                                    <span className="material-symbols-rounded">lock</span>
-                                    Read-only
-                                </span>
+                                <ReadOnlyBadge />
                             </div>
                             <div className="card-content">
-                                <div className="tt-wrap">
-                                    <table className="tt-table">
-                                        <thead>
-                                            <tr>
-                                                <th className="tt-time-head">Time</th>
-                                                <th className="tt-day-head">Monday</th>
-                                                <th className="tt-day-head">Tuesday</th>
-                                                <th className="tt-day-head">Wednesday</th>
-                                                <th className="tt-day-head">Thursday</th>
-                                                <th className="tt-day-head">Friday</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {data.weekday_rows.map((row, index) => (
-                                                <WeekdayRow key={index} {...row} />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <p className="u-sm u-muted">{t('matron.schedule.sameEveryWeekday')}</p>
+                                <RoutineTable
+                                    headings={[t('matron.schedule.activity')]}
+                                    rows={data.weekday_rows}
+                                    cellsFor={row => [row]}
+                                />
                             </div>
                         </div>
 
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">weekend</span> Weekend (Sat &amp; Sun)
+                                    <span className="material-symbols-rounded" aria-hidden="true">weekend</span>
+                                    {' '}{t('matron.schedule.weekend')}
                                 </h3>
-                                <span className="did-direct-badge">
-                                    <span className="material-symbols-rounded">lock</span>
-                                    Read-only
-                                </span>
+                                <ReadOnlyBadge />
                             </div>
                             <div className="card-content">
-                                <div className="tt-wrap">
-                                    <table className="tt-table">
-                                        <thead>
-                                            <tr>
-                                                <th className="tt-time-head">Time</th>
-                                                <th className="tt-day-head">Saturday</th>
-                                                <th className="tt-day-head">Sunday</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {data.weekend_rows.map((row, index) => (
-                                                <WeekendRow key={index} {...row} />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <RoutineTable
+                                    headings={[t('matron.schedule.saturday'), t('matron.schedule.sunday')]}
+                                    rows={data.weekend_rows}
+                                    cellsFor={row => [row.sat, row.sun]}
+                                />
                             </div>
                         </div>
 
                         <div className="card">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">history</span> Recent Schedule Changes</h3>
+                                <h3 className="card-title">
+                                    <span className="material-symbols-rounded" aria-hidden="true">history</span>
+                                    {' '}{t('matron.schedule.recentChanges')}
+                                </h3>
                             </div>
                             <div className="card-content">
                                 <div className="matron-report-list">

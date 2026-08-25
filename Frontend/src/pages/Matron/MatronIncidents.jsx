@@ -3,6 +3,8 @@ import { Link } from 'react-router'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { FilterBar } from '../../components/ui/FilterBar'
+import { FormSelect } from '../../components/ui/FormSelect'
+import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
@@ -11,18 +13,17 @@ import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
-import { getMatronIncidents, createMatronIncident, getMatronStudents } from '../../api/matron'
+import { getMatronIncidents, createMatronIncident, searchMatronStudents } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
-import { classLabel } from '../../utils/classes'
 
 
 const STATUS_STYLE = {
     pending_review: { statusClass: 'pending',  statusKey: 'common.pendingReview' },
     approved:       { statusClass: 'reviewed', statusKey: 'common.reviewed'      },
-    rejected:       { statusClass: 'reviewed', statusKey: 'common.rejected'      },
+    rejected:       { statusClass: 'rejected', statusKey: 'common.rejected'      },
 }
 
 // Severity is a stored code; the word shown for it is not derived from the
@@ -33,6 +34,22 @@ const SEVERITY_KEYS = {
     serious:  'modals.conduct.sevSerious',
     critical: 'modals.conduct.sevCritical',
 }
+
+// Declared once so the form and any future filter read the same list, rather
+// than two hand-kept sets of <option> elements drifting apart.
+const REPORT_TYPE_OPTIONS = [
+    { value: 'incident',    labelKey: 'modals.conduct.typeIncident'    },
+    { value: 'warning',     labelKey: 'modals.conduct.typeWarning'     },
+    { value: 'positive',    labelKey: 'matron.incidents.typePositive'  },
+    { value: 'achievement', labelKey: 'modals.conduct.typeAchievement' },
+]
+
+const SEVERITY_OPTIONS = [
+    { value: 'minor',    labelKey: 'modals.conduct.sevMinor'    },
+    { value: 'moderate', labelKey: 'modals.conduct.sevModerate' },
+    { value: 'serious',  labelKey: 'modals.conduct.sevSerious'  },
+    { value: 'critical', labelKey: 'matron.incidents.sevCritical' },
+]
 
 const SEVERITY_STYLE = {
     minor:    { background: 'var(--muted)', color: 'var(--muted-text)' },
@@ -62,11 +79,10 @@ export function MatronIncidents() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [filter, setFilter] = useState('all')
     const [reports, setReports] = useState([])
-    const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
-    const [studentId, setStudentId] = useState('')
+    const [student, setStudent] = useState(null)
     const [reportType, setReportType] = useState('incident')
     const [severity, setSeverity] = useState('minor')
     const [incidentDate, setIncidentDate] = useState('')
@@ -76,26 +92,25 @@ export function MatronIncidents() {
     const [saveError, setSaveError] = useState(null)
 
     useEffect(() => {
-        Promise.all([getMatronIncidents(), getMatronStudents()])
-            .then(([incidents, studs]) => {
-                setReports(Array.isArray(incidents) ? incidents : [])
-                setStudents(Array.isArray(studs) ? studs : [])
-            })
+        // Only the reports. The student list used to be fetched here in full
+        // just to populate a <select>; the picker asks the server per search.
+        getMatronIncidents()
+            .then(incidents => setReports(Array.isArray(incidents) ? incidents : []))
             .catch(err => setError(err.message))
             .finally(() => setLoading(false))
     }, [])
 
     function resetForm() {
-        setStudentId(''); setReportType('incident'); setSeverity('minor')
+        setStudent(null); setReportType('incident'); setSeverity('minor')
         setIncidentDate(''); setDescription(''); setActionTaken('')
     }
 
     async function handleSubmit() {
-        if (!studentId || !description.trim()) return
+        if (!student || !description.trim()) return
         setSaving(true); setSaveError(null)
         try {
             const created = await createMatronIncident({
-                student_id: studentId,
+                student_id: student.student_pk ?? student.id,
                 title: `${reportType[0].toUpperCase()}${reportType.slice(1)} report`,
                 report_type: reportType,
                 severity,
@@ -167,52 +182,72 @@ export function MatronIncidents() {
                                     : t('matron.incidents.bannerNoHouse')}
                             </div>
                             <div className="incident-form-grid">
-                                <div className="form-field">
-                                    <label>{t('common.student')}</label>
-                                    <select value={studentId} onChange={e => setStudentId(e.target.value)}>
-                                        <option value="">{t('common.selectStudent')}</option>
-                                        {students.map(s => (
-                                            <option key={s.student_pk} value={s.student_pk}>
-                                                {s.full_name} ({classLabel(s.grade, s.section)})
-                                            </option>
-                                        ))}
-                                    </select>
+                                {/* Typed, not scrolled: a dormitory roll is long
+                                    and the whole school's is longer. */}
+                                <StudentSearchPicker
+                                    value={student}
+                                    onChange={setStudent}
+                                    fetchStudents={searchMatronStudents}
+                                    required
+                                />
+                                <div className="form-group">
+                                    <label className="form-label" htmlFor="incident-type">
+                                        {t('matron.incidents.reportType')}
+                                    </label>
+                                    <FormSelect
+                                        id="incident-type"
+                                        value={reportType}
+                                        onChange={setReportType}
+                                        options={REPORT_TYPE_OPTIONS.map(o => ({
+                                            value: o.value, label: t(o.labelKey),
+                                        }))}
+                                    />
                                 </div>
-                                <div className="form-field">
-                                    <label>{t('matron.incidents.reportType')}</label>
-                                    <select value={reportType} onChange={e => setReportType(e.target.value)}>
-                                        <option value="incident">{t('modals.conduct.typeIncident')}</option>
-                                        <option value="warning">{t('modals.conduct.typeWarning')}</option>
-                                        <option value="positive">{t('matron.incidents.typePositive')}</option>
-                                        <option value="achievement">{t('modals.conduct.typeAchievement')}</option>
-                                    </select>
+                                <div className="form-group">
+                                    <label className="form-label" htmlFor="incident-severity">
+                                        {t('modals.conduct.severity')}
+                                    </label>
+                                    <FormSelect
+                                        id="incident-severity"
+                                        value={severity}
+                                        onChange={setSeverity}
+                                        options={SEVERITY_OPTIONS.map(o => ({
+                                            value: o.value, label: t(o.labelKey),
+                                        }))}
+                                    />
                                 </div>
-                                <div className="form-field">
-                                    <label>{t('modals.conduct.severity')}</label>
-                                    <select value={severity} onChange={e => setSeverity(e.target.value)}>
-                                        <option value="minor">{t('modals.conduct.sevMinor')}</option>
-                                        <option value="moderate">{t('modals.conduct.sevModerate')}</option>
-                                        <option value="serious">{t('modals.conduct.sevSerious')}</option>
-                                        <option value="critical">{t('matron.incidents.sevCritical')}</option>
-                                    </select>
+                                <div className="form-group">
+                                    <label className="form-label" htmlFor="incident-date">
+                                        {t('matron.incidents.dateOfIncident')}
+                                    </label>
+                                    <input
+                                        id="incident-date"
+                                        className="form-input"
+                                        type="date"
+                                        value={incidentDate}
+                                        onChange={e => setIncidentDate(e.target.value)}
+                                    />
                                 </div>
-                                <div className="form-field">
-                                    <label>{t('matron.incidents.dateOfIncident')}</label>
-                                    <input type="date" value={incidentDate} onChange={e => setIncidentDate(e.target.value)} />
-                                </div>
-                                <div className="form-field form-field-full">
-                                    <label>{t('common.description')}</label>
+                                <div className="form-group u-col-span-full">
+                                    <label className="form-label" htmlFor="incident-desc">
+                                        {t('common.description')}
+                                    </label>
                                     <textarea
+                                        id="incident-desc"
+                                        className="form-input form-textarea"
                                         placeholder={t('matron.incidents.descPlaceholder')}
                                         value={description}
                                         onChange={e => setDescription(e.target.value)}
                                     />
                                 </div>
-                                <div className="form-field form-field-full">
-                                    <label>{t('matron.incidents.actionTaken')}</label>
+                                <div className="form-group u-col-span-full">
+                                    <label className="form-label" htmlFor="incident-action">
+                                        {t('matron.incidents.actionTaken')}
+                                    </label>
                                     <textarea
+                                        id="incident-action"
+                                        className="form-input form-textarea u-min-h-60"
                                         placeholder={t('matron.incidents.actionPlaceholder')}
-                                        className="u-min-h-60"
                                         value={actionTaken}
                                         onChange={e => setActionTaken(e.target.value)}
                                     />
@@ -220,7 +255,7 @@ export function MatronIncidents() {
                             </div>
                             {saveError && <p className="u-danger u-fs-085">{saveError}</p>}
                             <div className="btn-row">
-                                <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !studentId || !description.trim()}>
+                                <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !student || !description.trim()}>
                                     <span className="material-symbols-rounded">send</span> {saving ? t('matron.incidents.submitting') : t('matron.incidents.submitToDiscipline')}
                                 </button>
                                 <button className="btn btn-outline" onClick={resetForm}>{t('matron.incidents.clearForm')}</button>

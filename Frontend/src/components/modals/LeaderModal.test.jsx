@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { LeaderModal } from './LeaderModal'
-import { getDisStudents } from '../../api/discipline'
+import { getDisStudents, searchDisStudents } from '../../api/discipline'
 
 vi.mock('../../api/discipline')
 
@@ -22,7 +22,7 @@ describe('LeaderModal', () => {
   })
 
   it('searches and selects a student, then enables save', async () => {
-    getDisStudents.mockResolvedValue([
+    searchDisStudents.mockResolvedValue([
       { id: 's1', name: 'Aisha Kamau', student_id: 'ADM-1', grade: 'S1', section: 'A' },
     ])
     const onSave = vi.fn()

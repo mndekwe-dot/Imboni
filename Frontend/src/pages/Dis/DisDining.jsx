@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -6,12 +6,13 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DataTable } from '../../components/ui/DataTable'
 import { disNavItems, disSecondaryItems } from './disNav'
-import { getDisDining, createDisDining, patchDisDining, deleteDisDining, getDisStudents } from '../../api/discipline'
+import { getDisDining, createDisDining, patchDisDining, deleteDisDining, searchDisStudents } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
+import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 
 const PLAN_TYPES = [
     { value: 'full_board',  label: 'Full Board'   },
@@ -28,15 +29,10 @@ function DiningModal({ plan, onClose, onSave }) {
     const { t } = useTranslation()
     const isEditing = !!plan
 
-    const [query,           setQuery]           = useState(plan?.student_name || '')
-    const [searchResults,   setSearchResults]   = useState([])
+    // Student search handled by shared StudentSearchPicker
     const [selectedStudent, setSelectedStudent] = useState(
         plan ? { id: null, name: plan.student_name, student_id: plan.student_id } : null
     )
-    const [searching,    setSearching]    = useState(false)
-    const [dropdownOpen, setDropdownOpen] = useState(false)
-    const searchRef   = useRef(null)
-    const debounceRef = useRef(null)
 
     const [planType, setPlanType] = useState(plan?.plan_type || 'full_board')
     const [saving,   setSaving]   = useState(false)
@@ -46,38 +42,6 @@ function DiningModal({ plan, onClose, onSave }) {
         document.body.style.overflow = 'hidden'
         return () => { document.body.style.overflow = '' }
     }, [])
-
-    useEffect(() => {
-        function handler(e) {
-            if (searchRef.current && !searchRef.current.contains(e.target)) setDropdownOpen(false)
-        }
-        document.addEventListener('mousedown', handler)
-        return () => document.removeEventListener('mousedown', handler)
-    }, [])
-
-    function handleSearch(e) {
-        const q = e.target.value
-        setQuery(q)
-        setSelectedStudent(null)
-        clearTimeout(debounceRef.current)
-        if (q.length < 2) { setSearchResults([]); setDropdownOpen(false); return }
-        debounceRef.current = setTimeout(async () => {
-            setSearching(true)
-            try {
-                const results = await getDisStudents({ search: q })
-                setSearchResults(Array.isArray(results) ? results.slice(0, 8) : [])
-                setDropdownOpen(true)
-            } catch { setSearchResults([]) }
-            finally   { setSearching(false) }
-        }, 300)
-    }
-
-    function selectStudent(s) {
-        setSelectedStudent(s)
-        setQuery(s.name)
-        setDropdownOpen(false)
-        setSearchResults([])
-    }
 
     async function handleSave() {
         if (!isEditing && !selectedStudent) { setError(t('common.selectStudentRequired')); return }
@@ -116,43 +80,12 @@ function DiningModal({ plan, onClose, onSave }) {
                             </div>
                         </div>
                     ) : (
-                        <div className="form-group u-relative" ref={searchRef}>
-                            <label className="form-label">Student *</label>
-                            <div className="u-relative">
-                                <input
-                                    className="form-input"
-                                    value={query}
-                                    onChange={handleSearch}
-                                    placeholder="Search by name or ADM number…"
-                                    autoComplete="off"
-                                />
-                                {searching && (
-                                    <span className="material-symbols-rounded dis-search-spin">
-                                        progress_activity
-                                    </span>
-                                )}
-                            </div>
-                            {dropdownOpen && searchResults.length > 0 && (
-                                <div className="dis-search-menu">
-                                    {searchResults.map(s => (
-                                        <div key={s.id} onClick={() => selectStudent(s)} className="dis-search-item">
-                                            <div className="dis-search-av">
-                                                {s.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
-                                            </div>
-                                            <div>
-                                                <div className="dis-search-name">{s.name}</div>
-                                                <div className="dis-search-sub">{s.student_id} · {s.grade}{s.section}</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            {selectedStudent && (
-                                <div className="dis-selected-ok">
-                                    ✓ {selectedStudent.name} ({selectedStudent.student_id})
-                                </div>
-                            )}
-                        </div>
+                        <StudentSearchPicker
+                            value={selectedStudent}
+                            onChange={setSelectedStudent}
+                            fetchStudents={searchDisStudents}
+                            required
+                        />
                     )}
 
                     {/* Plan type */}

@@ -174,8 +174,7 @@ function StudentRow({ student, onView }) {
                 }
             </td>
             <td>
-                <span style={{ fontWeight: student.incident_count > 0 ? 600 : 400,
-                    color: student.incident_count > 3 ? '#ef4444' : 'inherit' }}>
+                <span className={`dis-incident-count ${student.incident_count > 0 ? 'has-incidents' : ''} ${student.incident_count > 3 ? 'is-high' : ''}`}>
                     {student.incident_count}
                 </span>
             </td>

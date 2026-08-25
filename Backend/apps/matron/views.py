@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -133,13 +134,17 @@ class MatronStudentListView(APIView):
         if staff and staff.assigned_dormitory:
             qs = qs.filter(dormitory=staff.assigned_dormitory)
 
+        # A single Q rather than three querysets OR'd together, which joined
+        # the same student in more than once.
         search = request.query_params.get('search')
         if search:
-            qs = qs.filter(student__user__first_name__icontains=search) | \
-                 qs.filter(student__user__last_name__icontains=search) | \
-                 qs.filter(student__student_id__icontains=search)
+            qs = qs.filter(
+                Q(student__user__first_name__icontains=search) |
+                Q(student__user__last_name__icontains=search) |
+                Q(student__student_id__icontains=search)
+            )
 
-        return Response(MatronStudentSerializer(qs, many=True).data)
+        return Response(MatronStudentSerializer(qs[:200], many=True).data)
 
 
 class MatronStudentDetailView(APIView):
@@ -603,87 +608,6 @@ class MatronHealthRecordDetailView(APIView):
 
 # ---------------------------------------------------------------------------
 # Parent Communications
-# ---------------------------------------------------------------------------
-
-class MatronParentCommsView(APIView):
-    """
-    GET  /imboni/matron/parent-comms/?type=&outcome=&student_id=&period=
-    POST /imboni/matron/parent-comms/
-         body: {student_id, parent_contact, comm_type, contacted_at, subject, notes,
-                outcome, urgency, follow_up_required, follow_up_date}
-    """
-    permission_classes = [IsMatron]
-
-    def get(self, request):
-        from datetime import timedelta
-        from django.utils import timezone
-
-        qs = ParentCommunication.objects.select_related('student__user').all()
-
-        comm_type = request.query_params.get('type')
-        if comm_type:
-            qs = qs.filter(comm_type=comm_type)
-
-        outcome = request.query_params.get('outcome')
-        if outcome:
-            qs = qs.filter(outcome=outcome)
-
-        student_id = request.query_params.get('student_id')
-        if student_id:
-            qs = qs.filter(student_id=student_id)
-
-        now = timezone.localtime()
-        period = request.query_params.get('period')
-        if period == 'this_month':
-            qs = qs.filter(contacted_at__gte=now.replace(day=1, hour=0, minute=0, second=0, microsecond=0))
-        elif period == 'last_month':
-            month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            last_month_start = (month_start - timedelta(days=1)).replace(day=1)
-            qs = qs.filter(contacted_at__gte=last_month_start, contacted_at__lt=month_start)
-        elif period == 'last_3_months':
-            qs = qs.filter(contacted_at__gte=now - timedelta(days=90))
-
-        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        this_month_qs = ParentCommunication.objects.filter(contacted_at__gte=month_start)
-        stats = {
-            'calls_this_month':  this_month_qs.filter(comm_type='call').count(),
-            'sms_sent':          this_month_qs.filter(comm_type='sms').count(),
-            'emails_sent':       this_month_qs.filter(comm_type='email').count(),
-            'awaiting_reply':    ParentCommunication.objects.filter(outcome='awaiting_reply').count(),
-        }
-
-        return Response({
-            'stats': stats,
-            'log': ParentCommunicationSerializer(qs, many=True).data,
-        })
-
-    def post(self, request):
-        from apps.student.models import Student
-
-        d = request.data
-        try:
-            student = Student.objects.get(pk=d.get('student_id'))
-        except Student.DoesNotExist:
-            return Response({'error': 'Student not found.'}, status=404)
-
-        record = ParentCommunication.objects.create(
-            student=student,
-            parent_contact=d.get('parent_contact', ''),
-            comm_type=d.get('comm_type', 'call'),
-            contacted_at=d.get('contacted_at'),
-            subject=d.get('subject', ''),
-            notes=d.get('notes', ''),
-            outcome=d.get('outcome', 'completed'),
-            urgency=d.get('urgency', 'routine'),
-            follow_up_required=d.get('follow_up_required', False),
-            follow_up_date=d.get('follow_up_date') or None,
-            recorded_by=request.user,
-        )
-        return Response(ParentCommunicationSerializer(record).data, status=201)
-
-
-# ---------------------------------------------------------------------------
-# Boarding Schedule (standing weekly routine — read-only for the matron)
 # ---------------------------------------------------------------------------
 
 class MatronBoardingScheduleView(APIView):

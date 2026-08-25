@@ -90,6 +90,7 @@ const DisStudentLeaders   = load(() => import('./pages/Dis/DisStudentLeaders'), 
 const DisTimetable        = load(() => import('./pages/Dis/DisTimetable'), 'DisTimetable');
 const DisAnnouncements    = load(() => import('./pages/Dis/DisAnnouncements'), 'DisAnnouncements');
 const DisSettings         = load(() => import('./pages/Dis/DisSettings'), 'DisSettings');
+const DisParentComms      = load(() => import('./pages/Dis/DisParentComms'), 'DisParentComms');
 
 // ── DOS ──
 const DosDashboard        = load(() => import('./pages/Dos/DosDashboard'), 'DosDashboard');
@@ -112,7 +113,6 @@ const MatronHealth        = load(() => import('./pages/Matron/MatronHealth'), 'M
 const MatronIncidents     = load(() => import('./pages/Matron/MatronIncidents'), 'MatronIncidents');
 const MatronMessages      = load(() => import('./pages/Matron/MatronMessages'), 'MatronMessages');
 const MatronStudents      = load(() => import('./pages/Matron/MatronStudents'), 'MatronStudents');
-const MatronParentComms   = load(() => import('./pages/Matron/MatronParentComms'), 'MatronParentComms');
 const MatronSchedule      = load(() => import('./pages/Matron/MatronSchedule'), 'MatronSchedule');
 
 // ── Admin ──
@@ -256,6 +256,7 @@ function App() {
       <Route path="/discipline/boarding" element={<ProtectedRoute role="discipline"><DisBoarding /></ProtectedRoute>} />
       <Route path="/discipline/staff" element={<ProtectedRoute role="discipline"><DisStaff /></ProtectedRoute>} />
       <Route path="/discipline/announcements" element={<ProtectedRoute role="discipline"><DisAnnouncements /></ProtectedRoute>} />
+      <Route path="/discipline/parent-comms" element={<ProtectedRoute role="discipline"><DisParentComms /></ProtectedRoute>} />
       <Route path="/discipline/messages" element={<ProtectedRoute role="discipline"><DisMessages /></ProtectedRoute>} />
       <Route path="/discipline/timetable" element={<ProtectedRoute role="discipline"><DisTimetable /></ProtectedRoute>} />
       {/* legacy routes kept for compatibility */}
@@ -284,7 +285,6 @@ function App() {
       <Route path="/matron/incidents" element={<ProtectedRoute role="matron"><MatronIncidents /></ProtectedRoute>} />
       <Route path="/matron/messages" element={<ProtectedRoute role="matron"><MatronMessages /></ProtectedRoute>} />
       <Route path="/matron/students" element={<ProtectedRoute role="matron"><MatronStudents /></ProtectedRoute>} />
-      <Route path="/matron/parent-communication" element={<ProtectedRoute role="matron"><MatronParentComms /></ProtectedRoute>} />
       <Route path="/matron/schedule" element={<ProtectedRoute role="matron"><MatronSchedule /></ProtectedRoute>} />
       {/* ── Admin routes ── */}
       <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />

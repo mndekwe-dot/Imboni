@@ -11,7 +11,10 @@ from .serializers import (
 )
 from apps.behavior.models import BehaviorReport, ConductGrade
 from apps.behavior.serializers import BehaviorReportSerializer
+from apps.matron.models import ParentCommunication
+from apps.matron.serializers import ParentCommunicationSerializer
 from django.utils import timezone
+from django.db.models import Count, OuterRef, Q, Subquery
 from apps.authentication.permissions import IsDiscipline, IsMatron, IsDisciplineOrMatron
 from apps.dos.structure import year_label
 
@@ -478,6 +481,9 @@ class DisciplineStudentListView(APIView):
     Optional: ?grade=1-6  ?section=A|B|C  ?search=<name>
     """
     permission_classes = [IsDiscipline]
+
+    MAX_ROWS = 200
+
     def get(self, request):
         from apps.student.models import Student
         from apps.results.models import AcademicTerm
@@ -494,34 +500,54 @@ class DisciplineStudentListView(APIView):
         if section:
             qs = qs.filter(section=section)
 
+        # One Q, not three querysets OR'd together: the old form built a union
+        # whose joins could return the same student more than once.
         search = request.query_params.get('search')
         if search:
-            qs = qs.filter(user__first_name__icontains=search) | \
-                 qs.filter(user__last_name__icontains=search) | \
-                 qs.filter(student_id__icontains=search)
+            qs = qs.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
+                Q(student_id__icontains=search)
+            )
 
-        data = []
-        for s in qs[:200]:
-            conduct_grade = None
-            if current_term:
-                cg = ConductGrade.objects.filter(student=s, term=current_term).first()
-                if cg:
-                    conduct_grade = cg.grade
+        # The conduct grade and the incident tally used to be two queries per
+        # student inside the loop — roughly 400 round trips for a full page, on
+        # an endpoint the student picker calls while someone is typing. Both are
+        # now computed by the database in the same pass as the rows.
+        qs = qs.annotate(
+            incident_total=Count(
+                'behavior_reports',
+                filter=Q(behavior_reports__report_type='incident'),
+                distinct=True,
+            ),
+        )
+        if current_term:
+            qs = qs.annotate(
+                term_conduct=Subquery(
+                    ConductGrade.objects
+                    .filter(student=OuterRef('pk'), term=current_term)
+                    .values('grade')[:1]
+                ),
+            )
 
-            incident_count = BehaviorReport.objects.filter(
-                student=s, report_type='incident'
-            ).count()
+        # The picker asks for a handful; a table asks for a page. Either way the
+        # server decides the ceiling, so no caller can ask for the whole roll.
+        try:
+            limit = int(request.query_params.get('limit') or self.MAX_ROWS)
+        except ValueError:
+            limit = self.MAX_ROWS
+        limit = max(1, min(limit, self.MAX_ROWS))
 
-            data.append({
-                'id': str(s.id),
-                'student_id': s.student_id,
-                'name': s.user.get_full_name(),
-                'grade': year_label(s.grade),
-                'section': s.section,
-                'conduct_grade': conduct_grade,
-                'incident_count': incident_count,
-                'status': s.status,
-            })
+        data = [{
+            'id': str(s.id),
+            'student_id': s.student_id,
+            'name': s.user.get_full_name(),
+            'grade': year_label(s.grade),
+            'section': s.section,
+            'conduct_grade': getattr(s, 'term_conduct', None),
+            'incident_count': s.incident_total,
+            'status': s.status,
+        } for s in qs[:limit]]
 
         return Response(data)
 
@@ -1477,3 +1503,100 @@ class DisciplineAnnouncementDetailView(APIView):
             return Response({'error': 'Not found.'}, status=404)
         ann.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# Parent communications
+#
+# Contacting a parent is the Discipline Master's job, not the matron's: a
+# matron reports an incident up, and the office decides whether the family is
+# told and by whom. This used to hang off /imboni/matron/parent-comms/ with
+# IsMatron, which put that decision in the dormitory.
+#
+# The ParentCommunication model stays in apps.matron — it is only the
+# authority over the record that moves, and relocating the table would cost a
+# migration for no behavioural gain.
+
+class DisciplineParentCommsView(APIView):
+    """
+    GET  /imboni/discipline/parent-comms/?type=&outcome=&student_id=&period=
+    POST /imboni/discipline/parent-comms/
+         body: {student_id, parent_contact, comm_type, contacted_at, subject, notes,
+                outcome, urgency, follow_up_required, follow_up_date}
+    """
+    permission_classes = [IsDiscipline]
+
+    def get(self, request):
+        from datetime import timedelta
+        from django.utils import timezone
+
+        qs = ParentCommunication.objects.select_related('student__user').all()
+
+        comm_type = request.query_params.get('type')
+        if comm_type:
+            qs = qs.filter(comm_type=comm_type)
+
+        outcome = request.query_params.get('outcome')
+        if outcome:
+            qs = qs.filter(outcome=outcome)
+
+        student_id = request.query_params.get('student_id')
+        if student_id:
+            qs = qs.filter(student_id=student_id)
+
+        now = timezone.localtime()
+        period = request.query_params.get('period')
+        if period == 'this_month':
+            qs = qs.filter(contacted_at__gte=now.replace(day=1, hour=0, minute=0, second=0, microsecond=0))
+        elif period == 'last_month':
+            month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            last_month_start = (month_start - timedelta(days=1)).replace(day=1)
+            qs = qs.filter(contacted_at__gte=last_month_start, contacted_at__lt=month_start)
+        elif period == 'last_3_months':
+            qs = qs.filter(contacted_at__gte=now - timedelta(days=90))
+
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        this_month_qs = ParentCommunication.objects.filter(contacted_at__gte=month_start)
+        stats = {
+            'calls_this_month':  this_month_qs.filter(comm_type='call').count(),
+            'sms_sent':          this_month_qs.filter(comm_type='sms').count(),
+            'emails_sent':       this_month_qs.filter(comm_type='email').count(),
+            'awaiting_reply':    ParentCommunication.objects.filter(outcome='awaiting_reply').count(),
+        }
+
+        return Response({
+            'stats': stats,
+            'log': ParentCommunicationSerializer(qs, many=True).data,
+        })
+
+    def post(self, request):
+        from apps.student.models import Student
+
+        d = request.data
+        try:
+            student = Student.objects.get(pk=d.get('student_id'))
+        except Student.DoesNotExist:
+            return Response({'error': 'Student not found.'}, status=404)
+
+        record = ParentCommunication.objects.create(
+            student=student,
+            parent_contact=d.get('parent_contact', ''),
+            comm_type=d.get('comm_type', 'call'),
+            # The column is NOT NULL, and this used to pass whatever arrived
+            # straight through — a request that omitted the timestamp raised an
+            # IntegrityError and answered 500. A call logged without a time was
+            # made now, which is the only moment it could have been.
+            contacted_at=d.get('contacted_at') or timezone.now(),
+            subject=d.get('subject', ''),
+            notes=d.get('notes', ''),
+            outcome=d.get('outcome', 'completed'),
+            urgency=d.get('urgency', 'routine'),
+            follow_up_required=d.get('follow_up_required', False),
+            follow_up_date=d.get('follow_up_date') or None,
+            recorded_by=request.user,
+        )
+        return Response(ParentCommunicationSerializer(record).data, status=201)
+
+
+# ---------------------------------------------------------------------------
+# Boarding Schedule (standing weekly routine — read-only for the matron)
+# ---------------------------------------------------------------------------

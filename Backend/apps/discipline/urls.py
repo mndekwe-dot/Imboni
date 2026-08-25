@@ -14,6 +14,7 @@ urlpatterns = [
     path('discipline/reports/<uuid:pk>/review/',            views.DisciplineReportReviewView.as_view(),      name='discipline-report-review'),
 
     # Student Conduct
+    path('discipline/parent-comms/',                        views.DisciplineParentCommsView.as_view(),       name='discipline-parent-comms'),
     path('discipline/students/',                            views.DisciplineStudentListView.as_view(),       name='discipline-students'),
     path('discipline/students/<uuid:pk>/',                  views.DisciplineStudentDetailView.as_view(),     name='discipline-student-detail'),
 

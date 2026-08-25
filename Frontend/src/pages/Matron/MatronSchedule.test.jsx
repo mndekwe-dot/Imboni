@@ -19,7 +19,9 @@ const SCHEDULE = {
         { description: 'Study hour moved to 7pm', changed_by_name: 'Mr. Mutabazi', change_date: '2026-06-20', status: 'new' },
     ],
     weekday_rows: [
-        { time: '6:00 AM', label: 'Wake Up', isBreak: false, cellClass: 'wake', subject: 'Wake Up', teacher: '', room: '' },
+        // Label and activity deliberately differ, so counting the activity
+        // measures how many columns it was drawn into, not the fixture.
+        { time: '6:00 AM', label: 'Rise', isBreak: false, cellClass: 'wake', subject: 'Wake Up', teacher: '', room: '' },
         { time: '12:00 PM', label: 'Lunch', isBreak: true, breakText: 'Lunch Break' },
     ],
     weekend_rows: [
@@ -51,8 +53,8 @@ describe('MatronSchedule', () => {
         getMatronBoardingSchedule.mockResolvedValue(SCHEDULE)
         renderWithRouter(<MatronSchedule />)
 
-        await waitFor(() => expect(screen.getByText('Days in Schedule')).toBeInTheDocument())
-        expect(screen.getByText('Total Activities')).toBeInTheDocument()
+        await waitFor(() => expect(screen.getByText('Days in schedule')).toBeInTheDocument())
+        expect(screen.getByText('Total activities')).toBeInTheDocument()
         expect(screen.getAllByText('Term 2').length).toBeGreaterThan(0)
 
         expect(screen.getByText('Lunch Break')).toBeInTheDocument()
@@ -61,5 +63,45 @@ describe('MatronSchedule', () => {
         expect(screen.getByText('Study hour moved to 7pm')).toBeInTheDocument()
         expect(screen.getByText(/Updated by Mr\. Mutabazi/)).toBeInTheDocument()
         expect(screen.getByText('New')).toBeInTheDocument()
+    })
+
+    /* The weekday routine is one row per slot, not five. Rendering each slot
+       into a Monday..Friday grid drew the same activity five times and implied
+       a variation that neither the routine nor BoardingScheduleSlot has. */
+    it('shows a weekday activity once rather than once per day', async () => {
+        getMatronBoardingSchedule.mockResolvedValue(SCHEDULE)
+        renderWithRouter(<MatronSchedule />)
+
+        await waitFor(() => expect(screen.getAllByText('Wake Up').length).toBeGreaterThan(0))
+        expect(screen.getAllByText('Wake Up')).toHaveLength(1)
+    })
+
+    it('does not head the weekday table with five separate days', async () => {
+        getMatronBoardingSchedule.mockResolvedValue(SCHEDULE)
+        renderWithRouter(<MatronSchedule />)
+
+        await waitFor(() => expect(screen.getByText('Days in schedule')).toBeInTheDocument())
+        expect(screen.queryByRole('columnheader', { name: 'Wednesday' })).not.toBeInTheDocument()
+        expect(screen.getByRole('columnheader', { name: 'Activity' })).toBeInTheDocument()
+    })
+
+    it('still names each weekend day, because Saturday and Sunday do differ', async () => {
+        getMatronBoardingSchedule.mockResolvedValue(SCHEDULE)
+        renderWithRouter(<MatronSchedule />)
+
+        await waitFor(() => expect(screen.getByText('Days in schedule')).toBeInTheDocument())
+        expect(screen.getByRole('columnheader', { name: 'Saturday' })).toBeInTheDocument()
+        expect(screen.getByRole('columnheader', { name: 'Sunday' })).toBeInTheDocument()
+    })
+
+    /* "Read-only" is a restriction. Green is the success colour, and the badge
+       also pulled a .did-* class out of the Discipline stylesheet. */
+    it('marks the routine read-only without dressing it as a success', async () => {
+        getMatronBoardingSchedule.mockResolvedValue(SCHEDULE)
+        const { container } = renderWithRouter(<MatronSchedule />)
+
+        await waitFor(() => expect(screen.getAllByText('Read-only').length).toBeGreaterThan(0))
+        expect(container.querySelectorAll('.badge-readonly').length).toBeGreaterThan(0)
+        expect(container.querySelector('.did-direct-badge')).toBeNull()
     })
 })

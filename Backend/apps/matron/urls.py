@@ -24,7 +24,6 @@ urlpatterns = [
     path('matron/health/<uuid:pk>/',        views.MatronHealthRecordDetailView.as_view(), name='matron-health-detail'),
 
     # Parent Communications
-    path('matron/parent-comms/',            views.MatronParentCommsView.as_view(),      name='matron-parent-comms'),
 
     # Boarding Schedule (standing weekly routine)
     path('matron/boarding-schedule/',       views.MatronBoardingScheduleView.as_view(), name='matron-boarding-schedule'),

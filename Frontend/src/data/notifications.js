@@ -237,7 +237,7 @@ export const notifications = {
       message: 'Mrs. Uwase sent a message about her daughter\'s medication.',
       time: 'Yesterday',
       read: true,
-      path: '/matron/parent-communication',
+      path: '/matron/messages',
     },
     {
       id: 'm4',
