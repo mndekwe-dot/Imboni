@@ -1323,21 +1323,7 @@ class ExtracurricularEntryListView(APIView):
         from .models import ExtracurricularEntry
         week    = request.query_params.get('week', 'default')
         entries = ExtracurricularEntry.objects.filter(week=week).order_by('slot_id', 'day')
-        data    = [
-            {
-                'id':            str(e.id),
-                'week':          e.week,
-                'slot_id':       e.slot_id,
-                'day':           e.day,
-                'activity_type': e.activity_type,
-                'subject':       e.subject,
-                'teacher':       e.teacher,
-                'room':          e.room,
-                'label':         e.label,
-            }
-            for e in entries
-        ]
-        return Response(data)
+        return Response([e.as_entry() for e in entries])
 
     def post(self, request):
         from .models import ExtracurricularEntry
@@ -1355,17 +1341,7 @@ class ExtracurricularEntryListView(APIView):
                     'label':         d.get('label', ''),
                 },
             )
-            return Response({
-                'id':            str(entry.id),
-                'week':          entry.week,
-                'slot_id':       entry.slot_id,
-                'day':           entry.day,
-                'activity_type': entry.activity_type,
-                'subject':       entry.subject,
-                'teacher':       entry.teacher,
-                'room':          entry.room,
-                'label':         entry.label,
-            }, status=201 if created else 200)
+            return Response(entry.as_entry(), status=201 if created else 200)
         except Exception as e:
             return Response({'error': str(e)}, status=400)
 
@@ -1391,17 +1367,7 @@ class ExtracurricularEntryDetailView(APIView):
             if field in request.data:
                 setattr(entry, field, request.data[field])
         entry.save()
-        return Response({
-            'id':            str(entry.id),
-            'week':          entry.week,
-            'slot_id':       entry.slot_id,
-            'day':           entry.day,
-            'activity_type': entry.activity_type,
-            'subject':       entry.subject,
-            'teacher':       entry.teacher,
-            'room':          entry.room,
-            'label':         entry.label,
-        })
+        return Response(entry.as_entry())
 
     def delete(self, request, pk):
         entry = self._get(pk)

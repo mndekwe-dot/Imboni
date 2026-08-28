@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, setSessionUser, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { MatronIncidents } from './MatronIncidents'
-import { getMatronIncidents, createMatronIncident, searchMatronStudents, getMatronDashboard } from '../../api/matron'
+import { getMatronIncidents, createMatronIncident, searchMatronStudents, getMatronDashboard, getMatronStudent } from '../../api/matron'
 import { getSchoolSettings } from '../../api/dos'
 
 vi.mock('../../api/matron', () => ({
@@ -9,6 +9,7 @@ vi.mock('../../api/matron', () => ({
     getMatronIncidents: vi.fn(),
     createMatronIncident: vi.fn(),
     searchMatronStudents: vi.fn(),
+    getMatronStudent: vi.fn(),
 }))
 vi.mock('../../api/dos', () => ({
     getSchoolSettings: vi.fn(),
@@ -121,5 +122,28 @@ describe('MatronIncidents', () => {
         fireEvent.click(screen.getByRole('button', { name: /Reviewed/ }))
         expect(screen.queryByText('Iris N.')).not.toBeInTheDocument()
         expect(screen.getByText('Peter N.')).toBeInTheDocument()
+    })
+
+    /* Arriving from a student on the roll. The id travels in the URL rather
+       than in router state, so a reload does not silently drop the person the
+       report is about. */
+    it('preselects the student named in the URL', async () => {
+        getMatronIncidents.mockResolvedValue([])
+        getMatronStudent.mockResolvedValue({ id: 'b1', student_pk: 's1', name: 'Iris Niyomugabo' })
+
+        renderWithRouter(<MatronIncidents />, { route: '/matron/incidents?student=b1' })
+
+        await waitFor(() => expect(getMatronStudent).toHaveBeenCalledWith('b1'))
+        await waitFor(() => expect(screen.getByRole('combobox')).toHaveValue('Iris Niyomugabo'))
+    })
+
+    it('leaves the picker empty and typeable when the id is unknown', async () => {
+        getMatronIncidents.mockResolvedValue([])
+        getMatronStudent.mockRejectedValue(new Error('404'))
+
+        renderWithRouter(<MatronIncidents />, { route: '/matron/incidents?student=nope' })
+
+        await waitFor(() => expect(getMatronStudent).toHaveBeenCalled())
+        expect(screen.getByRole('combobox')).toHaveValue('')
     })
 })

@@ -27,6 +27,7 @@ urlpatterns = [
 
     # Boarding Schedule (standing weekly routine)
     path('matron/boarding-schedule/',       views.MatronBoardingScheduleView.as_view(), name='matron-boarding-schedule'),
+    path('matron/weekly-schedule/',         views.MatronWeeklyScheduleView.as_view(),    name='matron-weekly-schedule'),
 
     # Medication Schedule
     path('matron/medications/',                        views.MatronMedicationListView.as_view(),       name='matron-medications'),

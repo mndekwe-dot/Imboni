@@ -17,6 +17,7 @@ import { OfflineIndicator } from '../../components/ui/OfflineIndicator'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
+import { downloadCsv } from '../../utils/exportTable'
 import { formatDate } from '../../utils/date'
 import { StatCard } from '../../components/layout/StatCard'
 
@@ -370,6 +371,22 @@ export const MatronHealth = () => {
         ...(STATUS_DISPLAY[r.status] || STATUS_DISPLAY.cleared),
     }))
 
+    /* The Export button was markup with no handler. It writes the history the
+       student filter is currently showing, so the file matches the screen. */
+    function handleExportHistory() {
+        downloadCsv(t('matron.health.visitHistory'), {
+            columns: [
+                t('common.date'), t('common.student'), t('common.type'),
+                t('matron.health.complaintShort'), t('matron.health.tempShort'),
+                t('common.action'), t('common.status'),
+            ],
+            rows: healthHistory.map(r => [
+                r.date, r.name, t(conditionKeys[r.conditionTag]), r.complaint,
+                r.temp, r.action, t(r.statusKey),
+            ]),
+        })
+    }
+
     return (
         <>
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
@@ -506,7 +523,9 @@ export const MatronHealth = () => {
                                             <option key={s.student_pk} value={s.student_pk}>{s.full_name}</option>
                                         ))}
                                     </select>
-                                    <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded">download</span> {t('common.export')}</button>
+                                    <button className="btn btn-outline btn-sm" onClick={handleExportHistory} disabled={!healthHistory.length}>
+                                        <span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}
+                                    </button>
                                 </div>
                             </div>
                             <div className="card-content">

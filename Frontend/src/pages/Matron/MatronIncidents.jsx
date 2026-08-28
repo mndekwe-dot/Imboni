@@ -1,5 +1,5 @@
 ﻿import { Sidebar } from '../../components/layout/Sidebar'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { FilterBar } from '../../components/ui/FilterBar'
@@ -13,11 +13,12 @@ import { matronNavItems, matronSecondaryItems } from './matronNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { formatSchoolDate } from '../../utils/date'
-import { getMatronIncidents, createMatronIncident, searchMatronStudents } from '../../api/matron'
+import { getMatronIncidents, createMatronIncident, searchMatronStudents, getMatronStudent } from '../../api/matron'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useMatronDormitory } from '../../hooks/useMatronDormitory'
+import { downloadCsv } from '../../utils/exportTable'
 
 
 const STATUS_STYLE = {
@@ -77,6 +78,7 @@ export function MatronIncidents() {
     const { setting } = useSchoolSettings()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
+    const [searchParams] = useSearchParams()
     const [filter, setFilter] = useState('all')
     const [reports, setReports] = useState([])
     const [loading, setLoading] = useState(true)
@@ -99,6 +101,26 @@ export function MatronIncidents() {
             .catch(err => setError(err.message))
             .finally(() => setLoading(false))
     }, [])
+
+    /* Arrived from a student on the roll: `?student=<boarding record id>`.
+       The id rather than the name, so the form cannot be opened against a
+       student who merely shares a name with someone; and in the URL rather
+       than in router state, so a reload does not silently drop the person the
+       report is about. */
+    const preselectId = searchParams.get('student')
+    useEffect(() => {
+        if (!preselectId) return
+        let cancelled = false
+        getMatronStudent(preselectId)
+            .then(data => {
+                if (cancelled || !data) return
+                setStudent({ id: data.id, student_pk: data.student_pk, name: data.name })
+            })
+            // An unknown id leaves the picker empty and typeable, which is the
+            // state the page has when opened directly.
+            .catch(() => {})
+        return () => { cancelled = true }
+    }, [preselectId])
 
     function resetForm() {
         setStudent(null); setReportType('incident'); setSeverity('minor')
@@ -145,6 +167,19 @@ export function MatronIncidents() {
     const visible = filter === 'all'
         ? pastReports
         : pastReports.filter(r => r.statusClass === filter)
+
+    /* The Export button was markup with no handler. What it exports is what the
+       filter is currently showing, not the unfiltered set — otherwise the file
+       and the screen disagree about what was asked for. */
+    function handleExport() {
+        downloadCsv(t('matron.incidents.pastReports'), {
+            columns: [
+                t('common.date'), t('common.student'), t('common.type'),
+                t('modals.conduct.severity'), t('matron.incidents.disciplineStatus'),
+            ],
+            rows: visible.map(r => [r.date, r.name, r.type, r.severity, t(r.statusKey)]),
+        })
+    }
 
     if (loading) return (
         <PageLoading
@@ -271,7 +306,9 @@ export function MatronIncidents() {
                         <div className="card">
                             <div className="card-header">
                                 <h3 className="card-title"><span className="material-symbols-rounded">history</span> {t('matron.incidents.pastReports')}</h3>
-                                <button className="btn btn-outline btn-sm"><span className="material-symbols-rounded">download</span> {t('common.export')}</button>
+                                <button className="btn btn-outline btn-sm" onClick={handleExport} disabled={!visible.length}>
+                                    <span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}
+                                </button>
                             </div>
                             <div className="card-content">
                                 <div className="table-responsive">

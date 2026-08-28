@@ -121,18 +121,35 @@ class MatronDashboardView(APIView):
 
 class MatronStudentListView(APIView):
     """
-    Students in the matron's assigned dormitory.
+    The boarding roll.
 
     GET /imboni/matron/students/
-    Optional: ?search=<name>
+    Optional: ?search=<name>   ?dormitory=<house>   ?scope=house
+
+    Scope is the whole school by default. It used to be hard-limited to the
+    matron's own `assigned_dormitory`, which made two ordinary parts of the job
+    impossible: a matron covering another house for a night could not see who
+    she was covering, and a matron who is also a class teacher could not list
+    her class, because a class runs across every dormitory. The house is now a
+    filter — `?scope=house` still returns exactly what this endpoint used to —
+    rather than a wall.
+
+    A matron is school staff with a duty of care to every boarder, so this
+    widens what she can read about boarders, and nothing else: the fields are
+    unchanged (name, class, house, room, boarding type) and there is still no
+    write, no health record and no behaviour record here.
     """
     permission_classes = [IsMatron]
     def get(self, request):
         staff = _get_matron_staff(request)
 
         qs = BoardingStudent.objects.select_related('student__user').filter(is_active=True)
-        if staff and staff.assigned_dormitory:
-            qs = qs.filter(dormitory=staff.assigned_dormitory)
+
+        dormitory = request.query_params.get('dormitory')
+        if request.query_params.get('scope') == 'house' and staff and staff.assigned_dormitory:
+            dormitory = staff.assigned_dormitory
+        if dormitory:
+            qs = qs.filter(dormitory=dormitory)
 
         # A single Q rather than three querysets OR'd together, which joined
         # the same student in more than once.
@@ -144,7 +161,9 @@ class MatronStudentListView(APIView):
                 Q(student__student_id__icontains=search)
             )
 
-        return Response(MatronStudentSerializer(qs[:200], many=True).data)
+        qs = qs.order_by('student__grade', 'student__section', 'student__user__last_name')
+
+        return Response(MatronStudentSerializer(qs[:500], many=True).data)
 
 
 class MatronStudentDetailView(APIView):
@@ -180,6 +199,11 @@ class MatronStudentDetailView(APIView):
 
         return Response({
             'id': str(record.id),
+            # The Student row, not the BoardingStudent row. A behaviour report
+            # is filed against the student; the matron pages reach this record
+            # through the boarding roll, so both keys have to travel or the
+            # report is filed against the wrong table's id.
+            'student_pk': str(student.id),
             'student_id': student.student_id,
             'name': student.user.get_full_name(),
             'grade': student.grade,
@@ -662,6 +686,29 @@ class MatronBoardingScheduleView(APIView):
                 'current_term': current_term.name if current_term else '-',
             },
         })
+
+
+class MatronWeeklyScheduleView(APIView):
+    """
+    GET /imboni/matron/weekly-schedule/?week=default
+
+    The extracurricular / boarding week exactly as the Discipline Office wrote
+    it — the same `ExtracurricularEntry` rows their own grid edits, read-only
+    here. The matron's Daily Schedule renders it through the same <Timetable>
+    component the DOS and Discipline portals use, so a change the Discipline
+    Director makes on Monday is the grid the matron reads on Tuesday, in the
+    same shape, with no second copy of the routine to drift.
+
+    Returns [] for a week nobody has authored yet, which the grid renders as an
+    empty routine rather than an error.
+    """
+    permission_classes = [IsMatron]
+
+    def get(self, request):
+        from apps.discipline.models import ExtracurricularEntry
+        week = request.query_params.get('week', 'default')
+        entries = ExtracurricularEntry.objects.filter(week=week).order_by('slot_id', 'day')
+        return Response([e.as_entry() for e in entries])
 
 
 # ── Medication Schedule ────────────────────────────────────────────────────────
