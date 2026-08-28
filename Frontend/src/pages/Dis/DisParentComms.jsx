@@ -259,7 +259,7 @@ export function DisParentComms() {
                             <div className="card-header">
                                 <h3 className="card-title">
                                     <span className="material-symbols-rounded">add_comment</span>
-                                    {' '}{t('dis.parentComms.logNew')}
+                                    {t('dis.parentComms.logNew')}
                                 </h3>
                             </div>
                             <div className="card-content">
@@ -352,7 +352,7 @@ export function DisParentComms() {
                             <div className="card-header">
                                 <h3 className="card-title">
                                     <span className="material-symbols-rounded">history</span>
-                                    {' '}{t('dis.parentComms.log')}
+                                    {t('dis.parentComms.log')}
                                 </h3>
                             </div>
                             <div className="card-content">

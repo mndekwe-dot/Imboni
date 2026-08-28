@@ -54,11 +54,11 @@ describe('DisStudents', () => {
     renderWithRouter(<DisStudents />)
     await waitFor(() => expect(screen.getByText('Eric N.')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /Behavior Reports/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Behavior Reports/ }))
     await waitFor(() => expect(screen.getByText('1 report awaiting review.')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /Conduct Records/ }))
-    fireEvent.click(screen.getByRole('button', { name: /Behavior Reports/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Conduct Records/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Behavior Reports/ }))
 
     expect(getDisReports).toHaveBeenCalledTimes(1)
   })
@@ -69,7 +69,7 @@ describe('DisStudents', () => {
     reviewDisReport.mockResolvedValue({ status: 'approved', reviewed_by: 'Mr. Mutabazi', reviewed_at: '2026-06-04' })
     renderWithRouter(<DisStudents />)
     await waitFor(() => expect(screen.getByText('Eric N.')).toBeInTheDocument())
-    fireEvent.click(screen.getByRole('button', { name: /Behavior Reports/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Behavior Reports/ }))
     await waitFor(() => expect(screen.getByText('Late')).toBeInTheDocument())
 
     const card = screen.getByText('Late').closest('.dis-pending-card')
@@ -84,10 +84,10 @@ describe('DisStudents', () => {
     getDisReports.mockResolvedValue(REPORTS)
     renderWithRouter(<DisStudents />)
     await waitFor(() => expect(screen.getByText('Eric N.')).toBeInTheDocument())
-    fireEvent.click(screen.getByRole('button', { name: /Behavior Reports/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Behavior Reports/ }))
     await waitFor(() => expect(screen.getByText('Late')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /Approved/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Approved/ }))
 
     expect(screen.getByText('Uniform')).toBeInTheDocument()
   })
@@ -97,10 +97,10 @@ describe('DisStudents', () => {
     getDisReports.mockResolvedValue(REPORTS)
     renderWithRouter(<DisStudents />)
     await waitFor(() => expect(screen.getByText('Eric N.')).toBeInTheDocument())
-    fireEvent.click(screen.getByRole('button', { name: /Behavior Reports/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Behavior Reports/ }))
     await waitFor(() => expect(screen.getByText('Late')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /Rejected/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Rejected/ }))
 
     expect(screen.getByText('Fight')).toBeInTheDocument()
     expect(screen.getByText('Reason: Insufficient evidence')).toBeInTheDocument()
@@ -112,9 +112,9 @@ describe('DisStudents', () => {
     updateDisReport.mockResolvedValue({})
     renderWithRouter(<DisStudents />)
     await waitFor(() => expect(screen.getByText('Eric N.')).toBeInTheDocument())
-    fireEvent.click(screen.getByRole('button', { name: /Behavior Reports/ }))
-    await waitFor(() => expect(screen.getByRole('button', { name: /Approved/ })).toBeInTheDocument())
-    fireEvent.click(screen.getByRole('button', { name: /Approved/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Behavior Reports/ }))
+    await waitFor(() => expect(screen.getByRole('tab', { name: /Approved/ })).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('tab', { name: /Approved/ }))
     await waitFor(() => expect(screen.getByText('Uniform')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: 'Mark Done' }))

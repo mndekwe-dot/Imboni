@@ -18,6 +18,7 @@ import '../../styles/discipline.css'
 import '../../styles/tables.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
+import { TabGroup } from '../../components/ui/TabGroup'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 
 const BOARDING_TYPE_LABEL = {
@@ -301,10 +302,10 @@ export function DisBoarding() {
         : students.filter(s => s.dormitory === filter)
 
     const stats = [
-        { iconClass: 'info',    icon: 'home',            value: students.filter(s => s.boarding_type === 'full_boarder').length,   label: 'Full Boarders'   },
-        { iconClass: 'warning', icon: 'weekend',         value: students.filter(s => s.boarding_type === 'weekly_boarder').length, label: 'Weekly Boarders' },
-        { iconClass: 'success', icon: 'directions_walk', value: students.filter(s => s.boarding_type === 'day_scholar').length,    label: 'Day Scholars'    },
-        { iconClass: '',        icon: 'groups',          value: students.length,                                                   label: 'Total Students'  },
+        { iconClass: 'info',    icon: 'home',            value: students.filter(s => s.boarding_type === 'full_boarder').length,   label: t('common.fullBoarders')   },
+        { iconClass: 'warning', icon: 'weekend',         value: students.filter(s => s.boarding_type === 'weekly_boarder').length, label: t('common.weeklyBoarders')    },
+        { iconClass: 'success', icon: 'directions_walk', value: students.filter(s => s.boarding_type === 'day_scholar').length,    label: t('common.dayScholars')       },
+        { iconClass: '',        icon: 'groups',          value: students.length,                                                   label: t('common.totalStudents')  },
     ]
 
     async function handleCreate(data) {
@@ -335,7 +336,7 @@ export function DisBoarding() {
                 />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
@@ -350,16 +351,20 @@ export function DisBoarding() {
                             ))}
                         </div>
 
-                        <div className="rpt-tab-bar">
-                            <button className={`rpt-tab${tab === 'records' ? ' active' : ''}`}
-                                    onClick={() => setTab('records')}>
-                                <span className="material-symbols-rounded">hotel</span> {t('dis.boarding.records')}
-                            </button>
-                            <button className={`rpt-tab${tab === 'planner' ? ' active' : ''}`}
-                                    onClick={() => setTab('planner')}>
-                                <span className="material-symbols-rounded">auto_awesome</span> {t('dis.boarding.dormPlanner')}
-                            </button>
-                        </div>
+                        {/* The shared tab bar. This was `.rpt-tab-bar`, a
+                            third tab style that existed on this page alone —
+                            an underlined row, while Student Life used the
+                            raised chips and DisStudents used filter pills. */}
+                        <TabGroup
+                            tabs={[
+                                { key: 'records', label: t('dis.boarding.records'),     icon: 'hotel' },
+                                { key: 'planner', label: t('dis.boarding.dormPlanner'), icon: 'auto_awesome' },
+                            ]}
+                            value={tab}
+                            onChange={setTab}
+                            label={t('dis.boarding.title')}
+                            idPrefix="dis-boarding-"
+                        />
 
                         {tab === 'planner' && (
                             <DormPlannerTab
@@ -377,8 +382,12 @@ export function DisBoarding() {
                                         {t('dis.boarding.occupancy')}
                                     </h2>
                                     <span className="dis-occ-note">
-                                        {occupancy.total_boarders} boarders / {occupancy.total_capacity} beds
-                                        {occupancy.unassigned > 0 && ` · ${occupancy.unassigned} unassigned`}
+                                        {t('dis.boarding.occupancySummary', {
+                                            boarders: occupancy.total_boarders,
+                                            beds: occupancy.total_capacity,
+                                        })}
+                                        {occupancy.unassigned > 0
+                                            && ` · ${t('dis.boarding.unassignedCount', { count: occupancy.unassigned })}`}
                                     </span>
                                 </div>
                                 <div className="card-content">
@@ -407,8 +416,10 @@ export function DisBoarding() {
                                                     </div>
                                                     <div className="dis-occ-free">
                                                         {d.capacity
-                                                            ? d.available === 0 ? 'Full' : `${d.available} bed${d.available !== 1 ? 's' : ''} free`
-                                                            : 'No capacity set'}
+                                                            ? d.available === 0
+                                                                ? t('common.full')
+                                                                : t('dis.boarding.bedsFree', { count: d.available })
+                                                            : t('dis.boarding.noCapacity')}
                                                     </div>
                                                 </div>
                                             )
@@ -425,16 +436,16 @@ export function DisBoarding() {
                                     value={filter}
                                     onChange={e => setFilter(e.target.value)}
                                 >
-                                    <option value="all">All Dormitories</option>
+                                    <option value="all">{t('common.allDormitories')}</option>
                                     {sectionGroups.map(({ name: secName, dorms }) => (
                                         <optgroup key={secName} label={secName}>
                                             {dorms.map(d => (
-                                                <option key={d.name} value={d.name}>{d.name}{d.capacity ? ` (cap. ${d.capacity})` : ''}</option>
+                                                <option key={d.name} value={d.name}>{d.name}{d.capacity ? ` (${t('dis.boarding.capShort', { count: d.capacity })})` : ''}</option>
                                             ))}
                                         </optgroup>
                                     ))}
                                     {unsectionedDorms.map(d => (
-                                        <option key={d.name} value={d.name}>{d.name}{d.capacity ? ` (cap. ${d.capacity})` : ''}</option>
+                                        <option key={d.name} value={d.name}>{d.name}{d.capacity ? ` (${t('dis.boarding.capShort', { count: d.capacity })})` : ''}</option>
                                     ))}
                                     {fallbackNames.map(n => (
                                         <option key={n} value={n}>{n}</option>
@@ -448,12 +459,16 @@ export function DisBoarding() {
                         </div>
 
                         {loading ? (
-                            <p className="u-pad u-muted">Loading boarding records…</p>
+                            <p className="u-pad u-muted">{t('dis.boarding.loading')}</p>
                         ) : (
                             <DataTable
                                 title={t('dis.boarding.students')}
                                 data={visible}
-                                columns={['Student', 'Class', 'Student ID', 'Dormitory', 'Room / Bed', 'Type', 'Check-in', 'Actions']}
+                                columns={[
+                                    t('common.student'), t('common.class'), t('common.admissionNo'),
+                                    t('common.dormitory'), t('dis.boarding.roomBed'), t('common.type'),
+                                    t('dis.boarding.checkIn'), t('common.actions'),
+                                ]}
                                 renderRow={(r, i) => (
                                     <BoardingRow
                                         key={r.id || i}

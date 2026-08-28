@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router';
+import { Routes, Route, Navigate } from 'react-router';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { usePortalTheme } from './hooks/usePortalTheme';
 import { useSyncStoredLanguage } from './hooks/useLanguage';
@@ -86,7 +86,6 @@ const DisBoarding         = load(() => import('./pages/Dis/DisBoarding'), 'DisBo
 const DisDining           = load(() => import('./pages/Dis/DisDining'), 'DisDining');
 const DisMessages         = load(() => import('./pages/Dis/DisMessages'), 'DisMessages');
 const DisStaff            = load(() => import('./pages/Dis/DisStaff'), 'DisStaff');
-const DisStudentLeaders   = load(() => import('./pages/Dis/DisStudentLeaders'), 'DisStudentLeaders');
 const DisTimetable        = load(() => import('./pages/Dis/DisTimetable'), 'DisTimetable');
 const DisAnnouncements    = load(() => import('./pages/Dis/DisAnnouncements'), 'DisAnnouncements');
 const DisSettings         = load(() => import('./pages/Dis/DisSettings'), 'DisSettings');
@@ -262,7 +261,10 @@ function App() {
       {/* legacy routes kept for compatibility */}
       <Route path="/discipline/activities" element={<ProtectedRoute role="discipline"><DisActivities /></ProtectedRoute>} />
       <Route path="/discipline/dining" element={<ProtectedRoute role="discipline"><DisDining /></ProtectedRoute>} />
-      <Route path="/discipline/leaders" element={<ProtectedRoute role="discipline"><DisStudentLeaders /></ProtectedRoute>} />
+      {/* Was a second, read-only copy of Student Life's Leaders tab — same
+          cards, same table, but no way to appoint or remove anyone, and
+          reachable only by typing the address. The real one is one route. */}
+      <Route path="/discipline/leaders" element={<Navigate to="/discipline/student-life?tab=leaders" replace />} />
       <Route path="/discipline/settings" element={<ProtectedRoute role="discipline"><DisSettings /></ProtectedRoute>} />
       {/* ── DOS routes ── */}
       <Route path="/dos" element={<ProtectedRoute role="dos"><DosDashboard /></ProtectedRoute>} />

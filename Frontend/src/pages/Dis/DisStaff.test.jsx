@@ -45,6 +45,9 @@ describe('DisStaff', () => {
         expect(screen.getByText(/Patron \(S2\)/)).toBeInTheDocument()
         expect(screen.getByText('1 Matrons')).toBeInTheDocument()
         expect(screen.getByText('1 Patrons')).toBeInTheDocument()
+        // One "Add Staff" action for the page, in the header -- not one wedged
+        // between the matrons heading and the matrons grid.
+        expect(screen.getAllByRole('button', { name: /Add Staff/i })).toHaveLength(1)
     })
 
     it('shows empty messages when there are no matrons or patrons', async () => {
@@ -52,6 +55,19 @@ describe('DisStaff', () => {
         renderWithRouter(<DisStaff />)
         await waitFor(() => expect(screen.getByText('No matrons on record.')).toBeInTheDocument())
         expect(screen.getByText('No patrons on record.')).toBeInTheDocument()
+        // Each empty section offers the action that would fill it.
+        expect(screen.getByRole('button', { name: /Add a matron/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /Add a patron/i })).toBeInTheDocument()
+    })
+
+    it('filters the list as you type', async () => {
+        getDisStaff.mockResolvedValue([matron, patron])
+        renderWithRouter(<DisStaff />)
+        await waitFor(() => expect(screen.getByText('Mrs. G. Hakizimana')).toBeInTheDocument())
+
+        fireEvent.change(screen.getByPlaceholderText(/Search staff/i), { target: { value: 'Nkurunziza' } })
+        expect(screen.getByText('Mr. G. Nkurunziza')).toBeInTheDocument()
+        expect(screen.queryByText('Mrs. G. Hakizimana')).not.toBeInTheDocument()
     })
 
     it('adds a new staff member and persists it via the API', async () => {

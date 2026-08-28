@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { useToast } from '../../context/ToastContext'
@@ -186,7 +187,7 @@ export function DisDashboard() {
                             <div className="card">
                                 <div className="card-header">
                                     <h3 className="card-title"><span className="material-symbols-rounded">history</span> Recent Incidents</h3>
-                                    <a href="/discipline/reports" className="btn btn-outline btn-sm">View All</a>
+                                    <Link to="/discipline/students?tab=reports" className="btn btn-outline btn-sm">{t('common.viewAll')}</Link>
                                 </div>
                                 <div className="card-content">
                                     {loading ? (
@@ -303,7 +304,7 @@ export function DisDashboard() {
                                 <div className="card">
                                     <div className="card-header">
                                         <h3 className="card-title"><span className="material-symbols-rounded">supervisor_account</span> Staff Under Supervision</h3>
-                                        <a href="/discipline/staff" className="btn btn-outline btn-sm">Manage</a>
+                                        <Link to="/discipline/staff" className="btn btn-outline btn-sm">{t('common.manage')}</Link>
                                     </div>
                                     <div className="card-content">
                                         {loading ? (

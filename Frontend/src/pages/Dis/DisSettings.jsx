@@ -5,6 +5,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { TabGroup } from '../../components/ui/TabGroup'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
 import {
@@ -470,14 +471,19 @@ export function DisSettings() {
                     />
                     <DashboardContent>
 
-                        <div className="filter-tabs-bar mb-5">
-                            <button className={`filter-tab${activeTab === 'facilities' ? ' active' : ''}`} onClick={() => setActiveTab('facilities')}>
-                                <span className="material-symbols-rounded">apartment</span> {t('dis.settings.tabFacilities')}
-                            </button>
-                            <button className={`filter-tab${activeTab === 'structure' ? ' active' : ''}`} onClick={() => setActiveTab('structure')}>
-                                <span className="material-symbols-rounded">layers</span> {t('dis.settings.tabStructure')}
-                            </button>
-                        </div>
+                        {/* Tabs switch a panel, so this is <TabGroup>. It was
+                            built from .filter-tab chips — the control the app
+                            uses for narrowing a list in place. */}
+                        <TabGroup
+                            tabs={[
+                                { key: 'facilities', label: t('dis.settings.tabFacilities'), icon: 'apartment' },
+                                { key: 'structure',  label: t('dis.settings.tabStructure'),  icon: 'layers'    },
+                            ]}
+                            value={activeTab}
+                            onChange={setActiveTab}
+                            label={t('nav.settings')}
+                            idPrefix="dis-settings-"
+                        />
 
                         {/* ── FACILITIES TAB ── */}
                         {activeTab === 'facilities' && (

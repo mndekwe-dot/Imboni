@@ -87,7 +87,7 @@ describe('DisStudentLife', () => {
     renderWithRouter(<DisStudentLife />)
     await waitFor(() => expect(screen.getByText('No activities found.')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /Student Leaders/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Student Leaders/ }))
 
     await waitFor(() => expect(screen.getByText('Eric N.')).toBeInTheDocument())
     expect(screen.getByText('Alice M.')).toBeInTheDocument()
@@ -99,7 +99,7 @@ describe('DisStudentLife', () => {
     deleteDisStudentLeader.mockResolvedValue({})
     renderWithRouter(<DisStudentLife />)
     await waitFor(() => expect(screen.getByText('No activities found.')).toBeInTheDocument())
-    fireEvent.click(screen.getByRole('button', { name: /Student Leaders/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Student Leaders/ }))
     await waitFor(() => expect(screen.getByText('Alice M.')).toBeInTheDocument())
 
     const row = screen.getByText('Alice M.').closest('tr')

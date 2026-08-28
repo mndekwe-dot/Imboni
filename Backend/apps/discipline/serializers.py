@@ -5,11 +5,15 @@ from .models import DisciplineStaff, StudentLeader, BoardingStudent, DiningPlan
 class DisciplineStaffSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     email = serializers.CharField(source='user.email', read_only=True)
+    # The account behind the staff record. `id` is the DisciplineStaff row, and
+    # messaging addresses a USER — without this the Message button on a staff
+    # card had no one to open a conversation with.
+    user_id = serializers.UUIDField(source='user.id', read_only=True)
 
     class Meta:
         model = DisciplineStaff
         fields = [
-            'id', 'full_name', 'email', 'staff_type',
+            'id', 'user_id', 'full_name', 'email', 'staff_type',
             'assigned_dormitory', 'assigned_grade', 'is_active', 'created_at',
         ]
 
