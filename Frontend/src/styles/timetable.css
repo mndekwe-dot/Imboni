@@ -530,3 +530,25 @@
     flex-wrap: wrap;
     gap: 0.5rem;
 }
+
+
+/* ── Week-change overlay ──────────────────────────────────────────────────
+   Shown over the grid while another week loads. The grid stays mounted
+   underneath: unmounting it resets WeekPicker to today, so navigating to next
+   week snapped straight back to this one.
+
+   It lived in discipline.css as `.dis-fetch-overlay` until the matron page
+   started rendering the same grid — a shared component cannot reach into one
+   portal's stylesheet, so it belongs beside the grid it covers. */
+.tt-fetch-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--scrim);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+}
+.tt-fetch-overlay-label { font-size: var(--text-sm); color: var(--muted-foreground); }

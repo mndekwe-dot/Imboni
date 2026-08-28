@@ -130,7 +130,7 @@ export function LandingPage() {
                         <Link to="/contact">{t('publicNav.contact')}</Link>
                         <Link to="/signup">{t('publicNav.signUpSchool')}</Link>
                     </div>
-                    <LanguageSwitcher compact />
+                    <LanguageSwitcher variant="buttons" compact />
                     <Link to="/login" className="landing-nav-signin">
                         <span className="material-symbols-rounded">login</span>
                         {t('publicNav.signIn')}

@@ -472,7 +472,7 @@
 .adm-ann-meta    { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
 .adm-ann-cat     { font-size: var(--text-caption); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: var(--cat-badge, var(--muted)); color: var(--cat-text, var(--muted-foreground)); border-radius: 4px; padding: 0.1rem 0.45rem; }
 .adm-ann-time    { font-size: var(--text-caption); color: var(--muted-foreground); }
-.adm-ann-title   { margin: 0 0 0.3rem; font-size: var(--text-body); font-weight: 600; color: var(--foreground); }
+.adm-ann-title   { margin: 0 0 0.3rem; font-size: var(--text-body); font-weight: 700; color: var(--foreground); }
 .adm-ann-text    { margin: 0 0 0.75rem; font-size: var(--text-sm); color: var(--muted-foreground); line-height: 1.55; white-space: pre-wrap; }
 .adm-ann-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
@@ -490,7 +490,7 @@
 .adm-editblock     { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.875rem 1rem; margin-top: 0.75rem; background: var(--background); }
 .adm-editblock-pad { padding: 1rem; }                                    /* TypeBlock uses flat 1rem padding */
 .adm-editblock-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
-.adm-editblock-title { font-weight: 600; font-size: var(--text-body); }
+.adm-editblock-title { font-weight: 700; font-size: var(--text-body); }
 .adm-type-title    { font-weight: 700; font-size: var(--text-body); }
 .adm-icon-muted    { color: var(--muted-foreground); }   /* icon-button colour only; icon font-size stays inline */
 .adm-icon-danger   { color: var(--danger); }             /* bare, matching originals — see note: --danger is undefined project-wide */

@@ -658,24 +658,22 @@
   line-height: 1.2;
 }
 
-/* ---- Header Language Switcher ---- */
-.dashboard-header-actions .lang-switch--compact {
-  margin-right: 0.25rem;
-}
-.dashboard-header-actions .lang-switch-options {
+/* ---- Header Language Switcher ----
+   The header sits on the dark chrome, so the trigger is re-tinted for it. The
+   OPEN MENU is not: it is a popover on the page, and it keeps the light card
+   colours it has everywhere else. */
+.dashboard-header-actions .lang-menu-trigger {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-.dashboard-header-actions .lang-switch-btn {
-  color: rgba(255, 255, 255, 0.8);
-}
-.dashboard-header-actions .lang-switch-btn:hover:not(.active):not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.22);
   color: #ffffff;
 }
-.dashboard-header-actions .lang-switch-btn.active {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  box-shadow: none;
+.dashboard-header-actions .lang-menu-trigger:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.dashboard-header-actions .lang-menu-globe,
+.dashboard-header-actions .lang-menu-caret {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .header-user-av {

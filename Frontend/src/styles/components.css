@@ -15,7 +15,10 @@
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   font-size: var(--text-sm);
-  font-weight: 500;
+  /* Control-label weight — the same 600 as .tab-btn, .filter-tab and
+     .sidebar-nav-item. A button at 500 sat lighter than the tab bar above it
+     and lighter than the nav rail beside it, for the same kind of thing. */
+  font-weight: 600;
   border-radius: var(--radius);
   border: none;
   cursor: pointer;
@@ -112,13 +115,35 @@
   .card-header { padding: 0.75rem 1rem; }
 }
 
+/* A PANEL heading, one step below the page title in the header.
+   It was --text-title/600, the same size as the <h1> in the dashboard header,
+   so every card on a page shouted as loudly as the name of the page itself and
+   louder than the DataTable panel beside it (.dt-title, --text-body/700).
+   Three treatments of one thing; this is now the one, and .dt-title and
+   .disc-section-title already match it. See TYPE ROLES in ARCHITECTURE.md.
+
+   No margin-bottom: .card-header is a flex row, so the margin only pushed the
+   title up out of line with the button sitting next to it. */
 .card-title {
-  font-size: var(--text-title);
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+  /* A flex row, because a card heading nearly always leads with an icon. As a
+     plain block the icon sat on the text BASELINE at its default 24px next to
+     15px text — the heading grew a step taller and the icon hung below the
+     letters. This is what "Weekly boarding routine" looked like. */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-body);
+  font-weight: 700;
   word-wrap: break-word;
   overflow-wrap: break-word;
   color: var(--card-foreground);
+}
+/* An icon in a heading takes the heading's scale. Callers should not have to
+   remember `icon-sm` on every one of the hundred card titles in the app. */
+.card-title .material-symbols-rounded {
+  font-size: var(--icon-md);
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 /* Count pill appended to a heading, e.g. "Clubs (3)" */
@@ -330,9 +355,17 @@ table {
   max-width: 100%;
 }
 
+/* A column heading, wherever a table is written by hand rather than through
+   <DataTable>. It used to be --text-body/500 in sentence case while every
+   DataTable header was --text-caption/700 uppercase — so the Recent Incidents
+   table on a dashboard and the students table one click away looked like they
+   came from different applications. Same rule as .dt-table th now. */
 th {
   text-align: left;
-  font-weight: 500;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--muted-foreground);
   border-bottom: 1px solid var(--border);
   padding: 0.75rem 0.5rem;
@@ -867,7 +900,11 @@ tr:hover td {
 .tt-modal-header .material-symbols-rounded { font-size: var(--icon-md); color: var(--portal-accent, var(--primary)); }
 .tt-modal-title {
     flex: 1;
-    font-size: var(--text-body);
+    /* Dialog-title role — the same as .modal-title on the older
+       .modal-overlay dialogs. The app has two dialog systems and they set
+       their titles three points apart, so which size a dialog's heading took
+       depended on which one a page happened to use. */
+    font-size: var(--text-title);
     font-weight: 700;
     color: var(--foreground);
     margin: 0;
@@ -1023,14 +1060,11 @@ tr:hover td {
   th,
   td {
     padding: 0.75rem 0.375rem;
-    font-size: var(--text-sm);
   }
-
-  th {
-    font-size: var(--text-caption);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
+  td { font-size: var(--text-sm); }
+  /* The narrow-screen th block used to restate the caption size, uppercase and
+     letter-spacing, because the base rule did not have them. It does now, and
+     the restatement had drifted to a different letter-spacing (0.05 vs 0.04). */
 }
 
 @media (hover: none) {
@@ -1142,6 +1176,249 @@ tr:hover td {
   background: var(--card);
   color: var(--primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10);
+}
+
+/* The "there is work behind this tab" pill. Inherits the tab's own colour, so
+   it reads as part of the label rather than as a separate badge. */
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--radius-full);
+  background: var(--destructive-surface);
+  color: var(--destructive-text);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* ===============================================
+   ICON SIZES
+
+   `<span className="material-symbols-rounded icon-sm">` is written in 56 files
+   across every portal. These four rules used to live in teacher.css — one
+   portal's stylesheet, imported by 13 files — so everywhere else the class was
+   inert and the icon fell back to the font's own 24px next to 13px text. That
+   is most of the icon-beside-word misalignment in the app.
+
+   `.icon-md` was also defined as `--icon-sm`, so asking for a medium icon gave
+   a small one and there was no way to get 20px at all.
+
+   Prefer letting the CONTAINER size its icons (.btn, .card-title, .filter-tab
+   and .badge all do) and reach for these only when one icon in a row needs to
+   differ from its neighbours.
+   =============================================== */
+.icon-xs { font-size: var(--icon-xs); }
+.icon-sm { font-size: var(--icon-sm); }
+.icon-md { font-size: var(--icon-md); }
+.icon-lg { font-size: var(--icon-lg); }
+
+/* Whatever the size, an icon beside text is centred on it, never on the
+   baseline, and never stretched by a flex parent. */
+.icon-xs, .icon-sm, .icon-md, .icon-lg {
+  line-height: 1;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* A badge is a label with an optional mark; the mark takes the label's scale. */
+.badge .material-symbols-rounded { font-size: var(--icon-sm); line-height: 1; flex-shrink: 0; }
+
+/* ===============================================
+   A ROW THAT OPENS SOMETHING
+
+   A list row whose whole area is the target. The row alone is never enough:
+   a <tr onClick> cannot be tabbed to and is announced as nothing, so the row
+   must always ALSO contain a real control (`.link-button` below) carrying the
+   same action. The row is the convenience; the button is the affordance.
+   =============================================== */
+.row-clickable { cursor: pointer; }
+.row-clickable:hover { background: var(--muted); }
+/* The row is not focusable, so the ring belongs to the control inside it —
+   but the row still lights up, so keyboard and pointer see the same highlight. */
+.row-clickable:focus-within { background: var(--muted); }
+
+/* Text that acts like a link but is a button, because it does something on
+   this page rather than going to a URL. Inherits the surrounding type so it
+   does not become a second style of student name. */
+.link-button {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.link-button:hover { color: var(--portal-accent, var(--primary)); text-decoration: underline; }
+
+/* ===============================================
+   STUDENT DETAIL DIALOG — components/modals/MatronStudentModal.jsx
+   =============================================== */
+.stu-modal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.stu-modal-av { width: 48px; height: 48px; font-size: var(--text-body); }
+.stu-modal-name { font-size: var(--text-body); font-weight: 700; }
+.stu-modal-sub  { font-size: var(--text-sm); color: var(--muted-foreground); }
+.stu-modal-head .conduct-badge { margin-left: auto; }
+
+.stu-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.85rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.stu-modal-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+/* Label role — same treatment as a column heading, because it is the same job. */
+.stu-modal-field-label {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.stu-modal-field-value {
+  font-size: var(--text-body);
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}
+
+.stu-modal-section {
+  font-size: var(--text-body);
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+}
+.stu-modal-record { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.stu-modal-record-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.stu-modal-record-row:last-child { border-bottom: none; }
+.stu-modal-record-body { min-width: 0; }
+.stu-modal-record-title { font-size: var(--text-sm); font-weight: 600; }
+.stu-modal-record-meta  { font-size: var(--text-caption); color: var(--muted-foreground); }
+
+/* ===============================================
+   CLASS PICKER — components/ui/ClassPicker.jsx
+
+   Section -> Year -> Class, rendered by Admin, DOS, Discipline, Matron and
+   Teacher pages. It lived in discipline.css as `.disc-picker*`, so five
+   portals reached into the Discipline stylesheet for it and its focus and
+   active colours were `--discipline` on all of them. They spend
+   `--portal-accent` now, so the picker takes the colour of the portal it is
+   standing in.
+   =============================================== */
+
+.class-picker {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.class-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 130px;
+}
+
+/* Label role: --text-caption/700 UPPERCASE — the same treatment as a table
+   column heading, because it is the same job. See ARCHITECTURE.md section 0. */
+.class-picker-label {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Also used on its own by the Settings pages and the matron's house filter,
+   which is why the name is not class-picker-specific. */
+.picker-select {
+  min-height: var(--touch-min);
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+.picker-select:hover { border-color: var(--border-hover, var(--border)); }
+.picker-select:focus-visible { border-color: var(--portal-accent, var(--primary)); }
+
+/* The selection spelled out, so the picker states its own result rather than
+   leaving three dropdowns to be read back. */
+.class-picker-current {
+  margin-left: auto;
+  align-self: center;
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--portal-accent, var(--primary));
+}
+
+/* ── Chip variant ─────────────────────────────────────────────────────── */
+.class-picker-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.class-picker-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.class-picker-chip {
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast),
+              color var(--transition-fast);
+}
+.class-picker-chip:hover {
+  border-color: var(--portal-accent, var(--primary));
+  color: var(--portal-accent, var(--primary));
+}
+.class-picker-chip.active {
+  background: var(--portal-accent, var(--primary));
+  border-color: var(--portal-accent, var(--primary));
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .class-picker { padding: 0.85rem 1rem; }
+  .class-picker-group { flex: 1 1 100%; min-width: 0; }
+  .class-picker-current { margin-left: 0; align-self: flex-start; }
 }
 
 /* ===============================================
@@ -1292,6 +1569,16 @@ tr:hover td {
   display: flex;
   align-items: center;
   gap: 0.625rem;
+}
+/* The icon takes the title's scale, as .tt-modal-header already did. Without
+   it this dialog system drew a 24px icon beside an 18px heading while the other
+   drew a 20px one — the same dialog, two shapes, depending on which system the
+   page used. */
+.modal-header-left .material-symbols-rounded {
+  font-size: var(--icon-md);
+  line-height: 1;
+  flex-shrink: 0;
+  color: var(--portal-accent, var(--primary));
 }
 
 .modal-title {
@@ -1666,7 +1953,7 @@ tr:hover td {
   background: var(--card);
   color: var(--muted-foreground);
   font-size: var(--text-sm, 0.8rem);
-  font-weight: 500;
+  font-weight: 600;       /* control-label weight, as .btn and .tab-btn */
   font-family: inherit;   /* a bare <button> otherwise falls back to the UA font */
   cursor: pointer;
   transition: background-color var(--transition-fast),
@@ -1684,6 +1971,8 @@ tr:hover td {
   border-color: var(--portal-accent, var(--primary));
   color: #fff;
 }
+
+.filter-tab .material-symbols-rounded { font-size: var(--icon-sm); flex-shrink: 0; }
 
 /* Count badge inside a tab; legible on both the resting and active surface. */
 .filter-tab .badge {

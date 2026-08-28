@@ -17,46 +17,95 @@
   box-shadow: var(--toolbar-shadow);
 }
 
-.toolbar-search {
+.toolbar-spacer { flex: 1; }
+
+/* ── SearchBar — components/ui/SearchBar.jsx ───────────────────────────────
+   The shared search field. It replaces the .toolbar-search markup each list
+   page carried its own copy of.
+
+   Two deliberate differences from what it replaces. It is full height, because
+   search is the control a list page is used through and a 30px strip is not a
+   target. And the WRAPPER carries the focus state while the input's own ring
+   is suppressed — index.css rings every focusable in --primary, and with the
+   wrapper ringed as well one field wore two brand-coloured rings. On the
+   matron portal, whose --primary is magenta, that read as a validation error
+   on an empty search box. */
+.search-bar {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  background: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.45rem var(--space-3);
   flex: 1;
-  min-width: 180px;
-  transition: border-color var(--transition-fast);
+  min-width: 200px;
+  min-height: var(--touch-min);
+  padding: 0 var(--space-4);
+  background: var(--muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
 }
-.toolbar-search:focus-within {
-  border-color: var(--primary);
+.search-bar:hover { background: var(--muted-hover, var(--muted)); }
+
+/* Focus is signalled by the field LIFTING off the toolbar — muted fill to card
+   fill, plus a quiet neutral edge. No brand colour: --primary is magenta on the
+   matron portal and crimson on others, and a coloured ring around an empty
+   search box reads as a validation error on a field that cannot be invalid. */
+.search-bar:focus-within {
   background: var(--card);
+  border-color: var(--border-hover, var(--border));
+  box-shadow: var(--shadow-sm);
 }
-.toolbar-search .material-symbols-rounded {
-  font-size: var(--icon-sm);
+
+/* A keyboard user needs to find the field without a pointer, so tabbing to it
+   earns a fuller ring — still neutral, and still not the error colour. Pointer
+   focus does not trigger :focus-visible, so clicking in stays quiet. */
+.search-bar:has(.search-bar-input:focus-visible) {
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 3px var(--muted);
+}
+
+.search-bar-icon {
+  font-size: var(--icon-md);
   color: var(--muted-foreground);
   flex-shrink: 0;
 }
-.toolbar-search input {
+
+.search-bar-input {
+  flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
-  outline: none;
-  font-size: var(--text-sm);
+  font-family: inherit;
+  font-size: var(--text-body);
   color: var(--foreground);
-  width: 100%;
+  padding: 0.7rem 0;
 }
-.toolbar-search-clear {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 0;
+/* The wrapper above is the focus indicator. Without this the browser draws a
+   second one inside it. */
+.search-bar-input:focus,
+.search-bar-input:focus-visible { outline: none; }
+.search-bar-input::placeholder { color: var(--muted-foreground); }
+/* WebKit adds its own clear affordance to type="search"; we ship one that
+   matches the rest of the app and can be reached by keyboard. */
+.search-bar-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+.search-bar-clear {
   display: flex;
-  color: var(--muted-foreground);
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
-.toolbar-search-clear .material-symbols-rounded { font-size: var(--icon-sm); }
-.toolbar-spacer { flex: 1; }
+.search-bar-clear:hover { background: var(--surface-3, var(--muted)); color: var(--foreground); }
+.search-bar-clear .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* ── DataTable container ─────────────────────────── */
 .dt-container {

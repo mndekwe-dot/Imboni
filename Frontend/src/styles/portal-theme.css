@@ -285,16 +285,22 @@
 
 /* ── 6. Type hierarchy ───────────────────────────────────── */
 
-/* Six steps, and only one thing at each level per screen:
-   display = the page title (in the header, once)
-   title   = a card or section heading
+/* One thing at each level per screen. The ROLE table in ARCHITECTURE.md is the
+   reference; this is where the shared chrome spends it:
+   title   = the page title, in the header, once
+   body/700 = a card or section heading
    body    = prose and controls
    sm      = table cells, secondary lines
-   caption = labels, badges, meta */
+   caption = column headings, labels, badges, meta
+
+   A panel heading used to be --text-title/600 here — the same size as the page
+   title in the header above it, and larger than .dt-title on a DataTable panel
+   right beside it. Three sizes for one thing. This rule out-specifies the one
+   in components.css, so it is the one that was actually rendering. */
 [data-portal] .card-title,
 [data-portal] .overview-panel-title {
-  font-size: var(--text-title);
-  font-weight: 600;
+  font-size: var(--text-body);
+  font-weight: 700;
   line-height: var(--leading-tight);
   letter-spacing: -0.01em;
   color: var(--foreground);
@@ -488,9 +494,14 @@
 [data-portal] .data-table th {
   background: var(--surface-2);
   color: var(--muted-foreground);
+  /* Column heading: --text-caption/700 UPPERCASE at 0.04em, the same as
+     .dt-table th and the bare th. This block was 600 at 0.02em and no
+     uppercase, so a .data-table on one page and a <DataTable> on the next set
+     their headings differently. */
   font-size: var(--text-caption);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   border-bottom: 1px solid var(--border);
 }
 

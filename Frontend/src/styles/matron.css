@@ -598,6 +598,14 @@
   font-weight: 600;
   font-size: var(--text-sm);
 }
+/* The name is a <button> that opens the student. `.link-button` resets `font`
+   to inherit, and the two rules have equal specificity — which one wins would
+   otherwise depend on the order the browser happens to apply two CSS chunks in.
+   `button.stu-name` outranks `.link-button`, so it does not depend on that. */
+button.stu-name {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
 .stu-id {
   font-size: var(--text-caption);
   color: var(--muted-foreground);

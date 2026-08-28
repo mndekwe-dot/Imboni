@@ -571,14 +571,10 @@
   font-size: var(--text-caption);
 }
 
-/* Icon Sizes */
-.icon-sm {
-  font-size: var(--icon-sm);
-}
-
-.icon-md {
-  font-size: var(--icon-sm);
-}
+/* The .icon-* utilities moved to components.css. They were defined here, in
+   ONE portal's stylesheet, while 56 files across every portal used them — so
+   on any page that does not import teacher.css the class did nothing and the
+   icon rendered at its default 24px beside 13px text. */
 
 /* Spacing Utilities */
 .mt-1-5 {
@@ -1437,7 +1433,8 @@
   padding: 0.875rem 1rem;
   border-bottom: 1px solid var(--border);
 }
-.quick-replies-card .card-title { font-size: var(--text-body); font-weight: 700; margin: 0; }
+/* .quick-replies-card .card-title patched the panel heading back down to
+   --text-body/700 on this one card. That is what every .card-title is now. */
 .quick-replies-card .card-description { font-size: var(--text-caption); color: var(--muted-foreground); margin: 2px 0 0; }
 .quick-replies-list {
   display: flex;

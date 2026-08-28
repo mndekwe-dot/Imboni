@@ -1,7 +1,65 @@
 # Where does a style go?
 
-One question, four possible answers. Work down the list and stop at the first
+One question, five possible answers. Work down the list and stop at the first
 one that fits.
+
+## 0. Is it type — a size, a weight, a case?
+
+Then the question is not "what size do I want" but **"what is this thing?"**.
+The same thing must read the same in all seven portals, so each ROLE has one
+answer and you take the answer rather than choosing:
+
+| Role | Where it appears | Size | Weight | Case |
+|---|---|---|---|---|
+| Page title | the `<h1>` in `DashboardHeader` | `--text-title` (18) | 700 | as written |
+| Dialog title | `.tt-modal-title`, `.modal-title` | `--text-title` (18) | 700 | as written |
+| Panel title | `.card-title`, `.dt-title`, `.disc-section-title` | `--text-body` (15) | 700 | as written |
+| Stat number | `.portal-stat-value` | `--text-stat` (32) | 800 | as written |
+| Body | prose, form values, table cells | `--text-body` (15) | 400 | as written |
+| **Control label** | `.btn`, `.tab-btn`, `.filter-tab`, `.sidebar-nav-item` | `--text-sm` (13) | **600** | as written |
+| Secondary | table cells, meta lines | `--text-sm` (13) | 400–500 | as written |
+| Column heading | every `th`, hand-rolled or `DataTable` | `--text-caption` (12) | 700 | UPPERCASE, `0.04em` |
+| Eyebrow label | `.class-picker-label`, `.adm-modal-label`, stat captions | `--text-caption` (12) | 700 | UPPERCASE, `0.04em` |
+| Badge | `.badge`, `.tab-count` | `--text-caption` (12) | 600–700 | as written |
+
+## Icons beside words
+
+An icon takes the scale of the text it stands next to, and the CONTAINER sets
+it — `.btn`, `.card-title`, `.filter-tab` and `.badge` all size their own icons,
+so no caller writes `icon-sm` on a button. Reach for `.icon-xs/-sm/-md/-lg`
+only when one icon in a row must differ from its neighbours.
+
+Two things this fixed:
+
+- `.icon-sm` and `.icon-md` were defined in **teacher.css**, one portal's
+  stylesheet imported by 13 files, while 56 files across every portal used
+  them. Everywhere else the class was inert and the icon fell back to the
+  font's own 24px beside 13px text. `.icon-md` was also defined as
+  `--icon-sm`, so it was impossible to ask for 20px.
+- `.card-title` was a plain block, so its icon sat on the text BASELINE at
+  24px next to a 15px heading. It is a flex row now.
+
+The sidebar is the reference for the ramp, because it was right first: brand
+`--text-title`/800, nav item `--text-sm`/600, group heading `--text-caption`
+uppercase. Main content now uses the same steps, so the rail and the page beside
+it stop reading as two applications bolted together.
+
+Five things this fixed, all of them the same mistake:
+
+- `.card-title` was `--text-title`/600 — the same size as the page title — while
+  `.dt-title` right below it was `--text-body`/700. Every card shouted as loudly
+  as the name of the page.
+- The bare `th` was `--text-body`/500 in sentence case while `.dt-table th` was
+  `--text-caption`/700 uppercase, so a hand-written table and a `DataTable` on
+  the same screen looked unrelated.
+- A narrow-screen `th` override restated the caption treatment with a different
+  letter-spacing, so the headings changed shape at 767px.
+- `.btn` and `.filter-tab` were weight 500 while `.tab-btn` and
+  `.sidebar-nav-item` were 600 — four controls doing one job at two weights.
+- The two dialog systems set their titles three points apart, so a dialog's
+  heading size depended on which one the page happened to use.
+
+If a role is missing from this table, add the row before you add the rule.
 
 ## 1. Is it a colour, size, radius or shadow?
 

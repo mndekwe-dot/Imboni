@@ -4,11 +4,17 @@ import '../../styles/components.css'
  * TabGroup — the tab bar for every portal.
  *
  * Props:
- *   tabs     [{ key, label, icon? }]  icon is optional
+ *   tabs     [{ key, label, icon?, count? }]  icon and count are optional
  *   value    key of the active tab
  *   onChange (key) => void
  *   label    accessible name for the tab list
  *   idPrefix namespaces the ids when a page has more than one tab bar
+ *
+ * `count` is the pill on a tab that has work waiting behind it — pending
+ * reports, unread threads. Pages that needed one used to hand-roll the whole
+ * tab bar rather than the component, which is how the app ended up with three
+ * different-looking tab bars; adding the prop was the smaller change. A count
+ * of 0 renders nothing: "0 pending" is not news.
  *
  * The ARIA here came from Account's hand-rolled version, which was better
  * than this component: it had role="tablist"/"tab", aria-selected and
@@ -35,6 +41,7 @@ export function TabGroup({ tabs, value, onChange, label, idPrefix = '' }) {
                         <span className="material-symbols-rounded tab-icon" aria-hidden="true">{tab.icon}</span>
                     )}
                     {tab.label}
+                    {tab.count > 0 && <span className="tab-count">{tab.count}</span>}
                 </button>
             ))}
         </div>

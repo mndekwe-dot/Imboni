@@ -528,7 +528,7 @@ export function Account() {
                                         <h3>{t('language.label')}</h3>
                                     </div>
                                     <div className="card-content">
-                                        <LanguageSwitcher />
+                                        <LanguageSwitcher variant="buttons" />
                                     </div>
                                 </section>
                                 )}

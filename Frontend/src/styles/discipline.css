@@ -114,6 +114,103 @@
 .staff-card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; }
 .staff-card.inactive { opacity: 0.6; }
 
+/* ── Club / leader card (DisStudentLife) ────────────────────────────────────
+   A club is not a member of staff. It used to be drawn with `.staff-card`, so
+   it led with a circular initials avatar — "BT" for Basketball Team — where the
+   thing you actually scan a grid of clubs for is what KIND of club it is. It
+   leads with the category icon now, in the category's own tone, and the name
+   gets the full width of the card instead of sharing a line with an avatar.
+
+   Same card serves the prefect list: a person there, but the same shape of
+   thing — a heading, three meta lines and two actions. */
+.disc-club-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.disc-club-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.15rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: box-shadow var(--hover-transition), transform var(--hover-transition);
+}
+.disc-club-card:hover {
+  box-shadow: var(--hover-shadow);
+  transform: translateY(var(--hover-lift));
+}
+.disc-club-card.inactive { opacity: 0.65; }
+
+.disc-club-card-top { display: flex; align-items: flex-start; gap: 0.75rem; }
+/* min-width:0 so a long club name ellipsises inside the card rather than
+   forcing the grid column wider than its neighbours. */
+.disc-club-card-head { flex: 1; min-width: 0; }
+.disc-club-card-name {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  line-height: 1.3;
+}
+.disc-club-card-cat {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 2px 0 0;
+}
+
+.disc-club-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+}
+.disc-club-card-meta span { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.disc-club-card-meta .material-symbols-rounded { font-size: var(--icon-sm); flex-shrink: 0; }
+
+/* Membership as a bar rather than a fourth line of grey text — how full a club
+   is is the one number this grid is read for. */
+.disc-club-card-capacity { margin-top: auto; }
+.disc-club-card-capacity-label {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin-bottom: 4px;
+}
+.disc-club-card-bar {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  overflow: hidden;
+}
+.disc-club-card-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--portal-accent);
+  transition: width var(--transition-base);
+}
+
+.disc-club-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding-top: 0.15rem;
+  border-top: 1px solid var(--border);
+}
+.disc-club-card-actions > .btn { flex: 1; justify-content: center; }
+/* The inline "Remove? Yes / No" must not stretch its two little buttons to
+   half the card each. */
+.disc-club-card-actions > .remove-confirm-text { flex: 1 1 100%; }
+.disc-club-card-actions .remove-confirm-text ~ .btn { flex: 0 0 auto; }
+
 /* ── Progress bars ── */
 .disc-progress-group { display: flex; flex-direction: column; gap: 1rem; }
 .disc-progress-item  { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -581,121 +678,21 @@
 /* ══════════════════════════════════════
    CLASS PICKER  (Section → Year → Class cascade)
 ══════════════════════════════════════ */
-.disc-picker {
-  display: flex;
-  align-items: flex-end;
-  gap: 1rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.25rem;
-  flex-wrap: wrap;
-}
-.disc-picker-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  min-width: 130px;
-}
-.disc-picker-label {
-  font-size: var(--text-caption);
-  font-weight: 700;
-  color: var(--muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.disc-picker-select {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.45rem 0.75rem;
-  font-size: var(--text-sm);
-  background: var(--background);
-  color: var(--foreground);
-  outline: none;
-  font-family: inherit;
-  cursor: pointer;
-}
-.disc-picker-select:focus { border-color: var(--discipline); }
-.disc-picker-current {
-  font-size: var(--text-title);
-  font-weight: 800;
-  color: var(--discipline);
-  margin-left: auto;
-  align-self: center;
-}
+/* The class picker moved to components.css as .class-picker* / .picker-select.
+   It is <ClassPicker>, rendered by every portal — Admin, DOS, Discipline,
+   Matron and Teacher pages all reached into this file for it, which is exactly
+   what ARCHITECTURE.md says a shared component must not do. */
 
-/* ══════════════════════════════════════
-   CLASS CHIP PICKER  (DisStudents chip variant)
-══════════════════════════════════════ */
-.disc-chip-picker {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  padding-bottom: 0;
-}
-.disc-chip-picker-label {
-  font-size: var(--text-caption);
-  font-weight: 700;
-  color: var(--muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-.disc-chip-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-.disc-class-chip {
-  padding: 0.25rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--foreground);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color .15s, background .15s, color .15s;
-  font-family: inherit;
-}
-.disc-class-chip:hover { border-color: var(--discipline); color: var(--discipline); }
-.disc-class-chip.active { background: var(--discipline); color: #fff; border-color: var(--discipline); }
 .disc-filter-divider {
   border: none;
   border-top: 1px solid var(--border);
   margin: 0.75rem 0;
 }
 
-/* ══════════════════════════════════════
-   REPORT PAGE TABS
-══════════════════════════════════════ */
-.rpt-tab-bar {
-  display: flex;
-  gap: 0.25rem;
-  border-bottom: 2px solid var(--border);
-  margin-bottom: 1.25rem;
-}
-.rpt-tab {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.65rem 1.1rem;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--muted-foreground);
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
-  border-radius: 6px 6px 0 0;
-  transition: color 0.15s;
-}
-.rpt-tab:hover { color: var(--foreground); background: var(--muted); }
-.rpt-tab.active { color: var(--discipline); border-bottom-color: var(--discipline); }
-.rpt-tab .material-symbols-rounded { font-size: var(--icon-sm); }
+/* The .rpt-* tab bar was a third tab style, on this one page: an underlined
+   row, while Student Life used the raised chips of <TabGroup> and DisStudents
+   used filter pills for the same job. DisBoarding renders <TabGroup> now, and
+   these rules had no callers left. */
 
 /* ══════════════════════════════════════
    ACTIVITY / LEADER FORM + MEMBER PANELS
@@ -935,28 +932,15 @@ td .class-chip { margin-left: 4px; }
 /* ══════════════════════════════════════
    ANNOUNCEMENTS PAGE (DisAnnouncements)
 ══════════════════════════════════════ */
-.ann-badge-inline   { margin-left: 0.25rem; }        /* second badge beside another */
-.ann-textarea       { resize: vertical; }            /* generic: promotable to .resize-v */
-.ann-form-error     { color: #ef4444; font-size: var(--text-sm); margin-bottom: 0.75rem; }
-.ann-chip-count-gap { margin-left: 0.3rem; }         /* count chip inside filter pill */
-.ann-load-more      { text-align: center; padding: 0.75rem 0; }
-.ann-all-loaded     { text-align: center; font-size: var(--text-caption); color: var(--muted-foreground); padding: 0.5rem 0; }
+/* The announcement composer and list styles moved to announcements.css,
+   shared with the DOS and Admin portals that render the same page. */
 
 /* ══════════════════════════════════════
    TIMETABLE PAGE (DisTimetable) — week re-fetch overlay
 ══════════════════════════════════════ */
-.dis-fetch-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: rgba(255,255,255,.65);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius);
-}
-.dis-fetch-overlay-label { font-size: var(--text-sm); color: var(--muted-foreground); }
+/* The week-change overlay moved to timetable.css as .tt-fetch-overlay:
+   the matron reads the same grid, and a shared component may not reach into
+   one portal's stylesheet for it. */
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
@@ -995,10 +979,6 @@ td .class-chip { margin-left: 4px; }
   .tt-time-head { width: 55px; font-size: var(--text-caption); }
   .tt-day-head  { min-width: 55px; font-size: var(--text-caption); }
   .tt-form-row  { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 374px) {
-  .disc-picker-group { min-width: unset; flex: 1; }
 }
 
 /* ── Session chips (extracurricular timetable) ── */
@@ -1143,7 +1123,7 @@ td .class-chip { margin-left: 4px; }
 .dis-incident-count.is-high      { color: #ef4444; font-weight: 700; }
 .dis-hint          { font-size: var(--text-sm); color: var(--muted-foreground); margin: 0; }
 .dis-stack-mid     { display: flex; flex-direction: column; gap: 0.625rem; }
-.dis-rej-count     { margin-left: 0.3rem; font-size: var(--text-caption); font-weight: 600; background: #fee2e2; color: #b91c1c; border-radius: 9px; padding: 0 5px; }
+/* .dis-rej-count is now <TabGroup>'s shared .tab-count. */
 .dis-rejected-card { background: var(--card); border-radius: var(--radius); border: 1.5px solid #fca5a5; padding: 1rem 1.25rem; display: flex; gap: 0.75rem; }
 .dis-rej-title     { font-weight: 700; font-size: var(--text-sm); }
 .dis-reason        { font-size: var(--text-sm); margin-top: 0.4rem; color: #b91c1c; }

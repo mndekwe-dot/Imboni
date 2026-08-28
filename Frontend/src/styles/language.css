@@ -102,3 +102,97 @@
 }
 .lang-select-icon  { left: 0.6rem; }
 .lang-select-caret { right: 0.5rem; }
+
+
+/* ── Menu variant ────────────────────────────────────────────────────────
+   The portal-header switcher. Closed it is a globe and the current code;
+   open it names every language in that language, with a tick on the one in
+   use. The three pills it replaces spelled all three names out at all times,
+   which made the switcher the widest control in the header.
+
+   Colours are tokens, so the same rules serve the dark portal header (which
+   only re-tints the trigger, in layout.css) and any light surface. */
+.lang-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.lang-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+.lang-menu-trigger:hover:not(:disabled) { background: var(--muted); }
+.lang-menu-trigger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.lang-menu-globe { font-size: var(--icon-sm); color: var(--muted-foreground); }
+.lang-menu-code  { letter-spacing: 0.04em; }
+.lang-menu-caret {
+  font-size: var(--icon-sm);
+  color: var(--muted-foreground);
+  transition: transform var(--transition-base);
+}
+.lang-menu-trigger.open .lang-menu-caret { transform: rotate(180deg); }
+
+.lang-menu-list {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: var(--z-dropdown);
+  min-width: 190px;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.lang-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-base);
+}
+.lang-menu-item:hover:not(:disabled) { background: var(--muted); }
+.lang-menu-item:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Fixed width so the three names start on the same x — a ragged left edge is
+   what made the old pill row read as three unrelated buttons. */
+.lang-menu-item-code {
+  flex-shrink: 0;
+  width: 1.8rem;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.lang-menu-item-label { flex: 1; font-weight: 600; }
+.lang-menu-check { font-size: var(--icon-sm); color: var(--success); }
+
+.lang-menu-item.active { background: var(--muted); }
+.lang-menu-item.active .lang-menu-item-code,
+.lang-menu-item.active .lang-menu-item-label { color: var(--primary); }
