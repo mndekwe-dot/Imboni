@@ -17,8 +17,8 @@
     "weekOf": "Semaine du"
   },
   "dashboard": {
-    "title": "Tableau de bord du directeur des études",
-    "subtitle": "Présences, résultats et effectifs en un coup d'œil"
+    "subtitle": "Présences, résultats et effectifs en un coup d'œil",
+    "title": "Tableau de bord du directeur des études"
   },
   "dining": {
     "addSittingFailed": "Impossible d'ajouter le service",
@@ -203,6 +203,7 @@
     "attendanceTrend": "Évolution des présences",
     "bySubject": "Par matière",
     "gradeDistribution": "Répartition des notes",
+    "loadAnalyticsFailed": "Impossible de charger les analyses.",
     "loadingAnalytics": "Chargement des analyses…",
     "noMarks": "Aucune note d'élève disponible pour cette soumission.",
     "noQuestionPaper": "Aucun sujet d'examen n'a été joint à cette soumission.",
@@ -342,10 +343,13 @@
     "allSubjects": "Toutes les matières",
     "allTeachers": "Tous les enseignants",
     "allTypes": "Tous les types",
+    "classesAssigned": "Classes affectées",
     "classesToTeach": "Classes à enseigner",
     "emailRequired": "E-mail *",
     "employmentType": "Type de contrat",
     "employmentTypeRequired": "Type de contrat *",
+    "emptyDescNoFilters": "Aucun enseignant ne correspond aux filtres sélectionnés.",
+    "emptyTitle": "Aucun enseignant trouvé",
     "expires": "Expire le",
     "invitationSent": "Invitation envoyée",
     "inviteTeacher": "Inviter un enseignant",
@@ -358,14 +362,11 @@
     "pendingInvitations": "Invitations en attente",
     "searchTeachers": "Rechercher par nom ou matière...",
     "selectSubject": "Sélectionner une matière",
+    "sendInvitationFailed": "Échec de l'envoi de l'invitation",
     "subjectRequired": "Matière *",
     "subtitle": "Consultez, ajoutez et modifiez les enseignants, et gérez les affectations de classe",
     "teacherDetails": "Informations de l'enseignant",
-    "title": "Gestion des enseignants",
-    "sendInvitationFailed": "Échec de l'envoi de l'invitation",
-    "classesAssigned": "Classes affectées",
-    "emptyTitle": "Aucun enseignant trouvé",
-    "emptyDescNoFilters": "Aucun enseignant ne correspond aux filtres sélectionnés."
+    "title": "Gestion des enseignants"
   },
   "timetable": {
     "academicTerm": "Trimestre scolaire *",

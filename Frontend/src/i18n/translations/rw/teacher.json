@@ -1,10 +1,10 @@
 {
   "announcements": {
     "bodyPlaceholder": "Andika itangazo ryawe…",
+    "emptyDescription": "Nta tangazo ryasohoye ufite.",
     "none": "Nta matangazo",
     "subtitle": "Kora kandi ucunge amatangazo y'ishuri",
-    "titlePlaceholder": "Umutwe w'itangazo…",
-    "emptyDescription": "Nta tangazo ryasohoye ufite."
+    "titlePlaceholder": "Umutwe w'itangazo…"
   },
   "assignments": {
     "acceptLate": "Kwemera umukoro nyuma y’igihe ntarengwa",
@@ -197,13 +197,13 @@
   },
   "attendance": {
     "fetchingClasses": "Turimo gushaka amashuri wahawe.",
-    "noStudents": "Nta banyeshuri biyandikishije",
-    "pickerHintAttendance": "Koresha ibiri hejuru guhitamo igice, umwaka n'ishuri kugira ngo wandike ubwitabire.",
-    "subtitle": "Kurikirana ubwitabire bw'abanyeshuri",
-    "title": "Andika ubwitabire",
     "loadClassesFailed": "Gufungura amashuri yawe byanze.",
     "loadDataFailed": "Gufungura amakuru y'ubwitabire byanze.",
-    "saveFailed": "Kubika ubwitabire byanze. Ongera ugerageze."
+    "noStudents": "Nta banyeshuri biyandikishije",
+    "pickerHintAttendance": "Koresha ibiri hejuru guhitamo igice, umwaka n'ishuri kugira ngo wandike ubwitabire.",
+    "saveFailed": "Kubika ubwitabire byanze. Ongera ugerageze.",
+    "subtitle": "Kurikirana ubwitabire bw'abanyeshuri",
+    "title": "Andika ubwitabire"
   },
   "classes": {
     "assessmentNamePlaceholder": "urugero: Ikizamini cyo hagati, CAT 1…",
@@ -214,7 +214,9 @@
     "egHundred": "urugero: 100",
     "enterResults": "Andika amanota",
     "enterResultsFor": "Andika amanota ya {{class}}",
+    "enterScoreRequired": "Injiza nibura amanota agera kuri rimwe.",
     "enterScoresFor": "Andika amanota ya {{class}}",
+    "loadResultsFailed": "Gufungura amanota byanze.",
     "loadStudentsFailed": "Gufungura abanyeshuri byanze.",
     "loadingScores": "Turimo gukura amanota…",
     "maxLabel": "Ntarengwa: ",
@@ -223,12 +225,14 @@
     "newAssessment": "Isuzuma rishya",
     "noAssessments": "Nta masuzuma yanditswe. Kanda \"Isuzuma rishya\" kugira ngo utangire.",
     "noMatching": "Nta shuri rihuye n'ishungura ryatoranyijwe.",
+    "noScoresToSave": "Nta manota yo kubika.",
     "noStudents": "Nta banyeshuri babonetse.",
     "noStudentsInClass": "Nta banyeshuri babonetse muri iri shuri.",
     "panelTitle": "Abanyeshuri ba {{class}}",
     "pickIntro": "Hitamo isuzuma risanzwe cyangwa ukore rishya rya",
     "results": "Amanota",
     "saveResults": "Bika amanota",
+    "saveResultsFailed": "Kubika amanota byanze.",
     "scoreOutOf": "Amanota / {{max}}",
     "searchStudents": "Shakisha ukoresheje izina cyangwa nomero…",
     "students": "Abanyeshuri",
@@ -241,11 +245,7 @@
     "typeQuiz": "Isuzumabumenyi",
     "typeRequired": "Ubwoko *",
     "viewExistingMeta": "Reba cyangwa uvugurure amanota asanzwe",
-    "viewStudents": "Reba abanyeshuri",
-    "loadResultsFailed": "Gufungura amanota byanze.",
-    "saveResultsFailed": "Kubika amanota byanze.",
-    "enterScoreRequired": "Injiza nibura amanota agera kuri rimwe.",
-    "noScoresToSave": "Nta manota yo kubika."
+    "viewStudents": "Reba abanyeshuri"
   },
   "dashboard": {
     "acrossYourClasses": "Mu mashuri wigisha",
@@ -394,17 +394,19 @@
     "title": "Amanota"
   },
   "students": {
-    "profileTitle": "Umwirondoro w'umunyeshuri",
+    "dataTableTitle": "Urutonde rw'abanyeshuri",
     "listTitle": "Abanyeshuri",
-    "subtitle": "Reba kandi ucunge abanyeshuri mu mashuri yawe",
-    "dataTableTitle": "Urutonde rw'abanyeshuri"
+    "loadClassesFailed": "Ntibyashobotse gukura amashuri yawe.",
+    "loadStudentsFailed": "Ntibyashobotse gukura abanyeshuri.",
+    "profileTitle": "Umwirondoro w'umunyeshuri",
+    "subtitle": "Reba kandi ucunge abanyeshuri mu mashuri yawe"
   },
   "timetable": {
-    "title": "Gahunda yanjye y'amasomo",
-    "subtitle": "Gahunda y'amasomo wigisha muri iki cyumweru",
+    "free": "Ntacyo",
+    "loadFailed": "Ntibyashobotse kuzana gahunda yawe y'amasomo.",
     "readOnly": "Gusoma gusa.",
     "readOnlyNote": "Gahunda yawe y'amasomo itegurwa n'Umuyobozi w'Amasomo. Vugana n'Umuyobozi w'Amasomo niba ushaka guhindura.",
-    "loadFailed": "Ntibyashobotse kuzana gahunda yawe y'amasomo.",
-    "free": "Ntacyo"
+    "subtitle": "Gahunda y'amasomo wigisha muri iki cyumweru",
+    "title": "Gahunda yanjye y'amasomo"
   }
 }

@@ -3,20 +3,23 @@
     "subtitle": "Rédigez et diffusez des avis à toute l'école"
   },
   "approvals": {
-    "subtitle": "Examinez et validez les résultats d'examen saisis par les enseignants",
-    "title": "Validation des résultats",
-    "rejectTitle": "Rejeter le résultat",
-    "rejectReasonRequired": "Le motif du rejet est obligatoire.",
     "rejectFailed": "Échec du rejet. Veuillez réessayer.",
+    "rejectReasonLabel": "Motif du rejet *",
+    "rejectReasonPlaceholder": "ex. Les notes ne correspondent pas à la grille d'évaluation de la classe…",
+    "rejectReasonRequired": "Le motif du rejet est obligatoire.",
+    "rejectTitle": "Rejeter le résultat",
     "rejecting": "Rejet…",
     "rejectingSubject": "Rejet du résultat de {{subject}} pour {{student}}. Indiquez un motif à l'enseignant.",
-    "rejectReasonLabel": "Motif du rejet *",
-    "rejectReasonPlaceholder": "ex. Les notes ne correspondent pas à la grille d'évaluation de la classe…"
+    "subtitle": "Examinez et validez les résultats d'examen saisis par les enseignants",
+    "title": "Validation des résultats"
   },
   "auditLog": {
     "subtitle": "Qui a fait quoi, et quand : les actions administratives sensibles"
   },
   "billing": {
+    "checkoutFailed": "Impossible de démarrer le paiement.",
+    "loadFailed": "Impossible de charger la facturation.",
+    "noCheckoutUrl": "Le prestataire de paiement n'a pas renvoyé de lien.",
     "subtitle": "Gérez l'abonnement et la formule de votre école"
   },
   "dashboard": {
@@ -41,6 +44,9 @@
     "title": "Finances",
     "totalExpected": "Total des frais attendus",
     "unavailable": "Les données de frais sont indisponibles. Vérifiez qu'un trimestre est marqué comme trimestre en cours."
+  },
+  "messages": {
+    "subtitle": "Échangez avec le personnel, les chefs de département et les parents"
   },
   "reports": {
     "subtitle": "Analyses des performances, des présences et des inscriptions à l'échelle de l'école",
@@ -114,8 +120,5 @@
   },
   "support": {
     "subtitle": "Obtenez de l'aide auprès de l'équipe Imboni"
-  },
-  "messages": {
-    "subtitle": "Échangez avec le personnel, les chefs de département et les parents"
   }
 }

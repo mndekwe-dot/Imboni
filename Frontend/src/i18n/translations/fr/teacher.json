@@ -1,10 +1,10 @@
 {
   "announcements": {
     "bodyPlaceholder": "Rédigez votre annonce…",
+    "emptyDescription": "Vous n'avez encore publié aucune annonce.",
     "none": "Aucune annonce",
     "subtitle": "Créez et gérez les annonces de vos classes",
-    "titlePlaceholder": "Titre de l'annonce…",
-    "emptyDescription": "Vous n'avez encore publié aucune annonce."
+    "titlePlaceholder": "Titre de l'annonce…"
   },
   "assignments": {
     "acceptLate": "Accepter les travaux après la date limite",
@@ -197,13 +197,13 @@
   },
   "attendance": {
     "fetchingClasses": "Récupération des classes qui vous sont affectées.",
-    "noStudents": "Aucun élève inscrit",
-    "pickerHintAttendance": "Utilisez le sélecteur ci-dessus pour choisir une section, une année et une classe où faire l'appel.",
-    "subtitle": "Suivez les présences des élèves de vos classes",
-    "title": "Faire l'appel",
     "loadClassesFailed": "Impossible de charger vos classes.",
     "loadDataFailed": "Impossible de charger les données de présence.",
-    "saveFailed": "Échec de l'enregistrement des présences. Veuillez réessayer."
+    "noStudents": "Aucun élève inscrit",
+    "pickerHintAttendance": "Utilisez le sélecteur ci-dessus pour choisir une section, une année et une classe où faire l'appel.",
+    "saveFailed": "Échec de l'enregistrement des présences. Veuillez réessayer.",
+    "subtitle": "Suivez les présences des élèves de vos classes",
+    "title": "Faire l'appel"
   },
   "classes": {
     "assessmentNamePlaceholder": "ex. Examen de mi-trimestre, contrôle continu 1, quiz 3…",
@@ -214,7 +214,9 @@
     "egHundred": "ex. 100",
     "enterResults": "Saisir les résultats",
     "enterResultsFor": "Saisir les résultats de {{class}}",
+    "enterScoreRequired": "Saisissez au moins une note.",
     "enterScoresFor": "Saisir les notes de {{class}}",
+    "loadResultsFailed": "Impossible de charger les résultats.",
     "loadStudentsFailed": "Impossible de charger les élèves.",
     "loadingScores": "Chargement des notes…",
     "maxLabel": "Max : ",
@@ -223,12 +225,14 @@
     "newAssessment": "Nouvelle évaluation",
     "noAssessments": "Aucune évaluation enregistrée pour le moment. Cliquez sur « Nouvelle évaluation » pour commencer.",
     "noMatching": "Aucune classe ne correspond au filtre sélectionné.",
+    "noScoresToSave": "Aucune note à enregistrer.",
     "noStudents": "Aucun élève trouvé.",
     "noStudentsInClass": "Aucun élève trouvé dans cette classe.",
     "panelTitle": "Élèves de {{class}}",
     "pickIntro": "Sélectionnez une évaluation existante ou créez-en une nouvelle pour",
     "results": "Résultats",
     "saveResults": "Enregistrer les résultats",
+    "saveResultsFailed": "Échec de l'enregistrement des résultats.",
     "scoreOutOf": "Note / {{max}}",
     "searchStudents": "Rechercher par nom ou code élève…",
     "students": "Élèves",
@@ -241,11 +245,7 @@
     "typeQuiz": "Quiz",
     "typeRequired": "Type *",
     "viewExistingMeta": "Consulter ou modifier les notes existantes",
-    "viewStudents": "Voir les élèves",
-    "loadResultsFailed": "Impossible de charger les résultats.",
-    "saveResultsFailed": "Échec de l'enregistrement des résultats.",
-    "enterScoreRequired": "Saisissez au moins une note.",
-    "noScoresToSave": "Aucune note à enregistrer."
+    "viewStudents": "Voir les élèves"
   },
   "dashboard": {
     "acrossYourClasses": "Sur l'ensemble de vos classes",
@@ -394,17 +394,19 @@
     "title": "Résultats"
   },
   "students": {
-    "profileTitle": "Fiche de l'élève",
+    "dataTableTitle": "Liste des élèves",
     "listTitle": "Élèves",
-    "subtitle": "Consultez et gérez les élèves de vos classes",
-    "dataTableTitle": "Liste des élèves"
+    "loadClassesFailed": "Impossible de charger vos classes.",
+    "loadStudentsFailed": "Impossible de charger les élèves.",
+    "profileTitle": "Fiche de l'élève",
+    "subtitle": "Consultez et gérez les élèves de vos classes"
   },
   "timetable": {
-    "title": "Mon emploi du temps",
-    "subtitle": "Votre emploi du temps hebdomadaire",
+    "free": "Libre",
+    "loadFailed": "Impossible de charger votre emploi du temps.",
     "readOnly": "Lecture seule.",
     "readOnlyNote": "Votre emploi du temps est établi par le Directeur des études. Contactez-le pour demander une modification.",
-    "loadFailed": "Impossible de charger votre emploi du temps.",
-    "free": "Libre"
+    "subtitle": "Votre emploi du temps hebdomadaire",
+    "title": "Mon emploi du temps"
   }
 }

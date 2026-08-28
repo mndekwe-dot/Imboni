@@ -17,8 +17,8 @@
     "weekOf": "Week of"
   },
   "dashboard": {
-    "title": "DOS Dashboard",
-    "subtitle": "Attendance, results and staffing at a glance"
+    "subtitle": "Attendance, results and staffing at a glance",
+    "title": "DOS Dashboard"
   },
   "dining": {
     "addSittingFailed": "Could not add sitting",
@@ -203,6 +203,7 @@
     "attendanceTrend": "Attendance Trend",
     "bySubject": "By subject",
     "gradeDistribution": "Grade Distribution",
+    "loadAnalyticsFailed": "Could not load the analytics.",
     "loadingAnalytics": "Loading analytics…",
     "noMarks": "No student marks available for this submission.",
     "noQuestionPaper": "No question paper was attached for this submission.",
@@ -342,10 +343,13 @@
     "allSubjects": "All Subjects",
     "allTeachers": "All Teachers",
     "allTypes": "All Types",
+    "classesAssigned": "Classes Assigned",
     "classesToTeach": "Classes to Teach",
     "emailRequired": "Email *",
     "employmentType": "Employment Type",
     "employmentTypeRequired": "Employment Type *",
+    "emptyDescNoFilters": "No teachers match the selected filters.",
+    "emptyTitle": "No teachers found",
     "expires": "Expires",
     "invitationSent": "Invitation Sent",
     "inviteTeacher": "Invite Teacher",
@@ -358,14 +362,11 @@
     "pendingInvitations": "Pending Invitations",
     "searchTeachers": "Search by name or subject...",
     "selectSubject": "Select subject",
+    "sendInvitationFailed": "Failed to send invitation",
     "subjectRequired": "Subject *",
     "subtitle": "View, add, update teachers and manage class assignments",
     "teacherDetails": "Teacher Details",
-    "title": "Teacher Management",
-    "sendInvitationFailed": "Failed to send invitation",
-    "classesAssigned": "Classes Assigned",
-    "emptyTitle": "No teachers found",
-    "emptyDescNoFilters": "No teachers match the selected filters."
+    "title": "Teacher Management"
   },
   "timetable": {
     "academicTerm": "Academic Term *",

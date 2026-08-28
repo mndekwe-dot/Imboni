@@ -1,10 +1,10 @@
 {
   "announcements": {
     "bodyPlaceholder": "Write your announcement…",
+    "emptyDescription": "You haven't published any announcements yet.",
     "none": "No announcements",
     "subtitle": "Create and manage class announcements",
-    "titlePlaceholder": "Announcement title…",
-    "emptyDescription": "You haven't published any announcements yet."
+    "titlePlaceholder": "Announcement title…"
   },
   "assignments": {
     "acceptLate": "Accept work after the due date",
@@ -197,13 +197,13 @@
   },
   "attendance": {
     "fetchingClasses": "Fetching your assigned classes.",
-    "noStudents": "No students enrolled",
-    "pickerHintAttendance": "Use the picker above to select a section, year, and class to mark attendance.",
-    "subtitle": "Track student attendance for your classes",
-    "title": "Mark Attendance",
     "loadClassesFailed": "Failed to load your classes.",
     "loadDataFailed": "Failed to load attendance data.",
-    "saveFailed": "Failed to save attendance. Please try again."
+    "noStudents": "No students enrolled",
+    "pickerHintAttendance": "Use the picker above to select a section, year, and class to mark attendance.",
+    "saveFailed": "Failed to save attendance. Please try again.",
+    "subtitle": "Track student attendance for your classes",
+    "title": "Mark Attendance"
   },
   "classes": {
     "assessmentNamePlaceholder": "e.g. Mid-Term Exam, CAT 1, Quiz 3…",
@@ -214,7 +214,9 @@
     "egHundred": "e.g. 100",
     "enterResults": "Enter Results",
     "enterResultsFor": "Enter Results for {{class}}",
+    "enterScoreRequired": "Enter at least one score.",
     "enterScoresFor": "Enter Scores for {{class}}",
+    "loadResultsFailed": "Failed to load results.",
     "loadStudentsFailed": "Failed to load students.",
     "loadingScores": "Loading scores…",
     "maxLabel": "Max: ",
@@ -223,12 +225,14 @@
     "newAssessment": "New Assessment",
     "noAssessments": "No assessments recorded yet. Click \"New Assessment\" to start.",
     "noMatching": "No classes match the selected filter.",
+    "noScoresToSave": "No scores to save.",
     "noStudents": "No students found.",
     "noStudentsInClass": "No students found in this class.",
     "panelTitle": "{{class}} Students",
     "pickIntro": "Select an existing assessment or create a new one for",
     "results": "Results",
     "saveResults": "Save Results",
+    "saveResultsFailed": "Failed to save results.",
     "scoreOutOf": "Score / {{max}}",
     "searchStudents": "Search by name or student code…",
     "students": "Students",
@@ -241,11 +245,7 @@
     "typeQuiz": "Quiz",
     "typeRequired": "Type *",
     "viewExistingMeta": "View or update existing scores",
-    "viewStudents": "View Students",
-    "loadResultsFailed": "Failed to load results.",
-    "saveResultsFailed": "Failed to save results.",
-    "enterScoreRequired": "Enter at least one score.",
-    "noScoresToSave": "No scores to save."
+    "viewStudents": "View Students"
   },
   "dashboard": {
     "acrossYourClasses": "Across your classes",
@@ -394,17 +394,19 @@
     "title": "Results"
   },
   "students": {
-    "profileTitle": "Student Profile",
+    "dataTableTitle": "Student List",
     "listTitle": "Students",
-    "subtitle": "View and manage students across your classes",
-    "dataTableTitle": "Student List"
+    "loadClassesFailed": "Could not load your classes.",
+    "loadStudentsFailed": "Could not load the students.",
+    "profileTitle": "Student Profile",
+    "subtitle": "View and manage students across your classes"
   },
   "timetable": {
-    "title": "My Timetable",
-    "subtitle": "Your weekly teaching schedule",
+    "free": "Free",
+    "loadFailed": "Could not load your timetable.",
     "readOnly": "Read-only.",
     "readOnlyNote": "Your timetable is set by the Director of Studies. Contact the Director of Studies to request changes.",
-    "loadFailed": "Could not load your timetable.",
-    "free": "Free"
+    "subtitle": "Your weekly teaching schedule",
+    "title": "My Timetable"
   }
 }
