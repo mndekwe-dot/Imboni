@@ -7,7 +7,6 @@ import { StatCard } from '../../components/layout/StatCard'
 import { DataTable } from '../../components/ui/DataTable'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { ClassPicker } from '../../components/ui/ClassPicker'
-import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { classLabel } from '../../utils/classes'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import {
@@ -19,6 +18,7 @@ import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
 import '../../styles/discipline.css'
+import { SearchBar } from '../../components/ui/SearchBar'
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -222,7 +222,6 @@ function StudentRow({ student, onView }) {
 export function AdminStudents() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const { config }    = useSchoolConfig()
     const [studentList, setStudentList] = useState([])
     const [stats,       setStats]       = useState(null)
     const [loading,     setLoading]     = useState(true)
@@ -289,7 +288,6 @@ export function AdminStudents() {
                         </div>
 
                         <ClassPicker
-                            sections={config}
                             section={section}
                             onSectionChange={s => { setSection(s); setYear(''); setClassVal('') }}
                             year={year}
@@ -299,11 +297,11 @@ export function AdminStudents() {
                         />
 
                         <div className="toolbar-card">
-                            <div className="toolbar-search">
-                                <span className="material-symbols-rounded">search</span>
-                                <input placeholder="Search students…" value={search} onChange={e => setSearch(e.target.value)} />
-                                {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
-                            </div>
+                            <SearchBar
+                                value={search}
+                                onChange={setSearch}
+                                placeholder={t('common.searchStudents')}
+                            />
                         </div>
 
                         {loading ? (

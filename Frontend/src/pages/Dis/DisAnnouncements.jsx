@@ -12,6 +12,7 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import '../../styles/announcements.css'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { formatDateShort } from '../../utils/date'
 
@@ -346,7 +347,7 @@ export function DisAnnouncements() {
                                                 onClick={() => setActiveFilter(f)}>
                                                 {t(FILTER_KEYS[f])}
                                                 {f !== 'all' && (
-                                                    <span className="es-chip-count ann-chip-count-gap">
+                                                    <span className="ann-chip-count">
                                                         {countByStatus(f)}
                                                     </span>
                                                 )}

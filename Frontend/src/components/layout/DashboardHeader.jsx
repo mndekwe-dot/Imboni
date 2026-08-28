@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { NotificationDropdown } from '../NotificationDropdown'
+import { LanguageSwitcher } from '../ui/LanguageSwitcher'
 import { formatDateWithWeekday } from '../../utils/date'
 
 export function DashboardHeader({ title, subtitle, userName, userRole, userInitials, avatarClass, notifications, onNotificationRead, actions }) {
@@ -24,6 +25,8 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
 
       <div className="dashboard-header-actions">
         <span className="date-display">{today}</span>
+
+        <LanguageSwitcher />
 
         {/* Optional page-specific action buttons (e.g. "+ Add Exam") */}
         {actions}

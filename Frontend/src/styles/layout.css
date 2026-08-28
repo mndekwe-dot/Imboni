@@ -537,7 +537,10 @@
 }
 
 .sidebar.collapsed .sidebar-nav .secondary-nav {
-  padding: 10px 0 20px 0;
+  padding: 0 0 20px 0;
+}
+.sidebar.collapsed .sidebar-nav .sidebar-account-group {
+  padding-top: 10px;
 }
 
 /* Primary Navigation — the counterpart to .secondary-nav below. It keeps its
@@ -547,11 +550,20 @@
   flex: 0 0 auto;
 }
 
+/* The account block — heading and list together — is what sinks to the bottom
+   of the rail. The `margin-top: auto` used to sit on the list alone, which left
+   the "Account" heading floating above a gap, labelling nothing. */
+.sidebar-nav .sidebar-account-group {
+  margin-top: auto;
+  padding-top: 12px;
+  /* The rule now separates the two groups. On the list alone it drew between
+     the heading and the items it heads, cutting the group in half. */
+  border-top: 1px solid var(--sidebar-border);
+}
+
 /* Secondary Navigation */
 .sidebar-nav .secondary-nav {
-  margin-top: auto;
-  padding: 15px 0 30px 0;
-  border-top: 1px solid var(--sidebar-border);
+  padding: 0 0 30px 0;
 }
 
 /* ===============================================
@@ -644,6 +656,24 @@
   color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
   line-height: 1.2;
+}
+
+/* ---- Header Language Switcher ----
+   The header sits on the dark chrome, so the trigger is re-tinted for it. The
+   OPEN MENU is not: it is a popover on the page, and it keeps the light card
+   colours it has everywhere else. */
+.dashboard-header-actions .lang-menu-trigger {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+.dashboard-header-actions .lang-menu-trigger:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.dashboard-header-actions .lang-menu-globe,
+.dashboard-header-actions .lang-menu-caret {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .header-user-av {

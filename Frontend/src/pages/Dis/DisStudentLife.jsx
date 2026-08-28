@@ -1,15 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
+
 import { Sidebar } from '../../components/layout/Sidebar'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { StatCard } from '../../components/layout/StatCard'
 import { FilterBar } from '../../components/ui/FilterBar'
+import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
+import { TabGroup } from '../../components/ui/TabGroup'
 import { NewActivityModal } from '../../components/modals/NewActivityModal'
 import { EditActivityModal } from '../../components/modals/EditActivityModal'
 import { LeaderModal } from '../../components/modals/LeaderModal'
 import { DormitoryCaptainModal } from '../../components/modals/DormitoryCaptainModal'
-import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
-import { DataTable } from '../../components/ui/DataTable'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { disNavItems, disSecondaryItems } from './disNav'
 import {
     getDisActivities, createDisActivity, patchDisActivity, deleteDisActivity,
@@ -19,161 +27,230 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
-import { DashboardContent } from '../../components/layout/DashboardContent'
-import { StatCard } from '../../components/layout/StatCard'
 
-const CATEGORY_LABELS = {
-    sport:      'Sports',
-    music:      'Music',
-    art:        'Arts & Crafts',
-    debate:     'Debate',
-    science:    'Science',
-    community:  'Community Service',
-    leadership: 'Leadership',
-    other:      'Other',
+/**
+ * Clubs, activities and student leadership.
+ *
+ * What was disorganised about the old page, and what changed:
+ *
+ *  - A club was drawn with `.staff-card`, the card built for a member of staff.
+ *    So a club had a circular initials avatar where its category should be, and
+ *    "Basketball Team" wrapped onto two lines beside it. Clubs now have their
+ *    own card, led by the category — which is the thing you scan a grid of
+ *    clubs for.
+ *  - The primary action sat INSIDE the row of eight filter chips, so on a
+ *    laptop the chips wrapped and "New Club" moved with them. The chips are a
+ *    group now and the action sits at the end of the row, at its own width.
+ *  - "No activities found." was a bare grey sentence. It is an <EmptyState>
+ *    with the action that would fill it, like every other empty list.
+ *  - The captains table was hand-rolled markup inside a card. It is a
+ *    <DataTable>, so it sorts, pages and empties like every other table.
+ *  - Every label on the page was English string literals in the source. They
+ *    are keys now, so the page follows the language switch like the rest.
+ *  - Failures were `console.error` and nothing else: deleting a club that the
+ *    server refused looked exactly like deleting one that worked.
+ */
+
+const CATEGORIES = {
+    sport:      { labelKey: 'dis.studentLife.catSports',     icon: 'sports_soccer',       tone: 'blue'   },
+    music:      { labelKey: 'dis.studentLife.catMusic',      icon: 'music_note',          tone: 'purple' },
+    art:        { labelKey: 'dis.studentLife.catArts',       icon: 'palette',             tone: 'orange' },
+    debate:     { labelKey: 'dis.studentLife.catDebate',     icon: 'forum',               tone: 'blue'   },
+    science:    { labelKey: 'dis.studentLife.catScience',    icon: 'science',             tone: 'green'  },
+    community:  { labelKey: 'dis.studentLife.catCommunity',  icon: 'volunteer_activism',  tone: 'green'  },
+    leadership: { labelKey: 'dis.studentLife.catLeadership', icon: 'military_tech',       tone: 'purple' },
+    other:      { labelKey: 'dis.studentLife.catOther',      icon: 'category',            tone: ''       },
 }
 
-const ROLE_LABELS = {
-    head_boy: 'Head Boy', head_girl: 'Head Girl',
-    deputy_head_boy: 'Deputy Head Boy', deputy_head_girl: 'Deputy Head Girl',
-    prefect: 'Prefect', house_captain: 'House Captain',
-    class_captain: 'Class Captain', games_captain: 'Games Captain',
+const ROLE_KEYS = {
+    head_boy:          'dis.studentLife.roleHeadBoy',
+    head_girl:         'dis.studentLife.roleHeadGirl',
+    deputy_head_boy:   'dis.studentLife.roleDeputyHeadBoy',
+    deputy_head_girl:  'dis.studentLife.roleDeputyHeadGirl',
+    prefect:           'dis.studentLife.rolePrefect',
+    house_captain:     'dis.studentLife.roleHouseCaptain',
+    class_captain:     'dis.studentLife.roleClassCaptain',
+    games_captain:     'dis.studentLife.roleGamesCaptain',
 }
 
-const activityFilterOptions = [
-    { key: 'all',       label: 'All Activities'    },
-    { key: 'sport',     label: 'Sports'            },
-    { key: 'music',     label: 'Music'             },
-    { key: 'art',       label: 'Arts'              },
-    { key: 'debate',    label: 'Debate'            },
-    { key: 'science',   label: 'Science'           },
-    { key: 'community', label: 'Community Service' },
-    { key: 'leadership',label: 'Leadership'        },
-]
+const INCIDENT_TYPES = {
+    incident:    { icon: 'warning',      cls: 'warning'  },
+    warning:     { icon: 'error',        cls: 'warning'  },
+    positive:    { icon: 'thumb_up',     cls: 'positive' },
+    achievement: { icon: 'emoji_events', cls: 'positive' },
+}
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
 }
 
-// ── Activity Card ─────────────────────────────────────────────────────────────
+/** "Delete? Yes / No" in place of the button that asked. */
+function ConfirmInline({ question, onYes, onNo }) {
+    const { t } = useTranslation()
+    return (
+        <>
+            <span className="remove-confirm-text">{question}</span>
+            <button className="btn btn-primary btn-sm" onClick={onYes}>{t('common.yes')}</button>
+            <button className="btn btn-outline btn-sm" onClick={onNo}>{t('common.no')}</button>
+        </>
+    )
+}
+
+// ── Activity card ─────────────────────────────────────────────────────────────
 
 function ActivityCard({ activity, onEdit, onDelete }) {
     const { t } = useTranslation()
-    const [confirmDelete, setConfirmDelete] = useState(false)
-    const cat = CATEGORY_LABELS[activity.category] || activity.category
+    const [confirming, setConfirming] = useState(false)
+    const cat = CATEGORIES[activity.category] || CATEGORIES.other
+
+    const enrolled = activity.enrolled_count ?? 0
+    const max = activity.max_members || 0
+    // Clamped: a club that has over-enrolled must not draw a bar past its own box.
+    const fillPct = max ? Math.min(100, Math.round((enrolled / max) * 100)) : 0
 
     return (
-        <div className={`staff-card${activity.is_active ? '' : ' inactive'}`}>
-            <div className="staff-card-top">
-                <div className="staff-card-avatar patron">{initials(activity.name)}</div>
-                <div>
-                    <div className="staff-card-name">{activity.name}</div>
-                    <div className="staff-card-role">
-                        {cat}{activity.teacher_name ? ` · ${activity.teacher_name}` : ''}
-                    </div>
+        <article className={`disc-club-card${activity.is_active ? '' : ' inactive'}`}>
+            <header className="disc-club-card-top">
+                <div className={`disc-activity-icon ${cat.tone}`}>
+                    <span className="material-symbols-rounded" aria-hidden="true">{cat.icon}</span>
                 </div>
-                <span className={`pub-badge ${activity.is_active ? 'active' : 'draft'} ml-auto`}>
-                    {activity.is_active ? 'Active' : 'Inactive'}
+                <div className="disc-club-card-head">
+                    <h3 className="disc-club-card-name">{activity.name}</h3>
+                    <p className="disc-club-card-cat">{t(cat.labelKey)}</p>
+                </div>
+                {!activity.is_active && (
+                    <span className="badge">{t('dis.studentLife.inactive')}</span>
+                )}
+                {activity.is_full && (
+                    <span className="badge badge-high">{t('dis.studentLife.full')}</span>
+                )}
+            </header>
+
+            <div className="disc-club-card-meta">
+                <span>
+                    <span className="material-symbols-rounded" aria-hidden="true">supervisor_account</span>
+                    {activity.teacher_name || t('dis.studentLife.noPatron')}
+                </span>
+                <span>
+                    <span className="material-symbols-rounded" aria-hidden="true">schedule</span>
+                    {activity.schedule || t('dis.studentLife.noSchedule')}
+                </span>
+                <span>
+                    <span className="material-symbols-rounded" aria-hidden="true">location_on</span>
+                    {activity.venue || t('dis.studentLife.noVenue')}
                 </span>
             </div>
-            <div className="staff-card-meta">
-                <span><span className="material-symbols-rounded">groups</span>{activity.enrolled_count ?? 0} / {activity.max_members} members</span>
-                {activity.schedule && <span><span className="material-symbols-rounded">schedule</span>{activity.schedule}</span>}
-                {activity.venue    && <span><span className="material-symbols-rounded">location_on</span>{activity.venue}</span>}
-                {activity.is_full  && <span className="u-danger u-xs u-strong">Full</span>}
+
+            {/* Membership is the number a director actually scans this grid for,
+                so it gets a bar rather than another line of grey text. */}
+            <div className="disc-club-card-capacity">
+                <div className="disc-club-card-capacity-label">
+                    {t('dis.studentLife.members', { enrolled, max })}
+                </div>
+                <div
+                    className="disc-club-card-bar"
+                    role="progressbar"
+                    aria-valuenow={enrolled}
+                    aria-valuemin={0}
+                    aria-valuemax={max || undefined}
+                >
+                    <span className="disc-club-card-bar-fill" style={{ width: `${fillPct}%` }} />
+                </div>
             </div>
-            <div className="staff-card-actions">
-                {confirmDelete ? (
-                    <>
-                        <span className="remove-confirm-text">Delete?</span>
-                        <button className="btn btn-primary btn-sm" onClick={() => onDelete(activity.id)}>Yes</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>No</button>
-                    </>
+
+            <footer className="disc-club-card-actions">
+                {confirming ? (
+                    <ConfirmInline
+                        question={t('dis.studentLife.deleteClub')}
+                        onYes={() => onDelete(activity.id)}
+                        onNo={() => setConfirming(false)}
+                    />
                 ) : (
                     <>
-                        <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(true)}>
-                            <span className="material-symbols-rounded icon-sm">delete</span>
+                        <button className="btn btn-outline btn-sm" onClick={() => setConfirming(true)}>
+                            <span className="material-symbols-rounded icon-sm">delete</span> {t('common.delete')}
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onEdit(activity)}>
                             <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                         </button>
                     </>
                 )}
-            </div>
-        </div>
+            </footer>
+        </article>
     )
 }
 
-// ── Prefect Card ──────────────────────────────────────────────────────────────
+// ── Prefect card ──────────────────────────────────────────────────────────────
 
 function PrefectCard({ leader, onEdit, onRemove }) {
     const { t } = useTranslation()
-    const [confirmDelete, setConfirmDelete] = useState(false)
+    const [confirming, setConfirming] = useState(false)
     const cls = `${leader.grade || ''}${leader.section || ''}`
+    const role = t(ROLE_KEYS[leader.role] || 'dis.studentLife.rolePrefect')
 
     return (
-        <div className="staff-card">
-            <div className="staff-card-top">
+        <article className="disc-club-card">
+            <header className="disc-club-card-top">
                 <div className="staff-card-avatar matron">{initials(leader.student_name)}</div>
-                <div>
-                    <div className="staff-card-name">{leader.student_name}</div>
-                    <div className="staff-card-role">{ROLE_LABELS[leader.role] || leader.role} · {cls}</div>
+                <div className="disc-club-card-head">
+                    <h3 className="disc-club-card-name">{leader.student_name}</h3>
+                    <p className="disc-club-card-cat">{role}{cls ? ` · ${cls}` : ''}</p>
                 </div>
-                <span className="pub-badge active ml-auto">{ROLE_LABELS[leader.role] || leader.role}</span>
+            </header>
+            <div className="disc-club-card-meta">
+                <span><span className="material-symbols-rounded" aria-hidden="true">badge</span>{leader.student_id}</span>
+                <span><span className="material-symbols-rounded" aria-hidden="true">calendar_today</span>{t('dis.studentLife.appointed', { date: leader.appointed_date })}</span>
+                {leader.notes && <span><span className="material-symbols-rounded" aria-hidden="true">notes</span>{leader.notes}</span>}
             </div>
-            <div className="staff-card-meta">
-                <span><span className="material-symbols-rounded">badge</span>ADM: {leader.student_id}</span>
-                <span><span className="material-symbols-rounded">calendar_today</span>Since: {leader.appointed_date}</span>
-                {leader.notes && <span><span className="material-symbols-rounded">notes</span>{leader.notes}</span>}
-            </div>
-            <div className="staff-card-actions">
-                {confirmDelete ? (
-                    <>
-                        <span className="remove-confirm-text">{t('common.removeConfirm')}</span>
-                        <button className="btn btn-primary btn-sm" onClick={() => onRemove(leader.id)}>Yes</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>No</button>
-                    </>
+            <footer className="disc-club-card-actions">
+                {confirming ? (
+                    <ConfirmInline
+                        question={t('common.removeConfirm')}
+                        onYes={() => onRemove(leader.id)}
+                        onNo={() => setConfirming(false)}
+                    />
                 ) : (
                     <>
-                        <button className="btn btn-secondary btn-sm" onClick={() => setConfirmDelete(true)}>Remove</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => setConfirming(true)}>
+                            <span className="material-symbols-rounded icon-sm">person_remove</span> {t('common.remove')}
+                        </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onEdit(leader)}>
                             <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                         </button>
                     </>
                 )}
-            </div>
-        </div>
+            </footer>
+        </article>
     )
 }
 
-// ── Captain Row ───────────────────────────────────────────────────────────────
+// ── Captain row ───────────────────────────────────────────────────────────────
 
 function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCancelRemove }) {
     const { t } = useTranslation()
     const cls = `${leader.grade || ''}${leader.section || ''}`
-    const dorm = leader.notes || '-'
     const isConfirming = confirmId === leader.id
 
     return (
         <tr>
-            <td><span className="disc-badge">{dorm}</span></td>
-            <td><strong>{leader.student_name}</strong> <span className="class-chip">{cls}</span></td>
-            <td><span className="text-muted text-sm-muted">{leader.student_id}</span></td>
-            <td>{leader.appointed_date}</td>
+            <td><span className="disc-badge">{leader.notes || '-'}</span></td>
+            <td><strong>{leader.student_name}</strong> {cls && <span className="class-chip">{cls}</span>}</td>
+            <td className="text-muted">{leader.student_id}</td>
+            <td className="text-muted">{leader.appointed_date}</td>
             <td className="action-cell">
                 {isConfirming ? (
-                    <>
-                        <span className="remove-confirm-text">{t('common.removeConfirm')}</span>
-                        <button className="btn btn-primary btn-sm" onClick={() => onConfirmRemove(leader.id)}>Yes</button>
-                        <button className="btn btn-outline btn-sm" onClick={onCancelRemove}>No</button>
-                    </>
+                    <ConfirmInline
+                        question={t('common.removeConfirm')}
+                        onYes={() => onConfirmRemove(leader.id)}
+                        onNo={onCancelRemove}
+                    />
                 ) : (
                     <>
                         <button className="btn btn-outline btn-sm" onClick={() => onEdit(leader)}>
                             <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
                         </button>
                         <button className="btn btn-outline btn-sm" onClick={() => onRemove(leader.id)}>
-                            <span className="material-symbols-rounded icon-sm">delete</span> Remove
+                            <span className="material-symbols-rounded icon-sm">delete</span> {t('common.remove')}
                         </button>
                     </>
                 )}
@@ -188,40 +265,51 @@ export function DisStudentLife() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
-    const [activeTab, setActiveTab] = useState('activities')
+    const toast = useToast()
 
-    // ── Activities ──
-    const [activities,       setActivities]       = useState([])
-    const [actLoading,       setActLoading]       = useState(false)
-    const [actFilter,        setActFilter]        = useState('all')
-    const [editingActivity,  setEditingActivity]  = useState(null)
-    const [showNewActivity,  setShowNewActivity]  = useState(false)
+    /* The tab is in the URL. /discipline/leaders used to be a second,
+       read-only copy of the Leaders tab — same cards, same table, no way to
+       add or remove anyone — reachable only by typing the address. It
+       redirects here now, and needs a tab to land on. */
+    const [searchParams, setSearchParams] = useSearchParams()
+    const activeTab = searchParams.get('tab') === 'leaders' ? 'leaders' : 'activities'
+    const setActiveTab = tab => setSearchParams(
+        tab === 'leaders' ? { tab: 'leaders' } : {},
+        { replace: true },
+    )
 
-    // ── Leaders ──
-    const [leaders,          setLeaders]          = useState([])
-    const [leadLoading,      setLeadLoading]      = useState(false)
-    const [currentTermId,    setCurrentTermId]    = useState(null)
-    const [leaderFilter,     setLeaderFilter]     = useState('all')
-    const [showAddLeader,    setShowAddLeader]    = useState(null)  // 'prefect' | 'captain' | null
-    const [editingLeader,    setEditingLeader]    = useState(null)
-    const [confirmRemoveId,  setConfirmRemoveId]  = useState(null)
+    const [activities,      setActivities]      = useState([])
+    const [actLoading,      setActLoading]      = useState(true)
+    const [actFilter,       setActFilter]       = useState('all')
+    const [editingActivity, setEditingActivity] = useState(null)
+    const [showNewActivity, setShowNewActivity] = useState(false)
 
-    // ── Incidents ──
+    const [leaders,         setLeaders]         = useState([])
+    const [leadLoading,     setLeadLoading]     = useState(false)
+    const [leadLoaded,      setLeadLoaded]      = useState(false)
+    const [currentTermId,   setCurrentTermId]   = useState(null)
+    const [leaderFilter,    setLeaderFilter]    = useState('all')
+    const [showAddLeader,   setShowAddLeader]   = useState(null)   // 'prefect' | 'captain' | null
+    const [editingLeader,   setEditingLeader]   = useState(null)
+    const [confirmRemoveId, setConfirmRemoveId] = useState(null)
+
     const [incidents, setIncidents] = useState([])
 
     useEffect(() => {
-        setActLoading(true)
         Promise.all([
             getDisActivities(),
             getDisReports({ type: 'incident' }),
         ]).then(([acts, reps]) => {
             setActivities(Array.isArray(acts) ? acts : [])
             setIncidents(Array.isArray(reps) ? reps.slice(0, 5) : [])
-        }).catch(console.error).finally(() => setActLoading(false))
-    }, [])
+        }).catch(e => {
+            toast.error(errorMessage(e, t('dis.studentLife.loadFailed')))
+        }).finally(() => setActLoading(false))
+    }, [toast, t])
 
     useEffect(() => {
-        if (activeTab !== 'leaders') return
+        if (activeTab !== 'leaders' || leadLoaded) return
+        setLeadLoaded(true)
         setLeadLoading(true)
         Promise.all([
             getDisStudentLeaders(),
@@ -229,84 +317,81 @@ export function DisStudentLife() {
         ]).then(([ldrs, term]) => {
             setLeaders(Array.isArray(ldrs) ? ldrs : [])
             if (term?.id) setCurrentTermId(term.id)
-        }).catch(console.error).finally(() => setLeadLoading(false))
-    }, [activeTab])
+        }).catch(e => {
+            toast.error(errorMessage(e, t('dis.studentLife.loadFailed')))
+        }).finally(() => setLeadLoading(false))
+    }, [activeTab, leadLoaded, toast, t])
 
-    // ── Activity handlers ──
-    async function handleCreateActivity(data) {
-        try {
-            const created = await createDisActivity(data)
-            setActivities(prev => [created, ...prev])
-        } catch(e) { console.error(e) }
+    // ── Writes. Each one says what happened; they used to say nothing. ──
+    async function guard(fn) {
+        try { await fn() }
+        catch (e) { toast.error(errorMessage(e, t('dis.studentLife.saveFailed'))) }
     }
 
-    async function handleUpdateActivity(id, data) {
-        try {
-            const updated = await patchDisActivity(id, data)
-            setActivities(prev => prev.map(a => a.id === id ? updated : a))
-        } catch(e) { console.error(e) }
-    }
+    const handleCreateActivity = data => guard(async () => {
+        const created = await createDisActivity(data)
+        setActivities(prev => [created, ...prev])
+        toast.success(t('common.saved'))
+    })
 
-    async function handleDeleteActivity(id) {
-        try {
-            await deleteDisActivity(id)
-            setActivities(prev => prev.filter(a => a.id !== id))
-        } catch(e) { console.error(e) }
-    }
+    const handleUpdateActivity = (id, data) => guard(async () => {
+        const updated = await patchDisActivity(id, data)
+        setActivities(prev => prev.map(a => a.id === id ? updated : a))
+        toast.success(t('common.saved'))
+    })
 
-    // ── Leader handlers ──
-    async function handleCreateLeader(data) {
-        try {
-            const created = await createDisStudentLeader({ ...data, term_id: currentTermId })
-            setLeaders(prev => [created, ...prev])
-        } catch(e) { console.error(e) }
-    }
+    const handleDeleteActivity = id => guard(async () => {
+        await deleteDisActivity(id)
+        setActivities(prev => prev.filter(a => a.id !== id))
+    })
 
-    async function handleUpdateLeader(id, data) {
-        try {
-            const updated = await patchDisStudentLeader(id, data)
-            setLeaders(prev => prev.map(l => l.id === id ? { ...l, ...updated } : l))
-        } catch(e) { console.error(e) }
-    }
+    const handleCreateLeader = data => guard(async () => {
+        const created = await createDisStudentLeader({ ...data, term_id: currentTermId })
+        setLeaders(prev => [created, ...prev])
+        toast.success(t('common.saved'))
+    })
 
-    async function handleRemoveLeader(id) {
-        try {
-            await deleteDisStudentLeader(id)
-            setLeaders(prev => prev.filter(l => l.id !== id))
-            setConfirmRemoveId(null)
-        } catch(e) { console.error(e) }
-    }
+    const handleUpdateLeader = (id, data) => guard(async () => {
+        const updated = await patchDisStudentLeader(id, data)
+        setLeaders(prev => prev.map(l => l.id === id ? { ...l, ...updated } : l))
+        toast.success(t('common.saved'))
+    })
 
-    // ── Derived data ──
+    const handleRemoveLeader = id => guard(async () => {
+        await deleteDisStudentLeader(id)
+        setLeaders(prev => prev.filter(l => l.id !== id))
+        setConfirmRemoveId(null)
+    })
+
+    // ── Derived ──
+    const categoryFilters = useMemo(() => [
+        { key: 'all', label: t('dis.studentLife.allActivities') },
+        ...Object.entries(CATEGORIES)
+            .filter(([key]) => key !== 'other')
+            .map(([key, c]) => ({ key, label: t(c.labelKey) })),
+    ], [t])
+
     const visibleActivities = actFilter === 'all'
         ? activities
         : activities.filter(a => a.category === actFilter)
 
-    const prefects  = leaders.filter(l => l.role !== 'house_captain')
-    const captains  = leaders.filter(l => l.role === 'house_captain')
-
+    const prefects = leaders.filter(l => l.role !== 'house_captain')
+    const captains = leaders.filter(l => l.role === 'house_captain')
     const totalEnrolled = activities.reduce((s, a) => s + (a.enrolled_count || 0), 0)
 
     const activityStats = [
-        { iconClass: 'info',    icon: 'emoji_events',       value: activities.filter(a => a.is_active).length, label: 'Active Clubs'       },
-        { iconClass: 'success', icon: 'groups',             value: totalEnrolled,                              label: 'Enrolled Students'  },
-        { iconClass: 'warning', icon: 'report',             value: incidents.length,                           label: 'Recent Incidents'   },
-        { iconClass: 'success',icon: 'supervisor_account', value: activities.filter(a => a.teacher_name).length, label: 'Patron Teachers' },
+        { colorClass: 'info',    icon: 'emoji_events',       value: activities.filter(a => a.is_active).length,    label: t('dis.studentLife.activitiesClubs') },
+        { colorClass: 'success', icon: 'groups',             value: totalEnrolled,                                 label: t('common.allStudents')              },
+        { colorClass: 'warning', icon: 'report',             value: incidents.length,                              label: t('dis.studentLife.recentIncidents') },
+        { colorClass: '',        icon: 'supervisor_account', value: activities.filter(a => a.teacher_name).length, label: t('dis.staff.activityPatrons')       },
     ]
 
     const leaderStats = [
-        { iconClass: 'info',    icon: 'military_tech', value: prefects.length,  label: 'Prefects & Leaders'  },
-        { iconClass: 'success', icon: 'home',          value: captains.length,  label: 'Dormitory Captains'  },
-        { iconClass: 'warning', icon: 'groups',        value: activities.length,label: 'Active Clubs'        },
-        { iconClass: 'success',icon: 'report',        value: incidents.length, label: 'Recent Incidents'    },
+        { colorClass: 'info',    icon: 'military_tech', value: prefects.length,   label: t('dis.studentLife.prefects')  },
+        { colorClass: 'success', icon: 'home',          value: captains.length,   label: t('dis.studentLife.captains')  },
+        { colorClass: 'warning', icon: 'emoji_events',  value: activities.length, label: t('dis.studentLife.activitiesClubs') },
+        { colorClass: '',        icon: 'report',        value: incidents.length,  label: t('dis.studentLife.recentIncidents') },
     ]
-
-    const TYPE_META = {
-        incident:    { icon: 'warning',   cls: 'warning'  },
-        warning:     { icon: 'error',     cls: 'warning'  },
-        positive:    { icon: 'thumb_up',  cls: 'positive' },
-        achievement: { icon: 'emoji_events', cls: 'positive' },
-    }
 
     return (
         <>
@@ -350,7 +435,7 @@ export function DisStudentLife() {
                 />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
@@ -364,37 +449,49 @@ export function DisStudentLife() {
                     />
                     <DashboardContent>
 
-                        <div className="filter-tabs-bar mb-5">
-                            <button className={`filter-tab${activeTab === 'activities' ? ' active' : ''}`} onClick={() => setActiveTab('activities')}>
-                                <span className="material-symbols-rounded">emoji_events</span> {t('dis.studentLife.activitiesClubs')}
-                            </button>
-                            <button className={`filter-tab${activeTab === 'leaders' ? ' active' : ''}`} onClick={() => setActiveTab('leaders')}>
-                                <span className="material-symbols-rounded">military_tech</span> {t('dis.studentLeaders.title')}
-                            </button>
-                        </div>
+                        <TabGroup
+                            tabs={[
+                                { key: 'activities', label: t('dis.studentLife.activitiesClubs'), icon: 'emoji_events' },
+                                { key: 'leaders',    label: t('dis.studentLeaders.title'),        icon: 'military_tech' },
+                            ]}
+                            value={activeTab}
+                            onChange={setActiveTab}
+                            label={t('dis.studentLife.title')}
+                            idPrefix="dis-life-"
+                        />
 
-                        {/* ── ACTIVITIES TAB ── */}
+                        {/* ── ACTIVITIES ── */}
                         {activeTab === 'activities' && (
-                            <>
-                                <div className="portal-stat-grid">
-                                    {activityStats.map((s, i) => (
-                                        <StatCard key={i} icon={s.icon} value={s.value} label={s.label} colorClass={s.iconClass} />
-                                    ))}
+                            <div id="dis-life-panel-activities" role="tabpanel" aria-labelledby="dis-life-tab-activities">
+                                <div className="portal-stat-grid mb-5">
+                                    {activityStats.map((s, i) => <StatCard key={i} {...s} />)}
                                 </div>
 
+                                {/* Filters lead, the action sits at the end of
+                                    the same row. Before, the button was INSIDE
+                                    the chip row, so on a laptop the eight chips
+                                    wrapped and "New Club" moved with them. */}
                                 <div className="section-toolbar-row">
-                                    <FilterBar options={activityFilterOptions} active={actFilter} onChange={setActFilter} />
-                                    <button className="btn btn-primary" onClick={() => setShowNewActivity(true)}>
-                                        <span className="material-symbols-rounded">add</span> {t('dis.studentLife.newClub')}
+                                    <FilterBar options={categoryFilters} active={actFilter} onChange={setActFilter} />
+                                    <button className="btn btn-primary btn-sm" onClick={() => setShowNewActivity(true)}>
+                                        <span className="material-symbols-rounded icon-sm">add</span> {t('dis.studentLife.newClub')}
                                     </button>
                                 </div>
 
                                 {actLoading ? (
-                                    <p className="disc-loading-text">Loading activities…</p>
+                                    <p className="u-pad u-muted">{t('dis.studentLife.loadingActivities')}</p>
                                 ) : visibleActivities.length === 0 ? (
-                                    <p className="dis-empty-center">No activities found.</p>
+                                    <EmptyState
+                                        icon="emoji_events"
+                                        title={t('dis.studentLife.noActivities')}
+                                        description={t('dis.studentLife.noActivitiesDesc')}
+                                        action={{ label: t('dis.studentLife.createFirstClub'), icon: 'add', onClick: () => setShowNewActivity(true) }}
+                                        secondAction={actFilter !== 'all'
+                                            ? { label: t('common.clearFilters'), icon: 'close', onClick: () => setActFilter('all') }
+                                            : undefined}
+                                    />
                                 ) : (
-                                    <div className="staff-cards-grid">
+                                    <div className="disc-club-grid">
                                         {visibleActivities.map(a => (
                                             <ActivityCard key={a.id} activity={a} onEdit={setEditingActivity} onDelete={handleDeleteActivity} />
                                         ))}
@@ -404,16 +501,16 @@ export function DisStudentLife() {
                                 {incidents.length > 0 && (
                                     <div className="card mt-1-5">
                                         <div className="card-header">
-                                            <h2 className="card-title">Recent Conduct Incidents</h2>
+                                            <h2 className="card-title">{t('dis.studentLife.recentIncidents')}</h2>
                                         </div>
                                         <div className="card-content">
                                             <div className="disc-activity-list">
                                                 {incidents.map(r => {
-                                                    const meta = TYPE_META[r.report_type] || { icon: 'warning', cls: 'warning' }
+                                                    const meta = INCIDENT_TYPES[r.report_type] || INCIDENT_TYPES.incident
                                                     return (
                                                         <div key={r.id} className="disc-activity-item">
                                                             <div className={`disc-activity-icon ${meta.cls}`}>
-                                                                <span className="material-symbols-rounded">{meta.icon}</span>
+                                                                <span className="material-symbols-rounded" aria-hidden="true">{meta.icon}</span>
                                                             </div>
                                                             <div className="disc-activity-details">
                                                                 <p className="disc-activity-title">{r.title}</p>
@@ -431,24 +528,22 @@ export function DisStudentLife() {
                                         </div>
                                     </div>
                                 )}
-                            </>
+                            </div>
                         )}
 
-                        {/* ── LEADERS TAB ── */}
+                        {/* ── LEADERS ── */}
                         {activeTab === 'leaders' && (
-                            <>
-                                <div className="portal-stat-grid">
-                                    {leaderStats.map((s, i) => (
-                                        <StatCard key={i} icon={s.icon} value={s.value} label={s.label} colorClass={s.iconClass} />
-                                    ))}
+                            <div id="dis-life-panel-leaders" role="tabpanel" aria-labelledby="dis-life-tab-leaders">
+                                <div className="portal-stat-grid mb-5">
+                                    {leaderStats.map((s, i) => <StatCard key={i} {...s} />)}
                                 </div>
 
                                 <div className="section-toolbar-row">
                                     <FilterBar
                                         options={[
-                                            { key: 'all',      label: 'All Leaders'       },
-                                            { key: 'prefects', label: 'Prefects'          },
-                                            { key: 'captains', label: 'Dormitory Captains'},
+                                            { key: 'all',      label: t('dis.studentLife.allLeaders') },
+                                            { key: 'prefects', label: t('dis.studentLife.prefects')   },
+                                            { key: 'captains', label: t('dis.studentLife.captains')   },
                                         ]}
                                         active={leaderFilter}
                                         onChange={setLeaderFilter}
@@ -457,60 +552,59 @@ export function DisStudentLife() {
                                         <button className="btn btn-outline btn-sm" onClick={() => setShowAddLeader('captain')}>
                                             <span className="material-symbols-rounded icon-sm">add</span> {t('dis.studentLife.addCaptain')}
                                         </button>
-                                        <button className="btn btn-primary" onClick={() => setShowAddLeader('prefect')}>
-                                            <span className="material-symbols-rounded">add</span> {t('dis.studentLife.addLeader')}
+                                        <button className="btn btn-primary btn-sm" onClick={() => setShowAddLeader('prefect')}>
+                                            <span className="material-symbols-rounded icon-sm">add</span> {t('dis.studentLife.addLeader')}
                                         </button>
                                     </div>
                                 </div>
 
                                 {leadLoading ? (
-                                    <p className="disc-loading-text">Loading leaders…</p>
+                                    <p className="u-pad u-muted">{t('dis.studentLife.loadingLeaders')}</p>
                                 ) : (
                                     <>
                                         {(leaderFilter === 'all' || leaderFilter === 'prefects') && (
-                                            <div className="staff-cards-grid">
-                                                {prefects.length === 0
-                                                    ? <p className="disc-empty-text">No prefects appointed this term.</p>
-                                                    : prefects.map(l => (
+                                            prefects.length === 0 ? (
+                                                <EmptyState
+                                                    icon="military_tech"
+                                                    title={t('dis.studentLife.noPrefects')}
+                                                    description={t('dis.studentLife.noPrefectsDesc')}
+                                                    action={{ label: t('dis.studentLife.appointFirstLeader'), icon: 'add', onClick: () => setShowAddLeader('prefect') }}
+                                                />
+                                            ) : (
+                                                <div className="disc-club-grid mb-1-5">
+                                                    {prefects.map(l => (
                                                         <PrefectCard key={l.id} leader={l} onEdit={setEditingLeader} onRemove={handleRemoveLeader} />
-                                                    ))
-                                                }
-                                            </div>
+                                                    ))}
+                                                </div>
+                                            )
                                         )}
 
                                         {(leaderFilter === 'all' || leaderFilter === 'captains') && (
-                                            <div className="card mt-1-5">
-                                                <div className="card-header">
-                                                    <h2 className="card-title"><span className="material-symbols-rounded">home</span> {t('dis.studentLife.dormitoryCaptains')}</h2>
-                                                </div>
-                                                <div className="card-content">
-                                                    <div className="data-table-wrap">
-                                                        <table className="data-table">
-                                                            <thead>
-                                                                <tr><th>Dormitory</th><th>Captain</th><th>ADM</th><th>Since</th><th>Actions</th></tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {captains.length === 0
-                                                                    ? <tr><td colSpan={5} className="td-italic-muted">No captains assigned this term.</td></tr>
-                                                                    : captains.map(c => (
-                                                                        <CaptainRow key={c.id} leader={c}
-                                                                            confirmId={confirmRemoveId}
-                                                                            onEdit={setEditingLeader}
-                                                                            onRemove={setConfirmRemoveId}
-                                                                            onConfirmRemove={handleRemoveLeader}
-                                                                            onCancelRemove={() => setConfirmRemoveId(null)}
-                                                                        />
-                                                                    ))
-                                                                }
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <DataTable
+                                                title={t('dis.studentLife.dormitoryCaptains')}
+                                                data={captains}
+                                                columns={[
+                                                    t('common.dormitory'), t('dis.studentLife.captain'),
+                                                    t('common.admNo'), t('common.appointedDate'), t('common.actions'),
+                                                ]}
+                                                renderRow={c => (
+                                                    <CaptainRow
+                                                        key={c.id} leader={c}
+                                                        confirmId={confirmRemoveId}
+                                                        onEdit={setEditingLeader}
+                                                        onRemove={setConfirmRemoveId}
+                                                        onConfirmRemove={handleRemoveLeader}
+                                                        onCancelRemove={() => setConfirmRemoveId(null)}
+                                                    />
+                                                )}
+                                                emptyIcon="home"
+                                                emptyTitle={t('dis.studentLife.noCaptains')}
+                                                emptyDesc={t('dis.studentLife.noCaptainsDesc')}
+                                            />
                                         )}
                                     </>
                                 )}
-                            </>
+                            </div>
                         )}
 
                     </DashboardContent>

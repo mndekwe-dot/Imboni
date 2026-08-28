@@ -179,7 +179,7 @@ export function TeacherStudent() {
                         title={t('teacher.students.listTitle')}
                         subtitle={t('teacher.students.subtitle')}
                         userName={fullName}
-                        userRole="Teacher"
+                        userRole={t('roles.teacher')}
                         userInitials={initials}
                         avatarClass="teacher-av"
                         notifications={liveNotifications}

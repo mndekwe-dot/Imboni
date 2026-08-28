@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
         configure: useTenantHost,
       },
       // Django admin and the static files it pulls in.
-      '/admin': { target: devApiTarget, changeOrigin: false, configure: useTenantHost },
+      '/django-admin': { target: devApiTarget, changeOrigin: false, configure: useTenantHost },
       '/static': { target: devApiTarget, changeOrigin: false, configure: useTenantHost },
       '/media': { target: devApiTarget, changeOrigin: false, configure: useTenantHost },
     },

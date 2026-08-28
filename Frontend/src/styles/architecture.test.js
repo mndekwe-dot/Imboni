@@ -61,7 +61,18 @@ const OWN_PREFIXES = {
     Matron: ['mat', 'health', 'comms'], Student: ['student', 'stu', 'sqz', 'cal'],
     Teacher: ['tch', 'teacher', 'tt'], Parent: ['par', 'pc'],
 }
+
+/* `tt-` is the TIMETABLE grid, and timetable.css is shared: five portals render
+   <Timetable>, so `tt-` classes appearing in a DOS, Discipline or Matron page
+   are not that page reaching into Teacher's stylesheet. It is listed under
+   Teacher above only because that is the portal whose own pages use it most.
+   Counting it as foreign made the ratchet report seven violations that were
+   nothing of the kind — and, worse, gave it slack: real violations could be
+   introduced and offset by removing an innocent `tt-` use, with the exact-match
+   assertion below still passing. */
+const SHARED_PREFIXES = ['tt']
 const ALL_PREFIXES = [...new Set(Object.values(OWN_PREFIXES).flat())]
+    .filter(p => !SHARED_PREFIXES.includes(p))
 
 function handRolledPages() {
     const out = []
@@ -95,7 +106,7 @@ describe('style architecture', () => {
     // MAX_HAND_ROLLED reached 0: every page that had copied a shared component
     // now renders it instead. Keep it there - any rise is a new copy.
     const MAX_HAND_ROLLED = 0
-    const MAX_FOREIGN_PREFIX = 54
+    const MAX_FOREIGN_PREFIX = 38
 
     it('does not hand-roll components that already exist', () => {
         const found = handRolledPages()

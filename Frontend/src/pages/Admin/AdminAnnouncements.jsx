@@ -19,6 +19,8 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
+import { SearchBar } from '../../components/ui/SearchBar'
+import '../../styles/announcements.css'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -484,19 +486,11 @@ export function AdminAnnouncements() {
 
                         {/* Search */}
                         <div className="toolbar-card u-mb">
-                            <div className="toolbar-search">
-                                <span className="material-symbols-rounded">search</span>
-                                <input
-                                    placeholder={t('announcements.searchPlaceholder')}
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                />
-                                {search && (
-                                    <button className="toolbar-search-clear" onClick={() => setSearch('')}>
-                                        <span className="material-symbols-rounded">close</span>
-                                    </button>
-                                )}
-                            </div>
+                            <SearchBar
+                                value={search}
+                                onChange={setSearch}
+                                placeholder={t('announcements.searchPlaceholder')}
+                            />
                         </div>
 
                         {/* Feed */}

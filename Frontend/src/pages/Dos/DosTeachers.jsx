@@ -19,6 +19,7 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { formatDate } from '../../utils/date'
+import { SearchBar } from '../../components/ui/SearchBar'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TYPES = ['Full-Time', 'Part-Time']
@@ -578,11 +579,11 @@ export function DosTeachers() {
                         </div>
 
                         <div className="toolbar-card">
-                            <div className="toolbar-search">
-                                <span className="material-symbols-rounded">search</span>
-                                <input placeholder={t('dos.teachers.searchTeachers')} value={search} onChange={e => setSearch(e.target.value)} />
-                                {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
-                            </div>
+                            <SearchBar
+                                value={search}
+                                onChange={setSearch}
+                                placeholder={t('dos.teachers.searchTeachers')}
+                            />
                             <InlineSelect value={subjectFilter} onChange={setSubjectFilter} options={subjects} placeholder={t('dos.teachers.allSubjects')} />
                             <InlineSelect value={typeFilter} onChange={setTypeFilter} options={TYPES} placeholder={t('dos.teachers.allTypes')} />
                             <div className="toolbar-spacer" />

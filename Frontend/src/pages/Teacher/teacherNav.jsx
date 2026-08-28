@@ -5,6 +5,7 @@ export const teacherNavItems = [
     { to: '/teacher/attendance',    icon: 'fact_check',     labelKey: 'nav.attendance'               },
     { to: '/teacher/results',       icon: 'school',         labelKey: 'nav.results'                  },
     { to: '/teacher/assignments',   icon: 'assignment',     labelKey: 'nav.assignments'              },
+    { to: '/teacher/exams',         icon: 'description',    labelKey: 'nav.examPapers'               },
     { to: '/teacher/timetable',     icon: 'calendar_month', labelKey: 'nav.timetable'                },
     { to: '/teacher/announcements', icon: 'announcement',   labelKey: 'nav.announcements'            },
     { to: '/teacher/messages',      icon: 'chat',           labelKey: 'nav.messages'                 },

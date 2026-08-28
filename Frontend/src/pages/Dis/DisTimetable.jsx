@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getISOWeek, getISOWeekYear } from 'date-fns'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -11,6 +10,7 @@ import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
 import { PeriodManager } from '../../components/timetable/PeriodManager'
 import { EXTRA_SLOTS } from '../../data/extraTimetable'
 import { getThisMonday } from '../../components/timetable/dateUtils'
+import { toWeekKey, entriesToSchedules, buildIdMap, computeStats } from '../../components/timetable/extraEntries'
 import {
     getDisExtracurricular, createDisExtracurricular,
     patchDisExtracurricular, deleteDisExtracurricular,
@@ -22,46 +22,6 @@ import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-// Converts a Monday Date object → ISO week string like "2026-W23"
-function toWeekKey(monday) {
-    return `${getISOWeekYear(monday)}-W${String(getISOWeek(monday)).padStart(2, '0')}`
-}
-
-function entriesToSchedules(entries, weekKey) {
-    const result = { [weekKey]: {} }
-    entries.forEach(e => {
-        const week = e.week || weekKey
-        if (!result[week]) result[week] = {}
-        if (!result[week][e.slot_id]) result[week][e.slot_id] = {}
-        result[week][e.slot_id][e.day] = e.activity_type === 'empty'
-            ? { type: 'empty', label: e.label || '-' }
-            : { type: e.activity_type, subject: e.subject, teacher: e.teacher, room: e.room }
-    })
-    return result
-}
-
-function buildIdMap(entries, weekKey) {
-    const map = {}
-    entries.forEach(e => { map[`${e.week || weekKey}__${e.slot_id}__${e.day}`] = e.id })
-    return map
-}
-
-const GENERIC_STAFF = new Set(['Duty Staff', 'All Matrons', 'House Staff', 'All Dormitory Staff'])
-
-function computeStats(entries) {
-    const nonEmpty = entries.filter(e => e.activity_type !== 'empty')
-    const clubs    = new Set(
-        nonEmpty.filter(e => !['boarding', 'dining'].includes(e.activity_type) && e.subject)
-                .map(e => e.subject)
-    )
-    const patrons  = new Set(
-        nonEmpty.filter(e => e.teacher && !GENERIC_STAFF.has(e.teacher))
-                .map(e => e.teacher)
-    )
-    const venues = new Set(nonEmpty.filter(e => e.room).map(e => e.room))
-    return { scheduled: nonEmpty.length, clubs: clubs.size, patrons: patrons.size, venues: venues.size }
-}
 
 function applyEntries(entries, weekKey, setEntries, setSchedules, setIdMap, setStats) {
     setEntries(entries)
@@ -218,8 +178,8 @@ export function DisTimetable() {
                                 ) : (
                                     <div className="u-relative">
                                         {fetching && (
-                                            <div className="dis-fetch-overlay">
-                                                <span className="dis-fetch-overlay-label">
+                                            <div className="tt-fetch-overlay">
+                                                <span className="tt-fetch-overlay-label">
                                                     Loading {activeWeek}…
                                                 </span>
                                             </div>

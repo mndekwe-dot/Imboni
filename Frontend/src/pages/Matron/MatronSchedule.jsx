@@ -1,33 +1,56 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { Sidebar } from '../../components/layout/Sidebar'
 import { PageLoading } from '../../components/layout/PageLoading'
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { DashboardContent } from '../../components/layout/DashboardContent'
+import { DashboardHeader } from '../../components/layout/DashboardHeader'
+import { StatCard } from '../../components/layout/StatCard'
+import { Timetable } from '../../components/timetable/Timetable'
+import { getThisMonday } from '../../components/timetable/dateUtils'
+import { toWeekKey, entriesToSchedules, computeStats } from '../../components/timetable/extraEntries'
+import { EXTRA_SLOTS } from '../../data/extraTimetable'
+import { getMatronBoardingSchedule, getMatronWeeklySchedule } from '../../api/matron'
+import { useSessionUser } from '../../hooks/useSessionUser'
+import { useNotifications } from '../../hooks/useNotifications'
+import { useMatronDormitory } from '../../hooks/useMatronDormitory'
+import { matronNavItems, matronSecondaryItems } from './matronNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
-import { matronNavItems, matronSecondaryItems } from './matronNav'
-import { DashboardContent } from '../../components/layout/DashboardContent'
-import { useSchoolSettings } from '../../hooks/useSchoolSetting'
-import { formatSchoolDate } from '../../utils/date'
-import { getMatronBoardingSchedule } from '../../api/matron'
-import { useSessionUser } from '../../hooks/useSessionUser'
-import { DashboardHeader } from '../../components/layout/DashboardHeader'
-import { useNotifications } from '../../hooks/useNotifications'
-import { useMatronDormitory } from '../../hooks/useMatronDormitory'
-import { StatCard } from '../../components/layout/StatCard'
+import '../../styles/timetable.css'
 
+/**
+ * The boarding week, as the Discipline Office wrote it.
+ *
+ * This page used to draw its own tables — a `RoutineTable` with its own
+ * headings, its own break row and its own time column, over a separate
+ * `BoardingScheduleSlot` model. So a school kept two routines: the grid the
+ * Discipline Director edited in their portal, and this one. They could say
+ * different things, and there was no place in the app where that was visible.
+ *
+ * Now it renders the SAME <Timetable> component the DOS and Discipline portals
+ * use, over the SAME `ExtracurricularEntry` rows the Discipline Director
+ * edits — read-only, with the week picker so a matron can look ahead. What she
+ * sees is their grid, not a copy of it.
+ *
+ * The recent-changes log stays on the old endpoint: it is the Discipline
+ * Office's own change record and has no equivalent in the grid.
+ */
 
 const CHANGE_STATUS_DISPLAY = {
-    new:     { dotClass: 'pending',  statusClass: 'pending',  status: 'New'     },
-    applied: { dotClass: 'reviewed', statusClass: 'reviewed', status: 'Applied' },
+    new:     { dotClass: 'pending',  statusClass: 'pending',  labelKey: 'matron.schedule.changeNew'     },
+    applied: { dotClass: 'reviewed', statusClass: 'reviewed', labelKey: 'matron.schedule.changeApplied' },
 }
 
-// Thin alias over the shared tile. It used to re-implement the markup with
-// discipline.css class names, so editing a Discipline stylesheet silently
-// restyled the Matron schedule.
-function ScheduleStat({ iconClass, icon, value, label }) {
-    return <StatCard icon={icon} value={value} label={label} colorClass={iconClass} />
+function ReadOnlyBadge() {
+    const { t } = useTranslation()
+    return (
+        <span className="badge-readonly">
+            <span className="material-symbols-rounded" aria-hidden="true">lock</span>
+            {t('matron.schedule.readOnly')}
+        </span>
+    )
 }
 
 function ScheduleChange({ dotClass, title, meta, statusClass, status }) {
@@ -43,67 +66,41 @@ function ScheduleChange({ dotClass, title, meta, statusClass, status }) {
     )
 }
 
-function TtCell({ cellClass, subject, teacher, room }) {
-    return (
-        <td className={`tt-cell ${cellClass}`}>
-            <div className="tt-subject">{subject}</div>
-            <div className="tt-teacher">{teacher}</div>
-            <div className="tt-room">{room}</div>
-        </td>
-    )
-}
-
-function WeekdayRow({ time, label, isBreak, breakText, cellClass, subject, teacher, room }) {
-    if (isBreak) {
-        return (
-            <tr className="tt-break-row">
-                <td className="tt-time-cell"><strong>{time}</strong><span>{label}</span></td>
-                <td colSpan={5} className="tt-break-cell">{breakText}</td>
-            </tr>
-        )
-    }
-    return (
-        <tr>
-            <td className="tt-time-cell"><strong>{time}</strong><span>{label}</span></td>
-            {[0,1,2,3,4].map(i => <TtCell key={i} cellClass={cellClass} subject={subject} teacher={teacher} room={room} />)}
-        </tr>
-    )
-}
-
-function WeekendRow({ time, label, isBreak, breakText, sat, sun }) {
-    if (isBreak) {
-        return (
-            <tr className="tt-break-row">
-                <td className="tt-time-cell"><strong>{time}</strong><span>{label}</span></td>
-                <td colSpan={2} className="tt-break-cell">{breakText}</td>
-            </tr>
-        )
-    }
-    return (
-        <tr>
-            <td className="tt-time-cell"><strong>{time}</strong><span>{label}</span></td>
-            <TtCell {...sat} />
-            <TtCell {...sun} />
-        </tr>
-    )
-}
-
 export function MatronSchedule() {
     const { t } = useTranslation()
     const dormitory = useMatronDormitory()
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const { setting } = useSchoolSettings()
-    const [data, setData] = useState(null)
+
+    const [meta, setMeta] = useState(null)      // term + change log, from the Discipline Office
+    const [entries, setEntries] = useState([])  // the grid rows for the visible week
     const [loading, setLoading] = useState(true)
+    const [fetching, setFetching] = useState(false)
     const [error, setError] = useState(null)
+
+    // The week lives here, not inside <Timetable>, so re-fetching on a week
+    // change does not remount the picker and snap it back to today.
+    const [currentMonday, setCurrentMonday] = useState(() => getThisMonday())
+    const activeWeek = toWeekKey(currentMonday)
 
     useEffect(() => {
         getMatronBoardingSchedule()
-            .then(setData)
+            .then(setMeta)
             .catch(err => setError(err.message))
             .finally(() => setLoading(false))
     }, [])
+
+    useEffect(() => {
+        let cancelled = false
+        setFetching(true)
+        getMatronWeeklySchedule(activeWeek)
+            .then(data => { if (!cancelled) setEntries(Array.isArray(data) ? data : []) })
+            // A week nobody has authored is an empty routine, not a failure —
+            // and it must not take the change log down with it.
+            .catch(() => { if (!cancelled) setEntries([]) })
+            .finally(() => { if (!cancelled) setFetching(false) })
+        return () => { cancelled = true }
+    }, [activeWeek])
 
     if (loading) return (
         <PageLoading
@@ -112,24 +109,35 @@ export function MatronSchedule() {
             user={sessionUser}
         />
     )
-    if (error) return <p className="u-pad u-danger">Error: {error}</p>
+    if (error) return <p className="u-pad u-danger">{t('common.errorPrefix')}: {error}</p>
+
+    const stats = computeStats(entries)
+    const schedules = entriesToSchedules(entries, activeWeek)
 
     const scheduleStats = [
-        { iconClass: 'info',     icon: 'calendar_view_week', value: data.stats.days_in_schedule,                label: 'Days in Schedule'  },
-        { iconClass: 'success',  icon: 'event_available',    value: data.stats.total_activities,                label: 'Total Activities'  },
-        { iconClass: 'warning',  icon: 'update',             value: data.stats.changes_this_week,               label: 'Changes This Week' },
-        { iconClass: 'success', icon: 'verified',           value: data.stats.current_term,                    label: 'Current Term'      },
+        { colorClass: 'info',    icon: 'calendar_view_week', value: stats.scheduled,          label: t('matron.schedule.activitiesThisWeek') },
+        { colorClass: 'success', icon: 'supervisor_account', value: stats.patrons,            label: t('matron.schedule.supervisors')        },
+        { colorClass: 'warning', icon: 'location_on',        value: stats.venues,             label: t('matron.schedule.venues')             },
+        { colorClass: 'success', icon: 'verified',           value: meta.stats.current_term,  label: t('matron.schedule.currentTerm')        },
     ]
 
-    const scheduleChanges = data.changes.map(c => ({
-        title: c.description,
-        meta: `${c.changed_by_name ? 'Updated by ' + c.changed_by_name + ' · ' : ''}${c.change_date}`,
-        ...(CHANGE_STATUS_DISPLAY[c.status] || CHANGE_STATUS_DISPLAY.new),
-    }))
+    const scheduleChanges = (meta.changes || []).map(c => {
+        const display = CHANGE_STATUS_DISPLAY[c.status] || CHANGE_STATUS_DISPLAY.new
+        return {
+            title: c.description,
+            meta: [
+                c.changed_by_name && t('matron.schedule.updatedBy', { name: c.changed_by_name }),
+                c.change_date,
+            ].filter(Boolean).join(' · '),
+            dotClass: display.dotClass,
+            statusClass: display.statusClass,
+            status: t(display.labelKey),
+        }
+    })
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             <div className="dashboard-layout">
@@ -137,7 +145,7 @@ export function MatronSchedule() {
 
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
-                        title="Boarding Schedule"
+                        title={t('matron.schedule.boardingSchedule')}
                         subtitle={dormitory
                             ? t('matron.schedule.subtitle', { house: dormitory })
                             : t('matron.schedule.subtitleNoHouse')}
@@ -149,92 +157,73 @@ export function MatronSchedule() {
                     <DashboardContent>
 
                         <div className="notice-banner mb-5">
-                            <span className="material-symbols-rounded u-fs-15">verified</span>
+                            <span className="material-symbols-rounded u-fs-15" aria-hidden="true">verified</span>
                             <div>
-                                <div className="banner-title">Standing boarding routine, issued by the Discipline Office</div>
-                                <div className="banner-sub">{data.stats.current_term} &middot; Read-only, contact the Discipline Master to request changes</div>
+                                <div className="banner-title">{t('matron.schedule.standingRoutine')}</div>
+                                <div className="banner-sub">
+                                    {meta.stats.current_term} &middot; {t('matron.schedule.issuedBy')}
+                                </div>
                             </div>
                         </div>
 
                         <div className="portal-stat-grid mb-5">
                             {scheduleStats.map((stat, index) => (
-                                <ScheduleStat key={index} {...stat} />
+                                <StatCard key={index} {...stat} />
                             ))}
                         </div>
 
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">calendar_view_week</span> Monday to Friday
+                                    <span className="material-symbols-rounded" aria-hidden="true">calendar_view_week</span>
+                                    {t('matron.schedule.weeklyRoutine')}
                                 </h3>
-                                <span className="did-direct-badge">
-                                    <span className="material-symbols-rounded">lock</span>
-                                    Read-only
-                                </span>
+                                <ReadOnlyBadge />
                             </div>
                             <div className="card-content">
-                                <div className="tt-wrap">
-                                    <table className="tt-table">
-                                        <thead>
-                                            <tr>
-                                                <th className="tt-time-head">Time</th>
-                                                <th className="tt-day-head">Monday</th>
-                                                <th className="tt-day-head">Tuesday</th>
-                                                <th className="tt-day-head">Wednesday</th>
-                                                <th className="tt-day-head">Thursday</th>
-                                                <th className="tt-day-head">Friday</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {data.weekday_rows.map((row, index) => (
-                                                <WeekdayRow key={index} {...row} />
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                {/* The grid stays mounted while another week
+                                    loads — swapping it for a spinner is what
+                                    made the week picker jump back to today. */}
+                                <div className="u-relative">
+                                    {fetching && (
+                                        <div className="tt-fetch-overlay">
+                                            <span className="tt-fetch-overlay-label">{activeWeek}…</span>
+                                        </div>
+                                    )}
+                                    <Timetable
+                                        type="extracurricular"
+                                        editable={false}
+                                        onEditCell={() => {}}
+                                        slots={EXTRA_SLOTS}
+                                        schedules={schedules}
+                                        weekKey={activeWeek}
+                                        currentMonday={currentMonday}
+                                        onWeekChange={setCurrentMonday}
+                                    />
                                 </div>
-                            </div>
-                        </div>
-
-                        <div className="card mb-1-5">
-                            <div className="card-header">
-                                <h3 className="card-title">
-                                    <span className="material-symbols-rounded">weekend</span> Weekend (Sat &amp; Sun)
-                                </h3>
-                                <span className="did-direct-badge">
-                                    <span className="material-symbols-rounded">lock</span>
-                                    Read-only
-                                </span>
-                            </div>
-                            <div className="card-content">
-                                <div className="tt-wrap">
-                                    <table className="tt-table">
-                                        <thead>
-                                            <tr>
-                                                <th className="tt-time-head">Time</th>
-                                                <th className="tt-day-head">Saturday</th>
-                                                <th className="tt-day-head">Sunday</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {data.weekend_rows.map((row, index) => (
-                                                <WeekendRow key={index} {...row} />
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                {!fetching && entries.length === 0 && (
+                                    <p className="u-sm u-muted">{t('matron.schedule.noRoutine')}</p>
+                                )}
                             </div>
                         </div>
 
                         <div className="card">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">history</span> Recent Schedule Changes</h3>
+                                <h3 className="card-title">
+                                    <span className="material-symbols-rounded" aria-hidden="true">history</span>
+                                    {t('matron.schedule.recentChanges')}
+                                </h3>
                             </div>
                             <div className="card-content">
-                                <div className="matron-report-list">
-                                    {scheduleChanges.map((change, index) => (
-                                        <ScheduleChange key={index} {...change} />
-                                    ))}
-                                </div>
+                                {scheduleChanges.length === 0 ? (
+                                    <p className="u-sm u-muted">{t('matron.schedule.noChanges')}</p>
+                                ) : (
+                                    <div className="matron-report-list">
+                                        {scheduleChanges.map((change, index) => (
+                                            <ScheduleChange key={index} {...change} />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 

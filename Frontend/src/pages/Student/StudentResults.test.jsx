@@ -63,9 +63,7 @@ describe('StudentResults', () => {
     fireEvent.click(screen.getByText('Term 2'))
 
     expect(screen.getAllByText('75%').length).toBeGreaterThan(0)
-    // Scoped to <main>: the sidebar language switcher has a button
-    // labelled "English" too, so a document-wide query is ambiguous.
-    expect(within(screen.getByRole('main')).getByText('English')).toBeInTheDocument()
+    expect(within(screen.getByRole('main')).getByText('English', { selector: '.subject-name-label' })).toBeInTheDocument()
   })
 
   it('shows the term-over-term trend chart when at least two terms have averages', async () => {

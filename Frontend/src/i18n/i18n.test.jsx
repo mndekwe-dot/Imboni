@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { renderWithRouter, screen } from '../test/test-utils'
@@ -52,6 +52,55 @@ describe.each(Object.entries(TRANSLATIONS))('%s translations', (lng, file) => {
             .filter(p => placeholders(read(en, p)) !== placeholders(read(file, p)))
             .map(p => `${p}\n    en: ${read(en, p)}\n    ${lng}: ${read(file, p)}`)
         expect(drifted).toEqual([])
+    })
+})
+
+/**
+ * Every `t('some.key')` in the app resolves to a real string.
+ *
+ * The parity checks above only compared the three languages to each other, so
+ * a key that no language defined was invisible to them — and i18next renders a
+ * missing key as the key itself. Twenty-eight of these were live when this test
+ * was written, including the <h1> of the Apply page ("apply.title") and the
+ * submit button of the consent-request form ("dis.activities.sendButton").
+ */
+describe('keys used in code', () => {
+    const SRC = join(process.cwd(), 'src')
+
+    /* Only literal single-argument calls. A computed key — t(labelKey),
+       t(`a.${b}`) — cannot be resolved statically, and guessing at one is how
+       a guard starts reporting things that are fine. */
+    const LITERAL_KEY = /\bt\(\s*'([a-zA-Z0-9_.]+)'/g
+
+    function sourceFiles(dir) {
+        return readdirSync(dir, { withFileTypes: true }).flatMap(e => {
+            const p = join(dir, e.name)
+            if (e.isDirectory()) return sourceFiles(p)
+            return /\.jsx?$/.test(p) && !p.includes('.test.') ? [p] : []
+        })
+    }
+
+    it('defines every key the code asks for', () => {
+        const defined = new Set(leafKeys(en))
+        // i18next drops the plural suffix when it looks a key up, so
+        // `bedsFree_one` satisfies a call for `bedsFree`.
+        const stems = new Set([...defined].map(k => k.replace(/_(zero|one|two|few|many|other)$/, '')))
+
+        const missing = new Set()
+        for (const file of sourceFiles(SRC)) {
+            const src = readFileSync(file, 'utf8')
+            for (const [, key] of src.matchAll(LITERAL_KEY)) {
+                if (!key.includes('.')) continue          // not a namespaced key
+                if (defined.has(key) || stems.has(key)) continue
+                missing.add(key)
+            }
+        }
+
+        expect(
+            [...missing].sort(),
+            'These keys are rendered but defined nowhere, so i18next prints the '
+            + 'key itself on screen:',
+        ).toEqual([])
     })
 })
 

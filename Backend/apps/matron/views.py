@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -120,26 +121,49 @@ class MatronDashboardView(APIView):
 
 class MatronStudentListView(APIView):
     """
-    Students in the matron's assigned dormitory.
+    The boarding roll.
 
     GET /imboni/matron/students/
-    Optional: ?search=<name>
+    Optional: ?search=<name>   ?dormitory=<house>   ?scope=house
+
+    Scope is the whole school by default. It used to be hard-limited to the
+    matron's own `assigned_dormitory`, which made two ordinary parts of the job
+    impossible: a matron covering another house for a night could not see who
+    she was covering, and a matron who is also a class teacher could not list
+    her class, because a class runs across every dormitory. The house is now a
+    filter — `?scope=house` still returns exactly what this endpoint used to —
+    rather than a wall.
+
+    A matron is school staff with a duty of care to every boarder, so this
+    widens what she can read about boarders, and nothing else: the fields are
+    unchanged (name, class, house, room, boarding type) and there is still no
+    write, no health record and no behaviour record here.
     """
     permission_classes = [IsMatron]
     def get(self, request):
         staff = _get_matron_staff(request)
 
         qs = BoardingStudent.objects.select_related('student__user').filter(is_active=True)
-        if staff and staff.assigned_dormitory:
-            qs = qs.filter(dormitory=staff.assigned_dormitory)
 
+        dormitory = request.query_params.get('dormitory')
+        if request.query_params.get('scope') == 'house' and staff and staff.assigned_dormitory:
+            dormitory = staff.assigned_dormitory
+        if dormitory:
+            qs = qs.filter(dormitory=dormitory)
+
+        # A single Q rather than three querysets OR'd together, which joined
+        # the same student in more than once.
         search = request.query_params.get('search')
         if search:
-            qs = qs.filter(student__user__first_name__icontains=search) | \
-                 qs.filter(student__user__last_name__icontains=search) | \
-                 qs.filter(student__student_id__icontains=search)
+            qs = qs.filter(
+                Q(student__user__first_name__icontains=search) |
+                Q(student__user__last_name__icontains=search) |
+                Q(student__student_id__icontains=search)
+            )
 
-        return Response(MatronStudentSerializer(qs, many=True).data)
+        qs = qs.order_by('student__grade', 'student__section', 'student__user__last_name')
+
+        return Response(MatronStudentSerializer(qs[:500], many=True).data)
 
 
 class MatronStudentDetailView(APIView):
@@ -175,6 +199,11 @@ class MatronStudentDetailView(APIView):
 
         return Response({
             'id': str(record.id),
+            # The Student row, not the BoardingStudent row. A behaviour report
+            # is filed against the student; the matron pages reach this record
+            # through the boarding roll, so both keys have to travel or the
+            # report is filed against the wrong table's id.
+            'student_pk': str(student.id),
             'student_id': student.student_id,
             'name': student.user.get_full_name(),
             'grade': student.grade,
@@ -605,87 +634,6 @@ class MatronHealthRecordDetailView(APIView):
 # Parent Communications
 # ---------------------------------------------------------------------------
 
-class MatronParentCommsView(APIView):
-    """
-    GET  /imboni/matron/parent-comms/?type=&outcome=&student_id=&period=
-    POST /imboni/matron/parent-comms/
-         body: {student_id, parent_contact, comm_type, contacted_at, subject, notes,
-                outcome, urgency, follow_up_required, follow_up_date}
-    """
-    permission_classes = [IsMatron]
-
-    def get(self, request):
-        from datetime import timedelta
-        from django.utils import timezone
-
-        qs = ParentCommunication.objects.select_related('student__user').all()
-
-        comm_type = request.query_params.get('type')
-        if comm_type:
-            qs = qs.filter(comm_type=comm_type)
-
-        outcome = request.query_params.get('outcome')
-        if outcome:
-            qs = qs.filter(outcome=outcome)
-
-        student_id = request.query_params.get('student_id')
-        if student_id:
-            qs = qs.filter(student_id=student_id)
-
-        now = timezone.localtime()
-        period = request.query_params.get('period')
-        if period == 'this_month':
-            qs = qs.filter(contacted_at__gte=now.replace(day=1, hour=0, minute=0, second=0, microsecond=0))
-        elif period == 'last_month':
-            month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            last_month_start = (month_start - timedelta(days=1)).replace(day=1)
-            qs = qs.filter(contacted_at__gte=last_month_start, contacted_at__lt=month_start)
-        elif period == 'last_3_months':
-            qs = qs.filter(contacted_at__gte=now - timedelta(days=90))
-
-        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        this_month_qs = ParentCommunication.objects.filter(contacted_at__gte=month_start)
-        stats = {
-            'calls_this_month':  this_month_qs.filter(comm_type='call').count(),
-            'sms_sent':          this_month_qs.filter(comm_type='sms').count(),
-            'emails_sent':       this_month_qs.filter(comm_type='email').count(),
-            'awaiting_reply':    ParentCommunication.objects.filter(outcome='awaiting_reply').count(),
-        }
-
-        return Response({
-            'stats': stats,
-            'log': ParentCommunicationSerializer(qs, many=True).data,
-        })
-
-    def post(self, request):
-        from apps.student.models import Student
-
-        d = request.data
-        try:
-            student = Student.objects.get(pk=d.get('student_id'))
-        except Student.DoesNotExist:
-            return Response({'error': 'Student not found.'}, status=404)
-
-        record = ParentCommunication.objects.create(
-            student=student,
-            parent_contact=d.get('parent_contact', ''),
-            comm_type=d.get('comm_type', 'call'),
-            contacted_at=d.get('contacted_at'),
-            subject=d.get('subject', ''),
-            notes=d.get('notes', ''),
-            outcome=d.get('outcome', 'completed'),
-            urgency=d.get('urgency', 'routine'),
-            follow_up_required=d.get('follow_up_required', False),
-            follow_up_date=d.get('follow_up_date') or None,
-            recorded_by=request.user,
-        )
-        return Response(ParentCommunicationSerializer(record).data, status=201)
-
-
-# ---------------------------------------------------------------------------
-# Boarding Schedule (standing weekly routine — read-only for the matron)
-# ---------------------------------------------------------------------------
-
 class MatronBoardingScheduleView(APIView):
     """
     GET /imboni/matron/boarding-schedule/
@@ -738,6 +686,29 @@ class MatronBoardingScheduleView(APIView):
                 'current_term': current_term.name if current_term else '-',
             },
         })
+
+
+class MatronWeeklyScheduleView(APIView):
+    """
+    GET /imboni/matron/weekly-schedule/?week=default
+
+    The extracurricular / boarding week exactly as the Discipline Office wrote
+    it — the same `ExtracurricularEntry` rows their own grid edits, read-only
+    here. The matron's Daily Schedule renders it through the same <Timetable>
+    component the DOS and Discipline portals use, so a change the Discipline
+    Director makes on Monday is the grid the matron reads on Tuesday, in the
+    same shape, with no second copy of the routine to drift.
+
+    Returns [] for a week nobody has authored yet, which the grid renders as an
+    empty routine rather than an error.
+    """
+    permission_classes = [IsMatron]
+
+    def get(self, request):
+        from apps.discipline.models import ExtracurricularEntry
+        week = request.query_params.get('week', 'default')
+        entries = ExtracurricularEntry.objects.filter(week=week).order_by('slot_id', 'day')
+        return Response([e.as_entry() for e in entries])
 
 
 # ── Medication Schedule ────────────────────────────────────────────────────────

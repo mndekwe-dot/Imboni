@@ -17,8 +17,8 @@
     "weekOf": "Week of"
   },
   "dashboard": {
-    "title": "DOS Dashboard",
-    "subtitle": "Attendance, results and staffing at a glance"
+    "subtitle": "Attendance, results and staffing at a glance",
+    "title": "DOS Dashboard"
   },
   "dining": {
     "addSittingFailed": "Could not add sitting",
@@ -83,6 +83,42 @@
     "summary": "{{staff}} staff · {{posts}} posts · load spread {{spread}}",
     "unfilled": "{{count}} unfilled",
     "workload": "Workload"
+  },
+  "examPapers": {
+    "approve": "Approve",
+    "approveFailed": "Could not approve this paper.",
+    "approved": "Approved",
+    "className": "Class",
+    "confirmSendBack": "Send it back",
+    "drafts": "Drafts",
+    "durationMinutes": "{{minutes}} minutes",
+    "emptyMessage": "No exam papers match this filter.",
+    "emptyTitle": "Nothing here",
+    "loadFailed": "Could not load exam papers.",
+    "marks": "Marks",
+    "outOf": "Out of {{marks}} marks",
+    "paper": "Paper",
+    "printFailed": "Could not produce the PDF.",
+    "printPaper": "Print the paper",
+    "printScheme": "Print the marking scheme",
+    "qMarks": "{{marks}} marks",
+    "reasonHint": "The teacher sees this, so say enough for them to act on it.",
+    "reasonLabel": "What needs changing?",
+    "reasonPlaceholder": "e.g. Section B is outside the syllabus for this term",
+    "reasonRequired": "Say what needs changing.",
+    "rejectFailed": "Could not send this paper back.",
+    "review": "Read and decide",
+    "sendBack": "Send back",
+    "sentBack": "Sent back",
+    "setBy": "Set by",
+    "subtitle": "Read, approve and print the papers teachers have set",
+    "tabAll": "All",
+    "tabApproved": "Approved",
+    "tabDraft": "Drafts",
+    "tabRejected": "Sent back",
+    "tabSubmitted": "Awaiting approval",
+    "title": "Exam papers",
+    "waiting": "Awaiting approval"
   },
   "examSchedule": {
     "academicTermRequired": "Academic Term *",
@@ -160,10 +196,14 @@
     "typeCaptain": "Dormitory Captain",
     "typePrefect": "School Prefect"
   },
+  "messages": {
+    "subtitle": "Communicate with teachers, staff and parents"
+  },
   "results": {
     "attendanceTrend": "Attendance Trend",
     "bySubject": "By subject",
     "gradeDistribution": "Grade Distribution",
+    "loadAnalyticsFailed": "Could not load the analytics.",
     "loadingAnalytics": "Loading analytics…",
     "noMarks": "No student marks available for this submission.",
     "noQuestionPaper": "No question paper was attached for this submission.",
@@ -303,10 +343,13 @@
     "allSubjects": "All Subjects",
     "allTeachers": "All Teachers",
     "allTypes": "All Types",
+    "classesAssigned": "Classes Assigned",
     "classesToTeach": "Classes to Teach",
     "emailRequired": "Email *",
     "employmentType": "Employment Type",
     "employmentTypeRequired": "Employment Type *",
+    "emptyDescNoFilters": "No teachers match the selected filters.",
+    "emptyTitle": "No teachers found",
     "expires": "Expires",
     "invitationSent": "Invitation Sent",
     "inviteTeacher": "Invite Teacher",
@@ -319,14 +362,11 @@
     "pendingInvitations": "Pending Invitations",
     "searchTeachers": "Search by name or subject...",
     "selectSubject": "Select subject",
+    "sendInvitationFailed": "Failed to send invitation",
     "subjectRequired": "Subject *",
     "subtitle": "View, add, update teachers and manage class assignments",
     "teacherDetails": "Teacher Details",
-    "title": "Teacher Management",
-    "sendInvitationFailed": "Failed to send invitation",
-    "classesAssigned": "Classes Assigned",
-    "emptyTitle": "No teachers found",
-    "emptyDescNoFilters": "No teachers match the selected filters."
+    "title": "Teacher Management"
   },
   "timetable": {
     "academicTerm": "Academic Term *",
@@ -353,8 +393,5 @@
     "weekly": "Weekly Timetable",
     "weeklyFor": "Class {{name}}: Weekly Timetable",
     "weightAbbr": "Wt"
-  },
-  "messages": {
-    "subtitle": "Communicate with teachers, staff and parents"
   }
 }

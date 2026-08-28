@@ -23,6 +23,8 @@ import '../../styles/tables.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { formatDate } from '../../utils/date'
+import { downloadCsv } from '../../utils/exportTable'
+import { SearchBar } from '../../components/ui/SearchBar'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = ['#003d7a','#10b981','#f59e0b','#6366f1','#ef4444','#0891b2','#7c3aed','#be185d']
@@ -866,16 +868,22 @@ export function DosStudents() {
 
     const classLabel = year && classVal ? `${year}${classVal}` : year || 'All Classes'
 
+    /* Rows are handed to the shared writer rather than joined with commas here.
+       The hand-rolled version quoted only the name and admission number, so a
+       dormitory or standing containing a comma shifted every later column, and
+       it wrote no BOM -- which is what turned every accented Rwandan name into
+       mojibake the moment the file was opened in Excel. */
     function handleExport() {
         if (!filtered.length) return
-        const header = `Name,Adm No,Year,Class,Dormitory,${pastTerms.join(',')},Current,Standing`
-        const body   = filtered.map(s =>
-            `"${s.name}","${s.adm}",${s.year},${s.classLetter},${s.house},${s.t1},${s.t2},${s.curr},${s.standing}`
-        ).join('\n')
-        const blob = new Blob([header + '\n' + body], { type: 'text/csv' })
-        const url  = URL.createObjectURL(blob)
-        const a    = document.createElement('a'); a.href = url; a.download = `students-${classLabel}.csv`; a.click()
-        URL.revokeObjectURL(url)
+        downloadCsv(`students-${classLabel}`, {
+            columns: [
+                t('common.student'), t('common.admNo'), t('common.year'), t('common.class'),
+                t('common.dormitory'), ...pastTerms, t('common.current'), t('common.standing'),
+            ],
+            rows: filtered.map(s => [
+                s.name, s.adm, s.year, s.classLetter, s.house, s.t1, s.t2, s.curr, s.standing,
+            ]),
+        })
     }
 
     return (
@@ -893,7 +901,6 @@ export function DosStudents() {
                         </div>
 
                         <ClassPicker
-                            sections={config}
                             section={section}
                             onSectionChange={s => { setSection(s); setYear(''); setClassVal('') }}
                             year={year}
@@ -903,11 +910,11 @@ export function DosStudents() {
                         />
 
                         <div className="toolbar-card">
-                            <div className="toolbar-search">
-                                <span className="material-symbols-rounded">search</span>
-                                <input placeholder={t('dos.students.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
-                                {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
-                            </div>
+                            <SearchBar
+                                value={search}
+                                onChange={setSearch}
+                                placeholder={t('dos.students.searchPlaceholder')}
+                            />
                             <div className="toolbar-spacer" />
                             <button className="btn btn-outline btn-sm" onClick={handleExport} disabled={!filtered.length}>
                                 <span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}

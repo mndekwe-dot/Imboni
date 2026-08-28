@@ -206,7 +206,7 @@ function SchoolInfoSection() {
                 </div>
                 <div className="settings-block-input-row">
                     <select
-                        className="disc-picker-select flex-1"
+                        className="picker-select flex-1"
                         value={currency}
                         onChange={e => { setCurrency(e.target.value); setSaved(false) }}
                     >
@@ -228,7 +228,7 @@ function SchoolInfoSection() {
                 </div>
                 <div className="settings-block-input-row">
                     <select
-                        className="disc-picker-select flex-1"
+                        className="picker-select flex-1"
                         value={timezone}
                         onChange={e => { setTimezone(e.target.value); setSaved(false) }}
                     >

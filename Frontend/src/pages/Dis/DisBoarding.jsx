@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -9,7 +9,8 @@ import { disNavItems, disSecondaryItems } from './disNav'
 import { DormPlannerTab } from './DormPlannerTab'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
-    getDisFacilities, getDisStudents, getDisOccupancy,
+    getDisFacilities, getDisOccupancy,
+    searchDisStudents,
 } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -17,6 +18,8 @@ import '../../styles/discipline.css'
 import '../../styles/tables.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
+import { TabGroup } from '../../components/ui/TabGroup'
+import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 
 const BOARDING_TYPE_LABEL = {
     full_boarder:   'Full Boarder',
@@ -36,16 +39,10 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
     const { t } = useTranslation()
     const isEditing = !!record
 
-    // Student search (create only)
-    const [query,           setQuery]           = useState(record?.student_name || '')
-    const [searchResults,   setSearchResults]   = useState([])
+    // Student search handled by shared StudentSearchPicker
     const [selectedStudent, setSelectedStudent] = useState(
         record ? { id: null, name: record.student_name, student_id: record.student_id } : null
     )
-    const [searching,    setSearching]    = useState(false)
-    const [dropdownOpen, setDropdownOpen] = useState(false)
-    const searchRef   = useRef(null)
-    const debounceRef = useRef(null)
 
     const [form, setForm] = useState({
         dormitory:    record?.dormitory     || (dormitories[0]?.name || ''),
@@ -62,38 +59,6 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
         document.body.style.overflow = 'hidden'
         return () => { document.body.style.overflow = '' }
     }, [])
-
-    useEffect(() => {
-        function handler(e) {
-            if (searchRef.current && !searchRef.current.contains(e.target)) setDropdownOpen(false)
-        }
-        document.addEventListener('mousedown', handler)
-        return () => document.removeEventListener('mousedown', handler)
-    }, [])
-
-    function handleSearch(e) {
-        const q = e.target.value
-        setQuery(q)
-        setSelectedStudent(null)
-        clearTimeout(debounceRef.current)
-        if (q.length < 2) { setSearchResults([]); setDropdownOpen(false); return }
-        debounceRef.current = setTimeout(async () => {
-            setSearching(true)
-            try {
-                const results = await getDisStudents({ search: q })
-                setSearchResults(Array.isArray(results) ? results.slice(0, 8) : [])
-                setDropdownOpen(true)
-            } catch { setSearchResults([]) }
-            finally   { setSearching(false) }
-        }, 300)
-    }
-
-    function selectStudent(s) {
-        setSelectedStudent(s)
-        setQuery(s.name)
-        setDropdownOpen(false)
-        setSearchResults([])
-    }
 
     function handleChange(e) {
         const { name, value } = e.target
@@ -151,44 +116,12 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                             </div>
                         </div>
                     ) : (
-                        <div className="form-group u-relative" ref={searchRef}>
-                            <label className="form-label">{t('common.student')} *</label>
-                            <div className="u-relative">
-                                <input
-                                    className="form-input"
-                                    value={query}
-                                    onChange={handleSearch}
-                                    placeholder={t('common.searchStudentPlaceholder')}
-                                    autoComplete="off"
-                                />
-                                {searching && (
-                                    <span className="material-symbols-rounded dis-search-spin">
-                                        progress_activity
-                                    </span>
-                                )}
-                            </div>
-                            {dropdownOpen && searchResults.length > 0 && (
-                                <div className="dis-search-menu">
-                                    {searchResults.map(s => (
-                                        <div key={s.id} onClick={() => selectStudent(s)} className="dis-search-item">
-                                            <div className="dis-search-av">
-                                                {s.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
-                                            </div>
-                                            <div>
-                                                <div className="dis-search-name">{s.name}</div>
-                                                <div className="dis-search-sub">{s.student_id} · {s.grade}{s.section}</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            {selectedStudent && (
-                                <div className="dis-selected-ok">
-                                    ✓ {selectedStudent.name} ({selectedStudent.student_id})
-                                    {cls && <span className="class-chip dis-chip-inline-sm">{cls}</span>}
-                                </div>
-                            )}
-                        </div>
+                        <StudentSearchPicker
+                            value={selectedStudent}
+                            onChange={setSelectedStudent}
+                            fetchStudents={searchDisStudents}
+                            required
+                        />
                     )}
 
                     {/* Dormitory + boarding type */}
@@ -200,7 +133,6 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                                 {dormitories.length > 0 ? (() => {
                                     // Group by section_name; fall back to flat list if no sections
                                     const sectionNames = [...new Set(dormitories.map(d => d.section_name).filter(Boolean))]
-                                    const grouped      = dormitories.filter(d => d.section_name)
                                     const ungrouped    = dormitories.filter(d => !d.section_name)
                                     if (sectionNames.length === 0) {
                                         return dormitories.map(d => (
@@ -370,10 +302,10 @@ export function DisBoarding() {
         : students.filter(s => s.dormitory === filter)
 
     const stats = [
-        { iconClass: 'info',    icon: 'home',            value: students.filter(s => s.boarding_type === 'full_boarder').length,   label: 'Full Boarders'   },
-        { iconClass: 'warning', icon: 'weekend',         value: students.filter(s => s.boarding_type === 'weekly_boarder').length, label: 'Weekly Boarders' },
-        { iconClass: 'success', icon: 'directions_walk', value: students.filter(s => s.boarding_type === 'day_scholar').length,    label: 'Day Scholars'    },
-        { iconClass: '',        icon: 'groups',          value: students.length,                                                   label: 'Total Students'  },
+        { iconClass: 'info',    icon: 'home',            value: students.filter(s => s.boarding_type === 'full_boarder').length,   label: t('common.fullBoarders')   },
+        { iconClass: 'warning', icon: 'weekend',         value: students.filter(s => s.boarding_type === 'weekly_boarder').length, label: t('common.weeklyBoarders')    },
+        { iconClass: 'success', icon: 'directions_walk', value: students.filter(s => s.boarding_type === 'day_scholar').length,    label: t('common.dayScholars')       },
+        { iconClass: '',        icon: 'groups',          value: students.length,                                                   label: t('common.totalStudents')  },
     ]
 
     async function handleCreate(data) {
@@ -404,7 +336,7 @@ export function DisBoarding() {
                 />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
@@ -419,16 +351,20 @@ export function DisBoarding() {
                             ))}
                         </div>
 
-                        <div className="rpt-tab-bar">
-                            <button className={`rpt-tab${tab === 'records' ? ' active' : ''}`}
-                                    onClick={() => setTab('records')}>
-                                <span className="material-symbols-rounded">hotel</span> {t('dis.boarding.records')}
-                            </button>
-                            <button className={`rpt-tab${tab === 'planner' ? ' active' : ''}`}
-                                    onClick={() => setTab('planner')}>
-                                <span className="material-symbols-rounded">auto_awesome</span> {t('dis.boarding.dormPlanner')}
-                            </button>
-                        </div>
+                        {/* The shared tab bar. This was `.rpt-tab-bar`, a
+                            third tab style that existed on this page alone —
+                            an underlined row, while Student Life used the
+                            raised chips and DisStudents used filter pills. */}
+                        <TabGroup
+                            tabs={[
+                                { key: 'records', label: t('dis.boarding.records'),     icon: 'hotel' },
+                                { key: 'planner', label: t('dis.boarding.dormPlanner'), icon: 'auto_awesome' },
+                            ]}
+                            value={tab}
+                            onChange={setTab}
+                            label={t('dis.boarding.title')}
+                            idPrefix="dis-boarding-"
+                        />
 
                         {tab === 'planner' && (
                             <DormPlannerTab
@@ -446,18 +382,19 @@ export function DisBoarding() {
                                         {t('dis.boarding.occupancy')}
                                     </h2>
                                     <span className="dis-occ-note">
-                                        {occupancy.total_boarders} boarders / {occupancy.total_capacity} beds
-                                        {occupancy.unassigned > 0 && ` · ${occupancy.unassigned} unassigned`}
+                                        {t('dis.boarding.occupancySummary', {
+                                            boarders: occupancy.total_boarders,
+                                            beds: occupancy.total_capacity,
+                                        })}
+                                        {occupancy.unassigned > 0
+                                            && ` · ${t('dis.boarding.unassignedCount', { count: occupancy.unassigned })}`}
                                     </span>
                                 </div>
                                 <div className="card-content">
                                     <div className="dis-occ-grid">
                                         {occupancy.dormitories.map(d => {
                                             const pct = d.occupancy_pct
-                                            const barColor = pct == null ? 'var(--muted-foreground)'
-                                                : pct >= 95 ? '#dc2626'
-                                                : pct >= 80 ? 'var(--warning, #d97706)'
-                                                : 'var(--success, #16a34a)'
+                                            const state = pct == null ? '' : pct >= 95 ? 'is-danger' : pct >= 80 ? 'is-warning' : 'is-success'
                                             return (
                                                 <div key={d.id} className="dis-occ-card">
                                                     <div className="dis-occ-row">
@@ -467,20 +404,22 @@ export function DisBoarding() {
                                                                 <span className="dis-occ-sec">{d.section_name}</span>
                                                             )}
                                                         </div>
-                                                        <span className="dis-occ-count" style={{ color: barColor }}>
+                                                        <span className={`dis-occ-count ${state}`}>
                                                             {d.capacity ? `${d.occupied}/${d.capacity}` : `${d.occupied}`}
                                                         </span>
                                                     </div>
                                                     <div className="progress dis-occ-bar">
-                                                        <div className="progress-bar" style={{
-                                                            width: pct != null ? `${Math.min(100, pct)}%` : '0%',
-                                                            background: barColor,
-                                                        }} />
+                                                        <div
+                                                            className={`progress-bar ${state}`}
+                                                            style={{ width: pct != null ? `${Math.min(100, pct)}%` : '0%' }}
+                                                        />
                                                     </div>
                                                     <div className="dis-occ-free">
                                                         {d.capacity
-                                                            ? d.available === 0 ? 'Full' : `${d.available} bed${d.available !== 1 ? 's' : ''} free`
-                                                            : 'No capacity set'}
+                                                            ? d.available === 0
+                                                                ? t('common.full')
+                                                                : t('dis.boarding.bedsFree', { count: d.available })
+                                                            : t('dis.boarding.noCapacity')}
                                                     </div>
                                                 </div>
                                             )
@@ -497,16 +436,16 @@ export function DisBoarding() {
                                     value={filter}
                                     onChange={e => setFilter(e.target.value)}
                                 >
-                                    <option value="all">All Dormitories</option>
+                                    <option value="all">{t('common.allDormitories')}</option>
                                     {sectionGroups.map(({ name: secName, dorms }) => (
                                         <optgroup key={secName} label={secName}>
                                             {dorms.map(d => (
-                                                <option key={d.name} value={d.name}>{d.name}{d.capacity ? ` (cap. ${d.capacity})` : ''}</option>
+                                                <option key={d.name} value={d.name}>{d.name}{d.capacity ? ` (${t('dis.boarding.capShort', { count: d.capacity })})` : ''}</option>
                                             ))}
                                         </optgroup>
                                     ))}
                                     {unsectionedDorms.map(d => (
-                                        <option key={d.name} value={d.name}>{d.name}{d.capacity ? ` (cap. ${d.capacity})` : ''}</option>
+                                        <option key={d.name} value={d.name}>{d.name}{d.capacity ? ` (${t('dis.boarding.capShort', { count: d.capacity })})` : ''}</option>
                                     ))}
                                     {fallbackNames.map(n => (
                                         <option key={n} value={n}>{n}</option>
@@ -520,12 +459,16 @@ export function DisBoarding() {
                         </div>
 
                         {loading ? (
-                            <p className="u-pad u-muted">Loading boarding records…</p>
+                            <p className="u-pad u-muted">{t('dis.boarding.loading')}</p>
                         ) : (
                             <DataTable
                                 title={t('dis.boarding.students')}
                                 data={visible}
-                                columns={['Student', 'Class', 'Student ID', 'Dormitory', 'Room / Bed', 'Type', 'Check-in', 'Actions']}
+                                columns={[
+                                    t('common.student'), t('common.class'), t('common.admissionNo'),
+                                    t('common.dormitory'), t('dis.boarding.roomBed'), t('common.type'),
+                                    t('dis.boarding.checkIn'), t('common.actions'),
+                                ]}
                                 renderRow={(r, i) => (
                                     <BoardingRow
                                         key={r.id || i}

@@ -13,6 +13,91 @@ releases. Each heading is dated with the day that body of work landed on
 
 ---
 
+## 2026-08-24 — Exam papers, and the walls between portals
+
+### Added
+
+- **A teacher can write an exam paper, and the DOS approves it before it is
+  printed.** The paper is divided into sections, each with its own instruction
+  and its own "answer any three of six" rule, which is how papers are actually
+  written here — and which changes what the paper is out of. A section where
+  the candidate answers three of six is worth three questions, not six;
+  counting all six would overstate the paper and quietly break every
+  percentage taken from it afterwards. The rule is computed identically on
+  both sides so the running total a teacher sees while writing matches the
+  total printed on the paper.
+
+  Once a paper is handed up it becomes read-only to its author: approving one
+  version while the author edits another is how a school ends up printing a
+  paper nobody approved. Sending it back requires a reason — a refusal without
+  one makes the teacher guess, and they will guess wrong — and returns control
+  to them. The DOS gets every paper in the school in one list, opening on the
+  ones waiting, and prints two documents from the same data: the question
+  paper, and the marking scheme, which is the same paper with the answers left
+  in. A paper that has not been approved still prints, watermarked on every
+  page, because the DOS reads on paper too.
+
+  Question editing reuses the existing editor rather than growing a second one;
+  it gained a `types` prop so an exam can also offer essay, structured,
+  matching and code questions, which a machine cannot mark and a person will.
+
+- **A paper can hold what the subject actually needs.** Sub-questions — (a),
+  (b), (c) — because that is how most structured questions are set, with marks
+  on the part and the stem showing their sum. A shared stimulus per section, so
+  a comprehension passage, a historical source or a data table prints once
+  above the questions that refer to it rather than being pasted into the first
+  one. Answer space chosen per question — ruled lines, a blank box to work a
+  calculation in, or a graph grid — because a paper printed with nowhere to
+  answer is answered in the margin. `x^2` and `H_2O` render as real superscript
+  and subscript, which is the least a science or maths paper can manage without
+  and far less than a teacher would type in LaTeX. Code listings keep their
+  whitespace; matching questions print as two columns and a blank. Approving and
+  sending back are both audited, and the author is notified either way.
+
+### Fixed
+
+- **Any signed-in user could open any portal.** `ProtectedRoute` checked one
+  thing: that an access token existed. An admin could load `/teacher/classes`
+  and get the teacher's sidebar, header and layout, which the API then filled
+  with "Access restricted to teachers". All seventy-three protected routes now
+  name the role that owns them, and the wrong role is sent to its own home
+  rather than to a login form it does not need.
+
+- **Seventeen API views never said who could call them.** DRF falls back to
+  `DEFAULT_PERMISSION_CLASSES` when a view declares nothing, and here that is
+  `IsAuthenticated` — "any signed-in user", which in a school means every
+  student and parent. That left reachable, to anyone with an account at the
+  school: any child's attendance; any student's assessments, term results and
+  teacher comments, to any parent and any teacher; creating a password-bearing
+  parent account linked to any child; GET/PATCH/DELETE on an exam schedule
+  entry and on school announcements; and full CRUD on student records and
+  parent-child links through two viewsets no screen in the product calls.
+
+  None of those views decided to be open. They said nothing, and the framework
+  decided for them. Student-scoped views now go through `can_view_student` —
+  school-wide staff see everyone, a parent their own children, a teacher the
+  students they teach, a student themselves, an unknown role nothing — and a
+  test walks the real URL conf so silence cannot be the bug a second time. The
+  tenant schema held throughout: this was escalation inside one school, never
+  across them.
+
+- **`/admin` was unreachable in development.** Django's admin had moved to
+  `/django-admin/` so the React portal could own `/admin/*`, but the Vite proxy
+  still forwarded `/admin` to a Django path that no longer existed — shadowing
+  eleven screens and answering with a 404 rather than Django's login.
+
+- **Five teacher pages labelled the viewer "Teacher" regardless of who they
+  were**, in English, in a trilingual app.
+
+- **Template scaffolding printed onto the exam paper.** Django's `{# #}` is a
+  single-line comment, so two of them spanning a line break were not comments
+  at all — they were text, and they rendered between a question and its parts
+  on the PDF a candidate would have sat. Caught by reading the generated file
+  rather than by any assertion; a test now extracts the PDF text and fails on
+  any template token reaching it.
+
+---
+
 ## 2026-08-20 — UI modernization, and deployment durability
 
 ### Fixed

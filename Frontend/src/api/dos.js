@@ -152,3 +152,19 @@ export const deleteDosTask  = id      => client.delete(`/imboni/tasks/${id}/`)
 export const getDosActivities   = ()           => client.get('/imboni/dos/activities/')
 export const patchDosActivity   = (id, data)   => client.patch(`/imboni/dos/activities/${id}/`, data)
 export const deleteDosActivity  = (id)         => client.delete(`/imboni/dos/activities/${id}/`)
+
+// Exam papers awaiting the DOS's approval.
+export const getDosExamPapers    = (params)      => client.get('/imboni/dos/exam-papers/', { params })
+export const getDosExamPaper     = id            => client.get(`/imboni/dos/exam-papers/${id}/`)
+export const approveDosExamPaper = id            => client.post(`/imboni/dos/exam-papers/${id}/approve/`)
+export const rejectDosExamPaper  = (id, reason)  => client.post(`/imboni/dos/exam-papers/${id}/reject/`, { reason })
+
+/**
+ * The printed paper. Returned as a blob rather than a URL because the endpoint
+ * needs the Authorization header, so a plain <a href> would come back 403.
+ */
+export const downloadExamPaperPdf = (id, scheme = false) =>
+    client.get(`/imboni/dos/exam-papers/${id}/print/`, {
+        params: scheme ? { scheme: 1 } : {},
+        responseType: 'blob',
+    })

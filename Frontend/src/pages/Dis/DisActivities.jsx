@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
@@ -18,16 +18,23 @@ import '../../styles/discipline.css'
 import '../../styles/tables.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
-const filterOptions = [
-    { key: 'all',      label: 'All Activities' },
-    { key: 'sports',   label: 'Sports'         },
-    { key: 'arts',     label: 'Arts'           },
-    { key: 'academic', label: 'Academic'       },
-    { key: 'social',   label: 'Social'         },
-    { key: 'science',  label: 'Science'        },
-    { key: 'other',    label: 'Other'          },
-]
+/* Category keys, resolved inside the component. As plain strings the whole
+   filter row stayed English under the language switch. */
+const CATEGORY_KEYS = {
+    sports:   'dis.studentLife.catSports',
+    arts:     'dis.activities.catArts',
+    academic: 'dis.activities.catAcademic',
+    social:   'dis.activities.catSocial',
+    science:  'dis.studentLife.catScience',
+    other:    'dis.studentLife.catOther',
+}
+
+/* The stored category when the school has one this list does not know. */
+const categoryLabel = (t, value) =>
+    (CATEGORY_KEYS[value] ? t(CATEGORY_KEYS[value]) : (value || t('dis.studentLife.catOther')))
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -38,11 +45,12 @@ function avClass(category) {
 }
 
 function ActivityCard({ activity, onEdit }) {
+    const { t } = useTranslation()
     const { name, category, teacher_name, schedule, venue, enrolled_count, max_members, is_full, is_active } = activity
-    const catLabel = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Other'
-    const badge    = is_active ? 'Active' : 'Inactive'
+    const catLabel = categoryLabel(t, category)
+    const badge    = is_active ? t('dis.activities.active') : t('dis.activities.inactive')
     const badgeCls = is_active ? 'active' : ''
-    const full     = is_full ? ' (Full)' : ` / ${max_members} max`
+    const full     = is_full ? ` (${t('dis.studentLife.full')})` : ` / ${max_members}`
 
     return (
         <div className="staff-card" data-cat={category}>
@@ -116,13 +124,16 @@ function ConsentRequestsPanel() {
     return (
         <div className="card mb-1-5">
             <div className="card-header">
+                {/* This panel is about parental CONSENT, not clubs. It was
+                    headed with the page title and its button said "New Club",
+                    both of which described the grid further down the page. */}
                 <h2 className="card-title">
-                    <span className="material-symbols-rounded dis-inline-icon">approval</span>
-                    {t('dis.activities.title')}
+                    <span className="material-symbols-rounded">approval</span>
+                    {t('dis.activities.consentTitle')}
                 </h2>
                 <button className="btn btn-outline btn-sm" onClick={() => setShowForm(s => !s)}>
-                    <span className="material-symbols-rounded icon-sm">add</span>
-                    {t('dis.activities.newClub')}
+                    <span className="material-symbols-rounded icon-sm">{showForm ? 'expand_less' : 'add'}</span>
+                    {showForm ? t('common.cancel') : t('dis.activities.newRequest')}
                 </button>
             </div>
             <div className="card-content">
@@ -167,7 +178,7 @@ function ConsentRequestsPanel() {
                 )}
 
                 {loading ? (
-                    <p className="u-muted">{t('dis.activities.loading')}</p>
+                    <p className="u-muted">{t('dis.activities.loadingRequests')}</p>
                 ) : requests.length === 0 ? (
                     <p className="u-muted">
                         {t('dis.activities.empty')}
@@ -179,7 +190,7 @@ function ConsentRequestsPanel() {
                                 <div className="cr-req-main">
                                     <div className="u-strong u-sm">{req.title}</div>
                                     <div className="text-xs-muted">
-                                        {req.event_date} · {req.grade ? yearLabel(req.grade) : 'All grades'}
+                                        {req.event_date} · {req.grade ? yearLabel(req.grade) : t('dis.activities.allGrades')}
                                         {req.response_deadline && ` · respond by ${req.response_deadline}`}
                                     </div>
                                 </div>
@@ -202,6 +213,15 @@ export function DisActivities() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
+    const toast = useToast()
+
+    /* Built here rather than at module scope so the labels follow the language
+       switch; as a module constant the whole row stayed English. */
+    const filterOptions = useMemo(() => [
+        { key: 'all', label: t('dis.studentLife.allActivities') },
+        ...Object.keys(CATEGORY_KEYS).map(key => ({ key, label: categoryLabel(t, key) })),
+    ], [t])
+
     const [activities,      setActivities]      = useState([])
     const [loading,         setLoading]         = useState(true)
     const [filter,          setFilter]          = useState('all')
@@ -210,16 +230,19 @@ export function DisActivities() {
 
     useEffect(() => {
         getDisActivities()
-            .then(setActivities)
-            .catch(console.error)
+            .then(data => setActivities(Array.isArray(data) ? data : []))
+            .catch(e => toast.error(errorMessage(e, t('dis.activities.loadFailed'))))
             .finally(() => setLoading(false))
-    }, [])
+    }, [toast, t])
 
     async function handleCreate(form) {
         try {
             const created = await createDisActivity(form)
             setActivities(prev => [created, ...prev])
-        } catch (e) { console.error(e) }
+            toast.success(t('common.saved'))
+        } catch (e) {
+            toast.error(errorMessage(e, t('dis.activities.saveFailed')))
+        }
         setShowNew(false)
     }
 
@@ -233,9 +256,9 @@ export function DisActivities() {
     )
 
     const stats = [
-        { iconClass: 'info',    icon: 'emoji_events',       value: activities.filter(a => a.is_active).length, label: 'Active Clubs'    },
-        { iconClass: 'success', icon: 'groups',             value: activities.reduce((s, a) => s + (a.enrolled_count || 0), 0), label: 'Enrolled Students' },
-        { iconClass: 'success',icon: 'supervisor_account', value: new Set(activities.filter(a => a.teacher_name).map(a => a.teacher_name)).size, label: 'Patron Teachers' },
+        { iconClass: 'info',    icon: 'emoji_events',       value: activities.filter(a => a.is_active).length, label: t('dis.activities.activeClubs') },
+        { iconClass: 'success', icon: 'groups',             value: activities.reduce((s, a) => s + (a.enrolled_count || 0), 0), label: t('dis.activities.enrolled') },
+        { iconClass: '',        icon: 'supervisor_account', value: new Set(activities.filter(a => a.teacher_name).map(a => a.teacher_name)).size, label: t('dis.activities.patronTeachers') },
     ]
 
     return (
@@ -253,7 +276,7 @@ export function DisActivities() {
                     onSave={handleCreate}
                 />
             )}
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
@@ -274,27 +297,33 @@ export function DisActivities() {
                         <div className="toolbar-card">
                             <FilterBar options={filterOptions} active={filter} onChange={setFilter} />
                             <div className="toolbar-spacer" />
-                            <button className="btn btn-primary" onClick={() => setShowNew(true)}>
-                                <span className="material-symbols-rounded">add</span> New Club
+                            <button className="btn btn-primary btn-sm" onClick={() => setShowNew(true)}>
+                                <span className="material-symbols-rounded icon-sm">add</span> {t('dis.activities.newClub')}
                             </button>
                         </div>
 
                         {loading ? (
-                            <p className="u-pad u-muted">Loading activities…</p>
+                            <p className="u-pad u-muted">{t('dis.activities.loading')}</p>
                         ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="sports_soccer"
-                                title={`No ${filter === 'all' ? '' : filter + ' '}activities found`}
-                                description="No clubs match this filter."
-                                action={{ label: 'Show All', icon: 'refresh', onClick: () => setFilter('all') }}
+                                title={t('dis.studentLife.noActivities')}
+                                description={t('dis.studentLife.noActivitiesDesc')}
+                                action={filter === 'all'
+                                    ? { label: t('dis.studentLife.createFirstClub'), icon: 'add', onClick: () => setShowNew(true) }
+                                    : { label: t('dis.activities.showAll'), icon: 'refresh', onClick: () => setFilter('all') }}
                             />
                         ) : (
                             <div className="act-list-card">
                                 <div className="act-list-header">
                                     <div className="act-list-title">
-                                        {filter === 'all' ? 'All Clubs & Activities' : `${filter.charAt(0).toUpperCase() + filter.slice(1)} Activities`}
+                                        {filter === 'all'
+                                            ? t('dis.studentLife.allActivities')
+                                            : categoryLabel(t, filter)}
                                     </div>
-                                    <span className="act-list-count">{visible.length} club{visible.length !== 1 ? 's' : ''}</span>
+                                    <span className="act-list-count">
+                                        {t('dis.activities.clubCount', { count: visible.length })}
+                                    </span>
                                 </div>
                                 <div className="act-list-body">
                                     <div className="staff-cards-grid">

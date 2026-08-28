@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { LanguageSwitcher } from '../ui/LanguageSwitcher'
 import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
@@ -122,6 +121,11 @@ export function Sidebar({ navItems, secondaryItems }) {
             ))}
           </ul>
 
+          {/* Heading and list in one block. They used to be siblings with the
+              `margin-top: auto` on the list alone, so the list sank to the
+              bottom of the rail and left its own heading stranded near the top
+              with an empty gap between them. */}
+          <div className="sidebar-account-group">
           <p className="sidebar-nav-group" id="sidebar-group-account">{t('sidebar.groupAccount')}</p>
           <ul className="nav-list secondary-nav" aria-labelledby="sidebar-group-account">
             {secondaryItems.map((item) => (
@@ -148,17 +152,7 @@ export function Sidebar({ navItems, secondaryItems }) {
               </li>
             ))}
           </ul>
-
-          {/* Sits with Profile and Logout because it is the same kind of thing:
-              something you change about your own account, not a place to go.
-              Hidden while collapsed — the rail is icon-width and these are
-              words, not icons. */}
-          {!collapsed && (
-            <div className="sidebar-lang">
-              <LanguageSwitcher compact />
-            </div>
-          )}
-
+          </div>
         </nav>
       </aside>
     </>

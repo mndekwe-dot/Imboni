@@ -92,7 +92,7 @@ describe('DisSettings', () => {
     renderWithRouter(<DisSettings />)
     await waitFor(() => expect(screen.getByText('No dormitories configured yet.')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /School Structure/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /School Structure/ }))
     await waitFor(() => expect(screen.getByText('Sections, Years & Classes')).toBeInTheDocument())
 
     // The structure editor loads its own copy of the config, so it settles a

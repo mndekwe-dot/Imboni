@@ -286,7 +286,7 @@ export function TeacherAnnouncement() {
                         title={t('nav.announcements')}
                         subtitle={t('teacher.announcements.subtitle')}
                         userName={fullName}
-                        userRole="Teacher"
+                        userRole={t('roles.teacher')}
                         userInitials={initials}
                         avatarClass="teacher-av"
                         notifications={liveNotifications}

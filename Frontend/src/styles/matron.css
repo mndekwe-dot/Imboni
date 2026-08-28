@@ -443,7 +443,11 @@
   background: var(--success-light);
   color: var(--success);
 }
-.matron-report-status.escalated {
+.matron-report-status.escalated,
+/* A rejected report is not an approved one. It used to share the .reviewed
+   class, so the office turning a report down and the office accepting it
+   were the same green word on the matron's screen. */
+.matron-report-status.rejected {
   background: var(--destructive-light);
   color: var(--destructive);
 }
@@ -591,6 +595,14 @@
   font-weight: 800;
 }
 .stu-name {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+/* The name is a <button> that opens the student. `.link-button` resets `font`
+   to inherit, and the two rules have equal specificity — which one wins would
+   otherwise depend on the order the browser happens to apply two CSS chunks in.
+   `button.stu-name` outranks `.link-button`, so it does not depend on that. */
+button.stu-name {
   font-weight: 600;
   font-size: var(--text-sm);
 }
@@ -932,249 +944,6 @@
   color: #dc2626;
   font-size: var(--text-caption);
   font-weight: 600;
-}
-
-/* Matron parent communications */
-
-/* ── Parent comms extras ── */
-.comms-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-@media (max-width: 900px) {
-  .comms-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 500px) {
-  .comms-stats {
-    grid-template-columns: 1fr;
-  }
-}
-
-.comms-stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  transition: box-shadow var(--transition-base);
-}
-.comms-stat-card:hover { box-shadow: var(--shadow-md); }
-.comms-stat-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.comms-stat-icon.calls {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-.comms-stat-icon.sms {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
-}
-.comms-stat-icon.email {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-.comms-stat-icon.pending {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--destructive);
-}
-.comms-stat-value {
-  font-size: var(--text-display);
-  font-weight: 700;
-  color: #0f172a;
-  line-height: 1;
-}
-.comms-stat-label {
-  font-size: var(--text-sm);
-  color: var(--muted-text);
-  margin-top: 0.2rem;
-}
-
-/* Filter bar */
-.comms-filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-  margin-bottom: 1.25rem;
-}
-.comms-filter-bar select {
-  padding: 0.45rem 0.75rem;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-family: inherit;
-  color: #0f172a;
-  background: #fff;
-  outline: none;
-  cursor: pointer;
-}
-.comms-filter-bar select:focus {
-  border-color: var(--primary);
-}
-
-/* Communication log entries */
-.comms-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.comm-entry {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem 1.125rem;
-  background: #fff;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0 1rem;
-  align-items: start;
-}
-.comm-type-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--icon-sm);
-  flex-shrink: 0;
-  margin-top: 0.1rem;
-}
-.comm-type-icon.call {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-.comm-type-icon.sms {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
-}
-.comm-type-icon.email {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-.comm-type-icon.visit {
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--success);
-}
-
-.comm-body {
-  min-width: 0;
-}
-.comm-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: baseline;
-  margin-bottom: 0.25rem;
-}
-.comm-student {
-  font-weight: 600;
-  color: #0f172a;
-  font-size: var(--text-body);
-}
-.comm-parent {
-  font-size: var(--text-sm);
-  color: #475569;
-}
-.comm-subject {
-  font-size: var(--text-sm);
-  color: #374151;
-  margin-bottom: 0.2rem;
-}
-.comm-notes {
-  font-size: var(--text-sm);
-  color: #64748b;
-}
-.comm-meta {
-  font-size: var(--text-caption);
-  color: var(--muted-text);
-  margin-top: 0.35rem;
-}
-
-.comm-right {
-  text-align: right;
-  white-space: nowrap;
-}
-.comm-status-badge {
-  display: inline-block;
-  font-size: var(--text-caption);
-  font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-}
-.comm-status-badge.completed {
-  background: var(--success-light);
-  color: var(--success);
-}
-.comm-status-badge.pending {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-.comm-status-badge.no-answer {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--destructive);
-}
-.comm-status-badge.sent {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-
-/* Log form */
-.comms-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-@media (max-width: 640px) {
-  .comms-form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-.comms-form-grid .full {
-  grid-column: 1 / -1;
-}
-.comms-form-grid label {
-  display: block;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.35rem;
-}
-.comms-form-grid input,
-.comms-form-grid select,
-.comms-form-grid textarea {
-  width: 100%;
-  padding: 0.6rem 0.8rem;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-body);
-  font-family: inherit;
-  color: #0f172a;
-  background: #fff;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.comms-form-grid input:focus,
-.comms-form-grid select:focus,
-.comms-form-grid textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(0, 61, 122, 0.1);
-}
-.comms-form-grid textarea {
-  min-height: 80px;
-  resize: vertical;
 }
 
 /* ── Schedule banner text ── */

@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import report_views
+from . import exam_paper_views
 from .scheduling import api as scheduling_api
 from .scheduling import timetable_api
 from .scheduling import duty_api
@@ -55,6 +56,12 @@ urlpatterns = [
     path('dos/results/<uuid:pk>/reject/',   views.DOSResultRejectView.as_view(),      name='dos-result-reject'),
 
     # ── Exam Schedule ───────────────────────────────────────────────────────
+    # Exam papers — written by a teacher, vetted here before printing.
+    path('dos/exam-papers/',                    exam_paper_views.DosExamPaperListView.as_view(),    name='dos-exam-papers'),
+    path('dos/exam-papers/<uuid:pk>/',          exam_paper_views.DosExamPaperDetailView.as_view(),  name='dos-exam-paper-detail'),
+    path('dos/exam-papers/<uuid:pk>/approve/',  exam_paper_views.DosExamPaperApproveView.as_view(), name='dos-exam-paper-approve'),
+    path('dos/exam-papers/<uuid:pk>/reject/',   exam_paper_views.DosExamPaperRejectView.as_view(),  name='dos-exam-paper-reject'),
+    path('dos/exam-papers/<uuid:pk>/print/',    exam_paper_views.DosExamPaperPrintView.as_view(),   name='dos-exam-paper-print'),
     path('dos/exam-schedule/',             views.ExamScheduleListView.as_view(),   name='dos-exam-schedule-list'),
     # Auto-generator (DSatur) — preview then commit. Keep BEFORE the <uuid:pk>
     # detail route so 'generate' isn't captured as a primary key.

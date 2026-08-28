@@ -1295,6 +1295,7 @@ class DOSResultBulkApproveView(APIView):
 
 class ExamScheduleListView(APIView):
     """GET /imboni/dos/exam-schedule/  |  POST /imboni/dos/exam-schedule/"""
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         term_id = request.query_params.get('term_id')
@@ -1359,6 +1360,10 @@ class ExamScheduleListView(APIView):
 
 class ExamScheduleDetailView(APIView):
     """GET|PATCH|DELETE /imboni/dos/exam-schedule/<pk>/"""
+    # Without this the view fell through to the project default of
+    # IsAuthenticated, so any signed-in user - a student included - could
+    # reschedule or delete an exam.
+    permission_classes = [IsDOSOrAdmin]
 
     def _get_obj(self, pk):
         try:
@@ -1446,6 +1451,7 @@ class DosClassListView(APIView):
 
 class DOSAttendanceOverviewView(APIView):
     """GET /imboni/dos/attendance/overview/"""
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.attendance.models import AttendanceRecord, TeacherAttendanceRecord
@@ -1524,6 +1530,7 @@ def _ann_dict(a):
 
 class DOSAnnouncementsView(APIView):
     """GET /imboni/dos/announcements/  |  POST /imboni/dos/announcements/"""
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.announcements.models import Announcement
@@ -1565,6 +1572,9 @@ class DOSAnnouncementsView(APIView):
 
 class DOSAnnouncementDetailView(APIView):
     """GET | PATCH | DELETE /imboni/dos/announcements/<uuid:pk>/"""
+    # Same default-permission gap: any signed-in user could edit or delete a
+    # school announcement.
+    permission_classes = [IsDOSOrAdmin]
 
     def _get(self, pk):
         from apps.announcements.models import Announcement
@@ -1795,6 +1805,7 @@ class RemoveLeaderView(APIView):
 
 class DOSStudentLeadersView(APIView):
     """GET /imboni/dos/student-leaders/"""
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.discipline.models import StudentLeader
@@ -1825,6 +1836,7 @@ class DOSStudentLeadersView(APIView):
 
 class DOSAnalyticsView(APIView):
     """GET /imboni/dos/analytics/?term_id=<uuid>"""
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.results.models import Result, AcademicTerm
@@ -1989,6 +2001,7 @@ class DOSAnalyticsView(APIView):
 
 class DOSDashboardWeeklyTrendView(APIView):
     """GET /imboni/dos/dashboard/weekly-trend/"""
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.attendance.models import AttendanceRecord

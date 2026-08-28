@@ -347,3 +347,157 @@ class TestDormitoryOccupancy:
         client, _user = make_authenticated_client('teacher')
         response = client.get('/imboni/discipline/facilities/occupancy/')
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestParentCommunicationsMovedToDiscipline:
+    """
+    Contacting a family is the Discipline Master's call.
+
+    The log used to live at /imboni/matron/parent-comms/ behind IsMatron, which
+    put the decision to phone a parent in the dormitory rather than the office.
+    These pin the authority where it now belongs, and pin the old door shut.
+    """
+
+    URL = '/imboni/discipline/parent-comms/'
+
+    def test_requires_authentication(self, api_client):
+        assert api_client.get(self.URL).status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_the_matron_may_not_read_the_log(self, make_authenticated_client):
+        client, _user = make_authenticated_client('matron')
+        assert client.get(self.URL).status_code == status.HTTP_403_FORBIDDEN
+
+    def test_the_matron_may_not_log_a_call(self, make_authenticated_client):
+        client, _user = make_authenticated_client('matron')
+        assert client.post(self.URL, {}).status_code == status.HTTP_403_FORBIDDEN
+
+    def test_a_teacher_may_not_either(self, make_authenticated_client):
+        client, _user = make_authenticated_client('teacher')
+        assert client.get(self.URL).status_code == status.HTTP_403_FORBIDDEN
+
+    def test_the_discipline_master_reads_the_log(self, make_authenticated_client):
+        client, _user = make_authenticated_client('discipline')
+        response = client.get(self.URL)
+        assert response.status_code == status.HTTP_200_OK
+        assert 'stats' in response.data
+        assert 'log' in response.data
+
+    def test_the_discipline_master_logs_a_call(self, make_authenticated_client):
+        from apps.authentication.factories import StudentFactory
+
+        client, user = make_authenticated_client('discipline')
+        student = StudentFactory()
+
+        response = client.post(self.URL, {
+            'student_id': str(student.id),
+            'parent_contact': 'Mrs Uwase (mother)',
+            'comm_type': 'call',
+            'subject': 'Absence on Monday',
+            'notes': 'Explained the absence policy.',
+            'outcome': 'completed',
+        })
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['parent_contact'] == 'Mrs Uwase (mother)'
+
+    def test_an_unknown_student_is_rejected_rather_than_5xx(self, make_authenticated_client):
+        import uuid
+        client, _user = make_authenticated_client('discipline')
+        response = client.post(self.URL, {
+            'student_id': str(uuid.uuid4()),
+            'parent_contact': 'Someone',
+            'comm_type': 'call',
+        })
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_the_old_matron_route_is_gone(self, make_authenticated_client):
+        """Removed, not merely hidden from the nav: the endpoint must not answer."""
+        client, _user = make_authenticated_client('matron')
+        assert client.get('/imboni/matron/parent-comms/').status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+class TestDisciplineStudentSearch:
+    """
+    The student picker types into this endpoint.
+
+    It used to send ?q=, which this view never read — so every search returned
+    the same first page of the roll and the picker looked broken to anyone who
+    typed a name that was not near the top of the alphabet.
+    """
+
+    URL = '/imboni/discipline/students/'
+
+    def test_search_actually_narrows_the_result(self, make_authenticated_client):
+        from apps.authentication.factories import StudentFactory
+
+        client, _user = make_authenticated_client('discipline')
+        wanted = StudentFactory(user__first_name='Zuberi', user__last_name='Habimana')
+        StudentFactory(user__first_name='Aline', user__last_name='Mukamana')
+        StudentFactory(user__first_name='Bosco', user__last_name='Niyonzima')
+
+        response = client.get(self.URL, {'search': 'Zuberi'})
+
+        assert response.status_code == status.HTTP_200_OK
+        names = [row['name'] for row in response.data]
+        assert names == [wanted.user.get_full_name()]
+
+    def test_search_matches_a_surname(self, make_authenticated_client):
+        from apps.authentication.factories import StudentFactory
+
+        client, _user = make_authenticated_client('discipline')
+        StudentFactory(user__first_name='Aline', user__last_name='Mukamana')
+        StudentFactory(user__first_name='Bosco', user__last_name='Niyonzima')
+
+        response = client.get(self.URL, {'search': 'Mukamana'})
+        assert [r['name'] for r in response.data] == ['Aline Mukamana']
+
+    def test_search_matches_a_student_id(self, make_authenticated_client):
+        from apps.authentication.factories import StudentFactory
+
+        client, _user = make_authenticated_client('discipline')
+        target = StudentFactory()
+        StudentFactory()
+
+        response = client.get(self.URL, {'search': target.student_id})
+        assert [r['student_id'] for r in response.data] == [target.student_id]
+
+    def test_a_student_matching_twice_is_returned_once(self, make_authenticated_client):
+        """
+        The old three-queryset union could join the same row in more than once
+        when a term matched both names.
+        """
+        from apps.authentication.factories import StudentFactory
+
+        client, _user = make_authenticated_client('discipline')
+        StudentFactory(user__first_name='Mugisha', user__last_name='Mugisha')
+
+        response = client.get(self.URL, {'search': 'Mugisha'})
+        assert len(response.data) == 1
+
+    def test_limit_is_honoured_and_capped(self, make_authenticated_client):
+        from apps.authentication.factories import StudentFactory
+
+        client, _user = make_authenticated_client('discipline')
+        for _ in range(5):
+            StudentFactory()
+
+        assert len(client.get(self.URL, {'limit': 2}).data) == 2
+        # No caller may ask for more than the server's ceiling.
+        assert len(client.get(self.URL, {'limit': 99999}).data) <= 200
+
+    def test_a_junk_limit_falls_back_rather_than_500s(self, make_authenticated_client):
+        client, _user = make_authenticated_client('discipline')
+        assert client.get(self.URL, {'limit': 'lots'}).status_code == status.HTTP_200_OK
+
+    def test_the_row_still_carries_conduct_and_incident_counts(self, make_authenticated_client):
+        """Those two fields moved from a per-student query into an annotation."""
+        from apps.authentication.factories import StudentFactory
+
+        client, _user = make_authenticated_client('discipline')
+        StudentFactory()
+
+        row = client.get(self.URL).data[0]
+        assert 'conduct_grade' in row
+        assert row['incident_count'] == 0

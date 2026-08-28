@@ -1,6 +1,8 @@
 import account from './account.json'
 import admin from './admin.json'
 import announcements from './announcements.json'
+import apply from './apply.json'
+import findSchool from './findSchool.json'
 import auth from './auth.json'
 import common from './common.json'
 import dis from './dis.json'
@@ -29,6 +31,8 @@ export default {
     account,
     admin,
     announcements,
+    apply,
+    findSchool,
     auth,
     common,
     dis,

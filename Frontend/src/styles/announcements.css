@@ -1,0 +1,164 @@
+/* ===============================================
+   ANNOUNCEMENTS — the compose form and the broadcast list
+
+   Three portals publish announcements: the DOS, the Discipline Office and the
+   Admin. All three render the same composer and the same list of what has gone
+   out, so these rules live in one file all three import.
+
+   They used to live in dos.css. Vite bundles every stylesheet into one file, so
+   in a production build this looked fine — but each page only IMPORTS its own
+   portal's sheet, and in dev, and on a cold load of
+   /discipline/announcements, dos.css was never pulled in. The page rendered
+   with no styling at all: the composer as a column of bare inputs, every
+   announcement as a run of unstyled paragraphs. It looked broken because it
+   was, on exactly the route a Discipline Director uses.
+
+   Colours are tokens throughout. The originals hard-coded #f59e0b for the
+   event chip and rgba(30,64,175,.06) for the selected audience — the second
+   being a blue that no portal but the DOS actually uses, so the selected
+   audience on the Discipline page would have been tinted the wrong brand.
+   =============================================== */
+
+/* ── Two-column layout: compose on the left, what has gone out on the right ── */
+.ann-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 900px) { .ann-grid { grid-template-columns: 1fr; } }
+
+/* ── Category chips ────────────────────────────────────────────────────── */
+.ann-category-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+.ann-cat-label {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .35rem .8rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+.ann-cat-label .material-symbols-rounded { font-size: var(--icon-sm); }
+.ann-cat-label:has(input:checked)          { border-color: var(--primary);     background: var(--primary);     color: #fff; }
+.ann-cat-label.urgent:has(input:checked)   { border-color: var(--destructive); background: var(--destructive); }
+.ann-cat-label.event:has(input:checked)    { border-color: var(--warning);     background: var(--warning); }
+.ann-cat-label.academic:has(input:checked) { border-color: var(--info);        background: var(--info); }
+.ann-cat-label.general:has(input:checked)  { border-color: var(--success);     background: var(--success); }
+.ann-cat-label input { display: none; }
+
+/* ── Audience ──────────────────────────────────────────────────────────── */
+.ann-audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+@media (max-width: 480px) { .ann-audience-grid { grid-template-columns: 1fr; } }
+.ann-audience-item {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.ann-audience-item:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+.ann-audience-item input { display: none; }
+.ann-audience-item .material-symbols-rounded { font-size: var(--icon-sm); color: var(--muted-foreground); }
+.ann-audience-item:has(input:checked) .material-symbols-rounded { color: var(--primary); }
+
+/* ── Compose form ──────────────────────────────────────────────────────── */
+.ann-form-group    { margin-bottom: 1rem; }
+.ann-content-group { margin-bottom: 1.25rem; }
+.ann-form-row      { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.ann-form-col      { flex: 1; min-width: 160px; }
+.ann-form-actions  { display: flex; gap: .75rem; justify-content: flex-end; flex-wrap: wrap; }
+.ann-form-actions .material-symbols-rounded { font-size: var(--icon-sm); }
+.ann-textarea      { resize: vertical; min-height: 8rem; }
+.ann-form-error    { color: var(--destructive); font-size: var(--text-sm); margin-bottom: .75rem; }
+
+/* Editing-draft badge (hidden until the form is in edit mode) */
+.ann-editing-badge { background: var(--warning-surface); color: var(--warning-text); display: none; }
+.ann-editing-badge.visible { display: inline-flex; }
+
+/* ── One announcement in the list ──────────────────────────────────────── */
+.ann-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  background: var(--card);
+  margin-bottom: .75rem;
+  transition: box-shadow var(--transition-base);
+}
+.ann-item:last-child { margin-bottom: 0; }
+.ann-item-header { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: .5rem; }
+.ann-avatar {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: #fff;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ann-item-meta  { flex: 1; min-width: 0; }
+.ann-item-title {
+  font-weight: 700;
+  font-size: var(--text-body);
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ann-item-sub   { font-size: var(--text-caption); color: var(--muted-foreground); }
+.ann-excerpt    { font-size: var(--text-sm); color: var(--muted-foreground); line-height: 1.5; margin-bottom: .65rem; }
+.ann-item-footer { display: flex; align-items: center; gap: .75rem; font-size: var(--text-sm); color: var(--muted-foreground); }
+.ann-views      { display: flex; align-items: center; gap: .25rem; }
+.ann-views .material-symbols-rounded { font-size: var(--icon-sm); }
+.ann-item-actions { display: flex; gap: .3rem; margin-left: auto; }
+
+.ann-badge {
+  padding: .2rem .55rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.ann-badge.urgent   { background: var(--destructive-surface); color: var(--destructive-text); }
+.ann-badge.event    { background: var(--warning-surface);     color: var(--warning-text); }
+.ann-badge.academic { background: var(--info-surface);        color: var(--info-text); }
+.ann-badge.general  { background: var(--success-surface);     color: var(--success-text); }
+.ann-badge-inline   { margin-left: 0.25rem; }
+
+/* The count on a filter pill. This was `.es-chip-count` — a DOS exam-schedule
+   class — borrowed by the Discipline page, so a change to the exam scheduler
+   silently restyled the announcements filters in another portal. */
+.ann-chip-count {
+  margin-left: 0.35rem;
+  padding: .05rem .4rem;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  font-size: var(--text-caption);
+  font-weight: 600;
+}
+
+/* ── Paging the list ───────────────────────────────────────────────────── */
+.ann-load-more  { display: flex; justify-content: center; margin-top: .75rem; }
+.ann-all-loaded {
+  text-align: center;
+  font-size: var(--text-caption);
+  color: var(--muted-foreground);
+  margin-top: .75rem;
+}

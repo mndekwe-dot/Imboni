@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { DormitoryCaptainModal } from './DormitoryCaptainModal'
-import { getDisStudents, getDormitories } from '../../api/discipline'
+import { getDisStudents, searchDisStudents, getDormitories } from '../../api/discipline'
 
 vi.mock('../../api/discipline')
 
@@ -25,7 +25,7 @@ describe('DormitoryCaptainModal', () => {
   })
 
   it('requires both a student and a dormitory before saving', async () => {
-    getDisStudents.mockResolvedValue([
+    searchDisStudents.mockResolvedValue([
       { id: 's1', name: 'Aisha Kamau', student_id: 'ADM-1', grade: 'S1', section: 'A' },
     ])
     const onSave = vi.fn()

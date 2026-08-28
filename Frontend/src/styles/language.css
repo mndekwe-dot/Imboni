@@ -68,29 +68,7 @@
 }
 .portal-login-topbar .portal-login-back { margin-bottom: 0; }
 
-/* Sidebar: last item in the Account group. Only rendered while expanded.
-   The nav pushes this block to the very bottom of the rail, so it needs real
-   bottom padding of its own — without it the pill sits flush on the viewport
-   edge. The rail is narrow, so the three names get a tighter pill than
-   elsewhere and are allowed to wrap rather than overflow it. */
-.sidebar-lang {
-  padding: 0.75rem 0.9rem 1.25rem;
-}
-.sidebar-lang .lang-switch-options {
-  width: 100%;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.sidebar-lang .lang-switch-btn {
-  padding: 0.25rem 0.5rem;
-  font-size: var(--text-caption);
-}
 
-/* Three languages do not fit a phone-width nav; let the pill wrap instead of
-   pushing Sign In off the edge. */
-@media (max-width: 480px) {
-  .lang-switch-options { flex-wrap: wrap; }
-}
 
 /* ── Dropdown variant ───────────────────────────────────────────────────
    For tight surfaces - the sign-in card, where three pills took most of the
@@ -124,3 +102,97 @@
 }
 .lang-select-icon  { left: 0.6rem; }
 .lang-select-caret { right: 0.5rem; }
+
+
+/* ── Menu variant ────────────────────────────────────────────────────────
+   The portal-header switcher. Closed it is a globe and the current code;
+   open it names every language in that language, with a tick on the one in
+   use. The three pills it replaces spelled all three names out at all times,
+   which made the switcher the widest control in the header.
+
+   Colours are tokens, so the same rules serve the dark portal header (which
+   only re-tints the trigger, in layout.css) and any light surface. */
+.lang-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.lang-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+.lang-menu-trigger:hover:not(:disabled) { background: var(--muted); }
+.lang-menu-trigger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.lang-menu-globe { font-size: var(--icon-sm); color: var(--muted-foreground); }
+.lang-menu-code  { letter-spacing: 0.04em; }
+.lang-menu-caret {
+  font-size: var(--icon-sm);
+  color: var(--muted-foreground);
+  transition: transform var(--transition-base);
+}
+.lang-menu-trigger.open .lang-menu-caret { transform: rotate(180deg); }
+
+.lang-menu-list {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: var(--z-dropdown);
+  min-width: 190px;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.lang-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-base);
+}
+.lang-menu-item:hover:not(:disabled) { background: var(--muted); }
+.lang-menu-item:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Fixed width so the three names start on the same x — a ragged left edge is
+   what made the old pill row read as three unrelated buttons. */
+.lang-menu-item-code {
+  flex-shrink: 0;
+  width: 1.8rem;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.lang-menu-item-label { flex: 1; font-weight: 600; }
+.lang-menu-check { font-size: var(--icon-sm); color: var(--success); }
+
+.lang-menu-item.active { background: var(--muted); }
+.lang-menu-item.active .lang-menu-item-code,
+.lang-menu-item.active .lang-menu-item-label { color: var(--primary); }

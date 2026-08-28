@@ -355,3 +355,133 @@ class QuestionBank(models.Model):
     def __str__(self):
         return self.text[:80]
 
+
+
+class ExamPaper(models.Model):
+    """
+    An exam paper a teacher writes and the DOS approves before it is printed.
+
+    Distinct from `dos.ExamSchedule`, which says *when* a subject is sat and
+    where. This is the paper itself - the questions, their marks, and the
+    instructions given to the candidate - and it carries the vetting step a
+    school does before an exam is duplicated: a paper leaves the teacher's
+    hands, the DOS reads it, and only then may it be issued.
+
+    The approval vocabulary is deliberately the same as `results.Result`
+    (draft -> submitted -> approved | rejected), because it is the same act:
+    a teacher hands work up, the DOS accepts it or sends it back with a reason.
+    """
+
+    STATUS_CHOICES = [
+        ('draft',     'Draft'),
+        ('submitted', 'Submitted'),
+        ('approved',  'Approved'),
+        ('rejected',  'Rejected'),
+    ]
+
+    # Mirrors dos.ExamSchedule.EXAM_TYPE_CHOICES so a paper and its sitting
+    # can describe themselves the same way.
+    EXAM_TYPE_CHOICES = [
+        ('midterm', 'Mid-Term Exam'),
+        ('final',   'Final Exam'),
+        ('quiz',    'Quiz'),
+        ('mock',    'Mock Exam'),
+        ('other',   'Other'),
+    ]
+
+    id      = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_papers')
+    subject = models.ForeignKey(Subject, on_delete=models.PROTECT, related_name='exam_papers')
+    class_obj = models.ForeignKey('teacher.Class', on_delete=models.CASCADE,
+                                  related_name='exam_papers')
+    term    = models.ForeignKey(AcademicTerm, on_delete=models.CASCADE,
+                                related_name='exam_papers')
+
+    title            = models.CharField(max_length=200)
+    exam_type        = models.CharField(max_length=20, choices=EXAM_TYPE_CHOICES,
+                                        default='final')
+    duration_minutes = models.PositiveIntegerField(default=120)
+    instructions     = models.TextField(blank=True)
+
+    # [{ title, instructions, choose_count, questions: [
+    #      { id, type, text, options, correct_answer, explanation, points } ] }]
+    #
+    # Sections rather than a flat question list because that is how a paper is
+    # actually written here: Section A compulsory, Section B "answer any three
+    # of six". `choose_count` carries that rule, and 0 means answer them all.
+    sections = models.JSONField(default=list, blank=True)
+
+    # When the paper is sat. Optional: a paper is often written before the
+    # timetable is fixed, and must not be blocked waiting for it.
+    exam_schedule = models.ForeignKey('dos.ExamSchedule', on_delete=models.SET_NULL,
+                                      null=True, blank=True, related_name='papers')
+
+    status           = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    submitted_at     = models.DateTimeField(null=True, blank=True)
+    approved_by      = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                         related_name='approved_exam_papers')
+    approved_at      = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'exam_papers'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['teacher', 'status']),
+        ]
+
+    def __str__(self):
+        return f'{self.title} ({self.get_status_display()})'
+
+    @staticmethod
+    def question_marks(question):
+        """
+        What one question is worth.
+
+        A structured question carries its marks on its parts - "(a) 2 marks,
+        (b) 3 marks" - and the number written beside the stem is the sum of
+        them. Storing both would let them disagree, so the stem's own `points`
+        is used only when there are no parts to add up.
+        """
+        parts = question.get('parts') or []
+        if parts:
+            return sum(int(p.get('points') or 0) for p in parts)
+        return int(question.get('points') or 0)
+
+    @property
+    def total_marks(self):
+        """
+        What the paper is out of.
+
+        A section where the candidate answers three of six is worth three
+        questions, not six - counting every question would overstate the paper
+        and quietly break every percentage calculated from it. Questions are
+        taken highest-first, since that is the most a candidate could score.
+        """
+        total = 0
+        for section in self.sections or []:
+            marks = sorted((self.question_marks(q)
+                            for q in section.get('questions') or []), reverse=True)
+            choose = int(section.get('choose_count') or 0)
+            total += sum(marks[:choose] if 0 < choose <= len(marks) else marks)
+        return total
+
+    @property
+    def question_count(self):
+        """Questions, not parts: "3 (a)-(c)" is one question to a candidate."""
+        return sum(len(s.get('questions') or []) for s in self.sections or [])
+
+    @property
+    def is_editable(self):
+        """
+        A paper is the teacher's until they hand it up.
+
+        Once submitted it is being vetted, and letting the author keep editing
+        would mean the DOS approves one paper and a different one gets printed.
+        Sending it back for changes returns control.
+        """
+        return self.status in ('draft', 'rejected')

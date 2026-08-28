@@ -300,3 +300,23 @@ class ExtracurricularEntry(models.Model):
 
     def __str__(self):
         return f"{self.slot_id}/{self.day} ({self.subject or self.label})"
+
+    def as_entry(self):
+        """The wire shape the timetable grid reads.
+
+        On the model rather than in a view because two portals serve it: the
+        Discipline Office writes this routine and the matrons read it. When
+        the two built the dict separately, a field added for one was missing
+        from the other and cells silently rendered blank in the matron's copy.
+        """
+        return {
+            'id':            str(self.id),
+            'week':          self.week,
+            'slot_id':       self.slot_id,
+            'day':           self.day,
+            'activity_type': self.activity_type,
+            'subject':       self.subject,
+            'teacher':       self.teacher,
+            'room':          self.room,
+            'label':         self.label,
+        }

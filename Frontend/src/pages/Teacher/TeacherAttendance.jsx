@@ -189,7 +189,7 @@ export function TeacherAttendance() {
                         title={t('teacher.attendance.title')}
                         subtitle={t('teacher.attendance.subtitle')}
                         userName={fullName}
-                        userRole="Teacher"
+                        userRole={t('roles.teacher')}
                         userInitials={initials}
                         avatarClass="teacher-av"
                         notifications={liveNotifications}

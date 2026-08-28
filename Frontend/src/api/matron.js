@@ -3,9 +3,15 @@ import client from './client'
 // Dashboard
 export const getMatronDashboard = () => client.get('/imboni/matron/dashboard/')
 
-// Students
+// Students.
+// The roll is the whole school by default; pass { scope: 'house' } or
+// { dormitory } to narrow it. It used to be dormitory-locked on the server,
+// which meant a matron covering another house, or listing her own class (a
+// class runs across every house), had no way to see them.
 export const getMatronStudents = (params) => client.get('/imboni/matron/students/', { params })
 export const getMatronStudent  = (id) => client.get(`/imboni/matron/students/${id}/`)
+// Scoped to the matron's own dormitory by the server, not by the caller.
+export const searchMatronStudents = (q) => getMatronStudents({ search: q })
 
 // Health
 export const getMatronHealth    = (params) => client.get('/imboni/matron/health/', { params })
@@ -22,13 +28,14 @@ export const getMatronSchedule = () => client.get('/imboni/matron/schedule/')
 // Boarding Schedule (standing weekly routine, read-only — issued by Discipline Master)
 export const getMatronBoardingSchedule = () => client.get('/imboni/matron/boarding-schedule/')
 
+// The Discipline Office's own weekly grid, read-only. Same rows their portal
+// edits, rendered through the same <Timetable> component.
+export const getMatronWeeklySchedule = (week = 'default') =>
+    client.get('/imboni/matron/weekly-schedule/', { params: { week } })
+
 // Night Attendance Check
 export const getMatronNightCheck   = (params) => client.get('/imboni/matron/night-check/', { params })
 export const submitMatronNightCheck = (data) => client.post('/imboni/matron/night-check/', data)
-
-// Parent Communication
-export const getParentComms = (params) => client.get('/imboni/matron/parent-comms/', { params })
-export const sendParentComm = (data) => client.post('/imboni/matron/parent-comms/', data)
 
 // Messages
 export const getMatronMessages = () => client.get('/imboni/matron/messages/')

@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
-import { getDisStudents } from '../../api/discipline'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
+import { StudentSearchPicker } from '../ui/StudentSearchPicker'
+import { searchDisStudents } from '../../api/discipline'
 
 const ROLE_OPTIONS = [
     { value: 'head_boy',        labelKey: 'modals.leader.roleHeadBoy'         },
@@ -22,55 +23,16 @@ export function LeaderModal({ leader, onClose, onSave }) {
     const [notes,         setNotes]         = useState(leader?.notes          || '')
     const [saving,        setSaving]        = useState(false)
     const [error,         setError]         = useState(null)
-
-    // Student search state (only for create)
-    const [query,          setQuery]          = useState(leader?.student_name || '')
-    const [searchResults,  setSearchResults]  = useState([])
-    const [selectedStudent,setSelectedStudent]= useState(
+    const [selectedStudent,setSelectedStudent] = useState(
         leader ? { id: leader.student_uuid, name: leader.student_name, student_id: leader.student_id, grade: leader.grade, section: leader.section } : null
     )
-    const [searching,      setSearching]      = useState(false)
-    const [dropdownOpen,   setDropdownOpen]   = useState(false)
-    const searchRef = useRef(null)
-    const debounceRef = useRef(null)
+
+    // Student search handled by shared StudentSearchPicker
 
     useEffect(() => {
         document.body.style.overflow = 'hidden'
         return () => { document.body.style.overflow = '' }
     }, [])
-
-    // Close dropdown on outside click
-    useEffect(() => {
-        function handler(e) {
-            if (searchRef.current && !searchRef.current.contains(e.target)) setDropdownOpen(false)
-        }
-        document.addEventListener('mousedown', handler)
-        return () => document.removeEventListener('mousedown', handler)
-    }, [])
-
-    function handleSearch(e) {
-        const q = e.target.value
-        setQuery(q)
-        setSelectedStudent(null)
-        clearTimeout(debounceRef.current)
-        if (q.length < 2) { setSearchResults([]); setDropdownOpen(false); return }
-        debounceRef.current = setTimeout(async () => {
-            setSearching(true)
-            try {
-                const results = await getDisStudents({ search: q })
-                setSearchResults(Array.isArray(results) ? results.slice(0, 8) : [])
-                setDropdownOpen(true)
-            } catch { setSearchResults([]) }
-            finally { setSearching(false) }
-        }, 300)
-    }
-
-    function selectStudent(s) {
-        setSelectedStudent(s)
-        setQuery(s.name)
-        setDropdownOpen(false)
-        setSearchResults([])
-    }
 
     async function handleSave() {
         if (!isEditing && !selectedStudent) { setError(t('common.selectStudentRequired')); return }
@@ -111,46 +73,12 @@ export function LeaderModal({ leader, onClose, onSave }) {
                             </div>
                         </div>
                     ) : (
-                        <div className="form-group dis-search-wrap" ref={searchRef}>
-                            <label className="form-label">{t('modals.leader.studentRequired')}</label>
-                            <div className="dis-search-wrap">
-                                <input
-                                    className="form-input"
-                                    value={query}
-                                    onChange={handleSearch}
-                                    placeholder={t('common.searchStudentPlaceholder')}
-                                    autoComplete="off"
-                                />
-                                {searching && (
-                                    <span className="material-symbols-rounded dis-search-spin">
-                                        progress_activity
-                                    </span>
-                                )}
-                            </div>
-                            {dropdownOpen && searchResults.length > 0 && (
-                                <div className="dis-search-menu">
-                                    {searchResults.map(s => (
-                                        <div key={s.id} className="dis-search-item" onClick={() => selectStudent(s)}>
-                                            <div className="dis-search-av">
-                                                {s.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
-                                            </div>
-                                            <div>
-                                                <div className="dis-search-name">{s.name}</div>
-                                                <div className="dis-search-sub">
-                                                    {s.student_id} · {s.grade}{s.section}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            {selectedStudent && (
-                                <div className="dis-picked">
-                                    ✓ {selectedStudent.name} ({selectedStudent.student_id})
-                                    {cls && <span className="class-chip dis-chip-inline-sm">{cls}</span>}
-                                </div>
-                            )}
-                        </div>
+                        <StudentSearchPicker
+                            value={selectedStudent}
+                            onChange={setSelectedStudent}
+                            fetchStudents={searchDisStudents}
+                            required
+                        />
                     )}
 
                     {/* Role */}

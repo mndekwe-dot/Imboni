@@ -6,6 +6,15 @@ export const getDisDashboard = () => client.get('/imboni/discipline/dashboard/')
 // Students
 export const getDisStudents = (params) => client.get('/imboni/discipline/students/', { params })
 export const getDisStudent  = (id)      => client.get(`/imboni/discipline/students/${id}/`)
+// The one place that knows this endpoint spells its query `search`. The picker
+// used to send `q`, which the server silently ignored — so every search
+// returned the same first page of the roll.
+export const searchDisStudents = (q) => getDisStudents({ search: q })
+
+// Parent communications. Moved here from the matron API: the office decides
+// when a family is contacted, so the office owns the record.
+export const getDisParentComms  = (params) => client.get('/imboni/discipline/parent-comms/', { params })
+export const sendDisParentComm  = (data)   => client.post('/imboni/discipline/parent-comms/', data)
 
 // Behavior Reports
 export const getDisReports    = (params) => client.get('/imboni/discipline/reports/', { params })

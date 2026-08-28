@@ -5,6 +5,7 @@ export const dosNavItems = [
     { to: '/dos/students',      icon: 'people',         labelKey: 'nav.students'              },
     { to: '/dos/attendance',    icon: 'fact_check',     labelKey: 'nav.attendance'            },
     { to: '/dos/scheduling',    icon: 'calendar_month', labelKey: 'nav.scheduling'            },
+    { to: '/dos/exam-papers',   icon: 'description',    labelKey: 'nav.examPapers'            },
     { to: '/dos/announcements', icon: 'announcement',   labelKey: 'nav.announcements'         },
     { to: '/dos/messages',      icon: 'chat',           labelKey: 'nav.messages'              },
 ]

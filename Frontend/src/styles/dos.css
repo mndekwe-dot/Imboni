@@ -2,7 +2,6 @@
    DOS.CSS - Director of Studies Portal Styles
    =============================================== */
 
-
 /* ===============================================
    QUICK STATS CARDS
    =============================================== */
@@ -14,8 +13,6 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
-
-
 
 .stat-header {
   display: flex;
@@ -588,7 +585,6 @@
 
 /* Table moved to .data-table in tables.css. */
 
-
 .leader-cell {
   display: flex;
   align-items: center;
@@ -954,7 +950,6 @@
   transition: all var(--transition-base);
 }
 
-
 .activity-card-header {
   display: flex;
   align-items: flex-start;
@@ -1138,7 +1133,6 @@
 
 @media (max-width: 480px) {
 
-
   .result-card {
     padding: 1rem;
   }
@@ -1214,7 +1208,6 @@
 
 /* Table wrapper */
 /* Table moved to .data-table in tables.css. */
-
 
 /* Teacher cell: avatar + name */
 .tm-teacher-cell {
@@ -1857,16 +1850,8 @@ body.tm-panel-open { overflow: hidden; }
   flex-wrap: wrap;
 }
 
-
-
-
-
-
-
-
 /* .att-mode-btn is now defined in components.css alongside the other
    controls that do this job, so the whole family is edited in one place. */
-
 
 /* ===============================================
    ATTENDANCE — LEGEND & PIPS
@@ -1934,103 +1919,9 @@ body.tm-panel-open { overflow: hidden; }
   .att-mode-bar { gap: 0.375rem; }
 }
 
-/* ===============================================
-   ANNOUNCEMENTS PAGE
-   =============================================== */
-
-/* Two-column layout */
-.ann-grid {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 1.5rem;
-  align-items: start;
-}
-@media (max-width: 900px) { .ann-grid { grid-template-columns: 1fr; } }
-
-/* Category chips */
-.ann-category-row { display: flex; gap: .5rem; flex-wrap: wrap; }
-.ann-cat-label {
-  display: flex; align-items: center; gap: .3rem;
-  padding: .35rem .8rem; border: 2px solid var(--border); border-radius: 999px;
-  font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all .15s;
-  user-select: none;
-}
-.ann-cat-label .material-symbols-rounded { font-size: var(--icon-sm); }
-.ann-cat-label:has(input:checked) { border-color: var(--primary); background: var(--primary); color: #fff; }
-.ann-cat-label.urgent:has(input:checked)   { border-color: var(--destructive); background: var(--destructive); }
-.ann-cat-label.event:has(input:checked)    { border-color: #f59e0b; background: #f59e0b; }
-.ann-cat-label.academic:has(input:checked) { border-color: var(--info); background: var(--info); }
-.ann-cat-label.general:has(input:checked)  { border-color: var(--success); background: var(--success); }
-.ann-cat-label input { display: none; }
-
-/* Audience checkboxes */
-.ann-audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
-@media (max-width: 480px) { .ann-audience-grid { grid-template-columns: 1fr; } }
-.ann-audience-item {
-  display: flex; align-items: center; gap: .5rem;
-  padding: .5rem .75rem; border: 1px solid var(--border); border-radius: .45rem;
-  font-size: var(--text-sm); cursor: pointer; transition: all .15s;
-}
-.ann-audience-item:has(input:checked) {
-  border-color: var(--primary); background: rgba(30,64,175,.06); color: var(--primary); font-weight: 500;
-}
-.ann-audience-item input { display: none; }
-.ann-audience-item .material-symbols-rounded { font-size: var(--icon-sm); color: var(--muted-foreground); }
-.ann-audience-item:has(input:checked) .material-symbols-rounded { color: var(--primary); }
-
-/* History filter pills */
-/* .ann-filter-row is now defined in components.css beside .ann-filter-pill. */
-
-
-
-/* .ann-filter-pill is now defined in components.css alongside the other
-   controls that do this job, so the whole family is edited in one place. */
-
-
-/* Announcement cards */
-.ann-item {
-  border: 1px solid var(--border); border-radius: .65rem; padding: 1rem 1.1rem;
-  background: var(--card); margin-bottom: .75rem; transition: box-shadow .2s;
-}
-.ann-item:last-child { margin-bottom: 0; }
-.ann-item-header { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: .5rem; }
-.ann-avatar {
-  width: 2.2rem; height: 2.2rem; border-radius: .45rem; background: var(--primary);
-  color: #fff; font-size: var(--text-caption); font-weight: 700; display: flex; align-items: center;
-  justify-content: center; flex-shrink: 0;
-}
-.ann-item-meta { flex: 1; min-width: 0; }
-.ann-item-title { font-weight: 700; font-size: var(--text-body); color: var(--foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ann-item-sub   { font-size: var(--text-caption); color: var(--muted-foreground); }
-.ann-badge { padding: .2rem .55rem; border-radius: 999px; font-size: var(--text-caption); font-weight: 700; flex-shrink: 0; }
-.ann-badge.urgent   { background: var(--destructive-surface);  color: var(--destructive-text); }
-.ann-badge.event    { background: var(--warning-surface); color: var(--warning-text); }
-.ann-badge.academic { background: var(--info-surface);  color: var(--info-text); }
-.ann-badge.general  { background: var(--success-surface); color: var(--success-text); }
-.ann-excerpt  { font-size: var(--text-sm); color: var(--muted-foreground); line-height: 1.5; margin-bottom: .65rem; }
-.ann-item-footer { display: flex; align-items: center; gap: .75rem; font-size: var(--text-sm); color: var(--muted-foreground); }
-.ann-views { display: flex; align-items: center; gap: .25rem; }
-.ann-views .material-symbols-rounded { font-size: var(--icon-sm); }
-.ann-item-actions { display: flex; gap: .3rem; margin-left: auto; }
-
-
-
-
-/* .ann-icon-btn is now defined in components.css alongside the other
-   controls that do this job, so the whole family is edited in one place. */
-
-
-/* Compose form helpers */
-.ann-form-group   { margin-bottom: 1rem; }
-.ann-content-group { margin-bottom: 1.25rem; }
-.ann-form-row     { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-.ann-form-col     { flex: 1; min-width: 160px; }
-.ann-form-actions { display: flex; gap: .75rem; justify-content: flex-end; flex-wrap: wrap; }
-.ann-form-actions .material-symbols-rounded { font-size: var(--icon-sm); }
-
-/* Editing-draft badge (hidden until JS makes visible) */
-.ann-editing-badge { background: var(--warning-surface); color: var(--warning-text); display: none; }
-.ann-editing-badge.visible { display: inline-flex; }
+/* The announcements composer and broadcast list moved to announcements.css:
+   the DOS, Discipline and Admin portals all render them, and only the DOS
+   pages import this file. See the note at the top of that file. */
 
 /* ===============================================
    EXAM SCHEDULE PAGE
@@ -2119,8 +2010,6 @@ body.tm-panel-open { overflow: hidden; }
 .es-nowrap { white-space:nowrap; }
 .es-row-actions { display:flex; align-items:center; gap:.4rem; }
 
-
-
 /* .es-icon-btn is now defined in components.css alongside the other
    controls that do this job, so the whole family is edited in one place. */
 
@@ -2178,11 +2067,8 @@ body.tm-panel-open { overflow: hidden; }
 /* ── Class chips row ────────────────────────────────────────────────── */
 .es-class-chips     { display:flex; gap:.35rem; flex-wrap:wrap; }
 
-
-
 /* .es-class-chip-btn is now defined in components.css alongside the other
    controls that do this job, so the whole family is edited in one place. */
-
 
 /* ── Section range in level filter button ───────────────────────────── */
 .es-section-range { font-size: var(--text-caption); opacity:.65; margin-left:.15rem; }
@@ -2193,8 +2079,6 @@ body.tm-panel-open { overflow: hidden; }
 /* Navigation bar */
 .es-cal-month-nav   { display:flex; align-items:center; gap:.5rem; padding:.65rem 1rem;
                        border-bottom:1px solid var(--border); background:var(--card); }
-
-
 
 /* .es-cal-nav-btn is now defined in components.css alongside the other
    controls that do this job, so the whole family is edited in one place. */
@@ -2323,7 +2207,6 @@ body.tm-panel-open { overflow: hidden; }
 
 /* Divider */
 .es-hr { border:none; border-top:1px solid var(--border); margin:0 0 1rem; }
-
 
 /* Plan form */
 .es-form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:1rem; }
@@ -2497,51 +2380,6 @@ body.tm-panel-open { overflow: hidden; }
 .inline-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
 .inline-select-opt:hover:not(.active) { background: var(--muted); }
 
-/* ── Form select (modal) ── */
-.form-select-wrap { position: relative; }
-.form-select-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--card);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  color: var(--muted-foreground);
-}
-.form-select-btn.has-value { color: var(--foreground); }
-.form-select-btn .material-symbols-rounded { font-size: var(--icon-sm); color: var(--muted-foreground); }
-.form-select-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  z-index: 300;
-  max-height: 220px;
-  overflow-y: auto;
-}
-.form-select-opt {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 0.55rem 0.875rem;
-  border: none;
-  cursor: pointer;
-  font-size: var(--text-sm);
-  font-weight: 400;
-  background: transparent;
-  color: var(--foreground);
-}
-.form-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
-.form-select-opt:hover:not(.active) { background: var(--muted); }
-
 /* ── Assign class grid ── */
 .teacher-modal-section-label {
   font-size: var(--text-caption); font-weight: 700; text-transform: uppercase;
@@ -2704,7 +2542,6 @@ body.tm-panel-open { overflow: hidden; }
 .dos-reason-chip.score   { background: var(--destructive-surface);  color: var(--destructive-text); }
 .dos-reason-chip.absence { background: var(--warning-surface); color: var(--warning-text); }
 .dos-reason-chip-icon { font-size: var(--icon-sm); }
-
 
 /* ── Attendance pagination ── */
 /* .pagination-* moved to components.css: DosAttendance, DosResults and
@@ -2940,7 +2777,6 @@ body.tm-panel-open { overflow: hidden; }
 .dos-inv-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
 .dos-btn-cancel  { color: var(--danger); border: 1px solid var(--danger); background: transparent; }
 
-
 /* ============================================================
    DOS SETTINGS PAGE (DosSettings) — sections/years/subjects/rooms
    Mirrors the Admin settings blocks. NB: several notes use bare
@@ -3055,12 +2891,10 @@ body.tm-panel-open { overflow: hidden; }
 .es-new-session-icon { font-size: var(--icon-sm); }
 
 /* ── DOS Announcements page (DosAnnouncement) — compose form + broadcasts list ── */
-.ann-badge-inline   { margin-left: 0.25rem; }
 .dos-ann-note       { font-size: var(--text-sm); color: var(--muted-foreground); }
 .dos-chips-mb       { margin-bottom: 0.65rem; }
 .dos-optional       { color: var(--muted-foreground); font-weight: 400; }
 .dos-ann-err        { color: var(--destructive); font-size: var(--text-sm); margin-bottom: 0.75rem; }
-.dos-chip-count-ml  { margin-left: 0.3rem; }
 .dos-ann-loadmore   { text-align: center; padding: 0.75rem 0; }
 .dos-ann-allloaded  { text-align: center; font-size: var(--text-caption); color: var(--muted-foreground); padding: 0.5rem 0; }
 

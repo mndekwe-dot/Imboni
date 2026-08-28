@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
@@ -9,13 +10,13 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { disNavItems, disSecondaryItems } from './disNav'
-import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { getDisStudents, getDisReports, updateDisReport, reviewDisReport } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
+import { TabGroup } from '../../components/ui/TabGroup'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -174,8 +175,7 @@ function StudentRow({ student, onView }) {
                 }
             </td>
             <td>
-                <span style={{ fontWeight: student.incident_count > 0 ? 600 : 400,
-                    color: student.incident_count > 3 ? '#ef4444' : 'inherit' }}>
+                <span className={`dis-incident-count ${student.incident_count > 0 ? 'has-incidents' : ''} ${student.incident_count > 3 ? 'is-high' : ''}`}>
                     {student.incident_count}
                 </span>
             </td>
@@ -234,8 +234,17 @@ export function DisStudents() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
-    const { config } = useSchoolConfig()
-    const [activeTab, setActiveTab] = useState('students')
+
+    /* The tab is in the URL so the dashboard can link straight at the reports
+       ("View All" used to point at /discipline/reports, a route that does not
+       exist — it 404'd), and so a director can bookmark or reload the tab they
+       were on instead of landing back on conduct records. */
+    const [searchParams, setSearchParams] = useSearchParams()
+    const activeTab = searchParams.get('tab') === 'reports' ? 'reports' : 'students'
+    const setActiveTab = tab => setSearchParams(
+        tab === 'reports' ? { tab: 'reports' } : {},
+        { replace: true },
+    )
 
     // ── Students tab ──
     const [students,      setStudents]      = useState([])
@@ -308,7 +317,7 @@ export function DisStudents() {
     return (
         <>
             <StudentConductModal student={modal} onClose={() => setModal(null)} />
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
@@ -322,25 +331,25 @@ export function DisStudents() {
                     />
                     <DashboardContent>
 
-                        <div className="filter-tabs-bar mb-5">
-                            <button className={`filter-tab${activeTab === 'students' ? ' active' : ''}`}
-                                onClick={() => setActiveTab('students')}>
-                                <span className="material-symbols-rounded">people</span> {t('dis.students.conductRecords')}
-                            </button>
-                            <button className={`filter-tab${activeTab === 'reports' ? ' active' : ''}`}
-                                onClick={() => setActiveTab('reports')}>
-                                <span className="material-symbols-rounded">report</span> Behavior Reports
-                                {pending.length > 0 && (
-                                    <span className="approval-count-badge">{pending.length}</span>
-                                )}
-                            </button>
-                        </div>
+                        {/* Tabs switch a panel; chips narrow a list. This bar
+                            was built from `.filter-tab` chips, so on this page
+                            the two jobs looked identical — and neither looked
+                            like the raised tab chips elsewhere in the app. */}
+                        <TabGroup
+                            tabs={[
+                                { key: 'students', label: t('dis.students.conductRecords'),   icon: 'people' },
+                                { key: 'reports',  label: t('dis.students.behaviorReports'),  icon: 'report', count: pending.length },
+                            ]}
+                            value={activeTab}
+                            onChange={setActiveTab}
+                            label={t('nav.students')}
+                            idPrefix="dis-students-"
+                        />
 
                         {/* ── STUDENTS TAB ── */}
                         {activeTab === 'students' && (
                             <>
                                 <ClassPicker
-                                    sections={config}
                                     section={section} onSectionChange={setSection}
                                     year={year}       onYearChange={setYear}
                                     classVal={classVal} onClassChange={setClassVal}
@@ -386,26 +395,17 @@ export function DisStudents() {
                         {activeTab === 'reports' && (
                             <>
                                 {/* Sub-tabs */}
-                                <div className="filter-tabs-bar mb-5">
-                                    <button className={`filter-tab${reportSubTab === 'pending' ? ' active' : ''}`} onClick={() => setReportSubTab('pending')}>
-                                        <span className="material-symbols-rounded">pending_actions</span>
-                                        Pending Review
-                                        {pending.length > 0 && <span className="approval-count-badge">{pending.length}</span>}
-                                    </button>
-                                    <button className={`filter-tab${reportSubTab === 'approved' ? ' active' : ''}`} onClick={() => setReportSubTab('approved')}>
-                                        <span className="material-symbols-rounded">check_circle</span>
-                                        {t('common.approved')}
-                                    </button>
-                                    <button className={`filter-tab${reportSubTab === 'rejected' ? ' active' : ''}`} onClick={() => setReportSubTab('rejected')}>
-                                        <span className="material-symbols-rounded">cancel</span>
-                                        Rejected
-                                        {rejected.length > 0 && (
-                                            <span className="dis-rej-count">
-                                                {rejected.length}
-                                            </span>
-                                        )}
-                                    </button>
-                                </div>
+                                <TabGroup
+                                    tabs={[
+                                        { key: 'pending',  label: t('dis.students.pendingReview'), icon: 'pending_actions', count: pending.length },
+                                        { key: 'approved', label: t('common.approved'),            icon: 'check_circle'    },
+                                        { key: 'rejected', label: t('common.rejected'),            icon: 'cancel', count: rejected.length },
+                                    ]}
+                                    value={reportSubTab}
+                                    onChange={setReportSubTab}
+                                    label={t('dis.students.behaviorReports')}
+                                    idPrefix="dis-reports-"
+                                />
 
                                 {repLoading ? (
                                     <p className="u-pad u-muted">Loading reports…</p>

@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.utils import timezone
 from apps.authentication.models import User, UserPreferences
-from apps.authentication.permissions import IsParent
+from apps.authentication.permissions import IsDOSOrAdmin, IsParent
 from apps.authentication.serializers import UserSerializer
 from apps.student.models import Student, Fee, StudentDocument
 from .models import ParentStudentRelationship
@@ -19,6 +19,7 @@ from .serializers import (
 
 
 class StudentViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsDOSOrAdmin]
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
@@ -210,6 +211,10 @@ class AddParentToStudentView(generics.CreateAPIView):
     Creates a parent user and links them to the student in one atomic operation.
     """
     serializer_class = AddParentToStudentSerializer
+    # This creates a real, password-bearing account and links it to a child.
+    # On the default permission any signed-in user could do that to any
+    # student in the school, so it is staff-only.
+    permission_classes = [IsDOSOrAdmin]
 
     def create(self, request, *_args, **_kwargs):
         try:
@@ -407,6 +412,7 @@ class StudentAssignmentListView(_APIView):
 
 
 class ParentStudentRelationshipViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsDOSOrAdmin]
     serializer_class = ParentStudentRelationshipSerializer
 
     def get_queryset(self):

@@ -17,8 +17,8 @@
     "weekOf": "Icyumweru cyo kuwa"
   },
   "dashboard": {
-    "title": "Imbonerahamwe y'Umuyobozi w'Amasomo",
-    "subtitle": "Ubwitabire, amanota n'abarimu mu ncamake"
+    "subtitle": "Ubwitabire, amanota n'abarimu mu ncamake",
+    "title": "Imbonerahamwe y'Umuyobozi w'Amasomo"
   },
   "dining": {
     "addSittingFailed": "Kongeraho icyiciro byanze",
@@ -83,6 +83,42 @@
     "summary": "abakozi {{staff}} · inshingano {{posts}} · igabana {{spread}}",
     "unfilled": "{{count}} zitujuje",
     "workload": "Umutwaro w'akazi"
+  },
+  "examPapers": {
+    "approve": "Emeza",
+    "approveFailed": "Ntibyashobotse kwemeza iki kizamini.",
+    "approved": "Byemejwe",
+    "className": "Ishuri",
+    "confirmSendBack": "Kisubize inyuma",
+    "drafts": "Inyandiko",
+    "durationMinutes": "iminota {{minutes}}",
+    "emptyMessage": "Nta kizamini gihuye n’iyi muyunguruzi.",
+    "emptyTitle": "Nta kintu kiri hano",
+    "loadFailed": "Ntibyashobotse kuzana impapuro z’ibizamini.",
+    "marks": "Amanota",
+    "outOf": "Ku manota {{marks}}",
+    "paper": "Ikizamini",
+    "printFailed": "Ntibyashobotse gukora PDF.",
+    "printPaper": "Capa ikizamini",
+    "printScheme": "Capa uburyo bwo gutanga amanota",
+    "qMarks": "amanota {{marks}}",
+    "reasonHint": "Umwarimu arabibona, bityo vuga bihagije kugira ngo abikosore.",
+    "reasonLabel": "Ni iki kigomba guhinduka?",
+    "reasonPlaceholder": "urugero: Igice B kiri hanze y’integanyanyigisho z’iki gihembwe",
+    "reasonRequired": "Vuga icyo kigomba guhinduka.",
+    "rejectFailed": "Ntibyashobotse gusubiza iki kizamini.",
+    "review": "Soma kandi ufate icyemezo",
+    "sendBack": "Subiza inyuma",
+    "sentBack": "Byasubijwe",
+    "setBy": "Cyanditswe na",
+    "subtitle": "Soma, wemeze kandi ucape ibizamini abarimu banditse",
+    "tabAll": "Byose",
+    "tabApproved": "Byemejwe",
+    "tabDraft": "Inyandiko",
+    "tabRejected": "Byasubijwe",
+    "tabSubmitted": "Bitegereje kwemezwa",
+    "title": "Impapuro z’ibizamini",
+    "waiting": "Bitegereje kwemezwa"
   },
   "examSchedule": {
     "academicTermRequired": "Igihembwe cy'amasomo *",
@@ -160,10 +196,14 @@
     "typeCaptain": "Umukuru w'icumbi",
     "typePrefect": "Umuyobozi w'abanyeshuri"
   },
+  "messages": {
+    "subtitle": "Vugana n'abarimu, abakozi n'ababyeyi"
+  },
   "results": {
     "attendanceTrend": "Uko ubwitabire buhinduka",
     "bySubject": "Ku isomo",
     "gradeDistribution": "Ikwirakwizwa ry'urwego",
+    "loadAnalyticsFailed": "Ntibyashobotse gukura isesengura.",
     "loadingAnalytics": "Turimo gukura isesengura…",
     "noMarks": "Nta manota y'abanyeshuri ari muri iyi.",
     "noQuestionPaper": "Nta rupapuro rw'ibibazo rwometswe kuri iyi.",
@@ -303,10 +343,13 @@
     "allSubjects": "Amasomo yose",
     "allTeachers": "Abarimu bose",
     "allTypes": "Ubwoko bwose",
+    "classesAssigned": "Amashuri yahawe",
     "classesToTeach": "Amashuri azigisha",
     "emailRequired": "Imeyili *",
     "employmentType": "Ubwoko bw'akazi",
     "employmentTypeRequired": "Ubwoko bw'akazi *",
+    "emptyDescNoFilters": "Nta barimu bahuye n'ibihinduka wahisemo.",
+    "emptyTitle": "Nta barimu babonetse",
     "expires": "Birangira",
     "invitationSent": "Ubutumire bwoherejwe",
     "inviteTeacher": "Tumira umwarimu",
@@ -319,14 +362,11 @@
     "pendingInvitations": "Ubutumire butegereje",
     "searchTeachers": "Shakisha ukoresheje izina cyangwa isomo...",
     "selectSubject": "Hitamo isomo",
+    "sendInvitationFailed": "Gutuma umuntu byanze",
     "subjectRequired": "Isomo *",
     "subtitle": "Reba, ongeraho, uhindure abarimu kandi ucunge amashuri bahawe",
     "teacherDetails": "Amakuru y'umwarimu",
-    "title": "Gucunga abarimu",
-    "sendInvitationFailed": "Gutuma umuntu byanze",
-    "classesAssigned": "Amashuri yahawe",
-    "emptyTitle": "Nta barimu babonetse",
-    "emptyDescNoFilters": "Nta barimu bahuye n'ibihinduka wahisemo."
+    "title": "Gucunga abarimu"
   },
   "timetable": {
     "academicTerm": "Igihembwe *",
@@ -353,8 +393,5 @@
     "weekly": "Gahunda y'icyumweru",
     "weeklyFor": "Ishuri {{name}}: gahunda y'icyumweru",
     "weightAbbr": "Uburemere"
-  },
-  "messages": {
-    "subtitle": "Vugana n'abarimu, abakozi n'ababyeyi"
   }
 }

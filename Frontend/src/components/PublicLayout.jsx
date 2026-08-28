@@ -33,7 +33,7 @@ export function PublicLayout({ title, subtitle, children }) {
                         <Link to="/contact">{t('publicNav.contact')}</Link>
                         <Link to="/signup">{t('publicNav.signUpSchool')}</Link>
                     </div>
-                    <LanguageSwitcher compact />
+                    <LanguageSwitcher variant="buttons" compact />
                     <Link to="/login" className="pub-nav-signin">
                         <span className="material-symbols-rounded">login</span>
                         {t('publicNav.signIn')}
@@ -80,7 +80,7 @@ export function PublicLayout({ title, subtitle, children }) {
                 <div className="pub-footer-base">
                     <span>{t('publicLayout.copyright', { year })}</span>
                     <span>info@imboni.edu.rw</span>
-                    <LanguageSwitcher compact />
+                    <LanguageSwitcher variant="buttons" compact />
                 </div>
             </footer>
         </div>

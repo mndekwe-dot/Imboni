@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../layout/Sidebar'
 import { DashboardHeader } from '../layout/DashboardHeader'
@@ -107,6 +108,41 @@ export function LiveMessages({
         setShowThread(true)
         loadThread(id)
     }
+
+    /* Arriving with someone already in mind: `?with=<user id>`.
+     *
+     * A "Message" button elsewhere in the app (a staff card, a class list) used
+     * to land people on the conversation LIST, where they still had to open the
+     * new-message dialog and find by name the person they had just been looking
+     * at. This opens the thread with them directly.
+     *
+     * `startConversation` reuses an existing thread, so this neither duplicates
+     * a conversation nor sends anything — it opens the room. The parameter is
+     * then dropped from the URL so a later refresh does not re-run it, and
+     * `selectedId` guards against the poll re-triggering it mid-session.
+     */
+    const [searchParams, setSearchParams] = useSearchParams()
+    const openWith = searchParams.get('with')
+    useEffect(() => {
+        if (!openWith || selectedId) return
+        let cancelled = false
+        startConversation(openWith)
+            .then(async conv => {
+                if (cancelled || !conv?.id) return
+                await loadConversations()
+                selectConversation(conv.id)
+            })
+            .catch(() => {
+                if (!cancelled) setError('Could not open that conversation.')
+            })
+            .finally(() => {
+                if (!cancelled) setSearchParams({}, { replace: true })
+            })
+        return () => { cancelled = true }
+        // selectConversation is redefined every render; the guard above is what
+        // keeps this to one run.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [openWith])
 
     // Keep the thread scrolled to the newest message
     useEffect(() => {

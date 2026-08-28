@@ -3,7 +3,7 @@ import { renderWithRouter, screen, waitFor, fireEvent } from '../../test/test-ut
 import { DisBoarding } from './DisBoarding'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
-    getDisFacilities, getDisStudents, getDisOccupancy,
+    getDisFacilities, getDisStudents, searchDisStudents, getDisOccupancy,
 } from '../../api/discipline'
 import { getNotifications } from '../../api/notifications'
 
@@ -14,6 +14,7 @@ vi.mock('../../api/discipline', () => ({
     deleteDisBoarding: vi.fn(),
     getDisFacilities: vi.fn(),
     getDisStudents: vi.fn(),
+    searchDisStudents: vi.fn(),
     getDisOccupancy: vi.fn(),
 }))
 vi.mock('../../api/notifications', () => ({
@@ -57,7 +58,7 @@ describe('DisBoarding', () => {
     it('creates a new boarding assignment after searching and selecting a student', async () => {
         getDisBoarding.mockResolvedValue([])
         getDisFacilities.mockResolvedValue([{ id: 1, name: 'Bisoke', capacity: 40 }])
-        getDisStudents.mockResolvedValue([{ id: 5, name: 'Amina U.', student_id: 'ADM005', grade: 'S1', section: 'B' }])
+        searchDisStudents.mockResolvedValue([{ id: 5, name: 'Amina U.', student_id: 'ADM005', grade: 'S1', section: 'B' }])
         createDisBoarding.mockResolvedValue({ ...record, id: 2, student_name: 'Amina U.' })
 
         renderWithRouter(<DisBoarding />)
@@ -66,7 +67,7 @@ describe('DisBoarding', () => {
         fireEvent.click(screen.getByRole('button', { name: /Assign to Boarding/i }))
         fireEvent.change(screen.getByPlaceholderText(/Search by name or ADM number/i), { target: { value: 'Amina' } })
 
-        await waitFor(() => expect(getDisStudents).toHaveBeenCalledWith({ search: 'Amina' }), { timeout: 2000 })
+        await waitFor(() => expect(searchDisStudents).toHaveBeenCalledWith('Amina'), { timeout: 2000 })
         await waitFor(() => expect(screen.getByText('Amina U.')).toBeInTheDocument())
         fireEvent.click(screen.getByText('Amina U.'))
 
