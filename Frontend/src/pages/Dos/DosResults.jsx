@@ -23,6 +23,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { PaginationBar } from '../../components/ui/PaginationBar'
 import { classLabel } from '../../utils/classes'
 import { formatDate } from '../../utils/date'
+import { SearchBar } from '../../components/ui/SearchBar'
 
 const STATUS_MAP = { submitted: 'pending', approved: 'approved', rejected: 'rejected' }
 
@@ -545,18 +546,11 @@ export function DosResults() {
 
                                 {/* Toolbar */}
                                 <div className="toolbar-card dos-toolbar-col">
-                                    <div className="toolbar-search">
-                                        <span className="material-symbols-rounded">search</span>
-                                        <input
-                                            placeholder={t('dos.results.search')}
-                                            value={search} onChange={e => { setSearch(e.target.value); setPage(1) }}
-                                        />
-                                        {search && (
-                                            <button className="toolbar-search-clear" onClick={() => { setSearch(''); setPage(1) }}>
-                                                <span className="material-symbols-rounded">close</span>
-                                            </button>
-                                        )}
-                                    </div>
+                                    <SearchBar
+                                        value={search}
+                                        onChange={v => { setSearch(v); setPage(1) }}
+                                        placeholder={t('dos.results.search')}
+                                    />
                                     <FilterBar options={statusTabsWithCount} active={statusFilter} onChange={k => { setStatusFilter(k); setPage(1) }} />
                                 </div>
 

@@ -13,6 +13,7 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
+import '../../styles/announcements.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { formatDateShort } from '../../utils/date'
 
@@ -435,7 +436,7 @@ export function DosAnnouncement() {
                                                 onClick={() => setActiveFilter(f)}>
                                                 {t(FILTER_KEYS[f])}
                                                 {f !== 'all' && (
-                                                    <span className="es-chip-count dos-chip-count-ml">
+                                                    <span className="ann-chip-count">
                                                         {countByStatus(f)}
                                                     </span>
                                                 )}

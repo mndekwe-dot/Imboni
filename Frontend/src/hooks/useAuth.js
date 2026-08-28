@@ -2,6 +2,7 @@ import { useState } from "react";
 import {useNavigate} from 'react-router'
 import { loginUser,logoutUser, verifyTwoFactorLogin } from "../api/auth";
 import { ROLE_HOME } from "../utils/roles";
+import { resetSchoolConfigCache } from "./schoolConfigCache";
 
 
 export function useAuth(){
@@ -43,6 +44,12 @@ export function useAuth(){
     async function logout(redirectTo ='/login') {
         await logoutUser()
         setUser(null)
+        // The school's structure is cached at module scope for the session.
+        // It belongs to the school that was signed in, not to the browser —
+        // on a shared office machine the next sign-in could be another school
+        // (or another tenant), and it must not inherit these year and stream
+        // lists in its class pickers.
+        resetSchoolConfigCache()
         navigate(redirectTo)
     }
     return {user,isAuthenticated,login,completeTwoFactor,logout}

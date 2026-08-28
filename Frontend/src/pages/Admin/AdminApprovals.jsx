@@ -6,7 +6,6 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { ClassPicker } from '../../components/ui/ClassPicker'
-import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { classLabel } from '../../utils/classes'
@@ -150,7 +149,6 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
 export function AdminApprovals() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const { config }    = useSchoolConfig()
     const toast = useToast()
     const [activeTab,   setActiveTab]   = useState('pending')
     const [allResults,  setAllResults]  = useState([])
@@ -310,7 +308,6 @@ export function AdminApprovals() {
 
                         {/* Class picker */}
                         <ClassPicker
-                            sections={config}
                             section={section}
                             onSectionChange={s => { setSection(s); setYear(''); setClassVal(''); load(activeTab, '') }}
                             year={year}

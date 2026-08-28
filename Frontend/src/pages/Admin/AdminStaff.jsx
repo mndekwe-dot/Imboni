@@ -18,6 +18,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
+import { SearchBar } from '../../components/ui/SearchBar'
 
 const ROLE_LABEL = {
     teacher:    'Teacher',
@@ -359,11 +360,11 @@ export function AdminStaff() {
                         {activeTab === 'staff' && (
                             <>
                                 <div className="toolbar-card">
-                                    <div className="toolbar-search">
-                                        <span className="material-symbols-rounded">search</span>
-                                        <input placeholder="Search staff…" value={search} onChange={e => setSearch(e.target.value)} />
-                                        {search && <button className="toolbar-search-clear" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
-                                    </div>
+                                    <SearchBar
+                                        value={search}
+                                        onChange={setSearch}
+                                        placeholder={t('common.searchStaff')}
+                                    />
                                     <select className="input input-auto select-xs" value={deptFilter} onChange={e => setDeptFilter(e.target.value)}>
                                         <option>{t('admin.staff.allDepartments')}</option>
                                         <option>{t('admin.staff.academic')}</option><option>{t('admin.staff.welfare')}</option><option>Admin</option>
