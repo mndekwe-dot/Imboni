@@ -28,7 +28,7 @@ function BehaviourStat({ cardClass, value, label, trend, trendClass, icon, iconC
                     <div className={`stat-card-trend ${trendClass}`}><span>{trend}</span></div>
                 </div>
                 <div className={`stat-card-icon ${iconClass}`}>
-                    <span className="material-symbols-rounded">{icon}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@ function BehaviourCard({ title, reported_by_display, badge, report_type, descrip
                     <p>{reported_by_display}</p>
                 </div>
                 <span className={`behavior-badge ${badgeCls}`}>
-                    <span className="behaviour-icon material-symbols-rounded">{badgeIcon}</span>
+                    <span className="behaviour-icon material-symbols-rounded" aria-hidden="true">{badgeIcon}</span>
                     {badge}
                 </span>
             </div>
@@ -197,11 +197,11 @@ export function ParentBehaviour() {
                                                 All <span className="count-badge">{reports.length}</span>
                                             </button>
                                             <button className={`behavior-filter-btn${filter === 'positive' ? ' active' : ''}`} onClick={() => setFilter('positive')}>
-                                                <span className="material-symbols-rounded icon-14">thumb_up</span>
+                                                <span className="material-symbols-rounded icon-14" aria-hidden="true">thumb_up</span>
                                                 Positive <span className="count-badge">{positive.length}</span>
                                             </button>
                                             <button className={`behavior-filter-btn${filter === 'warning' ? ' active' : ''}`} onClick={() => setFilter('warning')}>
-                                                <span className="material-symbols-rounded icon-14">warning</span>
+                                                <span className="material-symbols-rounded icon-14" aria-hidden="true">warning</span>
                                                 Warnings <span className="count-badge">{warning.length}</span>
                                             </button>
                                         </div>

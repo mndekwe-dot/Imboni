@@ -161,14 +161,14 @@ export function DisTimetable() {
                                         className="btn btn-outline btn-sm"
                                         onClick={() => setShowSlotManager(true)}
                                     >
-                                        <span className="material-symbols-rounded icon-sm">schedule</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">schedule</span>
                                         Edit Time Slots
                                     </button>
                                     <button
                                         className="btn btn-primary btn-sm"
                                         onClick={() => { setEditingSlot(null); setShowForm(true) }}
                                     >
-                                        <span className="material-symbols-rounded">add</span> Add Slot
+                                        <span className="material-symbols-rounded" aria-hidden="true">add</span> Add Slot
                                     </button>
                                 </div>
                             </div>

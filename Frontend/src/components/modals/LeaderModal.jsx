@@ -53,12 +53,12 @@ export function LeaderModal({ leader, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded dmod-title-icon">
+                        <span className="material-symbols-rounded dmod-title-icon" aria-hidden="true">
                             {isEditing ? 'edit' : 'person_add'}
                         </span>
                         <h2 className="modal-title">{isEditing ? t('modals.leader.editTitle') : t('modals.leader.addTitle')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
 
                 <div className="modal-body">
@@ -107,7 +107,7 @@ export function LeaderModal({ leader, onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || (!isEditing && !selectedStudent)}>
-                        <span className="material-symbols-rounded">{isEditing ? 'save' : 'person_add'}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{isEditing ? 'save' : 'person_add'}</span>
                         {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('modals.leader.addLeader')}
                     </button>
                 </div>

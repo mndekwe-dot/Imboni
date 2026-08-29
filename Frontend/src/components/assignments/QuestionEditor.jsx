@@ -62,7 +62,7 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                                     onChange(updated)
                                 }}
                                 className={`quiz-q-type-btn${q.type === qt.value ? ' active' : ''}`}>
-                                <span className="material-symbols-rounded">{qt.icon}</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">{qt.icon}</span>
                                 {t(qt.labelKey)}
                             </button>
                         ))}
@@ -95,16 +95,16 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                 <div className="quiz-q-tools">
                     {!isFirst && (
                         <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveUp} title={t('common.moveUp')}>
-                            <span className="material-symbols-rounded">arrow_upward</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">arrow_upward</span>
                         </button>
                     )}
                     {!isLast && (
                         <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveDown} title={t('common.moveDown')}>
-                            <span className="material-symbols-rounded">arrow_downward</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">arrow_downward</span>
                         </button>
                     )}
                     <button type="button" className="quiz-q-delete" onClick={onRemove} title={t('teacher.assignments.deleteQuestion')}>
-                        <span className="material-symbols-rounded">delete</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">delete</span>
                     </button>
                 </div>
             </div>
@@ -116,12 +116,12 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                     <div className="u-row-sm">
                         <img src={q.image} alt="question" className="quiz-q-image" />
                         <button type="button" className="quiz-q-delete quiz-q-move" onClick={() => set('image', '')} title={t('common.removeImage')}>
-                            <span className="material-symbols-rounded">close</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </div>
                 ) : (
                     <button type="button" onClick={() => imgRef.current.click()} className="quiz-q-add-image">
-                        <span className="material-symbols-rounded">add_photo_alternate</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">add_photo_alternate</span>
                         {t('common.addImage')}
                     </button>
                 )}
@@ -139,20 +139,20 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                                     placeholder={t('teacher.assignments.optionLetter', { letter: String.fromCharCode(65 + oi) })}
                                     value={opt} onChange={e => setOption(oi, e.target.value)} />
                                 {q.options.length > 2 && (
-                                    <button type="button" className="quiz-q-delete quiz-q-delete-sm" onClick={() => removeOption(oi)}>
-                                        <span className="material-symbols-rounded">remove</span>
+                                    <button type="button" className="quiz-q-delete quiz-q-delete-sm" onClick={() => removeOption(oi)} aria-label={t('common.remove')}>
+                                        <span className="material-symbols-rounded" aria-hidden="true">remove</span>
                                     </button>
                                 )}
                             </div>
                         ))}
                         {q.options.length < 6 && (
                             <button type="button" onClick={addOption} className="quiz-q-add-option">
-                                <span className="material-symbols-rounded">add</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">add</span>
                                 {t('teacher.assignments.addOption')}
                             </button>
                         )}
                         <div className="quiz-q-help">
-                            <span className="material-symbols-rounded">check_circle</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                             {' '}{t('teacher.assignments.mcqHelp')}
                         </div>
                     </>
@@ -168,7 +168,7 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                             </div>
                         ))}
                         <div className="quiz-q-help">
-                            <span className="material-symbols-rounded">check_circle</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                             {' '}{t('teacher.assignments.trueFalseHelp')}
                         </div>
                     </>
@@ -210,7 +210,7 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                     onClick={() => onSaveToBank(q)}
                     title={t('teacher.assignments.saveToBankTitle')}
                     className="quiz-q-bank-btn">
-                    <span className="material-symbols-rounded">bookmark_add</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">bookmark_add</span>
                     {t('teacher.assignments.saveToBank')}
                 </button>
             </div>

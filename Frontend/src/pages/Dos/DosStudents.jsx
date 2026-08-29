@@ -164,7 +164,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
         <Modal title={t('dos.students.invitationsSent')} icon="mark_email_read" onClose={onClose}
             footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>{t('common.done')}</button></div>}>
             <div className="dos-sent-box">
-                <span className="material-symbols-rounded dos-sent-icon">check_circle</span>
+                <span className="material-symbols-rounded dos-sent-icon" aria-hidden="true">check_circle</span>
                 <p className="dos-sent-title">{t('dos.students.invitationsSentOk')}</p>
                 <p className="dos-sent-note">
                     {student.first_name} will receive a link to create their student account.<br />
@@ -183,11 +183,11 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                     <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     {tab === 'single'
                         ? <button className="btn btn-primary" disabled={!isValid || sending} onClick={handleSingleSend}>
-                            <span className="material-symbols-rounded icon-sm">send</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                             {sending ? 'Sending…' : 'Send Invitations'}
                           </button>
                         : <button className="btn btn-primary" disabled={!file || bulkSending || !!bulkResult} onClick={handleBulkSend}>
-                            <span className="material-symbols-rounded icon-sm">upload_file</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload_file</span>
                             {bulkSending ? 'Sending…' : 'Send All Invitations'}
                           </button>
                     }
@@ -203,7 +203,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
             {/* ── Single tab ── */}
             {tab === 'single' && <>
                 <div className="dos-info-box">
-                    <span className="material-symbols-rounded dos-info-icon">info</span>
+                    <span className="material-symbols-rounded dos-info-icon" aria-hidden="true">info</span>
                     <p className="dos-info-text">
                         Two invitation emails will be sent: one for the student to create their account, and one for the parent/guardian.
                     </p>
@@ -289,14 +289,14 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                         <p className="dos-step-desc">{t('dos.students.step1Desc')}</p>
                     </div>
                     <button className="btn btn-outline btn-sm" onClick={downloadTemplate}>
-                        <span className="material-symbols-rounded icon-sm">download</span> {t('dos.students.template')}
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span> {t('dos.students.template')}
                     </button>
                 </div>
 
                 {/* Step 2 – upload CSV */}
                 <p className="dos-step2-label">{t('dos.students.step2')}</p>
                 <label className="dos-upload-label">
-                    <span className="material-symbols-rounded dos-upload-icon">upload_file</span>
+                    <span className="material-symbols-rounded dos-upload-icon" aria-hidden="true">upload_file</span>
                     <span className={'dos-upload-text' + (file ? ' has-file' : '')}>
                         {file ? file.name : 'Click to choose a CSV file…'}
                     </span>
@@ -485,12 +485,12 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                         onClick={handleSuspend}
                         disabled={suspending || !student}
                     >
-                        <span className="material-symbols-rounded icon-sm">{isSuspended ? 'check_circle' : 'block'}</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">{isSuspended ? 'check_circle' : 'block'}</span>
                         {suspending ? '…' : isSuspended ? 'Reinstate' : 'Suspend'}
                     </button>
                     <button className="btn btn-outline btn-sm dos-btn-inline" onClick={handleDownloadReportCard}
                         disabled={downloading || !student}>
-                        <span className="material-symbols-rounded icon-sm">picture_as_pdf</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">picture_as_pdf</span>
                         {downloading ? 'Generating…' : 'Report Card'}
                     </button>
                     <button className="btn btn-primary btn-sm" onClick={onClose}>{t('common.close')}</button>
@@ -597,7 +597,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                     <p className="teacher-modal-section-label">{t('dos.students.classManagement')}</p>
                     {!changeClassOpen ? (
                         <button className="btn btn-outline btn-sm dos-btn-full" onClick={() => setChangeClassOpen(true)}>
-                            <span className="material-symbols-rounded icon-sm">swap_horiz</span> {t('dos.students.changeClass')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">swap_horiz</span> {t('dos.students.changeClass')}
                         </button>
                     ) : (
                         <div className="dos-inline-panel">
@@ -667,7 +667,7 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
     return (
         <div className="card dos-inv-card">
             <div className="dos-inv-header">
-                <span className="material-symbols-rounded dos-inv-header-icon">mark_email_read</span>
+                <span className="material-symbols-rounded dos-inv-header-icon" aria-hidden="true">mark_email_read</span>
                 <span className="dos-inv-title">{t('dos.students.invitationHistory')}</span>
                 <span className="dos-inv-count">
                     {invitations.length}
@@ -710,7 +710,7 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                             if (inv.is_used) {
                                 statusEl = (
                                     <span className="dos-inv-status ok dos-inv-status-flex">
-                                        <span className="material-symbols-rounded dos-inv-status-icon">check_circle</span>{t('common.registered')}
+                                        <span className="material-symbols-rounded dos-inv-status-icon" aria-hidden="true">check_circle</span>{t('common.registered')}
                                     </span>
                                 )
                             } else if (inv.is_expired) {
@@ -740,12 +740,12 @@ function InvitationHistory({ invitations, onResend, onCancel }) {
                                         {!inv.is_used && (
                                             <div className="dos-inv-actions">
                                                 <button className="btn btn-outline btn-sm" disabled={resending === inv.id} onClick={() => doResend(inv.id)}>
-                                                    <span className="material-symbols-rounded icon-sm">send</span>
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                                                     {resending === inv.id ? 'Sending…' : 'Resend'}
                                                 </button>
                                                 <button className="btn btn-sm dos-btn-cancel"
                                                     disabled={cancelling === inv.id} onClick={() => doCancel(inv.id)}>
-                                                    <span className="material-symbols-rounded icon-sm">cancel</span>
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">cancel</span>
                                                     {cancelling === inv.id ? '…' : 'Cancel'}
                                                 </button>
                                             </div>
@@ -917,10 +917,10 @@ export function DosStudents() {
                             />
                             <div className="toolbar-spacer" />
                             <button className="btn btn-outline btn-sm" onClick={handleExport} disabled={!filtered.length}>
-                                <span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span> {t('common.export')}
                             </button>
                             <button className="btn btn-primary btn-sm" onClick={() => setInviteOpen(true)}>
-                                <span className="material-symbols-rounded icon-sm">send</span> {t('dos.students.inviteStudent')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span> {t('dos.students.inviteStudent')}
                             </button>
                         </div>
 

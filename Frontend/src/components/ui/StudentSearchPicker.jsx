@@ -142,7 +142,7 @@ export function StudentSearchPicker({
                 />
                 {searching && (
                     <span className="material-symbols-rounded student-picker-spin"
-                          role="status" aria-label={t('common.searching')}>
+                          role="status" aria-label={t('common.searching')} aria-hidden="true">
                         progress_activity
                     </span>
                 )}

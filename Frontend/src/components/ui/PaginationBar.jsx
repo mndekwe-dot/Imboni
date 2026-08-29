@@ -29,19 +29,19 @@ export function PaginationBar({ page, totalPages, totalCount, label, onPage }) {
             <div className="pagination-controls">
                 <button className="pagination-btn" disabled={first}
                     aria-label="First page" onClick={() => onPage(1)}>
-                    <span className="material-symbols-rounded">first_page</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">first_page</span>
                 </button>
                 <button className="pagination-btn" disabled={first}
                     aria-label="Previous page" onClick={() => onPage(page - 1)}>
-                    <span className="material-symbols-rounded">chevron_left</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                 </button>
                 <button className="pagination-btn" disabled={last}
                     aria-label="Next page" onClick={() => onPage(page + 1)}>
-                    <span className="material-symbols-rounded">chevron_right</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                 </button>
                 <button className="pagination-btn" disabled={last}
                     aria-label="Last page" onClick={() => onPage(totalPages)}>
-                    <span className="material-symbols-rounded">last_page</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">last_page</span>
                 </button>
             </div>
         </div>

@@ -7,7 +7,7 @@ function Component({ c }) {
     return (
         <div className="card pf-health-comp">
             <div className="card-content">
-                <span className={`material-symbols-rounded pf-health-icon ${c.ok ? 'ok' : 'bad'}`}>
+                <span className={`material-symbols-rounded pf-health-icon ${c.ok ? 'ok' : 'bad'}`} aria-hidden="true">
                     {c.ok ? 'check_circle' : 'error'}
                 </span>
                 <div>

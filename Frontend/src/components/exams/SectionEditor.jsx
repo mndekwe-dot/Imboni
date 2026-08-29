@@ -53,15 +53,15 @@ export function SectionEditor({
                 <div className="flex-row-gap-sm">
                     <button type="button" className="btn btn-outline btn-sm" disabled={isFirst}
                         onClick={onMoveUp} title={t('common.moveUp')}>
-                        <span className="material-symbols-rounded icon-sm">arrow_upward</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_upward</span>
                     </button>
                     <button type="button" className="btn btn-outline btn-sm" disabled={isLast}
                         onClick={onMoveDown} title={t('common.moveDown')}>
-                        <span className="material-symbols-rounded icon-sm">arrow_downward</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_downward</span>
                     </button>
                     <button type="button" className="btn btn-outline btn-sm" onClick={onRemove}
                         title={t('teacher.exams.removeSection')}>
-                        <span className="material-symbols-rounded icon-sm">delete</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                     </button>
                 </div>
             </div>
@@ -125,7 +125,7 @@ export function SectionEditor({
 
                 <button type="button" className="btn btn-outline btn-sm u-self-start"
                     onClick={() => set('questions', [...questions, newExamQuestion()])}>
-                    <span className="material-symbols-rounded icon-sm">add</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                     {t('teacher.exams.addQuestion')}
                 </button>
             </div>

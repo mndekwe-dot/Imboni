@@ -82,7 +82,7 @@ function DeleteModal({ target, onClose, onConfirm }) {
                 <div className="modal-confirm-actions">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary btn-destructive" onClick={onConfirm}>
-                        <span className="material-symbols-rounded">delete</span> {t('common.delete')}
+                        <span className="material-symbols-rounded" aria-hidden="true">delete</span> {t('common.delete')}
                     </button>
                 </div>
             </div>
@@ -101,7 +101,7 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
             style={{ '--cat-accent': cat.borderColor, '--cat-badge': cat.badge, '--cat-text': cat.text }}
         >
             <div className="adm-ann-icon">
-                <span className="material-symbols-rounded">{cat.icon}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{cat.icon}</span>
             </div>
 
             <div className="adm-ann-body">
@@ -129,18 +129,18 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
 
                 <div className="adm-ann-actions">
                     <button className="adm-btn" onClick={() => onEdit(ann)}>
-                        <span className="material-symbols-rounded">edit</span> {t('common.edit')}
+                        <span className="material-symbols-rounded" aria-hidden="true">edit</span> {t('common.edit')}
                     </button>
                     {ann.status === 'draft' && (
                         <button
                             className="adm-btn primary"
                             onClick={() => onPublish(ann)}
                         >
-                            <span className="material-symbols-rounded">send</span> {t('common.publish')}
+                            <span className="material-symbols-rounded" aria-hidden="true">send</span> {t('common.publish')}
                         </button>
                     )}
                     <button className="adm-btn danger" onClick={() => onDelete(ann)} title={t('common.delete')}>
-                        <span className="material-symbols-rounded">delete</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">delete</span>
                     </button>
                 </div>
             </div>
@@ -253,11 +253,11 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
 
             <div className="u-row-sm u-wrap u-pt-xs">
                 <button className="btn btn-primary" disabled={saving} onClick={() => handleSubmit('published')}>
-                    <span className="material-symbols-rounded">send</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">send</span>
                     {saving ? t('announcements.publishing') : t('common.publish')}
                 </button>
                 <button className="btn btn-outline" disabled={saving} onClick={() => handleSubmit('draft')}>
-                    <span className="material-symbols-rounded">save</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">save</span>
                     {t('announcements.saveDraft')}
                 </button>
                 <button className="btn btn-secondary" onClick={onCancel}>{t('common.cancel')}</button>
@@ -433,7 +433,7 @@ export function AdminAnnouncements() {
                                         onClick={() => { setComposing(false); setEditing(null) }}
                                         title={t('common.close')}
                                     >
-                                        <span className="material-symbols-rounded">close</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                     </button>
                                 </div>
                                 <div className="card-content">
@@ -478,7 +478,7 @@ export function AdminAnnouncements() {
                                     className="btn btn-primary btn-sm"
                                     onClick={() => { setEditing(null); setComposing(true) }}
                                 >
-                                    <span className="material-symbols-rounded">add</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">add</span>
                                     {t('announcements.newAnnouncementTitle')}
                                 </button>
                             )}

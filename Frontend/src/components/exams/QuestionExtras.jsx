@@ -58,20 +58,20 @@ export function QuestionExtras({ q, onChange }) {
                             <input className="form-control" value={pair.left}
                                 onChange={e => setPair(i, 'left', e.target.value)}
                                 placeholder={t('teacher.exams.columnA')} />
-                            <span className="material-symbols-rounded icon-sm">arrow_forward</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_forward</span>
                             <input className="form-control" value={pair.right}
                                 onChange={e => setPair(i, 'right', e.target.value)}
                                 placeholder={t('teacher.exams.columnB')} />
                             <button type="button" className="btn btn-outline btn-sm"
                                 onClick={() => set('pairs', pairs.filter((_, x) => x !== i))}
                                 title={t('common.remove')}>
-                                <span className="material-symbols-rounded icon-sm">close</span>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span>
                             </button>
                         </div>
                     ))}
                     <button type="button" className="btn btn-outline btn-sm u-self-start"
                         onClick={() => set('pairs', [...pairs, { left: '', right: '' }])}>
-                        <span className="material-symbols-rounded icon-sm">add</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                         {t('teacher.exams.addPair')}
                     </button>
                 </div>
@@ -88,7 +88,7 @@ export function QuestionExtras({ q, onChange }) {
                                 <button key={space.value} type="button"
                                     className={`btn btn-sm ${q.answer_space === space.value ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => set('answer_space', space.value)}>
-                                    <span className="material-symbols-rounded icon-sm">{space.icon}</span>
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">{space.icon}</span>
                                     {t(space.labelKey)}
                                 </button>
                             ))}
@@ -132,7 +132,7 @@ export function QuestionExtras({ q, onChange }) {
                             <button type="button" className="btn btn-outline btn-sm"
                                 onClick={() => set('parts', parts.filter((_, x) => x !== i))}
                                 title={t('common.remove')}>
-                                <span className="material-symbols-rounded icon-sm">close</span>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span>
                             </button>
                         </div>
 
@@ -142,7 +142,7 @@ export function QuestionExtras({ q, onChange }) {
                                     className={`btn btn-sm ${part.answer_space === space.value ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setPart(i, { ...part, answer_space: space.value })}
                                     title={t(space.labelKey)}>
-                                    <span className="material-symbols-rounded icon-sm">{space.icon}</span>
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">{space.icon}</span>
                                 </button>
                             ))}
                             {/* The expected answer for this part, printed on the
@@ -156,7 +156,7 @@ export function QuestionExtras({ q, onChange }) {
 
                 <button type="button" className="btn btn-outline btn-sm u-self-start"
                     onClick={() => set('parts', [...parts, newPart()])}>
-                    <span className="material-symbols-rounded icon-sm">subdirectory_arrow_right</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">subdirectory_arrow_right</span>
                     {t('teacher.exams.addPart')}
                 </button>
                 <p className="u-sm u-muted">{t('teacher.exams.partsHint')}</p>

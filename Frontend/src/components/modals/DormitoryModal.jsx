@@ -74,15 +74,15 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
 
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded dmod-title-icon">
+                        <span className="material-symbols-rounded dmod-title-icon" aria-hidden="true">
                             {isEditing ? 'edit' : 'add_home'}
                         </span>
                         <h2 className="modal-title">
                             {isEditing ? t('modals.dormitory.editTitle') : t('modals.dormitory.addTitle')}
                         </h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
 
@@ -153,7 +153,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                     {/* ── Chambers ── */}
                     <div className="dmod-section">
                         <div className="dmod-section-title">
-                            <span className="material-symbols-rounded">meeting_room</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">meeting_room</span>
                             {t('modals.dormitory.chambers', { count: chambers.length })}
                         </div>
 
@@ -166,7 +166,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                             <div className="dmod-list">
                                 {chambers.map(ch => (
                                     <div key={ch.id} className="dmod-row">
-                                        <span className="material-symbols-rounded dmod-row-icon">meeting_room</span>
+                                        <span className="material-symbols-rounded dmod-row-icon" aria-hidden="true">meeting_room</span>
                                         <span className="dmod-row-name">{ch.name}</span>
                                         <span className="dmod-row-meta">{t('modals.dormitory.roomRange', { from: ch.roomStart, to: ch.roomEnd })}</span>
                                         <button
@@ -174,7 +174,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                                             onClick={() => removeChamber(ch.id)}
                                             title={t('modals.dormitory.removeChamber')}
                                         >
-                                            <span className="material-symbols-rounded dmod-row-delete">delete</span>
+                                            <span className="material-symbols-rounded dmod-row-delete" aria-hidden="true">delete</span>
                                         </button>
                                     </div>
                                 ))}
@@ -221,7 +221,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                                 className="btn btn-outline btn-sm dmod-add-btn"
                                 onClick={addChamber}
                             >
-                                <span className="material-symbols-rounded">add</span> {t('modals.dormitory.addChamber')}
+                                <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('modals.dormitory.addChamber')}
                             </button>
                         </div>
                     </div>
@@ -231,7 +231,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={!canSave}>
-                        <span className="material-symbols-rounded">{isEditing ? 'save' : 'add_home'}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{isEditing ? 'save' : 'add_home'}</span>
                         {isEditing ? t('common.saveChanges') : t('modals.dormitory.addTitle')}
                     </button>
                 </div>

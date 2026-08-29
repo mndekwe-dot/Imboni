@@ -47,10 +47,10 @@ export function EditActivityModal({ activity, onClose, onSave }) {
             <div className="modal-box modal-box-lg" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded modal-title-icon--discipline">edit</span>
+                        <span className="material-symbols-rounded modal-title-icon--discipline" aria-hidden="true">edit</span>
                         <h2 className="modal-title">{t('modals.activity.editTitle')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
 
                 <div className="modal-body">
@@ -105,7 +105,7 @@ export function EditActivityModal({ activity, onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                        <span className="material-symbols-rounded">save</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">save</span>
                         {saving ? t('common.saving') : t('common.saveChanges')}
                     </button>
                 </div>

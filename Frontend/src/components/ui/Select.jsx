@@ -48,7 +48,7 @@ export function Select({ value, onChange, options, placeholder = 'Select...', st
         <div className="cs-wrap" ref={ref} style={style}>
             <button type="button" className="cs-trigger form-input" onClick={() => setOpen(o => !o)}>
                 <span>{selected ? selected.label : placeholder}</span>
-                <span className="material-symbols-rounded icon-sm">
+                <span className="material-symbols-rounded icon-sm" aria-hidden="true">
                     {open ? 'expand_less' : 'expand_more'}
                 </span>
             </button>

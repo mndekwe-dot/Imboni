@@ -46,14 +46,14 @@ export function ToastProvider({ children }) {
             <div className="toast-container" role="region" aria-label="Notifications" aria-live="polite">
                 {toasts.map(t => (
                     <div key={t.id} className={`toast toast-${t.type}`} role="alert">
-                        <span className="material-symbols-rounded toast-icon">{ICONS[t.type] || 'info'}</span>
+                        <span className="material-symbols-rounded toast-icon" aria-hidden="true">{ICONS[t.type] || 'info'}</span>
                         <span className="toast-message">{t.message}</span>
                         <button
                             className="toast-close"
                             aria-label="Dismiss notification"
                             onClick={() => dismiss(t.id)}
                         >
-                            <span className="material-symbols-rounded">close</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </div>
                 ))}

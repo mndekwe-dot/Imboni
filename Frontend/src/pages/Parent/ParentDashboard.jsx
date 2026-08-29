@@ -49,7 +49,7 @@ function AssessmentItem({ title, assessment_type, date, score_display, grade }) 
     return (
         <div className="assessment-item">
             <div className={`assessment-icon ${iconClass}`}>
-                <span className="material-symbols-rounded">{icon}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
             </div>
             <div className="assessment-info">
                 <p className="font-bold">{title}</p>

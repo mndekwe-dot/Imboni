@@ -46,7 +46,7 @@ function InlineSelect({ value, onChange, options, placeholder }) {
             <button type="button" onClick={() => setOpen(o => !o)}
                 className={`inline-select-btn${value ? ' has-value' : ''}`}>
                 {label}
-                <span className="material-symbols-rounded">{open ? 'expand_less' : 'expand_more'}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{open ? 'expand_less' : 'expand_more'}</span>
             </button>
             {open && (
                 <div className="inline-select-menu">
@@ -77,7 +77,7 @@ function FormSelect({ value, onChange, options, placeholder }) {
             <button type="button" onClick={() => setOpen(o => !o)}
                 className={`form-select-btn${selected ? ' has-value' : ''}`}>
                 <span>{selected ? selected.label : placeholder}</span>
-                <span className="material-symbols-rounded">{open ? 'expand_less' : 'expand_more'}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{open ? 'expand_less' : 'expand_more'}</span>
             </button>
             {open && (
                 <div className="form-select-menu">
@@ -154,7 +154,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                 <div className="modal-confirm-actions u-full">
                     <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" disabled={!isValid} onClick={handleSave}>
-                        <span className="material-symbols-rounded icon-sm">{isEdit ? 'save' : 'person_add'}</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">{isEdit ? 'save' : 'person_add'}</span>
                         {isEdit ? 'Save Changes' : 'Add Teacher'}
                     </button>
                 </div>
@@ -295,7 +295,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
         <Modal title={t('dos.teachers.invitationSent')} icon="mark_email_read" onClose={onClose}
             footer={<div className="modal-confirm-actions u-full"><button className="btn btn-primary" onClick={onClose}>{t('common.done')}</button></div>}>
             <div className="dt-modal-success">
-                <span className="material-symbols-rounded dt-success-icon">check_circle</span>
+                <span className="material-symbols-rounded dt-success-icon" aria-hidden="true">check_circle</span>
                 <p className="dt-success-title">Invitation sent to {form.email}</p>
                 <p className="dt-success-note">
                     {form.first_name} will receive an email with a secure link to set up their account.
@@ -311,14 +311,14 @@ function InviteTeacherModal({ onClose, onInvite }) {
                 <div className="modal-confirm-actions u-full">
                     <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" disabled={!isValid || sending} onClick={handleSend}>
-                        <span className="material-symbols-rounded icon-sm">send</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                         {sending ? 'Sending…' : 'Send Invitation'}
                     </button>
                 </div>
             }
         >
             <div className="dt-info-box">
-                <span className="material-symbols-rounded dt-info-icon">info</span>
+                <span className="material-symbols-rounded dt-info-icon" aria-hidden="true">info</span>
                 <p className="dt-info-text">
                     An email will be sent with a secure registration link. The teacher sets their own password. You never need to share credentials.
                 </p>
@@ -382,7 +382,7 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
     return (
         <div className="card pinv-card">
             <div className="pinv-hdr">
-                <span className="material-symbols-rounded pinv-hdr-icon">schedule_send</span>
+                <span className="material-symbols-rounded pinv-hdr-icon" aria-hidden="true">schedule_send</span>
                 <span className="pinv-hdr-title">{t('dos.teachers.pendingInvitations')}</span>
                 <span className="pinv-count">
                     {invitations.length}
@@ -430,13 +430,13 @@ function PendingInvitationsCard({ invitations, onResend, onCancel }) {
                                 <td className="pinv-td last">
                                     <div className="pinv-actions">
                                         <button className="btn btn-outline btn-sm" disabled={resending === inv.id} onClick={() => doResend(inv.id)}>
-                                            <span className="material-symbols-rounded icon-sm">send</span>
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                                             {resending === inv.id ? 'Sending…' : 'Resend'}
                                         </button>
                                         <button className="btn btn-sm pinv-cancel"
                                             disabled={cancelling === inv.id}
                                             onClick={() => doCancel(inv.id)}>
-                                            <span className="material-symbols-rounded icon-sm">cancel</span>
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">cancel</span>
                                             {cancelling === inv.id ? '…' : 'Cancel'}
                                         </button>
                                     </div>
@@ -588,7 +588,7 @@ export function DosTeachers() {
                             <InlineSelect value={typeFilter} onChange={setTypeFilter} options={TYPES} placeholder={t('dos.teachers.allTypes')} />
                             <div className="toolbar-spacer" />
                             <button className="btn btn-primary" onClick={() => setAddOpen(true)}>
-                                <span className="material-symbols-rounded icon-sm">send</span> {t('dos.teachers.inviteTeacher')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span> {t('dos.teachers.inviteTeacher')}
                             </button>
                         </div>
 
@@ -621,7 +621,7 @@ export function DosTeachers() {
                                     </td>
                                     <td>
                                         <button className="btn btn-primary btn-sm" onClick={() => setEditing(teacher)}>
-                                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span> {t('common.edit')}
                                         </button>
                                     </td>
                                 </tr>

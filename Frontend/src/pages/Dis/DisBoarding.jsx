@@ -96,12 +96,12 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded disc-modal-icon">
+                        <span className="material-symbols-rounded disc-modal-icon" aria-hidden="true">
                             {isEditing ? 'edit' : 'hotel'}
                         </span>
                         <h2 className="modal-title">{isEditing ? t('common.edit') : t('dis.boarding.assign')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
 
                 <div className="modal-body">
@@ -197,7 +197,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || (!isEditing && !selectedStudent)}>
-                        <span className="material-symbols-rounded">{isEditing ? 'save' : 'hotel'}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{isEditing ? 'save' : 'hotel'}</span>
                         {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('dis.boarding.assign')}
                     </button>
                 </div>
@@ -209,6 +209,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
 // ── Boarding Row ──────────────────────────────────────────────────────────────
 
 function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
+    const { t } = useTranslation()
     const [confirmDelete, setConfirmDelete] = useState(false)
     const { student_name, student_id, grade, section, dormitory, room_number, bed_number, boarding_type, check_in_date } = record
     const cls         = `${grade || ''}${section || ''}`
@@ -235,11 +236,11 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
                     </>
                 ) : (
                     <>
-                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(record)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span>
+                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(record)} aria-label={t('common.edit')}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span>
                         </button>
-                        <button className="btn btn-outline btn-sm dis-btn-del" onClick={() => setConfirmDelete(true)}>
-                            <span className="material-symbols-rounded icon-sm">delete</span>
+                        <button className="btn btn-outline btn-sm dis-btn-del" onClick={() => setConfirmDelete(true)} aria-label={t('common.delete')}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                         </button>
                     </>
                 )}
@@ -378,7 +379,7 @@ export function DisBoarding() {
                             <div className="card mb-1-5">
                                 <div className="card-header">
                                     <h2 className="card-title">
-                                        <span className="material-symbols-rounded dis-inline-icon">hotel</span>
+                                        <span className="material-symbols-rounded dis-inline-icon" aria-hidden="true">hotel</span>
                                         {t('dis.boarding.occupancy')}
                                     </h2>
                                     <span className="dis-occ-note">
@@ -453,7 +454,7 @@ export function DisBoarding() {
                                 </select>
 
                                 <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-                                    <span className="material-symbols-rounded">add</span> {t('dis.boarding.assign')}
+                                    <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dis.boarding.assign')}
                                 </button>
                             </div>
                         </div>

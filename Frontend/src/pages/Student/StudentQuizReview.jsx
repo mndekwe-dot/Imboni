@@ -30,7 +30,7 @@ function ReviewQuestion({ q, qi }) {
                     <span className="sqz-q-points">
                         {q.points_earned ?? 0}/{q.points} pt{q.points !== 1 ? 's' : ''}
                     </span>
-                    <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }}>
+                    <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }} aria-hidden="true">
                         {isCorrect ? 'check_circle' : 'cancel'}
                     </span>
                 </div>
@@ -55,7 +55,7 @@ function ReviewQuestion({ q, qi }) {
                 )}
                 {q.explanation && (
                     <div className="sqz-review-expl">
-                        <span className="material-symbols-rounded sqz-expl-icon">lightbulb</span>
+                        <span className="material-symbols-rounded sqz-expl-icon" aria-hidden="true">lightbulb</span>
                         {q.explanation}
                     </div>
                 )}
@@ -101,7 +101,7 @@ export function StudentQuizReview() {
             {/* Header */}
             <button className="btn btn-outline btn-sm u-mb"
                 onClick={() => navigate('/student/assignments')}>
-                <span className="material-symbols-rounded icon-sm">arrow_back</span>
+                <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
                 Back to Assignments
             </button>
 

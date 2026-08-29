@@ -62,7 +62,7 @@ function PostManager({ posts, onCreate, onUpdate, onDelete }) {
                         </label>
                         <button className="btn-icon-clean dos-danger-text" title={t('dos.duty.deletePost')}
                                 onClick={() => onDelete(p.id)}>
-                            <span className="material-symbols-rounded u-fs-095">delete</span>
+                            <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                         </button>
                     </div>
                 ))}
@@ -306,7 +306,7 @@ export function DutyRosterTab() {
                         <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}
                                 disabled={!hasActivePost}
                                 title={hasActivePost ? undefined : t('dos.duty.generateNeedsPosts')}>
-                            <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
+                            <span className="material-symbols-rounded" aria-hidden="true">auto_awesome</span> {t('dos.examSchedule.generate')}
                         </button>
                     </div>
                 </div>

@@ -17,7 +17,7 @@ export function StatCard({ icon, value, label, trend, trendClass = '', colorClas
     return (
         <div className={`portal-stat-card${colorClass ? ' ' + colorClass : ''}${className ? ' ' + className : ''}`}>
             <div className={`portal-stat-icon${colorClass ? ' ' + colorClass : ''}`}>
-                <span className="material-symbols-rounded">{icon}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
             </div>
             <div>
                 <div className="portal-stat-value">{value}</div>

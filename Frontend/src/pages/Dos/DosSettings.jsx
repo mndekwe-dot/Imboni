@@ -87,11 +87,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                         <span className="dset-type-title">{typeName}</span>
                         <span className="dset-type-count">{t('settings.lessonCount', { count: subjects.length })}</span>
                         <button className="btn-icon-clean dset-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')}>
-                            <span className="material-symbols-rounded u-fs-1">edit</span>
+                            <span className="material-symbols-rounded u-fs-1" aria-hidden="true">edit</span>
                         </button>
                         <div className="dset-spacer" />
                         <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteType(typeName)} title={t('settings.deleteTypeAndLessons')}>
-                            <span className="material-symbols-rounded u-fs-1">delete</span>
+                            <span className="material-symbols-rounded u-fs-1" aria-hidden="true">delete</span>
                         </button>
                     </>
                 )}
@@ -126,10 +126,10 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                                 title={t('dos.settings.timetableWeightTitle', { subject: s.name })}
                             />
                             <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title={t('common.rename')}>
-                                <span className="material-symbols-rounded u-fs-095">edit</span>
+                                <span className="material-symbols-rounded u-fs-095" aria-hidden="true">edit</span>
                             </button>
                             <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')}>
-                                <span className="material-symbols-rounded u-fs-095">delete</span>
+                                <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                             </button>
                         </>
                     )}
@@ -149,7 +149,7 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
                     placeholder={t('settings.lessonCodePlaceholder')} />
                 <button className="btn btn-outline btn-sm" onClick={handleAddLesson}>
-                    <span className="material-symbols-rounded icon-sm">add</span> {t('settings.lesson')}
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.lesson')}
                 </button>
             </div>
             {lessonErr && <p className="dset-inline-err">{lessonErr}</p>}
@@ -332,7 +332,7 @@ export function DosSettings() {
                         {config.length === 0 && (
                             <div className="card mb-1-5 u-banner u-banner--primary">
                                 <div className="u-row">
-                                    <span className="material-symbols-rounded u-banner-icon">info</span>
+                                    <span className="material-symbols-rounded u-banner-icon" aria-hidden="true">info</span>
                                     <div>
                                         <p className="u-strong u-mb-025">{t('dos.settings.gettingStarted')}</p>
                                         <p className="dset-notice-desc">
@@ -383,7 +383,7 @@ export function DosSettings() {
                                             placeholder={t('settings.egSciences')}
                                         />
                                         <button className="btn btn-primary btn-sm" onClick={handleAddType}>
-                                            <span className="material-symbols-rounded icon-sm">add</span> {t('settings.addType')}
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.addType')}
                                         </button>
                                     </div>
                                 </div>
@@ -432,7 +432,7 @@ export function DosSettings() {
                                             placeholder={t('settings.roomPlaceholder')}
                                         />
                                         <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
-                                            <span className="material-symbols-rounded icon-sm">add</span> {t('common.add')}
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                                         </button>
                                     </div>
                                     {roomErr && <p className="dset-inline-err">{roomErr}</p>}
@@ -441,10 +441,10 @@ export function DosSettings() {
                                 <div className="tag-list u-mt-075">
                                     {rooms.map(r => (
                                         <span key={r.id} className="tag-chip">
-                                            <span className="material-symbols-rounded dset-room-icon">meeting_room</span>
+                                            <span className="material-symbols-rounded dset-room-icon" aria-hidden="true">meeting_room</span>
                                             {r.name}
-                                            <button className="tag-chip-remove" onClick={() => handleDeleteRoom(r.id)}>
-                                                <span className="material-symbols-rounded">close</span>
+                                            <button className="tag-chip-remove" onClick={() => handleDeleteRoom(r.id)} aria-label={t('common.close')}>
+                                                <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                             </button>
                                         </span>
                                     ))}

@@ -31,8 +31,8 @@ function TagList({ items, onRemove }) {
             {items.map(item => (
                 <span key={item} className="tag-chip">
                     {item}
-                    <button className="tag-chip-remove" onClick={() => onRemove(item)}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="tag-chip-remove" onClick={() => onRemove(item)} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </span>
             ))}
@@ -67,7 +67,7 @@ function ConfigSection({ title, description, items, onAdd, onRemove, placeholder
                     placeholder={placeholder}
                 />
                 <button className="btn btn-primary btn-sm" onClick={handleAdd}>
-                    <span className="material-symbols-rounded icon-sm">add</span> {t('common.add')}
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                 </button>
             </div>
             <TagList items={items} onRemove={onRemove} />
@@ -94,7 +94,7 @@ function YearInput({ onAdd }) {
                 placeholder={t('settings.structure.yearPlaceholder')}
             />
             <button className="btn btn-primary btn-sm" onClick={handle}>
-                <span className="material-symbols-rounded icon-sm">add</span> {t('settings.structure.addYear')}
+                <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.structure.addYear')}
             </button>
         </div>
     )
@@ -138,11 +138,11 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                     <>
                         <span className="adm-editblock-title">{year.name}</span>
                         <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditing(true)} title={t('settings.structure.renameYear')}>
-                            <span className="material-symbols-rounded u-fs-1">edit</span>
+                            <span className="material-symbols-rounded u-fs-1" aria-hidden="true">edit</span>
                         </button>
                         <div className="adm-spacer" />
                         <button className="btn-icon-clean adm-icon-danger" onClick={onRemove} title={t('settings.structure.removeYear')}>
-                            <span className="material-symbols-rounded u-fs-1">delete</span>
+                            <span className="material-symbols-rounded u-fs-1" aria-hidden="true">delete</span>
                         </button>
                     </>
                 )}
@@ -152,8 +152,8 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                 {year.streams.map(s => (
                     <span key={s} className="tag-chip">
                         {s}
-                        <button className="tag-chip-remove" onClick={() => onRemoveStream(s)}>
-                            <span className="material-symbols-rounded">close</span>
+                        <button className="tag-chip-remove" onClick={() => onRemoveStream(s)} aria-label={t('common.close')}>
+                            <span className="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </span>
                 ))}
@@ -169,7 +169,7 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                     placeholder={t('settings.structure.streamPlaceholder')}
                 />
                 <button className="btn btn-outline btn-sm" onClick={handleAddStream}>
-                    <span className="material-symbols-rounded icon-sm">add</span> {t('settings.structure.stream')}
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.structure.stream')}
                 </button>
             </div>
         </div>
@@ -272,7 +272,7 @@ export function SchoolStructureEditor({ showStats = true }) {
             {draft.length === 0 && (
                 <div className="card u-banner u-banner--primary u-mb">
                     <div className="u-row">
-                        <span className="material-symbols-rounded u-banner-icon">info</span>
+                        <span className="material-symbols-rounded u-banner-icon" aria-hidden="true">info</span>
                         <div>
                             <p className="u-strong u-mb-025">{t('settings.structure.gettingStarted')}</p>
                             <p className="u-muted u-sm">
@@ -327,7 +327,7 @@ export function SchoolStructureEditor({ showStats = true }) {
             {pendingRemovals && (
                 <div className="card u-banner u-banner--danger u-mb" role="alert">
                     <div className="u-row">
-                        <span className="material-symbols-rounded u-banner-icon">warning</span>
+                        <span className="material-symbols-rounded u-banner-icon" aria-hidden="true">warning</span>
                         <div>
                             <p className="u-strong u-mb-025">{t('settings.structure.removalTitle')}</p>
                             <ul className="u-muted u-sm u-mb-025">

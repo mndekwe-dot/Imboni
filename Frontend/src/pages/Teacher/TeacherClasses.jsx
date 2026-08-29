@@ -61,13 +61,13 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
                 <div className="class-schedule">
                     {cls.schedule_days && (
                         <div className="class-schedule-item">
-                            <span className="material-symbols-rounded icon-schedule">schedule</span>
+                            <span className="material-symbols-rounded icon-schedule" aria-hidden="true">schedule</span>
                             <span>{cls.schedule_days}{cls.schedule_time ? ` · ${cls.schedule_time.slice(0, 5)}` : ''}</span>
                         </div>
                     )}
                     {cls.room_number && (
                         <div className="class-schedule-item">
-                            <span className="material-symbols-rounded icon-schedule">room</span>
+                            <span className="material-symbols-rounded icon-schedule" aria-hidden="true">room</span>
                             <span>Room {cls.room_number}</span>
                         </div>
                     )}
@@ -76,11 +76,11 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
 
             <div className="class-actions">
                 <button className="btn btn-primary btn-sm" onClick={() => onOpenStudents(cls)}>
-                    <span className="material-symbols-rounded icon-sm">group</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">group</span>
                     {t('teacher.classes.viewStudents')}
                 </button>
                 <button className="btn btn-outline btn-sm" onClick={() => onEnterResults(cls)}>
-                    <span className="material-symbols-rounded icon-sm">edit_note</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit_note</span>
                     {t('teacher.classes.enterResults')}
                 </button>
             </div>
@@ -111,7 +111,7 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
     return (
         <Modal title={t('teacher.classes.panelTitle', { class: cls.class_name })} icon="group" onClose={onClose} size="wide">
             <div className="modal-search">
-                <span className="material-symbols-rounded">search</span>
+                <span className="material-symbols-rounded" aria-hidden="true">search</span>
                 <input
                     type="text"
                     placeholder={t('teacher.classes.searchStudents')}
@@ -119,15 +119,15 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
                     onChange={e => setSearch(e.target.value)}
                 />
                 {search && (
-                    <button onClick={() => setSearch('')} className="modal-search-clear">
-                        <span className="material-symbols-rounded">close</span>
+                    <button onClick={() => setSearch('')} className="modal-search-clear" aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 )}
             </div>
 
             {panelError && (
                 <p className="tc-panel-err">
-                    <span className="material-symbols-rounded tc-err-icon">error</span>
+                    <span className="material-symbols-rounded tc-err-icon" aria-hidden="true">error</span>
                     {panelError}
                 </p>
             )}
@@ -152,7 +152,7 @@ function StudentsPanel({ cls, onClose, onEnterResult }) {
                             </div>
                             <div className="stu-actions">
                                 <button className="btn btn-primary btn-sm" onClick={() => onEnterResult(student)}>
-                                    <span className="material-symbols-rounded icon-sm">edit_note</span>
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit_note</span>
                                     {t('teacher.classes.results')}
                                 </button>
                             </div>
@@ -288,7 +288,7 @@ function ResultsModal({ cls, onClose }) {
                             <div className="asgn-pick-title">{t('teacher.classes.newAssessment')}</div>
                             <div className="asgn-pick-meta">{t('teacher.classes.createNewMeta')}</div>
                         </div>
-                        <span className="material-symbols-rounded asgn-pick-chevron">chevron_right</span>
+                        <span className="material-symbols-rounded asgn-pick-chevron" aria-hidden="true">chevron_right</span>
                     </button>
                     {titles.map(title => (
                         <button key={title} className="asgn-pick-btn" onClick={() => openExisting(title)}>
@@ -296,7 +296,7 @@ function ResultsModal({ cls, onClose }) {
                                 <div className="asgn-pick-title">{title}</div>
                                 <div className="asgn-pick-meta">{t('teacher.classes.viewExistingMeta')}</div>
                             </div>
-                            <span className="material-symbols-rounded asgn-pick-chevron">chevron_right</span>
+                            <span className="material-symbols-rounded asgn-pick-chevron" aria-hidden="true">chevron_right</span>
                         </button>
                     ))}
                     {titles.length === 0 && (
@@ -319,7 +319,7 @@ function ResultsModal({ cls, onClose }) {
                 footer={
                     <div className="modal-footer-row">
                         <button className="btn btn-outline btn-sm mr-auto" onClick={() => setStep('pick')}>
-                            <span className="material-symbols-rounded icon-sm">arrow_back</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
                             {t('common.back')}
                         </button>
                         {error && <span className="results-warning">{error}</span>}
@@ -389,7 +389,7 @@ function ResultsModal({ cls, onClose }) {
             footer={
                 <div className="modal-footer-row">
                     <button className="btn btn-outline btn-sm mr-auto" onClick={() => setStep('pick')}>
-                        <span className="material-symbols-rounded icon-sm">arrow_back</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
                         {t('common.back')}
                     </button>
                     {error && <span className="results-warning">{error}</span>}
@@ -582,7 +582,7 @@ export function TeacherClasses() {
                                     <p className="tc-load-pad">{t('common.loadingClasses')}</p>
                                 ) : loadError ? (
                                     <div className="tc-load-err">
-                                        <span className="material-symbols-rounded tc-load-err-icon">error</span>
+                                        <span className="material-symbols-rounded tc-load-err-icon" aria-hidden="true">error</span>
                                         {loadError}
                                     </div>
                                 ) : visible.length === 0 ? (

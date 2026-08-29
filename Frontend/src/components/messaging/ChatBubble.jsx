@@ -40,7 +40,7 @@ export function ChatBubble({
                     {attachment ? (
                         /* File attachment bubble */
                         <div className="msg-attach">
-                            <span className="material-symbols-rounded">description</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">description</span>
                             <div className="msg-attach-main">
                                 <div className="msg-attach-name">
                                     {attachment.fileName}
@@ -48,7 +48,7 @@ export function ChatBubble({
                                 <div className="msg-attach-size">{attachment.fileSize}</div>
                             </div>
                             <button type="button" className="msg-attach-btn" title="Download">
-                                <span className="material-symbols-rounded">download</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">download</span>
                             </button>
                         </div>
                     ) : (

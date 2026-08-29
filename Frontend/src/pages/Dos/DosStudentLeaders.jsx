@@ -71,10 +71,10 @@ function LeaderFormModal({ leader, onClose, onSave, allClasses }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded">military_tech</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">military_tech</span>
                         <h2 className="modal-title">{isEdit ? t('dos.leaders.editLeader') : t('dos.leaders.appointLeader')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
                 <div className="modal-body">
                     {err && <p className="text-destructive dos-form-err">{err}</p>}
@@ -167,9 +167,9 @@ function ClubCard({ club, onToggle, onDelete }) {
                 </span>
             </div>
             <div className="staff-card-meta">
-                <span><span className="material-symbols-rounded">groups</span>{t('dos.leaders.memberCount', { enrolled: club.enrolled_count ?? 0, max: club.max_members })}</span>
-                {club.schedule && <span><span className="material-symbols-rounded">schedule</span>{club.schedule}</span>}
-                {club.venue    && <span><span className="material-symbols-rounded">location_on</span>{club.venue}</span>}
+                <span><span className="material-symbols-rounded" aria-hidden="true">groups</span>{t('dos.leaders.memberCount', { enrolled: club.enrolled_count ?? 0, max: club.max_members })}</span>
+                {club.schedule && <span><span className="material-symbols-rounded" aria-hidden="true">schedule</span>{club.schedule}</span>}
+                {club.venue    && <span><span className="material-symbols-rounded" aria-hidden="true">location_on</span>{club.venue}</span>}
             </div>
             <div className="staff-card-actions">
                 {confirmDelete ? (
@@ -180,11 +180,11 @@ function ClubCard({ club, onToggle, onDelete }) {
                     </>
                 ) : (
                     <>
-                        <button className="btn btn-outline btn-sm dos-btn-danger-outline" onClick={() => setConfirmDelete(true)}>
-                            <span className="material-symbols-rounded icon-sm">delete</span>
+                        <button className="btn btn-outline btn-sm dos-btn-danger-outline" onClick={() => setConfirmDelete(true)} aria-label={t('common.delete')}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                         </button>
                         <button className="btn btn-outline btn-sm" onClick={handleToggle} disabled={toggling}>
-                            <span className="material-symbols-rounded icon-sm">{club.is_active ? 'visibility_off' : 'visibility'}</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">{club.is_active ? 'visibility_off' : 'visibility'}</span>
                             {toggling ? '…' : club.is_active ? t('dos.leaders.deactivate') : t('dos.leaders.activate')}
                         </button>
                     </>
@@ -341,7 +341,7 @@ export function DosStudentLeaders() {
                         onNotificationRead={markRead}
                         actions={activeTab === 'leaders' && (
                             <button className="btn btn-primary" onClick={() => setShowAppoint(true)}>
-                                <span className="material-symbols-rounded">add</span> {t('dos.leaders.appointLeader')}
+                                <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dos.leaders.appointLeader')}
                             </button>
                         )}
                     />
@@ -355,7 +355,7 @@ export function DosStudentLeaders() {
                                 <div className="banner-title">{t('dos.leaders.bannerTitle')}</div>
                                 <div className="banner-sub">{t('dos.leaders.bannerDesc', { year: new Date().getFullYear() })}</div>
                             </div>
-                            <span className="material-symbols-rounded notice-banner-icon">military_tech</span>
+                            <span className="material-symbols-rounded notice-banner-icon" aria-hidden="true">military_tech</span>
                         </div>
 
                         <div className="portal-stat-grid">
@@ -366,10 +366,10 @@ export function DosStudentLeaders() {
 
                         <div className="filter-tabs-bar mb-5">
                             <button className={`filter-tab${activeTab === 'leaders' ? ' active' : ''}`} onClick={() => setActiveTab('leaders')}>
-                                <span className="material-symbols-rounded">military_tech</span> {t('dos.leaders.tabLeaders')}
+                                <span className="material-symbols-rounded" aria-hidden="true">military_tech</span> {t('dos.leaders.tabLeaders')}
                             </button>
                             <button className={`filter-tab${activeTab === 'clubs' ? ' active' : ''}`} onClick={() => setActiveTab('clubs')}>
-                                <span className="material-symbols-rounded">emoji_events</span> {t('dos.leaders.tabClubs')}
+                                <span className="material-symbols-rounded" aria-hidden="true">emoji_events</span> {t('dos.leaders.tabClubs')}
                                 {clubs.length > 0 && <span className="badge-count dos-badge-ml">{clubs.length}</span>}
                             </button>
                         </div>

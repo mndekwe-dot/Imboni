@@ -212,7 +212,7 @@ export function TeacherAttendance() {
 
                                 <div className="toolbar-card">
                                     <button className="btn btn-outline select-xs" onClick={markAllPresent} disabled={!classKey || loadingStudents}>
-                                        <span className="material-symbols-rounded icon-sm">done_all</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">done_all</span>
                                         Mark All Present
                                     </button>
                                     <OfflineIndicator />
@@ -309,7 +309,7 @@ export function TeacherAttendance() {
                                                 setAttendance(reset)
                                             }}>Reset</button>
                                             <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                                                <span className="material-symbols-rounded icon-sm">save</span>
+                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                                                 {saving ? 'Saving…' : 'Save Attendance'}
                                             </button>
                                         </div>

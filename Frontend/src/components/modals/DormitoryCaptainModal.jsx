@@ -62,12 +62,12 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded dmod-title-icon">
+                        <span className="material-symbols-rounded dmod-title-icon" aria-hidden="true">
                             {isEditing ? 'edit' : 'person_add'}
                         </span>
                         <h2 className="modal-title">{isEditing ? t('modals.captain.editTitle') : t('modals.captain.addTitle')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
 
                 <div className="modal-body">
@@ -108,7 +108,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                         </select>
                         {selectedDorm && (
                             <span className="dmod-note">
-                                <span className="material-symbols-rounded">
+                                <span className="material-symbols-rounded" aria-hidden="true">
                                     {selectedDorm.gender === 'Girls' ? 'female' : 'male'}
                                 </span>
                                 {' '}{selectedDorm.gender === 'Girls'
@@ -130,7 +130,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || (!isEditing && !selectedStudent) || !dormKey}>
-                        <span className="material-symbols-rounded">{isEditing ? 'save' : 'person_add'}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{isEditing ? 'save' : 'person_add'}</span>
                         {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('modals.captain.addCaptain')}
                     </button>
                 </div>

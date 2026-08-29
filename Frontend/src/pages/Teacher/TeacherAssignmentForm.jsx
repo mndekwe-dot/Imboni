@@ -247,13 +247,13 @@ export function TeacherAssignmentForm() {
 
                         <button type="button" className="btn btn-outline btn-sm u-mb u-self-start"
                             onClick={leave}>
-                            <span className="material-symbols-rounded icon-sm">arrow_back</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
                             {t('teacher.assignments.backToList')}
                         </button>
 
                         {loadError && (
                             <div className="alert alert-danger u-mb">
-                                <span className="material-symbols-rounded alert-icon">error</span>
+                                <span className="material-symbols-rounded alert-icon" aria-hidden="true">error</span>
                                 {loadError}
                             </div>
                         )}
@@ -277,7 +277,7 @@ export function TeacherAssignmentForm() {
                                                     aria-pressed={form.mode === m.key}
                                                     className={`mode-toggle-btn${form.mode === m.key ? ' active' : ''}`}>
                                                     <div className="mode-toggle-btn-header">
-                                                        <span className="material-symbols-rounded mode-toggle-btn-icon">{m.icon}</span>
+                                                        <span className="material-symbols-rounded mode-toggle-btn-icon" aria-hidden="true">{m.icon}</span>
                                                         <span className="mode-toggle-btn-label">{m.label}</span>
                                                     </div>
                                                     <div className="mode-toggle-btn-sub">{m.sub}</div>
@@ -393,18 +393,18 @@ export function TeacherAssignmentForm() {
                                     </span>
                                     {form.mode === 'online' && questions.length > 0 && (
                                         <button className="btn btn-outline" type="button" onClick={() => setShowPreview(true)}>
-                                            <span className="material-symbols-rounded icon-sm">preview</span>
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">preview</span>
                                             {t('teacher.assignments.preview')}
                                         </button>
                                     )}
                                     <button className="btn btn-outline" type="button" disabled={saving}
                                         onClick={() => handleSave('draft')}>
-                                        <span className="material-symbols-rounded icon-sm">save</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                                         {t('teacher.assignments.saveAsDraft')}
                                     </button>
                                     <button className="btn btn-primary" type="button" disabled={!isValid || saving}
                                         onClick={() => handleSave('active')}>
-                                        <span className="material-symbols-rounded icon-sm">publish</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">publish</span>
                                         {saving ? t('common.saving') : t('common.publish')}
                                     </button>
                                 </div>

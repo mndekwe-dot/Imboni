@@ -126,7 +126,7 @@ export function MatronDashboard() {
 
                             <div className="card">
                                 <div className="card-header">
-                                    <h3 className="card-title"><span className="material-symbols-rounded">fact_check</span> Tonight's Roll Call</h3>
+                                    <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">fact_check</span> Tonight's Roll Call</h3>
                                     <button className="btn btn-outline btn-sm">Full List</button>
                                 </div>
                                 <div className="card-content">
@@ -141,7 +141,7 @@ export function MatronDashboard() {
                             <div>
                                 <div className="card mb-5">
                                     <div className="card-header">
-                                        <h3 className="card-title"><span className="material-symbols-rounded">assignment_late</span> Reports to Discipline</h3>
+                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">assignment_late</span> Reports to Discipline</h3>
                                         <button className="btn btn-outline btn-sm">Report</button>
                                     </div>
                                     <div className="card-content">
@@ -155,14 +155,14 @@ export function MatronDashboard() {
 
                                 <div className="card">
                                     <div className="card-header">
-                                        <h3 className="card-title"><span className="material-symbols-rounded">bolt</span> Quick Actions</h3>
+                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">bolt</span> Quick Actions</h3>
                                     </div>
                                     <div className="card-content">
                                         <div className="btn-stack">
-                                            <button className="btn btn-primary"><span className="material-symbols-rounded">fact_check</span> Take Roll Call</button>
-                                            <button className="btn btn-outline"><span className="material-symbols-rounded">report</span> Report Incident to Discipline</button>
-                                            <button className="btn btn-outline"><span className="material-symbols-rounded">chat</span> Message Discipline Master</button>
-                                            <button className="btn btn-outline"><span className="material-symbols-rounded">schedule</span> View Daily Schedule</button>
+                                            <button className="btn btn-primary"><span className="material-symbols-rounded" aria-hidden="true">fact_check</span> Take Roll Call</button>
+                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">report</span> Report Incident to Discipline</button>
+                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">chat</span> Message Discipline Master</button>
+                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">schedule</span> View Daily Schedule</button>
                                         </div>
                                     </div>
                                 </div>

@@ -63,7 +63,7 @@ function AttendanceStat({ title, value, change, changeClass, iconClass, icon }) 
                     <span className={`stats-card-change ${changeClass}`}>{change}</span>
                 </div>
                 <div className={`stats-card-icon ${iconClass}`}>
-                    <span className="material-symbols-rounded">{icon}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
                 </div>
             </div>
         </div>
@@ -71,6 +71,7 @@ function AttendanceStat({ title, value, change, changeClass, iconClass, icon }) 
 }
 
 function AttendancePanel({ childId, childName, loading }) {
+    const { t } = useTranslation()
     const [stats,         setStats]         = useState(null)
     const [calendarDays,  setCalendarDays]  = useState([])
     const [loadingPanel,  setLoadingPanel]  = useState(true)
@@ -119,11 +120,11 @@ function AttendancePanel({ childId, childName, loading }) {
                 <div className="card-header">
                     <h3 className="card-title">{childName}: {MONTH_NAMES[month - 1]} {year}</h3>
                     <div className="u-row-sm">
-                        <button className="btn btn-outline btn-sm" onClick={prevMonth}>
-                            <span className="material-symbols-rounded">chevron_left</span>
+                        <button className="btn btn-outline btn-sm" onClick={prevMonth} aria-label={t('common.previous')}>
+                            <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                         </button>
-                        <button className="btn btn-outline btn-sm" onClick={nextMonth}>
-                            <span className="material-symbols-rounded">chevron_right</span>
+                        <button className="btn btn-outline btn-sm" onClick={nextMonth} aria-label={t('common.next')}>
+                            <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                         </button>
                     </div>
                 </div>

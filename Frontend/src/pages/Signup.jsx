@@ -139,7 +139,7 @@ export function Signup() {
         return (
             <div className="sgn-page">
                 <div className="sgn-wrap-center">
-                    <span className="material-symbols-rounded sgn-success-icon">check_circle</span>
+                    <span className="material-symbols-rounded sgn-success-icon" aria-hidden="true">check_circle</span>
                     <h1 className="sgn-success-title">
                         {result.school_name} is ready!
                     </h1>
@@ -179,7 +179,7 @@ export function Signup() {
             <div className="sgn-wrap">
 
                 <div className="sgn-header">
-                    <span className="material-symbols-rounded sgn-header-icon">add_business</span>
+                    <span className="material-symbols-rounded sgn-header-icon" aria-hidden="true">add_business</span>
                     <h1 className="sgn-header-title">Sign up your school</h1>
                     <p className="sgn-header-sub">
                         Create your school's own Imboni space in a couple of minutes.

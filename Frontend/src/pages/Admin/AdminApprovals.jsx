@@ -59,8 +59,8 @@ function RejectModal({ result, onClose, onDone }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2 className="modal-title">{t('admin.approvals.rejectTitle')}</h2>
-                    <button className="modal-close" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="modal-close" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
                 <form className="modal-body u-stack-1" onSubmit={handleSubmit}>
@@ -82,7 +82,7 @@ function RejectModal({ result, onClose, onDone }) {
                     <div className="u-row-sm u-justify-end">
                         <button type="button" className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                         <button type="submit" className="btn btn-primary btn-destructive" disabled={loading}>
-                            <span className="material-symbols-rounded">cancel</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
                             {loading ? t('admin.approvals.rejecting') : t('admin.approvals.rejectTitle')}
                         </button>
                     </div>
@@ -127,10 +127,10 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
                 <td>
                     <div className="u-flex u-gap-035">
                         <button className="adm-btn u-success" title={t('common.approve')} onClick={() => onApprove(result.id)}>
-                            <span className="material-symbols-rounded">check_circle</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                         </button>
                         <button className="adm-btn u-destructive" title={t('common.reject')} onClick={() => onReject(result)}>
-                            <span className="material-symbols-rounded">cancel</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
                         </button>
                     </div>
                 </td>
@@ -300,7 +300,7 @@ export function AdminApprovals() {
 
                             {activeTab === 'pending' && selected.size > 0 && (
                                 <button className="btn btn-primary btn-sm" onClick={handleBulkApprove} disabled={bulkLoading}>
-                                    <span className="material-symbols-rounded">done_all</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">done_all</span>
                                     {bulkLoading ? 'Approving…' : `Approve Selected (${selected.size})`}
                                 </button>
                             )}
@@ -328,7 +328,7 @@ export function AdminApprovals() {
                                     <p className="u-muted u-pad">Loading…</p>
                                 ) : results.length === 0 ? (
                                     <div className="u-center-text u-muted u-pad-xl">
-                                        <span className="material-symbols-rounded u-empty-icon-lg">
+                                        <span className="material-symbols-rounded u-empty-icon-lg" aria-hidden="true">
                                             {activeTab === 'pending' ? 'pending_actions' : activeTab === 'approved' ? 'check_circle' : 'cancel'}
                                         </span>
                                         No {activeTab} results.

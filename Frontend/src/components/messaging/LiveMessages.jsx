@@ -268,7 +268,7 @@ export function LiveMessages({
                                         <>
                                             <div className="thread-head">
                                                 <button className="back-btn" aria-label={t('messaging.backToConversations')} onClick={() => setShowThread(false)}>
-                                                    <span className="material-symbols-rounded">arrow_back</span>
+                                                    <span className="material-symbols-rounded" aria-hidden="true">arrow_back</span>
                                                 </button>
                                                 <div className={`thread-head-avatar ${roleClass(other?.role)}`}>
                                                     {initialsOf(other?.name)}
@@ -311,7 +311,7 @@ export function LiveMessages({
                                                 />
                                                 <button className="btn btn-primary send-btn" title={t('common.send')}
                                                     onClick={handleSend} disabled={sending || !draft.trim()}>
-                                                    <span className="material-symbols-rounded">send</span>
+                                                    <span className="material-symbols-rounded" aria-hidden="true">send</span>
                                                 </button>
                                             </div>
                                         </>
@@ -329,11 +329,11 @@ export function LiveMessages({
                     <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
                             <div className="modal-header-left">
-                                <span className="material-symbols-rounded">edit</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">edit</span>
                                 <h2 className="modal-title">{t('messaging.newMessage')}</h2>
                             </div>
-                            <button className="btn-icon-clean" onClick={() => setShowNew(false)}>
-                                <span className="material-symbols-rounded">close</span>
+                            <button className="btn-icon-clean" onClick={() => setShowNew(false)} aria-label={t('common.close')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">close</span>
                             </button>
                         </div>
                         <div className="modal-body">

@@ -105,7 +105,7 @@ describe('DosStudentLeaders', () => {
     fireEvent.click(screen.getByRole('button', { name: /Clubs & Activities/ }))
     await waitFor(() => expect(screen.getByText('Chess Club')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /delete/ }))
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }))
     fireEvent.click(screen.getByText('Yes, delete'))
 
     await waitFor(() => expect(deleteDosActivity).toHaveBeenCalledWith(1))

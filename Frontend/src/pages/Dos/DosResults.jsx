@@ -135,20 +135,20 @@ function ResultCard({ result, onReview, onView }) {
                 {result.status === 'pending' && (
                     <>
                         <button className="btn btn-primary btn-sm" onClick={() => onReview(result)}>
-                            <span className="material-symbols-rounded icon-sm">rate_review</span> Review
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">rate_review</span> Review
                         </button>
                         <button className="btn btn-outline btn-sm" onClick={() => onView(result)}>{t('dos.results.viewDetails')}</button>
                     </>
                 )}
                 {result.status === 'approved' && (
                     <button className="btn btn-outline btn-sm" onClick={() => onView(result)}>
-                        <span className="material-symbols-rounded icon-sm">visibility</span> View Details
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">visibility</span> View Details
                     </button>
                 )}
                 {result.status === 'rejected' && (
                     <>
                         <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onView(result)}>
-                            <span className="material-symbols-rounded icon-sm">info</span> View Feedback
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">info</span> View Feedback
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onReview(result)}>{t('dos.results.reReview')}</button>
                     </>
@@ -182,10 +182,10 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                     <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-outline btn-destructive-outline"
                         onClick={() => { onReject(result); onClose() }}>
-                        <span className="material-symbols-rounded icon-sm">cancel</span> Reject
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">cancel</span> Reject
                     </button>
                     <button className="btn btn-primary" onClick={() => { onApprove(result); onClose() }}>
-                        <span className="material-symbols-rounded icon-sm">check_circle</span> Approve
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">check_circle</span> Approve
                     </button>
                 </div>
             }
@@ -224,7 +224,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                         className={`btn btn-sm ${tab === t.key ? 'btn-primary' : 'btn-outline'}`}
                         onClick={() => setTab(t.key)}
                     >
-                        <span className="material-symbols-rounded icon-sm">{t.icon}</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">{t.icon}</span>
                         {t.label}
                     </button>
                 ))}
@@ -260,14 +260,14 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
             {tab === 'questions' && (
                 !result.questionPaper ? (
                     <div className="qp-empty">
-                        <span className="material-symbols-rounded qp-empty-icon">description</span>
+                        <span className="material-symbols-rounded qp-empty-icon" aria-hidden="true">description</span>
                         No question paper was attached for this submission.
                     </div>
                 ) : (
                     <div className="settings-form">
                         <div className="qp-file-card">
                             <div className="qp-file-icon">
-                                <span className="material-symbols-rounded">picture_as_pdf</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">picture_as_pdf</span>
                             </div>
                             <div className="qp-file-body">
                                 <div className="qp-file-name">{result.questionPaper.name}</div>
@@ -276,15 +276,15 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                                 </div>
                             </div>
                             <button className="btn btn-outline btn-sm">
-                                <span className="material-symbols-rounded icon-sm">download</span> Download
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span> Download
                             </button>
                         </div>
                         <div className="qp-preview">
-                            <span className="material-symbols-rounded qp-preview-icon">picture_as_pdf</span>
+                            <span className="material-symbols-rounded qp-preview-icon" aria-hidden="true">picture_as_pdf</span>
                             <div className="qp-preview-title">{result.questionPaper.name}</div>
                             <div className="qp-preview-meta">{result.questionPaper.pages} pages · {result.questionPaper.size}</div>
                             <button className="btn btn-primary btn-sm dos-mt-2xs">
-                                <span className="material-symbols-rounded icon-sm">open_in_new</span> Open Document
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">open_in_new</span> Open Document
                             </button>
                         </div>
                     </div>
@@ -295,7 +295,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
             {tab === 'marks' && (
                 result.studentMarks.length === 0 ? (
                     <div className="qp-empty">
-                        <span className="material-symbols-rounded qp-empty-icon dos-av-dim">people</span>
+                        <span className="material-symbols-rounded qp-empty-icon dos-av-dim" aria-hidden="true">people</span>
                         No student marks available for this submission.
                     </div>
                 ) : (
@@ -526,7 +526,7 @@ export function DosResults() {
                                     className={`btn btn-sm ${activeTab === t.key ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setActiveTab(t.key)}
                                 >
-                                    <span className="material-symbols-rounded icon-sm">{t.icon}</span>
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">{t.icon}</span>
                                     {t.label}
                                     {t.badge > 0 && (
                                         <span className="dos-tab-badge">
@@ -557,7 +557,7 @@ export function DosResults() {
                                 {/* Result cards */}
                                 {visible.length === 0 ? (
                                     <div className="qp-empty">
-                                        <span className="material-symbols-rounded qp-empty-icon dos-av-dim">search_off</span>
+                                        <span className="material-symbols-rounded qp-empty-icon dos-av-dim" aria-hidden="true">search_off</span>
                                         No results match the selected filters.
                                     </div>
                                 ) : (

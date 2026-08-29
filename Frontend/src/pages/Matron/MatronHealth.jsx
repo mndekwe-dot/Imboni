@@ -166,7 +166,7 @@ function MedicationChecklist({ students }) {
     return (
         <div className="card mb-1-5">
             <div className="card-header">
-                <h3 className="card-title"><span className="material-symbols-rounded">medication</span> {t('matron.health.todayMedication')}</h3>
+                <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">medication</span> {t('matron.health.todayMedication')}</h3>
                 <div className="u-row">
                     <OfflineIndicator />
                     {checklist && (
@@ -176,7 +176,7 @@ function MedicationChecklist({ students }) {
                         </span>
                     )}
                     <button className="btn btn-outline btn-sm" onClick={() => setShowAdd(s => !s)}>
-                        <span className="material-symbols-rounded icon-sm">add</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                         {t('matron.health.addSchedule')}
                     </button>
                 </div>
@@ -245,7 +245,7 @@ function MedicationChecklist({ students }) {
                                     </div>
                                     {item.given ? (
                                         <span className="med-given">
-                                            <span className="material-symbols-rounded">check_circle</span>
+                                            <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                                             {t('common.given')}
                                         </span>
                                     ) : (
@@ -418,7 +418,7 @@ export const MatronHealth = () => {
 
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">bed</span> {t('matron.health.sickBayResidents')}</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">bed</span> {t('matron.health.sickBayResidents')}</h3>
                                 <span className="settings-info-text align-self-center">
                                     {data.stats.beds_total} beds total &middot; {data.stats.beds_occupied} occupied &middot; {data.stats.beds_total - data.stats.beds_occupied} free
                                 </span>
@@ -440,7 +440,7 @@ export const MatronHealth = () => {
 
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">add_circle</span> {t('matron.health.logVisit')}</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">add_circle</span> {t('matron.health.logVisit')}</h3>
                             </div>
                             <div className="card-content">
                                 <div className="health-form-grid">
@@ -506,7 +506,7 @@ export const MatronHealth = () => {
                                 {saveError && <p className="health-form-error">{saveError}</p>}
                                 <div className="btn-row mt-1-5">
                                     <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !studentId || !complaint.trim()}>
-                                        <span className="material-symbols-rounded">save</span> {saving ? t('common.saving') : t('matron.health.saveRecord')}
+                                        <span className="material-symbols-rounded" aria-hidden="true">save</span> {saving ? t('common.saving') : t('matron.health.saveRecord')}
                                     </button>
                                     <button className="btn btn-outline" onClick={resetForm}>{t('common.clear')}</button>
                                 </div>
@@ -515,7 +515,7 @@ export const MatronHealth = () => {
 
                         <div className="card">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">history</span> {t('matron.health.visitHistory')}</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">history</span> {t('matron.health.visitHistory')}</h3>
                                 <div className="btn-row-sm">
                                     <select className="btn btn-outline btn-sm select-xs" value={historyFilter} onChange={e => setHistoryFilter(e.target.value)}>
                                         <option value="">{t('common.allStudents')}</option>
@@ -524,7 +524,7 @@ export const MatronHealth = () => {
                                         ))}
                                     </select>
                                     <button className="btn btn-outline btn-sm" onClick={handleExportHistory} disabled={!healthHistory.length}>
-                                        <span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span> {t('common.export')}
                                     </button>
                                 </div>
                             </div>

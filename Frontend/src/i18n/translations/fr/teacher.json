@@ -1,6 +1,7 @@
 {
   "announcements": {
     "bodyPlaceholder": "Rédigez votre annonce…",
+    "confirmDelete": "Supprimer « {{title}} » ? Cette action est irréversible.",
     "emptyDescription": "Vous n'avez encore publié aucune annonce.",
     "none": "Aucune annonce",
     "subtitle": "Créez et gérez les annonces de vos classes",

@@ -125,7 +125,7 @@ export function AdminDashboard() {
                                             return (
                                                 <div key={i} className="activity-item">
                                                     <span className={`activity-icon ${meta.cls}`}>
-                                                        <span className="material-symbols-rounded">{item.icon || meta.icon}</span>
+                                                        <span className="material-symbols-rounded" aria-hidden="true">{item.icon || meta.icon}</span>
                                                     </span>
                                                     <div className="activity-details">
                                                         <p className="activity-title">{item.text || item.message}</p>
@@ -182,19 +182,19 @@ export function AdminDashboard() {
                             <div className="card-content">
                                 <div className="action-buttons">
                                     <button className="btn btn-primary" onClick={() => navigate('/admin/staff')}>
-                                        <span className="material-symbols-rounded">person_add</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">person_add</span>
                                         Manage Staff
                                     </button>
                                     <button className="btn btn-outline" onClick={() => navigate('/admin/announcements')}>
-                                        <span className="material-symbols-rounded">announcement</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">announcement</span>
                                         Post Announcement
                                     </button>
                                     <button className="btn btn-outline" onClick={() => navigate('/admin/students')}>
-                                        <span className="material-symbols-rounded">groups</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">groups</span>
                                         View Students
                                     </button>
                                     <button className="btn btn-outline" onClick={() => navigate('/admin/reports')}>
-                                        <span className="material-symbols-rounded">bar_chart</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">bar_chart</span>
                                         View Reports
                                     </button>
                                 </div>

@@ -107,7 +107,7 @@ function StaffRow({ member, onView }) {
             </td>
             <td>
                 <button className="adm-btn" onClick={() => onView(member)}>
-                    <span className="material-symbols-rounded">visibility</span> View
+                    <span className="material-symbols-rounded" aria-hidden="true">visibility</span> View
                 </button>
             </td>
         </tr>
@@ -151,13 +151,13 @@ function InviteModal({ onClose, onSent }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2 className="modal-title">Invite Staff Member</h2>
-                    <button className="modal-close" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="modal-close" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
                 {success ? (
                     <div className="modal-body adm-invite-success">
-                        <span className="material-symbols-rounded adm-invite-success-icon">mark_email_read</span>
+                        <span className="material-symbols-rounded adm-invite-success-icon" aria-hidden="true">mark_email_read</span>
                         <p className="adm-invite-success-title">{t('admin.staff.invitationSent')}</p>
                         <p className="adm-invite-success-note">
                             An invitation link was sent to <strong>{form.email}</strong>
@@ -195,7 +195,7 @@ function InviteModal({ onClose, onSent }) {
                         <div className="u-row-sm u-justify-end u-pt-xs">
                             <button type="button" className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                             <button type="submit" className="btn btn-primary" disabled={loading}>
-                                <span className="material-symbols-rounded">send</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">send</span>
                                 {loading ? 'Sending…' : 'Send Invitation'}
                             </button>
                         </div>
@@ -290,8 +290,8 @@ export function AdminStaff() {
                     <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2 className="modal-title">{t('admin.staff.profile')}</h2>
-                            <button className="modal-close" onClick={() => setViewing(null)}>
-                                <span className="material-symbols-rounded">close</span>
+                            <button className="modal-close" onClick={() => setViewing(null)} aria-label={t('common.close')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">close</span>
                             </button>
                         </div>
                         <div className="modal-body u-stack-sm">
@@ -336,13 +336,13 @@ export function AdminStaff() {
                                     className={`btn btn-sm ${activeTab === 'staff' ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setActiveTab('staff')}
                                 >
-                                    <span className="material-symbols-rounded">badge</span> Staff List
+                                    <span className="material-symbols-rounded" aria-hidden="true">badge</span> Staff List
                                 </button>
                                 <button
                                     className={`btn btn-sm u-relative ${activeTab === 'invitations' ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setActiveTab('invitations')}
                                 >
-                                    <span className="material-symbols-rounded">mail</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">mail</span>
                                     Invitations
                                     {pendingCount > 0 && (
                                         <span className="adm-count-badge">
@@ -352,7 +352,7 @@ export function AdminStaff() {
                                 </button>
                             </div>
                             <button className="btn btn-primary btn-sm" onClick={() => setShowInvite(true)}>
-                                <span className="material-symbols-rounded">person_add</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">person_add</span>
                                 Invite Staff
                             </button>
                         </div>
@@ -401,13 +401,13 @@ export function AdminStaff() {
                                 <div className="card-header">
                                     <h2 className="card-title">{t('admin.staff.invitations')}</h2>
                                     <button className="btn btn-outline btn-sm" onClick={loadInvitations}>
-                                        <span className="material-symbols-rounded">refresh</span> {t('common.refresh')}
+                                        <span className="material-symbols-rounded" aria-hidden="true">refresh</span> {t('common.refresh')}
                                     </button>
                                 </div>
                                 <div className="card-content">
                                     {invitations.length === 0 ? (
                                         <div className="u-center-text u-muted u-pad-lg">
-                                            <span className="material-symbols-rounded u-empty-icon">mail_outline</span>
+                                            <span className="material-symbols-rounded u-empty-icon" aria-hidden="true">mail_outline</span>
                                             No invitations sent yet. Click <strong>Invite Staff</strong> to get started.
                                         </div>
                                     ) : (
@@ -442,10 +442,10 @@ export function AdminStaff() {
                                                                 {!inv.is_used && inv.status !== 'cancelled' && (
                                                                     <div className="u-flex u-gap-035">
                                                                         <button className="adm-btn" title="Resend invitation" onClick={() => handleResend(inv.id)}>
-                                                                            <span className="material-symbols-rounded">forward_to_inbox</span>
+                                                                            <span className="material-symbols-rounded" aria-hidden="true">forward_to_inbox</span>
                                                                         </button>
                                                                         <button className="adm-btn u-destructive" title="Cancel invitation" onClick={() => handleCancel(inv.id)}>
-                                                                            <span className="material-symbols-rounded">cancel</span>
+                                                                            <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
                                                                         </button>
                                                                     </div>
                                                                 )}

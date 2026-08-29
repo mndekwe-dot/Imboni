@@ -194,7 +194,7 @@ describe('DosAnnouncement', () => {
     renderWithRouter(<DosAnnouncement />)
     await waitFor(() => expect(screen.getByText('No announcements yet.')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('radio', { name: /filter_list Specific Year/ }))
+    fireEvent.click(screen.getByRole('radio', { name: /Specific Year/ }))
 
     expect(screen.getByText(/No year groups found\./)).toBeInTheDocument()
   })

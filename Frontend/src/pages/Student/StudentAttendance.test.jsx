@@ -77,7 +77,7 @@ describe('StudentAttendance', () => {
     await waitFor(() => expect(screen.getByText('95%')).toBeInTheDocument())
     const callsBefore = getStudentAttendanceCalendar.mock.calls.length
 
-    fireEvent.click(screen.getByRole('button', { name: 'chevron_left' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Previous' }))
 
     await waitFor(() => expect(getStudentAttendanceCalendar.mock.calls.length).toBe(callsBefore + 1))
   })

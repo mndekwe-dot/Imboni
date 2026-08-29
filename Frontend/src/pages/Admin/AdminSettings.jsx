@@ -92,11 +92,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                         <span className="adm-type-title">{typeName}</span>
                         <span className="adm-set-count u-fs-075">{t('settings.lessonCount', { count: subjects.length })}</span>
                         <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')}>
-                            <span className="material-symbols-rounded u-fs-1">edit</span>
+                            <span className="material-symbols-rounded u-fs-1" aria-hidden="true">edit</span>
                         </button>
                         <div className="adm-spacer" />
                         <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title={t('settings.deleteType')}>
-                            <span className="material-symbols-rounded u-fs-1">delete</span>
+                            <span className="material-symbols-rounded u-fs-1" aria-hidden="true">delete</span>
                         </button>
                     </>
                 )}
@@ -118,10 +118,10 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                             <span className="adm-lesson-name">{s.name}</span>
                             <span className="adm-lesson-code">{s.code}</span>
                             <button className="btn-icon-clean adm-icon-muted" onClick={() => { setEditingLesson(s.id); setLessonDraft(s.name) }} title={t('common.rename')}>
-                                <span className="material-symbols-rounded u-fs-095">edit</span>
+                                <span className="material-symbols-rounded u-fs-095" aria-hidden="true">edit</span>
                             </button>
                             <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')}>
-                                <span className="material-symbols-rounded u-fs-095">delete</span>
+                                <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                             </button>
                         </>
                     )}
@@ -140,7 +140,7 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
                     placeholder={t('settings.lessonCodePlaceholder')} />
                 <button className="btn btn-outline btn-sm" onClick={handleAddLesson}>
-                    <span className="material-symbols-rounded icon-sm">add</span> {t('settings.lesson')}
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.lesson')}
                 </button>
             </div>
             {lessonErr && <p className="adm-inline-err">{lessonErr}</p>}
@@ -268,7 +268,7 @@ function SchoolInfoSection() {
 
             <div>
                 <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                    <span className="material-symbols-rounded">{saved ? 'check' : 'save'}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{saved ? 'check' : 'save'}</span>
                     {saved ? t('settings.savedBang') : saving ? t('common.saving') : t('admin.settings.saveChanges')}
                 </button>
             </div>
@@ -353,7 +353,7 @@ function SubjectsSection() {
                         placeholder={t('settings.egSciences')}
                     />
                     <button className="btn btn-primary btn-sm" onClick={handleAddType}>
-                        <span className="material-symbols-rounded icon-sm">add</span> {t('settings.addType')}
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.addType')}
                     </button>
                 </div>
             </div>
@@ -430,7 +430,7 @@ function RoomsSection() {
                         placeholder={t('settings.roomPlaceholder')}
                     />
                     <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
-                        <span className="material-symbols-rounded icon-sm">add</span> {t('common.add')}
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                     </button>
                 </div>
                 {roomErr && <p className="adm-inline-err">{roomErr}</p>}
@@ -439,10 +439,10 @@ function RoomsSection() {
             <div className="tag-list u-mt-075">
                 {rooms.map(r => (
                     <span key={r.id} className="tag-chip">
-                        <span className="material-symbols-rounded adm-room-icon">meeting_room</span>
+                        <span className="material-symbols-rounded adm-room-icon" aria-hidden="true">meeting_room</span>
                         {r.name}
-                        <button className="tag-chip-remove" onClick={() => handleDeleteRoom(r.id)}>
-                            <span className="material-symbols-rounded">close</span>
+                        <button className="tag-chip-remove" onClick={() => handleDeleteRoom(r.id)} aria-label={t('common.close')}>
+                            <span className="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </span>
                 ))}
@@ -573,7 +573,7 @@ function TermRolloverSection() {
                     </div>
                     {error && <p className="adm-ro-err">{error}</p>}
                     <button className="btn btn-primary" onClick={handlePreview} disabled={!isValid || busy}>
-                        <span className="material-symbols-rounded icon-sm">visibility</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">visibility</span>
                         {busy ? t('admin.settings.checking') : t('admin.settings.previewRollover')}
                     </button>
                 </>
@@ -593,7 +593,7 @@ function TermRolloverSection() {
                         ))}
                         {preview.missing_classes?.length > 0 && (
                             <p className="adm-ro-warn">
-                                <span className="material-symbols-rounded adm-ro-warn-icon">warning</span>{' '}
+                                <span className="material-symbols-rounded adm-ro-warn-icon" aria-hidden="true">warning</span>{' '}
                                 {t('admin.settings.missingClasses', { list: preview.missing_classes.join(', ') })}
                             </p>
                         )}
@@ -605,7 +605,7 @@ function TermRolloverSection() {
                     <div className="u-row-sm">
                         <button className="btn btn-outline" onClick={() => setStep(1)} disabled={busy}>{t('common.back')}</button>
                         <button className="btn btn-primary" onClick={handleExecute} disabled={busy}>
-                            <span className="material-symbols-rounded icon-sm">restart_alt</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">restart_alt</span>
                             {busy ? t('admin.settings.rollingOver') : t('admin.settings.runRollover')}
                         </button>
                     </div>
@@ -614,7 +614,7 @@ function TermRolloverSection() {
 
             {step === 3 && result && (
                 <div className="adm-ro-done">
-                    <span className="material-symbols-rounded adm-ro-done-icon">check_circle</span>
+                    <span className="material-symbols-rounded adm-ro-done-icon" aria-hidden="true">check_circle</span>
                     <p className="adm-ro-done-title">
                         {t('admin.settings.rolloverDone', { term: result.new_term })}
                     </p>
@@ -665,7 +665,7 @@ export function AdminSettings() {
                                         className={`adm-settings-nav-item${activeSection === item.id ? ' active' : ''}`}
                                         onClick={() => setActiveSection(item.id)}
                                     >
-                                        <span className="material-symbols-rounded">{item.icon}</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
                                         {t(item.labelKey)}
                                         {!LIVE_SECTIONS.includes(item.id) && (
                                             <span className="adm-soon-tag">{t('common.soon')}</span>
@@ -689,7 +689,7 @@ export function AdminSettings() {
 
                                     {!LIVE_SECTIONS.includes(activeSection) && (
                                         <div className="coming-soon">
-                                            <span className="material-symbols-rounded coming-soon-icon">construction</span>
+                                            <span className="material-symbols-rounded coming-soon-icon" aria-hidden="true">construction</span>
                                             <p className="coming-soon-title">{activeItem && t(activeItem.labelKey)}</p>
                                             <p className="coming-soon-desc">{t('admin.settings.comingSoon')}</p>
                                         </div>

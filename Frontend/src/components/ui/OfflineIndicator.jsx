@@ -15,7 +15,7 @@ export function OfflineIndicator() {
             role="status"
             className={`offline-pill offline-pill--${online ? 'syncing' : 'offline'}`}
         >
-            <span className="material-symbols-rounded">
+            <span className="material-symbols-rounded" aria-hidden="true">
                 {online ? 'cloud_sync' : 'cloud_off'}
             </span>
             {!online && pending === 0 && 'Offline: changes will be saved locally'}

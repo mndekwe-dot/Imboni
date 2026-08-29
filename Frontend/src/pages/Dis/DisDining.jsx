@@ -67,12 +67,12 @@ function DiningModal({ plan, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded disc-modal-icon">
+                        <span className="material-symbols-rounded disc-modal-icon" aria-hidden="true">
                             {isEditing ? 'edit' : 'restaurant'}
                         </span>
                         <h2 className="modal-title">{isEditing ? t('dis.dining.editPlan') : t('dis.dining.addPlan')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
 
                 <div className="modal-body">
@@ -117,7 +117,7 @@ function DiningModal({ plan, onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || (!isEditing && !selectedStudent)}>
-                        <span className="material-symbols-rounded">{isEditing ? 'save' : 'restaurant'}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{isEditing ? 'save' : 'restaurant'}</span>
                         {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('dis.dining.addPlanAction')}
                     </button>
                 </div>
@@ -151,10 +151,10 @@ function DiningRow({ plan, onEdit, onDelete }) {
                 ) : (
                     <>
                         <button className="btn btn-outline btn-sm" onClick={() => onEdit(plan)} aria-label={`${t('common.edit')} — ${student_name}`}>
-                            <span className="material-symbols-rounded icon-sm">edit</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span>
                         </button>
                         <button className="btn btn-outline btn-sm dis-btn-del" onClick={() => setConfirmDelete(true)} aria-label={`${t('common.delete')} — ${student_name}`}>
-                            <span className="material-symbols-rounded icon-sm">delete</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                         </button>
                     </>
                 )}
@@ -251,7 +251,7 @@ export function DisDining() {
                                     ))}
                                 </select>
                                 <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-                                    <span className="material-symbols-rounded icon-sm">add</span> {t('dis.dining.addPlan')}
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.dining.addPlan')}
                                 </button>
                             </div>
                         </div>

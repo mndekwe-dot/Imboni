@@ -55,10 +55,10 @@ function ComposeModal({ onClose, onPublish, authorName }) {
                     <span className="modal-footer-hint">{!isValid && '* Title and body are required'}</span>
                     <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-outline" disabled={!isValid} onClick={() => submit(true)}>
-                        <span className="material-symbols-rounded icon-sm">save</span>{t('common.saveDraft')}
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>{t('common.saveDraft')}
                     </button>
                     <button className="btn btn-primary" disabled={!isValid} onClick={() => submit(false)}>
-                        <span className="material-symbols-rounded icon-sm">send</span>{t('common.publish')}
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>{t('common.publish')}
                     </button>
                 </div>
             }
@@ -106,7 +106,7 @@ function ComposeModal({ onClose, onPublish, authorName }) {
 
             {form.type === 'urgent' && (
                 <div className="ann-compose-urgent-notice">
-                    <span className="material-symbols-rounded">warning</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">warning</span>
                     Urgent announcements are highlighted and sent immediately to all recipients.
                 </div>
             )}
@@ -161,10 +161,10 @@ export function AnnouncementFeed({
                     footer={
                         <div className="modal-footer-row">
                             <button className="btn btn-outline btn-sm mr-auto" onClick={() => setSelected(null)}>
-                                <span className="material-symbols-rounded icon-sm">arrow_back</span> Back
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span> Back
                             </button>
                             <button className="btn btn-primary btn-sm" onClick={() => setSelected(null)}>
-                                <span className="material-symbols-rounded icon-sm">done</span>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">done</span>
                                 {selected.isUnread ? 'Mark as Read' : 'Close'}
                             </button>
                         </div>
@@ -229,7 +229,7 @@ export function AnnouncementFeed({
                                 {/* Toolbar */}
                                 <div className="ann-toolbar">
                                     <div className="ann-search-wrap">
-                                        <span className="material-symbols-rounded">search</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">search</span>
                                         <input
                                             type="text"
                                             placeholder={t('announcements.search')}
@@ -237,8 +237,8 @@ export function AnnouncementFeed({
                                             onChange={e => setSearch(e.target.value)}
                                         />
                                         {search && (
-                                            <button onClick={() => setSearch('')} className="modal-search-clear">
-                                                <span className="material-symbols-rounded">close</span>
+                                            <button onClick={() => setSearch('')} className="modal-search-clear" aria-label={t('common.close')}>
+                                                <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                             </button>
                                         )}
                                     </div>
@@ -255,11 +255,11 @@ export function AnnouncementFeed({
                                     </div>
                                     <div className="ann-toolbar-right">
                                         <button className="btn btn-outline btn-sm">
-                                            <span className="material-symbols-rounded">done_all</span> Mark All Read
+                                            <span className="material-symbols-rounded" aria-hidden="true">done_all</span> Mark All Read
                                         </button>
                                         {canCompose && (
                                             <button className="btn btn-primary btn-sm" onClick={() => setComposing(true)}>
-                                                <span className="material-symbols-rounded icon-sm">add</span>
+                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                                                 New Announcement
                                             </button>
                                         )}

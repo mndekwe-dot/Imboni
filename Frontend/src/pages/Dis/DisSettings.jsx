@@ -78,12 +78,12 @@ function SectionModal({ section, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded disc-modal-icon">
+                        <span className="material-symbols-rounded disc-modal-icon" aria-hidden="true">
                             {isEditing ? 'edit' : 'add_circle'}
                         </span>
                         <h2 className="modal-title">{isEditing ? t('dis.settings.editSection') : t('dis.settings.addSection')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
                 <div className="modal-body">
                     <div className="form-group">
@@ -111,7 +111,7 @@ function SectionModal({ section, onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !form.name.trim()}>
-                        <span className="material-symbols-rounded">{isEditing ? 'save' : 'add_circle'}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{isEditing ? 'save' : 'add_circle'}</span>
                         {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('dis.settings.addSection')}
                     </button>
                 </div>
@@ -130,7 +130,7 @@ function SectionCard({ section, dormCount, onEdit, onDelete }) {
     return (
         <div className="disc-section-row">
             <div className="staff-card-avatar patron disc-avatar-sm">
-                <span className="material-symbols-rounded u-lg">meeting_room</span>
+                <span className="material-symbols-rounded u-lg" aria-hidden="true">meeting_room</span>
             </div>
             <div className="disc-fill">
                 <div className="disc-row-title">{section.name}</div>
@@ -148,11 +148,11 @@ function SectionCard({ section, dormCount, onEdit, onDelete }) {
                 </div>
             ) : (
                 <div className="disc-btn-row">
-                    <button className="btn btn-outline btn-sm" onClick={() => setConfirm(true)}>
-                        <span className="material-symbols-rounded icon-sm">delete</span>
+                    <button className="btn btn-outline btn-sm" onClick={() => setConfirm(true)} aria-label={t('common.delete')}>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                     </button>
                     <button className="btn btn-primary btn-sm" onClick={() => onEdit(section)}>
-                        <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span> {t('common.edit')}
                     </button>
                 </div>
             )}
@@ -209,12 +209,12 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded disc-modal-icon">
+                        <span className="material-symbols-rounded disc-modal-icon" aria-hidden="true">
                             {isEditing ? 'edit' : 'add_circle'}
                         </span>
                         <h2 className="modal-title">{isEditing ? t('dis.settings.editFacility') : t('dis.settings.addFacility')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
                 <div className="modal-body">
                     <div className="form-group">
@@ -273,7 +273,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !form.name.trim()}>
-                        <span className="material-symbols-rounded">{isEditing ? 'save' : 'add_circle'}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{isEditing ? 'save' : 'add_circle'}</span>
                         {saving ? t('common.saving') : isEditing ? t('common.saveChanges') : t('dis.settings.addFacility')}
                     </button>
                 </div>
@@ -295,7 +295,7 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
         <div className="staff-card">
             <div className="staff-card-top">
                 <div className="staff-card-avatar patron">
-                    <span className="material-symbols-rounded disc-facility-icon">{typeInfo?.icon || 'category'}</span>
+                    <span className="material-symbols-rounded disc-facility-icon" aria-hidden="true">{typeInfo?.icon || 'category'}</span>
                 </div>
                 <div>
                     <div className="staff-card-name">{facility.name}</div>
@@ -307,13 +307,13 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
             </div>
             <div className="staff-card-meta">
                 {secName && (
-                    <span><span className="material-symbols-rounded">meeting_room</span>{secName}</span>
+                    <span><span className="material-symbols-rounded" aria-hidden="true">meeting_room</span>{secName}</span>
                 )}
                 {facility.capacity && (
-                    <span><span className="material-symbols-rounded">groups</span>{t('dis.settings.capacityLabel', { count: facility.capacity })}</span>
+                    <span><span className="material-symbols-rounded" aria-hidden="true">groups</span>{t('dis.settings.capacityLabel', { count: facility.capacity })}</span>
                 )}
                 {facility.description && (
-                    <span><span className="material-symbols-rounded">notes</span>{facility.description}</span>
+                    <span><span className="material-symbols-rounded" aria-hidden="true">notes</span>{facility.description}</span>
                 )}
             </div>
             <div className="staff-card-actions">
@@ -325,11 +325,11 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
                     </>
                 ) : (
                     <>
-                        <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(true)}>
-                            <span className="material-symbols-rounded icon-sm">delete</span>
+                        <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(true)} aria-label={t('common.delete')}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onEdit(facility)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span> {t('common.edit')}
                         </button>
                     </>
                 )}
@@ -503,9 +503,9 @@ export function DisSettings() {
                                         {/* ── Dormitory Sections ── */}
                                         <div className="card mb-1-5">
                                             <div className="card-header">
-                                                <h2 className="card-title"><span className="material-symbols-rounded">meeting_room</span> {t('dis.settings.dormitorySections')}</h2>
+                                                <h2 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">meeting_room</span> {t('dis.settings.dormitorySections')}</h2>
                                                 <button className="btn btn-primary btn-sm" onClick={() => setAddingSection(true)}>
-                                                    <span className="material-symbols-rounded icon-sm">add</span> {t('dis.settings.addSection')}
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.settings.addSection')}
                                                 </button>
                                             </div>
                                             <div className="card-content">
@@ -532,9 +532,9 @@ export function DisSettings() {
                                         {/* ── Dormitories (grouped by section) ── */}
                                         <div className="card mb-1-5">
                                             <div className="card-header">
-                                                <h2 className="card-title"><span className="material-symbols-rounded">hotel</span> {t('dis.settings.dormitories')}</h2>
+                                                <h2 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">hotel</span> {t('dis.settings.dormitories')}</h2>
                                                 <button className="btn btn-primary btn-sm" onClick={() => setAddingFacType('dormitory')}>
-                                                    <span className="material-symbols-rounded icon-sm">add</span> {t('dis.settings.addDormitory')}
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.settings.addDormitory')}
                                                 </button>
                                             </div>
                                             <div className="card-content">
@@ -580,9 +580,9 @@ export function DisSettings() {
                                         {/* ── Dining Halls ── */}
                                         <div className="card mb-1-5">
                                             <div className="card-header">
-                                                <h2 className="card-title"><span className="material-symbols-rounded">restaurant</span> {t('dis.settings.diningHalls')}</h2>
+                                                <h2 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">restaurant</span> {t('dis.settings.diningHalls')}</h2>
                                                 <button className="btn btn-primary btn-sm" onClick={() => setAddingFacType('dining_hall')}>
-                                                    <span className="material-symbols-rounded icon-sm">add</span> {t('dis.settings.addDiningHall')}
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.settings.addDiningHall')}
                                                 </button>
                                             </div>
                                             <div className="card-content">
@@ -601,19 +601,19 @@ export function DisSettings() {
                                         {/* ── Other Rooms ── */}
                                         <div className="card">
                                             <div className="card-header">
-                                                <h2 className="card-title"><span className="material-symbols-rounded">category</span> {t('dis.settings.otherRooms')}</h2>
+                                                <h2 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">category</span> {t('dis.settings.otherRooms')}</h2>
                                                 <div className="disc-btn-inline-group">
                                                     {['common_room','medical','sports','library','other'].map(type => {
                                                         const ft = FACILITY_TYPES.find(x => x.key === type)
                                                         return (
                                                             <button key={type} className="btn btn-outline btn-sm" onClick={() => setAddingFacType(type)}
                                                                 title={t('dis.settings.addType', { type: ft ? t(ft.labelKey) : type })}>
-                                                                <span className="material-symbols-rounded icon-sm">{ft?.icon}</span>
+                                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">{ft?.icon}</span>
                                                             </button>
                                                         )
                                                     })}
                                                     <button className="btn btn-primary btn-sm" onClick={() => setAddingFacType('other')}>
-                                                        <span className="material-symbols-rounded icon-sm">add</span> {t('dis.settings.addRoom')}
+                                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.settings.addRoom')}
                                                     </button>
                                                 </div>
                                             </div>

@@ -193,7 +193,7 @@ export function StudentDashboard() {
                             {/* Today's Schedule */}
                             <div className="today-schedule-card">
                                 <div className="section-card-header">
-                                    <h3><span className="material-symbols-rounded">schedule</span> {t('student.dashboard.todaySchedule')}</h3>
+                                    <h3><span className="material-symbols-rounded" aria-hidden="true">schedule</span> {t('student.dashboard.todaySchedule')}</h3>
                                     <Link to="/student/timetable" className="btn btn-outline btn-sm">{t('student.dashboard.fullTimetable')}</Link>
                                 </div>
                                 <div className="section-card-body">
@@ -210,7 +210,7 @@ export function StudentDashboard() {
                             {/* Upcoming Assignments */}
                             <div className="upcoming-assignments-card">
                                 <div className="section-card-header">
-                                    <h3><span className="material-symbols-rounded">assignment</span> {t('student.dashboard.upcomingAssignments')}</h3>
+                                    <h3><span className="material-symbols-rounded" aria-hidden="true">assignment</span> {t('student.dashboard.upcomingAssignments')}</h3>
                                     <Link to="/student/assignments" className="btn btn-outline btn-sm">{t('common.viewAll')}</Link>
                                 </div>
                                 {loading ? (

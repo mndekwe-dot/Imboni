@@ -158,7 +158,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                     </span>
                     <button className="btn btn-outline" onClick={onClose}>Cancel</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                        <span className="material-symbols-rounded icon-sm">save</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                         {saving ? 'Saving…' : 'Save Results'}
                     </button>
                 </div>
@@ -417,7 +417,7 @@ export function TeacherResults() {
                     <DashboardContent>
                         {loadError && (
                             <div className="alert alert-danger u-mb">
-                                <span className="material-symbols-rounded alert-icon">error</span>
+                                <span className="material-symbols-rounded alert-icon" aria-hidden="true">error</span>
                                 {loadError}
                             </div>
                         )}
@@ -463,7 +463,7 @@ export function TeacherResults() {
                                         disabled={!selectedClass}
                                         title={selectedClass ? 'Create a new assessment and enter marks' : 'Select a class first'}
                                     >
-                                        <span className="material-symbols-rounded icon-sm">add</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                                         Enter Results
                                     </button>
                                     <button
@@ -471,7 +471,7 @@ export function TeacherResults() {
                                         onClick={handleExport}
                                         disabled={!rows.length}
                                     >
-                                        <span className="material-symbols-rounded icon-sm">download</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
                                         Export
                                     </button>
                                 </div>

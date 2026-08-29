@@ -32,7 +32,7 @@ export function FormSelect({ value, onChange, options, placeholder, disabled, id
                 aria-label={ariaLabel}
             >
                 <span>{selected ? selected.label : placeholder}</span>
-                <span className="material-symbols-rounded">{open ? 'expand_less' : 'expand_more'}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{open ? 'expand_less' : 'expand_more'}</span>
             </button>
             {open && (
                 <div className="form-select-menu" role="listbox">

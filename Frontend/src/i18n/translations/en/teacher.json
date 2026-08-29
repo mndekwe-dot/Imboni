@@ -1,6 +1,7 @@
 {
   "announcements": {
     "bodyPlaceholder": "Write your announcement…",
+    "confirmDelete": "Delete “{{title}}”? This cannot be undone.",
     "emptyDescription": "You haven't published any announcements yet.",
     "none": "No announcements",
     "subtitle": "Create and manage class announcements",

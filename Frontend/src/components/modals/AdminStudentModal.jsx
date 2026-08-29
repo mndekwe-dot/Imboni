@@ -70,13 +70,13 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
 
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded modal-title-icon--admin">
+                        <span className="material-symbols-rounded modal-title-icon--admin" aria-hidden="true">
                             {readOnly ? 'person' : isEditing ? 'edit' : 'person_add'}
                         </span>
                         <h2 className="modal-title">{title}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
 
@@ -139,7 +139,7 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
                     </button>
                     {!readOnly && (
                         <button className="btn btn-primary" onClick={handleSave}>
-                            <span className="material-symbols-rounded">{isEditing ? 'save' : 'person_add'}</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">{isEditing ? 'save' : 'person_add'}</span>
                             {isEditing ? t('common.saveChanges') : t('modals.student.admitTitle')}
                         </button>
                     )}

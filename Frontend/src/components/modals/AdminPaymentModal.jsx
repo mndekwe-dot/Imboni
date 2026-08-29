@@ -71,11 +71,11 @@ export function AdminPaymentModal({ onClose, onSave }) {
 
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded modal-title-icon--admin">payments</span>
+                        <span className="material-symbols-rounded modal-title-icon--admin" aria-hidden="true">payments</span>
                         <h2 className="modal-title">{t('modals.payment.title')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
 
@@ -137,7 +137,7 @@ export function AdminPaymentModal({ onClose, onSave }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave}>
-                        <span className="material-symbols-rounded">add_card</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">add_card</span>
                         {t('modals.payment.record')}
                     </button>
                 </div>

@@ -155,7 +155,7 @@ export function AdminFinance() {
                                 <div className="card-header">
                                     <h2 className="card-title">{t('admin.finance.outstandingTitle')} ({filtered.length})</h2>
                                     <button className="btn btn-outline btn-sm" onClick={handleExport}>
-                                        <span className="material-symbols-rounded">download</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">download</span>
                                         {exportMsg || 'Export'}
                                     </button>
                                 </div>
@@ -213,17 +213,17 @@ export function AdminFinance() {
                                                 onClick={handleSendReminder}
                                                 disabled={reminderState.sending}
                                             >
-                                                <span className="material-symbols-rounded">mail</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">mail</span>
                                                 {reminderState.sending
                                                     ? 'Sending…'
                                                     : reminderState.message || 'Send Fee Reminder to All Overdue'}
                                             </button>
                                             <button className="btn btn-outline btn-sm btn-left" onClick={handleExport}>
-                                                <span className="material-symbols-rounded">summarize</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">summarize</span>
                                                 Generate Term 1 Finance Report
                                             </button>
                                             <button className="btn btn-primary btn-sm btn-left" onClick={() => setShowPayment(true)}>
-                                                <span className="material-symbols-rounded">add_card</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">add_card</span>
                                                 Record New Payment
                                             </button>
                                         </div>

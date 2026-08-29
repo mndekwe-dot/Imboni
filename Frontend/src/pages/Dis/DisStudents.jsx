@@ -94,7 +94,7 @@ function PendingCard({ report, onReview }) {
         <div className="dis-pending-card">
             <div className="dis-pending-hd">
                 <div className={`disc-activity-icon ${typeInfo.cls}`}>
-                    <span className="material-symbols-rounded">
+                    <span className="material-symbols-rounded" aria-hidden="true">
                         {report.report_type === 'incident' ? 'warning' : report.report_type === 'warning' ? 'error' : 'thumb_up'}
                     </span>
                 </div>
@@ -127,7 +127,7 @@ function PendingCard({ report, onReview }) {
                     </div>
                 </div>
                 <button className="btn btn-sm btn-outline u-shrink-0" onClick={() => setOpen(o => !o)}>
-                    <span className="material-symbols-rounded icon-sm">{open ? 'expand_less' : 'rate_review'}</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">{open ? 'expand_less' : 'rate_review'}</span>
                     {t('dos.results.review')}
                 </button>
             </div>
@@ -139,10 +139,10 @@ function PendingCard({ report, onReview }) {
                     </div>
                     <div className="u-row-sm u-justify-end">
                         <button className="btn btn-sm dis-btn-reject" onClick={() => handle('reject')} disabled={saving}>
-                            <span className="material-symbols-rounded icon-sm">cancel</span> {t('common.reject')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">cancel</span> {t('common.reject')}
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => handle('approve')} disabled={saving}>
-                            <span className="material-symbols-rounded icon-sm">check_circle</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">check_circle</span>
                             {saving ? 'Saving…' : 'Approve & Notify'}
                         </button>
                     </div>
@@ -451,7 +451,7 @@ export function DisStudents() {
                                                 return (
                                                     <div key={r.id} className="dis-rejected-card">
                                                         <div className="disc-activity-icon warning">
-                                                            <span className="material-symbols-rounded">cancel</span>
+                                                            <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
                                                         </div>
                                                         <div className="u-flex-1">
                                                             <div className="u-row-sm u-wrap">

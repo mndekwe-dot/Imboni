@@ -54,6 +54,7 @@ function AttBar({ label, value, color }) {
 }
 
 function StudentDetailModal({ student, onClose }) {
+    const { t } = useTranslation()
     const [detail,     setDetail]     = useState(null)
     const [attendance, setAttendance] = useState(null)
     const [results,    setResults]    = useState([])
@@ -96,8 +97,8 @@ function StudentDetailModal({ student, onClose }) {
                             <p className="adm-student-sub">{sid} · {cls}</p>
                         </div>
                     </div>
-                    <button className="modal-close" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="modal-close" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
 
@@ -212,7 +213,7 @@ function StudentRow({ student, onView }) {
             </td>
             <td>
                 <button className="adm-btn" onClick={() => onView(student)}>
-                    <span className="material-symbols-rounded">visibility</span> View
+                    <span className="material-symbols-rounded" aria-hidden="true">visibility</span> View
                 </button>
             </td>
         </tr>

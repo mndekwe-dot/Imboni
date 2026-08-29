@@ -57,7 +57,7 @@ function StaffItem({ full_name, staff_type, assigned_dormitory, assigned_grade }
     return (
         <div className="disc-activity-item">
             <div className={`disc-activity-icon ${isMatron ? 'purple' : 'green'}`}>
-                <span className="material-symbols-rounded">{icon}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
             </div>
             <div>
                 <div className="disc-activity-title">{full_name}</div>
@@ -128,7 +128,7 @@ export function DisDashboard() {
     async function handleClearCompleted() {
         const done = tasks.filter(t => t.is_completed)
         if (!done.length) return
-        if (!window.confirm(`Delete ${done.length} completed task${done.length > 1 ? 's' : ''}? This cannot be undone.`)) return
+        if (!window.confirm(t('common.clearCompletedConfirm', { count: done.length }))) return
         const previous = tasks
         setTasks(prev => prev.filter(t => !t.is_completed))
         const results = await Promise.allSettled(done.map(t => deleteDisTask(t.id)))
@@ -186,7 +186,7 @@ export function DisDashboard() {
                             {/* Recent incidents */}
                             <div className="card">
                                 <div className="card-header">
-                                    <h3 className="card-title"><span className="material-symbols-rounded">history</span> Recent Incidents</h3>
+                                    <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">history</span> Recent Incidents</h3>
                                     <Link to="/discipline/students?tab=reports" className="btn btn-outline btn-sm">{t('common.viewAll')}</Link>
                                 </div>
                                 <div className="card-content">
@@ -223,18 +223,18 @@ export function DisDashboard() {
                                 <div className="card">
                                     <div className="card-header">
                                         <h3 className="card-title">
-                                            <span className="material-symbols-rounded">task_alt</span> My Tasks
+                                            <span className="material-symbols-rounded" aria-hidden="true">task_alt</span> My Tasks
                                         </h3>
                                         <div className="u-row-sm">
                                             <span className="badge badge-secondary">{tasks.filter(t => !t.is_completed).length}</span>
                                             {tasks.some(t => t.is_completed) && (
                                                 <button className="btn btn-outline btn-sm" onClick={handleClearCompleted}>
-                                                    <span className="material-symbols-rounded icon-sm">playlist_remove</span>
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">playlist_remove</span>
                                                     Clear done
                                                 </button>
                                             )}
                                             <button className="btn btn-outline btn-sm" onClick={() => setShowTaskForm(v => !v)}>
-                                                <span className="material-symbols-rounded icon-sm">{showTaskForm ? 'expand_less' : 'add'}</span>
+                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">{showTaskForm ? 'expand_less' : 'add'}</span>
                                                 {showTaskForm ? 'Cancel' : 'Add'}
                                             </button>
                                         </div>
@@ -261,7 +261,7 @@ export function DisDashboard() {
                                                 </div>
                                                 {taskError && <p className="dis-task-err">{taskError}</p>}
                                                 <button className="btn btn-primary btn-sm dis-btn-disc" onClick={handleCreateTask} disabled={taskSaving || !taskTitle.trim()}>
-                                                    <span className="material-symbols-rounded icon-sm">save</span>
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                                                     {taskSaving ? 'Saving…' : 'Save Task'}
                                                 </button>
                                             </div>
@@ -291,7 +291,7 @@ export function DisDashboard() {
                                                             aria-label={`Delete "${task.title}"`}
                                                             onClick={() => handleDeleteTask(task)}
                                                         >
-                                                            <span className="material-symbols-rounded icon-sm">delete</span>
+                                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                                                         </button>
                                                     </div>
                                                 ))}
@@ -303,7 +303,7 @@ export function DisDashboard() {
                                 {/* Staff under supervision */}
                                 <div className="card">
                                     <div className="card-header">
-                                        <h3 className="card-title"><span className="material-symbols-rounded">supervisor_account</span> Staff Under Supervision</h3>
+                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">supervisor_account</span> Staff Under Supervision</h3>
                                         <Link to="/discipline/staff" className="btn btn-outline btn-sm">{t('common.manage')}</Link>
                                     </div>
                                     <div className="card-content">

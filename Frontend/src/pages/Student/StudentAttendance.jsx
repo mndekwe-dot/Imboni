@@ -193,17 +193,17 @@ export function StudentAttendance() {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">calendar_month</span> {t('student.attendance.monthlyCalendar')}
+                                    <span className="material-symbols-rounded" aria-hidden="true">calendar_month</span> {t('student.attendance.monthlyCalendar')}
                                 </h3>
                                 <div className="u-row-sm">
-                                    <button className="btn btn-outline btn-icon" onClick={prevMonth}>
-                                        <span className="material-symbols-rounded">chevron_left</span>
+                                    <button className="btn btn-outline btn-icon" onClick={prevMonth} aria-label={t('common.previous')}>
+                                        <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                                     </button>
                                     <span className="cal-month-label">
                                         {MONTH_NAMES[month]} {year}
                                     </span>
-                                    <button className="btn btn-outline btn-icon" onClick={nextMonth}>
-                                        <span className="material-symbols-rounded">chevron_right</span>
+                                    <button className="btn btn-outline btn-icon" onClick={nextMonth} aria-label={t('common.next')}>
+                                        <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                                     </button>
                                 </div>
                             </div>
@@ -233,7 +233,7 @@ export function StudentAttendance() {
                         {/* Records table */}
                         <div className="attendance-table-card">
                             <div className="section-card-header">
-                                <h3><span className="material-symbols-rounded">table_view</span> Attendance Records: {MONTH_NAMES[month]} {year}</h3>
+                                <h3><span className="material-symbols-rounded" aria-hidden="true">table_view</span> Attendance Records: {MONTH_NAMES[month]} {year}</h3>
                             </div>
                             <div className="card-content">
                                 {tableRecords.length === 0 ? (

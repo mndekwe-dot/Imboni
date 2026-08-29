@@ -45,7 +45,7 @@ export function TeacherRegistration() {
 
     if (linkError) return (
         <div className="reg-center">
-            <span className="material-symbols-rounded reg-icon-danger">link_off</span>
+            <span className="material-symbols-rounded reg-icon-danger" aria-hidden="true">link_off</span>
             <h2>Link Invalid</h2>
             <p className="reg-msg">{linkError}</p>
             <p className="reg-msg-sm">Contact your Director of Studies to resend the invitation.</p>
@@ -54,7 +54,7 @@ export function TeacherRegistration() {
 
     if (done) return (
         <div className="reg-center">
-            <span className="material-symbols-rounded reg-icon-success">check_circle</span>
+            <span className="material-symbols-rounded reg-icon-success" aria-hidden="true">check_circle</span>
             <h1>Account Created!</h1>
             <p className="reg-msg">
                 Welcome to Imboni, {invite?.first_name}. Your account is ready. Log in to see your assigned classes and schedule.
@@ -71,7 +71,7 @@ export function TeacherRegistration() {
 
                 {/* Header */}
                 <div className="reg-header">
-                    <span className="material-symbols-rounded reg-header-icon">school</span>
+                    <span className="material-symbols-rounded reg-header-icon" aria-hidden="true">school</span>
                     <h1 className="reg-title">Complete Your Registration</h1>
                     <p className="reg-sub">
                         You have been invited as a <strong>Teacher</strong> at Imboni School.

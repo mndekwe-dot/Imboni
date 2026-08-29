@@ -123,7 +123,7 @@ function ConductCategory({ cardClass, iconClass, icon, title, rules }) {
         <div className={`conduct-category-card ${cardClass}`}>
             <div className="conduct-category-header">
                 <div className={`conduct-category-icon ${iconClass}`}>
-                    <span className="material-symbols-rounded">{icon}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
                 </div>
                 <span className="conduct-category-title">{title}</span>
             </div>
@@ -225,7 +225,7 @@ export function StudentDiscipline() {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">history</span> My Discipline Records
+                                    <span className="material-symbols-rounded" aria-hidden="true">history</span> My Discipline Records
                                 </h3>
                                 <div className="filter-tabs-bar mb-0 mt-0">
                                     {TYPE_FILTER_TABS.map(t => (
@@ -267,7 +267,7 @@ export function StudentDiscipline() {
                         {/* Code of conduct — static school policy */}
                         <div className="mb-3">
                             <h3 className="flex-row-gap-sm disc-section-heading">
-                                <span className="material-symbols-rounded">menu_book</span> Code of Conduct
+                                <span className="material-symbols-rounded" aria-hidden="true">menu_book</span> Code of Conduct
                             </h3>
                         </div>
                         <div className="conduct-rules-grid">
@@ -278,7 +278,7 @@ export function StudentDiscipline() {
                         <div className="card mt-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">balance</span> Appeals Process
+                                    <span className="material-symbols-rounded" aria-hidden="true">balance</span> Appeals Process
                                 </h3>
                             </div>
                             <div className="card-content">

@@ -100,7 +100,7 @@ describe('DosExamSchedule', () => {
 
     const rows = screen.getAllByRole('row')
     const mathRow = rows.find(r => within(r).queryByText('Mathematics'))
-    const deleteBtn = within(mathRow).getByText('delete').closest('button')
+    const deleteBtn = within(mathRow).getByRole('button', { name: 'Delete' })
     fireEvent.click(deleteBtn)
 
     await waitFor(() => expect(deleteDosExamSchedule).toHaveBeenCalledWith(11))

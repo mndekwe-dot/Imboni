@@ -41,10 +41,10 @@ export function Modal({ title, icon, onClose, children, wide = false }) {
             {/* stopPropagation prevents clicks inside from bubbling to the dialog and triggering backdrop close */}
             <div className="tt-modal-inner" onClick={e => e.stopPropagation()}>
                 <div className="tt-modal-header">
-                    {icon && <span className="material-symbols-rounded">{icon}</span>}
+                    {icon && <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>}
                     <h2 className="tt-modal-title">{title}</h2>
                     <button className="tt-modal-close" onClick={onClose} aria-label="Close dialog">
-                        <span className="material-symbols-rounded">close</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
                 <div className="tt-modal-body">

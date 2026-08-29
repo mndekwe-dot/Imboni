@@ -151,19 +151,19 @@ export function DosExamPapers() {
                                                         <button className="btn btn-outline btn-sm"
                                                             onClick={() => setReviewing(paper)}
                                                             title={t('dos.examPapers.review')}>
-                                                            <span className="material-symbols-rounded icon-sm">rate_review</span>
+                                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">rate_review</span>
                                                         </button>
                                                         <button className="btn btn-outline btn-sm"
                                                             disabled={printing === paper.id}
                                                             onClick={() => print(paper, false)}
                                                             title={t('dos.examPapers.printPaper')}>
-                                                            <span className="material-symbols-rounded icon-sm">print</span>
+                                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">print</span>
                                                         </button>
                                                         <button className="btn btn-outline btn-sm"
                                                             disabled={printing === paper.id}
                                                             onClick={() => print(paper, true)}
                                                             title={t('dos.examPapers.printScheme')}>
-                                                            <span className="material-symbols-rounded icon-sm">key</span>
+                                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">key</span>
                                                         </button>
                                                     </div>
                                                 </td>

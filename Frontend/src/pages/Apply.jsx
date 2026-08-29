@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { applyToImboni } from '../api/platform'
 import { errorMessage } from '../utils/errors'
-import logo from '../assets/images/imboni-logo.png'
+import logo from '../assets/images/imboni-logo.webp'
 import '../styles/components.css'
 import '../styles/platform.css'
 
@@ -48,7 +48,7 @@ export function Apply() {
                 {done ? (
                     <div>
                         <div className="pf-callout pf-row">
-                            <span className="material-symbols-rounded">check_circle</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                             {t('apply.received')}
                         </div>
                         <Link to="/" className="btn btn-outline pf-mt">Back to home</Link>
@@ -57,7 +57,7 @@ export function Apply() {
                     <form onSubmit={submit}>
                         {error && (
                             <div className="platform-login-error" role="alert">
-                                <span className="material-symbols-rounded">error</span>{error}
+                                <span className="material-symbols-rounded" aria-hidden="true">error</span>{error}
                             </div>
                         )}
                         <div className="platform-form-grid">

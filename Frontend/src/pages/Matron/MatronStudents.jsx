@@ -247,7 +247,7 @@ export function MatronStudents() {
                             </div>
                             {myHouse && house !== myHouse && (
                                 <button className="btn btn-outline btn-sm" onClick={() => setHouse(myHouse)}>
-                                    <span className="material-symbols-rounded icon-sm">home</span>
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">home</span>
                                     {t('matron.students.myHouse')}
                                 </button>
                             )}
@@ -273,10 +273,10 @@ export function MatronStudents() {
                                 label={t('matron.students.search')}
                             />
                             <button className="btn btn-outline btn-sm" onClick={handleExport}>
-                                <span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span> {t('common.export')}
                             </button>
                             <button className="btn btn-outline btn-sm" onClick={handlePrint}>
-                                <span className="material-symbols-rounded icon-sm">print</span> {t('matron.students.printRoll')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">print</span> {t('matron.students.printRoll')}
                             </button>
                         </div>
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { platformLogin, storePlatformSession, isPlatformAuthed } from '../../api/platform'
 import { errorMessage } from '../../utils/errors'
-import logo from '../../assets/images/imboni-logo.png'
+import logo from '../../assets/images/imboni-logo.webp'
 import '../../styles/components.css'
 import '../../styles/platform.css'
 
@@ -44,7 +44,7 @@ export function PlatformLogin() {
 
                 {error && (
                     <div className="platform-login-error" role="alert">
-                        <span className="material-symbols-rounded">error</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">error</span>
                         {error}
                     </div>
                 )}
@@ -62,7 +62,7 @@ export function PlatformLogin() {
                                autoComplete="current-password" required
                                value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter your password" />
                         <button type="button" className="platform-pw-toggle" aria-label="Toggle password visibility" onClick={() => setShowPw(p => !p)}>
-                            <span className="material-symbols-rounded">{showPw ? 'visibility_off' : 'visibility'}</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">{showPw ? 'visibility_off' : 'visibility'}</span>
                         </button>
                     </div>
                 </div>

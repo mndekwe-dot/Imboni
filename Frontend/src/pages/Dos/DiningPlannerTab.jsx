@@ -61,7 +61,7 @@ function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
                         </label>
                         <button className="btn-icon-clean dos-danger-text" title={t('dos.dining.deleteSitting')}
                                 onClick={() => onDelete(s.id)}>
-                            <span className="material-symbols-rounded u-fs-095">delete</span>
+                            <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                         </button>
                     </div>
                 ))}
@@ -332,7 +332,7 @@ export function DiningPlannerTab() {
                         <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}
                                 disabled={!hasActiveSitting}
                                 title={hasActiveSitting ? undefined : t('dos.dining.generateNeedsSittings')}>
-                            <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
+                            <span className="material-symbols-rounded" aria-hidden="true">auto_awesome</span> {t('dos.examSchedule.generate')}
                         </button>
                     </div>
                 </div>

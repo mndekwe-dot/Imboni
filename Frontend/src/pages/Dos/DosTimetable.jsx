@@ -414,7 +414,7 @@ export function DosTimetable() {
                         onNotificationRead={markRead}
                         actions={
                             <button className="btn btn-secondary" onClick={() => setShowGenerate(true)}>
-                                <span className="material-symbols-rounded">auto_awesome</span> {t('common.generate')}
+                                <span className="material-symbols-rounded" aria-hidden="true">auto_awesome</span> {t('common.generate')}
                             </button>
                         }
                     />
@@ -450,14 +450,14 @@ export function DosTimetable() {
                                         className="btn btn-outline btn-sm"
                                         onClick={() => setShowPeriodManager(true)}
                                     >
-                                        <span className="material-symbols-rounded icon-sm">schedule</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">schedule</span>
                                         {t('dos.scheduling.editPeriods')}
                                     </button>
                                     <button
                                         className="btn btn-primary btn-sm"
                                         onClick={() => { setEditingSlot(null); setShowForm(true) }}
                                     >
-                                        <span className="material-symbols-rounded">add</span> {t('dos.scheduling.addSlot')}
+                                        <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dos.scheduling.addSlot')}
                                     </button>
                                 </div>
                             </div>
@@ -516,11 +516,11 @@ export function DosTimetable() {
                                 <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                                     <div className="modal-header">
                                         <div className="modal-header-left">
-                                            <span className="material-symbols-rounded dos-tt-warn-icon">warning</span>
+                                            <span className="material-symbols-rounded dos-tt-warn-icon" aria-hidden="true">warning</span>
                                             <h2 className="modal-title">{t('dos.timetable.conflictTitle')}</h2>
                                         </div>
-                                        <button className="btn-icon-clean" onClick={() => setConflict(null)}>
-                                            <span className="material-symbols-rounded">close</span>
+                                        <button className="btn-icon-clean" onClick={() => setConflict(null)} aria-label={t('common.close')}>
+                                            <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                         </button>
                                     </div>
                                     <div className="modal-body">

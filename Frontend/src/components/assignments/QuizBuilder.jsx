@@ -74,12 +74,12 @@ export function QuizBuilder({ questions, onChange, onOpenBank }) {
                     <button key={qt.value} type="button"
                         className="btn btn-outline btn-sm"
                         onClick={() => onChange([...questions, newQuestion(qt.value)])}>
-                        <span className="material-symbols-rounded icon-sm">{qt.icon}</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">{qt.icon}</span>
                         + {t(qt.labelKey)}
                     </button>
                 ))}
                 <button type="button" className="btn btn-outline btn-sm u-ml-auto" onClick={onOpenBank}>
-                    <span className="material-symbols-rounded icon-sm">library_books</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">library_books</span>
                     {t('teacher.assignments.importFromBank')}
                 </button>
             </div>

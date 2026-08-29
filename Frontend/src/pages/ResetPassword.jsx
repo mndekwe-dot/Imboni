@@ -40,7 +40,7 @@ export function ResetPassword() {
         <div className="reset-password-page">
             <div className="reset-password-card">
                 <div className="reset-password-icon">
-                    <span className="material-symbols-rounded">lock</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">lock</span>
                 </div>
 
                 <h1 className="reset-password-title">Set new password</h1>
@@ -69,7 +69,7 @@ export function ResetPassword() {
                                 onClick={() => setShowPassword(s => !s)}
                                 aria-label="Toggle password visibility"
                             >
-                                <span className="material-symbols-rounded">
+                                <span className="material-symbols-rounded" aria-hidden="true">
                                     {showPassword ? 'visibility_off' : 'visibility'}
                                 </span>
                             </button>
@@ -94,7 +94,7 @@ export function ResetPassword() {
                                 onClick={() => setShowConfirm(s => !s)}
                                 aria-label="Toggle password visibility"
                             >
-                                <span className="material-symbols-rounded">
+                                <span className="material-symbols-rounded" aria-hidden="true">
                                     {showConfirm ? 'visibility_off' : 'visibility'}
                                 </span>
                             </button>
@@ -103,13 +103,13 @@ export function ResetPassword() {
 
                     <ul className="reset-password-rules">
                         <li className={hasMinLength ? 'reset-password-rule-met' : ''}>
-                            <span className="material-symbols-rounded">
+                            <span className="material-symbols-rounded" aria-hidden="true">
                                 {hasMinLength ? 'check_circle' : 'radio_button_unchecked'}
                             </span>
                             Must be at least 8 characters
                         </li>
                         <li className={hasSpecialChar ? 'reset-password-rule-met' : ''}>
-                            <span className="material-symbols-rounded">
+                            <span className="material-symbols-rounded" aria-hidden="true">
                                 {hasSpecialChar ? 'check_circle' : 'radio_button_unchecked'}
                             </span>
                             Must contain one special character
@@ -122,7 +122,7 @@ export function ResetPassword() {
                 </form>
 
                 <Link to="/login" className="reset-password-back">
-                    <span className="material-symbols-rounded">arrow_back</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">arrow_back</span>
                     Back to login
                 </Link>
             </div>

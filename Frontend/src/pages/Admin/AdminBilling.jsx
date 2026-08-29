@@ -30,7 +30,7 @@ function StatusBanner({ status, onTrial }) {
     return (
         <div className={`card u-banner u-banner--${b.mod} u-mb`}>
             <div className="u-row">
-                <span className="material-symbols-rounded u-banner-icon">{b.icon}</span>
+                <span className="material-symbols-rounded u-banner-icon" aria-hidden="true">{b.icon}</span>
                 <div>
                     <p className="u-strong u-mb-xs">{b.title}</p>
                     <p className="u-muted u-sm">{b.body}</p>
@@ -65,7 +65,7 @@ function UsageMeter({ resourceKey, data }) {
     return (
         <div className="u-mb">
             <div className="u-row-sm u-mb-xs">
-                <span className="material-symbols-rounded u-icon-sm u-muted">{meta.icon}</span>
+                <span className="material-symbols-rounded u-icon-sm u-muted" aria-hidden="true">{meta.icon}</span>
                 <span className="u-strong">{meta.name}</span>
                 <span className="u-ml-auto u-sm u-muted">
                     {unlimited ? `${used} · Unlimited` : `${used} / ${limit}`}

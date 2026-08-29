@@ -105,12 +105,12 @@ function ActivityItem({ iconClass, icon, text, time }) {
     return (
         <div className="activity-item">
             <div className={`activity-icon ${iconClass}`}>
-                <span className="material-symbols-rounded icon-md">{icon}</span>
+                <span className="material-symbols-rounded icon-md" aria-hidden="true">{icon}</span>
             </div>
             <div className="activity-content">
                 <div className="activity-text">{text}</div>
                 <div className="activity-time">
-                    <span className="material-symbols-rounded icon-sm">schedule</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">schedule</span>
                     {time}
                 </div>
             </div>
@@ -167,11 +167,11 @@ function CreateTaskModal({ onClose, onCreated }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded text-primary">task_alt</span>
+                        <span className="material-symbols-rounded text-primary" aria-hidden="true">task_alt</span>
                         <h2 className="modal-title">{t('teacher.dashboard.newTask')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
 
@@ -215,7 +215,7 @@ function CreateTaskModal({ onClose, onCreated }) {
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !title.trim()}>
-                        <span className="material-symbols-rounded">save</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">save</span>
                         {saving ? t('common.saving') : t('teacher.dashboard.saveTask')}
                     </button>
                 </div>
@@ -324,19 +324,19 @@ export function TeacherDashboard() {
                             <div className="section-label-sm">{t('common.quickActions')}</div>
                             <div className="quick-actions">
                                 <button className="btn btn-primary" onClick={() => navigate('/teacher/attendance')}>
-                                    <span className="material-symbols-rounded">how_to_reg</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">how_to_reg</span>
                                     {t('teacher.dashboard.markAttendance')}
                                 </button>
                                 <button className="btn btn-outline" onClick={() => navigate('/teacher/results')}>
-                                    <span className="material-symbols-rounded">edit_note</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">edit_note</span>
                                     {t('teacher.dashboard.enterResults')}
                                 </button>
                                 <button className="btn btn-outline" onClick={() => navigate('/teacher/assignments')}>
-                                    <span className="material-symbols-rounded">assignment</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">assignment</span>
                                     {t('teacher.dashboard.assignments')}
                                 </button>
                                 <button className="btn btn-outline" onClick={() => navigate('/teacher/classes')}>
-                                    <span className="material-symbols-rounded">groups</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">groups</span>
                                     {t('teacher.dashboard.myClasses')}
                                 </button>
                             </div>
@@ -399,7 +399,7 @@ export function TeacherDashboard() {
                                                     onClick={() => setShowTaskModal(true)}
                                                     title={t('teacher.dashboard.addTask')}
                                                 >
-                                                    <span className="material-symbols-rounded icon-sm">add</span>
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                                                     {t('common.add')}
                                                 </button>
                                             </div>
@@ -467,7 +467,7 @@ export function TeacherDashboard() {
                                         <div className="card-content">
                                             {loadError && (
                                                 <p className="td-load-error">
-                                                    <span className="material-symbols-rounded td-load-error-icon">error</span>
+                                                    <span className="material-symbols-rounded td-load-error-icon" aria-hidden="true">error</span>
                                                     {loadError}
                                                 </p>
                                             )}
@@ -491,7 +491,7 @@ export function TeacherDashboard() {
                                                     onClick={loadMore}
                                                     disabled={loadingMore}
                                                 >
-                                                    <span className="material-symbols-rounded icon-sm">
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">
                                                         {loadingMore ? 'progress_activity' : 'expand_more'}
                                                     </span>
                                                     {loadingMore ? t('common.loading') : t('common.loadMore')}

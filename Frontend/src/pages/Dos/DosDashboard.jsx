@@ -63,7 +63,7 @@ function ActivityItem({ iconClass, icon, title, time }) {
     return (
         <div className="activity-item">
             <span className={`activity-icon ${iconClass}`}>
-                <span className="material-symbols-rounded">{icon}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
             </span>
             <div className="activity-details">
                 <p className="activity-title">{title}</p>
@@ -181,7 +181,7 @@ export function DosDashboard() {
     async function handleClearCompleted() {
         const done = tasks.filter(t => t.is_completed)
         if (!done.length) return
-        if (!window.confirm(`Delete ${done.length} completed task${done.length > 1 ? 's' : ''}? This cannot be undone.`)) return
+        if (!window.confirm(t('common.clearCompletedConfirm', { count: done.length }))) return
         const previous = tasks
         setTasks(prev => prev.filter(t => !t.is_completed))
         const results = await Promise.allSettled(done.map(t => deleteDosTask(t.id)))
@@ -275,15 +275,15 @@ export function DosDashboard() {
                                     <div className="card-content">
                                         <div className="action-buttons">
                                             <button className="btn btn-primary" onClick={() => navigate('/dos/results')}>
-                                                <span className="material-symbols-rounded">fact_check</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">fact_check</span>
                                                 Approve Results
                                             </button>
                                             <button className="btn btn-secondary" onClick={() => navigate('/dos/teachers')}>
-                                                <span className="material-symbols-rounded">school</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">school</span>
                                                 View Teachers
                                             </button>
                                             <button className="btn btn-secondary" onClick={() => navigate('/dos/students')}>
-                                                <span className="material-symbols-rounded">people</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">people</span>
                                                 Manage Students
                                             </button>
                                         </div>
@@ -404,12 +404,12 @@ export function DosDashboard() {
                                     <span className="badge badge-secondary">{tasks.filter(t => !t.is_completed).length} pending</span>
                                     {tasks.some(t => t.is_completed) && (
                                         <button className="btn btn-outline btn-sm" onClick={handleClearCompleted}>
-                                            <span className="material-symbols-rounded icon-sm">playlist_remove</span>
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">playlist_remove</span>
                                             Clear done
                                         </button>
                                     )}
                                     <button className="btn btn-outline btn-sm" onClick={() => setShowTaskForm(v => !v)}>
-                                        <span className="material-symbols-rounded icon-sm">{showTaskForm ? 'expand_less' : 'add'}</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">{showTaskForm ? 'expand_less' : 'add'}</span>
                                         {showTaskForm ? 'Cancel' : 'Add'}
                                     </button>
                                 </div>
@@ -436,7 +436,7 @@ export function DosDashboard() {
                                         </div>
                                         {taskError && <p className="dos-task-err">{taskError}</p>}
                                         <button className="btn btn-primary btn-sm" onClick={handleCreateTask} disabled={taskSaving || !taskTitle.trim()}>
-                                            <span className="material-symbols-rounded icon-sm">save</span>
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                                             {taskSaving ? 'Saving…' : 'Save Task'}
                                         </button>
                                     </div>
@@ -468,7 +468,7 @@ export function DosDashboard() {
                                                     aria-label={`Delete "${task.title}"`}
                                                     onClick={() => handleDeleteTask(task)}
                                                 >
-                                                    <span className="material-symbols-rounded icon-sm">delete</span>
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                                                 </button>
                                             </div>
                                         ))}

@@ -32,7 +32,7 @@ export function WelcomeBanner({ name, role, badge, children }) {
             </div>
             <div className="welcome-banner-right">
                 {badge && <span className="welcome-banner-badge">{badge}</span>}
-                <span className="material-symbols-rounded welcome-banner-icon">waving_hand</span>
+                <span className="material-symbols-rounded welcome-banner-icon" aria-hidden="true">waving_hand</span>
             </div>
         </div>
     )

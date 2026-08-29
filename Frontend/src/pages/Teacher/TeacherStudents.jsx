@@ -54,7 +54,7 @@ function StudentRow({ student, onView }) {
             </td>
             <td>
                 <button className="btn btn-sm btn-outline" onClick={() => onView(student)}>
-                    <span className="material-symbols-rounded icon-sm">visibility</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">visibility</span>
                     View
                 </button>
             </td>
@@ -196,14 +196,14 @@ export function TeacherStudent() {
 
                         {error && (
                             <div className="alert alert-danger u-mb">
-                                <span className="material-symbols-rounded alert-icon">error</span>
+                                <span className="material-symbols-rounded alert-icon" aria-hidden="true">error</span>
                                 {error}
                             </div>
                         )}
 
                         <div className="search-filter-bar mb-5">
                             <div className="search-input-wrapper">
-                                <span className="material-symbols-rounded search-input-icon">search</span>
+                                <span className="material-symbols-rounded search-input-icon" aria-hidden="true">search</span>
                                 <input
                                     type="text"
                                     className="input search-input"

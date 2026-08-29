@@ -297,7 +297,7 @@ export function TeacherExamForm() {
 
                                     <button type="button" className="btn btn-outline u-mb"
                                         onClick={() => setSections(s => [...s, newSection(s.length)])}>
-                                        <span className="material-symbols-rounded icon-sm">playlist_add</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">playlist_add</span>
                                         {t('teacher.exams.addSection')}
                                     </button>
                                 </fieldset>
@@ -323,7 +323,7 @@ export function TeacherExamForm() {
                                         disabled={saving || Boolean(blocker)}
                                         title={blocker ? t(blocker) : undefined}
                                         onClick={() => save({ thenSubmit: true })}>
-                                        <span className="material-symbols-rounded icon-sm">send</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                                         {t('teacher.exams.submitForApproval')}
                                     </button>
                                 </>

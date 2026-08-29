@@ -37,7 +37,7 @@ export function StimulusEditor({ stimulus, onChange }) {
         return (
             <button type="button" className="btn btn-outline btn-sm u-self-start u-mb"
                 onClick={() => onChange({ ...newStimulus(), title: t('teacher.exams.stimulusDefaultTitle') })}>
-                <span className="material-symbols-rounded icon-sm">article_shortcut</span>
+                <span className="material-symbols-rounded icon-sm" aria-hidden="true">article_shortcut</span>
                 {t('teacher.exams.addStimulus')}
             </button>
         )
@@ -52,7 +52,7 @@ export function StimulusEditor({ stimulus, onChange }) {
                 <button type="button" className="btn btn-outline btn-sm"
                     onClick={() => onChange(newStimulus())}
                     title={t('teacher.exams.removeStimulus')}>
-                    <span className="material-symbols-rounded icon-sm">delete</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                 </button>
             </div>
 
@@ -76,13 +76,13 @@ export function StimulusEditor({ stimulus, onChange }) {
                             set('image', '')
                             if (fileRef.current) fileRef.current.value = ''
                         }}>
-                        <span className="material-symbols-rounded icon-sm">hide_image</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">hide_image</span>
                         {t('teacher.exams.removeImage')}
                     </button>
                 ) : (
                     <button type="button" className="btn btn-outline btn-sm"
                         onClick={() => fileRef.current?.click()}>
-                        <span className="material-symbols-rounded icon-sm">add_photo_alternate</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add_photo_alternate</span>
                         {t('teacher.exams.stimulusImage')}
                     </button>
                 )}

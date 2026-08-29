@@ -22,7 +22,7 @@
   background: var(--primary);
   color: white;
   padding: 10px 20px;
-  z-index: 2000;
+  z-index: var(--z-skip-link);
   transition: top 0.3s;
   text-decoration: none;
   border-radius: 0 0 5px 5px;

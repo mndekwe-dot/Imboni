@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
-import logo from '../../assets/images/imboni-logo.png'
+import logo from '../../assets/images/imboni-logo.webp'
 import { useSchoolBranding } from '../../hooks/useSchoolBranding'
 
 /* Every page mounts its own <Sidebar> — 64 of them — so component state alone

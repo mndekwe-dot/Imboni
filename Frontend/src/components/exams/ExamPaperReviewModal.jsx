@@ -67,11 +67,11 @@ export function ExamPaperReviewModal({ paper, onClose, onDecided }) {
                         <>
                             <button className="btn btn-outline" disabled={busy}
                                 onClick={() => setSendingBack(true)}>
-                                <span className="material-symbols-rounded icon-sm">undo</span>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">undo</span>
                                 {t('dos.examPapers.sendBack')}
                             </button>
                             <button className="btn btn-primary" disabled={busy} onClick={approve}>
-                                <span className="material-symbols-rounded icon-sm">task_alt</span>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">task_alt</span>
                                 {busy ? t('common.saving') : t('dos.examPapers.approve')}
                             </button>
                         </>

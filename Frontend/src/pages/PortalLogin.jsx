@@ -36,11 +36,11 @@ function ForgotPasswordModal({ onClose }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded">lock_reset</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">lock_reset</span>
                         <h2 className="modal-title">{t('auth.resetPassword')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
 
@@ -175,7 +175,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
                     switcher is centred here exactly as it is on /login - the two
                     sign-in screens should not differ in where their controls sit. */}
                 <Link to="/" className="portal-login-back">
-                    <span className="material-symbols-rounded">arrow_back</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">arrow_back</span>
                     {t('auth.backToHome')}
                 </Link>
                 <div className="login-lang">
@@ -186,11 +186,11 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
                     <div className="login-welcome-icon">
                         {schoolLogo
                             ? <img src={schoolLogo} alt={schoolName || ''} />
-                            : <span className="material-symbols-rounded">{icon}</span>}
+                            : <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>}
                     </div>
                     <div className="portal-login-badge">
                         <div className="portal-login-badge-icon">
-                            <span className="material-symbols-rounded">{icon}</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
                         </div>
                         <span>{label}</span>
                     </div>
@@ -202,7 +202,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
                 {/* Error banner */}
                 {error && (
                     <div className="login-error portal-login-error-visible">
-                        <span className="material-symbols-rounded">error</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">error</span>
                         {error}
                     </div>
                 )}
@@ -215,7 +215,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
                         <div className="form-group">
                             <label className="form-label" htmlFor="twofa-code">{t('auth.verificationCode')}</label>
                             <div className="input-wrap">
-                                <span className="input-icon material-symbols-rounded">password</span>
+                                <span className="input-icon material-symbols-rounded" aria-hidden="true">password</span>
                                 <input
                                     className="form-input"
                                     type="text"
@@ -250,7 +250,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
                     <div className="form-group">
                         <label className="form-label" htmlFor="email">{t('auth.email')}</label>
                         <div className="input-wrap">
-                            <span className="input-icon material-symbols-rounded">mail</span>
+                            <span className="input-icon material-symbols-rounded" aria-hidden="true">mail</span>
                             <input
                                 className="form-input"
                                 type="email"
@@ -268,7 +268,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
                     <div className="form-group">
                         <label className="form-label" htmlFor="password">{t('auth.password')}</label>
                         <div className="input-wrap">
-                            <span className="input-icon material-symbols-rounded">lock</span>
+                            <span className="input-icon material-symbols-rounded" aria-hidden="true">lock</span>
                             <input
                                 className="form-input"
                                 type={showPw ? 'text' : 'password'}
@@ -281,7 +281,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
                                 onChange={e => setPassword(e.target.value)}
                             />
                             <button type="button" className="pw-toggle" onClick={() => setShowPw(p => !p)} aria-label={t('auth.togglePassword')}>
-                                <span className="material-symbols-rounded">
+                                <span className="material-symbols-rounded" aria-hidden="true">
                                     {showPw ? 'visibility_off' : 'visibility'}
                                 </span>
                             </button>

@@ -73,7 +73,7 @@ export function PeriodManager({ periods, onChange, onClose }) {
                             </div>
                         ) : (
                             <button className="btn btn-outline btn-sm" onClick={() => removeRow(i)} title="Remove row">
-                                <span className="material-symbols-rounded icon-sm">delete</span>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                             </button>
                         )}
                     </div>
@@ -82,10 +82,10 @@ export function PeriodManager({ periods, onChange, onClose }) {
                 {/* Add row + Done actions */}
                 <div className="tt-form-actions tt-form-actions--split">
                     <button className="btn btn-outline btn-sm" onClick={addRow}>
-                        <span className="material-symbols-rounded icon-sm">add</span> Add Row
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> Add Row
                     </button>
                     <button className="btn btn-primary" onClick={onClose}>
-                        <span className="material-symbols-rounded icon-sm">check</span> Done
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">check</span> Done
                     </button>
                 </div>
 

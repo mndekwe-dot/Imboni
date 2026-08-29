@@ -65,7 +65,7 @@ export function TwoFactorSettings() {
     return (
         <div className="tfa-section">
             <h4 className="tfa-title">
-                <span className="material-symbols-rounded">encrypted</span>
+                <span className="material-symbols-rounded" aria-hidden="true">encrypted</span>
                 Two-Factor Authentication
             </h4>
             <p className="tfa-lead">
@@ -79,7 +79,7 @@ export function TwoFactorSettings() {
             {enabled && stage === 'idle' && (
                 <div className="tfa-row">
                     <span className="tfa-enabled">
-                        <span className="material-symbols-rounded">check_circle</span> Enabled
+                        <span className="material-symbols-rounded" aria-hidden="true">check_circle</span> Enabled
                     </span>
                     <button className="btn btn-secondary" onClick={() => { setStage('disable'); setError('') }}>
                         Disable

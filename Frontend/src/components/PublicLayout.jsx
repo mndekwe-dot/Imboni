@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './ui/LanguageSwitcher'
-import logo from '../assets/images/imboni-logo.png'
+import logo from '../assets/images/imboni-logo.webp'
 import '../styles/public-pages.css'
 
 /**
@@ -35,7 +35,7 @@ export function PublicLayout({ title, subtitle, children }) {
                     </div>
                     <LanguageSwitcher variant="buttons" compact />
                     <Link to="/login" className="pub-nav-signin">
-                        <span className="material-symbols-rounded">login</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">login</span>
                         {t('publicNav.signIn')}
                     </Link>
                 </div>

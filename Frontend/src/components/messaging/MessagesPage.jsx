@@ -96,14 +96,14 @@ export function MessagesPage({
                                 <div className="conv-panel-header">
                                     <h3>{t('messaging.title')}</h3>
                                     <button className="btn btn-sm btn-primary">
-                                        <span className="material-symbols-rounded">edit</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">edit</span>
                                         {t('messaging.new')}
                                     </button>
                                 </div>
 
                                 <div className="conv-search">
                                     <div className="conv-search-inner">
-                                        <span className="material-symbols-rounded">search</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">search</span>
                                         <input type="text" placeholder={t('messaging.search')} />
                                     </div>
                                 </div>
@@ -134,7 +134,7 @@ export function MessagesPage({
                                     {/* Thread header */}
                                     <div className="thread-head">
                                         <button className="back-btn" aria-label={t('messaging.backToConversations')} onClick={() => setShowThread(false)}>
-                                            <span className="material-symbols-rounded">arrow_back</span>
+                                            <span className="material-symbols-rounded" aria-hidden="true">arrow_back</span>
                                         </button>
                                         <div className={`thread-head-avatar has-presence `}>
                                             {contactIsOnline && (
@@ -158,10 +158,10 @@ export function MessagesPage({
                                         </div>
                                         <div className="thread-actions">
                                             <button className="thread-action-btn" title={t('messaging.viewProfile')}>
-                                                <span className="material-symbols-rounded">person</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">person</span>
                                             </button>
                                             <button className="thread-action-btn" title={t('messaging.moreOptions')}>
-                                                <span className="material-symbols-rounded">more_vert</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">more_vert</span>
                                             </button>
                                         </div>
                                     </div>
@@ -176,7 +176,7 @@ export function MessagesPage({
                                     {/* Composer */}
                                     <div className="thread-composer">
                                         <button className="composer-icon-btn" title={t('messaging.attachFile')}>
-                                            <span className="material-symbols-rounded">attach_file</span>
+                                            <span className="material-symbols-rounded" aria-hidden="true">attach_file</span>
                                         </button>
                                         <input
                                             type="text"
@@ -184,10 +184,10 @@ export function MessagesPage({
                                             placeholder={composerPlaceholder}
                                         />
                                         <button className="composer-icon-btn" title={t('messaging.emoji')}>
-                                            <span className="material-symbols-rounded">emoji_emotions</span>
+                                            <span className="material-symbols-rounded" aria-hidden="true">emoji_emotions</span>
                                         </button>
                                         <button className="btn btn-primary send-btn" title={t('common.send')}>
-                                            <span className="material-symbols-rounded">send</span>
+                                            <span className="material-symbols-rounded" aria-hidden="true">send</span>
                                         </button>
                                     </div>
                                 </div>

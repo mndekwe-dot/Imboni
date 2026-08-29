@@ -1,6 +1,7 @@
 {
   "announcements": {
     "bodyPlaceholder": "Andika itangazo ryawe…",
+    "confirmDelete": "Gusiba “{{title}}”? Ntibisubirwaho.",
     "emptyDescription": "Nta tangazo ryasohoye ufite.",
     "none": "Nta matangazo",
     "subtitle": "Kora kandi ucunge amatangazo y'ishuri",

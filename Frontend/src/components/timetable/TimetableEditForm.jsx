@@ -125,11 +125,11 @@ export function TimetableEditForm({
                             className="btn btn-outline tt-btn-danger"
                             onClick={() => onDelete(editingSlot)}
                         >
-                            <span className="material-symbols-rounded icon-sm">delete</span> Delete
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span> Delete
                         </button>
                     )}
                     <button className="btn btn-primary" onClick={() => onSave(form)}>
-                        <span className="material-symbols-rounded icon-sm">save</span> Save
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span> Save
                     </button>
                 </div>
             </div>

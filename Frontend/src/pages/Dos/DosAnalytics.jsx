@@ -179,7 +179,7 @@ export function DosAnalytics() {
                         <div className="card u-mt">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded dos-attention-flag-icon">flag</span>
+                                    <span className="material-symbols-rounded dos-attention-flag-icon" aria-hidden="true">flag</span>
                                     Students Needing Attention
                                 </h3>
                                 <span className="badge">{attention.length}</span>
@@ -202,7 +202,7 @@ export function DosAnalytics() {
                                                 <div className="dos-attention-reasons">
                                                     {s.reasons.map((r, i) => (
                                                         <span key={i} className={`dos-reason-chip ${r.type}`}>
-                                                            <span className="material-symbols-rounded dos-reason-chip-icon">
+                                                            <span className="material-symbols-rounded dos-reason-chip-icon" aria-hidden="true">
                                                                 {r.type === 'score' ? 'trending_down' : 'event_busy'}
                                                             </span>
                                                             {r.label}

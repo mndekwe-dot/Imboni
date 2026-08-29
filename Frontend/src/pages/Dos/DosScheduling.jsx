@@ -138,7 +138,7 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                             {exam.title && <>
                                 <span className="es-detail-sep">·</span>
                                 <span className="es-detail-session">
-                                    <span className="material-symbols-rounded">folder_open</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">folder_open</span>
                                     {exam.title}
                                 </span>
                             </>}
@@ -149,11 +149,11 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
 
                 <div className="es-detail-grid">
                     <div className="es-detail-item">
-                        <span className="material-symbols-rounded es-detail-icon">event</span>
+                        <span className="material-symbols-rounded es-detail-icon" aria-hidden="true">event</span>
                         <div><div className="es-detail-label">{t('common.date')}</div><div className="es-detail-value">{fmtDate(exam.exam_date)}</div></div>
                     </div>
                     <div className="es-detail-item">
-                        <span className="material-symbols-rounded es-detail-icon">schedule</span>
+                        <span className="material-symbols-rounded es-detail-icon" aria-hidden="true">schedule</span>
                         <div>
                             <div className="es-detail-label">{t('common.time')}</div>
                             <div className="es-detail-value">
@@ -163,24 +163,24 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                         </div>
                     </div>
                     <div className="es-detail-item">
-                        <span className="material-symbols-rounded es-detail-icon">class</span>
+                        <span className="material-symbols-rounded es-detail-icon" aria-hidden="true">class</span>
                         <div><div className="es-detail-label">{t('common.class')}</div><div className="es-detail-value">{exam.class_name||t('dos.scheduling.allClasses')}</div></div>
                     </div>
                     <div className="es-detail-item">
-                        <span className="material-symbols-rounded es-detail-icon">meeting_room</span>
+                        <span className="material-symbols-rounded es-detail-icon" aria-hidden="true">meeting_room</span>
                         <div><div className="es-detail-label">{t('common.venue')}</div><div className="es-detail-value">{exam.venue||'-'}</div></div>
                     </div>
                     <div className="es-detail-item">
-                        <span className="material-symbols-rounded es-detail-icon">person</span>
+                        <span className="material-symbols-rounded es-detail-icon" aria-hidden="true">person</span>
                         <div><div className="es-detail-label">{t('common.invigilator')}</div><div className="es-detail-value">{exam.invigilator||'-'}</div></div>
                     </div>
                     <div className="es-detail-item">
-                        <span className="material-symbols-rounded es-detail-icon">school</span>
+                        <span className="material-symbols-rounded es-detail-icon" aria-hidden="true">school</span>
                         <div><div className="es-detail-label">{t('common.term')}</div><div className="es-detail-value">{exam.term||'-'}</div></div>
                     </div>
                     {exam.notes && (
                         <div className="es-detail-item es-detail-span2">
-                            <span className="material-symbols-rounded es-detail-icon">notes</span>
+                            <span className="material-symbols-rounded es-detail-icon" aria-hidden="true">notes</span>
                             <div><div className="es-detail-label">{t('common.notes')}</div><div className="es-detail-value">{exam.notes}</div></div>
                         </div>
                     )}
@@ -202,14 +202,14 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                         <>
                             <button className="btn btn-outline btn-destructive-outline"
                                 onClick={() => { if(window.confirm(t('dos.scheduling.deleteExamConfirm'))){ onDelete(exam.id); onClose() } }}>
-                                <span className="material-symbols-rounded icon-sm">delete</span> {t('common.delete')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span> {t('common.delete')}
                             </button>
                             <button className="btn btn-outline" onClick={() => setRescheduling(true)}>
-                                <span className="material-symbols-rounded icon-sm">event_repeat</span> {t('dos.scheduling.reschedule')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">event_repeat</span> {t('dos.scheduling.reschedule')}
                             </button>
                             <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
                             <button className="btn btn-primary" onClick={onEdit}>
-                                <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span> {t('common.edit')}
                             </button>
                         </>
                     )}
@@ -246,7 +246,7 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
         <Modal title={editing ? t('dos.scheduling.editExam') : t('dos.scheduling.addExam')} icon="edit_calendar" onClose={onCancel} wide>
             <div className="tt-form">
                 <div className="form-group u-mb-sm">
-                    <label className="form-label"><span className="material-symbols-rounded icon-sm">folder_open</span> {t('dos.scheduling.sessionGroupName')}</label>
+                    <label className="form-label"><span className="material-symbols-rounded icon-sm" aria-hidden="true">folder_open</span> {t('dos.scheduling.sessionGroupName')}</label>
                     <input className="form-input" list="es-session-list" value={form.session} onChange={set('session')} placeholder={t('dos.scheduling.egSessionName')} />
                     <datalist id="es-session-list">{sessions.map(s => <option key={s} value={s}/>)}</datalist>
                 </div>
@@ -309,7 +309,7 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
                 <div className="tt-form-actions">
                     <button className="btn btn-outline" onClick={onCancel}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSubmit}>
-                        <span className="material-symbols-rounded icon-sm">save</span> {editing ? 'Update' : 'Save'}
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span> {editing ? 'Update' : 'Save'}
                     </button>
                 </div>
             </div>
@@ -679,16 +679,16 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                     <DashboardContent>
                         <div className="filter-tabs-bar mb-5">
                             <button className={`filter-tab${activeTab==='timetable'?' active':''}`} onClick={() => setActiveTab('timetable')}>
-                                <span className="material-symbols-rounded">calendar_view_week</span> {t('dos.scheduling.tabTimetable')}
+                                <span className="material-symbols-rounded" aria-hidden="true">calendar_view_week</span> {t('dos.scheduling.tabTimetable')}
                             </button>
                             <button className={`filter-tab${activeTab==='exams'?' active':''}`} onClick={() => setActiveTab('exams')}>
-                                <span className="material-symbols-rounded">school</span> {t('dos.scheduling.tabExams')}
+                                <span className="material-symbols-rounded" aria-hidden="true">school</span> {t('dos.scheduling.tabExams')}
                             </button>
                             <button className={`filter-tab${activeTab==='duty'?' active':''}`} onClick={() => setActiveTab('duty')}>
-                                <span className="material-symbols-rounded">assignment_ind</span> {t('dos.scheduling.tabDuty')}
+                                <span className="material-symbols-rounded" aria-hidden="true">assignment_ind</span> {t('dos.scheduling.tabDuty')}
                             </button>
                             <button className={`filter-tab${activeTab==='dining'?' active':''}`} onClick={() => setActiveTab('dining')}>
-                                <span className="material-symbols-rounded">restaurant</span> {t('dos.scheduling.tabDining')}
+                                <span className="material-symbols-rounded" aria-hidden="true">restaurant</span> {t('dos.scheduling.tabDining')}
                             </button>
                         </div>
 
@@ -710,10 +710,10 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         <h2 className="card-title">{t('dos.scheduling.classLabel', { name: classId })}</h2>
                                         <div className="flex-row-gap">
                                             <button className="btn btn-outline btn-sm" onClick={() => setShowPeriodManager(true)}>
-                                                <span className="material-symbols-rounded icon-sm">schedule</span> {t('dos.scheduling.editPeriods')}
+                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">schedule</span> {t('dos.scheduling.editPeriods')}
                                             </button>
                                             <button className="btn btn-primary btn-sm" onClick={() => {setEditingSlot(null);setShowForm(true)}}>
-                                                <span className="material-symbols-rounded">add</span> {t('dos.scheduling.addSlot')}
+                                                <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dos.scheduling.addSlot')}
                                             </button>
                                         </div>
                                     </div>
@@ -723,19 +723,19 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                             dropdown that hid all 18 classes behind a click. */}
                                         {(config||[]).length > 1 && (
                                             <div className="es-filter-section">
-                                                <div className="es-filter-section-label"><span className="material-symbols-rounded">layers</span> {t('common.level')}</div>
+                                                <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">layers</span> {t('common.level')}</div>
                                                 <div className="att-mode-bar u-mb-0">
                                                     <button className={`att-mode-btn${ttLevel==='all'?' active':''}`} onClick={() => selectTtLevel('all')}>{t('dos.scheduling.allLevels')}</button>
                                                     {(config||[]).map(sec => (
                                                         <button key={sec.id||sec.name} className={`att-mode-btn${ttLevel===sec.name?' active':''}`} onClick={() => selectTtLevel(sec.name)}>
-                                                            <span className="material-symbols-rounded">school</span> {sec.name}
+                                                            <span className="material-symbols-rounded" aria-hidden="true">school</span> {sec.name}
                                                         </button>
                                                     ))}
                                                 </div>
                                             </div>
                                         )}
                                         <div className="es-filter-section">
-                                            <div className="es-filter-section-label"><span className="material-symbols-rounded">group</span> {t('common.class')}</div>
+                                            <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">group</span> {t('common.class')}</div>
                                             <div className="es-class-chips">
                                                 {ttClasses.map(cls => (
                                                     <button key={cls} className={`es-class-chip-btn${classId===cls?' active':''}`} onClick={() => setClassId(cls)}>{cls}</button>
@@ -758,9 +758,9 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                     <div className="card-header">
                                         <h2 className="card-title">{t('dos.scheduling.tabExams')}</h2>
                                         <div className="es-card-actions">
-                                            <button className="btn btn-outline btn-sm" onClick={handlePrint}><span className="material-symbols-rounded">print</span> {t('common.print')}</button>
+                                            <button className="btn btn-outline btn-sm" onClick={handlePrint}><span className="material-symbols-rounded" aria-hidden="true">print</span> {t('common.print')}</button>
                                             <button className="btn btn-primary btn-sm" onClick={() => {setDefaultSession(selectedSession!=='all'?selectedSession:'');setDefaultDate('');setEditingExam(null);setShowExamForm(true)}}>
-                                                <span className="material-symbols-rounded">add</span> {t('dos.scheduling.addExam')}
+                                                <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dos.scheduling.addExam')}
                                             </button>
                                         </div>
                                     </div>
@@ -769,7 +769,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
                                         {/* Session */}
                                         <div className="es-filter-section">
-                                            <div className="es-filter-section-label"><span className="material-symbols-rounded">folder_open</span> {t('common.session')}</div>
+                                            <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">folder_open</span> {t('common.session')}</div>
                                             <div className="es-session-chips">
                                                 <button className={`es-session-chip${selectedSession==='all'?' active':''}`} onClick={() => setSelectedSession('all')}>
                                                     {t('common.all')} <span className="es-chip-count">{exams.length}</span>
@@ -781,7 +781,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                         </button>
                                                         <button className="es-session-chip-del" title={t('dos.scheduling.deleteSession')}
                                                             onClick={e => {e.stopPropagation();handleDeleteSession(s)}}>
-                                                            <span className="material-symbols-rounded">close</span>
+                                                            <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                                         </button>
                                                     </span>
                                                 ))}
@@ -797,7 +797,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                     </span>
                                                 ) : (
                                                     <button className="es-session-chip es-session-chip-new" onClick={() => setAddingSession(true)}>
-                                                        <span className="material-symbols-rounded es-new-session-icon">add</span> {t('dos.scheduling.newSession')}
+                                                        <span className="material-symbols-rounded es-new-session-icon" aria-hidden="true">add</span> {t('dos.scheduling.newSession')}
                                                     </button>
                                                 )}
                                             </div>
@@ -805,12 +805,12 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
                                         {/* Level */}
                                         <div className="es-filter-section">
-                                            <div className="es-filter-section-label"><span className="material-symbols-rounded">layers</span> {t('common.level')}</div>
+                                            <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">layers</span> {t('common.level')}</div>
                                             <div className="att-mode-bar u-mb-0">
                                                 <button className={`att-mode-btn${sectionFilter==='all'?' active':''}`} onClick={() => {setSectionFilter('all');setClassFilter('all')}}>{t('dos.scheduling.allLevels')}</button>
                                                 {(config||[]).map(sec => (
                                                     <button key={sec.id||sec.name} className={`att-mode-btn${sectionFilter===sec.name?' active':''}`} onClick={() => {setSectionFilter(sec.name);setClassFilter('all')}}>
-                                                        <span className="material-symbols-rounded">school</span>
+                                                        <span className="material-symbols-rounded" aria-hidden="true">school</span>
                                                         {sec.name}
                                                         {(sec.years||[]).length>0 && <span className="es-section-range">{sec.years[0].name}-{sec.years[sec.years.length-1].name}</span>}
                                                     </button>
@@ -821,7 +821,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         {/* Class (only when section selected) */}
                                         {sectionFilter!=='all' && classesInSection.length>0 && (
                                             <div className="es-filter-section">
-                                                <div className="es-filter-section-label"><span className="material-symbols-rounded">group</span> {t('common.class')}</div>
+                                                <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">group</span> {t('common.class')}</div>
                                                 <div className="es-class-chips">
                                                     <button className={`es-class-chip-btn${classFilter==='all'?' active':''}`} onClick={() => setClassFilter('all')}>{t('common.all')}</button>
                                                     {classesInSection.map(cls => (
@@ -850,11 +850,11 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                 {/* Navigation */}
                                                 <div className="es-cal-month-nav">
                                                     <button className="btn btn-outline btn-sm" onClick={() => {setCalYear(todayDate.getFullYear());setCalMonth(todayDate.getMonth())}}>{t('common.today')}</button>
-                                                    <button className="es-cal-nav-btn" onClick={prevMonth}>
-                                                        <span className="material-symbols-rounded">chevron_left</span>
+                                                    <button className="es-cal-nav-btn" onClick={prevMonth} aria-label={t('common.previous')}>
+                                                        <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                                                     </button>
-                                                    <button className="es-cal-nav-btn" onClick={nextMonth}>
-                                                        <span className="material-symbols-rounded">chevron_right</span>
+                                                    <button className="es-cal-nav-btn" onClick={nextMonth} aria-label={t('common.next')}>
+                                                        <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                                                     </button>
                                                     <span className="es-cal-month-title">{monthName(calYear, calMonth)} {calYear}</span>
                                                     <span className="es-cal-month-count">

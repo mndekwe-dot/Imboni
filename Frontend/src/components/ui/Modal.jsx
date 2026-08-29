@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 /*
   Global Modal — wraps native <dialog> for use across all portals.
@@ -12,6 +13,7 @@ import { useEffect, useRef } from 'react'
     size      — 'default' | 'wide' | 'lg'  (default: 'default')
 */
 export function Modal({ title, icon, onClose, children, footer, size = 'default' }) {
+    const { t } = useTranslation()
     const dialogRef = useRef(null)
 
     useEffect(() => {
@@ -36,10 +38,10 @@ export function Modal({ title, icon, onClose, children, footer, size = 'default'
         >
             <div className="tt-modal-inner" onClick={e => e.stopPropagation()}>
                 <div className="tt-modal-header">
-                    {icon && <span className="material-symbols-rounded">{icon}</span>}
+                    {icon && <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>}
                     <h2 className="tt-modal-title">{title}</h2>
-                    <button className="tt-modal-close" onClick={onClose} aria-label="Close">
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="tt-modal-close" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
 

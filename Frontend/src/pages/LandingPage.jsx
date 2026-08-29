@@ -2,7 +2,7 @@ import '../styles/landing.css'
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import logo from '../assets/images/imboni-logo.png'
+import logo from '../assets/images/imboni-logo.webp'
 
 // These tables are evaluated once at module load, before a language is known,
 // so they hold translation keys and the component resolves them at render.
@@ -132,7 +132,7 @@ export function LandingPage() {
                     </div>
                     <LanguageSwitcher variant="buttons" compact />
                     <Link to="/login" className="landing-nav-signin">
-                        <span className="material-symbols-rounded">login</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">login</span>
                         {t('publicNav.signIn')}
                     </Link>
                 </div>
@@ -147,7 +147,7 @@ export function LandingPage() {
                 <div className="hero-inner">
                     <div className="hero-content">
                         <div className="hero-badge">
-                            <span className="material-symbols-rounded">verified</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">verified</span>
                             {t('landing.hero.badge')}
                         </div>
 
@@ -164,7 +164,7 @@ export function LandingPage() {
                         <div className="hero-actions">
                             <Link to="/login" className="hero-cta">
                                 {t('landing.hero.cta')}
-                                <span className="material-symbols-rounded">arrow_forward</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
                             </Link>
                             <a href="#about" className="hero-secondary">
                                 {t('landing.hero.secondary')}
@@ -191,17 +191,17 @@ export function LandingPage() {
                                 </div>
                                 <div className="mockup-stat-row">
                                     <div className="mockup-stat-card" style={{ '--mc': '#0d9488' }}>
-                                        <span className="material-symbols-rounded">menu_book</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">menu_book</span>
                                         <div className="msc-val">8</div>
                                         <div className="msc-lbl">{t('landing.mock.subjects')}</div>
                                     </div>
                                     <div className="mockup-stat-card" style={{ '--mc': '#f97316' }}>
-                                        <span className="material-symbols-rounded">assignment</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">assignment</span>
                                         <div className="msc-val">3</div>
                                         <div className="msc-lbl">{t('landing.mock.dueSoon')}</div>
                                     </div>
                                     <div className="mockup-stat-card" style={{ '--mc': '#4f46e5' }}>
-                                        <span className="material-symbols-rounded">check_circle</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                                         <div className="msc-val">94%</div>
                                         <div className="msc-lbl">{t('landing.mock.attendance')}</div>
                                     </div>
@@ -211,7 +211,7 @@ export function LandingPage() {
                                     {mockNotifs.map((n, i) => (
                                         <div key={i} className="mockup-notif">
                                             <div className="mockup-notif-icon" style={{ background: `${n.color}20`, color: n.color }}>
-                                                <span className="material-symbols-rounded">{n.icon}</span>
+                                                <span className="material-symbols-rounded" aria-hidden="true">{n.icon}</span>
                                             </div>
                                             <div className="mockup-notif-text">{t(`landing.mock.${n.key}`)}</div>
                                             <div className="mockup-notif-time">{t(`landing.mock.${n.key}Time`)}</div>
@@ -225,7 +225,7 @@ export function LandingPage() {
                 </div>
 
                 <div className="hero-scroll-hint">
-                    <span className="material-symbols-rounded">keyboard_arrow_down</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">keyboard_arrow_down</span>
                 </div>
             </section>
 
@@ -242,7 +242,7 @@ export function LandingPage() {
                     {aboutPoints.map(p => (
                         <div key={p.key} className="about-card">
                             <div className="about-card-icon">
-                                <span className="material-symbols-rounded">{p.icon}</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">{p.icon}</span>
                             </div>
                             <div className="about-card-title">{t(`landing.about.${p.key}Title`)}</div>
                             <p className="about-card-desc">{t(`landing.about.${p.key}Desc`)}</p>
@@ -280,7 +280,7 @@ export function LandingPage() {
                         >
                             <div className="portal-card-top-bar" />
                             <div className="portal-card-icon">
-                                <span className="material-symbols-rounded">{p.icon}</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">{p.icon}</span>
                             </div>
                             <div>
                                 <div className="portal-card-title">{t(p.titleKey)}</div>
@@ -309,7 +309,7 @@ export function LandingPage() {
                     {features.map(f => (
                         <div key={f.key} className="feature-item">
                             <div className="feature-icon">
-                                <span className="material-symbols-rounded">{f.icon}</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">{f.icon}</span>
                             </div>
                             <div className="feature-title">{t(`landing.features.${f.key}Title`)}</div>
                             <p className="feature-desc">{t(`landing.features.${f.key}Desc`)}</p>
@@ -323,7 +323,7 @@ export function LandingPage() {
                 <div className="boarding-split">
                     <div className="boarding-visual">
                         <div className="boarding-visual-badge">
-                            <span className="material-symbols-rounded">night_shelter</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">night_shelter</span>
                             {t('landing.boarding.badge')}
                         </div>
                         <p className="boarding-visual-desc">
@@ -348,7 +348,7 @@ export function LandingPage() {
                             {boardingPoints.map(point => (
                                 <li key={point}>
                                     <div className="boarding-list-icon">
-                                        <span className="material-symbols-rounded">check</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">check</span>
                                     </div>
                                     {t(`landing.boarding.${point}`)}
                                 </li>
@@ -371,7 +371,7 @@ export function LandingPage() {
                             {contactItems.map(c => (
                                 <div key={c.labelKey} className="contact-item">
                                     <div className="contact-item-icon">
-                                        <span className="material-symbols-rounded">{c.icon}</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">{c.icon}</span>
                                     </div>
                                     <div>
                                         <div className="contact-item-label">{t(c.labelKey)}</div>
@@ -408,7 +408,7 @@ export function LandingPage() {
                             <textarea className="contact-form-input" rows={4} placeholder={t('landing.contact.messagePlaceholder')}></textarea>
                         </div>
                         <button className="contact-form-btn">
-                            <span className="material-symbols-rounded">send</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">send</span>
                             {t('landing.contact.send')}
                         </button>
                     </div>
@@ -427,7 +427,7 @@ export function LandingPage() {
                     </p>
                     <Link to="/login" className="cta-strip-btn">
                         {t('landing.cta.button')}
-                        <span className="material-symbols-rounded">arrow_forward</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
                     </Link>
                 </div>
             </section>
@@ -447,15 +447,15 @@ export function LandingPage() {
                         </p>
                         <div className="footer-contact">
                             <div className="footer-contact-item">
-                                <span className="material-symbols-rounded">location_on</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">location_on</span>
                                 {t('landing.contact.addressValue')}
                             </div>
                             <div className="footer-contact-item">
-                                <span className="material-symbols-rounded">mail</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">mail</span>
                                 info@imboni.edu.rw
                             </div>
                             <div className="footer-contact-item">
-                                <span className="material-symbols-rounded">phone</span>
+                                <span className="material-symbols-rounded" aria-hidden="true">phone</span>
                                 +250 788 000 000
                             </div>
                         </div>

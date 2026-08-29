@@ -80,7 +80,7 @@ export function QuestionBankModal({ onClose, onImport }) {
                     <span className="modal-footer-hint">{t('teacher.assignments.selectedCount', { count: selected.size })}</span>
                     <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" disabled={selected.size === 0} onClick={handleImport}>
-                        <span className="material-symbols-rounded icon-sm">add</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                         {t('teacher.assignments.importSelected')}
                     </button>
                 </div>
@@ -132,15 +132,15 @@ export function QuestionBankModal({ onClose, onImport }) {
                                         ? t('teacher.assignments.stopSharing')
                                         : t('teacher.assignments.startSharing')}
                                     className={`bank-item-icon-btn${q.is_shared ? ' shared' : ''}`}>
-                                    <span className="material-symbols-rounded">
+                                    <span className="material-symbols-rounded" aria-hidden="true">
                                         {q.is_shared ? 'group' : 'group_off'}
                                     </span>
                                 </button>
                             )}
                             {q.is_mine !== false && (
                                 <button type="button" onClick={e => { e.stopPropagation(); handleDelete(q.id) }}
-                                    className="bank-item-icon-btn">
-                                    <span className="material-symbols-rounded">delete</span>
+                                    className="bank-item-icon-btn" aria-label={t('common.delete')}>
+                                    <span className="material-symbols-rounded" aria-hidden="true">delete</span>
                                 </button>
                             )}
                         </div>

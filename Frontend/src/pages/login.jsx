@@ -16,10 +16,10 @@ function ForgotPasswordModal({ onClose }) {
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
-                        <span className="material-symbols-rounded">lock_reset</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">lock_reset</span>
                         <h2 className="modal-title">{t('auth.resetPassword')}</h2>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}><span className="material-symbols-rounded">close</span></button>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
                 </div>
                 <div className="modal-body">
                     <p className="lg-forgot-intro">
@@ -27,14 +27,14 @@ function ForgotPasswordModal({ onClose }) {
                     </p>
                     <div className="u-stack-sm">
                         <div className="lg-contact-row">
-                            <span className="material-symbols-rounded lg-contact-icon">mail</span>
+                            <span className="material-symbols-rounded lg-contact-icon" aria-hidden="true">mail</span>
                             <div>
                                 <div className="lg-contact-label">{t('common.email')}</div>
                                 <div className="lg-contact-value">admin@imboni.edu</div>
                             </div>
                         </div>
                         <div className="lg-contact-row">
-                            <span className="material-symbols-rounded lg-contact-icon">phone</span>
+                            <span className="material-symbols-rounded lg-contact-icon" aria-hidden="true">phone</span>
                             <div>
                                 <div className="lg-contact-label">{t('auth.schoolExtension')}</div>
                                 <div className="lg-contact-value">{t('auth.extensionValue')}</div>
@@ -132,7 +132,7 @@ export function LogIn() {
                     <div className="login-welcome-icon">
                         {schoolLogo
                             ? <img src={schoolLogo} alt={schoolName || ''} />
-                            : <span className="material-symbols-rounded">school</span>}
+                            : <span className="material-symbols-rounded" aria-hidden="true">school</span>}
                     </div>
                     <div>
                         <h1 className="login-heading">{t('auth.welcomeBack')}</h1>
@@ -146,7 +146,7 @@ export function LogIn() {
                 {/* Error banner — shown only when there's an error to report. */}
                 {error && (
                     <div className="login-error portal-login-error-visible" role="alert">
-                        <span className="material-symbols-rounded">error</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">error</span>
                         {error}
                     </div>
                 )}
@@ -159,7 +159,7 @@ export function LogIn() {
                         <div className="form-group">
                             <label className="form-label" htmlFor="twofa-code">{t('auth.verificationCode')}</label>
                             <div className="input-wrap">
-                                <span className="input-icon material-symbols-rounded">password</span>
+                                <span className="input-icon material-symbols-rounded" aria-hidden="true">password</span>
                                 <input
                                     className="form-input"
                                     type="text"
@@ -194,7 +194,7 @@ export function LogIn() {
                     <div className="form-group">
                         <label className="form-label" htmlFor="email">{t('auth.email')}</label>
                         <div className="input-wrap">
-                            <span className="input-icon material-symbols-rounded">mail</span>
+                            <span className="input-icon material-symbols-rounded" aria-hidden="true">mail</span>
                             <input
                                 className="form-input"
                                 type="email"
@@ -212,7 +212,7 @@ export function LogIn() {
                     <div className="form-group">
                         <label className="form-label" htmlFor="password">{t('auth.password')}</label>
                         <div className="input-wrap">
-                            <span className="input-icon material-symbols-rounded">lock</span>
+                            <span className="input-icon material-symbols-rounded" aria-hidden="true">lock</span>
                             <input
                                 className="form-input"
                                 type={showPw ? 'text' : 'password'}
@@ -230,7 +230,7 @@ export function LogIn() {
                                 aria-label={t('auth.togglePassword')}
                                 onClick={() => setShowPw(p => !p)}
                             >
-                                <span className="material-symbols-rounded">
+                                <span className="material-symbols-rounded" aria-hidden="true">
                                     {showPw ? 'visibility_off' : 'visibility'}
                                 </span>
                             </button>
@@ -258,7 +258,7 @@ export function LogIn() {
 
                 <div className="login-help">
                     <div className="login-help-icon">
-                        <span className="material-symbols-rounded">support_agent</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">support_agent</span>
                     </div>
                     <div>
                         <strong>{t('auth.needHelp')}</strong>{' '}

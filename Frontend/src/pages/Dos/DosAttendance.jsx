@@ -303,7 +303,7 @@ function TeacherAttendanceTab() {
                 />
                 <div className="u-flex-1" />
                 <button className="btn btn-primary select-xs" onClick={handleSave} disabled={saving || loading || teachers.length === 0}>
-                    <span className="material-symbols-rounded icon-sm">save</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                     {saving ? 'Saving…' : 'Save'}
                 </button>
             </div>
@@ -445,13 +445,13 @@ export function DosAttendance() {
                                 className={`att-mode-btn${mode === 'student' ? ' active' : ''}`}
                                 onClick={() => setMode('student')}
                             >
-                                <span className="material-symbols-rounded">groups</span> Student Attendance
+                                <span className="material-symbols-rounded" aria-hidden="true">groups</span> Student Attendance
                             </button>
                             <button
                                 className={`att-mode-btn${mode === 'teacher' ? ' active' : ''}`}
                                 onClick={() => setMode('teacher')}
                             >
-                                <span className="material-symbols-rounded">person</span> Teacher Attendance
+                                <span className="material-symbols-rounded" aria-hidden="true">person</span> Teacher Attendance
                             </button>
                         </div>
 

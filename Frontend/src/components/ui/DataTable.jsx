@@ -78,12 +78,12 @@ export function DataTable({
             <div className="dt-body" style={{ minHeight: bodyMinH }}>
                 {data.length === 0 ? (
                     <div className="dt-empty" style={{ minHeight: bodyMinH }}>
-                        <span className="material-symbols-rounded">{emptyIcon}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{emptyIcon}</span>
                         <p className="dt-empty-title">{emptyTitle}</p>
                         <p className="dt-empty-desc">{emptyDesc}</p>
                         {onClearFilters && (
                             <button className="btn btn-outline btn-sm" onClick={onClearFilters}>
-                                <span className="material-symbols-rounded icon-sm">close</span>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span>
                                 Clear Filters
                             </button>
                         )}
@@ -111,10 +111,10 @@ export function DataTable({
                 </span>
                 <div className="dt-pagination">
                     <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(1)} title="First page">
-                        <span className="material-symbols-rounded">first_page</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">first_page</span>
                     </button>
                     <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(p => p - 1)} title="Previous">
-                        <span className="material-symbols-rounded">chevron_left</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                     </button>
                     {pages().map((p, i) =>
                         p === '…'
@@ -122,10 +122,10 @@ export function DataTable({
                             : <button key={p} className={`dt-page-btn${p === safePage ? ' active' : ''}`} onClick={() => setPage(p)}>{p}</button>
                     )}
                     <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(p => p + 1)} title="Next">
-                        <span className="material-symbols-rounded">chevron_right</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                     </button>
                     <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(pageCount)} title="Last page">
-                        <span className="material-symbols-rounded">last_page</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">last_page</span>
                     </button>
                 </div>
             </div>

@@ -212,7 +212,7 @@ export function MatronIncidents() {
 
                         <div className="incident-form-card">
                             <div className="incident-form-title">
-                                <span className="material-symbols-rounded">report</span> {dormitory
+                                <span className="material-symbols-rounded" aria-hidden="true">report</span> {dormitory
                                     ? t('matron.incidents.banner', { house: dormitory })
                                     : t('matron.incidents.bannerNoHouse')}
                             </div>
@@ -291,7 +291,7 @@ export function MatronIncidents() {
                             {saveError && <p className="u-danger u-fs-085">{saveError}</p>}
                             <div className="btn-row">
                                 <button className="btn btn-primary" onClick={handleSubmit} disabled={saving || !student || !description.trim()}>
-                                    <span className="material-symbols-rounded">send</span> {saving ? t('matron.incidents.submitting') : t('matron.incidents.submitToDiscipline')}
+                                    <span className="material-symbols-rounded" aria-hidden="true">send</span> {saving ? t('matron.incidents.submitting') : t('matron.incidents.submitToDiscipline')}
                                 </button>
                                 <button className="btn btn-outline" onClick={resetForm}>{t('matron.incidents.clearForm')}</button>
                             </div>
@@ -305,9 +305,9 @@ export function MatronIncidents() {
                         
                         <div className="card">
                             <div className="card-header">
-                                <h3 className="card-title"><span className="material-symbols-rounded">history</span> {t('matron.incidents.pastReports')}</h3>
+                                <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">history</span> {t('matron.incidents.pastReports')}</h3>
                                 <button className="btn btn-outline btn-sm" onClick={handleExport} disabled={!visible.length}>
-                                    <span className="material-symbols-rounded icon-sm">download</span> {t('common.export')}
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span> {t('common.export')}
                                 </button>
                             </div>
                             <div className="card-content">

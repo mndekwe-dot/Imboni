@@ -73,7 +73,7 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                             </label>
                             <button className="btn-icon-clean" title={t('dis.dormPlanner.deleteDorm', { name: d.name })}
                                     onClick={() => onDeleteDorm(d.id)}>
-                                <span className="material-symbols-rounded u-fs-095">delete</span>
+                                <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                             </button>
                         </div>
                         <div className="dorm-rooms">
@@ -82,13 +82,13 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                                     {r.room_number} · {t('dis.dormPlanner.bedCount', { count: r.bed_capacity })}
                                     <button className="btn-icon-clean" title={t('dis.dormPlanner.toggleRoom', { number: r.room_number })}
                                             onClick={() => onUpdateRoom(r.id, { is_active: !r.is_active })}>
-                                        <span className="material-symbols-rounded u-fs-085">
+                                        <span className="material-symbols-rounded u-fs-085" aria-hidden="true">
                                             {r.is_active ? 'toggle_on' : 'toggle_off'}
                                         </span>
                                     </button>
                                     <button className="btn-icon-clean" title={t('dis.dormPlanner.deleteRoom', { number: r.room_number })}
                                             onClick={() => onDeleteRoom(r.id)}>
-                                        <span className="material-symbols-rounded u-fs-085">close</span>
+                                        <span className="material-symbols-rounded u-fs-085" aria-hidden="true">close</span>
                                     </button>
                                 </span>
                             ))}
@@ -347,7 +347,7 @@ export function DormPlannerTab({ onCommitted }) {
                     <div className="es-card-actions">
                         <button className="btn btn-primary btn-sm" onClick={() => setShowGenerate(true)}
                                 disabled={rooms.length === 0}>
-                            <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
+                            <span className="material-symbols-rounded" aria-hidden="true">auto_awesome</span> {t('dos.examSchedule.generate')}
                         </button>
                     </div>
                 </div>

@@ -91,7 +91,7 @@ export function SubmissionReviewModal({ submissionId, onClose, onSaved }) {
                     </span>
                     <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || !dirty}>
-                        <span className="material-symbols-rounded icon-sm">save</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                         {saving ? t('common.saving') : t('teacher.assignments.saveMarking')}
                     </button>
                 </div>
@@ -145,13 +145,13 @@ export function SubmissionReviewModal({ submissionId, onClose, onSaved }) {
                                     <button type="button"
                                         className={`btn btn-sm ${correct ? 'btn-primary' : 'btn-outline'}`}
                                         onClick={() => mark(String(a.question_id), true)}>
-                                        <span className="material-symbols-rounded icon-sm">check</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">check</span>
                                         {t('teacher.assignments.markRight')}
                                     </button>
                                     <button type="button"
                                         className={`btn btn-sm ${correct ? 'btn-outline' : 'btn-primary'}`}
                                         onClick={() => mark(String(a.question_id), false)}>
-                                        <span className="material-symbols-rounded icon-sm">close</span>
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span>
                                         {t('teacher.assignments.markWrong')}
                                     </button>
                                     {a.overridden && (

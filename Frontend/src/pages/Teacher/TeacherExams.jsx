@@ -92,7 +92,7 @@ export function TeacherExams() {
                         actions={
                             <button className="btn btn-primary"
                                 onClick={() => navigate('/teacher/exams/new')}>
-                                <span className="material-symbols-rounded icon-sm">add</span>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                                 {t('teacher.exams.newPaper')}
                             </button>
                         }
@@ -148,7 +148,7 @@ export function TeacherExams() {
                                                         <button className="btn btn-outline btn-sm"
                                                             onClick={() => navigate(`/teacher/exams/${paper.id}/edit`)}
                                                             title={paper.is_editable ? t('common.edit') : t('common.view')}>
-                                                            <span className="material-symbols-rounded icon-sm">
+                                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">
                                                                 {paper.is_editable ? 'edit_note' : 'visibility'}
                                                             </span>
                                                         </button>
@@ -157,7 +157,7 @@ export function TeacherExams() {
                                                                 disabled={busyId === paper.id || paper.question_count === 0}
                                                                 onClick={() => submit(paper)}
                                                                 title={t('teacher.exams.submitForApproval')}>
-                                                                <span className="material-symbols-rounded icon-sm">send</span>
+                                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                                                             </button>
                                                         )}
                                                         {paper.status !== 'approved' && (
@@ -165,7 +165,7 @@ export function TeacherExams() {
                                                                 disabled={busyId === paper.id}
                                                                 onClick={() => remove(paper)}
                                                                 title={t('common.delete')}>
-                                                                <span className="material-symbols-rounded icon-sm">delete</span>
+                                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                                                             </button>
                                                         )}
                                                     </div>

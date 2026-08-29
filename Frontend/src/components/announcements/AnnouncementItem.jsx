@@ -17,7 +17,7 @@ export function AnnouncementItem({
         <div className={itemClass} onClick={onClick}>
             <div className="ann-item-top">
                 <div className={`ann-item-icon ${type}`}>
-                    <span className="material-symbols-rounded">{icon}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
                 </div>
                 <div className="ann-item-head">
                     <div className="ann-item-title">{title}</div>
@@ -34,7 +34,7 @@ export function AnnouncementItem({
             <div className="ann-item-footer">
                 {author
                     ? <span className="ann-item-author">
-                        <span className="material-symbols-rounded">person</span>{author}
+                        <span className="material-symbols-rounded" aria-hidden="true">person</span>{author}
                       </span>
                     : <span />
                 }

@@ -101,25 +101,25 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
             <p className="ann-excerpt">{ann.content}</p>
             <div className="ann-item-footer">
                 <span className="ann-views">
-                    <span className="material-symbols-rounded">{isDraft ? 'draft' : 'visibility'}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{isDraft ? 'draft' : 'visibility'}</span>
                     {isDraft ? t('common.draft') : t('common.published')}
                 </span>
                 <div className="ann-item-actions">
                     <button className="ann-icon-btn" title={t('common.edit')} onClick={() => onEdit(ann)}>
-                        <span className="material-symbols-rounded">edit</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">edit</span>
                     </button>
                     {isDraft && (
                         <button className="ann-icon-btn" title={t('common.publish')} onClick={() => onPublish(ann.id)}>
-                            <span className="material-symbols-rounded">publish</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">publish</span>
                         </button>
                     )}
                     {!isArch && !isDraft && (
                         <button className="ann-icon-btn" title={t('common.archive')} onClick={() => onArchive(ann.id)}>
-                            <span className="material-symbols-rounded">archive</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">archive</span>
                         </button>
                     )}
                     <button className="ann-icon-btn danger" title={t('common.delete')} onClick={() => onDelete(ann.id)}>
-                        <span className="material-symbols-rounded">delete</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">delete</span>
                     </button>
                 </div>
             </div>
@@ -289,12 +289,12 @@ export function DosAnnouncement() {
                             <div className="card">
                                 <div className="card-header">
                                     <h2 className="card-title">
-                                        <span className="material-symbols-rounded">edit_note</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">edit_note</span>
                                         {editingId ? t('announcements.editTitle') : t('announcements.createTitle')}
                                     </h2>
                                     {editingId && (
                                         <button className="btn btn-outline btn-sm" onClick={handleClear}>
-                                            <span className="material-symbols-rounded icon-sm">close</span> {t('announcements.cancelEdit')}
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span> {t('announcements.cancelEdit')}
                                         </button>
                                     )}
                                 </div>
@@ -309,7 +309,7 @@ export function DosAnnouncement() {
                                                     <input type="radio" name="ann-cat" value={c.value}
                                                         checked={form.category===c.value}
                                                         onChange={set('category')} />
-                                                    <span className="material-symbols-rounded">{c.icon}</span> {t(c.labelKey)}
+                                                    <span className="material-symbols-rounded" aria-hidden="true">{c.icon}</span> {t(c.labelKey)}
                                                 </label>
                                             ))}
                                         </div>
@@ -332,7 +332,7 @@ export function DosAnnouncement() {
                                                     <input type="radio" name="ann-audience" value={a.value}
                                                         checked={form.target_audience===a.value}
                                                         onChange={set('target_audience')} />
-                                                    <span className="material-symbols-rounded">{a.icon}</span> {t(a.labelKey)}
+                                                    <span className="material-symbols-rounded" aria-hidden="true">{a.icon}</span> {t(a.labelKey)}
                                                 </label>
                                             ))}
                                         </div>
@@ -406,11 +406,11 @@ export function DosAnnouncement() {
                                             {t('common.clear')}
                                         </button>
                                         <button type="button" className="btn btn-secondary" onClick={() => handleSave('draft')} disabled={saving}>
-                                            <span className="material-symbols-rounded">draft</span>
+                                            <span className="material-symbols-rounded" aria-hidden="true">draft</span>
                                             {saving ? t('common.saving') : t('announcements.saveDraft')}
                                         </button>
                                         <button type="button" className="btn btn-primary" onClick={() => handleSave('published')} disabled={saving}>
-                                            <span className="material-symbols-rounded">send</span>
+                                            <span className="material-symbols-rounded" aria-hidden="true">send</span>
                                             {saving ? t('announcements.publishing') : (editingId ? t('announcements.updateAndPublish') : t('announcements.publishNow'))}
                                         </button>
                                     </div>
@@ -449,7 +449,7 @@ export function DosAnnouncement() {
                                         <p className="empty-note padded">{t('announcements.loading')}</p>
                                     ) : filtered.length === 0 ? (
                                         <div className="list-empty">
-                                            <span className="material-symbols-rounded list-empty-icon">campaign</span>
+                                            <span className="material-symbols-rounded list-empty-icon" aria-hidden="true">campaign</span>
                                             <p>{activeFilter === 'all'
                                                 ? t('announcements.noneYet')
                                                 : t('announcements.noneOfStatus', { status: t(FILTER_KEYS[activeFilter]).toLowerCase() })}</p>
@@ -473,7 +473,7 @@ export function DosAnnouncement() {
                                             {hasMore && (
                                                 <div className="dos-ann-loadmore">
                                                     <button className="btn btn-outline btn-sm" onClick={loadMore} disabled={loadingMore}>
-                                                        <span className="material-symbols-rounded icon-sm">expand_more</span>
+                                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">expand_more</span>
                                                         {loadingMore
                                                             ? t('common.loading')
                                                             : t('announcements.loadMoreRemaining', { count: total - announcements.length })}

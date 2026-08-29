@@ -28,7 +28,7 @@ export function ErrorFallback({ error, resetError }) {
                 background: 'var(--background, #f8fafc)',
             }}
         >
-            <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: '#ef4444' }}>
+            <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: '#ef4444' }} aria-hidden="true">
                 error
             </span>
             <h1 style={{ fontSize: '1.4rem', margin: 0 }}>Something went wrong</h1>

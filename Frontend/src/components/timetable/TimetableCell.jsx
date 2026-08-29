@@ -95,7 +95,7 @@ export function TimetableCell({ cell, editable, onEdit, colIndex, tone, homeRoom
                     aria-label={`Edit ${cell.subject}`}
                     onClick={() => onEdit(cell)}
                 >
-                    <span className="material-symbols-rounded tt-icon-xs">
+                    <span className="material-symbols-rounded tt-icon-xs" aria-hidden="true">
                         edit
                     </span>
                 </button>

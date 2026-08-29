@@ -63,7 +63,7 @@ export function TeacherTimetable() {
                     <DashboardContent>
 
                         <div className="tt-notice">
-                            <span className="material-symbols-rounded">lock</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">lock</span>
                             <div>
                                 <strong>{t('teacher.timetable.readOnly')}</strong>{' '}
                                 {t('teacher.timetable.readOnlyNote')}

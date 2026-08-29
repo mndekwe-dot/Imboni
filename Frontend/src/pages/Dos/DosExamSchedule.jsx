@@ -36,7 +36,7 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
             <td className="es-nowrap">{date}</td>
             <td>
                 <span className="es-time-chip">
-                    <span className="material-symbols-rounded">schedule</span>{time}
+                    <span className="material-symbols-rounded" aria-hidden="true">schedule</span>{time}
                 </span>
             </td>
             <td>{duration}</td>
@@ -45,9 +45,9 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
             <td><span className={`badge ${statusClass}`}>{t(statusKey)}</span></td>
             <td>
                 <div className="es-row-actions">
-                    <button className="es-icon-btn"><span className="material-symbols-rounded">edit</span></button>
-                    <button className="es-icon-btn"><span className="material-symbols-rounded">visibility</span></button>
-                    <button className="es-icon-btn danger" onClick={() => id && onDelete(id)}><span className="material-symbols-rounded">delete</span></button>
+                    <button className="es-icon-btn" aria-label={t('common.edit')}><span className="material-symbols-rounded" aria-hidden="true">edit</span></button>
+                    <button className="es-icon-btn" aria-label={t('common.view')}><span className="material-symbols-rounded" aria-hidden="true">visibility</span></button>
+                    <button className="es-icon-btn danger" onClick={() => id && onDelete(id)} aria-label={t('common.delete')}><span className="material-symbols-rounded" aria-hidden="true">delete</span></button>
                 </div>
             </td>
         </tr>
@@ -319,7 +319,7 @@ export function DosExamSchedule() {
                         onNotificationRead={markRead}
                         actions={
                             <button className="btn btn-secondary" onClick={() => setShowGenerate(true)}>
-                                <span className="material-symbols-rounded">auto_awesome</span> {t('dos.examSchedule.generate')}
+                                <span className="material-symbols-rounded" aria-hidden="true">auto_awesome</span> {t('dos.examSchedule.generate')}
                             </button>
                         }
                     />
@@ -337,13 +337,13 @@ export function DosExamSchedule() {
                                         className={`btn btn-sm ${view === 'table' ? 'btn-primary' : 'btn-secondary'}`}
                                         onClick={() => setView('table')}
                                     >
-                                        <span className="material-symbols-rounded">table_rows</span> {t('dos.examSchedule.tableView')}
+                                        <span className="material-symbols-rounded" aria-hidden="true">table_rows</span> {t('dos.examSchedule.tableView')}
                                     </button>
                                     <button
                                         className={`btn btn-sm ${view === 'calendar' ? 'btn-primary' : 'btn-secondary'}`}
                                         onClick={() => setView('calendar')}
                                     >
-                                        <span className="material-symbols-rounded">calendar_month</span> {t('dos.examSchedule.calendarView')}
+                                        <span className="material-symbols-rounded" aria-hidden="true">calendar_month</span> {t('dos.examSchedule.calendarView')}
                                     </button>
                                 </div>
                             </div>

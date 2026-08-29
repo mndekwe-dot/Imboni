@@ -18,7 +18,7 @@ export function EmptyState({ icon = 'inbox', title, description, action, secondA
             <div className="empty-state-inner">
                 {/* Icon circle */}
                 <div className="empty-state-icon">
-                    <span className="material-symbols-rounded">{icon}</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
                 </div>
 
                 <div className="empty-state-title">{title}</div>
@@ -31,13 +31,13 @@ export function EmptyState({ icon = 'inbox', title, description, action, secondA
                     <div className="empty-state-actions">
                         {secondAction && (
                             <button className="btn btn-outline" onClick={secondAction.onClick}>
-                                {secondAction.icon && <span className="material-symbols-rounded icon-sm">{secondAction.icon}</span>}
+                                {secondAction.icon && <span className="material-symbols-rounded icon-sm" aria-hidden="true">{secondAction.icon}</span>}
                                 {secondAction.label}
                             </button>
                         )}
                         {action && (
                             <button className="btn btn-primary" onClick={action.onClick}>
-                                {action.icon && <span className="material-symbols-rounded icon-sm">{action.icon}</span>}
+                                {action.icon && <span className="material-symbols-rounded icon-sm" aria-hidden="true">{action.icon}</span>}
                                 {action.label}
                             </button>
                         )}

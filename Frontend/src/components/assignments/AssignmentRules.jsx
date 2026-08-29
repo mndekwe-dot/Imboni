@@ -45,7 +45,7 @@ export function AssignmentRules({ form, onChange }) {
                     />
                     {attachmentName ? (
                         <div className="flex-row-gap-sm">
-                            <span className="material-symbols-rounded icon-sm">attach_file</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">attach_file</span>
                             <span className="u-sm">{attachmentName}</span>
                             <button type="button" className="btn btn-outline btn-sm"
                                 onClick={() => {
@@ -60,7 +60,7 @@ export function AssignmentRules({ form, onChange }) {
                     ) : (
                         <button type="button" className="btn btn-outline btn-sm u-self-start"
                             onClick={() => fileRef.current?.click()}>
-                            <span className="material-symbols-rounded icon-sm">upload_file</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload_file</span>
                             {t('teacher.assignments.attachWorksheet')}
                         </button>
                     )}

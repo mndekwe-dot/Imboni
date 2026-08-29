@@ -26,7 +26,7 @@ function Timer({ seconds, onExpire }) {
 
     return (
         <div className={`sqz-timer${isWarning ? ' warn' : ''}${isWarning && left <= 10 ? ' pulse' : ''}`}>
-            <span className="material-symbols-rounded sqz-timer-icon">timer</span>
+            <span className="material-symbols-rounded sqz-timer-icon" aria-hidden="true">timer</span>
             {String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
         </div>
     )
@@ -52,7 +52,7 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
                 <div className="sqz-q-meta">
                     <span className="sqz-q-points">{q.points} pt{q.points !== 1 ? 's' : ''}</span>
                     {isGraded && (
-                        <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }}>
+                        <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }} aria-hidden="true">
                             {isCorrect ? 'check_circle' : 'cancel'}
                         </span>
                     )}
@@ -76,7 +76,7 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
                                     className={`sqz-radio${submitted ? ' locked' : ''}`} />
                                 {opt}
                                 {isCorrectOpt && isGraded && (
-                                    <span className="material-symbols-rounded sqz-opt-check">check</span>
+                                    <span className="material-symbols-rounded sqz-opt-check" aria-hidden="true">check</span>
                                 )}
                             </label>
                         )
@@ -97,7 +97,7 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
                                     className={`sqz-radio${submitted ? ' locked' : ''}`} />
                                 {label}
                                 {isCorrectOpt && isGraded && (
-                                    <span className="material-symbols-rounded sqz-opt-check">check</span>
+                                    <span className="material-symbols-rounded sqz-opt-check" aria-hidden="true">check</span>
                                 )}
                             </label>
                         )
@@ -142,7 +142,7 @@ function ResultsPanel({ results, quiz, isLate, onBack }) {
     return (
         <div className="sqz-results">
             <div className="card sqz-result-card">
-                <span className="material-symbols-rounded sqz-result-icon" style={{ color: gradeColor }}>
+                <span className="material-symbols-rounded sqz-result-icon" style={{ color: gradeColor }} aria-hidden="true">
                     {percentage >= 50 ? 'emoji_events' : 'sentiment_dissatisfied'}
                 </span>
                 <div className="sqz-result-grade" style={{ color: gradeColor }}>{grade}</div>
@@ -170,7 +170,7 @@ function ResultsPanel({ results, quiz, isLate, onBack }) {
             })}
 
             <button className="btn btn-primary sqz-back-btn" onClick={onBack}>
-                <span className="material-symbols-rounded icon-sm">arrow_back</span>
+                <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
                 Back to Assignments
             </button>
         </div>
@@ -239,7 +239,7 @@ export function StudentQuizPage() {
     if (loading) {
         return (
             <div className="sqz-center">
-                <span className="material-symbols-rounded sqz-spinner">progress_activity</span>
+                <span className="material-symbols-rounded sqz-spinner" aria-hidden="true">progress_activity</span>
                 <p className="u-muted">Loading quiz…</p>
             </div>
         )
@@ -248,10 +248,10 @@ export function StudentQuizPage() {
     if (loadError) {
         return (
             <div className="sqz-center pad">
-                <span className="material-symbols-rounded sqz-error-icon">error</span>
+                <span className="material-symbols-rounded sqz-error-icon" aria-hidden="true">error</span>
                 <p className="sqz-error-title">{loadError}</p>
                 <button className="btn btn-outline" onClick={() => navigate('/student/assignments')}>
-                    <span className="material-symbols-rounded icon-sm">arrow_back</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
                     Back to Assignments
                 </button>
             </div>
@@ -270,7 +270,7 @@ export function StudentQuizPage() {
             <div className="sqz-header">
                 <button className="btn btn-outline btn-sm" onClick={() => navigate('/student/assignments')}
                     disabled={submitting}>
-                    <span className="material-symbols-rounded icon-sm">arrow_back</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
                     Exit
                 </button>
                 <div className="sqz-header-titlewrap">
@@ -291,7 +291,7 @@ export function StudentQuizPage() {
             <div className="sqz-body">
                 {timedOut && (
                     <div className="alert alert-danger u-mb">
-                        <span className="material-symbols-rounded sqz-alert-icon">timer_off</span>
+                        <span className="material-symbols-rounded sqz-alert-icon" aria-hidden="true">timer_off</span>
                         Time is up! Your answers have been submitted automatically.
                     </div>
                 )}
@@ -317,7 +317,7 @@ export function StudentQuizPage() {
                 {/* Submit error */}
                 {submitError && (
                     <div className="alert alert-danger u-mb">
-                        <span className="material-symbols-rounded sqz-alert-icon">error</span>
+                        <span className="material-symbols-rounded sqz-alert-icon" aria-hidden="true">error</span>
                         {submitError}
                     </div>
                 )}
@@ -330,7 +330,7 @@ export function StudentQuizPage() {
                         </span>
                     )}
                     <button className="btn btn-primary" onClick={() => handleSubmit(false)} disabled={submitting}>
-                        <span className="material-symbols-rounded icon-sm">{submitting ? 'progress_activity' : 'send'}</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">{submitting ? 'progress_activity' : 'send'}</span>
                         {submitting ? 'Submitting…' : 'Submit Quiz'}
                     </button>
                 </div>

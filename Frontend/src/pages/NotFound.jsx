@@ -10,7 +10,7 @@ export function NotFound() {
 
             <div className="not-found-content">
                 <div className="not-found-icon">
-                    <span className="material-symbols-rounded">search</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">search</span>
                 </div>
 
                 <h1 className="not-found-title">Page not found</h1>
@@ -22,7 +22,7 @@ export function NotFound() {
 
                 <div className="not-found-actions">
                     <button className="not-found-btn not-found-btn-outline" onClick={() => navigate(-1)}>
-                        <span className="material-symbols-rounded">arrow_back</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">arrow_back</span>
                         Go back
                     </button>
                     <Link to="/" className="not-found-btn not-found-btn-primary">

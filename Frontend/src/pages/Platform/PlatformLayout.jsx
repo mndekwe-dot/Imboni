@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, Navigate, useNavigate } from 'react-router'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { platformLogout, platformUser, isPlatformAuthed } from '../../api/platform'
-import logo from '../../assets/images/imboni-logo.png'
+import logo from '../../assets/images/imboni-logo.webp'
 import { formatDateWithWeekday } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -60,7 +60,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                             </div>
                         </div>
                         <button className="toggle menu-toggle" aria-label="Close menu" onClick={() => setMobileOpen(false)}>
-                            <span className="material-symbols-rounded">close</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </header>
 
@@ -71,7 +71,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                                     <NavLink to={item.to} end={item.end}
                                         className={({ isActive }) => 'sidebar-nav-item' + (isActive ? ' active' : '')}
                                         onClick={() => setMobileOpen(false)}>
-                                        <span className="material-symbols-rounded">{item.icon}</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
                                         <span>{item.label}</span>
                                     </NavLink>
                                 </li>
@@ -80,7 +80,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                         <ul className="nav-list secondary-nav">
                             <li>
                                 <button className="sidebar-nav-item" onClick={signOut}>
-                                    <span className="material-symbols-rounded">logout</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">logout</span>
                                     <span>Sign out</span>
                                 </button>
                             </li>
@@ -91,7 +91,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
                         <button className="mobile-menu-btn" aria-label="Open menu" onClick={() => setMobileOpen(true)}>
-                            <span className="material-symbols-rounded">menu</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">menu</span>
                         </button>
                         <div className="dashboard-header-title">
                             <h1>{title}</h1>

@@ -61,7 +61,7 @@ export function PreviewModal({ assignment, questions, onClose }) {
                         {t('teacher.assignments.previewHint')}
                     </span>
                     <button className="btn btn-outline" onClick={() => setRevealed(r => !r)}>
-                        <span className="material-symbols-rounded icon-sm">{revealed ? 'visibility_off' : 'visibility'}</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">{revealed ? 'visibility_off' : 'visibility'}</span>
                         {revealed ? t('teacher.assignments.hideAnswers') : t('teacher.assignments.revealAnswers')}
                     </button>
                     <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
@@ -107,7 +107,7 @@ export function PreviewModal({ assignment, questions, onClose }) {
                                                 checked={answers[q.id] === oi}
                                                 onChange={() => setAnswers(a => ({ ...a, [q.id]: oi }))} />
                                             {opt || t('teacher.assignments.optionLetter', { letter: String.fromCharCode(65 + oi) })}
-                                            {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded preview-check">check</span>}
+                                            {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded preview-check" aria-hidden="true">check</span>}
                                         </label>
                                     ))}
                                 </div>
@@ -120,7 +120,7 @@ export function PreviewModal({ assignment, questions, onClose }) {
                                                 checked={answers[q.id] === oi}
                                                 onChange={() => setAnswers(a => ({ ...a, [q.id]: oi }))} />
                                             {label}
-                                            {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded preview-check">check</span>}
+                                            {revealed && oi === parseInt(q.correct) && <span className="material-symbols-rounded preview-check" aria-hidden="true">check</span>}
                                         </label>
                                     ))}
                                 </div>

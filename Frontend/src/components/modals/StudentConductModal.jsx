@@ -121,7 +121,7 @@ function ProfileTab({ student, stats, history, histLoading }) {
             {/* Conduct History */}
             <div>
                 <div className="scm-section-title">
-                    <span className="material-symbols-rounded">history</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">history</span>
                     {t('modals.conduct.conductHistory')}
                 </div>
 
@@ -129,7 +129,7 @@ function ProfileTab({ student, stats, history, histLoading }) {
                     <p className="scm-note">{t('modals.conduct.loadingHistory')}</p>
                 ) : history.length === 0 ? (
                     <div className="scm-empty">
-                        <span className="material-symbols-rounded scm-empty-icon">
+                        <span className="material-symbols-rounded scm-empty-icon" aria-hidden="true">
                             history_toggle_off
                         </span>
                         {t('modals.conduct.noRecords')}
@@ -142,7 +142,7 @@ function ProfileTab({ student, stats, history, histLoading }) {
                             return (
                                 <div key={item.id} className={`scm-history-item${neg ? ' is-negative' : ''}`}>
                                     <div className={`disc-activity-icon scm-history-icon ${meta.cls}`}>
-                                        <span className="material-symbols-rounded">{meta.icon}</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">{meta.icon}</span>
                                     </div>
                                     <div className="scm-history-main">
                                         <div className="scm-history-title">{item.title}</div>
@@ -218,7 +218,7 @@ function LogTab({ student, onReportSaved }) {
         return (
             <div className="scm-done">
                 <div className="scm-done-icon">
-                    <span className="material-symbols-rounded">check_circle</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                 </div>
                 <h3 className="scm-done-title">{t('modals.conduct.reportSaved')}</h3>
                 <p className="scm-done-text">
@@ -241,7 +241,7 @@ function LogTab({ student, onReportSaved }) {
                         onClick={() => setReportType(opt.value)}
                         className={`scm-type-btn${reportType === opt.value ? ' active' : ''}`}
                     >
-                        <span className="material-symbols-rounded">{opt.icon}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{opt.icon}</span>
                         <span className="scm-type-label">{t(opt.labelKey)}</span>
                     </button>
                 ))}
@@ -327,7 +327,7 @@ function LogTab({ student, onReportSaved }) {
                     onClick={handleSubmit}
                     disabled={saving || !form.title || !form.description}
                 >
-                    <span className="material-symbols-rounded">save</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">save</span>
                     {saving ? t('common.saving') : t('modals.conduct.submitReport')}
                 </button>
             </div>
@@ -400,8 +400,8 @@ export function StudentConductModal({ student, onClose }) {
                             </div>
                         </div>
                     </div>
-                    <button className="btn-icon-clean" onClick={onClose}>
-                        <span className="material-symbols-rounded">close</span>
+                    <button className="btn-icon-clean" onClick={onClose} aria-label={t('common.close')}>
+                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
 

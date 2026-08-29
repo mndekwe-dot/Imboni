@@ -86,7 +86,7 @@ export function MatronStudentModal({ student, onClose }) {
                         to={`/matron/incidents?student=${encodeURIComponent(student.id)}`}
                         className="btn btn-primary"
                     >
-                        <span className="material-symbols-rounded icon-sm">report</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">report</span>
                         {t('matron.students.reportIncidentFor')}
                     </Link>
                 </>

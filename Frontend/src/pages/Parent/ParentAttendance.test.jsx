@@ -72,10 +72,10 @@ describe('ParentAttendance', () => {
     await waitFor(() => expect(screen.getByText('95%')).toBeInTheDocument())
     const initialCalls = getChildAttendanceCalendar.mock.calls.length
 
-    fireEvent.click(screen.getByRole('button', { name: 'chevron_left' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Previous' }))
     await waitFor(() => expect(getChildAttendanceCalendar.mock.calls.length).toBe(initialCalls + 1))
 
-    fireEvent.click(screen.getByRole('button', { name: 'chevron_right' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }))
     await waitFor(() => expect(getChildAttendanceCalendar.mock.calls.length).toBe(initialCalls + 2))
   })
 })

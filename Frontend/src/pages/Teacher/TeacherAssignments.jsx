@@ -131,7 +131,7 @@ function GradeModal({ assignment, onClose }) {
                     </span>
                     <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving || loading}>
-                        <span className="material-symbols-rounded icon-sm">save</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                         {saving ? t('common.saving') : t('teacher.assignments.saveScores')}
                     </button>
                 </div>
@@ -241,14 +241,14 @@ function SubmissionsModal({ assignment, onClose, onReview }) {
                                         {s.file && (
                                             <a className="btn btn-outline btn-sm" href={s.file}
                                                target="_blank" rel="noreferrer">
-                                                <span className="material-symbols-rounded icon-sm">download</span>
+                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
                                                 {t('common.download')}
                                             </a>
                                         )}
                                         {assignment.mode === 'online' && (
                                             <button className="btn btn-outline btn-sm"
                                                 onClick={() => onReview(s.id)}>
-                                                <span className="material-symbols-rounded icon-sm">rate_review</span>
+                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">rate_review</span>
                                                 {t('teacher.assignments.review')}
                                             </button>
                                         )}
@@ -282,7 +282,7 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
     return (
         <div className="card asgn-card">
             <div className={`asgn-icon ${a.mode === 'online' ? 'online' : 'paper'}`}>
-                <span className="material-symbols-rounded">{a.mode === 'online' ? 'quiz' : 'assignment'}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{a.mode === 'online' ? 'quiz' : 'assignment'}</span>
             </div>
             <div className="asgn-body">
                 <div className="asgn-header">
@@ -318,7 +318,7 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                 <div className="asgn-actions">
                     {a.status === 'draft' && (
                         <button className="btn btn-sm btn-primary" onClick={() => onPublish(a.id)} disabled={publishing === a.id}>
-                            <span className="material-symbols-rounded icon-sm">publish</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">publish</span>
                             {publishing === a.id ? t('common.publishing') : t('common.publish')}
                         </button>
                     )}
@@ -328,20 +328,20 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                         who had handed in or to enter a single mark. */}
                     {a.mode === 'online' && a.status !== 'draft' && (
                         <button className="btn btn-outline btn-sm" onClick={() => onViewSubmissions(a)} title={t('teacher.assignments.viewSubmissions')}>
-                            <span className="material-symbols-rounded icon-sm">fact_check</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">fact_check</span>
                             {t('teacher.assignments.submissions')}
                         </button>
                     )}
                     {a.mode === 'paper' && a.status !== 'draft' && (
                         <button className="btn btn-outline btn-sm" onClick={() => onGrade(a)} title={t('teacher.assignments.enterScores')}>
-                            <span className="material-symbols-rounded icon-sm">edit_note</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit_note</span>
                             {t('teacher.assignments.grade')}
                         </button>
                     )}
                     {a.status !== 'draft' && (
                         <button className="btn btn-outline btn-sm" onClick={() => onStats(a)}
                             title={t('teacher.assignments.statsTooltip')}>
-                            <span className="material-symbols-rounded icon-sm">insights</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">insights</span>
                             {t('teacher.assignments.stats')}
                         </button>
                     )}
@@ -350,34 +350,34 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                     {a.status !== 'draft' && a.release_marks_immediately === false && (
                         <button className="btn btn-outline btn-sm" onClick={() => onRelease(a)}
                             title={t('teacher.assignments.releaseTooltip')}>
-                            <span className="material-symbols-rounded icon-sm">send</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                             {t('teacher.assignments.release')}
                         </button>
                     )}
                     {a.status === 'active' && (
                         <button className="btn btn-outline btn-sm" onClick={() => onClose(a)}
                             title={t('teacher.assignments.closeTitle')}>
-                            <span className="material-symbols-rounded icon-sm">lock</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">lock</span>
                             {t('common.close')}
                         </button>
                     )}
                     {a.status === 'closed' && (
                         <button className="btn btn-outline btn-sm" onClick={() => onReopen(a)}
                             title={t('teacher.assignments.reopenTitle')}>
-                            <span className="material-symbols-rounded icon-sm">lock_open</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">lock_open</span>
                             {t('teacher.assignments.reopen')}
                         </button>
                     )}
                     {a.status !== 'closed' && (
                         <button className="btn btn-outline btn-sm" onClick={() => onEdit(a)} title={t('common.edit')}>
-                            <span className="material-symbols-rounded icon-sm">edit</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span>
                         </button>
                     )}
                     <button className="btn btn-outline btn-sm" onClick={() => onDuplicate(a)} title={t('common.duplicate')}>
-                        <span className="material-symbols-rounded icon-sm">content_copy</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">content_copy</span>
                     </button>
                     <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onDelete(a.id)} title={t('common.delete')}>
-                        <span className="material-symbols-rounded icon-sm">delete</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                     </button>
                 </div>
             </div>
@@ -399,9 +399,9 @@ function ClassDropdown({ value, onChange, options }) {
     return (
         <div ref={ref} className="class-dd-wrap">
             <button className="btn btn-outline class-dd-btn" onClick={() => setOpen(o => !o)}>
-                <span className="material-symbols-rounded icon-md">class</span>
+                <span className="material-symbols-rounded icon-md" aria-hidden="true">class</span>
                 {value === 'all' ? t('common.allClasses') : value}
-                <span className="material-symbols-rounded icon-md ml-auto">{open ? 'expand_less' : 'expand_more'}</span>
+                <span className="material-symbols-rounded icon-md ml-auto" aria-hidden="true">{open ? 'expand_less' : 'expand_more'}</span>
             </button>
             {open && (
                 <div className="class-dd-menu">
@@ -570,7 +570,7 @@ export function TeacherAssignments() {
                     <DashboardContent>
                         {loadError && (
                             <div className="alert alert-danger u-mb">
-                                <span className="material-symbols-rounded alert-icon">error</span>
+                                <span className="material-symbols-rounded alert-icon" aria-hidden="true">error</span>
                                 {loadError}
                             </div>
                         )}
@@ -590,7 +590,7 @@ export function TeacherAssignments() {
                                 <ClassDropdown value={classFilter} onChange={setClassFilter} options={classNames} />
                                 <button className="btn btn-primary whitespace-nowrap"
                                     onClick={() => navigate('/teacher/assignments/new')}>
-                                    <span className="material-symbols-rounded icon-sm">add</span>
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                                     {t('teacher.assignments.newAssignment')}
                                 </button>
                             </div>

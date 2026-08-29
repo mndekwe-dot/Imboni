@@ -260,7 +260,11 @@ table,
   --focus-ring: 0 0 0 3px var(--primary-light);
   --focus-ring-width: 2px;
 
-  /* Z-Index Scale */
+  /* Z-Index Scale — every stacking value above the local (1–9) range belongs
+     to one of these tiers. A literal here is a bug waiting to happen: the
+     dropdowns still sitting at 200/300 predate the scale and lose to anything
+     that uses it. Toast and skip-link close the top of the ramp so nothing
+     needs to reach for 9999 again. */
   --z-dropdown: 1000;
   --z-sticky: 1020;
   --z-fixed: 1030;
@@ -268,6 +272,8 @@ table,
   --z-modal: 1050;
   --z-popover: 1060;
   --z-tooltip: 1070;
+  --z-toast: 1080;      /* above a modal: a save can fail while one is open */
+  --z-skip-link: 1090;  /* first thing Tab reaches, so last in the ramp */
 
   /* Breakpoints (reference only — use in media queries) */
   --bp-sm: 480px;
@@ -808,7 +814,7 @@ img, video, iframe, embed, object {
   position: absolute;
   left: 0;
   top: -100%;
-  z-index: 2000;
+  z-index: var(--z-skip-link);
   padding: 0.65rem 1.1rem;
   background: var(--primary, #2563eb);
   color: #fff;
@@ -902,5 +908,24 @@ textarea:focus-visible,
   .class-detail-card:hover, .leader-card:hover, .house-card:hover,
   .behavior-card:hover, .ann-item:hover, .calendar-day:hover {
     transform: none;
+  }
+}
+
+/* ── Mobile: 16px is not a preference, it is the iOS zoom threshold ──────
+   Safari on iOS zooms the whole viewport when a text field smaller than 16px
+   takes focus, and does not zoom back out — so every tap into a form on a
+   phone leaves the user pinching. The type scale itself is deliberate and
+   stays as it is (--text-body is 15px because these are data-dense screens);
+   this raises ONLY the fields, and only on small viewports.
+
+   !important because input sizing is set in a dozen stylesheets, several at
+   higher specificity (.login-card .form-input, .page-search-box input), and
+   which of them wins depends on route-chunk load order. A floor that applies
+   sometimes is not a floor. */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }

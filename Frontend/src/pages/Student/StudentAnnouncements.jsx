@@ -37,7 +37,7 @@ function AnnouncementItem({ ann }) {
     return (
         <div className={`sann-item sann-${category}`}>
             <div className="sann-icon">
-                <span className="material-symbols-rounded">{icon}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
             </div>
             <div className="sann-body">
                 <div className="sann-meta">
