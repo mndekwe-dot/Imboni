@@ -272,21 +272,10 @@
 }
 /* msg-* styles are defined once in pages.css using var(--portal-accent) */
 
-/* ── Section header ── */
-.disc-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.85rem;
-}
-.disc-section-title {
-  font-size: var(--text-body);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-.disc-section-title .material-symbols-rounded { font-size: var(--icon-sm); color: var(--discipline); }
+/* The section header this portal drew itself is <ListSection> now. Its title
+   was the panel-title role at a third set of values, and its icon was pinned
+   to --discipline, so a Discipline section heading did not match a card
+   heading beside it on the same page.  */
 
 /* ── Activity icon colour modifiers (all variants in one place) ── */
 .disc-activity-icon.purple   { background: rgba(139,92,246,0.1);  color: #8b5cf6; }
@@ -764,40 +753,10 @@ td .class-chip { margin-left: 4px; }
 .text-xs-muted  { font-size: var(--text-caption); color: var(--muted-foreground); }
 .remove-confirm-text { font-size: var(--text-sm); color: var(--muted-foreground); }
 
-/* ══════════════════════════════════════
-   ACTIVITY LIST CARD
-══════════════════════════════════════ */
-
-.act-list-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-.act-list-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border);
-}
-.act-list-title { font-weight: 700; font-size: var(--text-body); }
-.act-list-count { font-size: var(--text-sm); color: var(--muted-foreground); }
-.act-list-body  { padding: 1rem; }
-
-/* ══════════════════════════════════════
-   SECTION TOOLBAR ROW
-══════════════════════════════════════ */
-
-.section-toolbar-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
+/* The activity list card was a second copy of the DataTable frame at a
+   different padding, radius and shadow. It is <ListSection> now, which draws
+   the real one -- and which the Student pages that used these classes without
+   importing this stylesheet were never getting.  */
 
 /* ══════════════════════════════════════
    DORM / GENDER SECTION HEADER

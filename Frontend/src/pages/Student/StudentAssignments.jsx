@@ -5,6 +5,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { ListSection } from '../../components/ui/ListSection'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAssignments, submitAssignment } from '../../api/student'
@@ -118,13 +119,13 @@ function AssignmentCard({ assignment, onSubmit }) {
 
     return (
         <div className={`assignment-card ${cardClass}`}>
-            <div className="assignment-icon"><span className="material-symbols-rounded">{icon}</span></div>
+            <div className="assignment-icon"><span className="material-symbols-rounded" aria-hidden="true">{icon}</span></div>
             <div className="assignment-body">
                 <div className="assignment-title">{title}</div>
                 <div className="assignment-subject">{subject}{teacher ? ` · ${teacher}` : ''}</div>
                 <div className="assignment-meta">
                     <span className="assignment-due" style={{ color: dueColor }}>
-                        <span className="material-symbols-rounded">{dueIcon}</span>
+                        <span className="material-symbols-rounded" aria-hidden="true">{dueIcon}</span>
                         {dueText}
                     </span>
                     <span className={`assignment-status-tag ${tagClass}`}>{status}</span>
@@ -132,7 +133,7 @@ function AssignmentCard({ assignment, onSubmit }) {
                 {attachment && (
                     <a className="assignment-attachment" href={attachment}
                        target="_blank" rel="noreferrer">
-                        <span className="material-symbols-rounded icon-sm">attach_file</span>
+                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">attach_file</span>
                         {t('student.assignments.worksheet')}
                     </a>
                 )}
@@ -160,7 +161,7 @@ function AssignmentCard({ assignment, onSubmit }) {
                             className={`btn btn-sm ${status === 'Overdue'
                                 ? 'btn-outline btn-destructive-outline' : 'btn-primary'}`}
                             onClick={() => fileRef.current?.click()}>
-                            <span className="material-symbols-rounded icon-sm">upload_file</span>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload_file</span>
                             {status === 'Overdue'
                                 ? t('student.assignments.submitNow')
                                 : t('common.upload')}
@@ -311,19 +312,18 @@ export function StudentAssignments() {
 
                         {/* Online quizzes section */}
                         {quizzes.length > 0 && (
-                            <div className="act-list-card u-mb-lg">
-                                <div className="act-list-header">
-                                    <div className="act-list-title quiz-title-row">
-                                        <span className="material-symbols-rounded quiz-title-icon">quiz</span>
-                                        {t('student.assignments.onlineQuizzes')}
-                                    </div>
-                                    <span className="act-list-count">{quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''}</span>
-                                </div>
+                            <ListSection
+                                className="u-mb-lg"
+                                icon="quiz"
+                                title={t('student.assignments.onlineQuizzes')}
+                                count={`${quizzes.length} quiz${quizzes.length !== 1 ? 'zes' : ''}`}
+                                pad={false}
+                            >
                                 <div>
                                     {quizzes.map((q, i) => (
                                         <div key={q.id} className={`quiz-row ${i < quizzes.length - 1 ? 'border-bottom-sep' : ''}`}>
                                             <div className={`quiz-icon-box ${q.submitted ? 'submitted' : 'pending'}`}>
-                                                <span className="material-symbols-rounded">
+                                                <span className="material-symbols-rounded" aria-hidden="true">
                                                     {q.submitted ? 'check_circle' : 'quiz'}
                                                 </span>
                                             </div>
@@ -346,21 +346,21 @@ export function StudentAssignments() {
                                                     </div>
                                                     <button className="btn btn-outline btn-sm"
                                                         onClick={() => navigate(`/student/quiz/${q.id}/review`)}>
-                                                        <span className="material-symbols-rounded icon-sm">visibility</span>
+                                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">visibility</span>
                                                         {t('common.revise')}
                                                     </button>
                                                 </div>
                                             ) : (
                                                 <button className="btn btn-primary btn-sm u-shrink-0"
                                                     onClick={() => navigate(`/student/quiz/${q.id}`)}>
-                                                    <span className="material-symbols-rounded icon-sm">play_arrow</span>
+                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">play_arrow</span>
                                                     {t('student.assignments.takeQuiz')}
                                                 </button>
                                             )}
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </ListSection>
                         )}
 
                         {/* Paper assignments */}
@@ -374,15 +374,12 @@ export function StudentAssignments() {
                                 action={{ label: 'Show All', icon: 'refresh', onClick: () => setStatusFilter('All') }}
                             />
                         ) : (
-                            <div className="act-list-card">
-                                <div className="act-list-header">
-                                    <div className="act-list-title">
-                                        {statusFilter === 'All' ? 'All Assignments' : `${statusFilter} Assignments`}
-                                    </div>
-                                    <span className="act-list-count">
-                                        {filtered.length} item{filtered.length !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
+                            <ListSection
+                                icon="assignment"
+                                title={statusFilter === 'All' ? 'All Assignments' : `${statusFilter} Assignments`}
+                                count={`${filtered.length} item${filtered.length !== 1 ? 's' : ''}`}
+                                pad={false}
+                            >
                                 <div>
                                     {filtered.map((item, i) => (
                                         <div key={item.id} className={i < filtered.length - 1 ? 'border-bottom-sep' : ''}>
@@ -390,7 +387,7 @@ export function StudentAssignments() {
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </ListSection>
                         )}
 
                     </DashboardContent>

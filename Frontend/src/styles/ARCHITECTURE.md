@@ -13,7 +13,7 @@ answer and you take the answer rather than choosing:
 |---|---|---|---|---|
 | Page title | the `<h1>` in `DashboardHeader` | `--text-title` (18) | 700 | as written |
 | Dialog title | `.tt-modal-title`, `.modal-title` | `--text-title` (18) | 700 | as written |
-| Panel title | `.card-title`, `.dt-title`, `.disc-section-title` | `--text-body` (15) | 700 | as written |
+| Panel title | `.card-title`, `.dt-title` (`DataTable`, `ListSection`) | `--text-body` (15) | 700 | as written |
 | Stat number | `.portal-stat-value` | `--text-stat` (32) | 800 | as written |
 | Body | prose, form values, table cells | `--text-body` (15) | 400 | as written |
 | **Control label** | `.btn`, `.tab-btn`, `.filter-tab`, `.sidebar-nav-item` | `--text-sm` (13) | **600** | as written |
@@ -25,9 +25,18 @@ answer and you take the answer rather than choosing:
 ## Icons beside words
 
 An icon takes the scale of the text it stands next to, and the CONTAINER sets
-it — `.btn`, `.card-title`, `.filter-tab` and `.badge` all size their own icons,
-so no caller writes `icon-sm` on a button. Reach for `.icon-xs/-sm/-md/-lg`
-only when one icon in a row must differ from its neighbours.
+it — `.btn`, `.card-title`, `.dt-title`, `.filter-tab`, `.tab-btn` and `.badge`
+all size their own icons, so no caller writes `icon-sm` on a button. Reach for
+`.icon-xs/-sm/-md/-lg` only when one icon in a row must differ from its
+neighbours.
+
+The size follows the ROLE of the text, not the icon:
+
+| Beside | Icon | Examples |
+|---|---|---|
+| a panel title | `--icon-md` (20) | `.card-title`, `.dt-title`, `.tt-modal-header` |
+| a control label | `--icon-sm` (18) | `.btn`, `.filter-tab`, `.tab-btn`, `.badge` |
+| a nav item | `--icon-md` (20) | `.sidebar-nav-item` |
 
 Two things this fixed:
 
@@ -38,6 +47,16 @@ Two things this fixed:
   `--icon-sm`, so it was impossible to ask for 20px.
 - `.card-title` was a plain block, so its icon sat on the text BASELINE at
   24px next to a 15px heading. It is a flex row now.
+- `.tab-btn` sized its icon at a hardcoded `1.1rem` — the control-label role
+  at a value half a pixel off every other control, and the last icon rule in
+  `components.css` not spending a token.
+
+Alignment inside a toolbar has one more trap. `.filter-tabs-bar` carries a
+bottom margin because it was built to stand ALONE above the list it filters.
+Dropped into a `.toolbar-card`, that margin makes its box taller than the chips
+in it, and a card that centres its children then sits the chips above the
+button beside them. A control inside a toolbar does not set page spacing:
+`tables.css` zeroes it there.
 
 The sidebar is the reference for the ramp, because it was right first: brand
 `--text-title`/800, nav item `--text-sm`/600, group heading `--text-caption`
@@ -90,6 +109,7 @@ Then it is a **component**, and it already exists. Check
 | A statistic tile | `StatCard` |
 | The greeting bar at the top of a dashboard | `WelcomeBanner` |
 | A table with sorting / empty state | `DataTable` |
+| Any OTHER list — a card grid, a list of rows | `ListSection` |
 | "Nothing here yet" | `EmptyState` |
 | A row of filter chips or tabs | `FilterBar` / `TabGroup` |
 | A class / stream selector | `ClassPicker` |
@@ -104,6 +124,14 @@ portal changes.** That is the whole point.
 If a component is close but not quite right, add a prop or a modifier class to
 the shared component. Do not copy its markup into your page and rename the
 classes — that is how one stat tile became nine.
+
+`ListSection` and `DataTable` deliberately draw the SAME frame (`dt-container`
+→ `dt-header` → `dt-body`), because a card grid rendered straight onto the page
+background and a table rendered inside a border read as two different pages
+even when they are two halves of one tab. `.act-list-card` in `discipline.css`
+was a second copy of that frame at a different padding, radius and shadow —
+and three Student pages used those classes without importing the stylesheet
+that defined them, so they were drawing no frame at all.
 
 ## 4. Is it genuinely unique to this one page?
 
