@@ -93,6 +93,36 @@ describe('DisStudentLife', () => {
     expect(screen.getByText('Alice M.')).toBeInTheDocument()
   })
 
+  it('puts every list in a titled, counted section', async () => {
+    // The regression this guards: the grids used to sit straight on the page
+    // background while the captains table had a frame, so one half of a tab
+    // had an edge and the other did not.
+    getDisActivities.mockResolvedValue(ACTIVITIES)
+    getDisStudentLeaders.mockResolvedValue(LEADERS)
+    renderWithRouter(<DisStudentLife />)
+
+    await waitFor(() => expect(screen.getByText('Chess Club')).toBeInTheDocument())
+    expect(screen.getByRole('heading', { name: 'All Activities' })).toBeInTheDocument()
+    expect(screen.getByText('1 club')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('tab', { name: /Student Leaders/ }))
+
+    await waitFor(() => expect(screen.getByText('Eric N.')).toBeInTheDocument())
+    expect(screen.getByRole('heading', { name: 'Prefects' })).toBeInTheDocument()
+    expect(screen.getByText('1 prefect')).toBeInTheDocument()
+  })
+
+  it('names the section after the filter that is on', async () => {
+    getDisActivities.mockResolvedValue(ACTIVITIES)
+    renderWithRouter(<DisStudentLife />)
+    await waitFor(() => expect(screen.getByText('Chess Club')).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sports' }))
+
+    expect(screen.getByRole('heading', { name: 'Sports' })).toBeInTheDocument()
+    expect(screen.getByText('0 clubs')).toBeInTheDocument()
+  })
+
   it('removes a dormitory captain after confirming', async () => {
     getDisActivities.mockResolvedValue([])
     getDisStudentLeaders.mockResolvedValue(LEADERS)

@@ -36,8 +36,25 @@
   },
   "child": "Enfant",
   "children": {
+    "academicFocus": "Matières suivies",
+    "childCount_one": "{{count}} enfant",
+    "childCount_other": "{{count}} enfants",
+    "consentTitle": "Demandes d’autorisation parentale",
+    "inSchool": "Présent à l’école",
+    "loadFailed": "Impossible de charger vos enfants.",
+    "loadingChildren": "Chargement des enfants…",
+    "loadingConsent": "Chargement des demandes d’autorisation…",
+    "messageTeacher": "Écrire à {{name}}",
+    "noneLinked": "Aucun enfant n’est encore rattaché à votre compte.",
+    "noneLinkedDesc": "Le secrétariat rattache un parent à ses enfants. Demandez-leur d’ajouter les vôtres.",
+    "outOfSchool": "Absent de l’école",
+    "pendingCount_one": "{{count}} en attente de vous",
+    "pendingCount_other": "{{count}} en attente de vous",
+    "requestedBy": "de {{name}}",
+    "respondBy": "répondre avant le {{date}}",
     "subtitle": "Vue d'ensemble des profils de vos enfants",
-    "title": "Mes enfants"
+    "title": "Mes enfants",
+    "viewResults": "Voir les résultats"
   },
   "dashboard": {
     "subtitle": "Voici ce qui se passe pour vos enfants",

@@ -19,6 +19,15 @@
 
 .toolbar-spacer { flex: 1; }
 
+/* A control inside a toolbar does not set page spacing.
+   `.filter-tabs-bar` carries `margin-bottom: 1rem` (1.25rem with --spaced)
+   because it was built to stand ALONE above the list it filters. Dropped into
+   a toolbar card, that margin made its box 20px taller than the chips inside
+   it, and since the card centres its children, the chips sat ~10px above the
+   button beside them. That is the row that looked out of true. */
+.toolbar-card .filter-tabs-bar,
+.toolbar-card .filter-tabs-bar--spaced { margin-bottom: 0; }
+
 /* ── SearchBar — components/ui/SearchBar.jsx ───────────────────────────────
    The shared search field. It replaces the .toolbar-search markup each list
    page carried its own copy of.
@@ -125,10 +134,25 @@
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--border);
 }
+/* Panel title. <DataTable> renders a span, <ListSection> an <h2> — hence the
+   reset, so a heading does not add a browser margin the span never had. */
 .dt-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
   font-weight: 700;
   font-size: var(--text-body);
   color: var(--foreground);
+}
+/* The container sizes its own icon, as everywhere else. --icon-md because a
+   PANEL TITLE takes 20px: the same as .card-title and .tt-modal-header, which
+   are the same role. */
+.dt-title .material-symbols-rounded {
+  font-size: var(--icon-md);
+  flex-shrink: 0;
+  line-height: 1;
+  color: var(--portal-accent, var(--muted-foreground));
 }
 .dt-count {
   font-size: var(--text-caption);
@@ -145,6 +169,10 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* A table brings its own cell padding; anything else (a card grid, a list of
+   rows) needs the frame to provide it. <ListSection pad> adds this. */
+.dt-body-pad { padding: var(--space-4); }
 
 /* Empty state inside dt-body */
 .dt-empty {

@@ -14,6 +14,7 @@ import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
+import '../../styles/tables.css'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 
@@ -106,7 +107,7 @@ export function ParentAssignments() {
                     <DashboardContent>
                         {error && (
                             <div className="alert alert-danger u-mb">
-                                <span className="material-symbols-rounded alert-icon">error</span>
+                                <span className="material-symbols-rounded alert-icon" aria-hidden="true">error</span>
                                 {error}
                             </div>
                         )}
@@ -152,7 +153,10 @@ export function ParentAssignments() {
                                         label={t('parent.assignments.statAverage')} />
                                 </div>
 
-                                <div className="u-mb">
+                                {/* In a toolbar card, so the chips read as the
+                                    control for the table under them rather than
+                                    as loose pills on the page background. */}
+                                <div className="toolbar-card mb-1-5">
                                     <FilterBar options={filterOptions} active={filter} onChange={setFilter} />
                                 </div>
 

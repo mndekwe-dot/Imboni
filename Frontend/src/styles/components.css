@@ -119,8 +119,10 @@
    It was --text-title/600, the same size as the <h1> in the dashboard header,
    so every card on a page shouted as loudly as the name of the page itself and
    louder than the DataTable panel beside it (.dt-title, --text-body/700).
-   Three treatments of one thing; this is now the one, and .dt-title and
-   .disc-section-title already match it. See TYPE ROLES in ARCHITECTURE.md.
+   Three treatments of one thing; this is now the one, and .dt-title -- the
+   title of a DataTable or a ListSection -- matches it. (.disc-section-title
+   was the third; it is gone, and the pages that drew it render ListSection.)
+   See TYPE ROLES in ARCHITECTURE.md.
 
    No margin-bottom: .card-header is a flex row, so the margin only pushed the
    title up out of line with the button sitting next to it. */
@@ -1166,7 +1168,10 @@ tr:hover td {
   cursor: pointer;
   transition: background var(--transition-base), color var(--transition-base);
 }
-.tab-btn .material-symbols-rounded { font-size: 1.1rem; }
+/* --icon-sm, the CONTROL LABEL icon, as .filter-tab and .badge. It was a
+   hardcoded 1.1rem: the same role at a value half a pixel off every other
+   control, and the last icon rule in this file not spending a token. */
+.tab-btn .material-symbols-rounded { font-size: var(--icon-sm); flex-shrink: 0; }
 .tab-btn:hover:not(.active) { color: var(--foreground); }
 
 /* A raised white chip rather than a filled primary bar: the active tab reads
@@ -1536,7 +1541,7 @@ tr:hover td {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1040;
+  z-index: var(--z-modal-backdrop);
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -1643,16 +1648,6 @@ tr:hover td {
 /* Cloud auto-save indicator */
 .cloud-save-row  { padding-top: 0.75rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.375rem; }
 .cloud-save-icon { font-size: var(--icon-sm) !important; color: var(--success, #16a34a); }
-
-/* Section toolbar row (filter bar + action button) */
-.section-toolbar-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
 
 /* Confirm / destructive inline text */
 .remove-confirm-text { font-size: var(--text-sm); color: var(--muted-foreground); }

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import '../../styles/tables.css'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import {
@@ -18,6 +19,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { FormSelect } from '../../components/ui/FormSelect'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { ListSection } from '../../components/ui/ListSection'
 
 /**
  * The log of what the school has said to a family, and about whom.
@@ -99,7 +101,7 @@ function CommEntry({ typeClass, typeIcon, student, parent, subject, notes, meta,
     return (
         <div className="dis-comm-entry">
             <div className={`dis-comm-type-icon ${typeClass}`}>
-                <span className="material-symbols-rounded">{typeIcon}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{typeIcon}</span>
             </div>
             <div className="dis-comm-body">
                 <div className="dis-comm-header">
@@ -258,7 +260,7 @@ export function DisParentComms() {
                         <div className="card mb-1-5">
                             <div className="card-header">
                                 <h3 className="card-title">
-                                    <span className="material-symbols-rounded">add_comment</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">add_comment</span>
                                     {t('dis.parentComms.logNew')}
                                 </h3>
                             </div>
@@ -338,7 +340,7 @@ export function DisParentComms() {
                                 <div className="btn-row mt-1-5">
                                     <button className="btn btn-primary" onClick={handleSubmit}
                                         disabled={saving || !student || !parentContact.trim() || !subject.trim()}>
-                                        <span className="material-symbols-rounded">save</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">save</span>
                                         {' '}{saving ? t('common.saving') : t('dis.parentComms.saveLog')}
                                     </button>
                                     <button className="btn btn-outline" onClick={resetForm}>
@@ -348,41 +350,42 @@ export function DisParentComms() {
                             </div>
                         </div>
 
-                        <div className="card">
-                            <div className="card-header">
-                                <h3 className="card-title">
-                                    <span className="material-symbols-rounded">history</span>
-                                    {t('dis.parentComms.log')}
-                                </h3>
-                            </div>
-                            <div className="card-content">
-                                <div className="dis-comms-filter-bar">
-                                    <FormSelect value={typeFilter} onChange={setTypeFilter}
-                                        options={opts(TYPE_FILTERS)}
-                                        ariaLabel={t('dis.parentComms.allTypes')} />
-                                    <FormSelect value={outcomeFilter} onChange={setOutcomeFilter}
-                                        options={opts(OUTCOME_FILTERS)}
-                                        ariaLabel={t('dis.parentComms.allStatuses')} />
-                                    <StudentSearchPicker
-                                        value={studentFilter}
-                                        onChange={setStudentFilter}
-                                        fetchStudents={searchDisStudents}
-                                        label={t('common.allStudents')}
-                                        placeholder={t('common.allStudents')}
-                                        hideLabel
-                                    />
-                                    <FormSelect value={periodFilter} onChange={setPeriodFilter}
-                                        options={opts(PERIOD_FILTERS)}
-                                        ariaLabel={t('common.allTime')} />
-                                </div>
-
-                                <div className="dis-comms-list">
-                                    {commLog.length === 0
-                                        ? <EmptyState icon="forum" title={t('dis.parentComms.empty')} />
-                                        : commLog.map((entry, index) => <CommEntry key={index} {...entry} />)}
-                                </div>
-                            </div>
+                        {/* The four filters sit in a toolbar card ABOVE the
+                            log, not inside its body. Buried in the panel they
+                            read as part of the log's own content, and the panel
+                            heading then sat above its own controls -- which is
+                            not how any other list page in the app is built. */}
+                        <div className="toolbar-card mb-1-5">
+                            <FormSelect value={typeFilter} onChange={setTypeFilter}
+                                options={opts(TYPE_FILTERS)}
+                                ariaLabel={t('dis.parentComms.allTypes')} />
+                            <FormSelect value={outcomeFilter} onChange={setOutcomeFilter}
+                                options={opts(OUTCOME_FILTERS)}
+                                ariaLabel={t('dis.parentComms.allStatuses')} />
+                            <StudentSearchPicker
+                                value={studentFilter}
+                                onChange={setStudentFilter}
+                                fetchStudents={searchDisStudents}
+                                label={t('common.allStudents')}
+                                placeholder={t('common.allStudents')}
+                                hideLabel
+                            />
+                            <FormSelect value={periodFilter} onChange={setPeriodFilter}
+                                options={opts(PERIOD_FILTERS)}
+                                ariaLabel={t('common.allTime')} />
                         </div>
+
+                        <ListSection
+                            icon="history"
+                            title={t('dis.parentComms.log')}
+                            count={t('dis.parentComms.entryCount', { count: commLog.length })}
+                        >
+                            <div className="dis-comms-list">
+                                {commLog.length === 0
+                                    ? <EmptyState icon="forum" title={t('dis.parentComms.empty')} />
+                                    : commLog.map((entry, index) => <CommEntry key={index} {...entry} />)}
+                            </div>
+                        </ListSection>
 
                     </DashboardContent>
                 </main>

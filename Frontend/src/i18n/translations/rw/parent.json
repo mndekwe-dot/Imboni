@@ -36,8 +36,25 @@
   },
   "child": "Umwana",
   "children": {
+    "academicFocus": "Amasomo yibandwaho",
+    "childCount_one": "umwana {{count}}",
+    "childCount_other": "abana {{count}}",
+    "consentTitle": "Ubusabe bw'uburenganzira bw'ababyeyi",
+    "inSchool": "Ari ku ishuri",
+    "loadFailed": "Abana bawe ntibashoboye gukurwa.",
+    "loadingChildren": "Turimo gukura abana…",
+    "loadingConsent": "Turimo gukura ubusabe bw'uburenganzira…",
+    "messageTeacher": "Andikira {{name}}",
+    "noneLinked": "Nta bana bahujwe na konti yawe.",
+    "noneLinkedDesc": "Ibiro by'ishuri ni byo bihuza umubyeyi n'abana be. Basabe kubongeraho.",
+    "outOfSchool": "Ntari ku ishuri",
+    "pendingCount_one": "{{count}} igutegereje",
+    "pendingCount_other": "{{count}} bigutegereje",
+    "requestedBy": "buturutse kuri {{name}}",
+    "respondBy": "subiza mbere ya {{date}}",
     "subtitle": "Incamake y'imyirondoro y'abana bawe",
-    "title": "Abana banjye"
+    "title": "Abana banjye",
+    "viewResults": "Reba amanota"
   },
   "dashboard": {
     "subtitle": "Dore ibirimo kubera abana bawe",

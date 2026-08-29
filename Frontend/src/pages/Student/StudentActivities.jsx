@@ -4,6 +4,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { ListSection } from '../../components/ui/ListSection'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { formatDate, formatWeekdayShort } from '../../utils/date'
@@ -221,11 +222,11 @@ export function StudentActivities() {
                                 </span>
                                 <div className="score-breakdown">
                                     <span className="score-breakdown-item score-pos">
-                                        <span className="material-symbols-rounded">add_circle</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">add_circle</span>
                                         {loading ? '-' : `${positiveCount} positive record${positiveCount !== 1 ? 's' : ''}`}
                                     </span>
                                     <span className="score-breakdown-item score-neg">
-                                        <span className="material-symbols-rounded">remove_circle</span>
+                                        <span className="material-symbols-rounded" aria-hidden="true">remove_circle</span>
                                         {loading ? '-' : `${negativeCount} warning${negativeCount !== 1 ? 's' : ''}`}
                                     </span>
                                 </div>
@@ -272,11 +273,12 @@ export function StudentActivities() {
                                     action={{ label: 'Show All', icon: 'refresh', onClick: () => setTypeFilter('All') }}
                                 />
                             ) : (
-                                <div className="act-list-card">
-                                    <div className="act-list-header">
-                                        <div className="act-list-title">Behavior &amp; Discipline Records</div>
-                                        <span className="act-list-count">{filteredReports.length} record{filteredReports.length !== 1 ? 's' : ''}</span>
-                                    </div>
+                                <ListSection
+                                    icon="gavel"
+                                    title="Behavior & Discipline Records"
+                                    count={`${filteredReports.length} record${filteredReports.length !== 1 ? 's' : ''}`}
+                                    pad={false}
+                                >
                                     <div className="table-responsive">
                                         <table>
                                             <thead>
@@ -290,7 +292,7 @@ export function StudentActivities() {
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
+                                </ListSection>
                             )
                         )}
 
@@ -307,26 +309,27 @@ export function StudentActivities() {
                             ) : (
                                 <>
                                     {enrolled.length > 0 && (
-                                        <div className="act-list-card mb-1-5">
-                                            <div className="act-list-header">
-                                                <div className="act-list-title">My Enrolled Activities</div>
-                                                <span className="act-list-count">{enrolled.length}</span>
-                                            </div>
+                                        <ListSection
+                                            className="mb-1-5"
+                                            icon="check_circle"
+                                            title="My Enrolled Activities"
+                                            count={enrolled.length}
+                                        >
                                             {enrolled.map(a => (
                                                 <ActivityCard key={a.id} activity={a} enrolled onWithdraw={handleWithdraw} joining={joining} />
                                             ))}
-                                        </div>
+                                        </ListSection>
                                     )}
                                     {available.length > 0 && (
-                                        <div className="act-list-card">
-                                            <div className="act-list-header">
-                                                <div className="act-list-title">Available Activities</div>
-                                                <span className="act-list-count">{available.length}</span>
-                                            </div>
+                                        <ListSection
+                                            icon="sports_soccer"
+                                            title="Available Activities"
+                                            count={available.length}
+                                        >
                                             {available.map(a => (
                                                 <ActivityCard key={a.id} activity={a} enrolled={false} onJoin={handleJoin} joining={joining} />
                                             ))}
-                                        </div>
+                                        </ListSection>
                                     )}
                                 </>
                             )
@@ -343,11 +346,12 @@ export function StudentActivities() {
                                     description={t('student.activities.noEventsDesc')}
                                 />
                             ) : (
-                                <div className="act-list-card">
-                                    <div className="act-list-header">
-                                        <div className="act-list-title">Upcoming Activity Events</div>
-                                        <span className="act-list-count">{events.length}</span>
-                                    </div>
+                                <ListSection
+                                    icon="event"
+                                    title="Upcoming Activity Events"
+                                    count={events.length}
+                                    pad={false}
+                                >
                                     {events.map(ev => {
                                         const dateStr = ev.date
                                             ? formatWeekdayShort(ev.date)
@@ -367,7 +371,7 @@ export function StudentActivities() {
                                             </div>
                                         )
                                     })}
-                                </div>
+                                </ListSection>
                             )
                         )}
 

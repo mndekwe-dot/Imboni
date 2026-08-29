@@ -49,8 +49,10 @@ describe('ParentAnnouncements', () => {
     renderWithRouter(<ParentAnnouncements />)
     await waitFor(() => expect(screen.getByText('Exam Notice')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByRole('button', { name: /Events0/ }))
-    expect(screen.getByText('No announcements match this filter.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Events/ }))
+    expect(screen.getByText('Nothing under this filter')).toBeInTheDocument()
+    // The section stays, titled by the filter that emptied it.
+    expect(screen.getByRole('heading', { name: 'Events' })).toBeInTheDocument()
   })
 
   it('filters by category chip', async () => {

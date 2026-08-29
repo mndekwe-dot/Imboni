@@ -8,6 +8,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { SearchBar } from '../../components/ui/SearchBar'
+import { ListSection } from '../../components/ui/ListSection'
 import { StaffModal } from '../../components/modals/StaffModal'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
@@ -18,6 +19,7 @@ import { disNavItems, disSecondaryItems } from './disNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import '../../styles/tables.css'
 
 /**
  * The staff a Discipline Director supervises.
@@ -32,6 +34,12 @@ import '../../styles/discipline.css'
  * Two card components that differed by a colour and one meta line have become
  * one. Failures were `console.error` and nothing else — adding a matron that
  * the server rejected looked exactly like adding one that worked.
+ *
+ * Both sections are <ListSection> now, the frame every other list in the
+ * portal uses. They drew their own before — a heading rule above a grid
+ * sitting loose on the page background — so this page did not look like the
+ * club grid on Student Life or the captains table beside it, though all three
+ * are one thing: a titled, counted list.
  */
 
 const STAFF_TYPES = {
@@ -62,9 +70,9 @@ function StaffCard({ staff, onEdit }) {
                 </div>
             </div>
             <div className="staff-card-meta">
-                {email && <span><span className="material-symbols-rounded">mail</span>{email}</span>}
-                {assigned_dormitory && <span><span className="material-symbols-rounded">home</span>{assigned_dormitory}</span>}
-                {assigned_grade && <span><span className="material-symbols-rounded">school</span>{assigned_grade}</span>}
+                {email && <span><span className="material-symbols-rounded" aria-hidden="true">mail</span>{email}</span>}
+                {assigned_dormitory && <span><span className="material-symbols-rounded" aria-hidden="true">home</span>{assigned_dormitory}</span>}
+                {assigned_grade && <span><span className="material-symbols-rounded" aria-hidden="true">school</span>{assigned_grade}</span>}
             </div>
             <div className="staff-card-actions">
                 {/* Opens the thread with THIS person, not the message list.
@@ -75,39 +83,57 @@ function StaffCard({ staff, onEdit }) {
                     to={staff.user_id ? `/discipline/messages?with=${staff.user_id}` : '/discipline/messages'}
                     className="btn btn-sm btn-primary"
                 >
-                    <span className="material-symbols-rounded icon-sm">chat</span> {t('nav.messages')}
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">chat</span> {t('nav.messages')}
                 </Link>
                 <button className="btn btn-sm btn-outline" onClick={onEdit}>
-                    <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span> {t('common.edit')}
                 </button>
             </div>
         </div>
     )
 }
 
-/** Heading, count, and either a grid of cards or a proper empty state. */
-function StaffSection({ icon, title, count, countLabel, staff, emptyTitle, emptyDesc, onAdd, addLabel, onEdit }) {
+/**
+ * Heading, count, and either a grid of cards or a proper empty state.
+ *
+ * The frame is <ListSection>, the one every other list in the portal uses.
+ * This section used to draw its own — `.disc-section-header` above a grid
+ * sitting loose on the page background — which made the two halves of this
+ * page look unlike the club grid on Student Life and unlike the captains
+ * table, though all four are the same thing: a titled, counted list.
+ */
+function StaffSection({ icon, title, count, countLabel, staff, emptyTitle, emptyDesc, onAdd, addLabel, onEdit, query, onClearSearch }) {
+    const { t } = useTranslation()
+    /* An empty section means one of two different things, and they need
+       different answers. With a search on, "No matrons on record." was a lie
+       and "Add a matron" was the wrong offer: the school may have twelve, none
+       of them called what was typed. */
+    const searching = Boolean(query)
+
     return (
-        <section className="mb-1-5">
-            <div className="disc-section-header">
-                <div className="disc-section-title">
-                    <span className="material-symbols-rounded" aria-hidden="true">{icon}</span> {title}
-                </div>
-                <span className="badge">{countLabel}</span>
-            </div>
+        <ListSection className="mb-1-5" icon={icon} title={title} count={countLabel}>
             {count === 0 ? (
-                <EmptyState
-                    icon={icon}
-                    title={emptyTitle}
-                    description={emptyDesc}
-                    action={{ label: addLabel, icon: 'person_add', onClick: onAdd }}
-                />
+                searching ? (
+                    <EmptyState
+                        icon="search_off"
+                        title={t('common.noResults', { query })}
+                        description={t('common.trySearch')}
+                        action={{ label: t('common.clear'), icon: 'close', onClick: onClearSearch }}
+                    />
+                ) : (
+                    <EmptyState
+                        icon={icon}
+                        title={emptyTitle}
+                        description={emptyDesc}
+                        action={{ label: addLabel, icon: 'person_add', onClick: onAdd }}
+                    />
+                )
             ) : (
                 <div className="staff-cards-grid">
                     {staff.map(s => <StaffCard key={s.id} staff={s} onEdit={() => onEdit(s)} />)}
                 </div>
             )}
-        </section>
+        </ListSection>
     )
 }
 
@@ -220,7 +246,7 @@ export function DisStaff() {
                                         placeholder={t('dis.staff.searchPlaceholder')}
                                     />
                                     <button className="btn btn-primary btn-sm" onClick={() => setShowAddModal(true)}>
-                                        <span className="material-symbols-rounded icon-sm">person_add</span> {t('dis.staff.addStaff')}
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">person_add</span> {t('dis.staff.addStaff')}
                                     </button>
                                 </div>
 
@@ -235,6 +261,8 @@ export function DisStaff() {
                                     addLabel={t('dis.staff.addMatron')}
                                     onAdd={() => setShowAddModal(true)}
                                     onEdit={setEditingStaff}
+                                    query={search.trim()}
+                                    onClearSearch={() => setSearch('')}
                                 />
 
                                 <StaffSection
@@ -248,6 +276,8 @@ export function DisStaff() {
                                     addLabel={t('dis.staff.addPatron')}
                                     onAdd={() => setShowAddModal(true)}
                                     onEdit={setEditingStaff}
+                                    query={search.trim()}
+                                    onClearSearch={() => setSearch('')}
                                 />
                             </>
                         )}
