@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -100,7 +101,7 @@ function AssessmentItem({ title, assessment_type, score_display, grade }) {
     return (
         <div className="assessment-item">
             <div className="assessment-icon quiz">
-                <span className="material-symbols-rounded">quiz</span>
+                <span className="material-symbols-rounded" aria-hidden="true">quiz</span>
             </div>
             <div className="assessment-info">
                 <p><strong>{title}</strong></p>
@@ -123,12 +124,26 @@ export function ParentResults() {
     const [reviews,     setReviews]     = useState([])
     const [loadingData, setLoadingData] = useState(false)
 
+    /* `?child=<id>` picks the child up front, so the "View results" button on a
+       card in My Children lands on THAT child rather than on whoever happens to
+       be first. The id, not the position: a list that comes back in a different
+       order must not open a different child. */
+    const [searchParams] = useSearchParams()
+    const requestedChild = searchParams.get('child')
+
     useEffect(() => {
         getMyChildren()
-            .then(d => setChildren(toList(d)))
+            .then(d => {
+                const list = toList(d)
+                setChildren(list)
+                if (requestedChild) {
+                    const i = list.findIndex(c => String(c.id) === requestedChild)
+                    if (i > -1) setActiveIdx(i)
+                }
+            })
             .catch(console.error)
             .finally(() => setLoading(false))
-    }, [])
+    }, [requestedChild])
 
     useEffect(() => {
         if (!children.length) return

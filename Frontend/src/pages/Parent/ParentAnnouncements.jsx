@@ -15,6 +15,10 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import { StatCard } from '../../components/layout/StatCard'
+import { FilterBar } from '../../components/ui/FilterBar'
+import { ListSection } from '../../components/ui/ListSection'
+import { EmptyState } from '../../components/ui/EmptyState'
+import '../../styles/tables.css'
 
 const CATEGORY_COLOR = {
     urgent:   { bg: '#fef2f2', border: '#ef4444', badge: '#fee2e2', text: '#dc2626', icon: 'priority_high'  },
@@ -31,12 +35,14 @@ const AUDIENCE_LABEL = {
     grade_specific: '',
 }
 
+/* Keys, resolved inside the component. As plain strings the whole filter row
+   stayed English under the language switch. */
 const CHIPS = [
-    { key: 'All',      label: 'All'      },
-    { key: 'Urgent',   label: 'Urgent'   },
-    { key: 'Academic', label: 'Academic' },
-    { key: 'Events',   label: 'Events'   },
-    { key: 'General',  label: 'General'  },
+    { key: 'All',      labelKey: 'announcements.filterAll'   },
+    { key: 'Urgent',   labelKey: 'announcements.catUrgent'   },
+    { key: 'Academic', labelKey: 'announcements.catAcademic' },
+    { key: 'Events',   labelKey: 'announcements.catEvents'   },
+    { key: 'General',  labelKey: 'announcements.catGeneral'  },
 ]
 
 function chipMatch(ann, chip) {
@@ -86,7 +92,7 @@ function AnnouncementCard({ ann, onMarkRead }) {
         >
             {/* Icon */}
             <div className="pann-card-icon">
-                <span className="material-symbols-rounded">{cat.icon}</span>
+                <span className="material-symbols-rounded" aria-hidden="true">{cat.icon}</span>
             </div>
 
             {/* Body */}
@@ -114,7 +120,7 @@ function AnnouncementCard({ ann, onMarkRead }) {
                     </span>
                     {!isRead && (
                         <button onClick={() => onMarkRead(ann.id)} className="pann-mark-btn">
-                            <span className="material-symbols-rounded">done</span>
+                            <span className="material-symbols-rounded" aria-hidden="true">done</span>
                             Mark as read
                         </button>
                     )}
@@ -196,59 +202,65 @@ export function ParentAnnouncements() {
                     />
                     <DashboardContent>
                         {/* Stats row */}
-                        <div className="pann-stats-row">
-                            <StatBox icon="inbox"             value={loading ? '-' : announcements.length} label="Total"          tone="info" />
-                            <StatBox icon="mark_email_unread" value={loading ? '-' : unreadCount}          label="Unread"         tone="warning" />
-                            <StatBox icon="priority_high"     value={loading ? '-' : urgentCount}          label="Urgent"         tone="red" />
-                            <StatBox icon="event"             value={loading ? '-' : eventCount}           label="Upcoming Events" tone="" />
+                        <div className="portal-stat-grid mb-1-5">
+                            <StatBox icon="inbox"             value={loading ? '-' : announcements.length} label={t('announcements.statTotal')}    tone="info" />
+                            <StatBox icon="mark_email_unread" value={loading ? '-' : unreadCount}          label={t('announcements.statUnread')}   tone="warning" />
+                            <StatBox icon="priority_high"     value={loading ? '-' : urgentCount}          label={t('announcements.catUrgent')}    tone="red" />
+                            <StatBox icon="event"             value={loading ? '-' : eventCount}           label={t('announcements.statUpcoming')} tone="" />
                         </div>
 
-                        {/* Toolbar: chips + mark all */}
-                        <div className="u-row-between u-mb">
-                            <div className="pann-chip-row">
-                                {CHIPS.map(c => {
-                                    const active = chip === c.key
-                                    return (
-                                        <button key={c.key}
-                                            onClick={() => setChip(c.key)}
-                                            className={`pann-chip${active ? ' active' : ''}`}
-                                        >
-                                            {c.label}
-                                            <span className="pann-chip-count">
-                                                {chipCounts[c.key] ?? 0}
-                                            </span>
-                                        </button>
-                                    )
-                                })}
-                            </div>
-
+                        {/* The shared FilterBar in a toolbar card, as on every
+                            other list page. This was a hand-rolled chip row
+                            with its own class names and its own count pill,
+                            floating on the page background beside a button
+                            that was not a .btn. */}
+                        <div className="toolbar-card mb-1-5">
+                            <FilterBar
+                                options={CHIPS.map(c => ({
+                                    key: c.key,
+                                    label: t(c.labelKey),
+                                    count: chipCounts[c.key] ?? 0,
+                                }))}
+                                active={chip}
+                                onChange={setChip}
+                            />
+                            <div className="toolbar-spacer" />
                             {unreadCount > 0 && (
                                 <button
                                     onClick={handleMarkAll}
                                     disabled={markingAll}
-                                    className="pann-markall-btn"
+                                    className="btn btn-outline btn-sm"
                                 >
-                                    <span className="material-symbols-rounded">done_all</span>
-                                    {markingAll ? 'Marking…' : 'Mark all as read'}
+                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">done_all</span>
+                                    {markingAll ? t('announcements.markingAll') : t('announcements.markAllRead')}
                                 </button>
                             )}
                         </div>
 
-                        {/* Feed */}
-                        {loading ? (
-                            <p className="u-pad u-muted">Loading announcements…</p>
-                        ) : visible.length === 0 ? (
-                            <div className="u-pad-xl u-center-text u-muted">
-                                <span className="material-symbols-rounded pann-empty-icon">inbox</span>
-                                No announcements match this filter.
-                            </div>
-                        ) : (
-                            <div className="u-stack-sm">
-                                {visible.map(a => (
-                                    <AnnouncementCard key={a.id} ann={a} onMarkRead={handleMarkRead} />
-                                ))}
-                            </div>
-                        )}
+                        <ListSection
+                            icon="campaign"
+                            title={t(CHIPS.find(c => c.key === chip)?.labelKey ?? 'announcements.filterAll')}
+                            count={loading ? null : t('announcements.count', { count: visible.length })}
+                        >
+                            {loading ? (
+                                <p className="u-muted">{t('announcements.loading')}</p>
+                            ) : visible.length === 0 ? (
+                                <EmptyState
+                                    icon="inbox"
+                                    title={t('announcements.noneMatch')}
+                                    description={t('announcements.noneMatchDesc')}
+                                    action={chip !== 'All'
+                                        ? { label: t('common.clearFilters'), icon: 'close', onClick: () => setChip('All') }
+                                        : undefined}
+                                />
+                            ) : (
+                                <div className="u-stack-sm">
+                                    {visible.map(a => (
+                                        <AnnouncementCard key={a.id} ann={a} onMarkRead={handleMarkRead} />
+                                    ))}
+                                </div>
+                            )}
+                        </ListSection>
                     </DashboardContent>
                 </main>
             </div>

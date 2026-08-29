@@ -1071,19 +1071,27 @@ class Command(BaseCommand):
             """
             Map the seed's (status, grade, feedback) onto the real submission.
 
+            `grade` is a PERCENTAGE - every row above is written as one (85, 90,
+            91) - while an assignment here is out of 20. Storing the percentage
+            as the raw score is what put "85/20" in the parent's assignment
+            table and "425%" in the average-mark tile, since the percentage was
+            then recomputed as 85/20. It is converted to the assignment's own
+            scale instead, and the percentage kept as given.
+
             The teacher model does not store a status column - it derives one
             from is_graded and is_late, so that a mark and a state can never
             disagree. Nor does it have a feedback field: the student and parent
             portals read a teacher's comment from `notes`.
             """
             max_score = assignment.max_score or 0
-            score = grade if grade is not None else 0
+            marked    = grade is not None
+            score     = round(grade / 100 * max_score, 2) if marked and max_score else 0
             return {
                 'student_name': student.full_name,
                 'student_code': student.student_id,
                 'score':        score,
                 'max_score':    max_score,
-                'percentage':   round(score / max_score * 100, 2) if max_score and grade is not None else 0,
+                'percentage':   round(grade, 2) if marked else 0,
                 'is_graded':    sub_status == 'graded',
                 'is_late':      sub_status == 'late',
                 'notes':        feedback or '',

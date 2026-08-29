@@ -34,7 +34,7 @@ describe('ParentChildren', () => {
   it('shows the empty state when the parent has no linked children', async () => {
     getMyChildren.mockResolvedValue([])
     renderWithRouter(<ParentChildren />)
-    await waitFor(() => expect(screen.getByText('No children linked to your account yet.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('No children are linked to your account yet.')).toBeInTheDocument())
   })
 
   it('fetches per-child data only for the ids returned by getMyChildren, never an arbitrary id', async () => {
@@ -113,7 +113,7 @@ describe('ParentChildren', () => {
     renderWithRouter(<ParentChildren />)
 
     await waitFor(() => expect(screen.getByText('Museum Trip')).toBeInTheDocument())
-    expect(screen.getByText('1 pending')).toBeInTheDocument()
+    expect(screen.getByText('1 awaiting you')).toBeInTheDocument()
     expect(screen.getByText('Approved')).toBeInTheDocument()   // Alice already answered
 
     fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
@@ -128,7 +128,7 @@ describe('ParentChildren', () => {
     getConsentRequests.mockResolvedValue([])
     renderWithRouter(<ParentChildren />)
 
-    await waitFor(() => expect(screen.getByText('No children linked to your account yet.')).toBeInTheDocument())
-    expect(screen.queryByText('Consent Requests')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('No children are linked to your account yet.')).toBeInTheDocument())
+    expect(screen.queryByText('Parental Consent Requests')).not.toBeInTheDocument()
   })
 })

@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { SkeletonList } from '../../components/ui/Skeleton'
+import { ListSection } from '../../components/ui/ListSection'
+import { EmptyState } from '../../components/ui/EmptyState'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -19,24 +24,28 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import '../../styles/my-children.css'
+import '../../styles/tables.css'
 
-const FEE_LABEL  = { cleared: 'Cleared', due: 'Due', overdue: 'Overdue', partial: 'Partial' }
+/* Keys, not English. As literals the whole fee block stayed in English under
+   the language switch, on a page a parent reads in their own language. */
+const FEE_LABEL  = { cleared: 'common.cleared', due: 'common.due', overdue: 'common.overdue', partial: 'common.partial' }
 const FEE_CLASS  = { cleared: 'status-paid', due: 'status-pending', overdue: 'status-pending', partial: 'status-pending' }
 
-function feeStatus(fees = []) {
+function feeStatus(t, fees = []) {
     return fees.map(f => ({
         label:      (f.category || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-        value:      FEE_LABEL[f.status]  || f.status,
+        value:      FEE_LABEL[f.status] ? t(FEE_LABEL[f.status]) : f.status,
         valueClass: FEE_CLASS[f.status]  || 'status-pending',
     }))
 }
 
-function ChildCard({ card, fees, docs }) {
+function ChildCard({ childId, card, fees, docs }) {
+    const { t } = useTranslation()
     const { name, initials, grade, section, student_code, is_in_school, academic_focus, class_teacher } = card
     const gradeId = `${grade}${section} | ID: ${student_code}`
-    const status    = is_in_school ? 'In School' : 'Out of School'
+    const status    = is_in_school ? t('parent.children.inSchool') : t('parent.children.outOfSchool')
     const statusDot = is_in_school ? 'online' : 'offline'
-    const feeRows   = feeStatus(fees)
+    const feeRows   = feeStatus(t, fees)
 
     return (
         <div className="card student-card">
@@ -56,7 +65,7 @@ function ChildCard({ card, fees, docs }) {
                 {academic_focus?.length > 0 && (
                     <section className="detail-section">
                         <h4 className="section-title">
-                            <span className="material-symbols-rounded">menu_book</span> Academic Focus
+                            <span className="material-symbols-rounded" aria-hidden="true">menu_book</span> {t('parent.children.academicFocus')}
                         </h4>
                         <div className="subject-tags">
                             {academic_focus.map((s, i) => <span key={i} className="tag">{s}</span>)}
@@ -78,12 +87,12 @@ function ChildCard({ card, fees, docs }) {
                 {docs?.length > 0 && (
                     <section className="detail-section">
                         <h4 className="section-title">
-                            <span className="material-symbols-rounded">folder_open</span> Documents
+                            <span className="material-symbols-rounded" aria-hidden="true">folder_open</span> {t('common.documents')}
                         </h4>
                         <div className="document-list">
                             {docs.map(doc => (
                                 <a key={doc.id} href={doc.file || '#'} target="_blank" rel="noreferrer" className="doc-item">
-                                    <span className="material-symbols-rounded">picture_as_pdf</span>
+                                    <span className="material-symbols-rounded" aria-hidden="true">picture_as_pdf</span>
                                     <span>{doc.title}</span>
                                 </a>
                             ))}
@@ -93,18 +102,25 @@ function ChildCard({ card, fees, docs }) {
 
                 <hr className="divider" />
 
+                {/* Both of these were dead. "Message <teacher>" was a bare
+                    <button> with no handler, and beside it sat an icon-only
+                    button with no label, no accessible name and nothing behind
+                    it — the empty full-width bar under the card. They are links
+                    now, and they go where they say. */}
                 <div className="student-card-footer">
                     {class_teacher && (
-                        <button className="btn btn-primary w-full">
-                            <span className="material-symbols-rounded">chat</span>
-                            Message {class_teacher.name}
-                        </button>
+                        <Link
+                            to={`/parent/messages?with=${encodeURIComponent(class_teacher.id)}`}
+                            className="btn btn-primary w-full"
+                        >
+                            <span className="material-symbols-rounded" aria-hidden="true">chat</span>
+                            {t('parent.children.messageTeacher', { name: class_teacher.name })}
+                        </Link>
                     )}
-                    <div className="footer-secondary-btns">
-                        <button className="btn btn-outline btn-icon">
-                            <span className="material-symbols-rounded">visibility</span>
-                        </button>
-                    </div>
+                    <Link to={`/parent/results?child=${encodeURIComponent(childId)}`} className="btn btn-outline w-full">
+                        <span className="material-symbols-rounded" aria-hidden="true">insights</span>
+                        {t('parent.children.viewResults')}
+                    </Link>
                 </div>
             </div>
         </div>
@@ -122,6 +138,7 @@ function LoadingCard() {
 }
 
 function ConsentCard() {
+    const { t } = useTranslation()
     const [requests, setRequests] = useState([])
     const [loading, setLoading]   = useState(true)
     const [busy, setBusy]         = useState(null)   // "requestId|studentId"
@@ -152,17 +169,15 @@ function ConsentCard() {
     if (!loading && requests.length === 0) return null
 
     return (
-        <div className="card mb-1-5">
-            <div className="card-header">
-                <h2 className="card-title">
-                    <span className="material-symbols-rounded pchild-title-icon">approval</span>
-                    Consent Requests
-                </h2>
-                {pendingCount > 0 && <span className="badge">{pendingCount} pending</span>}
-            </div>
-            <div className="card-content">
+        <ListSection
+            className="mb-1-5"
+            icon="approval"
+            title={t('parent.children.consentTitle')}
+            count={pendingCount > 0 ? t('parent.children.pendingCount', { count: pendingCount }) : null}
+        >
+            <div>
                 {loading ? (
-                    <p className="u-muted">Loading consent requests…</p>
+                    <p className="u-muted">{t('parent.children.loadingConsent')}</p>
                 ) : (
                     <div className="u-stack-sm">
                         {requests.map(req => (
@@ -172,8 +187,8 @@ function ConsentCard() {
                                         <div className="pchild-consent-title">{req.title}</div>
                                         <div className="pchild-consent-sub">
                                             {req.event_date}
-                                            {req.response_deadline && ` · respond by ${req.response_deadline}`}
-                                            {req.created_by && ` · from ${req.created_by}`}
+                                            {req.response_deadline && ` · ${t('parent.children.respondBy', { date: req.response_deadline })}`}
+                                            {req.created_by && ` · ${t('parent.children.requestedBy', { name: req.created_by })}`}
                                         </div>
                                     </div>
                                 </div>
@@ -187,22 +202,22 @@ function ConsentCard() {
                                                 {child.status ? (
                                                     <span className="pchild-consent-status"
                                                         style={{ '--pchild-status': child.status === 'approved' ? 'var(--success)' : '#dc2626' }}>
-                                                        <span className="material-symbols-rounded pchild-status-icon">
+                                                        <span className="material-symbols-rounded pchild-status-icon" aria-hidden="true">
                                                             {child.status === 'approved' ? 'check_circle' : 'cancel'}
                                                         </span>
-                                                        {child.status === 'approved' ? 'Approved' : 'Declined'}
+                                                        {child.status === 'approved' ? t('common.approved') : t('common.declined')}
                                                     </span>
                                                 ) : (
                                                     <span className="pchild-consent-actions">
                                                         <button className="btn btn-primary btn-sm"
                                                             disabled={busy === key}
                                                             onClick={() => respond(req.id, child.student_id, 'approved')}>
-                                                            Approve
+                                                            {t('common.approve')}
                                                         </button>
                                                         <button className="btn btn-outline btn-sm"
                                                             disabled={busy === key}
                                                             onClick={() => respond(req.id, child.student_id, 'declined')}>
-                                                            Decline
+                                                            {t('common.decline')}
                                                         </button>
                                                     </span>
                                                 )}
@@ -215,7 +230,7 @@ function ConsentCard() {
                     </div>
                 )}
             </div>
-        </div>
+        </ListSection>
     )
 }
 
@@ -228,6 +243,7 @@ export function ParentChildren() {
     const [fees,     setFees]     = useState({})
     const [docs,     setDocs]     = useState({})
     const [loading,  setLoading]  = useState(true)
+    const toast = useToast()
 
     useEffect(() => {
         getMyChildren()
@@ -246,9 +262,12 @@ export function ParentChildren() {
                     })
                 })
             })
-            .catch(console.error)
+            // A failure here left the page saying "no children linked", which
+            // is a different and much more alarming thing than "this did not
+            // load". See the error-handling convention.
+            .catch(e => toast.error(errorMessage(e, t('parent.children.loadFailed'))))
             .finally(() => setLoading(false))
-    }, [])
+    }, [toast, t])
 
     return (
         <>
@@ -266,19 +285,32 @@ export function ParentChildren() {
                     />
                     <DashboardContent>
                         <ConsentCard />
-                        {loading ? (
-                            <p className="u-pad u-muted">Loading children…</p>
-                        ) : children.length === 0 ? (
-                            <p className="u-pad u-muted">No children linked to your account yet.</p>
-                        ) : (
-                            <div className="student-grid">
-                                {children.map(c => (
-                                    cards[c.id]
-                                        ? <ChildCard key={c.id} card={cards[c.id]} fees={fees[c.id] || []} docs={docs[c.id] || []} />
-                                        : <LoadingCard key={c.id} />
-                                ))}
-                            </div>
-                        )}
+                        {/* The grid is in the same frame as the consent panel
+                            above it, titled and counted, rather than floating
+                            on the page background beneath a card. */}
+                        <ListSection
+                            icon="family_restroom"
+                            title={t('parent.children.title')}
+                            count={loading ? null : t('parent.children.childCount', { count: children.length })}
+                        >
+                            {loading ? (
+                                <p className="u-muted">{t('parent.children.loadingChildren')}</p>
+                            ) : children.length === 0 ? (
+                                <EmptyState
+                                    icon="family_restroom"
+                                    title={t('parent.children.noneLinked')}
+                                    description={t('parent.children.noneLinkedDesc')}
+                                />
+                            ) : (
+                                <div className="student-grid">
+                                    {children.map(c => (
+                                        cards[c.id]
+                                            ? <ChildCard key={c.id} childId={c.id} card={cards[c.id]} fees={fees[c.id] || []} docs={docs[c.id] || []} />
+                                            : <LoadingCard key={c.id} />
+                                    ))}
+                                </div>
+                            )}
+                        </ListSection>
                     </DashboardContent>
                 </main>
             </div>

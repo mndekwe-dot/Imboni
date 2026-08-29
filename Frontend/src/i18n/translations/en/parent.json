@@ -36,8 +36,25 @@
   },
   "child": "Child",
   "children": {
+    "academicFocus": "Academic focus",
+    "childCount_one": "{{count}} child",
+    "childCount_other": "{{count}} children",
+    "consentTitle": "Parental Consent Requests",
+    "inSchool": "In school",
+    "loadFailed": "Your children could not be loaded.",
+    "loadingChildren": "Loading children…",
+    "loadingConsent": "Loading consent requests…",
+    "messageTeacher": "Message {{name}}",
+    "noneLinked": "No children are linked to your account yet.",
+    "noneLinkedDesc": "The school office links a parent to their children. Ask them to add yours.",
+    "outOfSchool": "Out of school",
+    "pendingCount_one": "{{count}} awaiting you",
+    "pendingCount_other": "{{count}} awaiting you",
+    "requestedBy": "from {{name}}",
+    "respondBy": "respond by {{date}}",
     "subtitle": "Overview of your children's profiles",
-    "title": "My Children"
+    "title": "My Children",
+    "viewResults": "View results"
   },
   "dashboard": {
     "subtitle": "Here's what's happening with your children",
