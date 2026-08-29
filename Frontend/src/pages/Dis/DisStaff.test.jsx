@@ -43,8 +43,12 @@ describe('DisStaff', () => {
         expect(screen.getByText(/Matron \(Bisoke\)/)).toBeInTheDocument()
         expect(screen.getByText('Mr. G. Nkurunziza')).toBeInTheDocument()
         expect(screen.getByText(/Patron \(S2\)/)).toBeInTheDocument()
-        expect(screen.getByText('1 Matrons')).toBeInTheDocument()
-        expect(screen.getByText('1 Patrons')).toBeInTheDocument()
+        // "1 Matrons" is what this said before the key grew _one/_other.
+        expect(screen.getByText('1 Matron')).toBeInTheDocument()
+        expect(screen.getByText('1 Patron')).toBeInTheDocument()
+        // Each section is a titled frame, the same one DataTable draws.
+        expect(screen.getByRole('heading', { name: 'Boarding Matrons' })).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'Activity Patrons' })).toBeInTheDocument()
         // One "Add Staff" action for the page, in the header -- not one wedged
         // between the matrons heading and the matrons grid.
         expect(screen.getAllByRole('button', { name: /Add Staff/i })).toHaveLength(1)
@@ -68,6 +72,23 @@ describe('DisStaff', () => {
         fireEvent.change(screen.getByPlaceholderText(/Search staff/i), { target: { value: 'Nkurunziza' } })
         expect(screen.getByText('Mr. G. Nkurunziza')).toBeInTheDocument()
         expect(screen.queryByText('Mrs. G. Hakizimana')).not.toBeInTheDocument()
+    })
+
+    it('offers to clear the search, not to hire, when a search matches nobody', async () => {
+        // It used to say "No matrons on record." and offer "Add a matron" --
+        // both wrong when the school has twelve and none is called "zzz".
+        getDisStaff.mockResolvedValue([matron, patron])
+        renderWithRouter(<DisStaff />)
+        await waitFor(() => expect(screen.getByText('Mrs. G. Hakizimana')).toBeInTheDocument())
+
+        fireEvent.change(screen.getByPlaceholderText(/Search staff/i), { target: { value: 'zzz' } })
+
+        expect(screen.getAllByText('No matches for "zzz"')).toHaveLength(2)
+        expect(screen.queryByText('No matrons on record.')).not.toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: /Add a matron/i })).not.toBeInTheDocument()
+
+        fireEvent.click(screen.getAllByText('Clear')[0].closest('button'))
+        expect(screen.getByText('Mrs. G. Hakizimana')).toBeInTheDocument()
     })
 
     it('adds a new staff member and persists it via the API', async () => {

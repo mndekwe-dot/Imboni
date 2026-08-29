@@ -9,6 +9,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
+import { ListSection } from '../../components/ui/ListSection'
 import { TabGroup } from '../../components/ui/TabGroup'
 import { NewActivityModal } from '../../components/modals/NewActivityModal'
 import { EditActivityModal } from '../../components/modals/EditActivityModal'
@@ -27,6 +28,7 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
+import '../../styles/tables.css'
 
 /**
  * Clubs, activities and student leadership.
@@ -49,6 +51,20 @@ import '../../styles/discipline.css'
  *    are keys now, so the page follows the language switch like the rest.
  *  - Failures were `console.error` and nothing else: deleting a club that the
  *    server refused looked exactly like deleting one that worked.
+ *
+ * What the page still got wrong, and what this pass fixes — the binding. Every
+ * list on it floated directly on the page background while the captains table
+ * sat inside a bordered, titled, counted frame, so one half of the Leaders tab
+ * had an edge and the other did not, and nothing on the Activities tab said
+ * what you were looking at once a filter was on. Activities (the page) already
+ * had that frame and this one did not.
+ *
+ * So every list here is now a <ListSection>: the club grid, the prefect grid
+ * and the incident list, alongside the captains <DataTable>, which draws the
+ * same frame. The filter chips sit in a toolbar CARD rather than a bare row,
+ * again as on Activities, so the controls read as belonging to the section
+ * they filter. Loading and empty states are INSIDE the frame — a section that
+ * disappears while its data loads makes the whole page jump.
  */
 
 const CATEGORIES = {
@@ -168,10 +184,10 @@ function ActivityCard({ activity, onEdit, onDelete }) {
                 ) : (
                     <>
                         <button className="btn btn-outline btn-sm" onClick={() => setConfirming(true)}>
-                            <span className="material-symbols-rounded icon-sm">delete</span> {t('common.delete')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span> {t('common.delete')}
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onEdit(activity)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span> {t('common.edit')}
                         </button>
                     </>
                 )}
@@ -212,10 +228,10 @@ function PrefectCard({ leader, onEdit, onRemove }) {
                 ) : (
                     <>
                         <button className="btn btn-outline btn-sm" onClick={() => setConfirming(true)}>
-                            <span className="material-symbols-rounded icon-sm">person_remove</span> {t('common.remove')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">person_remove</span> {t('common.remove')}
                         </button>
                         <button className="btn btn-primary btn-sm" onClick={() => onEdit(leader)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span> {t('common.edit')}
                         </button>
                     </>
                 )}
@@ -247,10 +263,10 @@ function CaptainRow({ leader, onEdit, onRemove, confirmId, onConfirmRemove, onCa
                 ) : (
                     <>
                         <button className="btn btn-outline btn-sm" onClick={() => onEdit(leader)}>
-                            <span className="material-symbols-rounded icon-sm">edit</span> {t('common.edit')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span> {t('common.edit')}
                         </button>
                         <button className="btn btn-outline btn-sm" onClick={() => onRemove(leader.id)}>
-                            <span className="material-symbols-rounded icon-sm">delete</span> {t('common.remove')}
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span> {t('common.remove')}
                         </button>
                     </>
                 )}
@@ -470,40 +486,59 @@ export function DisStudentLife() {
                                 {/* Filters lead, the action sits at the end of
                                     the same row. Before, the button was INSIDE
                                     the chip row, so on a laptop the eight chips
-                                    wrapped and "New Club" moved with them. */}
-                                <div className="section-toolbar-row">
+                                    wrapped and "New Club" moved with them.
+                                    The row is a toolbar CARD, as on Activities:
+                                    a bare row of chips floating on the page
+                                    background does not read as the control for
+                                    the section under it. */}
+                                <div className="toolbar-card mb-1-5">
                                     <FilterBar options={categoryFilters} active={actFilter} onChange={setActFilter} />
+                                    <div className="toolbar-spacer" />
                                     <button className="btn btn-primary btn-sm" onClick={() => setShowNewActivity(true)}>
-                                        <span className="material-symbols-rounded icon-sm">add</span> {t('dis.studentLife.newClub')}
+                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.studentLife.newClub')}
                                     </button>
                                 </div>
 
-                                {actLoading ? (
-                                    <p className="u-pad u-muted">{t('dis.studentLife.loadingActivities')}</p>
-                                ) : visibleActivities.length === 0 ? (
-                                    <EmptyState
-                                        icon="emoji_events"
-                                        title={t('dis.studentLife.noActivities')}
-                                        description={t('dis.studentLife.noActivitiesDesc')}
-                                        action={{ label: t('dis.studentLife.createFirstClub'), icon: 'add', onClick: () => setShowNewActivity(true) }}
-                                        secondAction={actFilter !== 'all'
-                                            ? { label: t('common.clearFilters'), icon: 'close', onClick: () => setActFilter('all') }
-                                            : undefined}
-                                    />
-                                ) : (
-                                    <div className="disc-club-grid">
-                                        {visibleActivities.map(a => (
-                                            <ActivityCard key={a.id} activity={a} onEdit={setEditingActivity} onDelete={handleDeleteActivity} />
-                                        ))}
-                                    </div>
-                                )}
+                                {/* The grid lives in the frame, filter chips
+                                    included, so the section says what it is
+                                    showing and how many. Loading and empty are
+                                    INSIDE it too: a frame that vanishes while
+                                    the data loads makes the page jump. */}
+                                <ListSection
+                                    icon="emoji_events"
+                                    title={actFilter === 'all'
+                                        ? t('dis.studentLife.allActivities')
+                                        : t((CATEGORIES[actFilter] || CATEGORIES.other).labelKey)}
+                                    count={actLoading ? null : t('dis.activities.clubCount', { count: visibleActivities.length })}
+                                >
+                                    {actLoading ? (
+                                        <p className="u-muted">{t('dis.studentLife.loadingActivities')}</p>
+                                    ) : visibleActivities.length === 0 ? (
+                                        <EmptyState
+                                            icon="emoji_events"
+                                            title={t('dis.studentLife.noActivities')}
+                                            description={t('dis.studentLife.noActivitiesDesc')}
+                                            action={{ label: t('dis.studentLife.createFirstClub'), icon: 'add', onClick: () => setShowNewActivity(true) }}
+                                            secondAction={actFilter !== 'all'
+                                                ? { label: t('common.clearFilters'), icon: 'close', onClick: () => setActFilter('all') }
+                                                : undefined}
+                                        />
+                                    ) : (
+                                        <div className="disc-club-grid">
+                                            {visibleActivities.map(a => (
+                                                <ActivityCard key={a.id} activity={a} onEdit={setEditingActivity} onDelete={handleDeleteActivity} />
+                                            ))}
+                                        </div>
+                                    )}
+                                </ListSection>
 
                                 {incidents.length > 0 && (
-                                    <div className="card mt-1-5">
-                                        <div className="card-header">
-                                            <h2 className="card-title">{t('dis.studentLife.recentIncidents')}</h2>
-                                        </div>
-                                        <div className="card-content">
+                                    <div className="mt-1-5">
+                                        <ListSection
+                                            icon="report"
+                                            title={t('dis.studentLife.recentIncidents')}
+                                            count={t('dis.studentLife.incidentCount', { count: incidents.length })}
+                                        >
                                             <div className="disc-activity-list">
                                                 {incidents.map(r => {
                                                     const meta = INCIDENT_TYPES[r.report_type] || INCIDENT_TYPES.incident
@@ -525,7 +560,7 @@ export function DisStudentLife() {
                                                     )
                                                 })}
                                             </div>
-                                        </div>
+                                        </ListSection>
                                     </div>
                                 )}
                             </div>
@@ -538,7 +573,7 @@ export function DisStudentLife() {
                                     {leaderStats.map((s, i) => <StatCard key={i} {...s} />)}
                                 </div>
 
-                                <div className="section-toolbar-row">
+                                <div className="toolbar-card mb-1-5">
                                     <FilterBar
                                         options={[
                                             { key: 'all',      label: t('dis.studentLife.allLeaders') },
@@ -548,61 +583,70 @@ export function DisStudentLife() {
                                         active={leaderFilter}
                                         onChange={setLeaderFilter}
                                     />
+                                    <div className="toolbar-spacer" />
                                     <div className="disc-btn-inline-group">
                                         <button className="btn btn-outline btn-sm" onClick={() => setShowAddLeader('captain')}>
-                                            <span className="material-symbols-rounded icon-sm">add</span> {t('dis.studentLife.addCaptain')}
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.studentLife.addCaptain')}
                                         </button>
                                         <button className="btn btn-primary btn-sm" onClick={() => setShowAddLeader('prefect')}>
-                                            <span className="material-symbols-rounded icon-sm">add</span> {t('dis.studentLife.addLeader')}
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.studentLife.addLeader')}
                                         </button>
                                     </div>
                                 </div>
 
-                                {leadLoading ? (
-                                    <p className="u-pad u-muted">{t('dis.studentLife.loadingLeaders')}</p>
-                                ) : (
-                                    <>
-                                        {(leaderFilter === 'all' || leaderFilter === 'prefects') && (
-                                            prefects.length === 0 ? (
-                                                <EmptyState
-                                                    icon="military_tech"
-                                                    title={t('dis.studentLife.noPrefects')}
-                                                    description={t('dis.studentLife.noPrefectsDesc')}
-                                                    action={{ label: t('dis.studentLife.appointFirstLeader'), icon: 'add', onClick: () => setShowAddLeader('prefect') }}
-                                                />
-                                            ) : (
-                                                <div className="disc-club-grid mb-1-5">
-                                                    {prefects.map(l => (
-                                                        <PrefectCard key={l.id} leader={l} onEdit={setEditingLeader} onRemove={handleRemoveLeader} />
-                                                    ))}
-                                                </div>
-                                            )
-                                        )}
-
-                                        {(leaderFilter === 'all' || leaderFilter === 'captains') && (
-                                            <DataTable
-                                                title={t('dis.studentLife.dormitoryCaptains')}
-                                                data={captains}
-                                                columns={[
-                                                    t('common.dormitory'), t('dis.studentLife.captain'),
-                                                    t('common.admNo'), t('common.appointedDate'), t('common.actions'),
-                                                ]}
-                                                renderRow={c => (
-                                                    <CaptainRow
-                                                        key={c.id} leader={c}
-                                                        confirmId={confirmRemoveId}
-                                                        onEdit={setEditingLeader}
-                                                        onRemove={setConfirmRemoveId}
-                                                        onConfirmRemove={handleRemoveLeader}
-                                                        onCancelRemove={() => setConfirmRemoveId(null)}
-                                                    />
-                                                )}
-                                                emptyIcon="home"
-                                                emptyTitle={t('dis.studentLife.noCaptains')}
-                                                emptyDesc={t('dis.studentLife.noCaptainsDesc')}
+                                {/* Prefects were a bare grid and the captains a
+                                    <DataTable>, so one half of this tab had an
+                                    edge and the other did not. Both are in the
+                                    same frame now. */}
+                                {(leaderFilter === 'all' || leaderFilter === 'prefects') && (
+                                    <ListSection
+                                        icon="military_tech"
+                                        title={t('dis.studentLife.prefects')}
+                                        count={leadLoading ? null : t('dis.studentLife.prefectCount', { count: prefects.length })}
+                                    >
+                                        {leadLoading ? (
+                                            <p className="u-muted">{t('dis.studentLife.loadingLeaders')}</p>
+                                        ) : prefects.length === 0 ? (
+                                            <EmptyState
+                                                icon="military_tech"
+                                                title={t('dis.studentLife.noPrefects')}
+                                                description={t('dis.studentLife.noPrefectsDesc')}
+                                                action={{ label: t('dis.studentLife.appointFirstLeader'), icon: 'add', onClick: () => setShowAddLeader('prefect') }}
                                             />
+                                        ) : (
+                                            <div className="disc-club-grid">
+                                                {prefects.map(l => (
+                                                    <PrefectCard key={l.id} leader={l} onEdit={setEditingLeader} onRemove={handleRemoveLeader} />
+                                                ))}
+                                            </div>
                                         )}
-                                    </>
+                                    </ListSection>
+                                )}
+
+                                {!leadLoading && (leaderFilter === 'all' || leaderFilter === 'captains') && (
+                                    <div className={leaderFilter === 'all' ? 'mt-1-5' : ''}>
+                                        <DataTable
+                                            title={t('dis.studentLife.dormitoryCaptains')}
+                                            data={captains}
+                                            columns={[
+                                                t('common.dormitory'), t('dis.studentLife.captain'),
+                                                t('common.admNo'), t('common.appointedDate'), t('common.actions'),
+                                            ]}
+                                            renderRow={c => (
+                                                <CaptainRow
+                                                    key={c.id} leader={c}
+                                                    confirmId={confirmRemoveId}
+                                                    onEdit={setEditingLeader}
+                                                    onRemove={setConfirmRemoveId}
+                                                    onConfirmRemove={handleRemoveLeader}
+                                                    onCancelRemove={() => setConfirmRemoveId(null)}
+                                                />
+                                            )}
+                                            emptyIcon="home"
+                                            emptyTitle={t('dis.studentLife.noCaptains')}
+                                            emptyDesc={t('dis.studentLife.noCaptainsDesc')}
+                                        />
+                                    </div>
                                 )}
                             </div>
                         )}

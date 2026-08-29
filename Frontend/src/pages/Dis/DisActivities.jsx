@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { ListSection } from '../../components/ui/ListSection'
 import { NewActivityModal } from '../../components/modals/NewActivityModal'
 import { EditActivityModal } from '../../components/modals/EditActivityModal'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -63,13 +64,13 @@ function ActivityCard({ activity, onEdit }) {
                 <span className={`pub-badge ${badgeCls} ml-auto`}>{badge}</span>
             </div>
             <div className="staff-card-meta">
-                <span><span className="material-symbols-rounded">groups</span>{enrolled_count} enrolled{full}</span>
-                {schedule && <span><span className="material-symbols-rounded">schedule</span>{schedule}</span>}
-                {venue    && <span><span className="material-symbols-rounded">location_on</span>{venue}</span>}
+                <span><span className="material-symbols-rounded" aria-hidden="true">groups</span>{enrolled_count} enrolled{full}</span>
+                {schedule && <span><span className="material-symbols-rounded" aria-hidden="true">schedule</span>{schedule}</span>}
+                {venue    && <span><span className="material-symbols-rounded" aria-hidden="true">location_on</span>{venue}</span>}
             </div>
             <div className="staff-card-actions">
                 <button className="btn btn-primary btn-sm" onClick={onEdit}>
-                    <span className="material-symbols-rounded">edit</span> Edit
+                    <span className="material-symbols-rounded" aria-hidden="true">edit</span> Edit
                 </button>
             </div>
         </div>
@@ -128,11 +129,11 @@ function ConsentRequestsPanel() {
                     headed with the page title and its button said "New Club",
                     both of which described the grid further down the page. */}
                 <h2 className="card-title">
-                    <span className="material-symbols-rounded">approval</span>
+                    <span className="material-symbols-rounded" aria-hidden="true">approval</span>
                     {t('dis.activities.consentTitle')}
                 </h2>
                 <button className="btn btn-outline btn-sm" onClick={() => setShowForm(s => !s)}>
-                    <span className="material-symbols-rounded icon-sm">{showForm ? 'expand_less' : 'add'}</span>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">{showForm ? 'expand_less' : 'add'}</span>
                     {showForm ? t('common.cancel') : t('dis.activities.newRequest')}
                 </button>
             </div>
@@ -298,7 +299,7 @@ export function DisActivities() {
                             <FilterBar options={filterOptions} active={filter} onChange={setFilter} />
                             <div className="toolbar-spacer" />
                             <button className="btn btn-primary btn-sm" onClick={() => setShowNew(true)}>
-                                <span className="material-symbols-rounded icon-sm">add</span> {t('dis.activities.newClub')}
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('dis.activities.newClub')}
                             </button>
                         </div>
 
@@ -314,25 +315,19 @@ export function DisActivities() {
                                     : { label: t('dis.activities.showAll'), icon: 'refresh', onClick: () => setFilter('all') }}
                             />
                         ) : (
-                            <div className="act-list-card">
-                                <div className="act-list-header">
-                                    <div className="act-list-title">
-                                        {filter === 'all'
-                                            ? t('dis.studentLife.allActivities')
-                                            : categoryLabel(t, filter)}
-                                    </div>
-                                    <span className="act-list-count">
-                                        {t('dis.activities.clubCount', { count: visible.length })}
-                                    </span>
+                            <ListSection
+                                icon="emoji_events"
+                                title={filter === 'all'
+                                    ? t('dis.studentLife.allActivities')
+                                    : categoryLabel(t, filter)}
+                                count={t('dis.activities.clubCount', { count: visible.length })}
+                            >
+                                <div className="staff-cards-grid">
+                                    {visible.map(a => (
+                                        <ActivityCard key={a.id} activity={a} onEdit={() => setEditingActivity(a)} />
+                                    ))}
                                 </div>
-                                <div className="act-list-body">
-                                    <div className="staff-cards-grid">
-                                        {visible.map(a => (
-                                            <ActivityCard key={a.id} activity={a} onEdit={() => setEditingActivity(a)} />
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
+                            </ListSection>
                         )}
 
                     </DashboardContent>
