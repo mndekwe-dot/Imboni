@@ -91,6 +91,7 @@ TENANT_APPS = [
     'apps.student',
     'apps.discipline',
     'apps.matron',
+    'apps.library',
     'apps.notifications',
     'apps.audit',
 ]

@@ -8,6 +8,7 @@ import common from './common.json'
 import dis from './dis.json'
 import dos from './dos.json'
 import landing from './landing.json'
+import library from './library.json'
 import language from './language.json'
 import matron from './matron.json'
 import messaging from './messaging.json'
@@ -38,6 +39,7 @@ export default {
     dis,
     dos,
     landing,
+    library,
     language,
     matron,
     messaging,

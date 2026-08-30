@@ -5,5 +5,9 @@
   "matron": "Santé, bien-être des élèves et gestion des dortoirs",
   "parent": "Suivez le parcours scolaire et la vie scolaire de votre enfant",
   "student": "Consultez vos résultats, votre emploi du temps, vos devoirs et vos activités",
-  "teacher": "Gérez vos classes, faites l'appel et saisissez les résultats"
+  "teacher": "Gérez vos classes, faites l'appel et saisissez les résultats",
+  "library": {
+    "title": "Bibliothécaire",
+    "subtitle": "Catalogue, prêts et réservations"
+  }
 }

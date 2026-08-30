@@ -65,6 +65,7 @@ USERS = [
     ('teacher',    'Janvier',     'Ntakirutimana',   'j.ntakirutimana@imboni.rw','+250788000008','full_time'),
     ('matron',     'Grace',       'Hakizimana',      'g.hakizimana@imboni.rw',  '+250788000009', ''),
     ('discipline', 'Patrick',     'Habimana',        'p.habimana@imboni.rw',    '+250788000010', ''),
+    ('librarian',  'Josiane',     'Mukamana',        'librarian@imboni.rw',     '+250788000040', 'full_time'),
     ('student',    'Amina',       'Uwase',           'a.uwase@imboni.rw',       '+250788000011', ''),
     ('student',    'Kevin',       'Mutabazi',        'k.mutabazi@imboni.rw',    '+250788000012', ''),
     ('student',    'Marie',       'Ingabire',        'm.ingabire@imboni.rw',    '+250788000013', ''),
@@ -1541,6 +1542,123 @@ class Command(BaseCommand):
                         extra_msg_count += 1
         self.stdout.write(self.style.SUCCESS(f'  {extra_msg_count} additional messages created'))
 
+        # ── 31. Library ────────────────────────────────────────────────────────
+        # Pro-only at runtime (apps/tenants/plans.py gates it), but the data is
+        # seeded regardless: a school that upgrades should find a working
+        # library rather than an empty one, and the demo tenant is on premium.
+        self.stdout.write('Creating library stock...')
+        from decimal import Decimal
+        from apps.library.models import (
+            AcquisitionRequest, Book, BookCopy, LibrarySettings, Loan, Reservation, Supplier,
+        )
+        from apps.library import services as library_services
+
+        LibrarySettings.load()
+        supplier, _ = Supplier.objects.get_or_create(
+            name='Kigali Book Centre',
+            defaults={'contact_name': 'Jean Bosco', 'email': 'sales@kigalibooks.rw',
+                      'phone': '+250788111222'},
+        )
+
+        library_books = [
+            # title, author, category, copies, shelf, subject
+            ('Things Fall Apart',            'Chinua Achebe',      'fiction',    4, 'A-01', 'Literature'),
+            ('Weep Not, Child',              "Ng\u0169g\u0129 wa Thiong'o", 'fiction', 3, 'A-02', 'Literature'),
+            ('Purple Hibiscus',              'Chimamanda Ngozi Adichie', 'fiction', 3, 'A-03', 'Literature'),
+            ('A Grain of Wheat',             "Ng\u0169g\u0129 wa Thiong'o", 'fiction', 2, 'A-04', 'Literature'),
+            ('Advanced Mathematics S4',      'REB',                'textbook',   6, 'B-01', 'Mathematics'),
+            ('Physics for Rwanda Schools S5','REB',                'textbook',   5, 'B-02', 'Physics'),
+            ('Chemistry Practical Handbook', 'REB',                'textbook',   5, 'B-03', 'Chemistry'),
+            ('Biology: Life Processes',      'REB',                'textbook',   4, 'B-04', 'Biology'),
+            ('History of Rwanda',            'Ministry of Education', 'nonfiction', 3, 'C-01', 'History'),
+            ('Kinyarwanda Grammar',          'Rwanda Academy',     'reference',  2, 'C-02', 'Kinyarwanda'),
+            ('Oxford English Dictionary',    'Oxford University Press', 'reference', 2, 'C-03', 'English'),
+            ('Atlas of East Africa',         'Longhorn',           'reference',  2, 'C-04', 'Geography'),
+        ]
+
+        book_count = copy_count = 0
+        copy_index = BookCopy.objects.count()
+        for title, author, category, copies, shelf, subject in library_books:
+            book, created = Book.objects.get_or_create(
+                title=title,
+                defaults={'author': author, 'category': category, 'shelf': shelf,
+                          'subject': subject, 'language': 'English'},
+            )
+            if created:
+                book_count += 1
+            for _ in range(copies - book.copies.count()):
+                copy_index += 1
+                BookCopy.objects.create(
+                    book=book, copy_code=f'LIB-{copy_index:05d}',
+                    condition='good', acquired_on=date(2026, 1, 15),
+                    price=Decimal('12000.00'), supplier=supplier,
+                )
+                copy_count += 1
+        self.stdout.write(self.style.SUCCESS(
+            f'  {book_count} titles, {copy_count} copies created'))
+
+        # A few loans so the desk is not empty: one healthy, one overdue, and a
+        # title with every copy out so the hold queue has something to hold.
+        librarian_user = users.get('librarian@imboni.rw')
+        borrowers = [users.get(email) for email in (
+            'a.uwase@imboni.rw', 'k.mutabazi@imboni.rw', 'm.ingabire@imboni.rw',
+            'e.ndagijimana@imboni.rw',
+        )]
+        borrowers = [b for b in borrowers if b]
+
+        loan_count = 0
+        if borrowers and not Loan.objects.exists():
+            pairs = [
+                ('Things Fall Apart',       borrowers[0], 3),
+                ('Advanced Mathematics S4', borrowers[1 % len(borrowers)], 0),
+                ('History of Rwanda',       borrowers[2 % len(borrowers)], -5),
+            ]
+            for title, borrower, days_shift in pairs:
+                book = Book.objects.filter(title=title).first()
+                copy = book.copies.filter(status='available').first() if book else None
+                if copy is None:
+                    continue
+                loan = library_services.issue(copy, borrower, issued_by=librarian_user)
+                if days_shift:
+                    # Negative = already overdue, so the portal has a real one to chase.
+                    loan.due_on = loan.due_on - timedelta(days=abs(days_shift)) \
+                        if days_shift < 0 else loan.due_on + timedelta(days=days_shift)
+                    loan.save(update_fields=['due_on'])
+                loan_count += 1
+
+            # Put every copy of one title out, then queue somebody for it.
+            queued_book = Book.objects.filter(title='Purple Hibiscus').first()
+            if queued_book:
+                for copy in queued_book.copies.filter(status='available'):
+                    holder = borrowers[loan_count % len(borrowers)]
+                    try:
+                        library_services.issue(copy, holder, issued_by=librarian_user)
+                        loan_count += 1
+                    except library_services.LibraryError:
+                        continue
+                waiting = borrowers[-1]
+                if not Reservation.objects.filter(book=queued_book).exists():
+                    try:
+                        library_services.reserve(queued_book, waiting)
+                    except library_services.LibraryError:
+                        pass
+        self.stdout.write(self.style.SUCCESS(f'  {loan_count} loans created'))
+
+        if not AcquisitionRequest.objects.exists() and librarian_user:
+            AcquisitionRequest.objects.create(
+                title='Mathematics S6 Revision Guide', author='REB', quantity=10,
+                unit_price=Decimal('9500.00'), supplier=supplier,
+                reason='S6 has one shared copy between four students.',
+                requested_by=librarian_user, status='pending',
+            )
+            AcquisitionRequest.objects.create(
+                title='English Readers Set B', author='Longhorn', quantity=6,
+                unit_price=Decimal('7000.00'), supplier=supplier,
+                reason='S1 reading scheme.', requested_by=librarian_user, status='approved',
+                decided_by=users.get('admin@imboni.rw'), decided_at=timezone.now(),
+            )
+            self.stdout.write(self.style.SUCCESS('  2 acquisition requests created'))
+
         # ── Done ───────────────────────────────────────────────────────────────
         self.stdout.write('')
         self.stdout.write(self.style.SUCCESS('=' * 55))
@@ -1558,4 +1676,5 @@ class Command(BaseCommand):
         self.stdout.write('  ch.uwase@gmail.com    -> Parent portal')
         self.stdout.write('  g.hakizimana@imboni.rw-> Matron portal')
         self.stdout.write('  p.habimana@imboni.rw  -> Discipline portal')
+        self.stdout.write('  librarian@imboni.rw   -> Library portal (Premium plan only)')
         self.stdout.write('')

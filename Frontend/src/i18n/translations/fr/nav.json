@@ -32,5 +32,11 @@
   "students": "Élèves",
   "support": "Assistance",
   "teachers": "Enseignants",
-  "timetable": "Emploi du temps"
+  "timetable": "Emploi du temps",
+  "library": "Bibliothèque",
+  "catalogue": "Catalogue",
+  "circulation": "Circulation",
+  "borrowers": "Emprunteurs",
+  "reservations": "Réservations",
+  "acquisitions": "Acquisitions"
 }

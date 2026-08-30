@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router'
 import { loginUser,logoutUser, verifyTwoFactorLogin } from "../api/auth";
 import { ROLE_HOME } from "../utils/roles";
 import { resetSchoolConfigCache } from "./schoolConfigCache";
+import { resetLibraryFeatureCache } from './libraryFeatureCache'
 
 
 export function useAuth(){
@@ -50,6 +51,10 @@ export function useAuth(){
         // (or another tenant), and it must not inherit these year and stream
         // lists in its class pickers.
         resetSchoolConfigCache()
+        // Same reasoning for the plan: whether the library is switched on
+        // belongs to the school, and the next school to sign in here may be on
+        // a different plan.
+        resetLibraryFeatureCache()
         navigate(redirectTo)
     }
     return {user,isAuthenticated,login,completeTwoFactor,logout}

@@ -663,6 +663,31 @@ table,
   --portal-accent-light:   #eaedf1;
 }
 
+/* Library — warm ochre. The seven portals had taken the cool half of the wheel
+   and slate; a reading room is the one place in a school that is meant to feel
+   warm, and it is also the fastest way to know which portal you are in. */
+:root[data-portal="library"] {
+  --primary:               #a1621b;
+  --primary-hover:         #834f14;
+  --primary-surface:       #f6e6d0;
+  --primary-text:          #7a4a13;
+  --primary-light:         #fbf2e6;
+  --background:            #faf5ee;
+  --content-bg:            #faf5ee;
+  --surface-2:             #fffaf3;
+  --surface-3:             #f3e9db;
+  --border:                #e4d7c4;
+  --border-hover:          #d2c0a6;
+  --secondary:             #f7f1e8;
+  --secondary-hover:       #efe6d8;
+  --muted:                 #f8f3ec;
+  --muted-hover:           #f0e8dc;
+  --scrollbar-thumb:       #ddcfba;
+  --scrollbar-thumb-hover: #c6b498;
+  --portal-accent:         #a1621b;
+  --portal-accent-light:   #fbf2e6;
+}
+
 /* ===============================================
    BASE RESET
    =============================================== */

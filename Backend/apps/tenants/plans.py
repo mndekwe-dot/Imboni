@@ -14,7 +14,7 @@ A limit of ``None`` means "unlimited".
 # Roles that consume a *staff* seat. Everything a school pays for a human to do
 # administratively/academically counts here; students are counted separately.
 # (Parents are free — they're the customer's customers, not seats.)
-STAFF_ROLES = ('teacher', 'dos', 'matron', 'discipline', 'admin')
+STAFF_ROLES = ('teacher', 'dos', 'matron', 'discipline', 'librarian', 'admin')
 
 # The resources we meter, and the roles that back each one.
 RESOURCE_ROLES = {
@@ -88,3 +88,42 @@ def within_limit(plan, resource, current, adding=1):
     if cap is None:
         return True
     return current + adding <= cap
+
+
+# ── Feature gating ─────────────────────────────────────────────────────────────
+#
+# Capacity answers "how many"; this answers "which parts of the product at all".
+# A feature is named once here and asked about by name everywhere else, so the
+# day the library moves down a tier it is one line rather than a hunt through
+# views, navs and routers for `plan == 'premium'`.
+#
+# 'library' is the Pro-only feature: the librarian portal, its API, and the
+# Library page in the student portal. Premium IS the Pro tier -- the plan keys
+# are free/basic/premium and adding a fourth would fragment the Stripe products.
+PLAN_FEATURES = {
+    'free':    frozenset(),
+    'basic':   frozenset(),
+    'premium': frozenset({'library'}),
+}
+
+# Every feature the product knows about, so a typo in a `has_feature` call is a
+# loud error rather than a silent False that quietly disables something.
+KNOWN_FEATURES = frozenset({'library'})
+
+
+def has_feature(plan, feature):
+    """
+    Whether ``plan`` includes ``feature``.
+
+    Raises ValueError for a feature nobody declared: a mistyped name must not
+    read as "this plan does not have it", which is indistinguishable from a
+    correct denial and would hide the bug until a customer reported it.
+    """
+    if feature not in KNOWN_FEATURES:
+        raise ValueError(f'Unknown feature: {feature!r}')
+    return feature in PLAN_FEATURES[normalize_plan(plan)]
+
+
+def features_for(plan):
+    """The features enabled on ``plan``, as a sorted list (JSON-friendly)."""
+    return sorted(PLAN_FEATURES[normalize_plan(plan)])

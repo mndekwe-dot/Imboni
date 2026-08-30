@@ -1,0 +1,319 @@
+/* ===============================================
+   LIBRARY.CSS — the librarian portal, and the
+   student's Library page.
+
+   Only what is genuinely unique to a library lives
+   here: a shelf of book cards, a loan row, a hold
+   queue. Everything with a shared component behind
+   it (frames, toolbars, stat tiles, tables, empty
+   states) is that component, not a copy of it.
+
+   Colours spend tokens. `--portal-accent` is ochre
+   inside the library and whatever the portal is
+   elsewhere, so the student's Library page takes
+   the student's blue without a second stylesheet.
+   =============================================== */
+
+/* ── Dashboard ───────────────────────────────────────────────────────────── */
+
+.lib-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+
+.lib-due-list,
+.lib-popular-list,
+.lib-loan-list,
+.lib-copy-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.lib-due-row,
+.lib-popular-row,
+.lib-loan-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+.lib-due-main,
+.lib-loan-main {
+  flex: 1;
+  min-width: 0;
+}
+/* A long title truncates rather than pushing the due date off the row. */
+.lib-due-main > *,
+.lib-loan-main > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lib-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-full, 999px);
+  background: var(--primary-surface);
+  color: var(--primary-text);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+/* The three numbers that mean somebody has to do something today. */
+.lib-action-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.lib-action-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  background: var(--card);
+  box-shadow: var(--card-shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+.lib-action-card:hover {
+  border-color: var(--portal-accent);
+  transform: translateY(-1px);
+}
+.lib-action-card .material-symbols-rounded {
+  font-size: var(--icon-lg);
+  color: var(--portal-accent);
+}
+.lib-action-value { font-size: var(--text-title); font-weight: 800; }
+.lib-action-label { font-size: var(--text-sm); color: var(--muted-foreground); }
+
+/* ── The shelf ───────────────────────────────────────────────────────────── */
+
+.lib-book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.lib-book-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  background: var(--card);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.lib-book-card:hover { border-color: var(--portal-accent); box-shadow: var(--shadow-sm); }
+
+/* The whole card is the target on the librarian's side; on the student's it is
+   not clickable, so the same markup renders as a plain block there. */
+.lib-book-open {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.lib-book-static { cursor: default; }
+
+.lib-book-spine {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 3.25rem;
+  flex-shrink: 0;
+  border-radius: 3px;
+  /* A spine, not a circle: the shape is the fastest way to read "book" in a
+     grid that also holds people and requests elsewhere in the portal. */
+  background: var(--primary-surface);
+  border-left: 3px solid var(--portal-accent);
+  color: var(--primary-text);
+}
+.lib-book-spine .material-symbols-rounded { font-size: var(--icon-md); }
+
+.lib-book-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lib-book-title  { font-size: var(--text-body); font-weight: 700; }
+.lib-book-author { font-size: var(--text-sm); color: var(--muted-foreground); }
+.lib-book-meta   { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-1); flex-wrap: wrap; }
+
+.lib-book-stock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: var(--text-sm);
+}
+.lib-stock-ok   { color: var(--success, #16a34a); font-weight: 600; }
+.lib-stock-none { color: var(--destructive); font-weight: 600; }
+
+/* ── Circulation ─────────────────────────────────────────────────────────── */
+
+.lib-issue-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.lib-issue-field { flex: 1; min-width: 220px; }
+
+.lib-loan-row.overdue {
+  border-color: var(--destructive);
+  background: var(--destructive-surface, var(--surface-2));
+}
+
+.lib-loan-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  background: var(--primary-surface);
+  color: var(--primary-text);
+}
+.lib-loan-icon.overdue { background: var(--destructive-surface, #fee2e2); color: var(--destructive); }
+.lib-loan-icon .material-symbols-rounded { font-size: var(--icon-sm); }
+
+.lib-loan-due     { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.lib-loan-actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
+
+/* ── Borrowers ───────────────────────────────────────────────────────────── */
+
+.lib-member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+.lib-member-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.lib-member-card:hover { border-color: var(--portal-accent); }
+
+.lib-member-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-full, 999px);
+  background: var(--primary-surface);
+  color: var(--primary-text);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+.lib-member-body   { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.lib-member-counts { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+
+/* ── Forms and detail ────────────────────────────────────────────────────── */
+
+.lib-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+.lib-col-full { grid-column: 1 / -1; }
+
+.lib-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+.lib-detail-grid dt {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.lib-detail-grid dd { margin: 0; font-size: var(--text-body); }
+
+.lib-copy-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.lib-copy-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-sm);
+}
+
+.lib-add-copy     { margin-top: var(--space-4); }
+.lib-add-copy-row { display: flex; gap: var(--space-2); align-items: center; }
+.lib-add-copy-row .form-input { flex: 1; }
+
+.lib-fine-note {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--destructive);
+}
+
+/* ── Status colours ──────────────────────────────────────────────────────── */
+
+.lib-status-available { background: var(--success-surface, #dcfce7); color: var(--success, #16a34a); }
+.lib-status-on_loan   { background: var(--primary-surface); color: var(--primary-text); }
+.lib-status-reserved  { background: var(--warning-surface, #fef3c7); color: var(--warning, #b45309); }
+.lib-status-lost,
+.lib-status-withdrawn { background: var(--muted); color: var(--muted-foreground); }
+
+.lib-loan-on_loan  { background: var(--primary-surface); color: var(--primary-text); }
+.lib-loan-overdue  { background: var(--destructive-surface, #fee2e2); color: var(--destructive); }
+.lib-loan-returned { background: var(--muted); color: var(--muted-foreground); }
+
+.lib-acq-pending   { background: var(--warning-surface, #fef3c7); color: var(--warning, #b45309); }
+.lib-acq-approved  { background: var(--success-surface, #dcfce7); color: var(--success, #16a34a); }
+.lib-acq-received  { background: var(--primary-surface); color: var(--primary-text); }
+.lib-acq-declined,
+.lib-acq-cancelled { background: var(--muted); color: var(--muted-foreground); }
+
+@media (max-width: 767px) {
+  .lib-loan-row { flex-wrap: wrap; }
+  .lib-loan-actions { width: 100%; }
+  .lib-issue-field { min-width: 100%; }
+}

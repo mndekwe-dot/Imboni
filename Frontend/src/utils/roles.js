@@ -1,7 +1,7 @@
 /**
  * Roles, and where each one belongs.
  *
- * The seven values here are the `role` column on the backend User model
+ * The eight values here are the `role` column on the backend User model
  * (`apps/authentication/models.py`, USER_ROLES) — not display labels. Changing
  * one on either side without the other silently locks a role out of its own
  * portal, so they are worth keeping literally identical.
@@ -20,6 +20,7 @@ export const ROLE_HOME = {
     dos:        '/dos',
     matron:     '/matron',
     discipline: '/discipline',
+    librarian:  '/library',
     admin:      '/admin',
 }
 
