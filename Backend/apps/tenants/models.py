@@ -13,10 +13,16 @@ class Client(TenantMixin):
         ('premium', 'Premium'),
     ]
 
+    # The lifecycle a school moves through. `read_only` sits deliberately
+    # between past_due and suspended: a school that has not paid can still open
+    # the register, read a report card and export its data, but cannot write
+    # anything new. Locking a school out mid-term with no warning is how you
+    # lose the renewal AND the reputation; taking the pen away is enough.
     STATUS_CHOICES = [
         ('trial', 'Trial'),
         ('active', 'Active'),
         ('past_due', 'Past Due'),
+        ('read_only', 'Read Only'),
         ('suspended', 'Suspended'),
     ]
 
@@ -30,6 +36,18 @@ class Client(TenantMixin):
     # Stripe billing links (Phase 3) — set when the school subscribes.
     stripe_customer_id = models.CharField(max_length=64, blank=True, default='')
     stripe_subscription_id = models.CharField(max_length=64, blank=True, default='')
+
+    # Self-serve signup creates a DEMO tenant, not a school. It expires on its
+    # own so an unreviewed stranger can try the product without a real school
+    # existing forever on the strength of a filled-in form. A demo becomes a
+    # real school the ordinary way: through an application an operator reviews.
+    is_demo = models.BooleanField(default=False)
+    demo_expires_on = models.DateField(null=True, blank=True)
+
+    @property
+    def is_expired_demo(self):
+        return bool(self.is_demo and self.demo_expires_on
+                    and timezone.localdate() > self.demo_expires_on)
 
     # django-tenants uses this to auto-create the Postgres schema on save.
     auto_create_schema = True
@@ -54,16 +72,54 @@ class PlatformUser(models.Model):
         against the platform API on the bare domain — never a school subdomain.
 
     Passwords are hashed with Django's hashers; auth + JWT issuance live in
-    `apps.tenants.platform_auth`. Keep this account list tiny and trusted — it
-    can suspend/reactivate any school.
+    `apps.tenants.platform_auth`. Keep this account list tiny and trusted — an
+    operations operator can suspend or reactivate any school.
     """
+
+    # Three jobs, not one login. The person who answers "I forgot my password"
+    # should not also be able to switch a school off, and the person who edits a
+    # contract should not need the power to provision a tenant. Roles are
+    # ordered by blast radius, and each one CONTAINS the ones before it:
+    #
+    #   support     — the ticket desk. Read a school, answer its questions.
+    #   commercial  — contracts, payments, plans. Money, no infrastructure.
+    #   operations  — provisioning, suspension, operator accounts. Smallest
+    #                 group; MFA is required to hold it.
+    ROLE_SUPPORT = 'support'
+    ROLE_COMMERCIAL = 'commercial'
+    ROLE_OPERATIONS = 'operations'
+    ROLE_CHOICES = [
+        (ROLE_SUPPORT, 'Support'),
+        (ROLE_COMMERCIAL, 'Commercial'),
+        (ROLE_OPERATIONS, 'Operations'),
+    ]
+    # Least privilege by default: a new operator answers tickets until someone
+    # deliberately gives them more.
+    ROLE_RANK = {ROLE_SUPPORT: 0, ROLE_COMMERCIAL: 1, ROLE_OPERATIONS: 2}
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)          # hashed, never plaintext
     name = models.CharField(max_length=120, blank=True)
+    role = models.CharField(max_length=12, choices=ROLE_CHOICES, default=ROLE_SUPPORT)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(null=True, blank=True)
+
+    # TOTP second factor. `mfa_secret` is the shared secret in base32;
+    # `mfa_enabled` only goes true once the operator has proved they can read a
+    # code off it, so a half-finished enrolment can never lock anybody out.
+    mfa_secret = models.CharField(max_length=64, blank=True, default='')
+    mfa_enabled = models.BooleanField(default=False)
+
+    def has_role(self, required):
+        """True if this operator's role is `required` or stronger."""
+        return self.ROLE_RANK.get(self.role, -1) >= self.ROLE_RANK[required]
+
+    @property
+    def mfa_required(self):
+        """Operations is the role that can switch a school off. It needs MFA."""
+        return self.role == self.ROLE_OPERATIONS
 
     # Enough of the Django/DRF auth surface for permission checks to treat an
     # authenticated PlatformUser as a real principal (see platform_auth.py).
@@ -342,3 +398,100 @@ class TenantProvision(models.Model):
 
     def __str__(self):
         return f"{self.subdomain} ({self.status})"
+
+
+class PlatformAuditLog(models.Model):
+    """
+    What an operator did, in the public schema.
+
+    `apps.audit` is a TENANT app: it records what happens inside a school. That
+    left the actions with the largest blast radius — approving an application,
+    provisioning a tenant, suspending a school, signing a contract, recording a
+    payment — with no record of who performed them at all. This is that record.
+
+    Deliberately append-only in practice: there is no update path and no delete
+    endpoint. `actor_email` is denormalised so the entry still reads correctly
+    after an operator account is removed.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    actor = models.ForeignKey('PlatformUser', on_delete=models.SET_NULL, null=True,
+                              blank=True, related_name='audit_entries')
+    actor_email = models.EmailField(blank=True)      # snapshot; survives deletion
+    actor_role = models.CharField(max_length=12, blank=True)
+    action = models.CharField(max_length=60)         # 'school.suspend', 'contract.sign', ...
+    target_type = models.CharField(max_length=40, blank=True)
+    target_id = models.CharField(max_length=64, blank=True)
+    target_label = models.CharField(max_length=150, blank=True)
+    client = models.ForeignKey('Client', on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name='audit_entries')
+    # What changed, as {'field': [before, after]}. Empty for actions that aren't
+    # a field edit (a provision, a reply). Never holds a secret — see
+    # platform_audit.record(), which strips them.
+    changes = models.JSONField(default=dict, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['action', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.actor_email or "system"} {self.action} {self.target_label}'
+
+
+class SchoolInvitation(models.Model):
+    """
+    A one-time link that lets a newly provisioned school set its own password.
+
+    Provisioning used to mint a temporary password and hand it to the operator
+    to relay by hand. That made onboarding depend on someone pasting a secret
+    into a chat thread — where it does not expire, is not revoked, and is read
+    by whoever else is in the conversation.
+
+    So the school's first admin is created with an UNUSABLE password and gets a
+    link instead. The token is single-use and expires. The operator sees that an
+    invitation was sent and when; they never see a credential.
+
+    Lives in the public schema, but is looked up from the school's own domain
+    when the link is opened — django-tenants puts `public` on the search path of
+    every tenant connection, so the row is reachable from either side.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    client = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='invitations')
+    email = models.EmailField()
+    # Stored hashed, for the same reason a password is: a leaked database should
+    # not hand over live invitation links.
+    token_hash = models.CharField(max_length=128, unique=True)
+    login_url = models.CharField(max_length=255, blank=True)
+    expires_at = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    delivery_error = models.CharField(max_length=255, blank=True)
+    created_by = models.ForeignKey('PlatformUser', on_delete=models.SET_NULL,
+                                   null=True, blank=True, related_name='invitations_sent')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_usable(self):
+        return self.accepted_at is None and not self.is_expired
+
+    @property
+    def state(self):
+        if self.accepted_at:
+            return 'accepted'
+        if self.is_expired:
+            return 'expired'
+        return 'sent' if self.sent_at else 'pending'
+
+    def __str__(self):
+        return f'Invitation<{self.email} -> {self.client_id} ({self.state})>'
