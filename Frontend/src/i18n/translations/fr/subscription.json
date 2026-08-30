@@ -1,0 +1,10 @@
+{
+  "pastDue": {
+    "body": "Le dernier paiement de votre école n'a pas abouti. Réglez-le pour ne pas perdre l'accès.",
+    "title": "Paiement en retard"
+  },
+  "readOnly": {
+    "body": "Vous pouvez tout consulter et exporter comme d'habitude, mais rien de nouveau ne peut être enregistré tant que le compte de l'école n'est pas réglé. Contactez le secrétariat de votre école.",
+    "title": "Cette école est en lecture seule"
+  }
+}

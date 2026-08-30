@@ -28,7 +28,12 @@ describe('material symbols subset', () => {
         expect(statSync(join(ROOT, 'public/fonts/material-symbols-subset.woff2')).size).toBeGreaterThan(1000)
     })
 
-    it('carries every icon the app can render', () => {
+    /* 30s, not the default 5s: this walks and reads every file under src/ from
+       disk. It came in at ~5.1s against the 5s default during a full-suite run
+       and failed on the clock rather than on a missing icon -- a flake that
+       says "your icons are broken" when they are not. The work grows with the
+       source tree, so the limit has to have room in it. */
+    it('carries every icon the app can render', { timeout: 30_000 }, () => {
         const shipped = new Set(manifest.icons)
         const missing = collectIconNames(official, join(ROOT, 'src')).filter(n => !shipped.has(n))
 

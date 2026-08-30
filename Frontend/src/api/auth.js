@@ -86,3 +86,24 @@ export const resendInvitation = (id) => client.post(`/imboni/auth/invite/resend/
 
 // Cancel (delete) a pending invitation
 export const cancelInvitation = (id) => client.delete(`/imboni/auth/invite/${id}/cancel/`)
+// ── School invitation (a newly provisioned school's first admin) ─────────────
+// Both endpoints are public and live on the SCHOOL's own domain: the link in
+// the email points at the school, which is where the account is.
+
+export async function checkInvitation(token) {
+    try {
+        const res = await axios.get(`${BASE}/imboni/onboarding/invitation/`, { params: { token } })
+        return res.data      // { valid, email, school_name, expires_at }
+    } catch (err) {
+        throw new Error(err.response?.data?.detail || 'This invitation link is not valid.')
+    }
+}
+
+export async function acceptInvitation(token, password) {
+    try {
+        const res = await axios.post(`${BASE}/imboni/onboarding/invitation/accept/`, { token, password })
+        return res.data
+    } catch (err) {
+        throw new Error(err.response?.data?.detail || 'Could not set your password.')
+    }
+}
