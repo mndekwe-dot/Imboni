@@ -25,6 +25,7 @@ urlpatterns = [
     path('imboni/', include('apps.student.urls')),
     path('imboni/', include('apps.discipline.urls')),
     path('imboni/', include('apps.matron.urls')),
+    path('imboni/', include('apps.library.urls')),
     path('imboni/', include('apps.analytics.urls')),
     path('imboni/', include('apps.notifications.urls')),
     path('imboni/', include('apps.audit.urls')),
