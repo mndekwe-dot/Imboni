@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import logo from '../../assets/images/imboni-logo.webp'
 import { useSchoolBranding } from '../../hooks/useSchoolBranding'
+import { useLibraryFeature } from '../../hooks/useLibraryFeature'
 
 /* Every page mounts its own <Sidebar> — 64 of them — so component state alone
    meant collapsing it and then clicking any nav item sprang it back open. The
@@ -16,6 +17,15 @@ function readCollapsed() {
 
 export function Sidebar({ navItems, secondaryItems }) {
   const [collapsed, setCollapsed] = useState(readCollapsed)
+  /* A nav item may declare `feature: 'library'`, and it appears only for a
+     school whose plan includes it. The filter lives HERE rather than in each
+     portal's nav file because those files are plain arrays imported by ten
+     pages apiece -- making one of them conditional would mean making all ten
+     pages ask. `enabled` is null until the answer arrives, and a link is not
+     shown on a maybe. */
+  const { enabled: libraryEnabled } = useLibraryFeature()
+  const visible = items => items.filter(
+    item => item.feature !== 'library' || libraryEnabled === true)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { logout } = useAuth()
   const { schoolName, logo: schoolLogo } = useSchoolBranding()
@@ -105,7 +115,7 @@ export function Sidebar({ navItems, secondaryItems }) {
           {/* No heading on the first group: the main nav is self-evidently the
               main nav, and the eyebrow was just a line of noise at the top. */}
           <ul className="nav-list primary-nav" aria-label={t('sidebar.mainNavigation')}>
-            {navItems.map((item) => (
+            {visible(navItems).map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}
@@ -128,7 +138,7 @@ export function Sidebar({ navItems, secondaryItems }) {
           <div className="sidebar-account-group">
           <p className="sidebar-nav-group" id="sidebar-group-account">{t('sidebar.groupAccount')}</p>
           <ul className="nav-list secondary-nav" aria-labelledby="sidebar-group-account">
-            {secondaryItems.map((item) => (
+            {visible(secondaryItems).map((item) => (
               <li key={item.to}>
                 {item.action === 'logout' ? (
                   <button

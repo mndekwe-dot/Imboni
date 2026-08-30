@@ -32,5 +32,11 @@
   "students": "Abanyeshuri",
   "support": "Ubufasha",
   "teachers": "Abarimu",
-  "timetable": "Gahunda y'amasomo"
+  "timetable": "Gahunda y'amasomo",
+  "library": "Isomero",
+  "catalogue": "Ububiko bw'ibitabo",
+  "circulation": "Kugurizanya",
+  "borrowers": "Abaguza",
+  "reservations": "Ubusabe",
+  "acquisitions": "Kugura ibitabo"
 }

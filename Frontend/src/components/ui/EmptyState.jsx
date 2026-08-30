@@ -7,8 +7,12 @@
     description — softer subtext below the title
     action      — { label, icon, onClick } for the primary button (optional)
     secondAction— { label, icon, onClick } for a secondary outline button (optional)
+    children    — rendered in the action row, for an action that is a <Link>
+                  rather than a button (`action` only builds a <button>, and a
+                  navigation dressed as one loses middle-click and "open in new
+                  tab")
 */
-export function EmptyState({ icon = 'inbox', title, description, action, secondAction }) {
+export function EmptyState({ icon = 'inbox', title, description, action, secondAction, children }) {
     return (
         <div className="empty-state">
             {/* Coloured top strip */}
@@ -27,8 +31,9 @@ export function EmptyState({ icon = 'inbox', title, description, action, secondA
                     <div className="empty-state-desc">{description}</div>
                 )}
 
-                {(action || secondAction) && (
+                {(action || secondAction || children) && (
                     <div className="empty-state-actions">
+                        {children}
                         {secondAction && (
                             <button className="btn btn-outline" onClick={secondAction.onClick}>
                                 {secondAction.icon && <span className="material-symbols-rounded icon-sm" aria-hidden="true">{secondAction.icon}</span>}

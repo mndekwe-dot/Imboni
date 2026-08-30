@@ -5,5 +5,9 @@
   "matron": "Student health, welfare and dormitory management",
   "parent": "Monitor your child's academic progress and school life",
   "student": "Access your results, timetable, assignments and activities",
-  "teacher": "Manage your classes, mark attendance and enter results"
+  "teacher": "Manage your classes, mark attendance and enter results",
+  "library": {
+    "title": "Librarian",
+    "subtitle": "Catalogue, lending and reservations"
+  }
 }

@@ -51,6 +51,17 @@ const StudentActivities   = load(() => import('./pages/Student/StudentActivities
 const StudentAnnouncements = load(() => import('./pages/Student/StudentAnnouncements'), 'StudentAnnouncements');
 const StudentMessages     = load(() => import('./pages/Student/StudentMessages'), 'StudentMessages');
 const StudentDiscipline   = load(() => import('./pages/Student/StudentDiscipline'), 'StudentDiscipline');
+const StudentLibrary      = load(() => import('./pages/Student/StudentLibrary'), 'StudentLibrary');
+
+// -- Library (Pro-only; the portal's own shell refuses a school off the plan) --
+const LibraryDashboard    = load(() => import('./pages/Library/LibraryDashboard'), 'LibraryDashboard');
+const LibraryCatalogue    = load(() => import('./pages/Library/LibraryCatalogue'), 'LibraryCatalogue');
+const LibraryCirculation  = load(() => import('./pages/Library/LibraryCirculation'), 'LibraryCirculation');
+const LibraryMembers      = load(() => import('./pages/Library/LibraryMembers'), 'LibraryMembers');
+const LibraryReservations = load(() => import('./pages/Library/LibraryReservations'), 'LibraryReservations');
+const LibraryAcquisitions = load(() => import('./pages/Library/LibraryAcquisitions'), 'LibraryAcquisitions');
+const LibrarySettings     = load(() => import('./pages/Library/LibrarySettings'), 'LibrarySettings');
+const LibraryMessages     = load(() => import('./pages/Library/LibraryMessages'), 'LibraryMessages');
 
 // ── Teacher ──
 const TeacherDashboard    = load(() => import('./pages/Teacher/TeacherDashboard'), 'TeacherDashboard');
@@ -204,6 +215,11 @@ function App() {
           icon="health_and_safety"
           placeholder="matron@imboni.rw" redirectTo="/matron" />
       } />
+      <Route path="/login/library" element={
+        <PortalLogin portal="library"
+          icon="local_library"
+          placeholder="librarian@imboni.rw" redirectTo="/library" />
+      } />
       <Route path="/login/admin" element={
         <PortalLogin portal="admin"
           icon="admin_panel_settings"
@@ -233,6 +249,20 @@ function App() {
       <Route path="/student/activities" element={<ProtectedRoute role="student"><StudentActivities /></ProtectedRoute>} />
       <Route path="/student/announcements" element={<ProtectedRoute role="student"><StudentAnnouncements /></ProtectedRoute>} />
       <Route path="/student/messages" element={<ProtectedRoute role="student"><StudentMessages /></ProtectedRoute>} />
+      <Route path="/student/library" element={<ProtectedRoute role="student"><StudentLibrary /></ProtectedRoute>} />
+      {/* ── Librarian routes (Pro plan) ──
+          The role guard is here; the PLAN guard is in LibraryShell, so a
+          librarian at a school on Free sees an upgrade notice rather than a
+          portal whose every request 402s. Acquisitions is the one page an
+          admin may open too: the office decides on the requests. */}
+      <Route path="/library" element={<ProtectedRoute role="librarian"><LibraryDashboard /></ProtectedRoute>} />
+      <Route path="/library/catalogue" element={<ProtectedRoute role="librarian"><LibraryCatalogue /></ProtectedRoute>} />
+      <Route path="/library/circulation" element={<ProtectedRoute role="librarian"><LibraryCirculation /></ProtectedRoute>} />
+      <Route path="/library/members" element={<ProtectedRoute role="librarian"><LibraryMembers /></ProtectedRoute>} />
+      <Route path="/library/reservations" element={<ProtectedRoute role="librarian"><LibraryReservations /></ProtectedRoute>} />
+      <Route path="/library/acquisitions" element={<ProtectedRoute role={["librarian", "admin"]}><LibraryAcquisitions /></ProtectedRoute>} />
+      <Route path="/library/settings" element={<ProtectedRoute role="librarian"><LibrarySettings /></ProtectedRoute>} />
+      <Route path="/library/messages" element={<ProtectedRoute role="librarian"><LibraryMessages /></ProtectedRoute>} />
       {/* ── Teacher routes ── */}
       <Route path="/teacher" element={<ProtectedRoute role="teacher"><TeacherDashboard /></ProtectedRoute>} />
       <Route path="/teacher/classes" element={<ProtectedRoute role="teacher"><TeacherClasses /></ProtectedRoute>} />

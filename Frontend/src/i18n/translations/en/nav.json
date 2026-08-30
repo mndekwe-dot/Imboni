@@ -32,5 +32,11 @@
   "students": "Students",
   "support": "Support",
   "teachers": "Teachers",
-  "timetable": "Timetable"
+  "timetable": "Timetable",
+  "library": "Library",
+  "catalogue": "Catalogue",
+  "circulation": "Circulation",
+  "borrowers": "Borrowers",
+  "reservations": "Reservations",
+  "acquisitions": "Acquisitions"
 }
