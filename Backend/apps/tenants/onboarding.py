@@ -1,7 +1,17 @@
 """
-Self-serve school signup (Phase 2).
+Self-serve signup (Phase 2) — the demo door.
 
-A public, unauthenticated endpoint that lets a school create its own tenant.
+A public, unauthenticated endpoint. It used to create a real school, which left
+Imboni with two front doors and a review process on only one of them: anyone
+who could fill in a form could mint a permanent tenant, while the application
+queue existed precisely to put a human in front of that decision.
+
+So this door now creates a DEMO: a tenant with an end date, marked `is_demo`,
+that stops on its own if nobody converts it. Nothing about the product is held
+back -- a demo is the whole thing -- but a school that wants to keep it applies,
+and a person reviews that. We sell to institutions holding children's health
+and discipline records; a human looking at who they are is not bureaucracy.
+
 Served from the PUBLIC schema only (see Imboni/urls_public.py +
 PUBLIC_SCHEMA_URLCONF), because it reads/writes the tenant registry which lives
 in the public schema.
@@ -15,7 +25,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import TenantProvision
-from .services import validate_subdomain, normalize_subdomain, ProvisioningError
+from .services import (DEMO_TRIAL_DAYS, validate_subdomain, normalize_subdomain,
+                       ProvisioningError)
 from .tasks import provision_school_task
 
 logger = logging.getLogger(__name__)
@@ -69,7 +80,10 @@ class SchoolSignupView(APIView):
             'status': rec.status,
             'subdomain': rec.subdomain,
             'status_url': f'/imboni/onboarding/status/{rec.id}/',
-            'message': 'Creating your school. This takes a moment.',
+            'is_demo': True,
+            'trial_days': DEMO_TRIAL_DAYS,
+            'message': (f'Creating your {DEMO_TRIAL_DAYS}-day demo. '
+                        'This takes a moment.'),
         }, status=status.HTTP_202_ACCEPTED)
 
 
