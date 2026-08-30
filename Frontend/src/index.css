@@ -688,6 +688,31 @@ table,
   --portal-accent-light:   #fbf2e6;
 }
 
+/* Finance — deep green. Money, and the one portal whose colour should read as
+   steady rather than energetic; the library's ochre is next to it in warmth,
+   so the two Premium portals do not look like the same one. */
+:root[data-portal="finance"] {
+  --primary:               #14715a;
+  --primary-hover:         #0f5a48;
+  --primary-surface:       #d3ece4;
+  --primary-text:          #0e5644;
+  --primary-light:         #e9f6f1;
+  --background:            #eef5f2;
+  --content-bg:            #eef5f2;
+  --surface-2:             #f7fbf9;
+  --surface-3:             #e3efea;
+  --border:                #c8ded6;
+  --border-hover:          #a9c8bd;
+  --secondary:             #eff5f3;
+  --secondary-hover:       #e3edea;
+  --muted:                 #f2f7f5;
+  --muted-hover:           #e8f1ee;
+  --scrollbar-thumb:       #c4dbd3;
+  --scrollbar-thumb-hover: #a2c2b6;
+  --portal-accent:         #14715a;
+  --portal-accent-light:   #e9f6f1;
+}
+
 /* ===============================================
    BASE RESET
    =============================================== */

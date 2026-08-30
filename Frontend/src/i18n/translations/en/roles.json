@@ -10,5 +10,6 @@
   "staff": "Staff",
   "student": "Student",
   "teacher": "Teacher",
-  "librarian": "Librarian"
+  "librarian": "Librarian",
+  "bursar": "Bursar"
 }

@@ -4,6 +4,7 @@ import { loginUser,logoutUser, verifyTwoFactorLogin } from "../api/auth";
 import { ROLE_HOME } from "../utils/roles";
 import { resetSchoolConfigCache } from "./schoolConfigCache";
 import { resetLibraryFeatureCache } from './libraryFeatureCache'
+import { resetFinanceFeatureCache } from './financeFeatureCache'
 
 
 export function useAuth(){
@@ -55,6 +56,7 @@ export function useAuth(){
         // belongs to the school, and the next school to sign in here may be on
         // a different plan.
         resetLibraryFeatureCache()
+        resetFinanceFeatureCache()
         navigate(redirectTo)
     }
     return {user,isAuthenticated,login,completeTwoFactor,logout}
