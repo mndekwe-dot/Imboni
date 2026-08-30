@@ -13,6 +13,7 @@ class User(AbstractUser):
         ('dos', 'Director of Studies'),
         ('matron', 'Matron'),
         ('discipline', 'Director of Discipline'),
+        ('librarian', 'Librarian'),
         ('admin', 'Administrator'),
     )
     

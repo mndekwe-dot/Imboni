@@ -18,7 +18,7 @@ from django.utils import timezone
 from rest_framework.exceptions import APIException
 
 from .plans import (
-    RESOURCE_ROLES, limit_for, is_unlimited, remaining, within_limit,
+    RESOURCE_ROLES, has_feature, limit_for, is_unlimited, remaining, within_limit,
 )
 
 
@@ -132,3 +132,36 @@ def capacity_snapshot():
         'plan': current_plan(),
         'resources': {res: resource_snapshot(res) for res in RESOURCE_ROLES},
     }
+
+
+# ── Feature gating (the Django-aware half of plans.has_feature) ────────────────
+
+class FeatureNotInPlan(APIException):
+    """
+    Raised when a school asks for a part of the product its plan does not include.
+
+    402 rather than 403: the request is not forbidden, it is unpaid for, and the
+    fix is an upgrade. That is the same distinction PlanLimitExceeded draws, and
+    the frontend already treats 402 as "show the upgrade path".
+    """
+    status_code = 402
+    default_code = 'feature_not_in_plan'
+    default_detail = 'This feature is not included in your plan.'
+
+
+def tenant_has_feature(feature):
+    """Whether the ACTIVE tenant's plan includes ``feature``."""
+    return has_feature(current_plan(), feature)
+
+
+def enforce_feature(feature, label=None):
+    """
+    Guard a view: raise 402 unless the active tenant's plan includes ``feature``.
+
+    ``label`` is what the school is told they are missing ("The library"), so
+    the message names the thing rather than the flag.
+    """
+    if not tenant_has_feature(feature):
+        name = label or feature
+        raise FeatureNotInPlan(
+            f'{name} is part of the Premium plan. Upgrade to switch it on.')

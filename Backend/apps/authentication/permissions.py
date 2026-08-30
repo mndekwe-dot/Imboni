@@ -164,3 +164,32 @@ class CanInvite(BasePermission):
     def can_invite_role(self,inviter_role,target_role):
         allowed = self.INVITE_PERMISSIONS.get(inviter_role,[])
         return target_role in allowed
+
+class IsLibrarian(BasePermission):
+    """Allow access only to users with role='librarian'."""
+    message = 'Access restricted to the librarian.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role == 'librarian'
+        )
+
+
+class IsLibrarianOrAdmin(BasePermission):
+    """
+    The librarian, or a school administrator.
+
+    Acquisitions are approved by the office rather than by the person who asked
+    for the book, so those endpoints need both roles and then check which one
+    is calling.
+    """
+    message = 'Access restricted to the librarian and school administrators.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role in ('librarian', 'admin')
+        )
