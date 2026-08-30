@@ -193,3 +193,33 @@ class IsLibrarianOrAdmin(BasePermission):
             request.user.is_authenticated and
             request.user.role in ('librarian', 'admin')
         )
+
+
+class IsBursar(BasePermission):
+    """Allow access only to users with role='bursar' — the finance office."""
+    message = 'Access restricted to the finance office.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role == 'bursar'
+        )
+
+
+class IsBursarOrAdmin(BasePermission):
+    """
+    The bursar, or a school administrator.
+
+    Money is the one area where the head teacher legitimately wants to read
+    everything the office can: these endpoints admit both and let the view
+    decide which of them may WRITE.
+    """
+    message = 'Access restricted to the finance office and school administrators.'
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user and
+            request.user.is_authenticated and
+            request.user.role in ('bursar', 'admin')
+        )
