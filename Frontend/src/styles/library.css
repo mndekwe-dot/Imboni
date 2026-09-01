@@ -318,9 +318,41 @@
   .lib-issue-field { min-width: 100%; }
 }
 
-/* ── Stocktake states ─────────────────────────────────────────────────────────
-   An open count is work in progress, a closed one is a record, an abandoned one
-   is neither. Three states, three readings. */
-.lib-count-open      { background: var(--primary-surface); color: var(--primary-text); }
-.lib-count-closed    { background: var(--success-surface, #dcfce7); color: var(--success, #16a34a); }
-.lib-count-abandoned { background: var(--muted); color: var(--muted-foreground); }
+
+/* ── The scan box ─────────────────────────────────────────────────────────────
+   Wider than a normal input because what goes in it is a code, and a code that
+   scrolls out of sight cannot be checked by eye when the label is creased and
+   somebody has to read it out. Monospace for the same reason: 0 and O, 1 and l. */
+.scan-field {
+  min-width: 16rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.04em;
+}
+.scan-viewfinder {
+  margin-top: var(--space-3);
+  text-align: center;
+}
+.scan-viewfinder video {
+  width: 100%;
+  max-width: 22rem;
+  border-radius: var(--radius);
+  background: #000;
+}
+
+/* What a scan turned out to be. Four answers, and the point of showing them is
+   that they are DIFFERENT answers: an ISBN we do not stock is not an error. */
+.scan-result {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  margin-top: var(--space-3);
+}
+.scan-result-copy     { border-left-color: var(--success, #16a34a); }
+.scan-result-title    { border-left-color: var(--warning, #b45309); }
+.scan-result-isbn     { border-left-color: var(--primary); }
+.scan-result-unknown  { border-left-color: var(--destructive); }

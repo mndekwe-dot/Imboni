@@ -76,6 +76,13 @@ urlpatterns = [
          name='library-stocktake-close'),
 
     # ── Paper and spreadsheets ───────────────────────────────────────────────
+    path('library/scan/', ops.ScanView.as_view(), name='library-scan'),
+    path('library/scan/return/', ops.ScanReturnView.as_view(),
+         name='library-scan-return'),
+
+    path('library/scan/catalogue/', ops.ScanCatalogueView.as_view(),
+         name='library-scan-catalogue'),
+
     path('library/labels/', ops.LabelsView.as_view(), name='library-labels'),
     path('library/import/', ops.BookImportView.as_view(), name='library-import'),
     path('library/export/catalogue/', ops.CatalogueExportView.as_view(),

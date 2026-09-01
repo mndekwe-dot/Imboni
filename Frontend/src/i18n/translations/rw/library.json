@@ -342,5 +342,41 @@
     "rowError": "Umurongo {{row}}: {{error}}",
     "importIdle": "Nta kwinjiza kwabaye",
     "importIdleDesc": "Kuramo urugero urebe inkingi, hanyuma uhitemo dosiye yawe."
+  },
+  "scan": {
+    "title": "Gusikana",
+    "help": "Sikana akamenyetso kari ku gitabo kugira ngo ugitange cyangwa ukigarure, sikana kode iri inyuma y’igitabo kugira ngo urebe izina ryacyo, cyangwa sikana ikarita y’umunyeshuri kugira ngo uhitemo ugutira.",
+    "label": "Kode y’akamenyetso",
+    "placeholder": "Sikana cyangwa wandike kode",
+    "submit": "Sikana",
+    "useCamera": "Koresha kamera",
+    "stopCamera": "Hagarika kamera",
+    "pointAtBarcode": "Erekeza kamera ku kamenyetso.",
+    "cameraDenied": "Kamera ntiboneka. Koresha isikaneri cyangwa wandike kode.",
+    "failed": "Iyo kode ntiyashoboye kubonwa.",
+    "outTo": "Yatiwe na {{name}}",
+    "takeBack": "Kigaruke",
+    "returned": "Cyagarutse.",
+    "returnedHeld": "Cyagarutse — gishyingurire {{name}}.",
+    "returnFailed": "Icyo gitabo nticyashoboye kugarurwa.",
+    "fined": "Cyatinze: {{amount}} agomba kwishyurwa.",
+    "availableOf": "{{available}} kuri {{total}} biri ku gatereranyo",
+    "notHeld": "Nticyandikishijwe mu isomero",
+    "catalogueIt": "Igitabo nyacyo tutarafite — kongere mu bitabo.",
+    "unknown": "Nta kintu gihuye na iyo kode"
+  },
+  "entry": {
+    "scanToAdd": "Sikana wongereho",
+    "help": "Sikana akamenyetso kari inyuma y’igitabo. Niba igitabo dusanzwe dufite, ibi byongeraho kopi aho kwandika igitabo kimwe inshuro ebyiri.",
+    "scanPlaceholder": "Sikana inyuma y’igitabo",
+    "howMany": "Kopi kuri buri gusikana",
+    "howManyHint": "Sikana igitabo kimwe mu byinshi bisa, wongereho byose icyarimwe.",
+    "newTitle": "Gishya mu isomero",
+    "addedNew": "{{title}} cyongewemo.",
+    "addedCopies": "Hongewemo kopi {{count}} za {{title}}.",
+    "wasNew": "Igitabo gishya",
+    "wasExisting": "Cyongewe ku gitabo gisanzwe gihari",
+    "printLabels": "Capa utumenyetso {{count}}",
+    "failed": "Icyo gitabo nticyashoboye kwongerwamo."
   }
 }

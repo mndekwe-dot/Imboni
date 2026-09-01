@@ -98,3 +98,19 @@ export const importBooks = (file) => {
 
 // ── What the collection does ──────────────────────────────────────────────────
 export const getUsageReport = (params) => client.get('/imboni/library/usage/', { params })
+
+// ── Scanning ──────────────────────────────────────────────────────────────────
+// One endpoint for "what did I just scan?", because the person holding the
+// scanner does not know either: it may be the school's own label, the book's
+// own ISBN, or a pupil's ID card.
+export const resolveScan = (code) => client.post('/imboni/library/scan/', { code })
+
+// Returning by scanning the book itself, with no loan chosen first — the whole
+// point at a returns desk, where a trolley of thirty books arrives and nobody
+// knows who had any of them.
+export const returnByScan = (code, extra = {}) =>
+    client.post('/imboni/library/scan/return/', { code, ...extra })
+
+// Cataloguing from the barcode already printed on the back cover.
+export const catalogueByScan = (data) =>
+    client.post('/imboni/library/scan/catalogue/', data)

@@ -22,12 +22,13 @@ from rest_framework.response import Response
 from apps.authentication.models import User
 from apps.common import documents
 
+from . import codes
 from . import documents as library_documents
 from . import services
 from .models import Book, BookCopy, CopyEvent, Loan, Stocktake, StocktakeScan
 from .serializers import (
-    BookCopySerializer, BookSerializer, CopyEventSerializer, LoanSerializer,
-    StocktakeSerializer, StocktakeScanSerializer,
+    BookCopySerializer, BookSerializer, CopyEventSerializer, FineSerializer,
+    LoanSerializer, StocktakeSerializer, StocktakeScanSerializer,
 )
 from .views import LibrarianView, LibraryView
 
@@ -323,7 +324,247 @@ class LabelsView(LibrarianView):
         if not any([book_id, shelf, ids, since]):
             return _fail('Choose a book, a shelf, a date, or specific copies.')
 
-        return library_documents.labels_pdf(list(copies[:600]))
+        # Code 128 by default. The cheap USB laser scanner a school actually
+        # buys reads linear barcodes and mostly cannot read QR at all; QR is
+        # for phones, which read both.
+        symbology = (request.query_params.get('symbology') or 'code128').lower()
+        return library_documents.labels_pdf(list(copies[:600]), symbology=symbology)
+
+
+# ── Scanning ──────────────────────────────────────────────────────────────────
+
+def _copy_brief(copy):
+    return {
+        'id': str(copy.id),
+        'copy_code': copy.copy_code,
+        'status': copy.status,
+        'status_label': copy.get_status_display(),
+        'condition': copy.condition,
+        'condition_label': copy.get_condition_display(),
+        'book_title': copy.book.title,
+        'book_author': copy.book.author,
+        'shelf': copy.book.shelf,
+    }
+
+
+class ScanView(LibrarianView):
+    """
+    "What did I just scan?" -- and nothing more.
+
+    One endpoint rather than one per screen, because the librarian does not
+    know what they scanned either. They point the reader at whatever is in
+    front of them; deciding whether that was a copy label, a book's own ISBN or
+    a pupil's card is this endpoint's job, and acting on it is the caller's.
+
+    It deliberately never issues, returns or creates anything. A scanner fires
+    on a reflection, on the next book in the pile, on a barcode half-visible
+    behind a thumb -- so a scan that silently changed the record would be a
+    system that loses books faster than it tracks them.
+    """
+
+    def post(self, request):
+        raw = request.data.get('code') or ''
+        found = codes.resolve(raw)
+        kind = found['kind']
+
+        if kind == 'copy':
+            copy = found['copy']
+            loan = Loan.objects.select_related('borrower').filter(
+                copy=copy, returned_at__isnull=True).first()
+            return Response({
+                'kind': 'copy',
+                'code': found['code'],
+                'copy': _copy_brief(copy),
+                # Who has it, if anyone -- the question actually being asked at
+                # the returns desk, answered in the same round trip.
+                'loan': None if loan is None else {
+                    'id': str(loan.id),
+                    'borrower': loan.borrower.get_full_name() or loan.borrower.username,
+                    'borrower_id': str(loan.borrower_id),
+                    'due_on': loan.due_on,
+                    'is_overdue': loan.due_on < timezone.localdate(),
+                },
+            })
+
+        if kind == 'title':
+            book = found['book']
+            copies = found['copies']
+            return Response({
+                'kind': 'title',
+                'code': found['code'],
+                'book': BookSerializer(book).data,
+                'copies': [_copy_brief(c) for c in copies],
+                'available': sum(1 for c in copies if c.status == 'available'),
+                # Said plainly, because this is the point people get wrong: the
+                # back-cover barcode names the edition, not the object.
+                'detail': (
+                    'That is the book\'s own ISBN, so it names the title rather '
+                    'than one copy. Choose which copy, or scan the label the '
+                    'school stuck on it.'
+                ),
+            })
+
+        if kind == 'isbn':
+            return Response({
+                'kind': 'isbn',
+                'code': found['code'],
+                # Not an error. The librarian is holding a real book that is
+                # simply not catalogued yet, and "not found" would be a lie.
+                'detail': 'A valid ISBN the library does not hold yet.',
+            })
+
+        if kind == 'borrower':
+            person = found['borrower']
+            profile = getattr(person, 'student_profile', None)
+            return Response({
+                'kind': 'borrower',
+                'code': found['code'],
+                'borrower': {
+                    'id': str(person.id),
+                    'name': person.get_full_name() or person.username,
+                    'class_label': f'{profile.grade}{profile.section}' if profile else '',
+                    'out': Loan.objects.filter(borrower=person, returned_at__isnull=True).count(),
+                },
+            })
+
+        return Response({
+            'kind': 'unknown',
+            'code': found['code'],
+            'detail': 'Nothing in the library matches that, and it is not a valid ISBN.',
+        })
+
+
+class ScanReturnView(LibrarianView):
+    """
+    Take a book back by scanning it, with no loan chosen first.
+
+    Returning is the half of circulation that has no context: a trolley of
+    thirty books arrives and the desk does not know, and should not have to
+    look up, who had any of them. The label says which copy; the copy has
+    exactly one open loan; that is the whole lookup.
+
+    An ISBN is refused here on purpose. Five copies share it, only one came
+    back, and marking a guess returned puts a book on the shelf in the system
+    that is still in somebody's bag.
+    """
+
+    def post(self, request):
+        found = codes.resolve(request.data.get('code') or '')
+
+        if found['kind'] == 'title':
+            return _fail(
+                'That is the ISBN, which every copy of this title shares. Scan '
+                'the label on the book so the right copy is taken back.', 409)
+        if found['kind'] != 'copy':
+            return _fail('No copy of ours has that code.', 404)
+
+        copy = found['copy']
+        loan = Loan.objects.filter(copy=copy, returned_at__isnull=True).first()
+        if loan is None:
+            return _fail(f'{copy.copy_code} is not out on loan.', 409)
+
+        try:
+            loan, fine, reservation = services.return_loan(loan, received_by=request.user)
+        except services.LibraryError as exc:
+            return _fail(str(exc))
+
+        # A condition noted at the desk is a separate fact from "it came back",
+        # and only one of the two needs a decision later. Damage becomes a
+        # CopyEvent as well as a field, so there is a date and a name against
+        # it when somebody is asked to pay for the book.
+        condition = (request.data.get('condition') or '').strip().lower()
+        valid = {c for c, _ in BookCopy.CONDITION_CHOICES}
+        if condition in valid and condition != copy.condition:
+            if condition == 'damaged':
+                services.record_copy_event(
+                    copy, 'damaged',
+                    reason=(request.data.get('note') or 'Noted damaged on return'),
+                    borrower=loan.borrower, recorded_by=request.user)
+            else:
+                copy.condition = condition
+                copy.save(update_fields=['condition'])
+
+        return Response({
+            'loan': LoanSerializer(loan).data,
+            'fine': FineSerializer(fine).data if fine else None,
+            # So the desk is told "put it aside for X" instead of shelving it.
+            'held_for': (reservation.member.get_full_name() or reservation.member.username)
+                        if reservation else None,
+        })
+
+
+class ScanCatalogueView(LibrarianView):
+    """
+    Add stock by scanning the barcode already printed on the book.
+
+    This is the half of the problem the back-cover barcode genuinely solves.
+    Cataloguing is where the typing is -- title, author, publisher, year, for
+    three thousand books -- and the ISBN is the one thing on the book that a
+    machine can read without a person transcribing it.
+
+    Two outcomes, and they are different actions rather than one clever one:
+
+      * we already hold the title -> add N copies to it. This is the common
+        case for a school, which buys forty of the same textbook over four
+        years, and it is the case a naive "scan to add" gets wrong by creating
+        a fortieth duplicate title.
+      * we do not -> create the title from what was posted, with the ISBN
+        stored in its ISBN-13 form so the same book scanned off an older
+        ten-digit barcode lands on the same record.
+
+    The ISBN is check-digit validated first. A creased barcode misreads, and a
+    misread accepted as a new title is how a catalogue fills with books that do
+    not exist.
+    """
+
+    def post(self, request):
+        raw = request.data.get('isbn') or request.data.get('code') or ''
+        if not codes.is_isbn(raw):
+            return _fail(
+                'That is not a valid ISBN — check digit does not agree, which '
+                'usually means the barcode was misread. Scan it again.')
+
+        isbn = codes.to_isbn13(raw)
+        try:
+            count = int(request.data.get('copies') or 1)
+        except (TypeError, ValueError):
+            return _fail('How many copies?')
+        if not 1 <= count <= 200:
+            return _fail('Between 1 and 200 copies at a time.')
+
+        book = Book.objects.filter(isbn__in={isbn, codes.to_isbn13(raw)}).first()
+        created = False
+        if book is None:
+            title = (request.data.get('title') or '').strip()
+            if not title:
+                # Not an error the librarian caused: nothing on the barcode
+                # carries the title, so somebody has to type it once.
+                return Response({
+                    'detail': 'New to the library. Type the title once and it '
+                              'is catalogued against this ISBN for good.',
+                    'isbn': isbn, 'needs_title': True,
+                }, status=422)
+            book = Book.objects.create(
+                title=title,
+                author=(request.data.get('author') or '').strip(),
+                publisher=(request.data.get('publisher') or '').strip(),
+                category=(request.data.get('category') or 'other'),
+                shelf=(request.data.get('shelf') or '').strip(),
+                isbn=isbn,
+            )
+            created = True
+
+        copies = services.add_copies(book, count,
+                                     acquired_on=timezone.localdate(),
+                                     shelf=(request.data.get('shelf') or '').strip())
+        return Response({
+            'created': created,
+            'book': BookSerializer(book).data,
+            'copies': [_copy_brief(c) for c in copies],
+            # Handed straight back so the desk can print labels for exactly
+            # what it just added, rather than hunting for them afterwards.
+            'copy_ids': [str(c.id) for c in copies],
+        }, status=201)
 
 
 # ── Loading a catalogue ───────────────────────────────────────────────────────

@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from apps.common.documents import document_context, pdf_response
 
+from . import codes
 from . import services
 
 ZERO = Decimal('0.00')
@@ -53,7 +54,7 @@ def borrower_pdf(history):
     return pdf_response('documents/library_borrower.html', context, f'borrower-{name}')
 
 
-def labels_pdf(copies):
+def labels_pdf(copies, *, symbology='code128'):
     """
     Spine labels and barcode cards for copies just added.
 
@@ -61,9 +62,16 @@ def labels_pdf(copies):
     stuck on books, so what matters is that each one is separable and carries
     the copy code in full.
     """
+    kind = 'qr' if str(symbology).lower() == 'qr' else 'code128'
+    # The barcode is the point of the label. Printing the copy code as text
+    # only -- which is what this did -- gives a librarian a sheet of stickers
+    # that nothing can scan, so every issue and every return is still typed by
+    # hand and the stocktake scanner has nothing to read.
+    rows = [{'copy': c, 'barcode': codes.barcode_data_uri(c.copy_code, kind=kind)}
+            for c in copies]
     context = document_context('Spine labels',
                                subtitle=f'{len(copies)} label{"" if len(copies) == 1 else "s"}',
-                               copies=copies)
+                               labels=rows, copies=copies, symbology=kind)
     return pdf_response('documents/library_labels.html', context, 'spine-labels')
 
 

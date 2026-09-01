@@ -13,7 +13,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 
-from .models import Fine, LibrarySettings, Loan, Reservation
+from .models import BookCopy, Fine, LibrarySettings, Loan, Reservation
 
 
 class LibraryError(Exception):
@@ -541,17 +541,54 @@ def import_books(rows, *, created_by=None):
 
         wanted = (row.get('copies') or '').strip()
         if wanted.isdigit() and int(wanted) > 0:
-            prefix = (row.get('copy_prefix') or '').strip() or _copy_prefix(book)
-            existing = book.copies.count()
-            for n in range(int(wanted)):
-                code = f'{prefix}-{existing + n + 1:04d}'
-                if BookCopy.objects.filter(copy_code=code).exists():
-                    continue
-                BookCopy.objects.create(book=book, copy_code=code)
-                copies_made += 1
+            copies_made += len(add_copies(
+                book, int(wanted),
+                prefix=(row.get('copy_prefix') or '').strip() or None))
 
     return {'created': created, 'updated': updated, 'copies': copies_made,
             'problems': problems}
+
+
+def add_copies(book, count, *, prefix=None, acquired_on=None, shelf='',
+               supplier=None, price=None):
+    """
+    Give a title `count` more physical copies, each with its own code.
+
+    The code is what goes on the label and what gets scanned, so it has to be
+    unique and it has to be readable by a person when the label is creased:
+    'THI-0007', not a UUID.
+
+    Numbering walks PAST a collision rather than skipping the copy. Counting
+    existing copies and adding one is not enough on its own -- copies get
+    withdrawn, so a library with three copies numbered 0001, 0002 and 0004 asks
+    for 0004 next -- and the version this replaces silently created fewer books
+    than it was asked for when that happened, which is worse than a duplicate:
+    the librarian has forty books on the trolley and thirty-eight in the system.
+    """
+    prefix = prefix or _copy_prefix(book)
+    taken = set(BookCopy.objects.filter(copy_code__startswith=f'{prefix}-')
+                .values_list('copy_code', flat=True))
+
+    made, n = [], book.copies.count()
+    while len(made) < count:
+        n += 1
+        code = f'{prefix}-{n:04d}'
+        if code in taken:
+            continue
+        made.append(BookCopy(
+            book=book, copy_code=code, acquired_on=acquired_on,
+            supplier=supplier, price=price,
+        ))
+        taken.add(code)
+
+    BookCopy.objects.bulk_create(made)
+    if shelf and not book.shelf:
+        # A shelf typed while adding copies is about the title -- the school
+        # does not shelve two copies of one book in different places -- but it
+        # must never quietly move a title that already has a home.
+        book.shelf = shelf
+        book.save(update_fields=['shelf'])
+    return made
 
 
 def _copy_prefix(book):

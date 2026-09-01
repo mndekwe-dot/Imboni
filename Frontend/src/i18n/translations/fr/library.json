@@ -342,5 +342,41 @@
     "rowError": "Ligne {{row}} : {{error}}",
     "importIdle": "Aucun import",
     "importIdleDesc": "Téléchargez le modèle pour voir les colonnes, puis choisissez votre fichier."
+  },
+  "scan": {
+    "title": "Scanner",
+    "help": "Scannez l’étiquette du livre pour le prêter ou le reprendre, le code-barres au dos pour retrouver un titre, ou la carte d’un élève pour choisir l’emprunteur.",
+    "label": "Code-barres",
+    "placeholder": "Scannez ou saisissez un code",
+    "submit": "Scanner",
+    "useCamera": "Utiliser la caméra",
+    "stopCamera": "Arrêter la caméra",
+    "pointAtBarcode": "Dirigez la caméra vers le code-barres.",
+    "cameraDenied": "La caméra n’est pas disponible. Utilisez un lecteur ou saisissez le code.",
+    "failed": "Ce scan n’a pas pu être identifié.",
+    "outTo": "Emprunté par {{name}}",
+    "takeBack": "Reprendre",
+    "returned": "Repris.",
+    "returnedHeld": "Repris — à mettre de côté pour {{name}}.",
+    "returnFailed": "Ce livre n’a pas pu être repris.",
+    "fined": "En retard : {{amount}} dus.",
+    "availableOf": "{{available}} sur {{total}} en rayon",
+    "notHeld": "Pas encore à la bibliothèque",
+    "catalogueIt": "Un livre réel que nous n’avons pas — ajoutez-le au catalogue.",
+    "unknown": "Rien ne correspond à ce code"
+  },
+  "entry": {
+    "scanToAdd": "Scanner pour ajouter",
+    "help": "Scannez le code-barres au dos du livre. Si le titre est déjà au catalogue, cela y ajoute des exemplaires au lieu de créer une seconde fiche pour le même livre.",
+    "scanPlaceholder": "Scannez le dos du livre",
+    "howMany": "Exemplaires par scan",
+    "howManyHint": "Scannez un livre d’un lot et ajoutez-les tous d’un coup.",
+    "newTitle": "Nouveau pour la bibliothèque",
+    "addedNew": "{{title}} ajouté.",
+    "addedCopies": "{{count}} exemplaires de {{title}} ajoutés.",
+    "wasNew": "Nouveau titre",
+    "wasExisting": "Ajouté à un titre déjà présent",
+    "printLabels": "Imprimer {{count}} étiquettes",
+    "failed": "Ce livre n’a pas pu être ajouté."
   }
 }

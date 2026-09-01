@@ -342,5 +342,41 @@
     "rowError": "Row {{row}}: {{error}}",
     "importIdle": "No import yet",
     "importIdleDesc": "Download the template to see the columns, then choose your file."
+  },
+  "scan": {
+    "title": "Scan",
+    "help": "Scan the label on the book to issue or take it back, the barcode on the back cover to look up a title, or a pupil’s card to choose the borrower.",
+    "label": "Barcode",
+    "placeholder": "Scan or type a code",
+    "submit": "Scan",
+    "useCamera": "Use camera",
+    "stopCamera": "Stop camera",
+    "pointAtBarcode": "Point the camera at the barcode.",
+    "cameraDenied": "The camera is not available. Use a scanner or type the code.",
+    "failed": "That scan could not be looked up.",
+    "outTo": "Out to {{name}}",
+    "takeBack": "Take it back",
+    "returned": "Taken back.",
+    "returnedHeld": "Taken back — put it aside for {{name}}.",
+    "returnFailed": "That book could not be taken back.",
+    "fined": "Late: {{amount}} owed.",
+    "availableOf": "{{available}} of {{total}} on the shelf",
+    "notHeld": "Not in the library yet",
+    "catalogueIt": "A real book we do not hold — add it from the catalogue.",
+    "unknown": "Nothing matches that code"
+  },
+  "entry": {
+    "scanToAdd": "Scan to add",
+    "help": "Scan the barcode on the back of the book. If we already hold the title, this adds copies to it rather than making a second record of the same book.",
+    "scanPlaceholder": "Scan the back cover",
+    "howMany": "Copies per scan",
+    "howManyHint": "Scan one book of a set and add all of them at once.",
+    "newTitle": "New to the library",
+    "addedNew": "Added {{title}}.",
+    "addedCopies": "Added {{count}} more of {{title}}.",
+    "wasNew": "New title",
+    "wasExisting": "Added to a title already held",
+    "printLabels": "Print {{count}} labels",
+    "failed": "That book could not be added."
   }
 }

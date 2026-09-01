@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { DataTable } from '../../components/ui/DataTable'
@@ -6,6 +6,7 @@ import { DocumentActions } from '../../components/ui/DocumentActions'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ListSection } from '../../components/ui/ListSection'
 import { Modal } from '../../components/ui/Modal'
+import { ScanInput } from '../../components/ui/ScanInput'
 import { StatCard } from '../../components/layout/StatCard'
 import {
     abandonStocktake, closeStocktake, createStocktake, getLostAndDamaged,
@@ -15,6 +16,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { LibraryShell } from './LibraryShell'
+import { pill } from '../../utils/tone'
 
 /**
  * Counting the shelves against the catalogue.
@@ -85,14 +87,14 @@ export function LibraryStocktake() {
                             action={{ label: t('library.stocktake.start'), icon: 'add',
                                 onClick: () => setStarting(true) }} />
                     ) : (
-                        <ul className="fin-row-list">
+                        <ul className="row-list">
                             {counts.map(c => (
-                                <li key={c.id} className="fin-row">
-                                    <button className="fin-row-open" onClick={() => setOpenId(c.id)}>
-                                        <span className="fin-expense-icon">
+                                <li key={c.id} className="row-item">
+                                    <button className="row-item-button" onClick={() => setOpenId(c.id)}>
+                                        <span className="row-icon">
                                             <span className="material-symbols-rounded" aria-hidden="true">inventory</span>
                                         </span>
-                                        <div className="fin-row-main">
+                                        <div className="row-main">
                                             <div className="u-strong">{c.name}</div>
                                             <div className="text-xs-muted">
                                                 {formatDate(c.started_at)}
@@ -101,7 +103,7 @@ export function LibraryStocktake() {
                                             </div>
                                         </div>
                                     </button>
-                                    <span className={`pill lib-count-${c.status}`}>
+                                    <span className={pill(c.status)}>
                                         {c.status_label}
                                     </span>
                                 </li>
@@ -114,37 +116,39 @@ export function LibraryStocktake() {
                 <DataTable
                     title={t('library.stocktake.lostOrDamaged')}
                     icon="report"
-                    count={missing.length}
+                    data={missing}
                     columns={[
-                        { key: 'copy_code', label: t('library.fields.copy') },
-                        { key: 'title', label: t('library.fields.title') },
-                        { key: 'status', label: t('common.status') },
-                        { key: 'condition', label: t('library.fields.condition') },
-                        { key: 'actions', label: '' },
+                        { label: t('library.fields.copy') },
+                        { label: t('library.fields.title') },
+                        { label: t('common.status') },
+                        { label: t('library.fields.condition') },
+                        { label: '' },
                     ]}
-                    rows={missing.map(c => ({
-                        id: c.id,
-                        copy_code: c.copy_code,
-                        title: c.book_title || c.title,
-                        status: c.status_label || c.status,
-                        condition: c.condition_label || c.condition,
-                        actions: (
-                            <button className="btn-ghost btn-sm"
-                                onClick={async () => {
-                                    try {
-                                        await recordCopyEvent(c.id, { kind: 'found' })
-                                        toast.success(t('library.stocktake.restored'))
-                                        load()
-                                    } catch (error) {
-                                        toast.error(errorMessage(error, t('library.stocktake.actionFailed')))
-                                    }
-                                }}>
-                                {t('library.stocktake.markFound')}
-                            </button>
-                        ),
-                    }))}
+                    renderRow={c => (
+                        <tr key={c.id}>
+                            <td><code className="lib-copy-code">{c.copy_code}</code></td>
+                            <td>{c.book_title || c.title}</td>
+                            <td>{c.status_label || c.status}</td>
+                            <td>{c.condition_label || c.condition}</td>
+                            <td className="action-cell">
+                                <button className="btn-ghost btn-sm"
+                                    onClick={async () => {
+                                        try {
+                                            await recordCopyEvent(c.id, { kind: 'found' })
+                                            toast.success(t('library.stocktake.restored'))
+                                            load()
+                                        } catch (error) {
+                                            toast.error(errorMessage(error, t('library.stocktake.actionFailed')))
+                                        }
+                                    }}>
+                                    {t('library.stocktake.markFound')}
+                                </button>
+                            </td>
+                        </tr>
+                    )}
+                    emptyIcon="report"
                     emptyTitle={t('library.stocktake.nothingMissing')}
-                    emptyDescription={t('library.stocktake.nothingMissingDesc')}
+                    emptyDesc={t('library.stocktake.nothingMissingDesc')}
                 />
             </div>
         </LibraryShell>
@@ -172,14 +176,14 @@ function StartModal({ onClose, onStarted }) {
     }
 
     return (
-        <Modal open onClose={onClose} title={t('library.stocktake.start')}>
+        <Modal onClose={onClose} title={t('library.stocktake.start')}>
             <form onSubmit={submit}>
                 <label className="form-group">
                     <span className="form-label">{t('common.name')}</span>
                     <input className="form-input" value={form.name} onChange={set('name')}
                         placeholder={t('library.stocktake.namePlaceholder')} required autoFocus />
                 </label>
-                <div className="fin-form-grid mt-1">
+                <div className="form-grid mt-1">
                     <label className="form-group">
                         <span className="form-label">{t('library.fields.shelf')}</span>
                         <input className="form-input" value={form.scope_shelf}
@@ -210,19 +214,15 @@ function CountModal({ id, onClose, onChanged }) {
     const { t } = useTranslation()
     const toast = useToast()
     const [data, setData] = useState(null)
-    const [code, setCode] = useState('')
     const [busy, setBusy] = useState(false)
     const [confirming, setConfirming] = useState(false)
-    const inputRef = useRef(null)
 
     const load = useCallback(() => {
         getStocktake(id).then(setData).catch(() => setData(null))
     }, [id])
     useEffect(() => { load() }, [load])
 
-    async function submitScan(event) {
-        event.preventDefault()
-        const value = code.trim()
+    async function submitScan(value) {
         if (!value) return
         setBusy(true)
         try {
@@ -236,9 +236,6 @@ function CountModal({ id, onClose, onChanged }) {
             toast.error(errorMessage(error, t('library.stocktake.scanFailed')))
         } finally {
             setBusy(false)
-            setCode('')
-            // Straight back to the box: the next book is already in hand.
-            inputRef.current?.focus()
         }
     }
 
@@ -259,41 +256,41 @@ function CountModal({ id, onClose, onChanged }) {
     const isOpen = data?.stocktake?.status === 'open'
 
     return (
-        <Modal open onClose={onClose} title={data?.stocktake?.name || t('library.stocktake.title')}
+        <Modal onClose={onClose} title={data?.stocktake?.name || t('library.stocktake.title')}
             size="lg">
             {!data ? <p className="u-muted">{t('common.loading')}</p> : (
                 <>
-                    <div className="fin-balance-row">
+                    <div className="figure-strip">
                         <div>
-                            <span className="fin-balance-label">{t('library.stocktake.inScope')}</span>
+                            <span className="figure-label">{t('library.stocktake.inScope')}</span>
                             {data.total}
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('library.stocktake.seen')}</span>
+                            <span className="figure-label">{t('library.stocktake.seen')}</span>
                             {data.seen} ({data.percent_seen}%)
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('library.stocktake.onLoan')}</span>
+                            <span className="figure-label">{t('library.stocktake.onLoan')}</span>
                             {data.on_loan}
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('library.stocktake.unaccounted')}</span>
-                            <span className={data.unaccounted ? 'fin-owed' : ''}>
+                            <span className="figure-label">{t('library.stocktake.unaccounted')}</span>
+                            <span className={data.unaccounted ? 'amount-owed' : ''}>
                                 {data.unaccounted}
                             </span>
                         </div>
                     </div>
 
                     {isOpen && (
-                        <form onSubmit={submitScan} className="toolbar-card mb-1-5">
-                            <input ref={inputRef} className="form-input" value={code}
-                                onChange={e => setCode(e.target.value)}
-                                placeholder={t('library.stocktake.scanPlaceholder')}
-                                aria-label={t('library.fields.copy')} autoFocus />
-                            <button type="submit" className="btn btn-primary btn-sm" disabled={busy}>
-                                {t('library.stocktake.scan')}
-                            </button>
-                        </form>
+                        <div className="mb-1-5">
+                            {/* The same box as the desk, so a librarian who has
+                                learnt one has learnt both -- and the phone
+                                camera works here too, which matters when the
+                                counting happens at the shelves. */}
+                            <ScanInput onScan={submitScan} busy={busy}
+                                label={t('library.fields.copy')}
+                                placeholder={t('library.stocktake.scanPlaceholder')} />
+                        </div>
                     )}
 
                     <p className="u-muted u-sm">{t('library.stocktake.onLoanNote')}</p>
@@ -338,20 +335,22 @@ function CountModal({ id, onClose, onChanged }) {
                     <DataTable
                         title={t('library.stocktake.unaccounted')}
                         icon="search_off"
-                        count={data.unaccounted}
+                        data={data.unaccounted_copies || []}
                         columns={[
-                            { key: 'copy_code', label: t('library.fields.copy') },
-                            { key: 'title', label: t('library.fields.title') },
-                            { key: 'shelf', label: t('library.fields.shelf') },
+                            { label: t('library.fields.copy') },
+                            { label: t('library.fields.title') },
+                            { label: t('library.fields.shelf') },
                         ]}
-                        rows={(data.unaccounted_copies || []).map(c => ({
-                            id: c.id,
-                            copy_code: c.copy_code,
-                            title: c.book_title || c.title,
-                            shelf: c.shelf || '',
-                        }))}
+                        renderRow={c => (
+                            <tr key={c.id}>
+                                <td><code className="lib-copy-code">{c.copy_code}</code></td>
+                                <td>{c.book_title || c.title}</td>
+                                <td className="text-muted">{c.shelf || ''}</td>
+                            </tr>
+                        )}
+                        emptyIcon="search_off"
                         emptyTitle={t('library.stocktake.allFound')}
-                        emptyDescription={t('library.stocktake.allFoundDesc')}
+                        emptyDesc={t('library.stocktake.allFoundDesc')}
                     />
 
                     {data.stocktake.status === 'open' && (
