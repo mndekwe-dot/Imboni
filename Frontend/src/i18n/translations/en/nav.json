@@ -38,5 +38,11 @@
   "circulation": "Circulation",
   "borrowers": "Borrowers",
   "reservations": "Reservations",
-  "acquisitions": "Acquisitions"
+  "acquisitions": "Acquisitions",
+  "charges": "Charges",
+  "payments": "Payments",
+  "debtors": "Who owes",
+  "feeStructure": "Fee structure",
+  "expenses": "Expenses",
+  "finance": "Finance"
 }

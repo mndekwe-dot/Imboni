@@ -3,6 +3,7 @@ import account from './account.json'
 import admin from './admin.json'
 import announcements from './announcements.json'
 import apply from './apply.json'
+import finance from './finance.json'
 import findSchool from './findSchool.json'
 import auth from './auth.json'
 import common from './common.json'
@@ -36,6 +37,7 @@ export default {
     admin,
     announcements,
     apply,
+    finance,
     findSchool,
     auth,
     common,

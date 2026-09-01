@@ -14,6 +14,7 @@ class User(AbstractUser):
         ('matron', 'Matron'),
         ('discipline', 'Director of Discipline'),
         ('librarian', 'Librarian'),
+        ('bursar', 'Bursar'),
         ('admin', 'Administrator'),
     )
     

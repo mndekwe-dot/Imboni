@@ -14,7 +14,7 @@ A limit of ``None`` means "unlimited".
 # Roles that consume a *staff* seat. Everything a school pays for a human to do
 # administratively/academically counts here; students are counted separately.
 # (Parents are free — they're the customer's customers, not seats.)
-STAFF_ROLES = ('teacher', 'dos', 'matron', 'discipline', 'librarian', 'admin')
+STAFF_ROLES = ('teacher', 'dos', 'matron', 'discipline', 'librarian', 'bursar', 'admin')
 
 # The resources we meter, and the roles that back each one.
 RESOURCE_ROLES = {
@@ -97,18 +97,19 @@ def within_limit(plan, resource, current, adding=1):
 # day the library moves down a tier it is one line rather than a hunt through
 # views, navs and routers for `plan == 'premium'`.
 #
-# 'library' is the Pro-only feature: the librarian portal, its API, and the
-# Library page in the student portal. Premium IS the Pro tier -- the plan keys
-# are free/basic/premium and adding a fourth would fragment the Stripe products.
+# Two Pro-only features so far. 'library' is the librarian portal, its API and
+# the Library page in the student portal; 'finance' is the bursar's portal and
+# the payment record behind it. Premium IS the Pro tier -- the plan keys are
+# free/basic/premium and adding a fourth would fragment the Stripe products.
 PLAN_FEATURES = {
     'free':    frozenset(),
     'basic':   frozenset(),
-    'premium': frozenset({'library'}),
+    'premium': frozenset({'library', 'finance'}),
 }
 
 # Every feature the product knows about, so a typo in a `has_feature` call is a
 # loud error rather than a silent False that quietly disables something.
-KNOWN_FEATURES = frozenset({'library'})
+KNOWN_FEATURES = frozenset({'library', 'finance'})
 
 
 def has_feature(plan, feature):

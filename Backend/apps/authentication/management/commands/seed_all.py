@@ -66,6 +66,7 @@ USERS = [
     ('matron',     'Grace',       'Hakizimana',      'g.hakizimana@imboni.rw',  '+250788000009', ''),
     ('discipline', 'Patrick',     'Habimana',        'p.habimana@imboni.rw',    '+250788000010', ''),
     ('librarian',  'Josiane',     'Mukamana',        'librarian@imboni.rw',     '+250788000040', 'full_time'),
+    ('bursar',     'Emmanuel',    'Nsengimana',      'bursar@imboni.rw',        '+250788000041', 'full_time'),
     ('student',    'Amina',       'Uwase',           'a.uwase@imboni.rw',       '+250788000011', ''),
     ('student',    'Kevin',       'Mutabazi',        'k.mutabazi@imboni.rw',    '+250788000012', ''),
     ('student',    'Marie',       'Ingabire',        'm.ingabire@imboni.rw',    '+250788000013', ''),
@@ -1659,6 +1660,107 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS('  2 acquisition requests created'))
 
+        # ── 32. Finance ────────────────────────────────────────────────────────
+        # Pro-only at runtime, seeded regardless: a school that upgrades should
+        # find a working office rather than an empty one, and the demo tenant
+        # is on premium. Charges come from apps.student.Fee -- the finance app
+        # adds the money RECEIVED against them, not a second fee table.
+        self.stdout.write('Creating finance records...')
+        from decimal import Decimal
+        from apps.student.models import Fee
+        from apps.finance.models import (
+            Expense, ExpenseCategory, FeePayment, FeeStructure, FinanceSettings,
+            StudentAccount,
+        )
+        from apps.finance import services as finance_services
+
+        FinanceSettings.load()
+        bursar_user = users.get('bursar@imboni.rw')
+        current_term = AcademicTerm.objects.filter(is_current=True).first()
+
+        expense_categories = {}
+        for name, description in [
+            ('Salaries',    'Staff pay'),
+            ('Utilities',   'Water, electricity, internet'),
+            ('Maintenance', 'Buildings and grounds'),
+            ('Supplies',    'Teaching and office materials'),
+            ('Transport',   'School vehicles and fuel'),
+        ]:
+            cat, _ = ExpenseCategory.objects.get_or_create(
+                name=name, defaults={'description': description})
+            expense_categories[name] = cat
+
+        structure_count = 0
+        if current_term and not FeeStructure.objects.exists():
+            for grade, amounts in [
+                ('S1', [('tuition', '75000'), ('lunch', '18000')]),
+                ('S2', [('tuition', '75000'), ('lunch', '18000')]),
+                ('S3', [('tuition', '80000'), ('lunch', '18000')]),
+                ('S4', [('tuition', '85000'), ('lunch', '20000'), ('activity', '5000')]),
+                ('S5', [('tuition', '90000'), ('lunch', '20000')]),
+                ('S6', [('tuition', '90000'), ('lunch', '20000')]),
+            ]:
+                for category, amount in amounts:
+                    FeeStructure.objects.create(
+                        term=current_term, grade=grade, section='', category=category,
+                        amount=Decimal(amount),
+                        due_date=date(2026, 5, 15),
+                    )
+                    structure_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {structure_count} fee structure lines created'))
+
+        # One family on a bursary, so the discount path is visible in the demo.
+        bursary_student = students.get('m.ingabire@imboni.rw')
+        if bursary_student:
+            StudentAccount.objects.get_or_create(
+                student=bursary_student,
+                defaults={'payer_name': 'Jean Ingabire', 'payer_phone': '+250788555111',
+                          'bursary_percent': Decimal('50.00'),
+                          'arrangement': 'Half bursary, district sponsorship.'},
+            )
+
+        invoiced = 0
+        for structure in FeeStructure.objects.all():
+            invoiced += len(finance_services.invoice_from_structure(structure))
+        self.stdout.write(self.style.SUCCESS(f'  {invoiced} charges raised'))
+
+        # A spread of payments: some settled, some part paid, most untouched --
+        # so the collection rate is a real number rather than 0 or 100.
+        payment_count = 0
+        if not FeePayment.objects.exists():
+            open_fees = list(Fee.objects.filter(term=current_term).order_by('student_id'))
+            for index, fee in enumerate(open_fees):
+                if index % 3 == 0:
+                    finance_services.record_payment(
+                        fee, fee.amount, method='momo', received_by=bursar_user,
+                        reference=f'MOMO-{7000 + index}')
+                    payment_count += 1
+                elif index % 3 == 1:
+                    part = (Decimal(fee.amount) / 2).quantize(Decimal('0.01'))
+                    finance_services.record_payment(
+                        fee, part, method='cash', received_by=bursar_user)
+                    payment_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {payment_count} payments recorded'))
+
+        expense_count = 0
+        if not Expense.objects.exists() and bursar_user:
+            for cat_name, description, amount, status in [
+                ('Utilities',   'Electricity, May 2026',        '240000',  'paid'),
+                ('Utilities',   'Water, May 2026',              '85000',   'approved'),
+                ('Supplies',    'Exercise books and chalk',     '310000',  'paid'),
+                ('Maintenance', 'Dormitory roof repair',        '650000',  'pending'),
+                ('Transport',   'Fuel for the school bus',      '180000',  'pending'),
+            ]:
+                Expense.objects.create(
+                    category=expense_categories[cat_name], description=description,
+                    amount=Decimal(amount), status=status, term=current_term,
+                    recorded_by=bursar_user, spent_on=date(2026, 5, 20),
+                    approved_by=users.get('admin@imboni.rw') if status != 'pending' else None,
+                    decided_at=timezone.now() if status != 'pending' else None,
+                )
+                expense_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {expense_count} expenses created'))
+
         # ── Done ───────────────────────────────────────────────────────────────
         self.stdout.write('')
         self.stdout.write(self.style.SUCCESS('=' * 55))
@@ -1677,4 +1779,5 @@ class Command(BaseCommand):
         self.stdout.write('  g.hakizimana@imboni.rw-> Matron portal')
         self.stdout.write('  p.habimana@imboni.rw  -> Discipline portal')
         self.stdout.write('  librarian@imboni.rw   -> Library portal (Premium plan only)')
+        self.stdout.write('  bursar@imboni.rw      -> Finance portal (Premium plan only)')
         self.stdout.write('')
