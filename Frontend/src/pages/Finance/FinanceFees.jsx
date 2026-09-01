@@ -3,12 +3,13 @@ import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import { SearchBar } from '../../components/ui/SearchBar'
+import { ClassFilter } from '../../components/ui/ClassFilter'
+import { DocumentActions } from '../../components/ui/DocumentActions'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { DataTable } from '../../components/ui/DataTable'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
-import { downloadCsv } from '../../utils/exportTable'
 import { getFees } from '../../api/finance'
 import { FinanceShell, Money } from './FinanceShell'
 
@@ -26,14 +27,24 @@ export function FinanceFees() {
     const [search, setSearch] = useState('')
     const [fees, setFees]     = useState([])
     const [loading, setLoading] = useState(true)
+    const [klass, setKlass]   = useState({ grade: '', stream: '' })
+
+    // What the server is being asked for. Print and export send exactly this,
+    // so the paper is the screen -- including the rows past the display cap.
+    const docParams = {
+        status,
+        ...(klass.grade ? { grade: klass.grade } : {}),
+        ...(klass.stream ? { stream: klass.stream } : {}),
+    }
 
     const load = useCallback(() => {
         setLoading(true)
-        getFees({ status })
+        getFees(docParams)
             .then(d => setFees(Array.isArray(d) ? d : []))
             .catch(e => { if (e?.status !== 402) toast.error(errorMessage(e, t('finance.loadFailed'))) })
             .finally(() => setLoading(false))
-    }, [status, toast, t])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [status, toast, t, klass.grade, klass.stream])
 
     useEffect(() => { load() }, [load])
 
@@ -43,28 +54,17 @@ export function FinanceFees() {
         || (f.student?.student_id || '').toLowerCase().includes(q)
         || (f.student?.class_label || '').toLowerCase().includes(q))
 
-    function handleExport() {
-        downloadCsv(`charges-${status}`, {
-            columns: [t('common.student'), t('common.class'), t('finance.fields.category'),
-                t('finance.fields.amount'), t('finance.fields.paid'),
-                t('finance.fields.balance'), t('finance.fields.due'), t('common.status')],
-            rows: visible.map(f => [f.student?.name, f.student?.class_label,
-                t(`finance.categories.${f.category}`), f.amount, f.paid, f.balance,
-                f.due_date, t(`finance.status.${f.status}`)]),
-        })
-    }
 
     return (
         <FinanceShell title={t('finance.fees.title')} subtitle={t('finance.fees.subtitle')}>
             <div className="toolbar-card mb-1-5">
                 <SearchBar value={search} onChange={setSearch}
                     placeholder={t('finance.fees.searchPlaceholder')} />
+                <ClassFilter grade={klass.grade} stream={klass.stream}
+                    onChange={setKlass} disabled={loading} />
                 <div className="toolbar-spacer" />
-                <button className="btn btn-outline btn-sm" onClick={handleExport}
-                    disabled={!visible.length}>
-                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
-                    {t('common.export')}
-                </button>
+                <DocumentActions url="/imboni/finance/fees/" params={docParams}
+                    stem="charges" disabled={loading} />
             </div>
 
             <div className="toolbar-card mb-1-5">

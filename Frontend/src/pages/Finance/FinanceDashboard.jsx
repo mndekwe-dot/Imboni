@@ -9,7 +9,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getFinanceDashboard } from '../../api/finance'
-import { FinanceShell, Money } from './FinanceShell'
+import { FinanceShell, Money, formatAmount } from './FinanceShell'
 
 /** What the school has billed, what it has actually received, and the gap. */
 export function FinanceDashboard() {
@@ -83,8 +83,13 @@ export function FinanceDashboard() {
                                     <span className="fin-class-chip">{row.class_label}</span>
                                     <div className="fin-row-main">
                                         <div className="text-xs-muted">
+                                            {/* Formatted before interpolation. These are raw
+                                                decimal strings from the API, so the sentence
+                                                read "260000.00 of 440000.00 collected" right
+                                                beside a properly grouped "180,000 RWF". */}
                                             {t('finance.dashboard.ofCharged', {
-                                                collected: row.collected, charged: row.charged,
+                                                collected: formatAmount(row.collected),
+                                                charged: formatAmount(row.charged),
                                             })}
                                         </div>
                                     </div>

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SearchBar } from '../../components/ui/SearchBar'
+import { ClassFilter } from '../../components/ui/ClassFilter'
+import { DocumentActions } from '../../components/ui/DocumentActions'
 import { ListSection } from '../../components/ui/ListSection'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
@@ -10,7 +12,6 @@ import { StatCard } from '../../components/layout/StatCard'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
-import { downloadCsv } from '../../utils/exportTable'
 import { getDebtors, getStudentFinance, saveStudentAccount } from '../../api/finance'
 import { FinanceShell, Money } from './FinanceShell'
 
@@ -23,14 +24,24 @@ export function FinanceDebtors() {
     const [loading, setLoading] = useState(true)
     const [search, setSearch]   = useState('')
     const [openId, setOpenId]   = useState(null)
+    const [klass, setKlass]     = useState({ grade: '', stream: '' })
+
+    // The class narrows the QUERY, not the rendered rows. Filtering a capped
+    // list in the browser would show "S4A" while quietly hiding the S4A
+    // families who fell outside the server's first 300 rows.
+    const params = {
+        ...(klass.grade ? { grade: klass.grade } : {}),
+        ...(klass.stream ? { stream: klass.stream } : {}),
+    }
 
     const load = useCallback(() => {
         setLoading(true)
-        getDebtors()
+        getDebtors(params)
             .then(d => setRows(Array.isArray(d) ? d : []))
             .catch(e => { if (e?.status !== 402) toast.error(errorMessage(e, t('finance.loadFailed'))) })
             .finally(() => setLoading(false))
-    }, [toast, t])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [toast, t, klass.grade, klass.stream])
 
     useEffect(() => { load() }, [load])
 
@@ -42,15 +53,6 @@ export function FinanceDebtors() {
 
     const totalOwed = visible.reduce((sum, r) => sum + Number(r.outstanding), 0)
     const totalOverdue = visible.reduce((sum, r) => sum + Number(r.overdue), 0)
-
-    function handleExport() {
-        downloadCsv('debtors', {
-            columns: [t('common.student'), t('common.class'), t('common.admNo'),
-                t('finance.stats.outstanding'), t('finance.fields.overdue')],
-            rows: visible.map(r => [r.student.name, r.student.class_label,
-                r.student.student_id, r.outstanding, r.overdue]),
-        })
-    }
 
     return (
         <FinanceShell title={t('finance.debtors.title')} subtitle={t('finance.debtors.subtitle')}>
@@ -73,12 +75,14 @@ export function FinanceDebtors() {
             <div className="toolbar-card mb-1-5">
                 <SearchBar value={search} onChange={setSearch}
                     placeholder={t('finance.debtors.searchPlaceholder')} />
+                <ClassFilter grade={klass.grade} stream={klass.stream}
+                    onChange={setKlass} disabled={loading} />
                 <div className="toolbar-spacer" />
-                <button className="btn btn-outline btn-sm" onClick={handleExport}
-                    disabled={!visible.length}>
-                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
-                    {t('common.export')}
-                </button>
+                {/* Printed and exported from the server with the same filters,
+                    so the paper matches the screen and carries every row rather
+                    than the page's first 300. */}
+                <DocumentActions url="/imboni/finance/debtors/" params={params}
+                    stem="who-owes" disabled={loading} />
             </div>
 
             <ListSection

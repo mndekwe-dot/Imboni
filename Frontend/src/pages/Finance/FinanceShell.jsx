@@ -78,10 +78,17 @@ export function FinanceNotInPlan() {
  * receipt and the debtor list. `Intl` groups the thousands, which is the
  * difference between 1250000 and 1,250,000 at a glance.
  */
-export function Money({ value, currency = 'RWF', className = '' }) {
+export function formatAmount(value) {
     const amount = Number(value ?? 0)
-    const text = Number.isFinite(amount)
+    return Number.isFinite(amount)
         ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(amount)
         : '0'
-    return <span className={`fin-money ${className}`.trim()}>{text} {currency}</span>
+}
+
+export function Money({ value, currency = 'RWF', className = '' }) {
+    return (
+        <span className={`fin-money ${className}`.trim()}>
+            {formatAmount(value)} {currency}
+        </span>
+    )
 }

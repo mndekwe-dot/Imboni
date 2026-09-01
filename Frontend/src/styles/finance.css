@@ -238,3 +238,15 @@
   .fin-row { flex-wrap: wrap; }
   .fin-row-actions { width: 100%; }
 }
+
+/* ── Payroll and budget states ────────────────────────────────────────────────
+   Same palette as the expense pills above, so a "pending"-shaped thing reads
+   the same whether it is an expense, a payroll run or a budget. */
+.fin-payroll-draft     { background: var(--muted); color: var(--muted-foreground); }
+.fin-payroll-approved  { background: var(--primary-surface); color: var(--primary-text); }
+.fin-payroll-paid      { background: var(--success-surface, #dcfce7); color: var(--success, #16a34a); }
+.fin-payroll-cancelled { background: var(--destructive-surface, #fee2e2); color: var(--destructive); }
+
+.fin-budget-draft    { background: var(--muted); color: var(--muted-foreground); }
+.fin-budget-approved { background: var(--success-surface, #dcfce7); color: var(--success, #16a34a); }
+.fin-budget-closed   { background: var(--primary-surface); color: var(--primary-text); }
