@@ -1,6 +1,7 @@
 import pytest
 from rest_framework import status
 
+from apps.parents.models import ParentLinkRequest
 from apps.authentication.factories import (
     UserFactory, StudentFactory, ParentStudentRelationshipFactory, AcademicTermFactory,
 )
@@ -217,7 +218,12 @@ class TestParentDashboardStatsView:
 
 @pytest.mark.django_db
 class TestLinkStudentView:
-    def test_parent_can_link_a_student_by_code(self, api_client):
+    def test_a_code_queues_a_request_and_does_not_link(self, api_client):
+        """
+        A student code is printed on report cards and known to classmates, so
+        knowing one used to be enough to attach yourself to a child and read
+        their marks, attendance and fees. It now only asks; staff decide.
+        """
         parent = UserFactory(role='parent')
         student = StudentFactory(student_id='STD2024001')
 
@@ -229,8 +235,13 @@ class TestLinkStudentView:
             'can_pickup': True,
         })
 
-        assert response.status_code == status.HTTP_201_CREATED
-        assert ParentStudentRelationship.objects.filter(parent=parent, student=student).exists()
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        assert ParentLinkRequest.objects.filter(
+            parent=parent, student=student, status='pending',
+        ).exists()
+        assert not ParentStudentRelationship.objects.filter(
+            parent=parent, student=student,
+        ).exists(), 'the code alone granted access to the child'
 
     def test_cannot_link_same_student_twice(self, api_client):
         parent = UserFactory(role='parent')
