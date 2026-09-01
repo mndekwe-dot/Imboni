@@ -129,7 +129,11 @@ class Invitation(models.Model):
         null=True,
         related_name='invitations_sent'
     )
-    token = models.CharField(max_length=200,unique=True)
+    # SHA-256 of the raw token, never the token itself — see apps/authentication/
+    # invites.py. The previous `token` column stored the link in cleartext.
+    # `unique` already builds the index; adding db_index as well makes Django
+    # create the varchar_pattern_ops index twice and the migration fails.
+    token_hash = models.CharField(max_length=64, unique=True)
     uid=models.CharField(max_length=200)
     is_used=models.BooleanField(default=False)
     expires_at=models.DateTimeField()

@@ -242,6 +242,21 @@ class BulkSaveResultsSerializer(serializers.Serializer):
     max_score        = serializers.FloatField(min_value=1)
     entries          = ResultEntryInputSerializer(many=True)
 
+    def validate(self, data):
+        # score_obtained had a floor and no ceiling, and was never compared to
+        # max_score. Two consequences: 150/100 was accepted and quietly skewed
+        # every class statistic, and a large enough score overflowed
+        # percentage's DecimalField(max_digits=5) into a 500 — after earlier
+        # entries in the same batch had already been written.
+        cap = data['max_score']
+        over = [e for e in data['entries'] if e['score_obtained'] > cap]
+        if over:
+            raise serializers.ValidationError({
+                'entries': (f'{len(over)} score(s) exceed the maximum of {cap:g}. '
+                            'Raise the maximum or correct the marks.'),
+            })
+        return data
+
 
 class GradeDistributionSerializer(serializers.Serializer):
     """

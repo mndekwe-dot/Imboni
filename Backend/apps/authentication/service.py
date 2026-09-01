@@ -1,7 +1,11 @@
+import logging
+
 import africastalking
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
+
+logger = logging.getLogger(__name__)
 
 
 def initialize_africastalking():
@@ -41,7 +45,7 @@ def send_invitation_sms(invitation, registration_link):
     )
     sms.send(message,[invitation.phone_number])
 
-def send_invitation_whatapp(invitation,registration_link):
+def send_invitation_whatsapp(invitation, registration_link):
     """Send WhatsApp invitation via Africa's Talking."""
     initialize_africastalking()
     message = (
@@ -65,23 +69,32 @@ def dispatch_invitation(invitation , registration_link):
     Returns list of channels that were successfully sent.
     """
     channels = []
-    
+
     if invitation.email:
         try:
-            send_invitational_email(invitation,registration_link)
+            send_invitational_email(invitation, registration_link)
             channels.append('email')
-        except Exception as e:
-            print(f"Email send failed: {e}")
+        except Exception:
+            # Log the invitation, never the address: settings.py keeps Sentry's
+            # send_default_pii False precisely so recipient emails do not leave
+            # the box, and an interpolated address would defeat that.
+            logger.exception('Invitation email failed for invitation %s', invitation.pk)
+
     if invitation.phone_number:
         try:
-            send_invitation_sms(invitation,registration_link)
+            send_invitation_sms(invitation, registration_link)
             channels.append('sms')
-        except Exception as e:
-            print(f"SMS send failed: {e}") 
-        
+        except Exception:
+            logger.exception('Invitation SMS failed for invitation %s', invitation.pk)
+
         try:
-            send_invitation_sms(invitation,registration_link)
+            # This branch used to call send_invitation_sms again — the WhatsApp
+            # helper was spelled `send_invitation_whatapp`, so the correct name
+            # never resolved and every invitation sent two SMS, the second of
+            # them reported as 'whatsapp'.
+            send_invitation_whatsapp(invitation, registration_link)
             channels.append('whatsapp')
-        except Exception as e:
-            print(f"Whatsapp send failed: {e}") 
+        except Exception:
+            logger.exception('Invitation WhatsApp failed for invitation %s', invitation.pk)
+
     return channels

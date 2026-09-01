@@ -151,3 +151,11 @@
     flex-direction: column;
     min-height: 0;
 }
+
+/* A shared TOTP secret is read character by character off the screen and typed
+   into a phone, so it needs a face where 0/O and 1/l cannot be confused. */
+.pf-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.08em;
+  word-break: break-all;
+}

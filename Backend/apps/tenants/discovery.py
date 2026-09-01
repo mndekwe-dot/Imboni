@@ -120,7 +120,10 @@ def send_school_reminder(email, schools, scheme='https'):
         )
         return True
     except Exception:
-        logger.exception('send_school_reminder: could not send to %s', email)
+        # No address in the message: Sentry is configured with
+        # send_default_pii=False so error reports cannot carry PII, and an
+        # interpolated recipient would put it back in through the front door.
+        logger.exception('send_school_reminder: delivery failed')
         return False
 
 

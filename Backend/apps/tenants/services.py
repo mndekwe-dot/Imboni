@@ -29,6 +29,15 @@ class ProvisioningError(Exception):
     """Raised for any invalid/duplicate subdomain or failed provisioning."""
 
 
+# How long a self-serve demo tenant lives before it stops on its own. Long
+# enough to run a real term's worth of lessons past it and decide; short enough
+# that an abandoned one clears itself out instead of sitting in the registry
+# forever. Lives here rather than in onboarding.py so the signup view and the
+# Celery task can both read it without importing each other.
+
+
+DEMO_TRIAL_DAYS = 30
+
 # Subdomains that must never become a tenant (collide with infra/routing).
 RESERVED_SUBDOMAINS = {
     'public', 'www', 'admin', 'api', 'app', 'apps', 'static', 'media', 'assets',
@@ -61,7 +70,8 @@ def validate_subdomain(subdomain):
 def provision_tenant(*, name, subdomain, admin_email, admin_password=None,
                      admin_password_hash=None, admin_first_name='',
                      admin_last_name='', domain_base='localhost', plan='free',
-                     on_trial=True, status='trial'):
+                     on_trial=True, status='trial', is_demo=False,
+                     demo_expires_on=None):
     """
     Create a school tenant end to end and return (client, domain_name).
 
@@ -71,7 +81,14 @@ def provision_tenant(*, name, subdomain, admin_email, admin_password=None,
 
     Pass either a raw ``admin_password`` (the CLI does) or an already-hashed
     ``admin_password_hash`` (the async signup task does, so plaintext never
-    leaves the request that collected it).
+    leaves the request that collected it). Pass NEITHER — as operator
+    provisioning now does — and the admin is created unable to log in until an
+    invitation link is opened and a password chosen. See `invitations.py`.
+
+    ``is_demo`` marks a tenant created by unreviewed self-serve signup;
+    ``demo_expires_on`` is the date it stops. A demo is not a school: it exists
+    so a stranger can try the product without a real school being created on
+    the strength of a filled-in form.
     """
     subdomain = normalize_subdomain(subdomain)
     validate_subdomain(subdomain)
@@ -80,7 +97,8 @@ def provision_tenant(*, name, subdomain, admin_email, admin_password=None,
 
     # auto_create_schema=True -> saving creates the schema + runs tenant migrations.
     client = Client(schema_name=subdomain, name=name, on_trial=on_trial,
-                    status=status, plan=plan)
+                    status=status, plan=plan, is_demo=is_demo,
+                    demo_expires_on=demo_expires_on)
     client.save()
 
     Domain.objects.create(domain=domain_name, tenant=client, is_primary=True)
@@ -122,7 +140,15 @@ def _seed_structure(client):
 
 def _seed_admin(client, admin_email, admin_password=None, admin_password_hash=None,
                 first_name='', last_name=''):
-    """Create the school's first admin user inside its schema (idempotent)."""
+    """
+    Create the school's first admin user inside its schema (idempotent).
+
+    With no password and no hash, the account is created with an UNUSABLE
+    password: it exists, it owns the school, and nobody can sign in as it until
+    an invitation is accepted. That is the intended state for a school
+    provisioned by an operator -- the credential is chosen by the school, and
+    never travels through anyone else's hands.
+    """
     User = get_user_model()
     with schema_context(client.schema_name):
         if User.objects.filter(email__iexact=admin_email).exists():
@@ -139,6 +165,10 @@ def _seed_admin(client, admin_email, admin_password=None, admin_password_hash=No
         )
         if admin_password_hash:
             admin.password = admin_password_hash   # already hashed by make_password
-        else:
+        elif admin_password:
             admin.set_password(admin_password)
+        else:
+            # No credential exists yet, and none is invented here. An
+            # invitation is what turns this account on.
+            admin.set_unusable_password()
         admin.save()

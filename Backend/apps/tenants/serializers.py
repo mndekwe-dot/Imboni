@@ -11,7 +11,7 @@ from rest_framework import serializers
 
 from .models import (
     Client, Domain, PlatformExpense, Payment, SupportTicket, TicketReply,
-    SchoolApplication, Contract,
+    SchoolApplication, Contract, PlatformAuditLog, PlatformUser,
 )
 from .services import normalize_subdomain, SUBDOMAIN_RE
 
@@ -63,9 +63,11 @@ class ClientSerializer(serializers.ModelSerializer):
             'paid_until',
             'on_trial',
             'created_on',
+            'is_demo',
+            'demo_expires_on',
             'usage',
         ]
-        read_only_fields = ['id', 'schema_name', 'created_on']
+        read_only_fields = ['id', 'schema_name', 'created_on', 'is_demo']
 
     def get_primary_domain(self, obj):
         domain = obj.domains.filter(is_primary=True).first() or obj.domains.first()
@@ -200,3 +202,39 @@ class ContractSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'school_name', 'days_remaining', 'is_expired',
                             'is_expiring_soon', 'created_at', 'updated_at']
+
+
+class PlatformAuditLogSerializer(serializers.ModelSerializer):
+    """
+    One recorded operator action. Read-only everywhere -- see AuditLogViewSet.
+    """
+    school_name = serializers.CharField(source='client.name', default='', read_only=True)
+
+    class Meta:
+        model = PlatformAuditLog
+        fields = [
+            'id', 'actor_email', 'actor_role', 'action', 'target_type',
+            'target_id', 'target_label', 'client', 'school_name', 'changes',
+            'ip_address', 'created_at',
+        ]
+        read_only_fields = fields
+
+
+class PlatformUserSerializer(serializers.ModelSerializer):
+    """
+    An operator account.
+
+    `password` is write-only and optional: it is set through the model hasher in
+    the viewset, never assigned to the field directly, so a plaintext password
+    can neither be stored nor read back. `mfa_enabled` is read-only here --
+    turning MFA on requires proving you can read a code, which is the
+    enrolment endpoint's job, not an admin toggle.
+    """
+    password = serializers.CharField(write_only=True, required=False,
+                                     allow_blank=True, min_length=10)
+
+    class Meta:
+        model = PlatformUser
+        fields = ['id', 'email', 'name', 'role', 'is_active', 'password',
+                  'mfa_enabled', 'last_login', 'created_at']
+        read_only_fields = ['id', 'mfa_enabled', 'last_login', 'created_at']

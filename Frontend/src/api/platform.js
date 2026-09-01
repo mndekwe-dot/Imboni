@@ -57,9 +57,38 @@ client.interceptors.response.use(
 )
 
 // Login uses plain axios (no token yet, and we don't want the 401 interceptor).
+// Two shapes come back: a finished session ({ access, refresh, user }), or
+// { mfa_required, challenge } when the operator has a second factor -- in which
+// case no token exists yet and platformVerifyMfa completes the sign-in.
 export async function platformLogin(email, password) {
     const res = await axios.post(`${BASE}/imboni/platform/auth/login/`, { email, password })
+    return res.data
+}
+
+export async function platformVerifyMfa(challenge, code) {
+    const res = await axios.post(`${BASE}/imboni/platform/auth/mfa/verify/`, { challenge, code })
     return res.data   // { access, refresh, user }
+}
+
+export const startMfaSetup   = ()     => client.post('/imboni/platform/auth/mfa/setup/').then(r => r.data)
+export const confirmMfaSetup = (code) => client.post('/imboni/platform/auth/mfa/confirm/', { code }).then(r => r.data)
+export const getPlatformMe   = ()     => client.get('/imboni/platform/auth/me/').then(r => r.data)
+
+// ── Roles ────────────────────────────────────────────────────────────────────
+// Mirrors PlatformUser.ROLE_RANK on the server. Used ONLY to hide controls this
+// operator cannot use -- the server re-checks every one of them, so a stale
+// cached role hides too much or too little in the UI and authorises nothing.
+const ROLE_RANK = { support: 0, commercial: 1, operations: 2 }
+
+export function operatorCan(required) {
+    const me = platformUser()
+    const rank = ROLE_RANK[me?.role]
+    if (rank == null) return false
+    if (rank < ROLE_RANK[required]) return false
+    // An operations account that has not enrolled a second factor holds the
+    // role but not the powers -- same rule the server applies.
+    if (me.role === 'operations' && me.mfa_enabled === false) return false
+    return true
 }
 
 // DRF list endpoints are paginated; normalise to a plain array.
@@ -68,6 +97,7 @@ const asList = (data) => (Array.isArray(data) ? data : (data?.results ?? []))
 // ── Schools ──────────────────────────────────────────────────────────────────
 export const getPlatformSchools = () => client.get('/imboni/platform/schools/').then(r => asList(r.data))
 export const suspendSchool    = (id) => client.post(`/imboni/platform/schools/${id}/suspend/`).then(r => r.data)
+export const restrictSchool   = (id) => client.post(`/imboni/platform/schools/${id}/restrict/`).then(r => r.data)
 export const reactivateSchool = (id) => client.post(`/imboni/platform/schools/${id}/reactivate/`).then(r => r.data)
 export const getSchoolOverview = (id) => client.get(`/imboni/platform/schools/${id}/overview/`).then(r => r.data)
 
@@ -98,6 +128,7 @@ export const getApplication      = (id)         => client.get(`/imboni/platform/
 export const approveApplication  = (id, notes)  => client.post(`/imboni/platform/applications/${id}/approve/`, { review_notes: notes }).then(r => r.data)
 export const rejectApplication   = (id, notes)  => client.post(`/imboni/platform/applications/${id}/reject/`, { review_notes: notes }).then(r => r.data)
 export const provisionApplication = (id)        => client.post(`/imboni/platform/applications/${id}/provision/`).then(r => r.data)
+export const resendInvitation     = (id)        => client.post(`/imboni/platform/applications/${id}/resend_invitation/`).then(r => r.data)
 
 // ── Contracts (operator) ─────────────────────────────────────────────────────
 export const getContracts      = (params)      => client.get('/imboni/platform/contracts/', params ? { params } : {}).then(r => asList(r.data))
@@ -112,3 +143,18 @@ export async function applyToImboni(data) {
     const res = await axios.post(`${BASE}/imboni/onboarding/apply/`, data)
     return res.data
 }
+
+
+// ── Accountability ───────────────────────────────────────────────────────────
+export const getAuditLog = (params) =>
+    client.get('/imboni/platform/audit/', params ? { params } : {}).then(r => asList(r.data))
+
+// ── Who works here ───────────────────────────────────────────────────────────
+export const getOperators   = ()          => client.get('/imboni/platform/operators/').then(r => asList(r.data))
+export const createOperator = (data)      => client.post('/imboni/platform/operators/', data).then(r => r.data)
+export const updateOperator = (id, data)  => client.patch(`/imboni/platform/operators/${id}/`, data).then(r => r.data)
+export const resetOperatorMfa = (id)      => client.post(`/imboni/platform/operators/${id}/reset_mfa/`).then(r => r.data)
+
+// ── A ticket's school, on the ticket ─────────────────────────────────────────
+export const getTicketContext = (id) =>
+    client.get(`/imboni/platform/tickets/${id}/context/`).then(r => r.data)

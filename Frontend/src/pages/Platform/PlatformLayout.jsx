@@ -9,7 +9,13 @@ import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
 import '../../styles/platform.css'
+import '../../styles/utilities.css'
 
+// Every page here is readable by every operator, deliberately: a support agent
+// answering "when does our licence end?" should not have to escalate to read
+// the answer. Roles gate the ACTIONS on these pages, not the pages themselves,
+// which is why nothing is filtered out of this list. Buttons that a role cannot
+// use are hidden individually with `operatorCan`.
 const NAV = [
     { to: '/platform',              icon: 'dashboard',      label: 'Overview', end: true },
     { to: '/platform/applications', icon: 'inbox',          label: 'Applications' },
@@ -18,8 +24,17 @@ const NAV = [
     { to: '/platform/revenue',      icon: 'payments',       label: 'Revenue'  },
     { to: '/platform/expenses',     icon: 'receipt_long',   label: 'Expenses' },
     { to: '/platform/support',      icon: 'support_agent',  label: 'Support'  },
+    { to: '/platform/activity',     icon: 'history',        label: 'Activity' },
     { to: '/platform/health',       icon: 'monitor_heart',  label: 'Health'   },
+    { to: '/platform/operators',    icon: 'shield_person',  label: 'Operators' },
 ]
+
+// How an operator's own standing reads in the header, under their name.
+const ROLE_LABELS = {
+    support:    'Support',
+    commercial: 'Commercial',
+    operations: 'Operations',
+}
 
 /**
  * PlatformLayout — the operator console shell, styled with the Imboni light
@@ -103,14 +118,37 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                             <div className="header-user">
                                 <div className="header-user-info">
                                     <span className="header-user-name">{me?.name || 'Operator'}</span>
-                                    <span className="header-user-role">{me?.email || 'Platform'}</span>
+                                    <span className="header-user-role">
+                                        {ROLE_LABELS[me?.role] || me?.email || 'Platform'}
+                                    </span>
                                 </div>
                                 <span className="header-user-av admin-av" aria-hidden="true">{initials}</span>
                             </div>
                         </div>
                     </header>
 
-                    <DashboardContent>{children}</DashboardContent>
+                    <DashboardContent>
+                        {/* An operations account that has not enrolled holds the
+                            title and none of the powers. Say so where it cannot
+                            be missed, rather than letting them discover it from
+                            a refused suspension. */}
+                        {me?.mfa_setup_required && (
+                            <div className="card u-banner u-banner--warn u-mb" role="status">
+                                <div className="u-row">
+                                    <span className="material-symbols-rounded u-banner-icon" aria-hidden="true">lock</span>
+                                    <div>
+                                        <p className="u-strong u-mb-xs">Two-factor is not set up yet</p>
+                                        <p className="u-muted u-sm">
+                                            Your account holds the Operations role, so provisioning,
+                                            restricting and suspending schools stay closed until you
+                                            enrol. Set it up under <NavLink to="/platform/operators">Operators</NavLink>.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {children}
+                    </DashboardContent>
                 </main>
             </div>
         </div>

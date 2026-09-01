@@ -127,8 +127,8 @@ describe('DosExamPapers', () => {
 
   it('asks for the paper and the marking scheme as two separate documents', async () => {
     downloadExamPaperPdf.mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' }))
-    global.URL.createObjectURL = vi.fn(() => 'blob:x')
-    global.URL.revokeObjectURL = vi.fn()
+    window.URL.createObjectURL = vi.fn(() => 'blob:x')
+    window.URL.revokeObjectURL = vi.fn()
     window.open = vi.fn()
 
     renderWithRouter(<DosExamPapers />)

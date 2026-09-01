@@ -101,6 +101,8 @@ def _authenticate(schema_name, raw_token):
     """
     from rest_framework_simplejwt.authentication import JWTAuthentication
 
+    from apps.authentication.tokens import SCHEMA_CLAIM
+
     if not raw_token:
         return None
 
@@ -110,6 +112,11 @@ def _authenticate(schema_name, raw_token):
         # access tokens (token_type claim is checked by AccessToken).
         validated = auth.get_validated_token(raw_token)
     except Exception:
+        return None
+
+    # Same rule the HTTP API applies: the token must have been issued in the
+    # schema this socket resolved to, not merely name a row that exists there.
+    if validated.get(SCHEMA_CLAIM) != schema_name:
         return None
 
     with schema_context(schema_name):

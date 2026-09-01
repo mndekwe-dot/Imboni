@@ -75,3 +75,65 @@ class ParentStudentRelationship(models.Model):
 
     def __str__(self):
         return f"{self.parent.get_full_name()} -> {self.student.full_name} ({self.relationship_type})"
+
+
+class ParentLinkRequest(models.Model):
+    """
+    A parent asking to be connected to a student, pending school approval.
+
+    "Link New Student" used to create the relationship outright, on nothing more
+    than the student's display code. That code is not a secret — it is printed
+    on ID cards and report cards and known to classmates — so anyone with a
+    parent account could attach themselves to any child in the school and then
+    legitimately read that child's grades, attendance, discipline record,
+    medical documents and fees.
+
+    The request is recorded here instead and grants nothing until a member of
+    staff approves it. Approval is what creates the ParentStudentRelationship.
+    """
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Rejected'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    parent = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name='link_requests')
+    student = models.ForeignKey('student.Student', on_delete=models.CASCADE,
+                                related_name='link_requests')
+    relationship_type = models.CharField(
+        max_length=20, choices=ParentStudentRelationship.RELATIONSHIP_TYPES)
+    is_primary_contact = models.BooleanField(default=False)
+    can_pickup = models.BooleanField(default=True)
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES,
+                              default=STATUS_PENDING)
+    decided_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                   blank=True, related_name='link_decisions')
+    decided_at = models.DateTimeField(null=True, blank=True)
+    decision_note = models.CharField(max_length=255, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'parent_link_requests'
+        ordering = ['-created_at']
+        constraints = [
+            # One open request per pair, so a parent cannot flood the desk with
+            # the same ask. Resolved rows stay for the audit trail.
+            models.UniqueConstraint(
+                fields=['parent', 'student'],
+                condition=models.Q(status='pending'),
+                name='uniq_pending_parent_link_request',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['status', 'created_at'],
+                         name='linkreq_status_created_idx'),
+        ]
+
+    def __str__(self):
+        return f'{self.parent_id} -> {self.student_id} ({self.status})'

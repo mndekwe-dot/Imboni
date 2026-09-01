@@ -13,6 +13,7 @@ from django.db import connection
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.authentication import invites
 from apps.authentication.factories import UserFactory
 from apps.authentication.models import Invitation
 from apps.tenants import plans
@@ -32,7 +33,8 @@ def _set_plan(plan):
 def _invite(role='student', used=False, expired=False):
     return Invitation.objects.create(
         first_name='In', last_name='Vite', email=f'{uuid.uuid4().hex[:8]}@x.test',
-        role=role, token=uuid.uuid4().hex, uid=uuid.uuid4().hex, is_used=used,
+        role=role, token_hash=invites.hash_token(invites.new_token()),
+        uid=uuid.uuid4().hex, is_used=used,
         expires_at=timezone.now() + timedelta(days=(-1 if expired else 7)),
     )
 

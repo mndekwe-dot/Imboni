@@ -49,7 +49,15 @@ export function ExamPaperReviewModal({ paper, onClose, onDecided }) {
         }
     }
 
-    let number = 0
+    // Question numbers run unbroken across sections, so each section starts
+    // after every question before it. Worked out up front: incrementing a
+    // counter inside the map mutates a variable while React is rendering,
+    // which gives the wrong numbers the moment a render is retried.
+    const sections = paper.sections || []
+    const firstNumberInSection = sections.reduce(
+        (starts, section) => [...starts, starts[starts.length - 1] + (section.questions || []).length],
+        [1],
+    )
 
     return (
         <Modal
@@ -97,7 +105,7 @@ export function ExamPaperReviewModal({ paper, onClose, onDecided }) {
                 <div className="alert alert-info u-mb">{paper.instructions}</div>
             )}
 
-            {(paper.sections || []).map((section, si) => (
+            {sections.map((section, si) => (
                 <div key={si} className="u-mb">
                     <div className="section-label-sm">
                         {section.title || t('teacher.exams.sectionN', { n: si + 1 })}
@@ -116,8 +124,8 @@ export function ExamPaperReviewModal({ paper, onClose, onDecided }) {
                         <p className="u-sm u-muted">{section.instructions}</p>
                     )}
 
-                    {(section.questions || []).map(q => {
-                        number += 1
+                    {(section.questions || []).map((q, qi) => {
+                        const number = firstNumberInSection[si] + qi
                         return (
                             <div key={q.id ?? number} className="quiz-review-q">
                                 <div className="quiz-review-q-head">

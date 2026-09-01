@@ -2,6 +2,7 @@ import axios from 'axios'
 import {
     cachePut, cacheGet, isQueueable, enqueue, initOfflineSync,
 } from '../offline'
+import { setSubscriptionStatus } from './subscriptionState'
 
 // When VITE_API_BASE is defined (even as an empty string) we honour it verbatim.
 // An empty string means "same origin" — used by the containerized multi-tenant
@@ -50,6 +51,12 @@ function _markFromCache(data, savedAt) {
 // RESPONSE — unwrap data on success; silently refresh the access token on 401
 client.interceptors.response.use(
     response => {
+        // The school's standing, as of this response. Set on every reply for a
+        // past-due or read-only school, absent otherwise -- so an absent header
+        // clears it and a reactivated school stops being nagged without a
+        // reload. Read by the banner in DashboardContent.
+        setSubscriptionStatus(response.headers?.['x-subscription-status'])
+
         // Keep the last good copy of every GET so reads work offline
         const cfg = response.config
         if (cfg?.method === 'get' && cfg.url && !NEVER_CACHE.test(cfg.url)) {

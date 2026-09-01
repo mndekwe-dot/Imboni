@@ -1,3 +1,4 @@
+import acceptInvite from './acceptInvite.json'
 import account from './account.json'
 import admin from './admin.json'
 import announcements from './announcements.json'
@@ -25,11 +26,13 @@ import roles from './roles.json'
 import settings from './settings.json'
 import sidebar from './sidebar.json'
 import student from './student.json'
+import subscription from './subscription.json'
 import teacher from './teacher.json'
 import terms from './terms.json'
 import welcome from './welcome.json'
 
 export default {
+    acceptInvite,
     account,
     admin,
     announcements,
@@ -57,6 +60,7 @@ export default {
     settings,
     sidebar,
     student,
+    subscription,
     teacher,
     terms,
     welcome,

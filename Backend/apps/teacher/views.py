@@ -1,5 +1,6 @@
 import logging
 from datetime import date, timedelta
+from django.db import transaction
 from django.db.models import Avg, Count, Max, Q
 from django.utils import timezone
 from rest_framework import generics, viewsets, permissions, status
@@ -1314,26 +1315,31 @@ class TeacherBulkSaveResultsView(APIView):
         if not _teacher_teaches_class(_get_teacher(request), d['class_id'], term):
             return Response({'detail': 'You do not teach this class.'}, status=status.HTTP_403_FORBIDDEN)
 
+        # One transaction for the whole class. Django runs in autocommit and
+        # ATOMIC_REQUESTS is not set, so without this each row committed on its
+        # own: a failure on student 20 of 40 left the class half-marked, with a
+        # 500 and no way for the teacher to see which marks had landed.
         saved = 0
-        for entry in d['entries']:
-            max_s  = d['max_score']
-            score  = entry['score_obtained']
-            pct    = round(score / max_s * 100, 2) if max_s else 0
-            Assessment.objects.update_or_create(
-                student_id=entry['student_id'],
-                subject_id=d['subject_id'],
-                term=term,
-                title=d['assessment_title'],
-                defaults={
-                    'assessment_type': d['assessment_type'],
-                    'date':            d['date'],
-                    'max_score':       max_s,
-                    'score_obtained':  score,
-                    'percentage':      pct,
-                    'teacher_notes':   entry.get('notes', ''),
-                },
-            )
-            saved += 1
+        with transaction.atomic():
+            for entry in d['entries']:
+                max_s  = d['max_score']
+                score  = entry['score_obtained']
+                pct    = round(score / max_s * 100, 2) if max_s else 0
+                Assessment.objects.update_or_create(
+                    student_id=entry['student_id'],
+                    subject_id=d['subject_id'],
+                    term=term,
+                    title=d['assessment_title'],
+                    defaults={
+                        'assessment_type': d['assessment_type'],
+                        'date':            d['date'],
+                        'max_score':       max_s,
+                        'score_obtained':  score,
+                        'percentage':      pct,
+                        'teacher_notes':   entry.get('notes', ''),
+                    },
+                )
+                saved += 1
 
         return Response({'saved': saved}, status=status.HTTP_200_OK)
 

@@ -23,10 +23,18 @@ kinds of users exist:
   the *school's subdomain* (`greenhills.example.com`).
 - **Platform operators** (the vendor) — a separate console on the *bare
   domain* for onboarding applications, contracts, revenue/expenses, support,
-  and platform health.
+  platform health, an audit trail of operator actions, and the operator roster.
+  Operators hold one of three roles — `support`, `commercial`, `operations` —
+  which nest: reading is open to all of them, writing narrows by desk, and
+  `operations` (provision, restrict, suspend, manage operators) additionally
+  requires an enrolled second factor.
 
-A school signs up (self-serve `/signup` or operator-approved `/apply`), a
-background job provisions its schema, and its admin invites staff, students,
+A school arrives by one of two doors. Self-serve `/signup` creates a **demo**
+tenant with an end date (`Client.is_demo`, `demo_expires_on`) that expires on
+its own; `/apply` records an application an operator reviews and provisions.
+Provisioning creates the school's admin with **no usable password** and emails
+a single-use, expiring invitation link instead, so no credential ever passes
+through an operator's hands. Its admin then invites staff, students,
 and parents — there is **no open registration**; every account starts as an
 invitation.
 
@@ -114,6 +122,10 @@ or the daily contract-lifecycle beat task.
   (`IsDOS`, `IsDOSOrAdmin`, `IsTeacherOrDOS`, …) — one per role combination.
 - Platform endpoints are public-schema only and require the `platform` JWT
   claim — school tokens are rejected and vice versa; they 404 on subdomains.
+  The operator's role is re-read from the database on every request rather than
+  trusted from the token, so a demotion takes effect immediately. Every
+  operator write is recorded in `PlatformAuditLog` (public schema, read-only by
+  route — there is no create/update/delete endpoint for it).
 
 ### 3.3 Authentication model
 

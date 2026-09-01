@@ -19,6 +19,7 @@ import '../i18n'
 import { resetSchoolConfigCache } from '../hooks/schoolConfigCache'
 import { resetLibraryFeatureCache } from '../hooks/libraryFeatureCache'
 import { resetFinanceFeatureCache } from '../hooks/financeFeatureCache'
+import { resetSubscriptionStatus } from '../api/subscriptionState'
 
 // jsdom implements neither Element.scrollTo nor window.scrollTo. Components that
 // scroll a list/window (e.g. dashboard "load more") call it from a post-render
@@ -52,4 +53,8 @@ afterEach(() => {
   // next one unable to see the upgrade notice.
   resetLibraryFeatureCache()
   resetFinanceFeatureCache()
+  // The school's billing standing is module-scope too, and it is set from a
+  // response header, so a test whose fixture returned 'read_only' would leave
+  // the banner up for every test after it.
+  resetSubscriptionStatus()
 })

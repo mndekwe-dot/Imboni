@@ -64,6 +64,11 @@ playwright-report/
 test-results/
 blob-report/
 playwright/.cache/
+
+# Vitest coverage output (Frontend/coverage/) — a build artifact, regenerated
+# by `npm run test:coverage`. Committing it puts thousands of generated HTML
+# files in every diff.
+coverage/
 DEPLOY_ORACLE.md
 ORACLE_FREE_SETUP.md
 ORACLE_SETUP.md

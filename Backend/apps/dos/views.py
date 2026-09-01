@@ -1,5 +1,6 @@
 from datetime import timedelta
 from django.core.exceptions import ValidationError as DjangoValidationError
+import logging
 from django.db import transaction
 from django.utils import timezone
 from django.db.models import Avg, Q
@@ -8,6 +9,8 @@ from rest_framework.response import Response
 
 from apps.authentication.models import User  # used for teaching_staff count
 from apps.authentication.permissions import IsDOS,IsDOSOrAdmin,IsTeacherOrDOS,IsDOSOrAdminOrDiscipline
+
+logger = logging.getLogger(__name__)
 from apps.results.models import AcademicTerm, Result
 from apps.student.models import Student
 from apps.tenants.limits import enforce_capacity, remaining_seats
@@ -2290,14 +2293,39 @@ class SubjectCategoryRenameView(APIView):
         deleted, _ = Subject.objects.filter(category=name).delete()
         return Response({'deleted': deleted})
     
+def _create_invitation(inviter, **fields):
+    """
+    Create one invitation and return ``(invitation, raw_token)``.
+
+    The raw token is handed back once, for the link; only its SHA-256 is stored.
+    Shared by the single and bulk student/parent invite paths so the token rules
+    live in one place — see apps/authentication/invites.py for why the previous
+    `default_token_generator.make_token(inviter)` scheme could not work.
+    """
+    from django.utils.http import urlsafe_base64_encode
+    from django.utils.encoding import force_bytes
+    from apps.authentication import invites
+    from apps.authentication.models import Invitation
+
+    raw_token = invites.new_token()
+    with transaction.atomic():
+        invitation = Invitation.objects.create(
+            invited_by=inviter,
+            expires_at=invites.default_expiry(),
+            token_hash=invites.hash_token(raw_token),
+            uid='',
+            **fields,
+        )
+        invitation.uid = urlsafe_base64_encode(force_bytes(invitation.pk))
+        invitation.save(update_fields=['uid'])
+    return invitation, raw_token
+
+
 class StudentInviteView(APIView):
     permission_classes=[IsDOSOrAdmin]
-    
+
     def post(self,request):
         from django.conf import settings
-        from django.contrib.auth.tokens import default_token_generator
-        from django.utils.http import urlsafe_base64_encode
-        from django.utils.encoding import force_bytes
         from apps.authentication.models import Invitation
         from apps.authentication.service import dispatch_invitation
 
@@ -2356,48 +2384,39 @@ class StudentInviteView(APIView):
         # against the plan before we send one (parent invites are not metered).
         enforce_capacity('students')
 
-        expires_at= timezone.now()+timedelta(days=settings.INVITATION_EXPIRY_DAYS)
         results={}
 
-        # Send student invitation
-        student_inv = Invitation.objects.create(
-            first_name=s_first,last_name=s_last,email=s_email,
-            role='student',invited_by=request.user,
-            expires_at=expires_at,token='pending',uid='pending',
-            class_obj=class_obj,
-        )   
-        uid=urlsafe_base64_encode(force_bytes(student_inv.pk))
-        token=default_token_generator.make_token(request.user)
-        student_inv.uid=uid
-        student_inv.token=token
-        student_inv.save()
-        link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
-        channels =dispatch_invitation(student_inv,link)
-        student_inv.channels_sent=channels
-        student_inv.delivery_status='sent' if channels else 'failed'
-        student_inv.save()
+        # This pair is the clearest case of why the old scheme could not work:
+        # student and parent were invited in the same request, by the same
+        # inviter, in the same second — so make_token() returned the SAME string
+        # twice and the second save hit the unique constraint. Each invitation
+        # now carries its own random token.
+        student_inv, s_raw = _create_invitation(
+            request.user,
+            first_name=s_first, last_name=s_last, email=s_email,
+            role='student', class_obj=class_obj,
+        )
+        link = f"{settings.FRONTEND_URL}/register/{student_inv.uid}/{s_raw}/"
+        channels = dispatch_invitation(student_inv, link)
+        student_inv.channels_sent = channels
+        student_inv.delivery_status = 'sent' if channels else 'failed'
+        student_inv.save(update_fields=['channels_sent', 'delivery_status'])
         results['student']={'email':s_email,'channels':channels}
 
         # Send parent invitation
         # linked_email stores the student's email so we can auto-link them
         # when the parent completes registration
-        parent_inv = Invitation.objects.create(
-            first_name=p_first,last_name=p_last,
-            email=p_email,phone_number=p_phone,
-            role='parent',invited_by=request.user,
-            expires_at=expires_at,token='pending',uid='pending',
-            linked_email=s_email,
+        parent_inv, p_raw = _create_invitation(
+            request.user,
+            first_name=p_first, last_name=p_last,
+            email=p_email, phone_number=p_phone,
+            role='parent', linked_email=s_email,
         )
-        uid=urlsafe_base64_encode(force_bytes(parent_inv.pk))
-        token=default_token_generator.make_token(request.user)
-        parent_inv.uid=uid
-        parent_inv.token=token
-        parent_inv.save()
-        link=f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
-        channels=dispatch_invitation(parent_inv,link)
-        parent_inv.channels_sent=channels
-        parent_inv.delivery_status='sent' if channels else 'failed'
-        parent_inv.save()
+        link = f"{settings.FRONTEND_URL}/register/{parent_inv.uid}/{p_raw}/"
+        channels = dispatch_invitation(parent_inv, link)
+        parent_inv.channels_sent = channels
+        parent_inv.delivery_status = 'sent' if channels else 'failed'
+        parent_inv.save(update_fields=['channels_sent', 'delivery_status'])
         results['parent']={'contact':p_email or p_phone, 'channels':channels}
 
         return Response(
@@ -2423,10 +2442,6 @@ class StudentBulkInviteView(APIView):
     def post(self, request):
         import csv, io
         from django.conf import settings
-        from django.contrib.auth.tokens import default_token_generator
-        from django.utils.http import urlsafe_base64_encode
-        from django.utils.encoding import force_bytes
-        from apps.authentication.models import Invitation
         from apps.authentication.service import dispatch_invitation
 
         file = request.FILES.get('file')
@@ -2451,7 +2466,6 @@ class StudentBulkInviteView(APIView):
                 status=http_status.HTTP_400_BAD_REQUEST
             )
 
-        expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
         created = 0
         errors  = []
         slots   = remaining_seats('students')  # None => unlimited; each row reserves one seat
@@ -2499,46 +2513,38 @@ class StudentBulkInviteView(APIView):
                 row_class_obj = Class.objects.filter(grade=grade, section=stream).first()
 
             try:
-                student_inv = Invitation.objects.create(
+                student_inv, s_raw = _create_invitation(
+                    request.user,
                     first_name=s_first, last_name=s_last, email=s_email,
-                    role='student', invited_by=request.user,
-                    expires_at=expires_at, token='pending', uid='pending',
-                    class_obj=row_class_obj,
+                    role='student', class_obj=row_class_obj,
                 )
-                uid   = urlsafe_base64_encode(force_bytes(student_inv.pk))
-                token = default_token_generator.make_token(request.user)
-                student_inv.uid   = uid
-                student_inv.token = token
-                student_inv.save()
-                link     = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+                link     = f"{settings.FRONTEND_URL}/register/{student_inv.uid}/{s_raw}/"
                 channels = dispatch_invitation(student_inv, link)
                 student_inv.channels_sent   = channels
                 student_inv.delivery_status = 'sent' if channels else 'failed'
-                student_inv.save()
+                student_inv.save(update_fields=['channels_sent', 'delivery_status'])
 
-                parent_inv = Invitation.objects.create(
+                parent_inv, p_raw = _create_invitation(
+                    request.user,
                     first_name=p_first, last_name=p_last,
                     email=p_email, phone_number=p_phone,
-                    role='parent', invited_by=request.user,
-                    expires_at=expires_at, token='pending', uid='pending',
-                    linked_email=s_email,
+                    role='parent', linked_email=s_email,
                 )
-                uid   = urlsafe_base64_encode(force_bytes(parent_inv.pk))
-                token = default_token_generator.make_token(request.user)
-                parent_inv.uid   = uid
-                parent_inv.token = token
-                parent_inv.save()
-                link     = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+                link     = f"{settings.FRONTEND_URL}/register/{parent_inv.uid}/{p_raw}/"
                 channels = dispatch_invitation(parent_inv, link)
                 parent_inv.channels_sent   = channels
                 parent_inv.delivery_status = 'sent' if channels else 'failed'
-                parent_inv.save()
+                parent_inv.save(update_fields=['channels_sent', 'delivery_status'])
 
                 created += 1
                 if slots is not None:
                     slots -= 1
-            except Exception as e:
-                errors.append({'row': row_num, 'error': str(e)})
+            except Exception:
+                # str(e) leaked raw database errors (including, on a unique
+                # violation, the conflicting token) into the response.
+                logger.exception('Bulk student/parent invite failed on row %s', row_num)
+                errors.append({'row': row_num,
+                               'error': 'Could not create this invitation. Check the row and retry.'})
 
         code = http_status.HTTP_201_CREATED if created else http_status.HTTP_400_BAD_REQUEST
         return Response({'created': created, 'failed': len(errors), 'errors': errors}, status=code)

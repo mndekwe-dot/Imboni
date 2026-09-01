@@ -53,13 +53,19 @@ def _ensure_user(schema_name, username, email, pk=None):
 
 
 def _access_token(schema_name, user_id):
-    """Mint an access token for a user, resolved inside that user's own schema."""
-    from rest_framework_simplejwt.tokens import AccessToken
+    """
+    Mint an access token for a user, resolved inside that user's own schema.
 
+    Minted through `tokens_for_user` rather than `AccessToken.for_user`, so
+    the token carries the `schema` claim the consumer now insists on — the
+    same way a real login issues it. A bare AccessToken has no claim and is
+    refused, which is the point of the check.
+    """
     from apps.authentication.models import User
+    from apps.authentication.tokens import tokens_for_user
     with schema_context(schema_name):
         user = User.objects.get(pk=user_id)
-        return str(AccessToken.for_user(user))
+        return str(tokens_for_user(user).access_token)
 
 
 @pytest.fixture(scope='session')

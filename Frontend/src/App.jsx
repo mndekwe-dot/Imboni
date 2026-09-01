@@ -21,8 +21,11 @@ import { Apply } from './pages/Apply';
 import { RevenueSection } from './pages/Platform/sections/RevenueSection';
 import { ExpensesSection } from './pages/Platform/sections/ExpensesSection';
 import { TicketsSection } from './pages/Platform/sections/TicketsSection';
+import { ActivitySection } from './pages/Platform/sections/ActivitySection';
+import { OperatorsSection } from './pages/Platform/sections/OperatorsSection';
 import { HealthSection } from './pages/Platform/sections/HealthSection';
 import { ResetPassword } from './pages/ResetPassword';
+import { AcceptInvite } from './pages/AcceptInvite';
 import { Signup } from './pages/Signup';
 import { TeacherRegistration } from './pages/TeacherRegistration';
 // Public marketing pages. Eager like the other entry-path pages: a visitor
@@ -194,6 +197,10 @@ function App() {
       <Route path="/find-school" element={<FindSchool />} />
       <Route path="/login" element={<LogIn />} />
       <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+      {/* Where a newly provisioned school lands from its invitation email.
+          Served on the school's own domain, unauthenticated: the account
+          exists but has no usable password until this page sets one. */}
+      <Route path="/accept-invite" element={<AcceptInvite />} />
 
       {/* ── Portal-specific login pages ── */}
       <Route path="/login/student" element={
@@ -250,7 +257,9 @@ function App() {
       <Route path="/platform/revenue" element={<PlatformLayout title="Revenue" subtitle="Payments received from schools"><RevenueSection /></PlatformLayout>} />
       <Route path="/platform/expenses" element={<PlatformLayout title="Expenses" subtitle="Services & bills you pay for"><ExpensesSection /></PlatformLayout>} />
       <Route path="/platform/support" element={<PlatformLayout title="Support" subtitle="Tickets raised by schools"><TicketsSection /></PlatformLayout>} />
+      <Route path="/platform/activity" element={<PlatformLayout title="Activity" subtitle="Who did what, above the schools"><ActivitySection /></PlatformLayout>} />
       <Route path="/platform/health" element={<PlatformLayout title="Health" subtitle="Health of all of Imboni"><HealthSection /></PlatformLayout>} />
+      <Route path="/platform/operators" element={<PlatformLayout title="Operators" subtitle="Who works here, and what they may do"><OperatorsSection /></PlatformLayout>} />
 
       {/* ── Public registration routes ── */}
       <Route path="/register/:uid/:token" element={<TeacherRegistration />} />

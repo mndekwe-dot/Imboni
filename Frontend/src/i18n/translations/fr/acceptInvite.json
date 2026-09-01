@@ -1,0 +1,17 @@
+{
+  "checking": "Vérification de votre lien…",
+  "confirm": "Confirmez le mot de passe",
+  "deadBody": "Ce lien a expiré ou a déjà été utilisé. Demandez-nous de vous en envoyer un nouveau.",
+  "deadTitle": "Ce lien ne fonctionne plus",
+  "password": "Choisissez un mot de passe",
+  "ruleLength": "Au moins 8 caractères",
+  "ruleMatch": "Les deux mots de passe correspondent",
+  "ruleSpecial": "Contient un caractère spécial",
+  "saving": "Enregistrement de votre mot de passe…",
+  "submit": "Définir le mot de passe et continuer",
+  "subtitle": "Vous définissez le mot de passe de {{email}}. Personne d'autre n'en possède un pour ce compte.",
+  "title": "Configurez le compte de votre école",
+  "titleNamed": "Configurez {{school}} sur Imboni",
+  "toSignIn": "Aller à la connexion",
+  "toggleVisibility": "Afficher ou masquer le mot de passe"
+}

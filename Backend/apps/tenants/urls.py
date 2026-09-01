@@ -19,15 +19,24 @@ Resulting endpoints:
     GET  /imboni/platform/auth/me/                 — current platform operator
     GET  /imboni/platform/schools/                 — list schools
     GET  /imboni/platform/schools/<pk>/            — retrieve a school
+    POST /imboni/platform/schools/<pk>/restrict/   — put a school read-only
     POST /imboni/platform/schools/<pk>/suspend/    — suspend a school
     POST /imboni/platform/schools/<pk>/reactivate/ — reactivate a school
+    GET  /imboni/platform/audit/                   — who did what (read-only)
+    ---- /imboni/platform/operators/               — the operator roster
+
+Access is split by operator role (support / commercial / operations) — see
+`platform_auth.py`. Reading stays wide; writing narrows by desk.
 """
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
 from . import platform_ops
-from .platform_auth import PlatformLoginView, PlatformMeView
+from .platform_auth import (
+    PlatformLoginView, PlatformMeView, PlatformMfaConfirmView,
+    PlatformMfaSetupView, PlatformMfaVerifyView,
+)
 
 router = DefaultRouter()
 router.register(r'platform/schools', views.SchoolViewSet, basename='platform-school')
@@ -38,10 +47,18 @@ router.register(r'platform/tickets', platform_ops.SupportTicketViewSet, basename
 # Phase 7 — school applications (intake -> review -> provision) + contracts.
 router.register(r'platform/applications', platform_ops.ApplicationViewSet, basename='platform-application')
 router.register(r'platform/contracts', platform_ops.ContractViewSet, basename='platform-contract')
+# Accountability + who works here. The audit log is read-only by route as
+# well as by policy: there is no write endpoint for it anywhere.
+router.register(r'platform/audit', platform_ops.AuditLogViewSet, basename='platform-audit')
+router.register(r'platform/operators', platform_ops.OperatorViewSet, basename='platform-operator')
 
 urlpatterns = [
     path('platform/auth/login/', PlatformLoginView.as_view(), name='platform-login'),
     path('platform/auth/me/', PlatformMeView.as_view(), name='platform-me'),
+    # Second factor: verify completes a login, setup/confirm enrol one.
+    path('platform/auth/mfa/verify/', PlatformMfaVerifyView.as_view(), name='platform-mfa-verify'),
+    path('platform/auth/mfa/setup/', PlatformMfaSetupView.as_view(), name='platform-mfa-setup'),
+    path('platform/auth/mfa/confirm/', PlatformMfaConfirmView.as_view(), name='platform-mfa-confirm'),
     path('platform/summary/', platform_ops.PlatformSummaryView.as_view(), name='platform-summary'),
     path('platform/health/', platform_ops.PlatformHealthView.as_view(), name='platform-health'),
     *router.urls,

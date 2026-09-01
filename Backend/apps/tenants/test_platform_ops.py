@@ -25,9 +25,16 @@ def _public():
     return schema_context(get_public_schema_name())
 
 
-def platform_admin(email='ops@imboni.com'):
+def platform_admin(email='ops@imboni.com', role=PlatformUser.ROLE_OPERATIONS,
+                   mfa=True):
+    """
+    An operator. Defaults to operations-with-MFA -- what every operator
+    effectively was before roles existed, so the tests written then still
+    describe the same actor. Role separation gets its own tests below.
+    """
     with _public():
-        pu = PlatformUser(email=email, name='Ops')
+        pu = PlatformUser(email=email, name='Ops', role=role, mfa_enabled=mfa,
+                          mfa_secret='JBSWY3DPEHPK3PXP' if mfa else '')
         pu.set_password('PlatformPass123!')
         pu.save()
     return pu
@@ -213,8 +220,11 @@ class TestApplications:
             resp = view(_authed('post', op), pk=str(app.id))
         assert resp.status_code == 201
         assert resp.data['status'] == 'provisioned'
-        assert resp.data['provisioned']['temp_password']
         assert resp.data['provisioned']['login_url'].endswith('/login/admin')
+        # No credential comes back any more -- an invitation goes to the school
+        # instead, and there is nothing for an operator to relay or to leak.
+        assert 'temp_password' not in resp.data['provisioned']
+        assert resp.data['provisioned']['invitation']['state'] in ('sent', 'pending')
 
 
 # ── Contracts + lifecycle (Phase 7.2) ─────────────────────────────────────────
@@ -270,7 +280,8 @@ class TestContracts:
             client.refresh_from_db()
         assert client.status == 'suspended'
 
-    def test_lifecycle_within_grace_leaves_school_active(self):
+    def test_lifecycle_within_grace_restricts_but_does_not_suspend(self):
+        """Inside grace the school goes read-only, not dark."""
         client = self._client(status='active')
         with _public():
             Contract.objects.create(client=client, title='recent',
@@ -279,9 +290,24 @@ class TestContracts:
                                     status='active', grace_days=14)
         result = enforce_contract_lifecycle()
         assert result['suspended'] == 0
+        assert result['restricted'] == 1
         with _public():
             client.refresh_from_db()
-        assert client.status == 'active'
+        assert client.status == 'read_only'
+
+    def test_restriction_is_not_reapplied_to_a_suspended_school(self):
+        """Grace must never quietly un-suspend a school that is already off."""
+        client = self._client(status='suspended')
+        with _public():
+            Contract.objects.create(client=client, title='recent',
+                                    start_date=timezone.localdate() - timedelta(days=400),
+                                    end_date=timezone.localdate() - timedelta(days=5),
+                                    status='active', grace_days=14)
+        result = enforce_contract_lifecycle()
+        assert result['restricted'] == 0
+        with _public():
+            client.refresh_from_db()
+        assert client.status == 'suspended'
 
 
 # ── School overview (Phase 7.3) ───────────────────────────────────────────────

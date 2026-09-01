@@ -34,23 +34,41 @@ ALWAYS_ALLOWED_PREFIXES = (
     '/django-admin/',   # Django admin — staff must always be able to intervene.
 )
 
+# Paths that must keep WORKING while a school is read-only, even though they are
+# writes. A restricted school is one we are pressuring to pay, not one we are
+# trying to trap: it has to be able to settle up, ask for help, and take its
+# data with it.
+#
+#   /imboni/support/  -> raise a ticket ("why are we restricted?")
+#   /imboni/export/   -> download your own records
+RESTRICTED_WRITE_ALLOWED_PREFIXES = ALWAYS_ALLOWED_PREFIXES + (
+    '/imboni/support/',
+    '/imboni/export/',
+)
+
+# HTTP methods that only read. Everything else changes something.
+SAFE_METHODS = frozenset({'GET', 'HEAD', 'OPTIONS'})
+
 # Decision outcomes returned by the pure helper.
-ALLOW = 'allow'   # let the request through untouched
-BLOCK = 'block'   # reject with HTTP 402 Payment Required
-WARN = 'warn'     # let it through, but flag the response so the UI can nag
+ALLOW = 'allow'      # let the request through untouched
+BLOCK = 'block'      # reject with HTTP 402 Payment Required
+WARN = 'warn'        # let it through, but flag the response so the UI can nag
+READ_ONLY = 'read_only'   # reads pass, writes are refused with 402
 
 
-def subscription_decision(schema_name, status, path):
+def subscription_decision(schema_name, status, path, method='GET'):
     """
     Pure decision function — no DB, no request object, trivially testable.
 
     Args:
         schema_name: the resolved schema (`connection.schema_name`).
         status: the tenant's billing status ('trial'/'active'/'past_due'/
-            'suspended'), or None if unknown.
+            'read_only'/'suspended'), or None if unknown.
         path: the request path, e.g. '/imboni/results/'.
+        method: the HTTP method. Only `read_only` cares, but it must be
+            passed for that state to mean anything.
 
-    Returns one of ALLOW / BLOCK / WARN.
+    Returns one of ALLOW / BLOCK / WARN / READ_ONLY.
     """
     # The public (marketing / signup) schema has no subscription to enforce.
     if schema_name == get_public_schema_name():
@@ -60,6 +78,16 @@ def subscription_decision(schema_name, status, path):
     # prefixes, so it can still log in and pay to reactivate.
     if status == 'suspended':
         if path.startswith(ALWAYS_ALLOWED_PREFIXES):
+            return ALLOW
+        return BLOCK
+
+    # Read-only: the whole school still opens and every record is still
+    # readable. Writes are refused, apart from the ones that let a school pay,
+    # ask why, or export what is theirs.
+    if status == 'read_only':
+        if (method or 'GET').upper() in SAFE_METHODS:
+            return READ_ONLY
+        if path.startswith(RESTRICTED_WRITE_ALLOWED_PREFIXES):
             return ALLOW
         return BLOCK
 
@@ -93,26 +121,35 @@ class SubscriptionStatusMiddleware:
         tenant = getattr(connection, 'tenant', None)
         status = getattr(tenant, 'status', None) if tenant is not None else None
 
-        decision = subscription_decision(schema_name, status, request.path)
+        decision = subscription_decision(schema_name, status, request.path,
+                                         request.method)
 
         if decision == BLOCK:
+            restricted = status == 'read_only'
             return JsonResponse(
                 {
                     'detail': (
+                        'This school is read-only while its account is settled. '
+                        'You can still open and export everything, but new '
+                        'entries cannot be saved until it is reactivated.'
+                        if restricted else
                         'This school account is suspended for non-payment. '
                         'Please log in and settle the outstanding balance to '
                         'restore access.'
                     ),
-                    'code': 'subscription_suspended',
+                    'code': 'subscription_read_only' if restricted
+                            else 'subscription_suspended',
                 },
                 status=402,  # 402 Payment Required
             )
 
         response = self.get_response(request)
 
+        # One header, whatever the state, so the frontend has a single thing to
+        # read rather than a special case per status.
         if decision == WARN:
-            # Let the frontend surface an overdue-payment banner without
-            # blocking any functionality yet.
             response['X-Subscription-Status'] = 'past_due'
+        elif decision == READ_ONLY:
+            response['X-Subscription-Status'] = 'read_only'
 
         return response

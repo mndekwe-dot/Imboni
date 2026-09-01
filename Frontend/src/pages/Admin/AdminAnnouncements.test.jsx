@@ -156,8 +156,12 @@ describe('AdminAnnouncements', () => {
     await waitFor(() => expect(screen.getByText('Term 2 Conference')).toBeInTheDocument())
 
     fireEvent.click(screen.getAllByTitle('Delete')[0])
-    expect(screen.getByText('Delete Announcement?')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Delete/ }))
+    const confirm = screen.getByText('Delete Announcement?').closest('.modal-confirm')
+    expect(confirm).toBeInTheDocument()
+    // Scoped to the dialog: every card behind it still has its own Delete
+    // button, and each one has carried an accessible name since the a11y pass,
+    // so an unscoped /Delete/ matches four buttons rather than this one.
+    fireEvent.click(within(confirm).getByRole('button', { name: /Delete/ }))
 
     await waitFor(() => expect(deleteAdminAnnouncement).toHaveBeenCalledWith(1))
   })
