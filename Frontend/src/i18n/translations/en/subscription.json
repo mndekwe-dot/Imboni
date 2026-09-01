@@ -1,0 +1,10 @@
+{
+  "pastDue": {
+    "body": "Your school's latest payment did not go through. Settle it to avoid losing access.",
+    "title": "Payment overdue"
+  },
+  "readOnly": {
+    "body": "You can open and export everything as usual, but nothing new can be saved until the school's account is settled. Contact your school office.",
+    "title": "This school is read-only"
+  }
+}

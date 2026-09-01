@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Modal } from '../../../components/ui/Modal'
 import {
     getApplications, approveApplication, rejectApplication, provisionApplication,
+    operatorCan, resendInvitation,
 } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
@@ -24,13 +25,17 @@ function ReviewModal({ app, onClose, onChanged }) {
     const toast = useToast()
     const [notes, setNotes] = useState(app.review_notes || '')
     const [busy, setBusy]   = useState(false)
-    const [creds, setCreds] = useState(null)   // set after provisioning
+    // Set after provisioning. Note what it does NOT contain: a password. The
+    // school chooses its own from a one-time link, so there is nothing here for
+    // an operator to copy into an email, and nothing to leak.
+    const [result, setResult] = useState(null)
+    const canOperate = operatorCan('operations')
 
     async function run(fn, okMsg) {
         setBusy(true)
         try {
             const updated = await fn()
-            if (updated.provisioned) setCreds(updated.provisioned)
+            if (updated.provisioned) setResult(updated.provisioned)
             toast.success(okMsg)
             onChanged(updated)
             if (!updated.provisioned) onClose()
@@ -39,7 +44,7 @@ function ReviewModal({ app, onClose, onChanged }) {
     }
 
     let footer = null
-    if (!creds) {
+    if (!result) {
         if (app.status === 'pending') {
             footer = (
                 <>
@@ -47,10 +52,22 @@ function ReviewModal({ app, onClose, onChanged }) {
                     <button className="btn btn-primary" disabled={busy} onClick={() => run(() => approveApplication(app.id, notes), 'Application approved.')}>Approve</button>
                 </>
             )
-        } else if (app.status === 'approved') {
+        } else if (app.status === 'approved' && canOperate) {
             footer = (
-                <button className="btn btn-primary" disabled={busy} onClick={() => run(() => provisionApplication(app.id), 'School provisioned.')}>
+                <button className="btn btn-primary" disabled={busy} onClick={() => run(() => provisionApplication(app.id), 'School provisioned. Invitation sent.')}>
                     {busy ? 'Provisioning…' : 'Provision school'}
+                </button>
+            )
+        } else if (app.status === 'provisioned' && canOperate) {
+            // The one recovery an operator needs: a link that expired, or an
+            // email that bounced.
+            footer = (
+                <button className="btn btn-outline" disabled={busy}
+                        onClick={() => run(async () => {
+                            await resendInvitation(app.id)
+                            return app
+                        }, 'A fresh invitation is on its way.')}>
+                    {busy ? 'Sending…' : 'Re-send invitation'}
                 </button>
             )
         }
@@ -71,13 +88,26 @@ function ReviewModal({ app, onClose, onChanged }) {
             </div>
             {app.message && <p className="pf-pre">{app.message}</p>}
 
-            {creds ? (
+            {result ? (
                 <div className="pf-callout pf-mt">
-                    <p className="pf-field-value pf-mb">School provisioned ✓. Share these credentials:</p>
-                    <Field label="Login URL" value={creds.login_url} />
-                    <Field label="Admin email" value={creds.admin_email} />
-                    <Field label="Temporary password" value={creds.temp_password} />
-                    <p className="pf-hint">The school should change this password on first sign-in.</p>
+                    <p className="pf-field-value pf-mb">
+                        {result.invitation?.delivered
+                            ? 'School provisioned. We have emailed them a link to set their own password.'
+                            : 'School provisioned, but the invitation email could not be sent.'}
+                    </p>
+                    <Field label="Login URL" value={result.login_url} />
+                    <Field label="Invitation sent to" value={result.admin_email} />
+                    {result.invitation?.delivered ? (
+                        <p className="pf-hint">
+                            The link works once and expires. Nobody can sign in until
+                            they open it, so there is nothing for you to pass on.
+                        </p>
+                    ) : (
+                        <p className="pf-hint platform-danger">
+                            {result.invitation?.delivery_error || 'The mail server refused it.'}
+                            {' '}Use Re-send invitation once it is working.
+                        </p>
+                    )}
                 </div>
             ) : app.status === 'pending' || app.status === 'approved' ? (
                 <label className="pf-field pf-mt">

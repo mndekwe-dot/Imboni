@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 
 from apps.student.models import Student, Fee, StudentDocument
-from .models import ParentStudentRelationship
+from .models import ParentLinkRequest, ParentStudentRelationship
 
 
 class ParentStudentRelationshipSerializer(serializers.ModelSerializer):
@@ -128,3 +128,23 @@ class AddParentToStudentSerializer(serializers.Serializer):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError({"password": "Passwords didn't match."})
         return attrs
+
+
+class ParentLinkRequestSerializer(serializers.ModelSerializer):
+    """The approval queue row: who is asking to be linked to which child."""
+    parent_name = serializers.CharField(source='parent.get_full_name', read_only=True)
+    parent_email = serializers.EmailField(source='parent.email', read_only=True)
+    student_name = serializers.CharField(source='student.full_name', read_only=True)
+    student_code = serializers.CharField(source='student.student_id', read_only=True)
+    decided_by_name = serializers.CharField(source='decided_by.get_full_name',
+                                            read_only=True, default=None)
+
+    class Meta:
+        model = ParentLinkRequest
+        fields = [
+            'id', 'parent_name', 'parent_email', 'student_name', 'student_code',
+            'relationship_type', 'is_primary_contact', 'can_pickup',
+            'status', 'decided_by_name', 'decided_at', 'decision_note',
+            'created_at',
+        ]
+        read_only_fields = fields

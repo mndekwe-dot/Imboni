@@ -10,11 +10,14 @@ from apps.authentication.models import User, UserPreferences
 from apps.authentication.permissions import IsDOSOrAdmin, IsParent
 from apps.authentication.serializers import UserSerializer
 from apps.student.models import Student, Fee, StudentDocument
-from .models import ParentStudentRelationship
+from rest_framework.throttling import ScopedRateThrottle
+from apps.audit.services import audit
+from .models import ParentLinkRequest, ParentStudentRelationship
 from .serializers import (
     StudentSerializer, ParentStudentRelationshipSerializer,
     AddParentToStudentSerializer, MyChildrenSerializer,
     FeeSerializer, StudentDocumentSerializer, LinkStudentSerializer,
+    ParentLinkRequestSerializer,
 )
 
 
@@ -430,6 +433,11 @@ class LinkStudentView(generics.CreateAPIView):
     """
     serializer_class = LinkStudentSerializer
     permission_classes = [IsParent]
+    # The "already linked" reply distinguishes a real student code from a bad
+    # one, so without a cap this doubles as an enumeration oracle over the
+    # school roll.
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'link_student'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(
@@ -439,30 +447,117 @@ class LinkStudentView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         student = serializer.context['student']
-        parent = request.user if request.user.is_authenticated else (
-            User.objects.filter(role='parent').first()
-        )
+        # `request.user` is guaranteed by IsParent. The previous fallback here
+        # picked an arbitrary parent row when unauthenticated — dead code under
+        # this permission, but it would have silently attached the link to a
+        # stranger the moment the permission was relaxed.
+        parent = request.user
 
-        # Prevent duplicate links
         if ParentStudentRelationship.objects.filter(parent=parent, student=student).exists():
             return Response(
                 {'detail': 'You are already linked to this student.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        rel = ParentStudentRelationship.objects.create(
+        # A student code is printed on ID cards and report cards; it identifies
+        # a child, it does not authorise access to one. The request is queued
+        # for the school and grants nothing until a member of staff approves it.
+        link_request, created = ParentLinkRequest.objects.get_or_create(
             parent=parent,
             student=student,
-            relationship_type=serializer.validated_data['relationship_type'],
-            is_primary_contact=serializer.validated_data['is_primary_contact'],
-            can_pickup=serializer.validated_data['can_pickup'],
+            status=ParentLinkRequest.STATUS_PENDING,
+            defaults={
+                'relationship_type': serializer.validated_data['relationship_type'],
+                'is_primary_contact': serializer.validated_data['is_primary_contact'],
+                'can_pickup': serializer.validated_data['can_pickup'],
+            },
         )
 
-        from .serializers import MyChildrenSerializer
+        audit(parent, 'parent.link_requested',
+              target=student.student_id,
+              detail={'relationship': link_request.relationship_type,
+                      'duplicate': not created})
+
         return Response(
-            MyChildrenSerializer(rel).data,
-            status=status.HTTP_201_CREATED,
+            {'detail': ('Request sent. Your school will confirm this link '
+                        'before the record becomes visible.'),
+             'request_id': str(link_request.id),
+             'status': link_request.status},
+            status=status.HTTP_202_ACCEPTED,
         )
+
+
+class StaffLinkRequestListView(generics.ListAPIView):
+    """
+    GET /imboni/parents/link-requests/  — the approval queue.
+
+    Staff-only: this is the control that makes LinkStudentView safe.
+    """
+    serializer_class = ParentLinkRequestSerializer
+    permission_classes = [IsDOSOrAdmin]
+
+    def get_queryset(self):
+        qs = (ParentLinkRequest.objects
+              .select_related('parent', 'student__user')
+              .order_by('-created_at'))
+        state = self.request.query_params.get('status', ParentLinkRequest.STATUS_PENDING)
+        if state and state != 'all':
+            qs = qs.filter(status=state)
+        return qs
+
+
+class StaffLinkRequestDecideView(_APIView):
+    """
+    POST /imboni/parents/link-requests/<pk>/decide/
+    Body: { "decision": "approve" | "reject", "note": "" }
+
+    Approving is the ONLY path that creates a ParentStudentRelationship.
+    """
+    permission_classes = [IsDOSOrAdmin]
+
+    def post(self, request, pk):
+        decision = (request.data.get('decision') or '').strip().lower()
+        if decision not in ('approve', 'reject'):
+            return Response({'detail': "decision must be 'approve' or 'reject'."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            # Lock the row so two staff acting at once cannot both approve and
+            # create duplicate relationships.
+            link_request = (ParentLinkRequest.objects
+                            .select_for_update()
+                            .filter(pk=pk, status=ParentLinkRequest.STATUS_PENDING)
+                            .first())
+            if link_request is None:
+                return Response({'detail': 'No pending request with that id.'},
+                                status=status.HTTP_404_NOT_FOUND)
+
+            link_request.status = (ParentLinkRequest.STATUS_APPROVED
+                                   if decision == 'approve'
+                                   else ParentLinkRequest.STATUS_REJECTED)
+            link_request.decided_by = request.user
+            link_request.decided_at = timezone.now()
+            link_request.decision_note = (request.data.get('note') or '')[:255]
+            link_request.save(update_fields=['status', 'decided_by', 'decided_at',
+                                             'decision_note'])
+
+            if decision == 'approve':
+                ParentStudentRelationship.objects.get_or_create(
+                    parent=link_request.parent,
+                    student=link_request.student,
+                    defaults={
+                        'relationship_type': link_request.relationship_type,
+                        'is_primary_contact': link_request.is_primary_contact,
+                        'can_pickup': link_request.can_pickup,
+                    },
+                )
+
+        audit(request.user, f'parent.link_{link_request.status}',
+              target=link_request.student.student_id,
+              detail={'parent': link_request.parent.email})
+
+        return Response({'detail': f'Request {link_request.status}.',
+                         'status': link_request.status})
 
 
 
