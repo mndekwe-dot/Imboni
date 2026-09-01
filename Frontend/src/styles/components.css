@@ -2656,3 +2656,44 @@ tr:hover td {
 @media (max-width: 640px) {
   .badge-readonly { display: none; }
 }
+
+/* ── Class filter + document actions ──────────────────────────────────────────
+   Two small toolbar groups that appear on almost every list in the finance and
+   library portals. They live here rather than in either portal's stylesheet
+   because both use them, and a second copy is how the two portals drift apart.
+
+   No bottom margin on either: a control inside a toolbar does not set page
+   spacing. `.filter-tabs-bar` learnt this the hard way — its standalone margin
+   made every toolbar card 20px taller than the chips inside it. */
+.class-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+.class-filter-select {
+  width: auto;
+  min-width: 8rem;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+
+.doc-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+.doc-actions .material-symbols-rounded {
+  font-size: var(--icon-sm);
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  /* Buttons keep their labels; the row wraps instead. An icon-only Print is
+     the button people press by accident. */
+  .doc-actions { flex-wrap: wrap; }
+  .class-filter-select { flex: 1 1 8rem; }
+}
