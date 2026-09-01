@@ -83,7 +83,9 @@ def _send_welcome_email(admin_email, school_name, url, expires_on=None):
             fail_silently=True,
         )
     except Exception:
-        logger.warning('Welcome email failed for %s', admin_email, exc_info=True)
+        # Identify the school, not the person — see the send_default_pii note
+        # in settings.py.
+        logger.warning('Welcome email failed for school %r', school_name, exc_info=True)
 
 
 @shared_task
