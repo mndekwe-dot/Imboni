@@ -100,20 +100,22 @@ export function LibraryReports() {
             <DataTable
                 title={t('library.reports.mostBorrowed')}
                 icon="trending_up"
-                count={(report?.popular || []).length}
+                data={report?.popular || []}
                 columns={[
-                    { key: 'title', label: t('library.fields.title') },
-                    { key: 'author', label: t('library.fields.author') },
-                    { key: 'times', label: t('library.reports.timesOut'), align: 'right' },
+                    { label: t('library.fields.title') },
+                    { label: t('library.fields.author') },
+                    { label: t('library.reports.timesOut'), align: 'right' },
                 ]}
-                rows={(report?.popular || []).map((b, i) => ({
-                    id: `${b.copy__book__id}-${i}`,
-                    title: b.copy__book__title,
-                    author: b.copy__book__author,
-                    times: b.times,
-                }))}
+                renderRow={(b, i) => (
+                    <tr key={`${b.copy__book__id}-${i}`}>
+                        <td><strong>{b.copy__book__title}</strong></td>
+                        <td className="text-muted">{b.copy__book__author}</td>
+                        <td className="dt-num">{b.times}</td>
+                    </tr>
+                )}
+                emptyIcon="trending_up"
                 emptyTitle={t('library.reports.nothingBorrowed')}
-                emptyDescription={t('library.reports.nothingBorrowedDesc')}
+                emptyDesc={t('library.reports.nothingBorrowedDesc')}
             />
 
             <div className="mt-1-5">
@@ -122,15 +124,15 @@ export function LibraryReports() {
                     {(report?.by_class || []).length === 0 ? (
                         <p className="u-muted">{t('library.reports.nothingBorrowed')}</p>
                     ) : (
-                        <ul className="fin-row-list">
+                        <ul className="row-list">
                             {(report?.by_class || []).map(c => (
                                 <li key={`${c.borrower__student_profile__grade}${c.borrower__student_profile__section}`}
-                                    className="fin-row">
-                                    <span className="fin-class-chip">
+                                    className="row-item">
+                                    <span className="class-chip">
                                         {c.borrower__student_profile__grade}
                                         {c.borrower__student_profile__section}
                                     </span>
-                                    <div className="fin-row-main">
+                                    <div className="row-main">
                                         <div className="text-xs-muted">
                                             {t('library.reports.loansCount', { count: c.times })}
                                         </div>
@@ -146,17 +148,22 @@ export function LibraryReports() {
                 <DataTable
                     title={t('library.reports.neverBorrowed')}
                     icon="inventory_2"
-                    count={(report?.dead_stock || []).length}
+                    data={report?.dead_stock || []}
                     columns={[
-                        { key: 'title', label: t('library.fields.title') },
-                        { key: 'author', label: t('library.fields.author') },
-                        { key: 'shelf', label: t('library.fields.shelf') },
+                        { label: t('library.fields.title') },
+                        { label: t('library.fields.author') },
+                        { label: t('library.fields.shelf') },
                     ]}
-                    rows={(report?.dead_stock || []).map(b => ({
-                        id: b.id, title: b.title, author: b.author, shelf: b.shelf,
-                    }))}
+                    renderRow={b => (
+                        <tr key={b.id}>
+                            <td><strong>{b.title}</strong></td>
+                            <td className="text-muted">{b.author}</td>
+                            <td className="text-muted">{b.shelf}</td>
+                        </tr>
+                    )}
+                    emptyIcon="inventory_2"
                     emptyTitle={t('library.reports.everythingMoves')}
-                    emptyDescription={t('library.reports.everythingMovesDesc')}
+                    emptyDesc={t('library.reports.everythingMovesDesc')}
                 />
             </div>
 

@@ -15,6 +15,7 @@ import {
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { FinanceShell, Money, formatAmount } from './FinanceShell'
+import { pill } from '../../utils/tone'
 
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
     'august', 'september', 'october', 'november', 'december']
@@ -116,15 +117,15 @@ export function FinancePayroll() {
                             <EmptyState icon="payments" title={t('finance.payroll.noRuns')}
                                 description={t('finance.payroll.noRunsDesc')} />
                         ) : (
-                            <ul className="fin-row-list">
+                            <ul className="row-list">
                                 {runs.map(run => (
-                                    <li key={run.id} className="fin-row">
-                                        <button className="fin-row-open"
+                                    <li key={run.id} className="row-item">
+                                        <button className="row-item-button"
                                             onClick={() => setOpenRun(run.id)}>
-                                            <span className="fin-expense-icon">
+                                            <span className="row-icon">
                                                 <span className="material-symbols-rounded" aria-hidden="true">payments</span>
                                             </span>
-                                            <div className="fin-row-main">
+                                            <div className="row-main">
                                                 <div className="u-strong">{run.period_label}</div>
                                                 <div className="text-xs-muted">
                                                     {t('finance.payroll.staffCount', { count: run.staff_count })}
@@ -132,9 +133,9 @@ export function FinancePayroll() {
                                                 </div>
                                             </div>
                                         </button>
-                                        <div className="fin-row-figures">
+                                        <div className="row-figures">
                                             <Money value={run.net_total} />
-                                            <span className={`pill fin-payroll-${run.status}`}>
+                                            <span className={pill(run.status)}>
                                                 {t(`finance.payroll.status.${run.status}`)}
                                             </span>
                                         </div>
@@ -147,32 +148,34 @@ export function FinancePayroll() {
                 <DataTable
                     title={t('finance.payroll.salaries')}
                     icon="badge"
-                    count={salaries.length}
+                    data={salaries}
                     columns={[
-                        { key: 'staff_name', label: t('common.staff') },
-                        { key: 'role', label: t('common.role') },
-                        { key: 'gross', label: t('finance.payroll.gross'), align: 'right' },
-                        { key: 'allowances', label: t('finance.payroll.allowances'), align: 'right' },
-                        { key: 'deductions', label: t('finance.payroll.deductions'), align: 'right' },
-                        { key: 'net', label: t('finance.payroll.net'), align: 'right' },
-                        { key: 'actions', label: '' },
+                        { label: t('common.staff') },
+                        { label: t('common.role') },
+                        { label: t('finance.payroll.gross'), align: 'right' },
+                        { label: t('finance.payroll.allowances'), align: 'right' },
+                        { label: t('finance.payroll.deductions'), align: 'right' },
+                        { label: t('finance.payroll.net'), align: 'right' },
+                        { label: '' },
                     ]}
-                    rows={salaries.map(s => ({
-                        id: s.id,
-                        staff_name: s.staff_name,
-                        role: t(`roles.${s.role}`, { defaultValue: s.role }),
-                        gross: formatAmount(s.gross),
-                        allowances: formatAmount(s.allowances),
-                        deductions: `${s.pension_percent}% + ${s.tax_percent}%`,
-                        net: <Money value={s.net_estimate} />,
-                        actions: (
-                            <button className="btn-ghost btn-sm" onClick={() => setEditing(s)}>
-                                {t('common.edit')}
-                            </button>
-                        ),
-                    }))}
+                    renderRow={s => (
+                        <tr key={s.id}>
+                            <td><strong>{s.staff_name}</strong></td>
+                            <td>{t(`roles.${s.role}`, { defaultValue: s.role })}</td>
+                            <td className="dt-num">{formatAmount(s.gross)}</td>
+                            <td className="dt-num">{formatAmount(s.allowances)}</td>
+                            <td className="dt-num">{`${s.pension_percent}% + ${s.tax_percent}%`}</td>
+                            <td className="dt-num"><Money value={s.net_estimate} /></td>
+                            <td className="action-cell">
+                                <button className="btn-ghost btn-sm" onClick={() => setEditing(s)}>
+                                    {t('common.edit')}
+                                </button>
+                            </td>
+                        </tr>
+                    )}
+                    emptyIcon="badge"
                     emptyTitle={t('finance.payroll.noSalaries')}
-                    emptyDescription={t('finance.payroll.noSalariesDesc')}
+                    emptyDesc={t('finance.payroll.noSalariesDesc')}
                 />
             )}
         </FinanceShell>
@@ -224,28 +227,28 @@ function RunModal({ id, accounts, onClose, onChanged }) {
     const status = run?.status
 
     return (
-        <Modal open onClose={onClose} title={run?.period_label || t('finance.payroll.title')}
+        <Modal onClose={onClose} title={run?.period_label || t('finance.payroll.title')}
             size="lg">
             {!data ? <p className="u-muted">{t('common.loading')}</p> : (
                 <>
-                    <div className="fin-balance-row">
+                    <div className="figure-strip">
                         <div>
-                            <span className="fin-balance-label">{t('finance.payroll.gross')}</span>
+                            <span className="figure-label">{t('finance.payroll.gross')}</span>
                             <Money value={data.totals.gross} />
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('finance.payroll.deductions')}</span>
+                            <span className="figure-label">{t('finance.payroll.deductions')}</span>
                             <Money value={Number(data.totals.pension) + Number(data.totals.tax)
                                 + Number(data.totals.other)} />
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('finance.payroll.net')}</span>
+                            <span className="figure-label">{t('finance.payroll.net')}</span>
                             <Money value={data.totals.net} />
                         </div>
                     </div>
 
                     <div className="toolbar-card mb-1-5">
-                        <span className={`pill fin-payroll-${status}`}>
+                        <span className={pill(status)}>
                             {t(`finance.payroll.status.${status}`)}
                         </span>
                         <div className="toolbar-spacer" />
@@ -292,29 +295,31 @@ function RunModal({ id, accounts, onClose, onChanged }) {
                     <DataTable
                         title={t('finance.payroll.payslips')}
                         icon="receipt"
-                        count={data.payslips.length}
+                        data={data.payslips}
                         columns={[
-                            { key: 'staff_name', label: t('common.staff') },
-                            { key: 'gross', label: t('finance.payroll.gross'), align: 'right' },
-                            { key: 'deductions', label: t('finance.payroll.deductions'), align: 'right' },
-                            { key: 'net', label: t('finance.payroll.net'), align: 'right' },
-                            { key: 'actions', label: '' },
+                            { label: t('common.staff') },
+                            { label: t('finance.payroll.gross'), align: 'right' },
+                            { label: t('finance.payroll.deductions'), align: 'right' },
+                            { label: t('finance.payroll.net'), align: 'right' },
+                            { label: '' },
                         ]}
-                        rows={data.payslips.map(p => ({
-                            id: p.id,
-                            staff_name: p.staff_name,
-                            gross: formatAmount(p.gross),
-                            deductions: formatAmount(p.total_deductions),
-                            net: <Money value={p.net} />,
-                            actions: (
-                                <button className="btn-ghost btn-sm"
-                                    onClick={() => openDocument(`/imboni/finance/payslips/${p.id}/document/`)}>
-                                    {t('finance.payroll.payslip')}
-                                </button>
-                            ),
-                        }))}
+                        renderRow={p => (
+                            <tr key={p.id}>
+                                <td><strong>{p.staff_name}</strong></td>
+                                <td className="dt-num">{formatAmount(p.gross)}</td>
+                                <td className="dt-num">{formatAmount(p.total_deductions)}</td>
+                                <td className="dt-num"><Money value={p.net} /></td>
+                                <td className="action-cell">
+                                    <button className="btn-ghost btn-sm"
+                                        onClick={() => openDocument(`/imboni/finance/payslips/${p.id}/document/`)}>
+                                        {t('finance.payroll.payslip')}
+                                    </button>
+                                </td>
+                            </tr>
+                        )}
+                        emptyIcon="receipt"
                         emptyTitle={t('finance.payroll.noPayslips')}
-                        emptyDescription={t('finance.payroll.noPayslipsDesc')}
+                        emptyDesc={t('finance.payroll.noPayslipsDesc')}
                     />
 
                     {status !== 'paid' && status !== 'cancelled' && (
@@ -362,9 +367,9 @@ function SalaryModal({ row, onClose, onSaved }) {
     }
 
     return (
-        <Modal open onClose={onClose} title={row.staff_name}>
+        <Modal onClose={onClose} title={row.staff_name}>
             <form onSubmit={submit}>
-                <div className="fin-form-grid">
+                <div className="form-grid">
                     <label className="form-group">
                         <span className="form-label">{t('finance.payroll.gross')}</span>
                         <input className="form-input" type="number" min="0" step="1"

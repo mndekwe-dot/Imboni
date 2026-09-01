@@ -90,31 +90,39 @@ export function LibraryOverdue() {
             <DataTable
                 title={t('library.overdue.title')}
                 icon="event_busy"
-                count={loans.length}
+                data={loans}
                 columns={[
-                    { key: 'borrower', label: t('library.fields.borrower') },
-                    { key: 'class_label', label: t('common.class') },
-                    { key: 'title', label: t('library.fields.title') },
-                    { key: 'copy', label: t('library.fields.copy') },
-                    { key: 'due', label: t('library.fields.due') },
-                    { key: 'late', label: t('library.overdue.daysLate'), align: 'right' },
+                    { label: t('library.fields.borrower') },
+                    { label: t('common.class') },
+                    { label: t('library.fields.title') },
+                    { label: t('library.fields.copy') },
+                    { label: t('library.fields.due') },
+                    { label: t('library.overdue.daysLate'), align: 'right' },
                 ]}
-                rows={loans.map(l => ({
-                    id: l.id,
-                    borrower: (
-                        <button className="btn-ghost btn-sm"
-                            onClick={() => setBorrower(l.borrower?.id ?? l.borrower)}>
-                            {l.borrower?.name || l.borrower_name}
-                        </button>
-                    ),
-                    class_label: l.borrower?.class_label || '',
-                    title: l.book_title || l.copy?.book?.title,
-                    copy: l.copy_code || l.copy?.copy_code,
-                    due: formatDate(l.due_on),
-                    late: <span className="pill fin-status-overdue">{daysLate(l.due_on)}</span>,
-                }))}
+                renderRow={l => (
+                    <tr key={l.id}>
+                        <td>
+                            <button className="btn-ghost btn-sm"
+                                onClick={() => setBorrower(l.borrower?.id ?? l.borrower)}>
+                                {l.borrower?.name || l.borrower_name}
+                            </button>
+                        </td>
+                        <td>
+                            {l.borrower?.class_label && (
+                                <span className="class-chip">{l.borrower.class_label}</span>
+                            )}
+                        </td>
+                        <td>{l.book_title || l.copy?.book?.title}</td>
+                        <td><code className="lib-copy-code">{l.copy_code || l.copy?.copy_code}</code></td>
+                        <td className="text-muted">{formatDate(l.due_on)}</td>
+                        <td className="dt-num">
+                            <span className="pill pill-danger">{daysLate(l.due_on)}</span>
+                        </td>
+                    </tr>
+                )}
+                emptyIcon="event_busy"
                 emptyTitle={t('library.overdue.none')}
-                emptyDescription={t('library.overdue.noneDesc')}
+                emptyDesc={t('library.overdue.noneDesc')}
             />
         </LibraryShell>
     )
@@ -130,34 +138,34 @@ function BorrowerModal({ id, onClose }) {
     }, [id])
 
     return (
-        <Modal open onClose={onClose} title={data?.borrower?.name || t('library.fields.borrower')}
+        <Modal onClose={onClose} title={data?.borrower?.name || t('library.fields.borrower')}
             size="lg">
             {!data ? <p className="u-muted">{t('common.loading')}</p> : (
                 <>
-                    <div className="fin-balance-row">
+                    <div className="figure-strip">
                         <div>
-                            <span className="fin-balance-label">{t('library.borrower.out')}</span>
+                            <span className="figure-label">{t('library.borrower.out')}</span>
                             {data.open_loans.length}
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('library.borrower.overdue')}</span>
-                            <span className={data.overdue.length ? 'fin-owed' : ''}>
+                            <span className="figure-label">{t('library.borrower.overdue')}</span>
+                            <span className={data.overdue.length ? 'amount-owed' : ''}>
                                 {data.overdue.length}
                             </span>
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('library.borrower.everBorrowed')}</span>
+                            <span className="figure-label">{t('library.borrower.everBorrowed')}</span>
                             {data.total_borrowed}
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('library.borrower.owed')}</span>
+                            <span className="figure-label">{t('library.borrower.owed')}</span>
                             {data.owed}
                         </div>
                     </div>
 
                     {data.block && (
                         <p className="mt-1">
-                            <span className="pill fin-status-overdue">
+                            <span className="pill pill-danger">
                                 {t('library.borrower.blocked')}
                             </span>{' '}{data.block}
                         </p>
@@ -172,22 +180,26 @@ function BorrowerModal({ id, onClose }) {
                     <DataTable
                         title={t('library.borrower.history')}
                         icon="history"
-                        count={data.loans.length}
+                        data={data.loans}
                         columns={[
-                            { key: 'title', label: t('library.fields.title') },
-                            { key: 'issued', label: t('library.fields.issued') },
-                            { key: 'due', label: t('library.fields.due') },
-                            { key: 'returned', label: t('library.fields.returned') },
+                            { label: t('library.fields.title') },
+                            { label: t('library.fields.issued') },
+                            { label: t('library.fields.due') },
+                            { label: t('library.fields.returned') },
                         ]}
-                        rows={data.loans.map(l => ({
-                            id: l.id,
-                            title: l.book_title || l.copy?.book?.title,
-                            issued: formatDate(l.issued_at),
-                            due: formatDate(l.due_on),
-                            returned: l.returned_at ? formatDate(l.returned_at) : '—',
-                        }))}
+                        renderRow={l => (
+                            <tr key={l.id}>
+                                <td>{l.book_title || l.copy?.book?.title}</td>
+                                <td className="text-muted">{formatDate(l.issued_at)}</td>
+                                <td className="text-muted">{formatDate(l.due_on)}</td>
+                                <td className="text-muted">
+                                    {l.returned_at ? formatDate(l.returned_at) : '—'}
+                                </td>
+                            </tr>
+                        )}
+                        emptyIcon="history"
                         emptyTitle={t('library.borrower.nothingYet')}
-                        emptyDescription={t('library.borrower.nothingYetDesc')}
+                        emptyDesc={t('library.borrower.nothingYetDesc')}
                     />
                 </>
             )}

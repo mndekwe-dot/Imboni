@@ -500,7 +500,7 @@ export function AdminAnnouncements() {
                             <EmptyState
                                 icon="campaign"
                                 title={search ? t('announcements.noResults', { query: search }) : t('announcements.noneTitle')}
-                                desc={search ? t('announcements.trySearch') : t('announcements.switchTabs')}
+                                description={search ? t('announcements.trySearch') : t('announcements.switchTabs')}
                             />
                         ) : (
                             <div className="u-stack-sm">

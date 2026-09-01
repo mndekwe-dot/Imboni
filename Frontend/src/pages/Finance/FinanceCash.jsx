@@ -81,16 +81,16 @@ export function FinanceCash() {
                             action={{ label: t('finance.cash.addAccount'), icon: 'add',
                                 onClick: () => setDialog('account') }} />
                     ) : (
-                        <ul className="fin-row-list">
+                        <ul className="row-list">
                             {accounts.map(a => (
-                                <li key={a.id} className="fin-row">
-                                    <span className="fin-expense-icon">
+                                <li key={a.id} className="row-item">
+                                    <span className="row-icon">
                                         <span className="material-symbols-rounded" aria-hidden="true">
                                             {a.kind === 'bank' ? 'account_balance'
                                                 : a.kind === 'mobile' ? 'smartphone' : 'savings'}
                                         </span>
                                     </span>
-                                    <div className="fin-row-main">
+                                    <div className="row-main">
                                         <div className="u-strong">
                                             {a.name}
                                             {a.is_default && (
@@ -133,30 +133,32 @@ export function FinanceCash() {
             <DataTable
                 title={t('finance.cash.movements')}
                 icon="receipt_long"
-                count={movements.length}
+                data={movements}
                 columns={[
-                    { key: 'date', label: t('common.date') },
-                    { key: 'account', label: t('finance.cash.account') },
-                    { key: 'kind', label: t('finance.cash.reason') },
-                    { key: 'description', label: t('common.description') },
-                    { key: 'amount', label: t('finance.fields.amount'), align: 'right' },
+                    { label: t('common.date') },
+                    { label: t('finance.cash.account') },
+                    { label: t('finance.cash.reason') },
+                    { label: t('common.description') },
+                    { label: t('finance.fields.amount'), align: 'right' },
                 ]}
-                rows={movements.map(m => ({
-                    id: m.id,
-                    date: formatDate(m.occurred_on),
-                    account: m.account_name,
-                    kind: m.kind_label,
-                    description: m.receipt_no ? `${m.receipt_no} · ${m.description}` : m.description,
-                    // Money out is stored negative, so it reads as it happened
-                    // rather than needing a column to say which way it went.
-                    amount: (
-                        <span className={Number(m.amount) < 0 ? 'fin-owed' : ''}>
-                            {formatAmount(m.amount)}
-                        </span>
-                    ),
-                }))}
+                renderRow={m => (
+                    <tr key={m.id}>
+                        <td className="text-muted">{formatDate(m.occurred_on)}</td>
+                        <td>{m.account_name}</td>
+                        <td>{m.kind_label}</td>
+                        <td>{m.receipt_no ? `${m.receipt_no} · ${m.description}` : m.description}</td>
+                        {/* Money out is stored negative, so it reads as it happened
+                            rather than needing a column to say which way it went. */}
+                        <td className="dt-num">
+                            <span className={Number(m.amount) < 0 ? 'amount-owed' : ''}>
+                                {formatAmount(m.amount)}
+                            </span>
+                        </td>
+                    </tr>
+                )}
+                emptyIcon="receipt_long"
                 emptyTitle={t('finance.cash.noMovements')}
-                emptyDescription={t('finance.cash.noMovementsDesc')}
+                emptyDesc={t('finance.cash.noMovementsDesc')}
             />
         </FinanceShell>
     )
@@ -185,10 +187,10 @@ function AccountModal({ onClose, onSaved }) {
     }
 
     return (
-        <Modal open onClose={onClose} title={t('finance.cash.addAccount')}>
+        <Modal onClose={onClose} title={t('finance.cash.addAccount')}>
             <form onSubmit={submit}>
-                <div className="fin-form-grid">
-                    <label className="form-group fin-col-full">
+                <div className="form-grid">
+                    <label className="form-group form-col-full">
                         <span className="form-label">{t('common.name')}</span>
                         <input className="form-input" value={form.name} onChange={set('name')}
                             required autoFocus />
@@ -252,9 +254,9 @@ function TransferModal({ accounts, onClose, onSaved }) {
     const ready = form.from_account && form.to_account && Number(form.amount) > 0
 
     return (
-        <Modal open onClose={onClose} title={t('finance.cash.transfer')}>
+        <Modal onClose={onClose} title={t('finance.cash.transfer')}>
             <form onSubmit={submit}>
-                <div className="fin-form-grid">
+                <div className="form-grid">
                     <label className="form-group">
                         <span className="form-label">{t('finance.cash.from')}</span>
                         <select className="form-input" value={form.from_account}
@@ -332,9 +334,9 @@ function CountModal({ accounts, onClose, onSaved }) {
     }
 
     return (
-        <Modal open onClose={onClose} title={t('finance.cash.count')}>
+        <Modal onClose={onClose} title={t('finance.cash.count')}>
             <form onSubmit={submit}>
-                <div className="fin-form-grid">
+                <div className="form-grid">
                     <label className="form-group">
                         <span className="form-label">{t('finance.cash.account')}</span>
                         <select className="form-input" value={form.account}
@@ -351,15 +353,15 @@ function CountModal({ accounts, onClose, onSaved }) {
                 </div>
 
                 {chosen && (
-                    <div className="fin-balance-row mt-1">
+                    <div className="figure-strip mt-1">
                         <div>
-                            <span className="fin-balance-label">{t('finance.cash.books')}</span>
+                            <span className="figure-label">{t('finance.cash.books')}</span>
                             <Money value={chosen.balance} />
                         </div>
                         {difference !== null && (
                             <div>
-                                <span className="fin-balance-label">{t('finance.cash.difference')}</span>
-                                <span className={difference < 0 ? 'fin-money fin-owed' : 'fin-money'}>
+                                <span className="figure-label">{t('finance.cash.difference')}</span>
+                                <span className={difference < 0 ? 'fin-money amount-owed' : 'fin-money'}>
                                     {difference > 0 ? '+' : ''}{formatAmount(difference)}
                                 </span>
                             </div>

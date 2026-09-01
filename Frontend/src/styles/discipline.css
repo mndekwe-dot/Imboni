@@ -726,17 +726,6 @@
 .pub-badge.suspended { background: var(--destructive-light); color: var(--destructive); }
 
 /* Class chip in student table */
-td .class-chip { margin-left: 4px; }
-.class-chip {
-  display: inline-block;
-  font-size: var(--text-caption);
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 6px;
-  background: var(--discipline-light);
-  color: var(--discipline);
-}
-
 /* ══════════════════════════════════════
    UTILITY CLASSES
 ══════════════════════════════════════ */

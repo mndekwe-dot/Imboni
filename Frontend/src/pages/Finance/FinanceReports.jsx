@@ -76,10 +76,10 @@ export function FinanceReports() {
                         <EmptyState icon="payments" title={t('finance.reports.noIncome')}
                             description={t('finance.reports.noIncomeDesc')} />
                     ) : (
-                        <ul className="fin-row-list">
+                        <ul className="row-list">
                             {data.by_method.map(row => (
-                                <li key={row.method} className="fin-row">
-                                    <div className="fin-row-main">
+                                <li key={row.method} className="row-item">
+                                    <div className="row-main">
                                         <div className="u-strong u-sm">
                                             {t(`finance.methods.${row.method}`)}
                                         </div>
@@ -98,10 +98,10 @@ export function FinanceReports() {
                         <EmptyState icon="shopping_bag" title={t('finance.reports.noSpending')}
                             description={t('finance.reports.noSpendingDesc')} />
                     ) : (
-                        <ul className="fin-row-list">
+                        <ul className="row-list">
                             {data.by_category.map(row => (
-                                <li key={row.category} className="fin-row">
-                                    <div className="fin-row-main">
+                                <li key={row.category} className="row-item">
+                                    <div className="row-main">
                                         <div className="u-strong u-sm">{row.category}</div>
                                     </div>
                                     <Money value={row.total} />

@@ -234,7 +234,7 @@ function TakePaymentModal({ onClose, onDone }) {
                         </select>
                     </div>
 
-                    <div className="fin-form-grid mt-1-5">
+                    <div className="form-grid mt-1-5">
                         <div>
                             <label className="form-label" htmlFor="pay-amount">
                                 {t('finance.fields.amount')}
@@ -312,7 +312,7 @@ function ReceiptModal({ payment, onClose }) {
                     <span className="fin-receipt-no">{payment.receipt_no}</span>
                     <Money value={payment.amount} className="fin-receipt-amount" />
                 </div>
-                <dl className="fin-detail-grid">
+                <dl className="detail-grid">
                     <div><dt>{t('common.student')}</dt><dd>{payment.student?.name}</dd></div>
                     <div><dt>{t('common.class')}</dt><dd>{payment.student?.class_label || '-'}</dd></div>
                     <div>

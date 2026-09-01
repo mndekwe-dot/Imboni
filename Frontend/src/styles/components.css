@@ -2697,3 +2697,141 @@ tr:hover td {
   .doc-actions { flex-wrap: wrap; }
   .class-filter-select { flex: 1 1 8rem; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ROW LISTS, CHIPS AND FIGURE STRIPS
+   ─────────────────────────────────────────────────────────────────────────
+   A list of records that is not a table: a row with something identifying on
+   the left, a name and a caption in the middle, figures and actions on the
+   right. Finance built it first as `.fin-row-*`; Library then reached across
+   for it, which is the signal that it was never a finance pattern.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.row-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.row-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+/* The clickable part of a row is a real button, so it can be tabbed to and is
+   announced -- a <li onClick> is neither. */
+.row-item-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.row-main > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.row-figures { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+.row-actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
+
+/* One family, three shapes. All three spend --primary-*, which every portal
+   re-points, so the chip takes the colour of the portal it is standing in.
+   `.class-chip` used to be defined in discipline.css against --discipline,
+   which meant a class chip in Finance, DOS or Library rendered in the
+   Discipline portal's colour. */
+.row-avatar,
+.class-chip,
+.row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--primary-surface);
+  color: var(--primary-text);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+.row-avatar { width: 2.25rem; height: 2.25rem; border-radius: var(--radius-full, 999px); }
+.class-chip { min-width: 3rem; padding: 0.3rem 0.5rem; border-radius: var(--radius); }
+.row-icon   { width: 2.25rem; height: 2.25rem; border-radius: var(--radius); }
+.row-icon .material-symbols-rounded { font-size: var(--icon-sm); }
+td .class-chip { margin-left: 4px; }
+
+/* A strip of headline figures above the detail they summarise. */
+.figure-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.figure-strip > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+/* Eyebrow label role, per the type table in ARCHITECTURE.md. */
+.figure-label {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+
+/* An amount that is owed, missing or otherwise against you. The one figure on
+   a page that should catch the eye. */
+.amount-owed { color: var(--destructive); }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+.form-col-full { grid-column: 1 / -1; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+.detail-grid dt {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.detail-grid dd { margin: 0; font-size: var(--text-body); }
+
+/* ── Pill and badge tones ─────────────────────────────────────────────────────
+   Five tones, one definition each. There were five separate families saying
+   the same five things -- fin-status-*, fin-expense-*, fin-payroll-*,
+   fin-budget-*, lib-count-* -- twenty rules doing five jobs, and each new
+   domain added five more. A status is mapped to a TONE in JS (utils/tone.js)
+   and the tone is what carries colour, so "pending" looks the same whether it
+   is an expense, a payroll run, a budget or a stock count. */
+.pill-ok     { background: var(--success-surface, #dcfce7); color: var(--success, #16a34a); }
+.pill-warn   { background: var(--warning-surface, #fef3c7); color: var(--warning, #b45309); }
+.pill-info   { background: var(--primary-surface); color: var(--primary-text); }
+.pill-danger { background: var(--destructive-surface, #fee2e2); color: var(--destructive); }
+.pill-muted  { background: var(--muted); color: var(--muted-foreground); }

@@ -14,6 +14,7 @@ import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getDebtors, getStudentFinance, saveStudentAccount } from '../../api/finance'
 import { FinanceShell, Money } from './FinanceShell'
+import { badge } from '../../utils/tone'
 
 /** Who owes what, worst first — the list the office actually works from. */
 export function FinanceDebtors() {
@@ -104,20 +105,20 @@ export function FinanceDebtors() {
                             : undefined}
                     />
                 ) : (
-                    <ul className="fin-row-list">
+                    <ul className="row-list">
                         {visible.map(row => (
-                            <li key={row.student.id} className="fin-row">
-                                <button className="fin-row-open" onClick={() => setOpenId(row.student.id)}>
-                                    <span className="fin-avatar">{initials(row.student.name)}</span>
-                                    <span className="fin-row-main">
+                            <li key={row.student.id} className="row-item">
+                                <button className="row-item-button" onClick={() => setOpenId(row.student.id)}>
+                                    <span className="row-avatar">{initials(row.student.name)}</span>
+                                    <span className="row-main">
                                         <span className="u-strong u-sm">{row.student.name}</span>
                                         <span className="text-xs-muted">
                                             {row.student.class_label} · {row.student.student_id}
                                         </span>
                                     </span>
                                 </button>
-                                <span className="fin-row-figures">
-                                    <Money value={row.outstanding} className="fin-owed" />
+                                <span className="row-figures">
+                                    <Money value={row.outstanding} className="amount-owed" />
                                     {Number(row.overdue) > 0 && (
                                         <span className="badge badge-high">
                                             {t('finance.debtors.overdueOf', { amount: row.overdue })}
@@ -183,18 +184,18 @@ function StudentAccountModal({ id, onClose, onSaved }) {
         >
             {!data ? <p className="u-muted">{t('common.loading')}</p> : (
                 <>
-                    <div className="fin-balance-row">
+                    <div className="figure-strip">
                         <div>
-                            <span className="fin-balance-label">{t('finance.stats.charged')}</span>
+                            <span className="figure-label">{t('finance.stats.charged')}</span>
                             <Money value={data.charged} />
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('finance.stats.collected')}</span>
+                            <span className="figure-label">{t('finance.stats.collected')}</span>
                             <Money value={data.paid} />
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('finance.stats.outstanding')}</span>
-                            <Money value={data.outstanding} className="fin-owed" />
+                            <span className="figure-label">{t('finance.stats.outstanding')}</span>
+                            <Money value={data.outstanding} className="amount-owed" />
                         </div>
                     </div>
 
@@ -216,7 +217,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
                                 <td><Money value={fee.balance} /></td>
                                 <td className="text-muted">{formatDate(fee.due_date)}</td>
                                 <td>
-                                    <span className={`badge fin-status-${fee.status}`}>
+                                    <span className={badge(fee.status)}>
                                         {t(`finance.status.${fee.status}`)}
                                     </span>
                                 </td>
@@ -231,7 +232,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
                         <span className="material-symbols-rounded" aria-hidden="true">edit_note</span>
                         {t('finance.debtors.officeNote')}
                     </h3>
-                    <div className="fin-form-grid">
+                    <div className="form-grid">
                         <div>
                             <label className="form-label" htmlFor="acc-payer">
                                 {t('finance.fields.payer')}
@@ -255,7 +256,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
                                 onChange={e => setNote(n => ({ ...n, bursary_percent: e.target.value }))} />
                             <p className="text-xs-muted">{t('finance.debtors.bursaryHint')}</p>
                         </div>
-                        <div className="fin-col-full">
+                        <div className="form-col-full">
                             <label className="form-label" htmlFor="acc-arrangement">
                                 {t('finance.fields.arrangement')}
                             </label>

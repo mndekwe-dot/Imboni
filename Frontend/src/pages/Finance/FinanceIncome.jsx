@@ -143,26 +143,28 @@ export function FinanceIncome() {
                     <DataTable
                         title={t('finance.income.received')}
                         icon="add_card"
-                        count={visibleIncome.length}
+                        data={visibleIncome}
                         columns={[
-                            { key: 'date', label: t('common.date') },
-                            { key: 'category', label: t('finance.fields.category') },
-                            { key: 'description', label: t('common.description') },
-                            { key: 'method', label: t('finance.fields.method') },
-                            { key: 'account', label: t('finance.cash.account') },
-                            { key: 'amount', label: t('finance.fields.amount'), align: 'right' },
+                            { label: t('common.date') },
+                            { label: t('finance.fields.category') },
+                            { label: t('common.description') },
+                            { label: t('finance.fields.method') },
+                            { label: t('finance.cash.account') },
+                            { label: t('finance.fields.amount'), align: 'right' },
                         ]}
-                        rows={visibleIncome.map(r => ({
-                            id: r.id,
-                            date: formatDate(r.received_on),
-                            category: r.category_name,
-                            description: r.description,
-                            method: r.method_label,
-                            account: r.account_name || '—',
-                            amount: <Money value={r.amount} />,
-                        }))}
+                        renderRow={r => (
+                            <tr key={r.id}>
+                                <td className="text-muted">{formatDate(r.received_on)}</td>
+                                <td>{r.category_name}</td>
+                                <td>{r.description}</td>
+                                <td>{r.method_label}</td>
+                                <td>{r.account_name || '—'}</td>
+                                <td className="dt-num"><Money value={r.amount} /></td>
+                            </tr>
+                        )}
+                        emptyIcon="add_card"
                         emptyTitle={t('finance.income.none')}
-                        emptyDescription={t('finance.income.noneDesc')}
+                        emptyDesc={t('finance.income.noneDesc')}
                     />
                 </>
             ) : (
@@ -171,15 +173,15 @@ export function FinanceIncome() {
                     {loading ? <p className="u-muted">{t('common.loading')}</p> : (
                         <>
                             <p className="u-muted u-sm">{t('finance.income.arrearsNote')}</p>
-                            <ul className="fin-row-list mt-1">
+                            <ul className="row-list mt-1">
                                 {(arrears.results || []).map(r => (
-                                    <li key={r.student.id} className="fin-row">
-                                        <span className="fin-class-chip">{r.student.class_label}</span>
-                                        <div className="fin-row-main">
+                                    <li key={r.student.id} className="row-item">
+                                        <span className="class-chip">{r.student.class_label}</span>
+                                        <div className="row-main">
                                             <div className="u-strong">{r.student.name}</div>
                                             <div className="text-xs-muted">{r.student.student_id}</div>
                                         </div>
-                                        <Money value={r.arrears} className="fin-owed" />
+                                        <Money value={r.arrears} className="amount-owed" />
                                     </li>
                                 ))}
                                 {(arrears.results || []).length === 0 && (
@@ -230,9 +232,9 @@ function IncomeModal({ categories, accounts, onClose, onSaved }) {
     const ready = form.category && Number(form.amount) > 0
 
     return (
-        <Modal open onClose={onClose} title={t('finance.income.record')}>
+        <Modal onClose={onClose} title={t('finance.income.record')}>
             <form onSubmit={submit}>
-                <div className="fin-form-grid">
+                <div className="form-grid">
                     <label className="form-group">
                         <span className="form-label">{t('finance.fields.category')}</span>
                         <select className="form-input" value={form.category}
@@ -246,7 +248,7 @@ function IncomeModal({ categories, accounts, onClose, onSaved }) {
                         <input className="form-input" type="number" min="1" step="1"
                             value={form.amount} onChange={set('amount')} required />
                     </label>
-                    <label className="form-group fin-col-full">
+                    <label className="form-group form-col-full">
                         <span className="form-label">{t('common.description')}</span>
                         <input className="form-input" value={form.description}
                             onChange={set('description')} required />

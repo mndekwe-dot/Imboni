@@ -12,6 +12,7 @@ import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getFees } from '../../api/finance'
 import { FinanceShell, Money } from './FinanceShell'
+import { badge } from '../../utils/tone'
 
 const FILTERS = ['all', 'outstanding', 'overdue', 'cleared']
 
@@ -104,11 +105,11 @@ export function FinanceFees() {
                             {/* The balance is the column the office scans, so it
                                 carries the weight and the colour. */}
                             <Money value={fee.balance}
-                                className={Number(fee.balance) > 0 ? 'fin-owed' : ''} />
+                                className={Number(fee.balance) > 0 ? 'amount-owed' : ''} />
                         </td>
                         <td className="text-muted">{formatDate(fee.due_date)}</td>
                         <td>
-                            <span className={`badge fin-status-${fee.status}`}>
+                            <span className={badge(fee.status)}>
                                 {t(`finance.status.${fee.status}`)}
                             </span>
                         </td>

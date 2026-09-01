@@ -13,6 +13,7 @@ import {
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { FinanceShell, Money, formatAmount } from './FinanceShell'
+import { pill } from '../../utils/tone'
 
 /**
  * What the school planned to spend, against what it actually has.
@@ -111,7 +112,7 @@ export function FinanceBudget() {
                     {budgets.length === 0 && <option value="">{t('finance.budget.none')}</option>}
                 </select>
                 {budget && (
-                    <span className={`pill fin-budget-${budget.status}`}>
+                    <span className={pill(budget.status)}>
                         {t(`finance.budget.status.${budget.status}`)}
                     </span>
                 )}
@@ -150,14 +151,14 @@ export function FinanceBudget() {
                             action={{ label: t('finance.budget.setLine'), icon: 'add',
                                 onClick: () => setEditing(true) }} />
                     ) : (
-                        <ul className="fin-row-list">
+                        <ul className="row-list">
                             {lines.map(line => (
-                                <li key={line.category_id || line.category} className="fin-row">
-                                    <div className="fin-row-main">
+                                <li key={line.category_id || line.category} className="row-item">
+                                    <div className="row-main">
                                         <div className="u-strong">
                                             {line.category}
                                             {line.unbudgeted && (
-                                                <span className="pill fin-status-overdue">
+                                                <span className="pill pill-danger">
                                                     {' '}{t('finance.budget.unbudgeted')}
                                                 </span>
                                             )}
@@ -180,8 +181,8 @@ export function FinanceBudget() {
                                             })}
                                         </div>
                                     </div>
-                                    <div className="fin-row-figures">
-                                        <span className={line.over ? 'fin-money fin-owed' : 'fin-money'}>
+                                    <div className="row-figures">
+                                        <span className={line.over ? 'fin-money amount-owed' : 'fin-money'}>
                                             {formatAmount(line.variance)}
                                         </span>
                                     </div>
@@ -224,9 +225,9 @@ function LineModal({ budgetId, categories, lines, onClose, onSaved }) {
     }
 
     return (
-        <Modal open onClose={onClose} title={t('finance.budget.setLine')}>
+        <Modal onClose={onClose} title={t('finance.budget.setLine')}>
             <form onSubmit={submit}>
-                <div className="fin-form-grid">
+                <div className="form-grid">
                     <label className="form-group">
                         <span className="form-label">{t('finance.fields.category')}</span>
                         <select className="form-input" value={category}
