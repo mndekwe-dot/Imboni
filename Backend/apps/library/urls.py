@@ -1,5 +1,6 @@
 from django.urls import path
 
+from . import operations_views as ops
 from . import views
 
 urlpatterns = [
@@ -50,4 +51,38 @@ urlpatterns = [
     path('library/catalogue/', views.CatalogueView.as_view(), name='library-catalogue'),
     path('library/me/',        views.MyLibraryView.as_view(), name='library-me'),
     path('library/me/reserve/', views.MyReserveView.as_view(), name='library-me-reserve'),
+
+    # ── Chasing what is late ─────────────────────────────────────────────────
+    path('library/overdue/', ops.OverdueView.as_view(), name='library-overdue'),
+    path('library/overdue/notices/', ops.NoticesView.as_view(),
+         name='library-notices'),
+    path('library/borrowers/<uuid:pk>/', ops.BorrowerHistoryView.as_view(),
+         name='library-borrower'),
+
+    # ── Lost, damaged, written off ───────────────────────────────────────────
+    path('library/copies/<uuid:pk>/events/', ops.CopyEventView.as_view(),
+         name='library-copy-events'),
+    path('library/lost-damaged/', ops.LostAndDamagedView.as_view(),
+         name='library-lost-damaged'),
+
+    # ── Counting the shelves ─────────────────────────────────────────────────
+    path('library/stocktakes/', ops.StocktakeListView.as_view(),
+         name='library-stocktakes'),
+    path('library/stocktakes/<uuid:pk>/', ops.StocktakeDetailView.as_view(),
+         name='library-stocktake'),
+    path('library/stocktakes/<uuid:pk>/scan/', ops.StocktakeScanView.as_view(),
+         name='library-stocktake-scan'),
+    path('library/stocktakes/<uuid:pk>/close/', ops.StocktakeCloseView.as_view(),
+         name='library-stocktake-close'),
+
+    # ── Paper and spreadsheets ───────────────────────────────────────────────
+    path('library/labels/', ops.LabelsView.as_view(), name='library-labels'),
+    path('library/import/', ops.BookImportView.as_view(), name='library-import'),
+    path('library/export/catalogue/', ops.CatalogueExportView.as_view(),
+         name='library-export-catalogue'),
+    path('library/export/loans/', ops.LoanExportView.as_view(),
+         name='library-export-loans'),
+
+    # ── What the collection does ─────────────────────────────────────────────
+    path('library/usage/', ops.UsageReportView.as_view(), name='library-usage'),
 ]

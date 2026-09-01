@@ -367,3 +367,126 @@ class AcquisitionRequest(models.Model):
     @property
     def estimated_cost(self):
         return (self.unit_price or 0) * self.quantity
+
+
+# ── Counting what is actually on the shelves ──────────────────────────────────
+
+class Stocktake(models.Model):
+    """
+    A count of the shelves against the catalogue.
+
+    Every library does this at least once a year, and until it does, the
+    catalogue is a record of what the school BOUGHT rather than what it has.
+    The gap between the two is the whole point: a stocktake that finds nothing
+    missing is still worth the afternoon, because now somebody knows.
+
+    Open one, scan or tick copies as they are found, then close it. Closing is
+    what turns "not scanned yet" into "missing", so it is a deliberate act --
+    an unfinished count must never quietly write books off.
+    """
+    STATUS_CHOICES = [
+        ('open',      'In progress'),
+        ('closed',    'Closed'),
+        ('abandoned', 'Abandoned'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name        = models.CharField(max_length=140)
+    # Narrow a count to one part of the collection: a shelf, a subject, a year
+    # group's set texts. Blank means the whole library.
+    scope_shelf = models.CharField(max_length=60, blank=True)
+    scope_category = models.CharField(max_length=60, blank=True)
+    status      = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
+    started_at  = models.DateTimeField(default=timezone.now)
+    closed_at   = models.DateTimeField(null=True, blank=True)
+    started_by  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='stocktakes_started')
+    closed_by   = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='stocktakes_closed')
+    note        = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'library_stocktakes'
+        ordering = ['-started_at']
+
+    def __str__(self):
+        return f'{self.name} ({self.status})'
+
+
+class StocktakeScan(models.Model):
+    """
+    One copy, seen with somebody's own eyes during a count.
+
+    Unique per (stocktake, copy) so scanning the same barcode twice is harmless
+    -- which matters, because the person counting is holding a scanner and a
+    pile of books, not watching the screen.
+    """
+    FOUND_CHOICES = [
+        ('shelf',   'On the shelf'),
+        ('on_loan', 'Out on loan'),
+        ('damaged', 'Found damaged'),
+        ('misplaced', 'Found out of place'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    stocktake = models.ForeignKey(Stocktake, on_delete=models.CASCADE, related_name='scans')
+    copy      = models.ForeignKey(BookCopy, on_delete=models.CASCADE, related_name='scans')
+    found_as  = models.CharField(max_length=10, choices=FOUND_CHOICES, default='shelf')
+    note      = models.CharField(max_length=255, blank=True)
+    scanned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                   related_name='stocktake_scans')
+    scanned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'library_stocktake_scans'
+        ordering = ['-scanned_at']
+        constraints = [
+            models.UniqueConstraint(fields=['stocktake', 'copy'],
+                                    name='library_stocktake_scan_once'),
+        ]
+
+    def __str__(self):
+        return f'{self.copy_id} in {self.stocktake_id}'
+
+
+class CopyEvent(models.Model):
+    """
+    Something that happened to one physical book, and who decided it.
+
+    A copy's `status` says where it is now; this says how it got there. Without
+    it, "lost" is a value in a column with no date, no reason and nobody's name
+    against it -- which is exactly the record you need when a parent is being
+    asked to pay for a book.
+    """
+    KIND_CHOICES = [
+        ('lost',       'Marked lost'),
+        ('found',      'Found again'),
+        ('damaged',    'Marked damaged'),
+        ('repaired',   'Repaired'),
+        ('written_off', 'Written off'),
+        ('withdrawn',  'Withdrawn'),
+        ('restored',   'Returned to stock'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    copy    = models.ForeignKey(BookCopy, on_delete=models.CASCADE, related_name='events')
+    kind    = models.CharField(max_length=12, choices=KIND_CHOICES)
+    reason  = models.CharField(max_length=255, blank=True)
+    # Who had it when it went missing, when that is known. A write-off with a
+    # borrower attached is a conversation; one without is a shelf problem.
+    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                 related_name='copy_events_as_borrower')
+    charged  = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='copy_events')
+    stocktake = models.ForeignKey(Stocktake, on_delete=models.SET_NULL, null=True, blank=True,
+                                  related_name='events')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'library_copy_events'
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['copy', '-created_at'])]
+
+    def __str__(self):
+        return f'{self.get_kind_display()}: {self.copy_id}'

@@ -1,0 +1,41 @@
+{% extends "documents/base.html" %}
+{% comment %}
+One page per borrower. A page break after each, so a reminder is handed to one
+pupil rather than pinned up naming forty.
+{% endcomment %}
+{% block doc_styles %}
+    .notice { page-break-after: always; }
+    .notice:last-child { page-break-after: auto; }
+{% endblock %}
+{% block content %}
+{% for g in groups %}
+    <div class="notice">
+        <p class="mt">{{ today|date:"j F Y" }}</p>
+        <p class="mt strong">{{ g.borrower_name }}{% if g.class_label %} &middot; {{ g.class_label }}{% endif %}</p>
+        <p class="mt">The following library {{ g.loans|length|pluralize:"book is,books are" }} overdue.
+        Please return {{ g.loans|length|pluralize:"it,them" }} to the library.</p>
+
+        <table class="grid">
+            <tr><th>Title</th><th>Copy</th><th>Due</th><th class="num">Days late</th></tr>
+            {% for line in g.loans %}
+                <tr>
+                    <td>{{ line.title }}</td>
+                    <td class="muted">{{ line.copy_code }}</td>
+                    <td>{{ line.due_on|date:"j M Y" }}</td>
+                    <td class="num">{{ line.days_late }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {% if g.owed %}
+            <p class="mt">Unpaid library charges: <span class="strong">{{ g.owed }}</span>.</p>
+        {% endif %}
+        <p class="mt muted">If you have already returned {{ g.loans|length|pluralize:"this book,these books" }},
+        please come to the library so we can correct our records.</p>
+
+        <table class="sign">
+            <tr><td><div class="sign-line">School library &middot; {{ school_name }}</div></td></tr>
+        </table>
+    </div>
+{% endfor %}
+{% endblock %}
