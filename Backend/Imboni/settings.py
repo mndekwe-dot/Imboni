@@ -263,8 +263,11 @@ AUTH_USER_MODEL = 'authentication.User'  # label stays 'authentication' — no c
 REST_FRAMEWORK = {
     'DEFAULT_AUTO_FIELD': 'django.db.models.BigAutoField',
     'COERCE_DECIMAL_TO_STRING': False,
+    # Not stock JWTAuthentication: it resolves a token's user_id in whichever
+    # schema the Host header selected, with no check that the token was issued
+    # there. See apps/authentication/tokens.py.
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'apps.authentication.authentication.TenantScopedJWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -299,6 +302,13 @@ REST_FRAMEWORK = {
         # can send mail, so it is both expensive and abusable as a mailer.
         'school_lookup': None if TESTING else '3/min',
         'two_factor':     None if TESTING else '10/min',  # per IP — stops OTP brute force
+        # per IP — each accepted signup creates a schema and migrates every
+        # TENANT_APP into it, so this endpoint spends real resources per call
+        # and leaves an artifact every future deploy has to walk past.
+        'school_signup':  None if TESTING else '3/hour',
+        # per user — a parent legitimately links one or two children, and the
+        # endpoint's replies reveal whether a student code is real.
+        'link_student':   None if TESTING else '10/hour',
     },
 }
 
@@ -340,6 +350,25 @@ CORS_ALLOWED_ORIGINS = [
         default='http://localhost:3000,http://127.0.0.1:3000,http://localhost:5174',
     ).split(',') if o.strip()
 ]
+
+# Every school is its own subdomain, so a fixed origin list cannot describe the
+# product: it either omits most schools or gets widened to
+# CORS_ALLOW_ALL_ORIGINS to make them work. The regex names the shape instead —
+# one label, no dots, under the platform apex — so a new school is reachable the
+# moment it is provisioned and nothing outside the apex ever is.
+PLATFORM_APEX = config('PLATFORM_APEX', default='imboni.tech')
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^https://[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.' + PLATFORM_APEX.replace('.', r'\.') + r'$',
+]
+
+# CsrfViewMiddleware is active and the Django admin posts through it. Behind the
+# HTTPS proxy, Django compares the Origin header against this list; without the
+# wildcard entry every admin POST on a school subdomain fails a CSRF check that
+# has nothing to do with CSRF.
+CSRF_TRUSTED_ORIGINS = [
+    f'https://{PLATFORM_APEX}',
+    f'https://*.{PLATFORM_APEX}',
+] + [o for o in CORS_ALLOWED_ORIGINS if o.startswith(('http://', 'https://'))]
 
 # Debug toolbar configuration
 INTERNAL_IPS = [
