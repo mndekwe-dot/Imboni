@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from apps.tenants import support
+from apps.tenants import invitations, support
 from apps.tenants.identity import SchoolIdentityView
 
 urlpatterns = [
@@ -33,6 +33,13 @@ urlpatterns = [
     # School-facing billing (tenant subdomain, admin-authenticated).
     path('', include('apps.tenants.billing_urls')),
     # School-facing support: staff raise/track tickets (Phase 6).
+    # Invitation acceptance. Lives on the SCHOOL's domain — the link in the
+    # email points at the school, which is also where the account is.
+    path('imboni/onboarding/invitation/', invitations.InvitationCheckView.as_view(),
+         name='invitation-check'),
+    path('imboni/onboarding/invitation/accept/', invitations.InvitationAcceptView.as_view(),
+         name='invitation-accept'),
+
     path('imboni/support/tickets/', support.MyTicketsView.as_view(), name='support-tickets'),
     path('imboni/support/tickets/<uuid:pk>/reply/', support.MyTicketReplyView.as_view(),
          name='support-ticket-reply'),

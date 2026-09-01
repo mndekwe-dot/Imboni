@@ -23,7 +23,17 @@ New fields to add to `apps/tenants/models.Client` in Phase 3:
 | `trialing`                           | `trial`         | `True`     | allow             |
 | `active`                             | `active`        | `False`    | allow             |
 | `past_due` / `unpaid`                | `past_due`      | `False`    | warn (`X-Subscription-Status: past_due`) |
+| (contract past end date, in grace)   | `read_only`     | `False`    | reads pass (`X-Subscription-Status: read_only`); writes 402 |
 | `canceled` / `incomplete_expired`    | `suspended`     | `False`    | block (HTTP 402)  |
+
+`read_only` is not a Stripe status — it is set by `enforce_contract_lifecycle`
+when a contract passes its end date but is still inside `grace_days`, and by an
+operations operator pressing Restrict. It exists because suspension was the
+only lever available, and suspension stops a teacher taking a register on a
+Monday morning over a renewal the office forgot to countersign. Read-only keeps
+every record readable and exportable, and keeps the paths that let a school pay,
+raise a ticket, or export its data writable (see
+`RESTRICTED_WRITE_ALLOWED_PREFIXES` in `middleware.py`).
 
 ## 2. Webhook endpoint that flips `Client.status`
 

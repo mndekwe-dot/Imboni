@@ -25,10 +25,15 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.utils import timezone
+from django.utils.crypto import constant_time_compare
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.db import transaction
 from datetime import timedelta
+import logging
+from . import invites
+from .tokens import tokens_for_user
 from .service import dispatch_invitation
 from .permissions import CanInvite
 from apps.tenants.limits import enforce_capacity, remaining_seats
@@ -41,6 +46,8 @@ from .serializers import (
     InvitationSerializer,CompleteRegistrationSerializer,
     EmailChangeRequestSerializer, CSVInviteSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -65,15 +72,18 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        # Ordered explicitly: an unordered queryset makes PageNumberPagination
+        # non-deterministic, so the same account could appear on two pages or on
+        # none. Postgres gives no ordering guarantee without ORDER BY.
         if user.is_authenticated and user.role in ['admin', 'dos']:
-            qs = User.objects.all()
+            qs = User.objects.all().order_by('last_name', 'first_name', 'id')
             role_param = self.request.query_params.get('role', '').strip()
             if role_param:
                 roles = [r.strip() for r in role_param.split(',') if r.strip()]
                 qs = qs.filter(role__in=roles)
             return qs
         if user.is_authenticated:
-            return User.objects.filter(id=user.id)
+            return User.objects.filter(id=user.id).order_by('id')
         return User.objects.none()   # never leak the full user table
     
     @action(detail=False, methods=['get'])
@@ -216,7 +226,7 @@ class AuthViewSet(viewsets.ViewSet):
                 'challenge':    twofactor.make_challenge(user, portal),
             })
 
-        refresh = RefreshToken.for_user(user)
+        refresh = tokens_for_user(user)
         return Response({
             'access':  str(refresh.access_token),
             'refresh': str(refresh),
@@ -255,7 +265,7 @@ class AuthViewSet(viewsets.ViewSet):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        refresh = RefreshToken.for_user(user)
+        refresh = tokens_for_user(user)
         return Response({
             'access':  str(refresh.access_token),
             'refresh': str(refresh),
@@ -550,27 +560,29 @@ class SendInvitationView(APIView):
         if resource:
             enforce_capacity(resource)   # raises 402 when the plan is full
 
-        # Generate token and uid for the invitation link
-        expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
-        invitation  = serializer.save(
-            invited_by=request.user,
-            expires_at=expires_at,
-            token='pending',
-            uid='pending',
-        )
-        token = default_token_generator.make_token(request.user)
-        uid   = urlsafe_base64_encode(force_bytes(invitation.pk))
-        invitation.token = token
-        invitation.uid   = uid
-        invitation.save()
+        # The raw token exists only for the length of this request — what is
+        # stored is its SHA-256. There is no 'pending' placeholder round-trip
+        # any more: the row is created complete, in one write, inside a
+        # transaction, so a failure cannot leave a half-built invitation behind.
+        raw_token = invites.new_token()
+        with transaction.atomic():
+            invitation = serializer.save(
+                invited_by=request.user,
+                expires_at=invites.default_expiry(),
+                token_hash=invites.hash_token(raw_token),
+                uid='',
+            )
+            uid = urlsafe_base64_encode(force_bytes(invitation.pk))
+            invitation.uid = uid
+            invitation.save(update_fields=['uid'])
 
-        registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+        registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{raw_token}/"
 
         #send to all available channels
         channels = dispatch_invitation(invitation,registration_link)
         invitation.channels_sent = channels
         invitation.delivery_status = 'sent' if channels else 'failed'
-        invitation.save()
+        invitation.save(update_fields=['channels_sent', 'delivery_status'])
 
         from apps.audit.services import audit
         audit(request.user, 'invitation.sent',
@@ -634,19 +646,28 @@ class BulkInviteView(APIView):
                     })
                     continue
 
-            invitation = serializer.save(invited_by=request.user)
-            uid = urlsafe_base64_encode(force_bytes(invitation.pk))
-            token=default_token_generator.make_token(request.user)
-            invitation.token= token
-            invitation.uid=uid
-            invitation.expires_at=timezone.now()+timedelta(days=settings.INVITATION_EXPIRY_DAYS)
-            invitation.save()
+            # This used to be serializer.save(invited_by=...) with no expires_at
+            # and no token. Both are read-only on the serializer, so the insert
+            # went in with expires_at=NULL against a NOT NULL column: the
+            # endpoint returned 500 on its FIRST row, every time, and no test
+            # covered it. Supply them explicitly, as SendInvitationView does.
+            raw_token = invites.new_token()
+            with transaction.atomic():
+                invitation = serializer.save(
+                    invited_by=request.user,
+                    expires_at=invites.default_expiry(),
+                    token_hash=invites.hash_token(raw_token),
+                    uid='',
+                )
+                uid = urlsafe_base64_encode(force_bytes(invitation.pk))
+                invitation.uid = uid
+                invitation.save(update_fields=['uid'])
 
-            registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+            registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{raw_token}/"
             channels = dispatch_invitation(invitation,registration_link)
             invitation.channels_sent =channels
             invitation.delivery_status = 'sent' if channels else 'failed'
-            invitation.save()
+            invitation.save(update_fields=['channels_sent', 'delivery_status'])
 
             if resource and slots.get(resource) is not None:
                 slots[resource] -= 1
@@ -690,16 +711,20 @@ class ResendInvitationView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Generate fresh token and extend expiry
+        # A resend mints a genuinely new token and expires the old link, rather
+        # than re-sending the same one. Previously both invitations shared a
+        # token derived from the inviter, so "resend" did not invalidate
+        # anything and a forwarded first email stayed live.
+        raw_token             = invites.new_token()
         uid                   = urlsafe_base64_encode(force_bytes(invitation.pk))
-        token                 = default_token_generator.make_token(request.user)
-        invitation.token      = token
+        invitation.token_hash = invites.hash_token(raw_token)
         invitation.uid        = uid
-        invitation.expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+        invitation.expires_at = invites.default_expiry()
         invitation.delivery_status = 'pending'
-        invitation.save()
+        invitation.save(update_fields=['token_hash', 'uid', 'expires_at',
+                                       'delivery_status'])
 
-        registration_link        = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+        registration_link        = f"{settings.FRONTEND_URL}/register/{uid}/{raw_token}/"
         channels                 = dispatch_invitation(invitation, registration_link)
         invitation.channels_sent = channels
         invitation.delivery_status = 'sent' if channels else 'failed'
@@ -858,31 +883,29 @@ class CSVInviteView(APIView):
 
             # Create invitation
             try:
-                expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
-                invitation = Invitation.objects.create(
-                    first_name   = first_name,
-                    last_name    = last_name,
-                    role         = role,
-                    email        = email or '',
-                    phone_number = phone_number or '',
-                    invited_by   = request.user,
-                    expires_at   = expires_at,
-                    token        = 'pending',
-                    uid          = 'pending',
-                    class_obj    = class_obj,
-                )
+                raw_token = invites.new_token()
+                with transaction.atomic():
+                    invitation = Invitation.objects.create(
+                        first_name   = first_name,
+                        last_name    = last_name,
+                        role         = role,
+                        email        = email or '',
+                        phone_number = phone_number or '',
+                        invited_by   = request.user,
+                        expires_at   = invites.default_expiry(),
+                        token_hash   = invites.hash_token(raw_token),
+                        uid          = '',
+                        class_obj    = class_obj,
+                    )
+                    uid = urlsafe_base64_encode(force_bytes(invitation.pk))
+                    invitation.uid = uid
+                    invitation.save(update_fields=['uid'])
 
-                token = default_token_generator.make_token(request.user)
-                uid   = urlsafe_base64_encode(force_bytes(invitation.pk))
-                invitation.token = token
-                invitation.uid   = uid
-                invitation.save()
-
-                registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{token}/"
+                registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{raw_token}/"
                 channels = dispatch_invitation(invitation, registration_link)
                 invitation.channels_sent    = channels
                 invitation.delivery_status  = 'sent' if channels else 'failed'
-                invitation.save()
+                invitation.save(update_fields=['channels_sent', 'delivery_status'])
 
                 if resource and slots.get(resource) is not None:
                     slots[resource] -= 1
@@ -896,11 +919,16 @@ class CSVInviteView(APIView):
                     'channels': channels,
                 })
 
-            except Exception as exc:
+            except Exception:
+                # str(exc) used to go straight into the response. On a unique
+                # violation Postgres includes the conflicting value, which meant
+                # a failed import echoed a live invitation token back to the
+                # uploader. Log the detail, return a generic reason.
+                logger.exception('CSV invite failed on row %s', idx)
                 results['failed'].append({
                     'row':    idx,
                     'email':  email,
-                    'reason': str(exc),
+                    'reason': 'Could not create this invitation. Please check the row and retry.',
                 })
 
         status_code = (
@@ -945,7 +973,11 @@ class VerifyInvitationView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
-        if invitation.token != token:
+        # Compare hashes in constant time rather than the raw strings, and
+        # require the token to belong to THIS invitation — the uid alone is just
+        # the primary key, so the token is what actually authorises.
+        if not constant_time_compare(invitation.token_hash,
+                                     invites.hash_token(token or '')):
             return Response({
                 'error':'Invalid invitation link'
             },
@@ -986,7 +1018,8 @@ class CompleteRegistrationView(APIView):
                 {'error': 'Invitation link has expired or already been used.'}, 
                   status=400
                 )
-        if invitation.token != data['token']:
+        if not constant_time_compare(invitation.token_hash,
+                                     invites.hash_token(data.get('token') or '')):
             return Response({'error': 'Invalid invitation link.'}, status=400)
 
         # Check username is not taken

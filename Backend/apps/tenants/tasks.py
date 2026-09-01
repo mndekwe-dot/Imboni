@@ -7,8 +7,10 @@ in the worker, always in the public schema (where the Client/Domain/TenantProvis
 tables live), and updates the TenantProvision row the frontend polls.
 """
 import logging
+from datetime import timedelta
 
 from celery import shared_task
+from django.utils import timezone
 from django_tenants.utils import schema_context, get_public_schema_name
 
 logger = logging.getLogger(__name__)
@@ -17,7 +19,7 @@ logger = logging.getLogger(__name__)
 @shared_task
 def provision_school_task(provision_id, admin_password_hash, domain_base, scheme):
     from .models import TenantProvision
-    from .services import provision_tenant, ProvisioningError
+    from .services import DEMO_TRIAL_DAYS, provision_tenant, ProvisioningError
 
     with schema_context(get_public_schema_name()):
         try:
@@ -35,6 +37,10 @@ def provision_school_task(provision_id, admin_password_hash, domain_base, scheme
                 admin_first_name=rec.admin_first_name,
                 admin_last_name=rec.admin_last_name,
                 domain_base=domain_base,
+                # Nobody reviewed this. It is a demo with an end date, not a
+                # school -- see DEMO_TRIAL_DAYS in onboarding.py for why.
+                is_demo=True,
+                demo_expires_on=timezone.localdate() + timedelta(days=DEMO_TRIAL_DAYS),
             )
         except ProvisioningError as exc:
             rec.status = 'failed'
@@ -52,26 +58,34 @@ def provision_school_task(provision_id, admin_password_hash, domain_base, scheme
         rec.url = f'{scheme}://{domain_name}/'
         rec.save(update_fields=['status', 'url', 'updated_at'])
 
-        _send_welcome_email(rec.admin_email, rec.school_name, rec.url)
+        _send_welcome_email(rec.admin_email, rec.school_name, rec.url,
+                            expires_on=client.demo_expires_on)
 
 
-def _send_welcome_email(admin_email, school_name, url):
+def _send_welcome_email(admin_email, school_name, url, expires_on=None):
     """Best-effort welcome email — never let a mail failure fail the task."""
     from django.core.mail import send_mail
     try:
+        ends = ('' if expires_on is None else
+                f'This demo runs until {expires_on:%d %B %Y}. To keep it and '
+                'turn it into your school\'s real account, apply from the '
+                'Imboni site and we will be in touch.\n\n')
         send_mail(
             subject=f'Welcome to Imboni: {school_name} is ready',
             message=(
-                f'Your school "{school_name}" has been created.\n\n'
+                f'Your Imboni demo for "{school_name}" is ready.\n\n'
                 f'Sign in at: {url}\n\n'
-                'Use the email and password you chose during signup.'
+                'Use the email and password you chose during signup.\n\n'
+                + ends
             ),
             from_email=None,   # uses DEFAULT_FROM_EMAIL
             recipient_list=[admin_email],
             fail_silently=True,
         )
     except Exception:
-        logger.warning('Welcome email failed for %s', admin_email, exc_info=True)
+        # Identify the school, not the person — see the send_default_pii note
+        # in settings.py.
+        logger.warning('Welcome email failed for school %r', school_name, exc_info=True)
 
 
 @shared_task

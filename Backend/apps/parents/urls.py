@@ -25,8 +25,14 @@ urlpatterns = router.urls + students_router.urls + [
     path('parents/<uuid:pk>/documents/', views.StudentDocumentListView.as_view(), name='student-documents'),
     path('parents/<uuid:pk>/schedule/today/', views.StudentTodayScheduleView.as_view(), name='student-schedule-today'),
     path('parents/<uuid:pk>/assignments/', views.StudentAssignmentListView.as_view(), name='student-assignments'),
-    # Account Settings — Family Connections: link an existing student by code
+    # Account Settings — Family Connections: request a link to an existing
+    # student by code. The request grants nothing until staff approve it below.
     path('account/family/link/', views.LinkStudentView.as_view(), name='account-family-link'),
+    # The approval queue that makes the request above safe. Staff only.
+    path('parents/link-requests/', views.StaffLinkRequestListView.as_view(),
+         name='parent-link-requests'),
+    path('parents/link-requests/<uuid:pk>/decide/', views.StaffLinkRequestDecideView.as_view(),
+         name='parent-link-request-decide'),
     # Parent Dashboard stats (?student_id=)
     path('parents/dashboard/stats/', views.ParentDashboardStatsView.as_view(), name='parent-dashboard-stats'),
     # Consent requests — staff create/list, parents list/respond

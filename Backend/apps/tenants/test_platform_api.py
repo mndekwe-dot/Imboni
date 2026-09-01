@@ -39,10 +39,19 @@ def make_school(name='Springfield High', schema_name='springfield', **kwargs):
     return school
 
 
-def platform_admin(email='ops@imboni.com', password='PlatformPass123!'):
-    """A platform operator (public-schema PlatformUser)."""
+def platform_admin(email='ops@imboni.com', password='PlatformPass123!',
+                   role=PlatformUser.ROLE_OPERATIONS, mfa=True):
+    """
+    A platform operator (public-schema PlatformUser).
+
+    Operations with MFA enrolled by default, which is what "a platform admin"
+    meant when these tests were written -- before the role split there was only
+    one kind, and it could do everything. Role separation is covered by
+    test_platform_hardening.py; these tests are about the school lifecycle.
+    """
     with _public():
-        pu = PlatformUser(email=email, name='Ops')
+        pu = PlatformUser(email=email, name='Ops', role=role, mfa_enabled=mfa,
+                          mfa_secret='JBSWY3DPEHPK3PXP' if mfa else '')
         pu.set_password(password)
         pu.save()
     return pu
@@ -75,6 +84,7 @@ class TestClientSerializer:
         assert set(data.keys()) == {
             'id', 'name', 'schema_name', 'primary_domain', 'plan', 'status',
             'paid_until', 'on_trial', 'created_on', 'usage',
+            'is_demo', 'demo_expires_on',
         }
         assert data['name'] == 'Springfield High'
         assert data['plan'] == 'premium'
@@ -102,11 +112,54 @@ class TestPlatformLogin:
             return PlatformLoginView.as_view()(request)
 
     def test_valid_credentials_return_tokens(self):
-        pu = platform_admin(password='Secret123!')
+        pu = platform_admin(password='Secret123!', mfa=False)
         resp = self._login(pu.email, 'Secret123!')
         assert resp.status_code == 200
         assert 'access' in resp.data and 'refresh' in resp.data
         assert resp.data['user']['email'] == pu.email
+        assert resp.data['user']['role'] == pu.role
+
+    def test_a_password_alone_is_not_enough_for_an_mfa_account(self):
+        """
+        The password step yields a challenge, not a token.
+
+        This is the whole point of the second factor: a stolen password must
+        not reach an API that can suspend a school.
+        """
+        pu = platform_admin(password='Secret123!', mfa=True)
+        resp = self._login(pu.email, 'Secret123!')
+        assert resp.status_code == 200
+        assert resp.data['mfa_required'] is True
+        assert 'access' not in resp.data
+        assert resp.data['challenge']
+
+    def test_the_challenge_plus_a_valid_code_completes_the_login(self):
+        import pyotp
+        from apps.tenants.platform_auth import PlatformMfaVerifyView
+
+        pu = platform_admin(password='Secret123!', mfa=True)
+        challenge = self._login(pu.email, 'Secret123!').data['challenge']
+
+        req = self.factory.post('/x/', {'challenge': challenge,
+                                        'code': pyotp.TOTP(pu.mfa_secret).now()},
+                                format='json')
+        with _public():
+            resp = PlatformMfaVerifyView.as_view()(req)
+        assert resp.status_code == 200
+        assert 'access' in resp.data
+
+    def test_a_wrong_code_does_not_complete_the_login(self):
+        from apps.tenants.platform_auth import PlatformMfaVerifyView
+
+        pu = platform_admin(password='Secret123!', mfa=True)
+        challenge = self._login(pu.email, 'Secret123!').data['challenge']
+
+        req = self.factory.post('/x/', {'challenge': challenge, 'code': '000000'},
+                                format='json')
+        with _public():
+            resp = PlatformMfaVerifyView.as_view()(req)
+        assert resp.status_code == 401
+        assert 'access' not in resp.data
 
     def test_wrong_password_is_401(self):
         pu = platform_admin(password='Secret123!')

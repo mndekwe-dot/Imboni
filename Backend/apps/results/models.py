@@ -188,7 +188,25 @@ class Assessment(models.Model):
     class Meta:
         db_table = 'assessments'
         ordering = ['-date']
-    
+        constraints = [
+            # This is exactly the key TeacherBulkSaveResultsView passes to
+            # update_or_create. Without it two concurrent submissions — a
+            # double-clicked Save, or two teachers on the same class — both miss
+            # the SELECT and both INSERT, and the class ends up with duplicate
+            # marks that are silently double-counted in every average, pass rate
+            # and GPA derived from them.
+            models.UniqueConstraint(
+                fields=['student', 'subject', 'term', 'title'],
+                name='uniq_assessment_student_subject_term_title',
+            ),
+        ]
+        indexes = [
+            # The two shapes every read uses: one student's record, and a whole
+            # class/subject for a term. Both were sequential scans.
+            models.Index(fields=['student', 'term'], name='assessment_student_term_idx'),
+            models.Index(fields=['term', 'subject'], name='assessment_term_subject_idx'),
+        ]
+
     def __str__(self):
         return f"{self.student.full_name} - {self.title}"
     
