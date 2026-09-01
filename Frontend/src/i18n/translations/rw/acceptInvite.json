@@ -1,0 +1,17 @@
+{
+  "checking": "Turimo kugenzura umuyoboro wawe…",
+  "confirm": "Emeza ijambo ry'ibanga",
+  "deadBody": "Uyu muyoboro warangiye igihe cyangwa wamaze gukoreshwa. Dusabe kukoherereza undi mushya.",
+  "deadTitle": "Uyu muyoboro ntugikora",
+  "password": "Hitamo ijambo ry'ibanga",
+  "ruleLength": "Byibuze inyuguti 8",
+  "ruleMatch": "Amagambo y'ibanga yombi arahuye",
+  "ruleSpecial": "Rigomba kuba ririmo akamenyetso kimwe kidasanzwe",
+  "saving": "Turimo kubika ijambo ry'ibanga ryawe…",
+  "submit": "Bika ijambo ry'ibanga ukomeze",
+  "subtitle": "Urimo gushyiraho ijambo ry'ibanga rya {{email}}. Nta wundi muntu urifite kuri iyi konti.",
+  "title": "Tangiza konti y'ishuri ryawe",
+  "titleNamed": "Tangiza {{school}} kuri Imboni",
+  "toSignIn": "Jya ku ipaji yo kwinjira",
+  "toggleVisibility": "Erekana/hisha ijambo ry'ibanga"
+}

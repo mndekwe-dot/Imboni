@@ -13,12 +13,11 @@ With no Stripe keys configured (settings.STRIPE_ENABLED is False), the endpoints
 degrade gracefully instead of erroring, and the webhook — if STRIPE_WEBHOOK_SECRET
 is unset — trusts the payload so the flow can be exercised locally without Stripe.
 """
-import json
 import logging
 
 import stripe
 from django.conf import settings
-from django.db import connection
+from django.db import connection, transaction
 from django_tenants.utils import schema_context, get_public_schema_name
 from rest_framework import status as http_status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -28,7 +27,7 @@ from rest_framework.views import APIView
 from decimal import Decimal, InvalidOperation
 
 from .limits import capacity_snapshot
-from .models import Client, Payment
+from .models import Client, Payment, StripeEvent
 
 logger = logging.getLogger(__name__)
 
@@ -179,10 +178,36 @@ class StripeWebhookView(APIView):
         if event is None:
             return Response({'detail': 'Invalid payload/signature.'},
                             status=http_status.HTTP_400_BAD_REQUEST)
+
+        event_id = event.get('id') or ''
+        etype = event.get('type', '')
+
+        # Claim the event id before doing any work. A redelivery of an event we
+        # already finished is acknowledged and dropped.
+        if event_id:
+            with schema_context(get_public_schema_name()):
+                _, fresh = StripeEvent.objects.get_or_create(
+                    event_id=event_id, defaults={'event_type': etype})
+            if not fresh:
+                logger.info('Stripe event %s already processed; ignoring replay', event_id)
+                return Response(status=http_status.HTTP_200_OK)
+
         try:
-            _handle_event(event)
-        except Exception:  # noqa: BLE001 - never 500 back to Stripe; it will retry
-            logger.exception('Error handling Stripe event %s', event.get('type'))
+            with transaction.atomic():
+                _handle_event(event)
+        except Exception:
+            # This used to log and return 200. A 200 tells Stripe the event was
+            # handled successfully, so it was never redelivered: one transient
+            # database error meant a school that had paid stayed suspended, with
+            # nothing but a log line to say why. Releasing the claim and
+            # returning 500 lets Stripe's own retry schedule fix it.
+            logger.exception('Error handling Stripe event %s (%s)', event_id, etype)
+            if event_id:
+                with schema_context(get_public_schema_name()):
+                    StripeEvent.objects.filter(event_id=event_id).delete()
+            return Response({'detail': 'Handler failed; please retry.'},
+                            status=http_status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         return Response(status=http_status.HTTP_200_OK)
 
 
@@ -194,16 +219,19 @@ def _construct_event(payload, sig_header):
     production.
     """
     secret = settings.STRIPE_WEBHOOK_SECRET
-    if secret:
-        try:
-            return stripe.Webhook.construct_event(payload, sig_header, secret)
-        except (ValueError, stripe.error.SignatureVerificationError):
-            logger.warning('Rejected Stripe webhook: bad signature/payload')
-            return None
-    logger.warning('STRIPE_WEBHOOK_SECRET unset: trusting webhook payload (dev only)')
+    if not secret:
+        # This endpoint decides whether a school is active or suspended, and it
+        # is unauthenticated by design because Stripe calls it. The signature IS
+        # the authentication. Without a secret it used to trust whatever JSON
+        # arrived, so anyone who found the URL could grant themselves a paid
+        # plan or suspend a competitor. An unset secret is a misconfiguration,
+        # not a local-dev convenience — use `stripe listen`, which issues one.
+        logger.error('STRIPE_WEBHOOK_SECRET is not set; refusing webhook.')
+        return None
     try:
-        return json.loads(payload)
-    except (ValueError, TypeError):
+        return stripe.Webhook.construct_event(payload, sig_header, secret)
+    except (ValueError, stripe.error.SignatureVerificationError):
+        logger.warning('Rejected Stripe webhook: bad signature/payload')
         return None
 
 
@@ -224,8 +252,13 @@ def _handle_event(event):
                 stripe_customer_id=obj.get('customer') or client.stripe_customer_id,
                 stripe_subscription_id=obj.get('subscription') or client.stripe_subscription_id,
             )
-            _record_payment(client, obj.get('amount_total'), obj.get('currency'),
-                            meta.get('plan'), obj.get('payment_intent') or obj.get('id'))
+            # Deliberately does NOT record a payment. Stripe sends both this and
+            # invoice.payment_succeeded for the same money, and the two carry
+            # different ids (payment_intent vs invoice), so _record_payment's
+            # dedupe on stripe_payment_id could not see they were the same —
+            # every subscription start was counted twice in platform revenue.
+            # The invoice is the single source of money-in; this event only
+            # flips the school's status.
         return
 
     if etype == 'invoice.payment_succeeded':

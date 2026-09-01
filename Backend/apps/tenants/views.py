@@ -25,11 +25,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Client
-from .platform_auth import IsPlatformAdmin, PlatformJWTAuthentication
+from .platform_auth import IsOperations, IsPlatformAdmin, PlatformJWTAuthentication
+from .platform_audit import AuditedViewSetMixin
+from .school_context import school_context
 from .serializers import ClientSerializer
 
 
-class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
+class SchoolViewSet(AuditedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     Platform admin management of schools (tenants).
 
@@ -48,23 +50,54 @@ class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ClientSerializer
     authentication_classes = [PlatformJWTAuthentication]
     permission_classes = [IsPlatformAdmin]
+    audit_prefix = 'school'
 
-    def _set_status(self, request, pk, new_status):
+    # Actions only an operations operator may take. This is expressed here
+    # rather than as `@action(permission_classes=...)` because those become
+    # router initkwargs: they are applied when the DefaultRouter builds the
+    # route, and silently ignored by any other mounting -- `as_view({...})` in
+    # a test, or a hand-written path(). Deciding who may switch a school off is
+    # not somewhere to depend on how the view happened to be wired up.
+    OPERATIONS_ACTIONS = frozenset({'restrict', 'suspend', 'reactivate'})
+
+    def get_permissions(self):
+        if self.action in self.OPERATIONS_ACTIONS:
+            return [IsOperations()]
+        return super().get_permissions()
+
+    def _set_status(self, request, new_status, verb):
         school = self.get_object()
+        was = school.status
         school.status = new_status
         school.save(update_fields=['status'])
+        self.audit(verb, school, client=school, label=school.name,
+                   changes={'status': [was, new_status]})
         serializer = self.get_serializer(school)
         return Response(serializer.data, status=http_status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
+    def restrict(self, request, pk=None):
+        """
+        Take the pen away without locking the doors: status='read_only'.
+
+        The step that was missing. A school behind on payment could previously
+        only be left alone or switched off completely, so the only lever an
+        operator had was the one that stops a teacher taking a register on a
+        Monday morning. Read-only keeps every record readable and exportable
+        while refusing new writes, which applies real pressure to the office
+        without taking the timetable away from the classroom.
+        """
+        return self._set_status(request, 'read_only', 'restrict')
+
+    @action(detail=True, methods=['post'])
     def suspend(self, request, pk=None):
         """Suspend a school (e.g. non-payment). Sets status='suspended'."""
-        return self._set_status(request, pk, 'suspended')
+        return self._set_status(request, 'suspended', 'suspend')
 
     @action(detail=True, methods=['post'])
     def reactivate(self, request, pk=None):
-        """Reactivate a suspended school. Sets status='active'."""
-        return self._set_status(request, pk, 'active')
+        """Reactivate a restricted or suspended school. Sets status='active'."""
+        return self._set_status(request, 'active', 'reactivate')
 
     @action(detail=True, methods=['get'])
     def overview(self, request, pk=None):
@@ -86,4 +119,7 @@ class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
             'payments': PaymentSerializer(payments, many=True).data,
             'tickets': SupportTicketListSerializer(tickets, many=True).data,
             'application': SchoolApplicationSerializer(application).data if application else None,
+            # The same summary a ticket carries, so the two screens can never
+            # tell an operator different things about one school.
+            'context': school_context(school),
         })

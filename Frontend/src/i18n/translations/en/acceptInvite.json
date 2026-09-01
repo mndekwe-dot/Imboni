@@ -1,0 +1,17 @@
+{
+  "checking": "Checking your link…",
+  "confirm": "Confirm password",
+  "deadBody": "This link has expired or has already been used. Ask us to send you a new one.",
+  "deadTitle": "This link no longer works",
+  "password": "Choose a password",
+  "ruleLength": "At least 8 characters",
+  "ruleMatch": "Both passwords match",
+  "ruleSpecial": "Contains one special character",
+  "saving": "Setting your password…",
+  "submit": "Set password and continue",
+  "subtitle": "You are setting the password for {{email}}. Nobody else has one for this account.",
+  "title": "Set up your school account",
+  "titleNamed": "Set up {{school}} on Imboni",
+  "toSignIn": "Go to sign in",
+  "toggleVisibility": "Show or hide the password"
+}
