@@ -123,6 +123,12 @@ jobs:
         working-directory: Frontend
         # Fails on errors (undefined names, bad hook usage). The pre-existing
         # backlog is configured as warnings in eslint.config.js.
+        #
+        # The lint toolchain is pinned to exact versions in package.json:
+        # `npm install` below floats caret ranges, so a new plugin minor
+        # could add a rule and fail this job on a commit that touched no
+        # frontend code and passed lint locally. It did. Bump the pins
+        # deliberately, not by being the next person to push.
         run: npm run lint
 
       - name: Audit npm dependencies for known CVEs
