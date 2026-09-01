@@ -111,6 +111,11 @@ class PlatformUser(models.Model):
     # code off it, so a half-finished enrolment can never lock anybody out.
     mfa_secret = models.CharField(max_length=64, blank=True, default='')
     mfa_enabled = models.BooleanField(default=False)
+    # The last TOTP time-step this operator successfully spent. A code is valid
+    # for a 30s step and we accept one step either side, so without this a code
+    # observed over someone's shoulder — or read out of a proxy log — stays
+    # usable for about 90 seconds. Recording the step makes each code good once.
+    mfa_last_step = models.BigIntegerField(null=True, blank=True)
 
     def has_role(self, required):
         """True if this operator's role is `required` or stronger."""
@@ -215,6 +220,30 @@ class Payment(models.Model):
 
     def __str__(self):
         return f'{self.school_name or self.client_id}, {self.amount} {self.currency} ({self.status})'
+
+
+class StripeEvent(models.Model):
+    """
+    One row per Stripe event we have finished processing.
+
+    Stripe delivers at-least-once: a redelivery after a network hiccup, or a
+    manual resend from the dashboard, arrives as the same event id. Claiming the
+    id before handling makes the webhook idempotent for the handlers that are
+    not naturally so — a status flip is harmless twice, recording revenue is
+    not.
+
+    The row is only kept when handling SUCCEEDED. On failure it is deleted so
+    that Stripe's retry is allowed to do its job.
+    """
+    event_id = models.CharField(max_length=255, primary_key=True)
+    event_type = models.CharField(max_length=120, blank=True, default='')
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-received_at']
+
+    def __str__(self):
+        return f'{self.event_id} ({self.event_type})'
 
 
 class SupportTicket(models.Model):

@@ -287,10 +287,16 @@ class TestRolesAreSeparated:
         assert not support.has_role(PlatformUser.ROLE_OPERATIONS)
 
     def test_a_totp_code_verifies_against_the_secret(self):
-        user = PlatformUser(mfa_secret=pyotp.random_base32())
-        assert verify_mfa_code(user, pyotp.TOTP(user.mfa_secret).now())
-        assert not verify_mfa_code(user, '000000')
-        assert not verify_mfa_code(user, '')
+        """
+        The operator must be a saved row: accepting a code now also spends it,
+        by writing the time-step it belongs to back to the account. An
+        unsaved instance has nowhere to record that, so it fails closed.
+        """
+        user = operator('totp@imboni.com')
+        with _public():
+            assert verify_mfa_code(user, pyotp.TOTP(user.mfa_secret).now())
+            assert not verify_mfa_code(user, '000000')
+            assert not verify_mfa_code(user, '')
 
 
 # ── 4. Operator actions are recorded ──────────────────────────────────────────

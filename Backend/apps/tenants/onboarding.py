@@ -19,9 +19,12 @@ in the public schema.
 import logging
 
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from .models import TenantProvision
@@ -48,9 +51,26 @@ class SchoolSignupSerializer(serializers.Serializer):
             raise serializers.ValidationError(str(exc))
         return value
 
+    def validate_admin_password(self, value):
+        # min_length=8 on its own let a school administrator's account be
+        # protected by "password". The invitation flow already runs Django's
+        # validators; signup is the same account by another route and should
+        # not be the weaker door.
+        try:
+            validate_password(value)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(list(exc.messages))
+        return value
+
 
 class SchoolSignupView(APIView):
     permission_classes = [AllowAny]
+    # Every accepted POST creates a Postgres schema and migrates ~20 apps into
+    # it, and entrypoint.sh re-inspects every schema on each container boot — so
+    # junk tenants are not just clutter, they permanently slow deploys. At the
+    # default anonymous ceiling this was 60 schemas a minute per IP.
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'school_signup'
 
     def post(self, request):
         serializer = SchoolSignupSerializer(data=request.data)

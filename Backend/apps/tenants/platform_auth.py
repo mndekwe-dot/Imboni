@@ -14,13 +14,18 @@ schema), so they get their OWN login + token flow here. The two never mix:
 These views/classes are mounted on the PUBLIC schema (bare domain) — see
 `apps/tenants/urls.py` / `Imboni/urls_public.py`.
 """
+import secrets
+import time
+
 import pyotp
 from django.core import signing
+from django.db import models
 from django.utils import timezone
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny, BasePermission, SAFE_METHODS
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from rest_framework import status as http_status
 from rest_framework_simplejwt.exceptions import TokenError
@@ -194,10 +199,49 @@ def resolve_mfa_challenge(challenge):
 
 
 def verify_mfa_code(platform_user, code):
-    """True if `code` is currently valid for this operator's secret."""
+    """
+    True if `code` is currently valid for this operator's secret AND has not
+    been spent already.
+
+    `valid_window=1` accepts the neighbouring 30s steps, which is what makes a
+    TOTP usable on a phone whose clock drifts — and also what gives an observed
+    code a ~90 second life. Recording the step it belongs to closes that: a code
+    works once, and a replay inside the window is refused.
+    """
     if not (platform_user.mfa_secret and code):
         return False
-    return pyotp.TOTP(platform_user.mfa_secret).verify(str(code).strip(), valid_window=1)
+    totp = pyotp.TOTP(platform_user.mfa_secret)
+    code = str(code).strip()
+    if not totp.verify(code, valid_window=1):
+        return False
+
+    step = _matched_step(totp, code)
+    if step is None:
+        return False
+    if platform_user.mfa_last_step is not None and step <= platform_user.mfa_last_step:
+        return False
+
+    # Conditional update: two requests racing with the same code both pass the
+    # check above, and only the one that moves the watermark wins.
+    claimed = PlatformUser.objects.filter(
+        pk=platform_user.pk,
+    ).filter(
+        models.Q(mfa_last_step__isnull=True) | models.Q(mfa_last_step__lt=step)
+    ).update(mfa_last_step=step)
+    if not claimed:
+        return False
+    platform_user.mfa_last_step = step
+    return True
+
+
+def _matched_step(totp, code):
+    """Which time-step the supplied code belongs to, or None."""
+    now = int(time.time())
+    for offset in (0, -1, 1):                       # same order as valid_window=1
+        step = now // totp.interval + offset
+        if secrets.compare_digest(totp.at(step * totp.interval), code):
+            return step
+    return None
 
 
 # ── Views ─────────────────────────────────────────────────────────────────────
@@ -206,6 +250,11 @@ class PlatformLoginView(APIView):
     """POST {email, password} → {access, refresh, user}. Public, no auth."""
     authentication_classes = []
     permission_classes = [AllowAny]
+    # Same 5/min per-IP ceiling the school login uses. Without an explicit scope
+    # this fell back to AnonRateThrottle (60/min), so the accounts that can
+    # suspend any school were twelve times easier to guess at than a student's.
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'login'
 
     def post(self, request):
         email = (request.data.get('email') or '').strip().lower()
@@ -248,6 +297,10 @@ class PlatformMfaVerifyView(APIView):
     """POST {challenge, code} → tokens. The second half of a 2FA login."""
     authentication_classes = []
     permission_classes = [AllowAny]
+    # A six-digit code behind a five-minute challenge is only strong while the
+    # attempt rate is capped. Reuses the school portal's two_factor scope.
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'two_factor'
 
     def post(self, request):
         user = resolve_mfa_challenge(request.data.get('challenge'))
