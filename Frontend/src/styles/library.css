@@ -317,3 +317,10 @@
   .lib-loan-actions { width: 100%; }
   .lib-issue-field { min-width: 100%; }
 }
+
+/* ── Stocktake states ─────────────────────────────────────────────────────────
+   An open count is work in progress, a closed one is a record, an abandoned one
+   is neither. Three states, three readings. */
+.lib-count-open      { background: var(--primary-surface); color: var(--primary-text); }
+.lib-count-closed    { background: var(--success-surface, #dcfce7); color: var(--success, #16a34a); }
+.lib-count-abandoned { background: var(--muted); color: var(--muted-foreground); }
