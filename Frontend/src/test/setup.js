@@ -18,8 +18,8 @@ import '../i18n'
 // vi.mock could register, and every mocked test would make a real request.
 import { resetSchoolConfigCache } from '../hooks/schoolConfigCache'
 import { resetLibraryFeatureCache } from '../hooks/libraryFeatureCache'
-import { resetSubscriptionStatus } from '../api/subscriptionState'
 import { resetFinanceFeatureCache } from '../hooks/financeFeatureCache'
+import { resetSubscriptionStatus } from '../api/subscriptionState'
 
 // jsdom implements neither Element.scrollTo nor window.scrollTo. Components that
 // scroll a list/window (e.g. dashboard "load more") call it from a post-render
