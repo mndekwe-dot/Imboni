@@ -8,11 +8,13 @@ import { ListSection } from '../../components/ui/ListSection'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
+import { ScanInput } from '../../components/ui/ScanInput'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import {
-    getFines, getLoans, getMembers, issueLoan, payFine, renewLoan, returnLoan, waiveFine,
+    getFines, getLoans, getMembers, issueLoan, payFine, renewLoan, resolveScan,
+    returnByScan, returnLoan, waiveFine,
 } from '../../api/library'
 import { LibraryShell } from './LibraryShell'
 
@@ -39,6 +41,11 @@ export function LibraryCirculation() {
     const statusParam = searchParams.get('status')
     const [status, setStatus] = useState(
         LOAN_FILTERS.includes(statusParam) ? statusParam : 'open')
+
+    // Lifted out of IssuePanel so the scan desk can fill it: scanning an
+    // available copy should leave nothing to do but say who is taking it.
+    const [issueCode, setIssueCode] = useState('')
+    const [issueBorrower, setIssueBorrower] = useState(null)
 
     const [loans, setLoans]     = useState([])
     const [fines, setFines]     = useState([])
@@ -120,7 +127,17 @@ export function LibraryCirculation() {
 
             {activeTab === 'loans' && (
                 <div id="lib-circ-panel-loans" role="tabpanel" aria-labelledby="lib-circ-tab-loans">
-                    <IssuePanel onIssued={() => { loadLoans(); }} />
+                    <ScanPanel
+                        onBorrower={setIssueBorrower}
+                        onCopy={setIssueCode}
+                        onChanged={loadLoans}
+                    />
+
+                    <IssuePanel
+                        onIssued={loadLoans}
+                        code={issueCode} setCode={setIssueCode}
+                        borrower={issueBorrower} setBorrower={setIssueBorrower}
+                    />
 
                     <div className="toolbar-card mb-1-5">
                         <FilterBar
@@ -200,11 +217,139 @@ export function LibraryCirculation() {
 }
 
 /** Scan a copy, pick a borrower, hand it over. */
-function IssuePanel({ onIssued }) {
+/**
+ * Scan whatever is in your hand, and let the desk work out what it was.
+ *
+ * The librarian does not classify the barcode before pointing the reader at
+ * it, so neither does the interface. What comes back is one of four different
+ * answers, and the difference between them is the whole feature:
+ *
+ *   the school's own label  -> exactly one physical book. Issue it, or take it
+ *                              back, with no further questions.
+ *   the book's own ISBN     -> the TITLE. Every copy of a textbook carries the
+ *                              same one, so this cannot be returned: it does
+ *                              not say which of the five came back.
+ *   a valid ISBN we lack    -> not an error. A real book, not catalogued yet.
+ *   a pupil's card          -> the borrower, so the desk can scan card, book,
+ *                              done.
+ */
+function ScanPanel({ onBorrower, onCopy, onChanged }) {
     const { t } = useTranslation()
     const toast = useToast()
-    const [code, setCode]         = useState('')
-    const [borrower, setBorrower] = useState(null)
+    const [busy, setBusy] = useState(false)
+    const [result, setResult] = useState(null)
+
+    async function handleScan(code) {
+        setBusy(true)
+        try {
+            const found = await resolveScan(code)
+            setResult(found)
+            if (found.kind === 'borrower') onBorrower?.(found.borrower)
+            // An available copy goes straight into the issue form: the only
+            // thing still missing is who is taking it.
+            if (found.kind === 'copy' && !found.loan) onCopy?.(found.copy.copy_code)
+        } catch (error) {
+            toast.error(errorMessage(error, t('library.scan.failed')))
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    async function takeBack(code) {
+        setBusy(true)
+        try {
+            const outcome = await returnByScan(code)
+            setResult(null)
+            onChanged?.()
+            toast.success(outcome.held_for
+                ? t('library.scan.returnedHeld', { name: outcome.held_for })
+                : t('library.scan.returned'))
+            if (outcome.fine) toast.info(t('library.scan.fined', { amount: outcome.fine.amount }))
+        } catch (error) {
+            toast.error(errorMessage(error, t('library.scan.returnFailed')))
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    return (
+        <ListSection icon="barcode_scanner" title={t('library.scan.title')}>
+            <p className="u-muted u-sm">{t('library.scan.help')}</p>
+            <ScanInput onScan={handleScan} busy={busy} />
+
+            {result?.kind === 'copy' && (
+                <div className="scan-result scan-result-copy">
+                    <span className="row-icon" aria-hidden="true">
+                        <span className="material-symbols-rounded">menu_book</span>
+                    </span>
+                    <div className="row-main">
+                        <div className="u-strong">{result.copy.book_title}</div>
+                        <div className="text-xs-muted">
+                            <code className="lib-copy-code">{result.copy.copy_code}</code>
+                            {result.loan
+                                ? ` · ${t('library.scan.outTo', { name: result.loan.borrower })}`
+                                : ` · ${result.copy.status_label}`}
+                        </div>
+                    </div>
+                    {result.loan && (
+                        <button className="btn btn-primary btn-sm" disabled={busy}
+                            onClick={() => takeBack(result.copy.copy_code)}>
+                            {t('library.scan.takeBack')}
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {result?.kind === 'title' && (
+                <div className="scan-result scan-result-title">
+                    <span className="row-icon" aria-hidden="true">
+                        <span className="material-symbols-rounded">library_books</span>
+                    </span>
+                    <div className="row-main">
+                        <div className="u-strong">{result.book.title}</div>
+                        {/* Said in full, because this is the thing people expect
+                            to work and it cannot: one ISBN, five copies. */}
+                        <div className="text-xs-muted">{result.detail}</div>
+                    </div>
+                    <span className="pill pill-info">
+                        {t('library.scan.availableOf', {
+                            available: result.available, total: result.copies.length,
+                        })}
+                    </span>
+                </div>
+            )}
+
+            {result?.kind === 'isbn' && (
+                <div className="scan-result scan-result-isbn">
+                    <span className="row-icon" aria-hidden="true">
+                        <span className="material-symbols-rounded">add</span>
+                    </span>
+                    <div className="row-main">
+                        <div className="u-strong">{t('library.scan.notHeld')}</div>
+                        <div className="text-xs-muted">
+                            <code className="lib-copy-code">{result.code}</code>
+                            {` · ${t('library.scan.catalogueIt')}`}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {result?.kind === 'unknown' && (
+                <div className="scan-result scan-result-unknown">
+                    <div className="row-main">
+                        <div className="u-strong">{t('library.scan.unknown')}</div>
+                        <div className="text-xs-muted">{result.detail}</div>
+                    </div>
+                </div>
+            )}
+        </ListSection>
+    )
+}
+
+
+function IssuePanel({ onIssued, code, setCode, borrower, setBorrower }) {
+    const { t } = useTranslation()
+    const toast = useToast()
     const [busy, setBusy]         = useState(false)
 
     const searchMembers = useCallback(q => getMembers({ q }).then(rows =>

@@ -6,8 +6,13 @@ import '../../styles/tables.css'
  *
  * Props:
  *   title          {string}   Container heading
+ *   icon           {string}   Material symbol beside the heading, as ListSection
+ *                             takes one. The two draw the same frame, so a page
+ *                             with a card grid above a table should not have to
+ *                             lose the icon when it crosses from one to the other.
  *   data           {array}    Already-filtered data to paginate over
- *   columns        {array}    [{label}] for <thead>
+ *   columns        {array}    [{label, align}] — or plain strings — for <thead>.
+ *                             align: 'right' for money and counts.
  *   renderRow      {fn}       (item, index) => <tr key=...>
  *   pageSize       {number}   Rows per page (default 8)
  *   emptyIcon      {string}   Material symbol name for empty state
@@ -19,6 +24,7 @@ import '../../styles/tables.css'
  */
 export function DataTable({
     title,
+    icon,
     data = [],
     columns = [],
     renderRow,
@@ -61,7 +67,12 @@ export function DataTable({
 
             {/* Header */}
             <div className="dt-header">
-                <span className="dt-title">{title}</span>
+                <span className="dt-title">
+                    {icon && (
+                        <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
+                    )}
+                    {title}
+                </span>
                 <div className="dt-header-right">
                     {data.length > 0 && (
                         <span className="dt-count">
@@ -93,7 +104,10 @@ export function DataTable({
                         <thead>
                             <tr>
                                 {columns.map(col => (
-                                    <th key={col.label ?? col}>{col.label ?? col}</th>
+                                    <th key={col.label ?? col}
+                                        className={col.align === 'right' ? 'dt-num' : undefined}>
+                                        {col.label ?? col}
+                                    </th>
                                 ))}
                             </tr>
                         </thead>

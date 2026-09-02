@@ -274,5 +274,13 @@
   "yearGroups": "Inzego z'imyaka",
   "yes": "Yego",
   "yesDelete": "Yego, siba",
-  "yesterday": "Ejo hashize"
+  "yesterday": "Ejo hashize",
+  "filterByClass": "Shungura ukurikije ishuri",
+  "allStreams": "Amashami yose",
+  "preparing": "Biretegurwa...",
+  "documentFailed": "Iyi nyandiko ntiyashoboye gutegurwa. Ongera ugerageze.",
+  "choose": "Hitamo...",
+  "note": "Icyitonderwa",
+  "from": "Kuva",
+  "to": "Kugeza"
 }

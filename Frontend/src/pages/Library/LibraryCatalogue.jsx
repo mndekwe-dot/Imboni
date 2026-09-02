@@ -4,13 +4,17 @@ import { useTranslation } from 'react-i18next'
 import { SearchBar } from '../../components/ui/SearchBar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { ListSection } from '../../components/ui/ListSection'
+import { ScanInput } from '../../components/ui/ScanInput'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Modal } from '../../components/ui/Modal'
 import { StatCard } from '../../components/layout/StatCard'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { downloadCsv } from '../../utils/exportTable'
-import { addCopy, createBook, deleteBook, getBook, getBooks } from '../../api/library'
+import {
+    addCopy, catalogueByScan, createBook, deleteBook, getBook, getBooks,
+} from '../../api/library'
+import { printPdf } from '../../api/documents'
 import { LibraryShell } from './LibraryShell'
 
 const CATEGORIES = ['all', 'textbook', 'fiction', 'nonfiction', 'reference', 'periodical', 'other']
@@ -30,6 +34,7 @@ export function LibraryCatalogue() {
     const [search, setSearch]   = useState('')
     const [category, setCategory] = useState('all')
     const [showNew, setShowNew] = useState(false)
+    const [scanning, setScanning] = useState(false)
     const [openBook, setOpenBook] = useState(null)
 
     const load = useCallback(() => {
@@ -120,6 +125,10 @@ export function LibraryCatalogue() {
                     label={t('library.stats.onShelf')} colorClass="success" />
             </div>
 
+            {scanning && (
+                <ScanToAddModal onClose={() => setScanning(false)} onAdded={load} />
+            )}
+
             <div className="toolbar-card mb-1-5">
                 <SearchBar value={search} onChange={setSearch}
                     placeholder={t('library.catalogue.searchPlaceholder')} />
@@ -127,6 +136,13 @@ export function LibraryCatalogue() {
                 <button className="btn btn-outline btn-sm" onClick={handleExport} disabled={!visible.length}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
                     {t('common.export')}
+                </button>
+                {/* Ahead of "Add book", because for a school with three
+                    thousand books this is the entry path and typing is the
+                    exception. */}
+                <button className="btn btn-outline btn-sm" onClick={() => setScanning(true)}>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">barcode_scanner</span>
+                    {t('library.entry.scanToAdd')}
                 </button>
                 <button className="btn btn-primary btn-sm" onClick={() => setShowNew(true)}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
@@ -386,6 +402,148 @@ function BookDetail({ bookId, onClose, onDeleted, onCopyAdded }) {
                         </div>
                     </div>
                 </>
+            )}
+        </Modal>
+    )
+}
+
+/**
+ * Catalogue a book by scanning the barcode already on the back of it.
+ *
+ * This is the half of the problem a book's own barcode genuinely solves.
+ * Cataloguing is where the typing is -- title, author, publisher, year, three
+ * thousand times -- and the ISBN is the one thing on the cover a machine can
+ * read without a person transcribing it.
+ *
+ * Scanning the same ISBN again adds COPIES to the title already held; it does
+ * not create a second record. A school buys forty of one textbook over four
+ * years, and a catalogue with four entries for "Biology for Rwanda S4" cannot
+ * answer how many the school owns -- which is the only question it exists for.
+ */
+function ScanToAddModal({ onClose, onAdded }) {
+    const { t } = useTranslation()
+    const toast = useToast()
+    const [busy, setBusy] = useState(false)
+    const [pending, setPending] = useState(null)   // an ISBN we do not hold yet
+    const [form, setForm] = useState({ title: '', author: '', shelf: '', copies: '1' })
+    const [added, setAdded] = useState([])
+
+    async function send(payload) {
+        setBusy(true)
+        try {
+            const outcome = await catalogueByScan(payload)
+            setPending(null)
+            setForm({ title: '', author: '', shelf: '', copies: '1' })
+            setAdded(rows => [{
+                isbn: payload.isbn,
+                title: outcome.book.title,
+                copies: outcome.copies.length,
+                created: outcome.created,
+                ids: outcome.copy_ids,
+            }, ...rows])
+            onAdded?.()
+            toast.success(outcome.created
+                ? t('library.entry.addedNew', { title: outcome.book.title })
+                : t('library.entry.addedCopies', {
+                    count: outcome.copies.length, title: outcome.book.title,
+                }))
+        } catch (error) {
+            // 422 is not a failure: the book is real, we simply have never seen
+            // it and nothing on a barcode carries a title.
+            if (error?.status === 422) setPending(error.data?.isbn || payload.isbn)
+            else toast.error(errorMessage(error, t('library.entry.failed')))
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    const handleScan = code => send({ isbn: code, copies: Number(form.copies) || 1 })
+
+    // Every copy just added, so the labels printed are exactly the books on the
+    // desk -- rather than "all copies of this title", which would reprint
+    // labels for the thirty already on the shelf.
+    const freshIds = added.flatMap(a => a.ids)
+
+    return (
+        <Modal onClose={onClose} title={t('library.entry.scanToAdd')} icon="barcode_scanner"
+            size="wide"
+            footer={
+                <>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
+                    {freshIds.length > 0 && (
+                        <button className="btn btn-primary"
+                            onClick={() => printPdf('/imboni/library/labels/', { copies: freshIds.join(',') })}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">print</span>
+                            {t('library.entry.printLabels', { count: freshIds.length })}
+                        </button>
+                    )}
+                </>
+            }
+        >
+            <p className="u-muted u-sm">{t('library.entry.help')}</p>
+
+            <div className="form-grid mb-1-5">
+                <div>
+                    <label className="form-label" htmlFor="scan-copies">
+                        {t('library.entry.howMany')}
+                    </label>
+                    <input id="scan-copies" type="number" min="1" max="200"
+                        className="form-input" value={form.copies}
+                        onChange={e => setForm(f => ({ ...f, copies: e.target.value }))} />
+                    <p className="text-xs-muted">{t('library.entry.howManyHint')}</p>
+                </div>
+            </div>
+
+            <ScanInput onScan={handleScan} busy={busy}
+                placeholder={t('library.entry.scanPlaceholder')}
+                label={t('library.fields.isbn')} />
+
+            {pending && (
+                <div className="scan-result scan-result-isbn">
+                    <div className="row-main">
+                        <div className="u-strong">{t('library.entry.newTitle')}</div>
+                        <div className="text-xs-muted">
+                            <code className="lib-copy-code">{pending}</code>
+                        </div>
+                        <div className="form-grid mt-1">
+                            <input className="form-input" value={form.title} autoFocus
+                                placeholder={t('library.fields.title')}
+                                onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                            <input className="form-input" value={form.author}
+                                placeholder={t('library.fields.author')}
+                                onChange={e => setForm(f => ({ ...f, author: e.target.value }))} />
+                            <input className="form-input" value={form.shelf}
+                                placeholder={t('library.fields.shelf')}
+                                onChange={e => setForm(f => ({ ...f, shelf: e.target.value }))} />
+                        </div>
+                    </div>
+                    <button className="btn btn-primary btn-sm"
+                        disabled={busy || !form.title.trim()}
+                        onClick={() => send({
+                            isbn: pending, title: form.title, author: form.author,
+                            shelf: form.shelf, copies: Number(form.copies) || 1,
+                        })}>
+                        {t('common.save')}
+                    </button>
+                </div>
+            )}
+
+            {added.length > 0 && (
+                <ul className="row-list mt-1-5">
+                    {added.map((a, i) => (
+                        <li key={`${a.isbn}-${i}`} className="row-item">
+                            <span className="class-chip">{a.copies}</span>
+                            <div className="row-main">
+                                <div className="u-strong">{a.title}</div>
+                                <div className="text-xs-muted">
+                                    {a.created
+                                        ? t('library.entry.wasNew')
+                                        : t('library.entry.wasExisting')}
+                                </div>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
             )}
         </Modal>
     )

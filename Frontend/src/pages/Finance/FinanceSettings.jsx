@@ -55,7 +55,7 @@ export function FinanceSettings() {
                     <p className="u-muted">{t('common.loading')}</p>
                 ) : (
                     <>
-                        <div className="fin-form-grid">
+                        <div className="form-grid">
                             {FIELDS.map(field => (
                                 <div key={field.key}>
                                     <label className="form-label" htmlFor={`fs-${field.key}`}>
@@ -75,7 +75,7 @@ export function FinanceSettings() {
                                     </p>
                                 </div>
                             ))}
-                            <div className="fin-col-full">
+                            <div className="form-col-full">
                                 <label className="form-label" htmlFor="fs-bank">
                                     {t('finance.settings.bank_details')}
                                 </label>

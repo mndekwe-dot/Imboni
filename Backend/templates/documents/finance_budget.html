@@ -1,0 +1,35 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% block content %}
+<table class="grid">
+    <tr>
+        <th>Category</th><th class="num">Planned</th><th class="num">Actual</th>
+        <th class="num">Variance</th><th>Used</th>
+    </tr>
+    {% for line in lines %}
+        <tr>
+            <td>
+                {{ line.category.name|default:"(deleted category)" }}
+                {% if line.unbudgeted %}<span class="pill pill-bad">not budgeted</span>{% endif %}
+            </td>
+            <td class="num">{{ line.planned|floatformat:0|intcomma }}</td>
+            <td class="num">{{ line.actual|floatformat:0|intcomma }}</td>
+            <td class="num">
+                {% if line.over %}<span class="pill pill-bad">{{ line.variance|floatformat:0|intcomma }}</span>
+                {% else %}{{ line.variance|floatformat:0|intcomma }}{% endif %}
+            </td>
+            <td>{% if line.used_percent %}{{ line.used_percent|floatformat:0 }}%{% else %}&mdash;{% endif %}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5" class="empty">This budget has no lines yet.</td></tr>
+    {% endfor %}
+    <tr class="total">
+        <td>Total</td>
+        <td class="num">{{ planned_total|floatformat:0|intcomma }}</td>
+        <td class="num">{{ actual_total|floatformat:0|intcomma }}</td>
+        <td class="num">{{ variance_total|floatformat:0|intcomma }}</td>
+        <td></td>
+    </tr>
+</table>
+<p class="mt muted">Actuals count approved and paid expenses. A pending expense is a
+request, not a commitment, so it is not counted against the budget yet.</p>
+{% endblock %}

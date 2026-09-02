@@ -106,11 +106,11 @@ export function FinanceStructure() {
                             onClick: () => setShowNew(true) }}
                     />
                 ) : (
-                    <ul className="fin-row-list">
+                    <ul className="row-list">
                         {rows.map(row => (
-                            <li key={row.id} className="fin-row">
-                                <span className="fin-class-chip">{row.class_label}</span>
-                                <div className="fin-row-main">
+                            <li key={row.id} className="row-item">
+                                <span className="class-chip">{row.class_label}</span>
+                                <div className="row-main">
                                     <div className="u-strong u-sm">
                                         {t(`finance.categories.${row.category}`)}
                                     </div>
@@ -120,7 +120,7 @@ export function FinanceStructure() {
                                     </div>
                                 </div>
                                 <Money value={row.amount} />
-                                <div className="fin-row-actions">
+                                <div className="row-actions">
                                     <button className="btn btn-outline btn-sm"
                                         onClick={() => handleDelete(row)}>
                                         {t('common.delete')}
@@ -175,10 +175,10 @@ function StructureForm({ onClose, onSave }) {
             <ClassPicker
                 section={section} onSectionChange={setSection}
                 year={year} onYearChange={setYear}
-                classValue={stream} onClassChange={setStream}
+                classVal={stream} onClassChange={setStream}
             />
 
-            <div className="fin-form-grid mt-1-5">
+            <div className="form-grid mt-1-5">
                 <div>
                     <label className="form-label" htmlFor="st-category">
                         {t('finance.fields.category')}
@@ -203,7 +203,7 @@ function StructureForm({ onClose, onSave }) {
                     <input id="st-due" type="date" className="form-input" value={form.due_date}
                         onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))} />
                 </div>
-                <div className="fin-col-full">
+                <div className="form-col-full">
                     <label className="form-label" htmlFor="st-notes">{t('common.notes')}</label>
                     <input id="st-notes" className="form-input" value={form.notes}
                         onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />

@@ -1,0 +1,25 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% block content %}
+<table class="grid">
+    <tr>
+        <th>Date</th><th>Category</th><th>Description</th>
+        <th>Status</th><th class="num">Amount</th>
+    </tr>
+    {% for e in rows %}
+        <tr>
+            <td>{{ e.spent_on|date:"j M" }}</td>
+            <td>{{ e.category.name|default:"-" }}</td>
+            <td>{{ e.description }}</td>
+            <td><span class="pill">{{ e.get_status_display }}</span></td>
+            <td class="num">{{ e.amount|floatformat:0|intcomma }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5" class="empty">No expenses recorded.</td></tr>
+    {% endfor %}
+    <tr class="total">
+        <td colspan="4">Paid and approved</td>
+        <td class="num">{{ totals.committed|floatformat:0|intcomma }}</td>
+    </tr>
+</table>
+<p class="mt muted">Awaiting approval: {{ totals.pending|floatformat:0|intcomma }}</p>
+{% endblock %}

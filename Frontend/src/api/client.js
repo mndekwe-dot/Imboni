@@ -134,6 +134,14 @@ client.interceptors.response.use(
         // (e.g. the timetable 409-conflict dialog) — the plain Error used to
         // drop it, which silently disabled that handling.
         wrapped.response = error.response
+        // And lift the two fields callers actually reach for onto the error
+        // itself. Twenty-odd pages were written as `if (e?.status !== 402)` to
+        // stay quiet when the plan does not include a portal — and `.status`
+        // was never set, so the comparison was always true and every one of
+        // them showed "could not load" on top of the upgrade notice it was
+        // meant to make room for.
+        wrapped.status = error.response?.status
+        wrapped.data = error.response?.data
         return Promise.reject(wrapped)
     }
 )

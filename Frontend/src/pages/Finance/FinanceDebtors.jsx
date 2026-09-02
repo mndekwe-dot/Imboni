@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SearchBar } from '../../components/ui/SearchBar'
+import { ClassFilter } from '../../components/ui/ClassFilter'
+import { DocumentActions } from '../../components/ui/DocumentActions'
 import { ListSection } from '../../components/ui/ListSection'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
@@ -10,9 +12,9 @@ import { StatCard } from '../../components/layout/StatCard'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
-import { downloadCsv } from '../../utils/exportTable'
 import { getDebtors, getStudentFinance, saveStudentAccount } from '../../api/finance'
 import { FinanceShell, Money } from './FinanceShell'
+import { badge } from '../../utils/tone'
 
 /** Who owes what, worst first — the list the office actually works from. */
 export function FinanceDebtors() {
@@ -23,14 +25,24 @@ export function FinanceDebtors() {
     const [loading, setLoading] = useState(true)
     const [search, setSearch]   = useState('')
     const [openId, setOpenId]   = useState(null)
+    const [klass, setKlass]     = useState({ grade: '', stream: '' })
+
+    // The class narrows the QUERY, not the rendered rows. Filtering a capped
+    // list in the browser would show "S4A" while quietly hiding the S4A
+    // families who fell outside the server's first 300 rows.
+    const params = {
+        ...(klass.grade ? { grade: klass.grade } : {}),
+        ...(klass.stream ? { stream: klass.stream } : {}),
+    }
 
     const load = useCallback(() => {
         setLoading(true)
-        getDebtors()
+        getDebtors(params)
             .then(d => setRows(Array.isArray(d) ? d : []))
             .catch(e => { if (e?.status !== 402) toast.error(errorMessage(e, t('finance.loadFailed'))) })
             .finally(() => setLoading(false))
-    }, [toast, t])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [toast, t, klass.grade, klass.stream])
 
     useEffect(() => { load() }, [load])
 
@@ -42,15 +54,6 @@ export function FinanceDebtors() {
 
     const totalOwed = visible.reduce((sum, r) => sum + Number(r.outstanding), 0)
     const totalOverdue = visible.reduce((sum, r) => sum + Number(r.overdue), 0)
-
-    function handleExport() {
-        downloadCsv('debtors', {
-            columns: [t('common.student'), t('common.class'), t('common.admNo'),
-                t('finance.stats.outstanding'), t('finance.fields.overdue')],
-            rows: visible.map(r => [r.student.name, r.student.class_label,
-                r.student.student_id, r.outstanding, r.overdue]),
-        })
-    }
 
     return (
         <FinanceShell title={t('finance.debtors.title')} subtitle={t('finance.debtors.subtitle')}>
@@ -73,12 +76,14 @@ export function FinanceDebtors() {
             <div className="toolbar-card mb-1-5">
                 <SearchBar value={search} onChange={setSearch}
                     placeholder={t('finance.debtors.searchPlaceholder')} />
+                <ClassFilter grade={klass.grade} stream={klass.stream}
+                    onChange={setKlass} disabled={loading} />
                 <div className="toolbar-spacer" />
-                <button className="btn btn-outline btn-sm" onClick={handleExport}
-                    disabled={!visible.length}>
-                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
-                    {t('common.export')}
-                </button>
+                {/* Printed and exported from the server with the same filters,
+                    so the paper matches the screen and carries every row rather
+                    than the page's first 300. */}
+                <DocumentActions url="/imboni/finance/debtors/" params={params}
+                    stem="who-owes" disabled={loading} />
             </div>
 
             <ListSection
@@ -100,20 +105,20 @@ export function FinanceDebtors() {
                             : undefined}
                     />
                 ) : (
-                    <ul className="fin-row-list">
+                    <ul className="row-list">
                         {visible.map(row => (
-                            <li key={row.student.id} className="fin-row">
-                                <button className="fin-row-open" onClick={() => setOpenId(row.student.id)}>
-                                    <span className="fin-avatar">{initials(row.student.name)}</span>
-                                    <span className="fin-row-main">
+                            <li key={row.student.id} className="row-item">
+                                <button className="row-item-button" onClick={() => setOpenId(row.student.id)}>
+                                    <span className="row-avatar">{initials(row.student.name)}</span>
+                                    <span className="row-main">
                                         <span className="u-strong u-sm">{row.student.name}</span>
                                         <span className="text-xs-muted">
                                             {row.student.class_label} · {row.student.student_id}
                                         </span>
                                     </span>
                                 </button>
-                                <span className="fin-row-figures">
-                                    <Money value={row.outstanding} className="fin-owed" />
+                                <span className="row-figures">
+                                    <Money value={row.outstanding} className="amount-owed" />
                                     {Number(row.overdue) > 0 && (
                                         <span className="badge badge-high">
                                             {t('finance.debtors.overdueOf', { amount: row.overdue })}
@@ -179,18 +184,18 @@ function StudentAccountModal({ id, onClose, onSaved }) {
         >
             {!data ? <p className="u-muted">{t('common.loading')}</p> : (
                 <>
-                    <div className="fin-balance-row">
+                    <div className="figure-strip">
                         <div>
-                            <span className="fin-balance-label">{t('finance.stats.charged')}</span>
+                            <span className="figure-label">{t('finance.stats.charged')}</span>
                             <Money value={data.charged} />
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('finance.stats.collected')}</span>
+                            <span className="figure-label">{t('finance.stats.collected')}</span>
                             <Money value={data.paid} />
                         </div>
                         <div>
-                            <span className="fin-balance-label">{t('finance.stats.outstanding')}</span>
-                            <Money value={data.outstanding} className="fin-owed" />
+                            <span className="figure-label">{t('finance.stats.outstanding')}</span>
+                            <Money value={data.outstanding} className="amount-owed" />
                         </div>
                     </div>
 
@@ -212,7 +217,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
                                 <td><Money value={fee.balance} /></td>
                                 <td className="text-muted">{formatDate(fee.due_date)}</td>
                                 <td>
-                                    <span className={`badge fin-status-${fee.status}`}>
+                                    <span className={badge(fee.status)}>
                                         {t(`finance.status.${fee.status}`)}
                                     </span>
                                 </td>
@@ -227,7 +232,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
                         <span className="material-symbols-rounded" aria-hidden="true">edit_note</span>
                         {t('finance.debtors.officeNote')}
                     </h3>
-                    <div className="fin-form-grid">
+                    <div className="form-grid">
                         <div>
                             <label className="form-label" htmlFor="acc-payer">
                                 {t('finance.fields.payer')}
@@ -251,7 +256,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
                                 onChange={e => setNote(n => ({ ...n, bursary_percent: e.target.value }))} />
                             <p className="text-xs-muted">{t('finance.debtors.bursaryHint')}</p>
                         </div>
-                        <div className="fin-col-full">
+                        <div className="form-col-full">
                             <label className="form-label" htmlFor="acc-arrangement">
                                 {t('finance.fields.arrangement')}
                             </label>

@@ -6,10 +6,12 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
 import { Modal } from '../../components/ui/Modal'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
+import { ClassFilter } from '../../components/ui/ClassFilter'
+import { openDocument } from '../../api/documents'
+import { DocumentActions } from '../../components/ui/DocumentActions'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
-import { downloadCsv, printTable } from '../../utils/exportTable'
 import {
     getDebtors, getPayments, getStudentFinance, recordPayment, reversePayment,
 } from '../../api/finance'
@@ -34,13 +36,23 @@ export function FinancePayments() {
     const [taking, setTaking]     = useState(false)
     const [receipt, setReceipt]   = useState(null)
 
+    const [klass, setKlass] = useState({ grade: '', stream: '' })
+
+    // Sent to the list, to Print and to Export alike, so a cash-up sheet is the
+    // receipt book on screen rather than a similar-looking one.
+    const docParams = {
+        ...(klass.grade ? { grade: klass.grade } : {}),
+        ...(klass.stream ? { stream: klass.stream } : {}),
+    }
+
     const load = useCallback(() => {
         setLoading(true)
-        getPayments()
+        getPayments(docParams)
             .then(d => setPayments(Array.isArray(d) ? d : []))
             .catch(e => { if (e?.status !== 402) toast.error(errorMessage(e, t('finance.loadFailed'))) })
             .finally(() => setLoading(false))
-    }, [toast, t])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [toast, t, klass.grade, klass.stream])
 
     useEffect(() => { load() }, [load])
 
@@ -54,16 +66,6 @@ export function FinancePayments() {
         }
     }
 
-    function handleExport() {
-        downloadCsv('payments', {
-            columns: [t('finance.fields.receipt'), t('common.student'),
-                t('finance.fields.category'), t('finance.fields.amount'),
-                t('finance.fields.method'), t('finance.fields.paidOn')],
-            rows: payments.map(p => [p.receipt_no, p.student?.name,
-                t(`finance.categories.${p.category}`), p.amount,
-                t(`finance.methods.${p.method}`), p.paid_on]),
-        })
-    }
 
     return (
         <FinanceShell title={t('finance.payments.title')} subtitle={t('finance.payments.subtitle')}>
@@ -80,12 +82,13 @@ export function FinancePayments() {
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                     {t('finance.payments.take')}
                 </button>
+                <ClassFilter grade={klass.grade} stream={klass.stream}
+                    onChange={setKlass} disabled={loading} />
                 <div className="toolbar-spacer" />
-                <button className="btn btn-outline btn-sm" onClick={handleExport}
-                    disabled={!payments.length}>
-                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
-                    {t('common.export')}
-                </button>
+                {/* Printing the receipt book is the cash-up: the same rows,
+                    with a line for whoever counted and whoever checked. */}
+                <DocumentActions url="/imboni/finance/payments/" params={docParams}
+                    stem="receipts" disabled={loading} />
             </div>
 
             <DataTable
@@ -231,7 +234,7 @@ function TakePaymentModal({ onClose, onDone }) {
                         </select>
                     </div>
 
-                    <div className="fin-form-grid mt-1-5">
+                    <div className="form-grid mt-1-5">
                         <div>
                             <label className="form-label" htmlFor="pay-amount">
                                 {t('finance.fields.amount')}
@@ -282,21 +285,11 @@ function TakePaymentModal({ onClose, onDone }) {
 function ReceiptModal({ payment, onClose }) {
     const { t } = useTranslation()
 
+    // The server renders this one. A receipt printed from the browser is a
+    // two-column table with no letterhead, no balance and nowhere to sign --
+    // the parent is being handed a document, not a screenshot.
     function print() {
-        printTable(t('finance.payments.receipt'), {
-            columns: [t('finance.fields.field'), t('finance.fields.value')],
-            rows: [
-                [t('finance.fields.receipt'), payment.receipt_no],
-                [t('common.student'), payment.student?.name],
-                [t('common.class'), payment.student?.class_label],
-                [t('finance.fields.category'), t(`finance.categories.${payment.category}`)],
-                [t('finance.fields.amount'), payment.amount],
-                [t('finance.fields.method'), t(`finance.methods.${payment.method}`)],
-                [t('finance.fields.reference'), payment.reference || '-'],
-                [t('finance.fields.paidOn'), payment.paid_on],
-                [t('finance.fields.receivedBy'), payment.received_by_name || '-'],
-            ],
-        })
+        openDocument(`/imboni/finance/payments/${payment.id}/receipt/`)
     }
 
     return (
@@ -319,7 +312,7 @@ function ReceiptModal({ payment, onClose }) {
                     <span className="fin-receipt-no">{payment.receipt_no}</span>
                     <Money value={payment.amount} className="fin-receipt-amount" />
                 </div>
-                <dl className="fin-detail-grid">
+                <dl className="detail-grid">
                     <div><dt>{t('common.student')}</dt><dd>{payment.student?.name}</dd></div>
                     <div><dt>{t('common.class')}</dt><dd>{payment.student?.class_label || '-'}</dd></div>
                     <div>

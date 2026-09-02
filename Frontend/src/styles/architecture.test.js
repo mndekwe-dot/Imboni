@@ -60,6 +60,11 @@ const OWN_PREFIXES = {
     Dis: ['disc', 'dis'], Dos: ['dos', 'es'], Admin: ['adm'],
     Matron: ['mat', 'health', 'comms'], Student: ['student', 'stu', 'sqz', 'cal'],
     Teacher: ['tch', 'teacher', 'tt'], Parent: ['par', 'pc'],
+    /* Finance and Library were missing here, and the loop below skips any page
+       whose directory it cannot find — so the two newest portals were outside
+       the ratchet completely. Eleven `fin-` classes had reached into Library
+       pages by the time anyone looked. */
+    Finance: ['fin'], Library: ['lib'],
 }
 
 /* `tt-` is the TIMETABLE grid, and timetable.css is shared: five portals render
@@ -70,7 +75,16 @@ const OWN_PREFIXES = {
    nothing of the kind — and, worse, gave it slack: real violations could be
    introduced and offset by removing an innocent `tt-` use, with the exact-match
    assertion below still passing. */
-const SHARED_PREFIXES = ['tt']
+
+/* `lib-` is here for the same reason, and only for that reason. library.css is
+   a DOMAIN stylesheet, not the librarian portal's: StudentLibrary.jsx imports
+   it by name to render the same book cards and loan rows the catalogue does,
+   the way MatronSchedule.jsx imports timetable.css. A pupil looking at their
+   own shelf is not reaching into another portal.
+   `fin-` is deliberately NOT here. Nothing outside Finance renders a fee or an
+   expense, so a `fin-` class in another portal is a genuine reach-in — which
+   is what eleven of them in the Library pages turned out to be. */
+const SHARED_PREFIXES = ['tt', 'lib']
 const ALL_PREFIXES = [...new Set(Object.values(OWN_PREFIXES).flat())]
     .filter(p => !SHARED_PREFIXES.includes(p))
 
@@ -96,6 +110,97 @@ function foreignPrefixUses() {
             const prefix = cls.split('-')[0]
             if (ALL_PREFIXES.includes(prefix) && !OWN_PREFIXES[dir].includes(prefix))
                 out.push(`${f} uses .${cls}`)
+        }
+    }
+    return out
+}
+
+/* ── Shared components are called with the props they actually take ──────────
+   React silently drops a prop a component does not destructure. There is no
+   warning, no error, and nothing in the console: the component just renders
+   with its defaults. <DataTable rows={...}> left `data` at its default [], so
+   the table rendered "nothing here" over a list that was fully loaded.
+
+   The component's own signature is the spec — this reads the destructured
+   parameter list rather than a hand-kept list that would drift. */
+const SHARED_DIRS = ['src/components/ui', 'src/components/layout']
+
+function sharedComponentProps() {
+    const specs = {}
+    for (const dir of SHARED_DIRS) {
+        for (const file of readdirSync(dir).filter(f => f.endsWith('.jsx'))) {
+            const src = read(join(dir, file))
+            const m = src.match(/export function (\w+)\(\{([\s\S]*?)\}\)\s*\{/)
+            if (!m) continue
+            // Strip default values and comments, keep the names.
+            const body = m[2].replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*/g, '')
+            const props = new Set()
+            let depth = 0, current = ''
+            for (const ch of body) {
+                if ('([{'.includes(ch)) depth++
+                else if (')]}'.includes(ch)) depth--
+                if (ch === ',' && depth === 0) { props.add(current); current = '' }
+                else current += ch
+            }
+            props.add(current)
+            specs[m[1]] = new Set([...props]
+                .map(x => x.split('=')[0].trim().replace(/^\.\.\./, ''))
+                .filter(Boolean))
+        }
+    }
+    return specs
+}
+
+/* Props React itself understands on any element. */
+const REACT_PROPS = new Set(['key', 'ref', 'children'])
+
+/**
+ * The top-level attribute names of every `<Name ...>` opening tag in a file.
+ *
+ * A regex cannot do this. `<Modal onClose={() => setX(null)}>` contains a `>`
+ * inside an arrow function, so `[^>]*` stops in the middle of the tag, and
+ * anything after it — including a nested `<button onClick=…>` in an `actions`
+ * prop — gets read as an attribute of the outer component. That reported
+ * `<Modal onClick=…>` on a Modal with no onClick anywhere near it.
+ *
+ * So: walk the tag, tracking brace depth and quotes, and take the `>` at
+ * depth 0. Attribute names are the identifiers followed by `=` at depth 0.
+ */
+function openingTags(src, name) {
+    const tags = []
+    const open = new RegExp(`<${name}[\\s/>]`, 'g')
+    for (const m of src.matchAll(open)) {
+        let i = m.index + name.length + 1
+        let depth = 0, quote = null, attrs = [], word = ''
+        for (; i < src.length; i++) {
+            const ch = src[i]
+            if (quote) { if (ch === quote) quote = null; continue }
+            if (ch === '"' || ch === "'" || ch === '`') { quote = ch; continue }
+            if (ch === '{') { depth++; continue }
+            if (ch === '}') { depth--; continue }
+            if (depth > 0) continue
+            if (ch === '>') break
+            if (/[a-zA-Z0-9_]/.test(ch)) word += ch
+            else if (ch === '=') { if (word) attrs.push(word); word = '' }
+            else word = ''
+        }
+        tags.push(attrs)
+    }
+    return tags
+}
+
+function unknownPropUses() {
+    const specs = sharedComponentProps()
+    const out = []
+    for (const f of PAGES) {
+        const src = read(f)
+        for (const [name, allowed] of Object.entries(specs)) {
+            // A component that takes ...rest accepts anything by design.
+            if (allowed.has('rest') || allowed.has('props')) continue
+            for (const attrs of openingTags(src, name))
+                for (const a of attrs)
+                    if (!allowed.has(a) && !REACT_PROPS.has(a))
+                        out.push(`${f}: <${name} ${a}=…>`)
         }
     }
     return out
@@ -127,6 +232,14 @@ describe('style architecture', () => {
 
     it('keeps the foreign-prefix baseline honest', () => {
         expect(foreignPrefixUses().length).toBe(MAX_FOREIGN_PREFIX)
+    })
+
+    it('calls shared components with props they accept', () => {
+        // Zero, and it stays zero: unlike the two ratchets above there is no
+        // legacy backlog here, because a prop a component ignores has never
+        // been anything but a bug.
+        const found = unknownPropUses()
+        expect(found.length, `unknown props:\n${found.join('\n')}`).toBe(0)
     })
 
     it('defines colour literals only in index.css', () => {

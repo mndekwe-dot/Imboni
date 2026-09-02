@@ -1,0 +1,106 @@
+{% comment %}
+The letterhead every printed finance and library document shares.
+
+One base, so a receipt, a payslip, an overdue notice and a stocktake report all
+carry the school's name the same way and are recognisably from the same office.
+
+Written for xhtml2pdf, which is NOT a browser: no flexbox, no grid, no custom
+properties. Layout that has to sit side by side uses a table, because that is
+what this renderer actually supports. Keep it that way or documents silently
+come out stacked.
+
+A child template fills `content`, and optionally `doc_styles` for anything only
+it needs.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: {% block page_size %}A4 portrait{% endblock %};
+            margin: 1.4cm 1.2cm 1.6cm 1.2cm;
+            @frame footer {
+                -pdf-frame-content: page-footer;
+                bottom: 0.7cm; margin-left: 1.2cm; margin-right: 1.2cm; height: 1cm;
+            }
+        }
+
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; color: #111; }
+
+        .lh          { width: 100%; border-bottom: 1.5pt solid #14532d; padding-bottom: 6pt; }
+        .lh-school   { font-size: 15pt; font-weight: bold; color: #14532d; }
+        .lh-contact  { font-size: 8pt; color: #555; }
+        .lh-meta     { text-align: right; font-size: 8pt; color: #555; }
+
+        .doc-title    { font-size: 12.5pt; font-weight: bold; margin: 12pt 0 1pt 0; }
+        .doc-subtitle { font-size: 9pt; color: #555; margin-bottom: 10pt; }
+
+        table.grid { width: 100%; border-collapse: collapse; margin-top: 6pt; }
+        table.grid th {
+            background: #f0f4f1; border-bottom: 1pt solid #cbd5cd;
+            padding: 5pt 4pt; text-align: left; font-size: 8.5pt;
+            text-transform: uppercase; letter-spacing: 0.3pt; color: #14532d;
+        }
+        table.grid td { border-bottom: 0.5pt solid #e2e8e4; padding: 5pt 4pt; }
+        /* Money reads right-aligned or the eye cannot compare two figures. */
+        .num { text-align: right; }
+        table.grid tr.total td {
+            font-weight: bold; border-top: 1pt solid #14532d; border-bottom: none;
+            background: #f7faf8;
+        }
+
+        .pill {
+            font-size: 7.5pt; padding: 1pt 5pt; border-radius: 7pt;
+            background: #eef2f0; color: #374151;
+        }
+        .pill-bad  { background: #fee2e2; color: #991b1b; }
+        .pill-good { background: #dcfce7; color: #166534; }
+
+        .muted   { color: #666; }
+        .strong  { font-weight: bold; }
+        .right   { text-align: right; }
+        .center  { text-align: center; }
+        .mt      { margin-top: 12pt; }
+
+        /* Somewhere for a human to sign. A school document that cannot be
+           signed is a screenshot, not a record. */
+        .sign      { margin-top: 26pt; width: 100%; }
+        .sign td   { padding-top: 20pt; font-size: 8.5pt; color: #444; }
+        .sign-line { border-top: 0.75pt solid #666; padding-top: 3pt; width: 60%; }
+
+        .empty { padding: 18pt; text-align: center; color: #777; font-style: italic; }
+
+        #page-footer { font-size: 7.5pt; color: #888; border-top: 0.5pt solid #ddd; padding-top: 3pt; }
+        {% block doc_styles %}{% endblock %}
+    </style>
+</head>
+<body>
+
+<table class="lh">
+    <tr>
+        <td>
+            <div class="lh-school">{{ school_name }}</div>
+            {% if school_email or school_phone %}
+                <div class="lh-contact">
+                    {{ school_email }}{% if school_email and school_phone %} &middot; {% endif %}{{ school_phone }}
+                </div>
+            {% endif %}
+        </td>
+        <td class="lh-meta">
+            Printed {{ printed_on|date:"j M Y, H:i" }}
+        </td>
+    </tr>
+</table>
+
+<div class="doc-title">{{ title }}</div>
+{% if subtitle %}<div class="doc-subtitle">{{ subtitle }}</div>{% endif %}
+
+{% block content %}{% endblock %}
+
+<div id="page-footer">
+    {{ school_name }} &middot; {{ title }} &middot; page <pdf:pagenumber> of <pdf:pagecount>
+</div>
+
+</body>
+</html>

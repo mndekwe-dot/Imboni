@@ -2,6 +2,8 @@
   "admin": "Administration",
   "discipline": "Discipline Portal",
   "dos": "Director of Studies",
+  "finance": "Finance Portal",
+  "library": "Library Portal",
   "matron": "Matron Portal",
   "parent": "Parent Portal",
   "student": "Student Portal",

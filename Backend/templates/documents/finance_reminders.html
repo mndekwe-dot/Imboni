@@ -1,0 +1,41 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% comment %}
+One page per family. A page break after each, because a reminder is handed to a
+particular parent and must not carry every other family's debts on it.
+{% endcomment %}
+{% block doc_styles %}
+    .letter { page-break-after: always; }
+    .letter:last-child { page-break-after: auto; }
+{% endblock %}
+{% block content %}
+{% for r in rows %}
+    <div class="letter">
+        <p class="mt">{{ today|date:"j F Y" }}</p>
+        <p class="mt strong">Dear parent or guardian of {{ r.student.name }} ({{ r.student.class_label }}),</p>
+        <p class="mt">Our records show an outstanding balance on this term's school fees.</p>
+
+        <table class="grid">
+            <tr><th>Charge</th><th>Due</th><th class="num">Owed</th></tr>
+            {% for line in r.lines %}
+                <tr>
+                    <td>{{ line.category }}</td>
+                    <td>{{ line.due_date|date:"j M Y" }}</td>
+                    <td class="num">{{ line.balance|floatformat:0|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            <tr class="total">
+                <td colspan="2">Total outstanding</td>
+                <td class="num">{{ r.outstanding|floatformat:0|intcomma }}</td>
+            </tr>
+        </table>
+
+        <p class="mt">Please settle this at the school finance office, or contact us to
+        agree an arrangement. If you have already paid, please bring your receipt so we
+        can correct our records.</p>
+
+        <table class="sign">
+            <tr><td><div class="sign-line">Finance office &middot; {{ school_name }}</div></td></tr>
+        </table>
+    </div>
+{% endfor %}
+{% endblock %}

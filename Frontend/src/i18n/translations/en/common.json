@@ -274,5 +274,13 @@
   "yearGroups": "Year Groups",
   "yes": "Yes",
   "yesDelete": "Yes, delete",
-  "yesterday": "Yesterday"
+  "yesterday": "Yesterday",
+  "filterByClass": "Filter by class",
+  "allStreams": "All streams",
+  "preparing": "Preparing...",
+  "documentFailed": "That document could not be prepared. Please try again.",
+  "choose": "Choose...",
+  "note": "Note",
+  "from": "From",
+  "to": "To"
 }

@@ -429,7 +429,7 @@ export function DisStudents() {
                                         emptyIcon="report"
                                         emptyTitle={t('dis.students.noApproved')}
                                         emptyDesc="No approved behavior reports on record."
-                                        filterBar={
+                                        headerRight={
                                             <div className="filter-tabs-bar mt-0 u-mb-sm">
                                                 {TYPE_FILTER_OPTIONS.map(o => (
                                                     <button key={o.key} className={`filter-tab${typeFilter === o.key ? ' active' : ''}`} onClick={() => setTypeFilter(o.key)}>
