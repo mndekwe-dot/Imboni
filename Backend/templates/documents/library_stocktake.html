@@ -1,0 +1,47 @@
+{% extends "documents/base.html" %}
+{% block content %}
+<table class="grid">
+    <tr><th>In scope</th><th>Seen</th><th>Out on loan</th><th>Unaccounted for</th><th>Counted</th></tr>
+    <tr>
+        <td>{{ total }}</td>
+        <td>{{ seen }}</td>
+        <td>{{ on_loan }}</td>
+        <td>{% if unaccounted %}<span class="pill pill-bad">{{ unaccounted }}</span>{% else %}<span class="pill pill-good">0</span>{% endif %}</td>
+        <td>{{ percent_seen }}%</td>
+    </tr>
+</table>
+
+<div class="doc-title" style="font-size:10.5pt">Unaccounted for</div>
+<p class="muted">Not seen during the count, and not out on loan to anybody.</p>
+<table class="grid">
+    <tr><th>Copy</th><th>Title</th><th>Author</th><th>Shelf</th></tr>
+    {% for c in unaccounted_copies %}
+        <tr>
+            <td class="muted">{{ c.copy_code }}</td>
+            <td>{{ c.book.title }}</td>
+            <td>{{ c.book.author }}</td>
+            <td>{{ c.book.shelf }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4" class="empty">Everything in scope was found. </td></tr>
+    {% endfor %}
+</table>
+
+{% if on_loan_copies %}
+    <div class="doc-title" style="font-size:10.5pt">Not seen, but out on loan</div>
+    <p class="muted">Somebody has these and the library knows who. Not missing.</p>
+    <table class="grid">
+        <tr><th>Copy</th><th>Title</th></tr>
+        {% for c in on_loan_copies %}
+            <tr><td class="muted">{{ c.copy_code }}</td><td>{{ c.book.title }}</td></tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+<table class="sign">
+    <tr>
+        <td><div class="sign-line">Counted by</div></td>
+        <td><div class="sign-line">Head teacher</div></td>
+    </tr>
+</table>
+{% endblock %}

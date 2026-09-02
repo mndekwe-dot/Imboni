@@ -44,5 +44,11 @@
   "debtors": "Abafite imyenda",
   "feeStructure": "Amafaranga y'ishuri",
   "expenses": "Ibiguzi",
-  "finance": "Imari"
+  "finance": "Imari",
+  "otherIncome": "Andi mafaranga",
+  "budget": "Ingengo y’imari",
+  "payroll": "Imishahara",
+  "cash": "Amafaranga na banki",
+  "overdue": "Ibirengeje igihe",
+  "stocktake": "Kubara ibitabo"
 }

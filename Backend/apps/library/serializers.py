@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import (
     AcquisitionRequest, Book, BookCopy, Fine, LibrarySettings, Loan,
     Reservation, Supplier,
+    CopyEvent, Stocktake, StocktakeScan,
 )
 
 
@@ -177,3 +178,63 @@ class LibrarySettingsSerializer(serializers.ModelSerializer):
                   'renewals_allowed', 'fine_per_day', 'currency',
                   'reservation_hold_days', 'updated_at']
         read_only_fields = ['id', 'updated_at']
+
+
+# ── Counting, and what happens to a copy ──────────────────────────────────────
+
+class CopyEventSerializer(serializers.ModelSerializer):
+    kind_label       = serializers.CharField(source='get_kind_display', read_only=True)
+    copy_code        = serializers.CharField(source='copy.copy_code', read_only=True)
+    title            = serializers.CharField(source='copy.book.title', read_only=True)
+    borrower_name    = serializers.SerializerMethodField()
+    recorded_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CopyEvent
+        fields = ['id', 'copy', 'copy_code', 'title', 'kind', 'kind_label',
+                  'reason', 'borrower', 'borrower_name', 'charged',
+                  'recorded_by_name', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def _name(self, user):
+        if user is None:
+            return ''
+        return f'{user.first_name} {user.last_name}'.strip() or user.username
+
+    def get_borrower_name(self, obj):
+        return self._name(obj.borrower)
+
+    def get_recorded_by_name(self, obj):
+        return self._name(obj.recorded_by)
+
+
+class StocktakeSerializer(serializers.ModelSerializer):
+    status_label    = serializers.CharField(source='get_status_display', read_only=True)
+    started_by_name = serializers.SerializerMethodField()
+    scanned         = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Stocktake
+        fields = ['id', 'name', 'scope_shelf', 'scope_category', 'status',
+                  'status_label', 'started_at', 'closed_at', 'started_by_name',
+                  'scanned', 'note']
+        read_only_fields = ['id', 'status', 'started_at', 'closed_at']
+
+    def get_started_by_name(self, obj):
+        user = obj.started_by
+        return f'{user.first_name} {user.last_name}'.strip() if user else ''
+
+    def get_scanned(self, obj):
+        return obj.scans.count()
+
+
+class StocktakeScanSerializer(serializers.ModelSerializer):
+    copy_code  = serializers.CharField(source='copy.copy_code', read_only=True)
+    title      = serializers.CharField(source='copy.book.title', read_only=True)
+    found_label = serializers.CharField(source='get_found_as_display', read_only=True)
+
+    class Meta:
+        model = StocktakeScan
+        fields = ['id', 'copy', 'copy_code', 'title', 'found_as', 'found_label',
+                  'note', 'scanned_at']
+        read_only_fields = fields

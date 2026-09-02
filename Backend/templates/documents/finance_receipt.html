@@ -1,0 +1,60 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% comment %}
+Handed to a parent at the desk. Two things it must always answer: what this
+payment was for, and what is still owed afterwards -- a receipt that shows only
+the amount taken invites the same question again next week.
+{% endcomment %}
+{% block doc_styles %}
+    .rcpt-amount { font-size: 20pt; font-weight: bold; color: #14532d; }
+    .rcpt-box { border: 1pt solid #cbd5cd; padding: 9pt; margin-top: 10pt; }
+{% endblock %}
+{% block content %}
+<table class="grid">
+    <tr><th>Student</th><th>Class</th><th>Student ID</th><th>Date</th></tr>
+    <tr>
+        <td>{{ student.full_name|default:"-" }}</td>
+        <td>{{ class_label|default:"-" }}</td>
+        <td>{{ student.student_id|default:"-" }}</td>
+        <td>{{ payment.paid_on|date:"j M Y" }}</td>
+    </tr>
+</table>
+
+<div class="rcpt-box">
+    <table style="width:100%">
+        <tr>
+            <td>
+                <div class="muted">Received, with thanks</div>
+                <div class="rcpt-amount">{{ payment.amount|floatformat:0|intcomma }}</div>
+                <div class="muted">{{ payment.get_method_display }}{% if payment.reference %} &middot; {{ payment.reference }}{% endif %}</div>
+            </td>
+            <td class="right">
+                <div class="muted">Receipt</div>
+                <div class="strong" style="font-size:12pt">{{ payment.receipt_no }}</div>
+                {% if payment.is_reversed %}<div class="pill pill-bad">REVERSED</div>{% endif %}
+            </td>
+        </tr>
+    </table>
+</div>
+
+<table class="grid">
+    <tr><th>Charge</th><th class="num">Charged</th><th class="num">Paid to date</th><th class="num">Still owed</th></tr>
+    <tr>
+        <td>{{ fee.get_category_display }}{% if fee.term %} &middot; Term {{ fee.term.term }} {{ fee.term.year }}{% endif %}</td>
+        <td class="num">{{ charged|floatformat:0|intcomma }}</td>
+        <td class="num">{{ paid_so_far|floatformat:0|intcomma }}</td>
+        <td class="num">
+            {% if settled %}<span class="pill pill-good">Settled</span>
+            {% else %}{{ balance|floatformat:0|intcomma }}{% endif %}
+        </td>
+    </tr>
+</table>
+
+{% if payment.payer_name %}<p class="mt muted">Paid by {{ payment.payer_name }}.</p>{% endif %}
+
+<table class="sign">
+    <tr>
+        <td><div class="sign-line">Received by{% if payment.received_by %}: {{ payment.received_by.first_name }} {{ payment.received_by.last_name }}{% endif %}</div></td>
+        <td><div class="sign-line">Parent / guardian</div></td>
+    </tr>
+</table>
+{% endblock %}

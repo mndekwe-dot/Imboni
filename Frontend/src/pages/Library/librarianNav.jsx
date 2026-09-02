@@ -4,7 +4,10 @@ export const librarianNavItems = [
     { to: '/library/circulation',  icon: 'swap_horiz',    labelKey: 'nav.circulation'  },
     { to: '/library/members',      icon: 'people',        labelKey: 'nav.borrowers'    },
     { to: '/library/reservations', icon: 'bookmark',      labelKey: 'nav.reservations' },
+    { to: '/library/overdue',      icon: 'event_busy',    labelKey: 'nav.overdue'      },
     { to: '/library/acquisitions', icon: 'shopping_cart', labelKey: 'nav.acquisitions' },
+    { to: '/library/stocktake',    icon: 'inventory',     labelKey: 'nav.stocktake'    },
+    { to: '/library/reports',      icon: 'monitoring',    labelKey: 'nav.reports'      },
     { to: '/library/messages',     icon: 'chat',          labelKey: 'nav.messages'     },
 ]
 

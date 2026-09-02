@@ -2,6 +2,8 @@
   "admin": "Administration",
   "discipline": "Portail Discipline",
   "dos": "Directeur des études",
+  "finance": "Portail Finances",
+  "library": "Portail Bibliothèque",
   "matron": "Portail Surveillante",
   "parent": "Portail Parents",
   "student": "Portail Élèves",

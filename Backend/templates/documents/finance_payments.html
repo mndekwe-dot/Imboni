@@ -1,0 +1,32 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% block content %}
+<table class="grid">
+    <tr>
+        <th>Receipt</th><th>Date</th><th>Student</th><th>Class</th>
+        <th>Method</th><th class="num">Amount</th>
+    </tr>
+    {% for p in payments %}
+        <tr{% if p.is_reversed %} class="muted"{% endif %}>
+            <td>{{ p.receipt_no }}</td>
+            <td>{{ p.paid_on|date:"j M" }}</td>
+            <td>{{ p.fee.student.full_name|default:"-" }}{% if p.is_reversed %} <span class="pill pill-bad">reversed</span>{% endif %}</td>
+            <td>{{ p.fee.student.grade }}{{ p.fee.student.section }}</td>
+            <td>{{ p.get_method_display }}</td>
+            <td class="num">{{ p.amount|floatformat:0|intcomma }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6" class="empty">No receipts in this period.</td></tr>
+    {% endfor %}
+    <tr class="total">
+        <td colspan="5">{{ count }} receipt{{ count|pluralize }} &middot; reversals excluded from the total</td>
+        <td class="num">{{ total|floatformat:0|intcomma }}</td>
+    </tr>
+</table>
+
+<table class="sign">
+    <tr>
+        <td><div class="sign-line">Counted by</div></td>
+        <td><div class="sign-line">Checked by</div></td>
+    </tr>
+</table>
+{% endblock %}

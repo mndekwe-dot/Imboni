@@ -117,6 +117,35 @@ Then it is a **component**, and it already exists. Check
 | A dropdown | `Select` |
 | Paging controls | `PaginationBar` |
 
+And the pieces below a component — a class of markup rather than a component —
+live in `components.css` under a neutral name:
+
+| Need | Use |
+|---|---|
+| A list of records that is not a table | `.row-list` > `.row-item` |
+| Inside a row: name and caption / figures / buttons | `.row-main`, `.row-figures`, `.row-actions` |
+| A whole row that is clickable | `.row-item-button` (a real `<button>`) |
+| The chip at the left of a row | `.class-chip`, `.row-avatar`, `.row-icon` |
+| Headline figures above the detail | `.figure-strip` > div, `.figure-label` |
+| A `<dl>` of label/value pairs | `.detail-grid` |
+| Fields side by side in a dialog | `.form-grid`, `.form-col-full` |
+| An amount that is owed or missing | `.amount-owed` |
+| The colour of a status | `.pill-ok / -warn / -info / -danger / -muted` |
+
+All of these were `fin-*` in `finance.css` first. Library then reached across
+for eleven of them, which is the signal that they were never finance patterns
+— and `.class-chip` was worse: defined in `discipline.css` against
+`--discipline`, so a class chip in Finance, DOS or Library rendered in the
+Discipline portal's colour in five portals at once.
+
+**A status never carries its own colour.** There were five families saying the
+same five things — `fin-status-*`, `fin-expense-*`, `fin-payroll-*`,
+`fin-budget-*`, `lib-count-*` — twenty rules doing five jobs, and every new
+domain added five more, which is why "pending" was amber on one page and grey
+on the next for no reason anybody chose. `utils/tone.js` maps the WORD to a
+tone once; `pill(status)` and `badge(status)` return the classes. A domain with
+a word the table lacks adds the word, not a family of colours.
+
 Its CSS lives once, in `components.css`, under the component's own class names
 (`portal-stat-*`, `welcome-banner-*`, and so on). **Change it there and every
 portal changes.** That is the whole point.
@@ -153,7 +182,27 @@ checked automatically:
 
 - no page hand-rolls a component that already exists
 - no page uses another portal's prefix
+- **no page passes a shared component a prop it does not accept**
 - no colour literals outside `index.css`
+
+The third one is not a ratchet — it is zero and stays zero, because a prop a
+component ignores has never been anything but a bug. React drops an unknown
+prop silently: no warning, no error, nothing in the console. Six pages called
+`<DataTable rows={…} count={…} emptyDescription={…}>` instead of `data` /
+`renderRow` / `emptyDesc`, so `data` kept its default `[]` and every table on
+them rendered "nothing here" over a list that was fully loaded. The guard reads
+each shared component's own destructured parameter list, so the spec is the
+component rather than a list beside it that would drift.
+
+Two more things the same pass turned up, both invisible for the same reason:
+`<EmptyState desc=…>` (the prop is `description`, so the second line never
+rendered) and `<ClassPicker classValue=…>` (the prop is `classVal`, so the fee
+structure page's picker never showed what was selected).
+
+One warning about the prefix check: `Finance` and `Library` were missing from
+its list of portals, and it skips any page whose directory it does not
+recognise — so the two newest portals were outside the ratchet entirely. If you
+add a portal, add it there in the same commit, or it is not being checked.
 
 It is baseline-locked: the counts it allows are the ones present when it was
 written, and they may only go down. Adding a new violation fails the suite;

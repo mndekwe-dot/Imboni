@@ -62,3 +62,55 @@ export const createSupplier = (d)  => client.post('/imboni/library/suppliers/', 
 export const getCatalogue = (params) => client.get('/imboni/library/catalogue/', { params })
 export const getMyLibrary = ()       => client.get('/imboni/library/me/')
 export const reserveBook  = (bookId) => client.post('/imboni/library/me/reserve/', { book: bookId })
+
+// ── Chasing what is late ──────────────────────────────────────────────────────
+export const getOverdue  = (params) => client.get('/imboni/library/overdue/', { params })
+export const getBorrowerHistory = (id, params) =>
+    client.get(`/imboni/library/borrowers/${id}/`, { params })
+
+// ── Lost, damaged, written off ────────────────────────────────────────────────
+export const getCopyEvents  = (id)       => client.get(`/imboni/library/copies/${id}/events/`)
+export const recordCopyEvent = (id, data) =>
+    client.post(`/imboni/library/copies/${id}/events/`, data)
+export const getLostAndDamaged = (params) =>
+    client.get('/imboni/library/lost-damaged/', { params })
+
+// ── Counting the shelves ──────────────────────────────────────────────────────
+export const getStocktakes  = ()     => client.get('/imboni/library/stocktakes/')
+export const createStocktake = (data) => client.post('/imboni/library/stocktakes/', data)
+export const getStocktake   = (id)   => client.get(`/imboni/library/stocktakes/${id}/`)
+export const abandonStocktake = (id) => client.delete(`/imboni/library/stocktakes/${id}/`)
+// Takes a copy_code, not an id: the person counting is holding a scanner.
+export const scanCopy       = (id, copyCode) =>
+    client.post(`/imboni/library/stocktakes/${id}/scan/`, { copy_code: copyCode })
+export const getScans       = (id)   => client.get(`/imboni/library/stocktakes/${id}/scan/`)
+export const closeStocktake = (id, markMissing) =>
+    client.post(`/imboni/library/stocktakes/${id}/close/`, { mark_missing: markMissing === true })
+
+// ── Loading a catalogue ───────────────────────────────────────────────────────
+export const importBooks = (file) => {
+    const body = new FormData()
+    body.append('file', file)
+    // Let the browser set the multipart boundary; naming the content type by
+    // hand omits it and the server sees an empty upload.
+    return client.post('/imboni/library/import/', body)
+}
+
+// ── What the collection does ──────────────────────────────────────────────────
+export const getUsageReport = (params) => client.get('/imboni/library/usage/', { params })
+
+// ── Scanning ──────────────────────────────────────────────────────────────────
+// One endpoint for "what did I just scan?", because the person holding the
+// scanner does not know either: it may be the school's own label, the book's
+// own ISBN, or a pupil's ID card.
+export const resolveScan = (code) => client.post('/imboni/library/scan/', { code })
+
+// Returning by scanning the book itself, with no loan chosen first — the whole
+// point at a returns desk, where a trolley of thirty books arrives and nobody
+// knows who had any of them.
+export const returnByScan = (code, extra = {}) =>
+    client.post('/imboni/library/scan/return/', { code, ...extra })
+
+// Cataloguing from the barcode already printed on the back cover.
+export const catalogueByScan = (data) =>
+    client.post('/imboni/library/scan/catalogue/', data)

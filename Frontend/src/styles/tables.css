@@ -154,6 +154,15 @@
   line-height: 1;
   color: var(--portal-accent, var(--muted-foreground));
 }
+/* A numeric column. Right-aligned so the units line up under the units, and
+   tabular figures so 1,111 and 8,888 are the same width -- a money column where
+   the digits drift is a column nobody can scan down. Lives here rather than in
+   a portal stylesheet because every portal has money or counts in a table. */
+.dt-table th.dt-num,
+.dt-table td.dt-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 .dt-count {
   font-size: var(--text-caption);
   color: var(--muted-foreground);

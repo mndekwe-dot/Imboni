@@ -1,0 +1,50 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% comment %}
+The document a parent argues with, so every charge shows the payments made
+against it rather than one net figure they have no way to check.
+{% endcomment %}
+{% block content %}
+<table class="grid">
+    <tr>
+        <th>Charge</th><th>Due</th><th class="num">Charged</th>
+        <th class="num">Paid</th><th class="num">Owed</th><th>Status</th>
+    </tr>
+    {% for line in lines %}
+        <tr>
+            <td>{{ line.fee.get_category_display }}{% if line.fee.notes %}<div class="muted">{{ line.fee.notes }}</div>{% endif %}</td>
+            <td>{{ line.fee.due_date|date:"j M Y" }}</td>
+            <td class="num">{{ line.fee.amount|floatformat:0|intcomma }}</td>
+            <td class="num">{{ line.paid|floatformat:0|intcomma }}</td>
+            <td class="num">{{ line.balance|floatformat:0|intcomma }}</td>
+            <td><span class="pill">{{ line.fee.get_status_display }}</span></td>
+        </tr>
+        {% for p in line.payments %}
+            <tr>
+                <td class="muted" style="padding-left:14pt">{{ p.receipt_no }} &middot; {{ p.get_method_display }}</td>
+                <td class="muted">{{ p.paid_on|date:"j M Y" }}</td>
+                <td></td>
+                <td class="num muted">{{ p.amount|floatformat:0|intcomma }}</td>
+                <td colspan="2"></td>
+            </tr>
+        {% endfor %}
+    {% empty %}
+        <tr><td colspan="6" class="empty">Nothing charged this term.</td></tr>
+    {% endfor %}
+    <tr class="total">
+        <td colspan="2">Total</td>
+        <td class="num">{{ charged|floatformat:0|intcomma }}</td>
+        <td class="num">{{ paid|floatformat:0|intcomma }}</td>
+        <td class="num">{{ outstanding|floatformat:0|intcomma }}</td>
+        <td></td>
+    </tr>
+</table>
+
+{% if arrears %}
+    <p class="mt"><span class="pill pill-bad">Brought forward</span>
+    {{ arrears|floatformat:0|intcomma }} is still owed from earlier terms.</p>
+{% endif %}
+{% if account.bursary_percent %}
+    <p class="muted">A {{ account.bursary_percent|floatformat:0 }}% bursary is applied to this family's charges.</p>
+{% endif %}
+{% if account.arrangement %}<p class="muted">{{ account.arrangement }}</p>{% endif %}
+{% endblock %}

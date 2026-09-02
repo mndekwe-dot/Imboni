@@ -1,0 +1,43 @@
+{% extends "documents/base.html" %}
+{% block content %}
+<table class="grid">
+    <tr><th>Books out now</th><th>Overdue</th><th>Borrowed all time</th><th>Owed</th></tr>
+    <tr>
+        <td>{{ open_loans|length }}</td>
+        <td>{% if overdue %}<span class="pill pill-bad">{{ overdue|length }}</span>{% else %}0{% endif %}</td>
+        <td>{{ total_borrowed }}</td>
+        <td>{{ owed }}</td>
+    </tr>
+</table>
+
+{% if block %}<p class="mt"><span class="pill pill-bad">Cannot borrow</span> {{ block }}</p>{% endif %}
+
+<div class="doc-title" style="font-size:10.5pt">Currently out</div>
+<table class="grid">
+    <tr><th>Title</th><th>Copy</th><th>Issued</th><th>Due</th></tr>
+    {% for loan in open_loans %}
+        <tr>
+            <td>{{ loan.copy.book.title }}</td>
+            <td class="muted">{{ loan.copy.copy_code }}</td>
+            <td>{{ loan.issued_at|date:"j M Y" }}</td>
+            <td>{% if loan.due_on < today %}<span class="pill pill-bad">{{ loan.due_on|date:"j M Y" }}</span>{% else %}{{ loan.due_on|date:"j M Y" }}{% endif %}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4" class="empty">Nothing out at the moment.</td></tr>
+    {% endfor %}
+</table>
+
+<div class="doc-title" style="font-size:10.5pt">Reading history</div>
+<table class="grid">
+    <tr><th>Title</th><th>Issued</th><th>Returned</th></tr>
+    {% for loan in loans %}
+        <tr>
+            <td>{{ loan.copy.book.title }}</td>
+            <td>{{ loan.issued_at|date:"j M Y" }}</td>
+            <td>{{ loan.returned_at|date:"j M Y"|default:"—" }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="3" class="empty">This reader has not borrowed anything yet.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

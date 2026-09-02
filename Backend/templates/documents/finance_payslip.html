@@ -1,0 +1,39 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% block doc_styles %}
+    .net { font-size: 16pt; font-weight: bold; color: #14532d; }
+{% endblock %}
+{% block content %}
+<table class="grid">
+    <tr><th>Staff</th><th>Role</th><th>Period</th><th>Bank</th></tr>
+    <tr>
+        <td>{{ payslip.staff_name }}</td>
+        <td>{{ payslip.role }}</td>
+        <td>{{ run.period_label }}</td>
+        <td>{{ payslip.bank_account|default:"-" }}</td>
+    </tr>
+</table>
+
+<table class="grid">
+    <tr><th>Earnings</th><th class="num">Amount</th></tr>
+    <tr><td>Basic pay</td><td class="num">{{ payslip.gross|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Allowances</td><td class="num">{{ payslip.allowances|floatformat:0|intcomma }}</td></tr>
+</table>
+
+<table class="grid">
+    <tr><th>Deductions</th><th class="num">Amount</th></tr>
+    <tr><td>Pension</td><td class="num">{{ payslip.pension|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Tax</td><td class="num">{{ payslip.tax|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Other</td><td class="num">{{ payslip.other_deduction|floatformat:0|intcomma }}</td></tr>
+    <tr class="total"><td>Total deductions</td><td class="num">{{ payslip.total_deductions|floatformat:0|intcomma }}</td></tr>
+</table>
+
+<p class="mt">Net pay <span class="net">{{ payslip.net|floatformat:0|intcomma }}</span></p>
+{% if payslip.note %}<p class="muted">{{ payslip.note }}</p>{% endif %}
+
+<table class="sign">
+    <tr>
+        <td><div class="sign-line">Finance office</div></td>
+        <td><div class="sign-line">Received by</div></td>
+    </tr>
+</table>
+{% endblock %}

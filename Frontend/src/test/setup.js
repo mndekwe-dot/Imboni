@@ -52,6 +52,7 @@ afterEach(() => {
   // module scope, so without this a test that mocks it as enabled leaves the
   // next one unable to see the upgrade notice.
   resetLibraryFeatureCache()
+  // Whether the plan includes the finance portal is cached the same way.
   resetFinanceFeatureCache()
   // The school's billing standing is module-scope too, and it is set from a
   // response header, so a test whose fixture returned 'read_only' would leave

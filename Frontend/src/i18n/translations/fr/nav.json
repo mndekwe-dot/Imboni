@@ -44,5 +44,11 @@
   "debtors": "Impayés",
   "feeStructure": "Grille tarifaire",
   "expenses": "Dépenses",
-  "finance": "Finances"
+  "finance": "Finances",
+  "otherIncome": "Autres recettes",
+  "budget": "Budget",
+  "payroll": "Paie",
+  "cash": "Caisse et banque",
+  "overdue": "En retard",
+  "stocktake": "Inventaire"
 }

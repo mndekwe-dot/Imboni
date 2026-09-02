@@ -15,6 +15,7 @@ import {
     createExpense, createExpenseCategory, decideExpense, getExpenseCategories, getExpenses,
 } from '../../api/finance'
 import { FinanceShell, Money } from './FinanceShell'
+import { badge } from '../../utils/tone'
 
 const FILTERS = ['all', 'pending', 'approved', 'paid', 'rejected']
 const METHODS = ['cash', 'momo', 'bank', 'cheque', 'other']
@@ -132,13 +133,13 @@ export function FinanceExpenses() {
                             : undefined}
                     />
                 ) : (
-                    <ul className="fin-row-list">
+                    <ul className="row-list">
                         {rows.map(row => (
-                            <li key={row.id} className="fin-row">
-                                <span className="fin-expense-icon" aria-hidden="true">
+                            <li key={row.id} className="row-item">
+                                <span className="row-icon" aria-hidden="true">
                                     <span className="material-symbols-rounded">receipt</span>
                                 </span>
-                                <div className="fin-row-main">
+                                <div className="row-main">
                                     <div className="u-strong u-sm">{row.description}</div>
                                     <div className="text-xs-muted">
                                         {row.category_name} · {formatDate(row.spent_on)}
@@ -146,10 +147,10 @@ export function FinanceExpenses() {
                                     </div>
                                 </div>
                                 <Money value={row.amount} />
-                                <span className={`badge fin-expense-${row.status}`}>
+                                <span className={badge(row.status)}>
                                     {t(`finance.expenses.status.${row.status}`)}
                                 </span>
-                                <div className="fin-row-actions">
+                                <div className="row-actions">
                                     {row.status === 'pending' && role === 'admin' && (
                                         <>
                                             <button className="btn btn-outline btn-sm"
@@ -221,8 +222,8 @@ function ExpenseForm({ categories, onClose, onSave, onCategoryAdded }) {
                 </>
             }
         >
-            <div className="fin-form-grid">
-                <div className="fin-col-full">
+            <div className="form-grid">
+                <div className="form-col-full">
                     <label className="form-label" htmlFor="ex-desc">
                         {t('finance.fields.description')}
                     </label>

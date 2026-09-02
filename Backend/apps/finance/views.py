@@ -20,6 +20,9 @@ from apps.results.models import AcademicTerm
 from apps.student.models import Fee, Student
 from apps.tenants.limits import enforce_feature, tenant_has_feature
 
+from apps.common import documents
+
+from . import documents as finance_documents
 from . import services
 from .models import (
     Expense, ExpenseCategory, FeePayment, FeeStructure, FinanceSettings,
@@ -61,6 +64,55 @@ class FinanceAvailabilityView(APIView):
 
     def get(self, request):
         return Response({'enabled': tenant_has_feature(FINANCE)})
+
+
+def student_filters(qs, request, prefix='student'):
+    """
+    Narrow a queryset to the students a page is asking about.
+
+    One definition, used by charges, payments and debtors alike, so the class
+    picker means the same thing on every screen. `prefix` is the path from the
+    row to the student: 'student' on a Fee, 'fee__student' on a payment.
+
+    Three filters, all optional and combinable:
+        grade   the year level  (S1..S6)
+        stream  the class within it (A, B, MPG)
+        q       a name or student id
+
+    NOTE `stream` maps to `Student.section`. The class picker calls its top
+    level "section" (O-Level / A-Level) while the model calls the STREAM
+    letter `section`, so a page passing its picker's `section` straight through
+    would filter S1 pupils by the string 'O-Level' and return nothing.
+    """
+    def field(name):
+        return f'{prefix}__{name}' if prefix else name
+
+    grade = (request.query_params.get('grade') or '').strip()
+    if grade:
+        qs = qs.filter(**{field('grade'): grade})
+
+    stream = (request.query_params.get('stream') or '').strip()
+    if stream:
+        qs = qs.filter(**{field('section'): stream})
+
+    search = (request.query_params.get('q') or '').strip()
+    if search:
+        # `full_name` is a PROPERTY on Student (it comes from the user), not a
+        # column -- filtering on it would raise FieldError.
+        qs = qs.filter(
+            Q(**{field('user__first_name') + '__icontains': search})
+            | Q(**{field('user__last_name') + '__icontains': search})
+            | Q(**{field('student_id') + '__icontains': search}))
+    return qs
+
+
+def class_label_of(request):
+    """How the current filter reads on a printed document, e.g. 'S4 A'."""
+    grade = (request.query_params.get('grade') or '').strip()
+    stream = (request.query_params.get('stream') or '').strip()
+    if grade and stream:
+        return f'{grade}{stream}'
+    return grade or (f'Stream {stream}' if stream else 'All classes')
 
 
 def _current_term(request):
@@ -145,18 +197,26 @@ class FeeListView(FinanceView):
         elif status_filter != 'all':
             qs = qs.filter(status=status_filter)
 
-        grade = request.query_params.get('grade')
-        if grade:
-            qs = qs.filter(student__grade=grade)
-        term_search = (request.query_params.get('q') or '').strip()
-        if term_search:
-            # `full_name` is a PROPERTY on Student (it comes from the user),
-            # not a column -- filtering on it would raise FieldError the first
-            # time anyone typed in the search box.
-            qs = qs.filter(
-                Q(student__user__first_name__icontains=term_search)
-                | Q(student__user__last_name__icontains=term_search)
-                | Q(student__student_id__icontains=term_search))
+        qs = student_filters(qs, request)
+
+        if documents.wants(request, 'csv'):
+            return documents.csv_response(
+                f'charges-{class_label_of(request)}',
+                ['Student', 'Class', 'Student ID', 'Category', 'Charged',
+                 'Paid', 'Outstanding', 'Due', 'Status'],
+                ([f.student.full_name if f.student else '',
+                  f'{f.student.grade}{f.student.section}' if f.student else '',
+                  f.student.student_id if f.student else '',
+                  f.get_category_display(), f.amount,
+                  services.paid_total(f), services.balance_of(f),
+                  f.due_date, f.get_status_display()]
+                 for f in qs))
+        if documents.wants(request, 'pdf'):
+            return finance_documents.charges_pdf(request, qs, term)
+
+        # The cap is for the SCREEN only. An export must not silently stop at
+        # 400 rows -- a truncated list a bursar believes is complete is worse
+        # than no list at all -- so it is applied after the export branches.
         return Response(FeeSerializer(qs[:400], many=True).data)
 
     def post(self, request):
@@ -183,12 +243,43 @@ class FeeListView(FinanceView):
 
 class PaymentListView(FinanceView):
     def get(self, request):
-        qs = FeePayment.objects.select_related('fee__student', 'received_by')
+        qs = FeePayment.objects.select_related('fee__student__user', 'received_by')
         if request.query_params.get('include_reversed') != 'true':
             qs = qs.filter(reversed_at__isnull=True)
         student = request.query_params.get('student')
         if student:
             qs = qs.filter(fee__student_id=student)
+        qs = student_filters(qs, request, prefix='fee__student')
+
+        # A cashing-up run is bounded by dates, not by class: "what did we take
+        # today", "what did we take this week".
+        date_from = (request.query_params.get('from') or '').strip()
+        date_to = (request.query_params.get('to') or '').strip()
+        if date_from:
+            qs = qs.filter(paid_on__gte=date_from)
+        if date_to:
+            qs = qs.filter(paid_on__lte=date_to)
+        method = (request.query_params.get('method') or '').strip()
+        if method:
+            qs = qs.filter(method=method)
+
+        if documents.wants(request, 'csv'):
+            return documents.csv_response(
+                'receipts',
+                ['Receipt', 'Date', 'Student', 'Class', 'Category', 'Amount',
+                 'Method', 'Reference', 'Taken by', 'Reversed'],
+                ([p.receipt_no, p.paid_on,
+                  p.fee.student.full_name if p.fee and p.fee.student else '',
+                  (f'{p.fee.student.grade}{p.fee.student.section}'
+                   if p.fee and p.fee.student else ''),
+                  p.fee.get_category_display() if p.fee else '',
+                  p.amount, p.get_method_display(), p.reference,
+                  getattr(p.received_by, 'username', ''),
+                  'yes' if p.is_reversed else '']
+                 for p in qs))
+        if documents.wants(request, 'pdf'):
+            return finance_documents.payments_pdf(request, qs)
+
         return Response(FeePaymentSerializer(qs[:300], many=True).data)
 
 
@@ -238,6 +329,8 @@ class DebtorListView(FinanceView):
         fees = Fee.objects.select_related('student').prefetch_related('payments')
         if term is not None:
             fees = fees.filter(term=term)
+        # Same picker, same meaning, on this page too.
+        fees = student_filters(fees, request)
 
         rows = {}
         today = timezone.localdate()
@@ -259,11 +352,17 @@ class DebtorListView(FinanceView):
                 row['overdue'] += balance
 
         out = sorted(rows.values(), key=lambda r: r['outstanding'], reverse=True)
-        search = (request.query_params.get('q') or '').strip().lower()
-        if search:
-            out = [r for r in out
-                   if search in r['student']['name'].lower()
-                   or search in (r['student']['student_id'] or '').lower()]
+
+        if documents.wants(request, 'csv'):
+            return documents.csv_response(
+                f'who-owes-{class_label_of(request)}',
+                ['Student', 'Class', 'Student ID', 'Charges', 'Outstanding', 'Overdue'],
+                ([r['student']['name'], r['student']['class_label'],
+                  r['student']['student_id'], r['charges'],
+                  r['outstanding'], r['overdue']] for r in out))
+        if documents.wants(request, 'pdf'):
+            return finance_documents.debtors_pdf(request, out, term)
+
         return Response([
             {**r, 'outstanding': str(r['outstanding']), 'overdue': str(r['overdue'])}
             for r in out[:300]
@@ -356,6 +455,41 @@ class ExpenseListView(FinanceView):
         status_filter = request.query_params.get('status')
         if status_filter and status_filter != 'all':
             qs = qs.filter(status=status_filter)
+
+        term = _current_term(request)
+        if term is not None and request.query_params.get('term') != 'all':
+            qs = qs.filter(term=term)
+        category = request.query_params.get('category')
+        if category:
+            qs = qs.filter(category_id=category)
+        date_from = (request.query_params.get('from') or '').strip()
+        date_to = (request.query_params.get('to') or '').strip()
+        if date_from:
+            qs = qs.filter(spent_on__gte=date_from)
+        if date_to:
+            qs = qs.filter(spent_on__lte=date_to)
+        search = (request.query_params.get('q') or '').strip()
+        if search:
+            qs = qs.filter(Q(description__icontains=search)
+                           | Q(payee__icontains=search)
+                           | Q(reference__icontains=search))
+
+        if documents.wants(request, 'csv'):
+            return documents.csv_response(
+                'expenses',
+                ['Date', 'Category', 'Description', 'Payee', 'Method',
+                 'Reference', 'Status', 'Amount'],
+                ([e.spent_on, e.category.name if e.category else '', e.description,
+                  e.payee, e.get_method_display(), e.reference,
+                  e.get_status_display(), e.amount] for e in qs))
+        if documents.wants(request, 'pdf'):
+            committed = sum((e.amount for e in qs
+                             if e.status in ('approved', 'paid')), Decimal('0'))
+            pending = sum((e.amount for e in qs if e.status == 'pending'),
+                          Decimal('0'))
+            return finance_documents.expenses_pdf(
+                list(qs), term, {'committed': committed, 'pending': pending})
+
         return Response(ExpenseSerializer(qs[:300], many=True).data)
 
     def post(self, request):
@@ -473,3 +607,63 @@ class FinanceSettingsView(FinanceView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(FinanceSettingsSerializer(row).data)
+
+
+# ── What the office prints ────────────────────────────────────────────────────
+
+class ReceiptDocumentView(FinanceView):
+    """One receipt, for the parent standing at the desk."""
+
+    def get(self, request, pk):
+        payment = get_object_or_404(
+            FeePayment.objects.select_related('fee__student__user'), pk=pk)
+        return finance_documents.receipt_pdf(payment)
+
+
+class StatementDocumentView(FinanceView):
+    """Everything one family has been charged and has paid, on one page."""
+
+    def get(self, request, pk):
+        student = get_object_or_404(Student, pk=pk)
+        term = _current_term(request)
+        balance = services.student_balance(student, term)
+        return finance_documents.statement_pdf(student, term, balance)
+
+
+class RemindersDocumentView(FinanceView):
+    """
+    A letter per family that owes, for the class the picker is showing.
+
+    One page each rather than one list: a reminder is handed to a particular
+    parent, and a sheet carrying forty families\' debts tells every one of them
+    what the others owe.
+    """
+
+    def get(self, request):
+        term = _current_term(request)
+        fees = Fee.objects.select_related('student__user').prefetch_related('payments')
+        if term is not None:
+            fees = fees.filter(term=term)
+        fees = student_filters(fees, request)
+
+        families = {}
+        for fee in fees:
+            if fee.student is None:
+                continue
+            balance = services.balance_of(fee)
+            if balance <= Decimal('0'):
+                continue
+            row = families.setdefault(str(fee.student.id), {
+                'student': student_brief(fee.student),
+                'outstanding': Decimal('0'),
+                'lines': [],
+            })
+            row['outstanding'] += balance
+            row['lines'].append({
+                'category': fee.get_category_display(),
+                'due_date': fee.due_date,
+                'balance': balance,
+            })
+
+        rows = sorted(families.values(), key=lambda r: r['outstanding'], reverse=True)
+        return finance_documents.reminders_pdf(rows, term)

@@ -9,7 +9,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getFinanceDashboard } from '../../api/finance'
-import { FinanceShell, Money } from './FinanceShell'
+import { FinanceShell, Money, formatAmount } from './FinanceShell'
 
 /** What the school has billed, what it has actually received, and the gap. */
 export function FinanceDashboard() {
@@ -77,18 +77,23 @@ export function FinanceDashboard() {
                         <EmptyState icon="groups" title={t('finance.dashboard.nothingBilled')}
                             description={t('finance.dashboard.nothingBilledDesc')} />
                     ) : (
-                        <ul className="fin-row-list">
+                        <ul className="row-list">
                             {data.by_class.map(row => (
-                                <li key={row.class_label} className="fin-row">
-                                    <span className="fin-class-chip">{row.class_label}</span>
-                                    <div className="fin-row-main">
+                                <li key={row.class_label} className="row-item">
+                                    <span className="class-chip">{row.class_label}</span>
+                                    <div className="row-main">
                                         <div className="text-xs-muted">
+                                            {/* Formatted before interpolation. These are raw
+                                                decimal strings from the API, so the sentence
+                                                read "260000.00 of 440000.00 collected" right
+                                                beside a properly grouped "180,000 RWF". */}
                                             {t('finance.dashboard.ofCharged', {
-                                                collected: row.collected, charged: row.charged,
+                                                collected: formatAmount(row.collected),
+                                                charged: formatAmount(row.charged),
                                             })}
                                         </div>
                                     </div>
-                                    <Money value={row.outstanding} className="fin-owed" />
+                                    <Money value={row.outstanding} className="amount-owed" />
                                 </li>
                             ))}
                         </ul>
@@ -102,11 +107,11 @@ export function FinanceDashboard() {
                         <EmptyState icon="payments" title={t('finance.dashboard.noPayments')}
                             description={t('finance.dashboard.noPaymentsDesc')} />
                     ) : (
-                        <ul className="fin-row-list">
+                        <ul className="row-list">
                             {data.recent_payments.map(p => (
-                                <li key={p.id} className="fin-row">
+                                <li key={p.id} className="row-item">
                                     <span className="fin-receipt-no">{p.receipt_no}</span>
-                                    <div className="fin-row-main">
+                                    <div className="row-main">
                                         <div className="u-strong u-sm">{p.student?.name}</div>
                                         <div className="text-xs-muted">
                                             {t(`finance.methods.${p.method}`)} · {formatDate(p.paid_on)}

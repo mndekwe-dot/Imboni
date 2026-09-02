@@ -44,5 +44,11 @@
   "debtors": "Who owes",
   "feeStructure": "Fee structure",
   "expenses": "Expenses",
-  "finance": "Finance"
+  "finance": "Finance",
+  "otherIncome": "Other income",
+  "budget": "Budget",
+  "payroll": "Payroll",
+  "cash": "Cash & bank",
+  "overdue": "Overdue",
+  "stocktake": "Stocktake"
 }

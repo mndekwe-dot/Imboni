@@ -1,0 +1,19 @@
+{% extends "documents/base.html" %}
+{% block content %}
+<table class="grid">
+    <tr><th>Title</th><th>Author</th><th>ISBN</th><th>Category</th><th>Shelf</th><th class="num">Copies</th></tr>
+    {% for b in books %}
+        <tr>
+            <td>{{ b.title }}</td>
+            <td class="muted">{{ b.author }}</td>
+            <td class="muted">{{ b.isbn }}</td>
+            <td>{{ b.category }}</td>
+            <td>{{ b.shelf }}</td>
+            <td class="num">{{ b.copies.count }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6" class="empty">The catalogue is empty.</td></tr>
+    {% endfor %}
+    <tr class="total"><td colspan="6">{{ count }} title{{ count|pluralize }}</td></tr>
+</table>
+{% endblock %}

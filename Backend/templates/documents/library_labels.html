@@ -1,0 +1,42 @@
+{% extends "documents/base.html" %}
+{% comment %}
+A grid of small cards to be cut up and stuck on books. Floated blocks rather
+than flex: xhtml2pdf has no flexbox, and a flex grid here comes out as one
+label per line.
+
+The barcode is a PNG data URI, not a linked image: xhtml2pdf cannot fetch a URL
+while rendering, and a label sheet that needs the network is a label sheet that
+prints blank the day the line is down.
+{% endcomment %}
+{% block doc_styles %}
+    .label {
+        width: 30%; height: 96pt; float: left; margin: 0 1.5% 8pt 1.5%;
+        border: 0.75pt dashed #999; padding: 6pt; overflow: hidden;
+        text-align: center;
+    }
+    .label-barcode { height: 34pt; margin-bottom: 2pt; }
+    .label-qr      { height: 46pt; margin-bottom: 2pt; }
+    /* The code stays printed as text under the barcode. A creased or badly
+       cut label still has to be usable by hand -- that is the whole reason
+       every library book has the number written under the stripes. */
+    .label-code   { font-family: Courier, monospace; font-size: 10pt; font-weight: bold; }
+    .label-title  { font-size: 8pt; margin-top: 3pt; }
+    .label-author { font-size: 7pt; color: #666; }
+    .label-shelf  { font-size: 9pt; font-weight: bold; margin-top: 3pt; }
+{% endblock %}
+{% block content %}
+{% for row in labels %}
+    <div class="label">
+        {% if row.barcode %}
+            <img src="{{ row.barcode }}"
+                 class="{% if symbology == 'qr' %}label-qr{% else %}label-barcode{% endif %}" />
+        {% endif %}
+        <div class="label-code">{{ row.copy.copy_code }}</div>
+        <div class="label-title">{{ row.copy.book.title|truncatechars:40 }}</div>
+        <div class="label-author">{{ row.copy.book.author|truncatechars:28 }}</div>
+        <div class="label-shelf">{{ row.copy.book.shelf|default:"" }}</div>
+    </div>
+{% empty %}
+    <div class="empty">No copies selected.</div>
+{% endfor %}
+{% endblock %}
