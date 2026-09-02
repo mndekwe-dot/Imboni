@@ -2,12 +2,10 @@
   "admin": "Ubuyobozi bw'ikigo, gucunga abakozi n'igenamiterere",
   "discipline": "Imyitwarire y'abanyeshuri, gucunga kuba ku ishuri n'ibikorwa",
   "dos": "Kugenzura amasomo, gahunda, kwemeza amanota n'isesengura",
+  "finance": "Amafaranga, inyemezabwishyu n'ibiguzi by'ishuri",
+  "library": "Ububiko, kugurizanya n'ubusabe",
   "matron": "Ubuzima bw'abanyeshuri, imibereho no gucunga amacumbi",
   "parent": "Kurikirana amajyambere y'umwana wawe mu masomo no mu buzima bw'ishuri",
   "student": "Reba amanota, gahunda, imikoro n'ibikorwa byawe",
-  "teacher": "Cunga amashuri yawe, wandike ubwitabire n'amanota",
-  "library": {
-    "title": "Umubitsi w'isomero",
-    "subtitle": "Ububiko, kugurizanya n'ubusabe"
-  }
+  "teacher": "Cunga amashuri yawe, wandike ubwitabire n'amanota"
 }

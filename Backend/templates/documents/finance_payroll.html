@@ -1,0 +1,46 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% block page_size %}A4 landscape{% endblock %}
+{% block content %}
+<table class="grid">
+    <tr>
+        <th>Staff</th><th>Role</th><th class="num">Gross</th><th class="num">Allowances</th>
+        <th class="num">Pension</th><th class="num">Tax</th><th class="num">Other</th>
+        <th class="num">Net</th><th>Bank</th>
+    </tr>
+    {% for p in payslips %}
+        <tr>
+            <td>{{ p.staff_name }}</td>
+            <td class="muted">{{ p.role }}</td>
+            <td class="num">{{ p.gross|floatformat:0|intcomma }}</td>
+            <td class="num">{{ p.allowances|floatformat:0|intcomma }}</td>
+            <td class="num">{{ p.pension|floatformat:0|intcomma }}</td>
+            <td class="num">{{ p.tax|floatformat:0|intcomma }}</td>
+            <td class="num">{{ p.other_deduction|floatformat:0|intcomma }}</td>
+            <td class="num strong">{{ p.net|floatformat:0|intcomma }}</td>
+            <td class="muted">{{ p.bank_account }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="9" class="empty">This run has no payslips yet.</td></tr>
+    {% endfor %}
+    <tr class="total">
+        <td colspan="2">{{ count }} staff</td>
+        <td class="num">{{ totals.gross|floatformat:0|intcomma }}</td>
+        <td class="num">{{ totals.allowances|floatformat:0|intcomma }}</td>
+        <td class="num">{{ totals.pension|floatformat:0|intcomma }}</td>
+        <td class="num">{{ totals.tax|floatformat:0|intcomma }}</td>
+        <td class="num">{{ totals.other|floatformat:0|intcomma }}</td>
+        <td class="num">{{ totals.net|floatformat:0|intcomma }}</td>
+        <td></td>
+    </tr>
+</table>
+
+<p class="mt muted">Status: {{ run.get_status_display }}{% if run.paid_on %} &middot; paid {{ run.paid_on|date:"j M Y" }}{% endif %}</p>
+
+<table class="sign">
+    <tr>
+        <td><div class="sign-line">Prepared by</div></td>
+        <td><div class="sign-line">Approved by</div></td>
+        <td><div class="sign-line">Head teacher</div></td>
+    </tr>
+</table>
+{% endblock %}

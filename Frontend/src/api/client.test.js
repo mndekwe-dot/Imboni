@@ -73,6 +73,29 @@ describe('api/client.js interceptors', () => {
     await expect(responseRejected(error)).rejects.toThrow('Invalid input')
   })
 
+  it('puts the status and body on the error, not only on error.response', async () => {
+    /*
+     * Twenty-odd pages are written as `if (e?.status !== 402)` so they stay
+     * quiet when the school's plan does not include that portal. `.status` was
+     * never set, so the comparison was always true and every one of them
+     * showed "could not load" over the upgrade notice it was meant to leave
+     * room for.
+     */
+    const error = { response: { status: 402, data: { detail: 'Upgrade required' } } }
+    await expect(responseRejected(error)).rejects.toMatchObject({
+      status: 402,
+      data: { detail: 'Upgrade required' },
+    })
+  })
+
+  it('leaves status undefined when there was no response at all', async () => {
+    // A network failure has no status, and a caller branching on one must see
+    // undefined rather than a number it can misread.
+    await expect(responseRejected({ message: 'Network Error' })).rejects.toMatchObject({
+      status: undefined,
+    })
+  })
+
   it('falls back to detail, then a generic message, when no error field is present', async () => {
     await expect(responseRejected({ response: { status: 400, data: { detail: 'Not found' } } })).rejects.toThrow('Not found')
     await expect(responseRejected({ response: { status: 500, data: {} } })).rejects.toThrow('Something went wrong')

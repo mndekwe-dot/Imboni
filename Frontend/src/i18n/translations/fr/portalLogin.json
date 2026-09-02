@@ -2,12 +2,10 @@
   "admin": "Administration de l'école, gestion du personnel et paramètres du système",
   "discipline": "Conduite des élèves, gestion de l'internat et activités",
   "dos": "Suivi pédagogique, planification, validation des résultats et analyses",
+  "finance": "Frais, reçus et dépenses de l'école",
+  "library": "Catalogue, prêts et réservations",
   "matron": "Santé, bien-être des élèves et gestion des dortoirs",
   "parent": "Suivez le parcours scolaire et la vie scolaire de votre enfant",
   "student": "Consultez vos résultats, votre emploi du temps, vos devoirs et vos activités",
-  "teacher": "Gérez vos classes, faites l'appel et saisissez les résultats",
-  "library": {
-    "title": "Bibliothécaire",
-    "subtitle": "Catalogue, prêts et réservations"
-  }
+  "teacher": "Gérez vos classes, faites l'appel et saisissez les résultats"
 }

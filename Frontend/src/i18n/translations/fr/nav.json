@@ -38,5 +38,17 @@
   "circulation": "Circulation",
   "borrowers": "Emprunteurs",
   "reservations": "Réservations",
-  "acquisitions": "Acquisitions"
+  "acquisitions": "Acquisitions",
+  "charges": "Facturation",
+  "payments": "Paiements",
+  "debtors": "Impayés",
+  "feeStructure": "Grille tarifaire",
+  "expenses": "Dépenses",
+  "finance": "Finances",
+  "otherIncome": "Autres recettes",
+  "budget": "Budget",
+  "payroll": "Paie",
+  "cash": "Caisse et banque",
+  "overdue": "En retard",
+  "stocktake": "Inventaire"
 }

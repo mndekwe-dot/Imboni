@@ -1,0 +1,27 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% block content %}
+<table class="grid">
+    <tr>
+        <th>#</th><th>Student</th><th>Class</th><th>Student ID</th>
+        <th class="num">Charges</th><th class="num">Owed</th><th class="num">Overdue</th>
+    </tr>
+    {% for r in rows %}
+        <tr>
+            <td class="muted">{{ forloop.counter }}</td>
+            <td>{{ r.student.name }}</td>
+            <td>{{ r.student.class_label }}</td>
+            <td>{{ r.student.student_id|default:"-" }}</td>
+            <td class="num">{{ r.charges }}</td>
+            <td class="num strong">{{ r.outstanding|floatformat:0|intcomma }}</td>
+            <td class="num">{% if r.overdue %}<span class="pill pill-bad">{{ r.overdue|floatformat:0|intcomma }}</span>{% endif %}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="7" class="empty">Nobody owes anything. </td></tr>
+    {% endfor %}
+    <tr class="total">
+        <td colspan="5">{{ count }} famil{{ count|pluralize:"y,ies" }}</td>
+        <td class="num">{{ total|floatformat:0|intcomma }}</td>
+        <td class="num">{{ overdue|floatformat:0|intcomma }}</td>
+    </tr>
+</table>
+{% endblock %}

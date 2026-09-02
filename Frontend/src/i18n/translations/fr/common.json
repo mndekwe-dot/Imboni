@@ -274,5 +274,13 @@
   "yearGroups": "Promotions",
   "yes": "Oui",
   "yesDelete": "Oui, supprimer",
-  "yesterday": "Hier"
+  "yesterday": "Hier",
+  "filterByClass": "Filtrer par classe",
+  "allStreams": "Toutes les sections",
+  "preparing": "Préparation...",
+  "documentFailed": "Ce document n'a pas pu être préparé. Veuillez réessayer.",
+  "choose": "Choisir...",
+  "note": "Remarque",
+  "from": "Du",
+  "to": "Au"
 }

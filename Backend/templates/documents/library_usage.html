@@ -1,0 +1,41 @@
+{% extends "documents/base.html" %}
+{% block content %}
+<p class="muted">{{ total_loans }} loan{{ total_loans|pluralize }} in this period.</p>
+
+<div class="doc-title" style="font-size:10.5pt">Most borrowed</div>
+<table class="grid">
+    <tr><th>#</th><th>Title</th><th>Author</th><th class="num">Times out</th></tr>
+    {% for b in popular %}
+        <tr>
+            <td class="muted">{{ forloop.counter }}</td>
+            <td>{{ b.copy__book__title }}</td>
+            <td class="muted">{{ b.copy__book__author }}</td>
+            <td class="num">{{ b.times }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4" class="empty">Nothing was borrowed in this period.</td></tr>
+    {% endfor %}
+</table>
+
+<div class="doc-title" style="font-size:10.5pt">By class</div>
+<table class="grid">
+    <tr><th>Class</th><th class="num">Loans</th></tr>
+    {% for c in by_class %}
+        <tr>
+            <td>{{ c.borrower__student_profile__grade }}{{ c.borrower__student_profile__section }}</td>
+            <td class="num">{{ c.times }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<div class="doc-title" style="font-size:10.5pt">Never borrowed</div>
+<p class="muted">Money already spent. Worth knowing before buying more of the same.</p>
+<table class="grid">
+    <tr><th>Title</th><th>Author</th><th>Shelf</th></tr>
+    {% for b in dead_stock %}
+        <tr><td>{{ b.title }}</td><td class="muted">{{ b.author }}</td><td>{{ b.shelf }}</td></tr>
+    {% empty %}
+        <tr><td colspan="3" class="empty">Every title has been borrowed at least once.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

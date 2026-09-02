@@ -14,7 +14,8 @@ import { useLocation } from 'react-router'
  * the shared files — see the DOS block in index.css.
  */
 
-const PORTALS = ['dos', 'teacher', 'student', 'parent', 'admin', 'discipline', 'matron', 'library', 'platform']
+const PORTALS = ['dos', 'teacher', 'student', 'parent', 'admin', 'discipline', 'matron',
+    'library', 'finance', 'platform']
 
 /* Signed-in routes that belong to no single portal. /profile is reached from
    inside every portal, so it has no portal in its path - and it was therefore

@@ -38,5 +38,17 @@
   "circulation": "Kugurizanya",
   "borrowers": "Abaguza",
   "reservations": "Ubusabe",
-  "acquisitions": "Kugura ibitabo"
+  "acquisitions": "Kugura ibitabo",
+  "charges": "Ibyasabwe",
+  "payments": "Ubwishyu",
+  "debtors": "Abafite imyenda",
+  "feeStructure": "Amafaranga y'ishuri",
+  "expenses": "Ibiguzi",
+  "finance": "Imari",
+  "otherIncome": "Andi mafaranga",
+  "budget": "Ingengo y’imari",
+  "payroll": "Imishahara",
+  "cash": "Amafaranga na banki",
+  "overdue": "Ibirengeje igihe",
+  "stocktake": "Kubara ibitabo"
 }

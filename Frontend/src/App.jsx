@@ -65,6 +65,24 @@ const LibraryReservations = load(() => import('./pages/Library/LibraryReservatio
 const LibraryAcquisitions = load(() => import('./pages/Library/LibraryAcquisitions'), 'LibraryAcquisitions');
 const LibrarySettings     = load(() => import('./pages/Library/LibrarySettings'), 'LibrarySettings');
 const LibraryMessages     = load(() => import('./pages/Library/LibraryMessages'), 'LibraryMessages');
+const LibraryOverdue      = load(() => import('./pages/Library/LibraryOverdue'), 'LibraryOverdue');
+const LibraryStocktake    = load(() => import('./pages/Library/LibraryStocktake'), 'LibraryStocktake');
+const LibraryReports      = load(() => import('./pages/Library/LibraryReports'), 'LibraryReports');
+
+// -- Finance (Pro-only; the portal's own shell refuses a school off the plan) --
+const FinanceDashboard    = load(() => import('./pages/Finance/FinanceDashboard'), 'FinanceDashboard');
+const FinanceFees         = load(() => import('./pages/Finance/FinanceFees'), 'FinanceFees');
+const FinancePayments     = load(() => import('./pages/Finance/FinancePayments'), 'FinancePayments');
+const FinanceDebtors      = load(() => import('./pages/Finance/FinanceDebtors'), 'FinanceDebtors');
+const FinanceStructure    = load(() => import('./pages/Finance/FinanceStructure'), 'FinanceStructure');
+const FinanceExpenses     = load(() => import('./pages/Finance/FinanceExpenses'), 'FinanceExpenses');
+const FinanceReports      = load(() => import('./pages/Finance/FinanceReports'), 'FinanceReports');
+const FinanceSettings     = load(() => import('./pages/Finance/FinanceSettings'), 'FinanceSettings');
+const FinanceMessages     = load(() => import('./pages/Finance/FinanceMessages'), 'FinanceMessages');
+const FinanceIncome       = load(() => import('./pages/Finance/FinanceIncome'), 'FinanceIncome');
+const FinanceBudget       = load(() => import('./pages/Finance/FinanceBudget'), 'FinanceBudget');
+const FinancePayroll      = load(() => import('./pages/Finance/FinancePayroll'), 'FinancePayroll');
+const FinanceCash         = load(() => import('./pages/Finance/FinanceCash'), 'FinanceCash');
 
 // ── Teacher ──
 const TeacherDashboard    = load(() => import('./pages/Teacher/TeacherDashboard'), 'TeacherDashboard');
@@ -227,6 +245,11 @@ function App() {
           icon="local_library"
           placeholder="librarian@imboni.rw" redirectTo="/library" />
       } />
+      <Route path="/login/finance" element={
+        <PortalLogin portal="finance"
+          icon="account_balance"
+          placeholder="bursar@imboni.rw" redirectTo="/finance" />
+      } />
       <Route path="/login/admin" element={
         <PortalLogin portal="admin"
           icon="admin_panel_settings"
@@ -270,8 +293,28 @@ function App() {
       <Route path="/library/members" element={<ProtectedRoute role="librarian"><LibraryMembers /></ProtectedRoute>} />
       <Route path="/library/reservations" element={<ProtectedRoute role="librarian"><LibraryReservations /></ProtectedRoute>} />
       <Route path="/library/acquisitions" element={<ProtectedRoute role={["librarian", "admin"]}><LibraryAcquisitions /></ProtectedRoute>} />
+      <Route path="/library/overdue" element={<ProtectedRoute role={["librarian", "admin"]}><LibraryOverdue /></ProtectedRoute>} />
+      <Route path="/library/stocktake" element={<ProtectedRoute role={["librarian", "admin"]}><LibraryStocktake /></ProtectedRoute>} />
+      <Route path="/library/reports" element={<ProtectedRoute role={["librarian", "admin"]}><LibraryReports /></ProtectedRoute>} />
       <Route path="/library/settings" element={<ProtectedRoute role="librarian"><LibrarySettings /></ProtectedRoute>} />
       <Route path="/library/messages" element={<ProtectedRoute role="librarian"><LibraryMessages /></ProtectedRoute>} />
+      {/* ── Finance routes (Pro plan) ──
+          Role guard here; the PLAN guard is in FinanceShell. Expenses is the
+          page an admin may open too — the office records what it spent, the
+          head signs it off, and they cannot be the same person. */}
+      <Route path="/finance" element={<ProtectedRoute role="bursar"><FinanceDashboard /></ProtectedRoute>} />
+      <Route path="/finance/fees" element={<ProtectedRoute role="bursar"><FinanceFees /></ProtectedRoute>} />
+      <Route path="/finance/payments" element={<ProtectedRoute role="bursar"><FinancePayments /></ProtectedRoute>} />
+      <Route path="/finance/debtors" element={<ProtectedRoute role="bursar"><FinanceDebtors /></ProtectedRoute>} />
+      <Route path="/finance/structure" element={<ProtectedRoute role="bursar"><FinanceStructure /></ProtectedRoute>} />
+      <Route path="/finance/expenses" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceExpenses /></ProtectedRoute>} />
+      <Route path="/finance/reports" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceReports /></ProtectedRoute>} />
+      <Route path="/finance/income" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceIncome /></ProtectedRoute>} />
+      <Route path="/finance/budget" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceBudget /></ProtectedRoute>} />
+      <Route path="/finance/payroll" element={<ProtectedRoute role={["bursar", "admin"]}><FinancePayroll /></ProtectedRoute>} />
+      <Route path="/finance/cash" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceCash /></ProtectedRoute>} />
+      <Route path="/finance/settings" element={<ProtectedRoute role="bursar"><FinanceSettings /></ProtectedRoute>} />
+      <Route path="/finance/messages" element={<ProtectedRoute role="bursar"><FinanceMessages /></ProtectedRoute>} />
       {/* ── Teacher routes ── */}
       <Route path="/teacher" element={<ProtectedRoute role="teacher"><TeacherDashboard /></ProtectedRoute>} />
       <Route path="/teacher/classes" element={<ProtectedRoute role="teacher"><TeacherClasses /></ProtectedRoute>} />

@@ -57,6 +57,9 @@ SHARED_APPS = [
 
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
+    # Thousands separators on printed documents. No tables, so it loads once
+    # here rather than being duplicated into every school's schema.
+    'django.contrib.humanize',
     # Third party with no DB tables — safe to load once in the public schema
     'corsheaders',
     'rest_framework',
@@ -92,6 +95,7 @@ TENANT_APPS = [
     'apps.discipline',
     'apps.matron',
     'apps.library',
+    'apps.finance',
     'apps.notifications',
     'apps.audit',
 ]
