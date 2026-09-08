@@ -1126,6 +1126,11 @@ class MarkAttendanceView(APIView):
                     message=f"{student.full_name} was marked absent on {target_date.strftime('%d %b %Y')}.",
                     type='attendance',
                     path='/parent/attendance',
+                    # An absence is the one routine notice a parent needs while
+                    # the app is closed, so it asks for the email copy. Each
+                    # parent's own "Email alerts" toggle still decides whether
+                    # it is actually sent.
+                    send_email=True,
                 )
 
         return Response({'saved': saved}, status=status.HTTP_200_OK)
