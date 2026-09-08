@@ -2,8 +2,13 @@
 
 .toast-container {
     position: fixed;
-    top: 1rem;
-    right: 1rem;
+    /* env() so an installed PWA does not put toasts under the notch or the
+       rounded corner. It resolves to 0 everywhere it does not apply, so the
+       max() is what keeps the 1rem on a normal browser. This app is
+       installed to phone home screens, where the status bar is the app's
+       problem rather than the browser's. */
+    top: max(1rem, env(safe-area-inset-top));
+    right: max(1rem, env(safe-area-inset-right));
     z-index: var(--z-toast);
     display: flex;
     flex-direction: column;
@@ -24,12 +29,44 @@
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 4px 10px -6px rgba(0, 0, 0, 0.14);
     font-size: var(--text-sm);
     line-height: 1.4;
-    animation: toast-in 0.18s ease-out;
+
+    /* A transition with @starting-style, not @keyframes.
+     *
+     * Keyframes restart from zero when re-triggered; a transition retargets
+     * from wherever the element currently is. Toasts are the textbook case
+     * for caring: this app's rule is that nothing fails silently, so a form
+     * that reports three validation errors pushes three toasts within a few
+     * frames of each other, and the stack reflows under each arrival. With
+     * keyframes each neighbour snaps back to the start of its slide every
+     * time; with a transition they glide from where they were.
+     *
+     * translateX in % rather than the old hardcoded 12px, so a two-line
+     * toast and a one-line toast travel the same visual distance relative
+     * to themselves instead of the taller one appearing to move less. */
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity var(--duration-pop) var(--ease-out),
+                transform var(--duration-pop) var(--ease-out);
 }
 
-@keyframes toast-in {
-    from { opacity: 0; transform: translateX(12px); }
-    to   { opacity: 1; transform: translateX(0); }
+@starting-style {
+    .toast {
+        opacity: 0;
+        /* Enters from the right edge it is anchored to, so the motion says
+           where it came from. Never from scale(0) or opacity alone -- a
+           thing that grows out of nothing has no physical analogue. */
+        transform: translateX(30%);
+    }
+}
+
+/* Leaving. Previously a toast simply vanished between two frames, which
+   reads as a glitch rather than a dismissal -- especially when you clicked
+   the X and the only confirmation was the absence of what you clicked.
+   Faster than the entrance: arriving asks to be noticed, leaving does not. */
+.toast-leaving {
+    opacity: 0;
+    transform: translateX(30%);
+    transition-duration: var(--duration-press);
 }
 
 .toast-icon { font-size: var(--icon-md); flex-shrink: 0; margin-top: 1px; }
