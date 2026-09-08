@@ -20,9 +20,21 @@ const ICONS = { error: 'error', success: 'check_circle', info: 'info', warning: 
 export function ToastProvider({ children }) {
     const [toasts, setToasts] = useState([])
 
-    const dismiss = useCallback((id) => {
+    // Two steps, because a toast that is removed from the array is gone from
+    // the DOM in the same frame and there is nothing left to animate out.
+    // Mark it leaving, let CSS fade it, then drop it. LEAVE_MS must outlast
+    // --duration-press in toast.css; a little slack is harmless, a shortfall
+    // clips the fade.
+    const LEAVE_MS = 180
+
+    const remove = useCallback((id) => {
         setToasts(list => list.filter(t => t.id !== id))
     }, [])
+
+    const dismiss = useCallback((id) => {
+        setToasts(list => list.map(t => (t.id === id ? { ...t, leaving: true } : t)))
+        setTimeout(() => remove(id), LEAVE_MS)
+    }, [remove])
 
     const push = useCallback((message, type, duration) => {
         if (!message) return
@@ -45,7 +57,11 @@ export function ToastProvider({ children }) {
             {children}
             <div className="toast-container" role="region" aria-label="Notifications" aria-live="polite">
                 {toasts.map(t => (
-                    <div key={t.id} className={`toast toast-${t.type}`} role="alert">
+                    <div
+                        key={t.id}
+                        className={`toast toast-${t.type}${t.leaving ? ' toast-leaving' : ''}`}
+                        role="alert"
+                    >
                         <span className="material-symbols-rounded toast-icon" aria-hidden="true">{ICONS[t.type] || 'info'}</span>
                         <span className="toast-message">{t.message}</span>
                         <button
