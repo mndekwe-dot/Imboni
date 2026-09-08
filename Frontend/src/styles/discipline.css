@@ -138,9 +138,13 @@
   border-radius: var(--radius-lg);
   transition: box-shadow var(--hover-transition), transform var(--hover-transition);
 }
-.disc-club-card:hover {
-  box-shadow: var(--hover-shadow);
-  transform: translateY(var(--hover-lift));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .disc-club-card:hover {
+    box-shadow: var(--hover-shadow);
+    transform: translateY(var(--hover-lift));
+  }
 }
 .disc-club-card.inactive { opacity: 0.65; }
 
@@ -474,12 +478,6 @@
 }
 
 /* ── Action cell in approval table ── */
-.action-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-}
 
 /* ── Approval queue header elements ── */
 .filter-tab .approval-count-badge { margin-left: 0.4rem; }
@@ -937,7 +935,7 @@
 .es-session-chips { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
 .es-session-chip  { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem;
     border-radius:999px; border:1.5px solid var(--border); background:transparent;
-    font-size: var(--text-sm); font-weight:500; cursor:pointer; transition:all .15s; color:var(--foreground); }
+    font-size: var(--text-sm); font-weight:500; cursor:pointer; transition: background-color var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover), color var(--duration-hover) var(--ease-hover), box-shadow var(--duration-hover) var(--ease-hover), transform var(--duration-press) var(--ease-out); color:var(--foreground); }
 .es-session-chip:hover  { border-color:var(--primary); color:var(--primary); }
 .es-session-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
 .es-session-chip-wrap { display:inline-flex; align-items:center; border-radius:999px;
@@ -1375,7 +1373,12 @@
     background: transparent;
     color: var(--foreground);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color var(--duration-hover) var(--ease-hover),
+                border-color var(--duration-hover) var(--ease-hover),
+                color var(--duration-hover) var(--ease-hover),
+                box-shadow var(--duration-hover) var(--ease-hover),
+                opacity var(--duration-hover) var(--ease-hover),
+                transform var(--duration-press) var(--ease-out);
 }
 .scm-type-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
 .scm-type-btn .material-symbols-rounded { font-size: var(--icon-sm); }
