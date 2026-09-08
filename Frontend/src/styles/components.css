@@ -22,10 +22,64 @@
   border-radius: var(--radius);
   border: none;
   cursor: pointer;
-  transition: all var(--transition-base);
+  /* Named properties, not `all`. `transition: all` animates whatever else
+     happens to change -- width when the label swaps, height when it wraps,
+     border-width on focus -- and those are layout properties, so each one
+     costs a layout + paint + composite instead of a GPU composite alone.
+     It also means a button that changes size mid-interaction slides to its
+     new size instead of just being that size. */
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   white-space: nowrap;
   max-width: 100%;
   min-height: var(--touch-min);
+}
+
+/* Press feedback. The most-pressed thing in the app acknowledged a click
+   with nothing at all -- on a slow connection the only signal that the tap
+   registered was the result arriving, which on the fee and library desks is
+   a round trip away. 0.97 is deliberately almost invisible: you should not
+   be able to describe what happened, only notice its absence.
+ *
+ * The list below is not just `.btn`. Half the pressable things in this app
+ * are portal-specific classes that never adopted it -- the whole login form
+ * is `.login-btn`, `.pw-toggle` and `.forgot-link` -- and a browser check
+ * found the login page, the first screen anyone sees, giving no press
+ * feedback at all while the buttons beside it did. Any element that is
+ * pressed gets this; add to the list rather than writing a private one. */
+.btn:active:not(:disabled),
+.btn-ghost:active:not(:disabled),
+.login-btn:active:not(:disabled),
+.pw-toggle:active,
+.forgot-link:active,
+.tab-btn:active,
+.filter-tab:active,
+.dt-page-btn:active:not(:disabled),
+.toast-close:active,
+.sidebar-nav-item:active {
+  transform: scale(0.97);
+}
+
+/* The transition has to exist on the resting state for the release to
+   animate; declaring it only under :active snaps back.
+ *
+ * Only the three that declare no transition of their own are listed. The
+ * rest already carry `transform var(--duration-press)` in the property list
+ * set on them in their own stylesheet, and re-declaring `transition` here
+ * would replace that list wholesale -- silently dropping their colour and
+ * shadow transitions depending on which file the bundler emitted last. */
+.btn-ghost,
+.pw-toggle,
+.forgot-link,
+.toast-close {
+  transition: color var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              background-color var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .btn-primary {
@@ -308,7 +362,12 @@
   border-bottom: 2px solid transparent;
   color: var(--muted-foreground);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   white-space: nowrap;
   min-height: var(--touch-min);
   flex-shrink: 0;
@@ -479,7 +538,12 @@ tr:hover td {
   border-radius: var(--radius);
   background-color: var(--card);
   color: var(--foreground);
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   min-height: var(--touch-min);
   box-sizing: border-box;
 }
@@ -522,7 +586,12 @@ tr:hover td {
   border-radius: var(--radius);
   background-color: var(--card);
   color: var(--foreground);
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   min-height: var(--touch-min);
   box-sizing: border-box;
   cursor: pointer;
@@ -643,7 +712,12 @@ tr:hover td {
   padding: 1rem;
   border: 1px solid;
   border-radius: var(--radius);
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   max-width: 100%;
   overflow: hidden;
   gap: 0.75rem;
@@ -879,9 +953,51 @@ tr:hover td {
 }
 .tt-modal.tt-modal-wide  { width: min(680px, 95vw); }
 .tt-modal.tt-modal-lg    { width: min(860px, 95vw); }
+
+/* The dialog appeared and disappeared between two frames, which is the one
+ * thing a modal must not do: it covers the page you were reading, so an
+ * instant swap gives no sense that a layer arrived on top rather than the
+ * page having been replaced. 220ms of ease-out is enough to say "this is
+ * over that" and short enough that nobody waits for it.
+ *
+ * From 0.96, never from 0. Modals are the documented exception to
+ * origin-aware scaling: they appear centred in the viewport rather than out
+ * of a trigger, so transform-origin stays at the centre -- and the existing
+ * translate(-50%, -50%) has to be carried through every state or the box
+ * jumps a half-width sideways as it animates. */
+.tt-modal {
+    transition: opacity var(--duration-modal) var(--ease-out),
+                transform var(--duration-modal) var(--ease-out),
+                overlay var(--duration-modal) allow-discrete,
+                display var(--duration-modal) allow-discrete;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+.tt-modal:not([open]) {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+}
+@starting-style {
+    .tt-modal[open] {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.96);
+    }
+}
+
 .tt-modal::backdrop {
     background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(2px);
+    /* The backdrop fades with the dialog. Without this it snaps to full
+       black behind a dialog that is still fading in, which reads as two
+       separate things happening rather than one. */
+    transition: opacity var(--duration-modal) var(--ease-out),
+                overlay var(--duration-modal) allow-discrete,
+                display var(--duration-modal) allow-discrete;
+    opacity: 1;
+}
+.tt-modal:not([open])::backdrop { opacity: 0; }
+@starting-style {
+    .tt-modal[open]::backdrop { opacity: 0; }
 }
 .tt-modal-inner {
     display: flex;
@@ -1494,9 +1610,18 @@ tr:hover td {
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: box-shadow var(--transition-base);
+  transition: box-shadow var(--duration-hover) var(--ease-hover);
 }
-.portal-stat-card:hover { box-shadow: var(--shadow-md); }
+/* Gated like every other hover in the app. This one was missed because the
+   consolidated block in index.css lists the OLD card class names --
+   .stat-card, .metric-card and friends -- and the shared StatCard component
+   renders .portal-stat-card. So the one card that appears in all seven
+   portals was the one still latching its hover on touch. A browser check
+   found it; grepping for :hover would not have, because the rule looks
+   exactly like the ones that were already fixed. */
+@media (hover: hover) and (pointer: fine) {
+  .portal-stat-card:hover { box-shadow: var(--shadow-md); }
+}
 
 /* color overrides for individual cards */
 
@@ -2835,3 +2960,119 @@ td .class-chip { margin-left: 4px; }
 .pill-info   { background: var(--primary-surface); color: var(--primary-text); }
 .pill-danger { background: var(--destructive-surface, #fee2e2); color: var(--destructive); }
 .pill-muted  { background: var(--muted); color: var(--muted-foreground); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PANELS THAT OPEN FROM A TRIGGER
+   ─────────────────────────────────────────────────────────────────────────
+   The three dropdowns in this app — the student picker, the language menu
+   and the notifications panel — appeared and vanished between two frames,
+   with no transform-origin anywhere in the codebase. A panel that materialises
+   fully formed says nothing about where it came from, so the eye has to find
+   it; one that grows a few percent out of its own trigger has already told
+   you, before you have finished reading it.
+
+   Origin is set per panel below, because it is the one thing that cannot be
+   shared: a menu hanging under a left-aligned input grows from its top left,
+   one hanging under a right-aligned bell grows from its top right. Getting
+   this wrong is worse than no animation — the panel appears to come from
+   somewhere it did not.
+
+   Modals are deliberately excluded: they are centred in the viewport rather
+   than anchored to anything, and their origin stays at the centre.
+   ═════════════════════════════════════════════════════════════════════════ */
+.student-picker-menu,
+.lang-menu-list,
+.notif-dropdown {
+  opacity: 1;
+  transform: scale(1);
+  /* 180ms: a dropdown sits in the 150–250ms band. Long enough to read as
+     movement, short enough that a librarian opening it forty times an hour
+     never waits for it. */
+  transition: opacity var(--duration-pop) var(--ease-out),
+              transform var(--duration-pop) var(--ease-out);
+}
+
+/* 0.97, never 0. Nothing in the world appears out of nothing, and a panel
+   that grows from a point reads as a special effect rather than as a thing
+   that was already there. */
+@starting-style {
+  .student-picker-menu,
+  .lang-menu-list,
+  .notif-dropdown { opacity: 0; transform: scale(0.97); }
+}
+
+.student-picker-menu { transform-origin: top left; }
+.lang-menu-list      { transform-origin: top right; }
+.notif-dropdown      { transform-origin: top right; }
+
+/* Full-width on a phone: it is no longer hanging off one corner of a
+   trigger, so growing from a corner would be a lie about where it came from. */
+@media (max-width: 767px) {
+  .notif-dropdown { transform-origin: top center; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOW TEXT BREAKS
+   ─────────────────────────────────────────────────────────────────────────
+   Nothing in the app set this, so every heading and every empty-state line
+   broke wherever the box happened to end. Two properties, applied by the
+   same ROLE the type table uses:
+
+   `balance` on titles. A two-line panel heading was splitting 6 words as
+   5 + 1, which is what makes a card look badly made without anyone being
+   able to say why. Browsers cap it at a few lines, which is exactly the
+   range a title lives in.
+
+   `pretty` on the sentence under a title. It only prevents the last line
+   being a single orphaned word — cheap, and it is the difference between a
+   description that reads as written and one that reads as leftover.
+
+   Not applied to table cells, form values or long prose: balancing a
+   paragraph wastes width and makes it harder to read, and a cell that
+   rebalances as data loads is worse than one that just wraps.
+   ═════════════════════════════════════════════════════════════════════════ */
+h1, h2, h3,
+.dashboard-header-title h1,
+.card-title,
+.dt-title,
+.dt-empty-title,
+.empty-state-title,
+.tt-modal-title,
+.modal-title {
+  text-wrap: balance;
+}
+
+.dashboard-header-title p,
+.card-subtitle,
+.dt-empty-desc,
+.empty-state-desc {
+  text-wrap: pretty;
+}
+
+/* Rwandan names, school names and book titles are longer than the columns
+   they sit in, and an unbreakable one used to push the whole table sideways
+   until the page scrolled horizontally. Break the word rather than the
+   layout. */
+.dt-table td,
+.row-main,
+.detail-grid dd {
+  overflow-wrap: break-word;
+}
+
+/* The row of buttons at the end of a table row.
+ *
+ * Was in discipline.css, unprefixed, and used by eight pages across three
+ * portals -- the same shape of bug as .class-chip: a shared control living
+ * in one portal's stylesheet, where editing it silently changes the others.
+ *
+ * The gap was 0.35rem. These are BORDERLESS buttons, so nothing marks where
+ * one target ends and the next begins except the space between them, and
+ * 5.6px is not enough of a boundary when the two buttons are "Receipt" and
+ * "Reverse" and one of them undoes a payment. Widened to --space-3, which
+ * is also what the toolbars above these tables already use. */
+.action-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}

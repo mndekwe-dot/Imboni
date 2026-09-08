@@ -80,6 +80,54 @@ Five things this fixed, all of them the same mistake:
 
 If a role is missing from this table, add the row before you add the rule.
 
+## 0.5. Is it motion?
+
+Then the question is again not "what looks nice" but **"what is this motion
+doing?"** — and the answer picks the curve. All three live in `index.css`.
+
+| The motion is | Curve | Duration |
+|---|---|---|
+| Something **arriving or leaving** (toast, dropdown, dialog) | `--ease-out` | `--duration-pop` (180) / `--duration-modal` (220) |
+| Something **already on screen moving** from A to B | `--ease-in-out` | `--duration-pop` |
+| **Hover, colour, shadow** — nothing arrives | `--ease-hover` | `--duration-hover` (150) |
+| **Press feedback** on anything clickable | `--ease-out` | `--duration-press` (140) |
+
+There is no `ease-in` token, deliberately. It starts slow, which delays the
+exact frame the eye is on; `ease-out` at 200ms feels quicker than `ease-in` at
+200ms. If you find yourself wanting one, you want `ease-in-out`.
+
+Four rules that are not negotiable, because each was a real defect here:
+
+- **Never `transition: all`.** It animates whatever else happens to change —
+  width when a label swaps, height when text wraps — and those are layout
+  properties, so each costs layout + paint + composite instead of a GPU
+  composite. Name the properties. There were 59 of these.
+- **Animate `transform` and `opacity`.** Anything else, ask why.
+- **Never from `scale(0)`.** `0.96`–`0.97` plus opacity. Nothing in the world
+  appears out of nothing, and growing from a point reads as an effect rather
+  than as a thing that was already there.
+- **A panel anchored to a trigger scales from that trigger** —
+  `transform-origin: top left` under a left-aligned input, `top right` under a
+  right-aligned bell. Getting it wrong is worse than no animation: it says the
+  panel came from somewhere it did not. **Modals are the exception**; they are
+  centred in the viewport, so their origin stays centre.
+
+**Hover motion is gated**: `@media (hover: hover) and (pointer: fine)`. A
+touchscreen fires `:hover` on tap and leaves it applied until you touch
+something else, so on a phone every card you tapped stayed lifted behind you.
+Put the `transition` on the resting state, not inside `:hover` — declaring it
+only on `:hover` animates the way in and snaps the way out.
+
+**Reduced motion means less movement, not no feedback.** The rule kills
+`transform` and shortens fades; it does not set every transition to `0.01ms`.
+Someone who asked not to be moved did not ask to lose the press feedback that
+tells them the software heard them.
+
+Frequency decides whether something animates at all. Anything hit a hundred
+times a day (a keyboard shortcut, a nav item) should animate barely or not at
+all; dialogs, toasts and dropdowns are occasional and get the standard
+treatment. "It looks nice" is not a reason on something seen constantly.
+
 ## 1. Is it a colour, size, radius or shadow?
 
 It is a **token**, and it belongs in `src/index.css`.

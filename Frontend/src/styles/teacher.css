@@ -26,7 +26,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
-  transition: all 0.2s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .class-header {
@@ -262,7 +267,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 0.75rem;
-  transition: all 0.2s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .schedule-card.completed {
@@ -484,7 +494,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1rem;
-  transition: all 0.2s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .class-overview-card:hover {
@@ -596,13 +611,22 @@
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: all 0.2s ease;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
-.metric-card:hover {
-  border-color: var(--primary);
-  transform: translateY(var(--hover-lift));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .metric-card:hover {
+    border-color: var(--primary);
+    transform: translateY(var(--hover-lift));
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
 }
 
 .metric-value {
@@ -642,7 +666,12 @@
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: all 0.2s ease;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .activity-icon-wrapper {
@@ -886,7 +915,12 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .calendar-nav-btn:hover {
@@ -915,7 +949,12 @@
   border-radius: 6px;
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   position: relative;
 }
 
@@ -951,7 +990,12 @@
   padding: 0.75rem;
   border-radius: var(--radius);
   margin-bottom: 0.5rem;
-  transition: all 0.2s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .event-list-item:hover {
@@ -1098,7 +1142,12 @@
   background: white;
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1159,7 +1208,12 @@
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
-  transition: all 0.2s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   white-space: nowrap;
 }
 
@@ -1449,7 +1503,12 @@
   background: var(--muted);
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   color: var(--foreground);
 }
 .quick-reply-btn:hover {
@@ -1850,7 +1909,8 @@
 .asgn-chip { font-size: var(--text-caption); font-weight: 700; padding: 2px 7px; border-radius: 20px; }
 
 /* ── Mode toggle buttons (new-assignment modal) ── */
-.mode-toggle-btn { padding: 0.875rem; border-radius: var(--radius); cursor: pointer; text-align: left; transition: all 0.15s; }
+.mode-toggle-btn { padding: 0.875rem; border-radius: var(--radius); cursor: pointer; text-align: left;
+  transition: background-color var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover), color var(--duration-hover) var(--ease-hover), box-shadow var(--duration-hover) var(--ease-hover), transform var(--duration-press) var(--ease-out); }
 .mode-toggle-btn-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 3px; }
 .mode-toggle-btn-icon   { font-size: var(--icon-sm) !important; color: var(--muted-foreground); }
 .mode-toggle-btn.active .mode-toggle-btn-icon  { color: var(--primary); }

@@ -127,7 +127,12 @@
   background: var(--card);
   color: var(--foreground);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   margin-right: 0.25rem;
 }
 
@@ -261,7 +266,12 @@
   width: 100%;
   text-align: left;
   border-bottom: 1px solid var(--border);
-  transition: all 0.15s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .adm-settings-nav-item:last-child { border-bottom: none; }
@@ -299,7 +309,12 @@
   margin-top: 1px;
   padding: 0;
   flex-shrink: 0;
-  transition: all 0.15s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 .task-toggle-btn.done { border-color: var(--success); background: var(--success); }
 .task-toggle-btn .material-symbols-rounded { font-size: var(--icon-sm); color: #fff; }
