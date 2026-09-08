@@ -139,6 +139,11 @@ class AuthViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
     
     # Maps each portal slug to the roles allowed through it
+    # Every role in User.USER_ROLES must appear here, or an account with that
+    # role cannot sign in anywhere: an unlisted portal name is rejected as
+    # 'Invalid portal' before the password is even checked. Both Premium
+    # portals shipped missing, so no librarian or bursar could reach their
+    # own portal. test_portal_roles.py holds the line.
     PORTAL_ROLES = {
         'student':    ['student'],
         'teacher':    ['teacher'],
@@ -146,6 +151,8 @@ class AuthViewSet(viewsets.ViewSet):
         'parent':     ['parent'],
         'discipline': ['discipline'],
         'matron':     ['matron'],
+        'library':    ['librarian'],
+        'finance':    ['bursar'],
         'admin':      ['admin'],
     }
 
@@ -156,6 +163,8 @@ class AuthViewSet(viewsets.ViewSet):
         'parent':     'Parent Portal',
         'discipline': 'Discipline Portal',
         'matron':     'Matron Portal',
+        'library':    'Library Portal',
+        'finance':    'Finance Portal',
         'admin':      'Admin Portal',
     }
 
