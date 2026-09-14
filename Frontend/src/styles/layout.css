@@ -354,7 +354,6 @@
   flex-shrink: 0;
   border: 2px solid var(--sidebar-border);
   box-shadow: var(--shadow-md);
-  font-family: var(--font-heading);
 }
 
 .sidebar-user-avatar img {
@@ -381,7 +380,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-family: var(--font-heading);
 }
 
 .sidebar-user-role {

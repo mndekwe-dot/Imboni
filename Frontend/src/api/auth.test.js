@@ -54,9 +54,28 @@ describe('auth api', () => {
   })
 
   describe('logoutUser', () => {
-    it('does nothing when no refresh token is stored', async () => {
+    it('skips the server call but still clears a half-built session with no refresh token', async () => {
+      localStorage.setItem('imboni_access', 'a-tok')
+      localStorage.setItem('imboni_user', '{}')
+
       await logoutUser()
+
       expect(client.post).not.toHaveBeenCalled()
+      expect(localStorage.getItem('imboni_access')).toBeNull()
+      expect(localStorage.getItem('imboni_user')).toBeNull()
+    })
+
+    it('clears session storage even when the server call fails, and still rejects', async () => {
+      localStorage.setItem('imboni_refresh', 'r-tok')
+      localStorage.setItem('imboni_access', 'a-tok')
+      localStorage.setItem('imboni_user', '{}')
+      client.post.mockRejectedValue(new Error('Network Error'))
+
+      await expect(logoutUser()).rejects.toThrow('Network Error')
+
+      expect(localStorage.getItem('imboni_access')).toBeNull()
+      expect(localStorage.getItem('imboni_refresh')).toBeNull()
+      expect(localStorage.getItem('imboni_user')).toBeNull()
     })
 
     it('posts the refresh token and clears session storage on success', async () => {

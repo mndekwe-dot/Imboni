@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 /**
  * PaginationBar — shared across portals.
  *
@@ -13,9 +15,13 @@
  *   totalPages — total number of pages
  *   totalCount — total rows across all pages (shown in the summary)
  *   label      — plural noun for the rows, e.g. "results"
+ *   summary    — optional, replaces "{totalCount} {label}". Pass an already
+ *                pluralised string (`t('announcements.count', { count })`)
+ *                where "1 announcements" would otherwise show up.
  *   onPage     — (nextPage) => void
  */
-export function PaginationBar({ page, totalPages, totalCount, label, onPage }) {
+export function PaginationBar({ page, totalPages, totalCount, label, summary, onPage }) {
+    const { t } = useTranslation()
     if (totalPages <= 1) return null
 
     const first = page === 1
@@ -24,23 +30,23 @@ export function PaginationBar({ page, totalPages, totalCount, label, onPage }) {
     return (
         <div className="pagination-bar">
             <span className="pagination-info">
-                {totalCount} {label} (Page {page} of {totalPages})
+                {summary ?? `${totalCount} ${label}`} ({t('common.pageOf', { page, total: totalPages })})
             </span>
             <div className="pagination-controls">
-                <button className="pagination-btn" disabled={first}
-                    aria-label="First page" onClick={() => onPage(1)}>
+                <button type="button" className="pagination-btn" disabled={first}
+                    aria-label={t('common.firstPage')} onClick={() => onPage(1)}>
                     <span className="material-symbols-rounded" aria-hidden="true">first_page</span>
                 </button>
-                <button className="pagination-btn" disabled={first}
-                    aria-label="Previous page" onClick={() => onPage(page - 1)}>
+                <button type="button" className="pagination-btn" disabled={first}
+                    aria-label={t('common.previousPage')} onClick={() => onPage(page - 1)}>
                     <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                 </button>
-                <button className="pagination-btn" disabled={last}
-                    aria-label="Next page" onClick={() => onPage(page + 1)}>
+                <button type="button" className="pagination-btn" disabled={last}
+                    aria-label={t('common.nextPage')} onClick={() => onPage(page + 1)}>
                     <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                 </button>
-                <button className="pagination-btn" disabled={last}
-                    aria-label="Last page" onClick={() => onPage(totalPages)}>
+                <button type="button" className="pagination-btn" disabled={last}
+                    aria-label={t('common.lastPage')} onClick={() => onPage(totalPages)}>
                     <span className="material-symbols-rounded" aria-hidden="true">last_page</span>
                 </button>
             </div>

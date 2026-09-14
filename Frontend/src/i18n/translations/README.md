@@ -41,6 +41,7 @@ readable off the key itself: `teacher.assignments.due` is in `<lang>/teacher.jso
 | `sidebar.json` | `components/layout/Sidebar.jsx` |
 | `student.json` | `pages/Student/*` |
 | `teacher.json` | `pages/Teacher/*` |
+| `timetable.json` | `components/timetable/` — the shared grid, its view menu, calendar and Schedule list |
 | `welcome.json` | `components/layout/WelcomeBanner.jsx` |
 
 To see every string one page uses, grep its top-level key:

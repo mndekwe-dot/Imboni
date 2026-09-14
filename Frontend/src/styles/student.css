@@ -977,21 +977,15 @@
 .staff-meta-item .material-symbols-rounded { font-size: var(--icon-sm); }
 .staff-profile-actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
 
-/* Code of Conduct section heading (StudentDiscipline) */
-.disc-section-heading { font-weight: 700; font-size: var(--text-body); }
-
-/* Code of conduct */
+/* Code of conduct (StudentDiscipline) — one .card; each category is a section
+   inside it, separated by space rather than by a border of its own. */
 .conduct-rules-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-6) var(--space-8);
 }
-.conduct-category-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
+.conduct-category {
+  min-width: 0;
 }
 .conduct-category-header {
   display: flex;

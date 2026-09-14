@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { PaginationBar } from '../../components/ui/PaginationBar'
+import { usePagination } from '../../hooks/usePagination'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentAnnouncements, getAnnouncementStats } from '../../api/student'
 import { formatDate } from '../../utils/date'
@@ -20,6 +22,8 @@ const CATEGORY_ICON = {
 }
 
 // Chip identity is a stable key; the visible label is translated at render.
+const PAGE_SIZE = 10
+
 const CHIPS = ['All', 'Urgent', 'Academic', 'Events', 'General']
 const CHIP_KEY = {
     All: 'all', Urgent: 'urgent', Academic: 'academic', Events: 'events', General: 'general',
@@ -96,6 +100,9 @@ export function StudentAnnouncements() {
             return true
         })
 
+    const listRef = useRef(null)
+    const { pageItems, ...pager } = usePagination(visible, { pageSize: PAGE_SIZE, resetKey: chip, scrollRef: listRef })
+
     return (
         <>
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
@@ -142,9 +149,12 @@ export function StudentAnnouncements() {
                                     : t('student.announcements.emptyFiltered')}
                             </p>
                         ) : (
-                            <div className="sann-feed">
-                                {visible.map(a => <AnnouncementItem key={a.id} ann={a} />)}
-                            </div>
+                            <>
+                                <div className="sann-feed" ref={listRef}>
+                                    {pageItems.map(a => <AnnouncementItem key={a.id} ann={a} />)}
+                                </div>
+                                <PaginationBar {...pager} summary={t('announcements.count', { count: pager.totalCount })} />
+                            </>
                         )}
 
                     </DashboardContent>

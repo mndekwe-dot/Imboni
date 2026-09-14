@@ -22,7 +22,7 @@
   white-space: nowrap;
 }
 .fin-receipt-no {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-sm);
   color: var(--muted-foreground);
   white-space: nowrap;

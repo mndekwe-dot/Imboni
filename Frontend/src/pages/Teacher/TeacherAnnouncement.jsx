@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { PaginationBar } from '../../components/ui/PaginationBar'
+import { usePagination } from '../../hooks/usePagination'
 import {
     getTeacherAnnouncements, createTeacherAnnouncement,
     updateTeacherAnnouncement, deleteTeacherAnnouncement,
@@ -32,6 +34,8 @@ const TEMPLATES = [
     { label: 'Important Notice',   category: 'urgent',   title: 'Important Notice',          content: 'This is an important notice that requires your immediate attention. Please read carefully and act accordingly.' },
     { label: 'Reading Assignment', category: 'academic', title: 'Reading Assignment',        content: 'Please complete the reading assignment before our next session. Be prepared to discuss the key points in class.' },
 ]
+
+const PAGE_SIZE = 10
 
 const FILTER_CHIPS = ['All', 'Academic', 'Events', 'General', 'Urgent', 'Drafts']
 
@@ -275,6 +279,9 @@ export function TeacherAnnouncement() {
     const draftCount = announcements.filter(a => a.status === 'draft').length
     const charCount  = form.content.length
 
+    const listRef = useRef(null)
+    const { pageItems, ...pager } = usePagination(visible, { pageSize: PAGE_SIZE, resetKey: chip, scrollRef: listRef })
+
     return (
         <>
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
@@ -450,18 +457,21 @@ export function TeacherAnnouncement() {
                                     : `No ${chip.toLowerCase()} announcements found.`}
                             />
                         ) : (
-                            <div className="ann-list">
-                                {visible.map(ann => (
-                                    <AnnouncementCard
-                                        key={ann.id}
-                                        ann={ann}
-                                        onEdit={handleEdit}
-                                        onDelete={handleDelete}
-                                        onPublish={handlePublishDraft}
-                                        busy={busyId}
-                                    />
-                                ))}
-                            </div>
+                            <>
+                                <div className="ann-list" ref={listRef}>
+                                    {pageItems.map(ann => (
+                                        <AnnouncementCard
+                                            key={ann.id}
+                                            ann={ann}
+                                            onEdit={handleEdit}
+                                            onDelete={handleDelete}
+                                            onPublish={handlePublishDraft}
+                                            busy={busyId}
+                                        />
+                                    ))}
+                                </div>
+                                <PaginationBar {...pager} summary={t('announcements.count', { count: pager.totalCount })} />
+                            </>
                         )}
 
                     </DashboardContent>

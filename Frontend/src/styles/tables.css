@@ -84,7 +84,6 @@
   min-width: 0;
   border: none;
   background: transparent;
-  font-family: inherit;
   font-size: var(--text-body);
   color: var(--foreground);
   padding: 0.7rem 0;

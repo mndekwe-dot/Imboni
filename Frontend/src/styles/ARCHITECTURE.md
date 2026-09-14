@@ -5,6 +5,13 @@ one that fits.
 
 ## 0. Is it type — a size, a weight, a case?
 
+**One typeface: Inter.** Never write a `font-family` other than
+`var(--font-family)` — not for headings, not for codes or receipt numbers
+(use `font-variant-numeric: tabular-nums` so digits line up), not for print
+sheets (`utils/printFont.js`). Form controls inherit it from a single rule in
+`index.css`; do not add `font-family: inherit` to a class. The only other face
+is the Material Symbols icon font, which is icons, not text.
+
 Then the question is not "what size do I want" but **"what is this thing?"**.
 The same thing must read the same in all seven portals, so each ROLE has one
 answer and you take the answer rather than choosing:

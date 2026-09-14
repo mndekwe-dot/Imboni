@@ -229,8 +229,9 @@ table,
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
   /* Typography */
+  /* The only typeface. No --font-mono or --font-heading: codes, receipts and
+     headings are Inter too, with tabular figures where digits must line up. */
   --font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "Fira Code", "Consolas", "Monaco", monospace;
 
   /* Font Sizes */
   --font-xs: 0.75rem;    /* 12px */
@@ -777,6 +778,34 @@ body {
 /* ===============================================
    TYPOGRAPHY
    =============================================== */
+
+/* One font, everywhere. Form controls are the exception browsers make: a
+   <button>, <input>, <select> or <textarea> does NOT inherit font-family, it
+   takes the operating system's UI face (Segoe UI on Windows). This was being
+   patched one class at a time — 22 `font-family: inherit` lines across twelve
+   stylesheets — so every control someone forgot rendered in a second font
+   beside Inter: tab buttons, filter chips, pickers. One rule here instead.
+   <code>, <kbd>, <pre> and <samp> are the other half: the browser gives them
+   monospace, which is how receipt numbers, library copy codes and the 2FA
+   key still rendered in a second face after the classes stopped asking for
+   one. `font-size: inherit` too, since those elements also shrink by default. */
+button,
+input,
+select,
+textarea,
+optgroup,
+code,
+kbd,
+pre,
+samp {
+  font-family: inherit;
+}
+code,
+kbd,
+pre,
+samp {
+  font-size: inherit;
+}
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
