@@ -10,6 +10,7 @@
  *     downloadCsv('students', table)
  *     printTable({ ...table, title: 'Bisoke Students', schoolName })
  */
+import { PRINT_FONT_STACK, printFontFace, printWhenFontsReady } from './printFont'
 
 /**
  * One CSV field.
@@ -97,9 +98,10 @@ export function printTable({
     win.document.write(`<!doctype html>
 <html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
 <style>
+  ${printFontFace()}
   @page { margin: 16mm 14mm; }
   * { box-sizing: border-box; }
-  body { font-family: "Inter", "Segoe UI", system-ui, sans-serif; color: #0f172a; margin: 0; font-size: 12px; }
+  body { font-family: ${PRINT_FONT_STACK}; color: #0f172a; margin: 0; font-size: 12px; }
   .sheet-head { display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 6px; }
   .sheet-head img { width: 44px; height: 44px; object-fit: contain; }
   .sheet-school { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
@@ -143,6 +145,6 @@ export function printTable({
     // The dialog has to wait for the logo, or it opens over a half-drawn sheet.
     // onload fires even with no images, so this is not conditional on there
     // being one.
-    win.onload = () => { win.print() }
+    win.onload = () => { printWhenFontsReady(win) }
     return true
 }

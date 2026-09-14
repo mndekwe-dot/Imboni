@@ -50,5 +50,6 @@
   "payroll": "Payroll",
   "cash": "Cash & bank",
   "overdue": "Overdue",
-  "stocktake": "Stocktake"
+  "stocktake": "Stocktake",
+  "classesStudents": "Classes & Students"
 }

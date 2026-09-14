@@ -283,7 +283,7 @@
   border-radius: var(--radius);
 }
 .lib-copy-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-sm);
 }
 
@@ -326,10 +326,11 @@
 /* ── The scan box ─────────────────────────────────────────────────────────────
    Wider than a normal input because what goes in it is a code, and a code that
    scrolls out of sight cannot be checked by eye when the label is creased and
-   somebody has to read it out. Monospace for the same reason: 0 and O, 1 and l. */
+   somebody has to read it out. Inter like everything else, with tabular
+   figures so digits line up and the letter-spacing keeps characters apart. */
 .scan-field {
   min-width: 16rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
 }
 .scan-viewfinder {

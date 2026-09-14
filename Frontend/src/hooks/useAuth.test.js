@@ -52,7 +52,8 @@ describe('useAuth', () => {
     expect(localStorage.getItem('imboni_refresh')).toBe('refresh-tok')
     expect(JSON.parse(localStorage.getItem('imboni_user'))).toEqual(data.user)
     expect(result.current.user).toEqual(data.user)
-    expect(mockNavigate).toHaveBeenCalledWith('/dashboard')
+    // replace: the login form must not stay in history under the portal
+    expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
   })
 
   it('logout clears user state and navigates to default /login', async () => {
@@ -67,7 +68,8 @@ describe('useAuth', () => {
 
     expect(logoutUser).toHaveBeenCalled()
     expect(result.current.user).toBeNull()
-    expect(mockNavigate).toHaveBeenCalledWith('/login')
+    // generic /login for every role, replacing the portal page in history
+    expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true })
   })
 
   it('logout navigates to a custom redirectTo when given', async () => {
@@ -78,6 +80,22 @@ describe('useAuth', () => {
       await result.current.logout('/goodbye')
     })
 
-    expect(mockNavigate).toHaveBeenCalledWith('/goodbye')
+    expect(mockNavigate).toHaveBeenCalledWith('/goodbye', { replace: true })
+  })
+
+  it('logout still signs out and leaves the portal when the server revoke fails', async () => {
+    localStorage.setItem('imboni_refresh', 'refresh-tok')
+    logoutUser.mockRejectedValue(new Error('Network Error'))
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { result } = renderHook(() => useAuth())
+
+    await act(async () => {
+      await result.current.logout()
+    })
+
+    expect(result.current.user).toBeNull()
+    expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true })
+    expect(warn).toHaveBeenCalled()
+    warn.mockRestore()
   })
 })

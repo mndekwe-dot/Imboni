@@ -1,0 +1,16 @@
+{
+  "week": "Semaine",
+  "changeView": "Changer d'affichage",
+  "showWeekends": "Afficher les week-ends",
+  "chooseDate": "Choisir une date",
+  "previousDay": "Jour précédent",
+  "nextDay": "Jour suivant",
+  "previousWeek": "Semaine précédente",
+  "nextWeek": "Semaine suivante",
+  "previousMonth": "Mois précédent",
+  "nextMonth": "Mois suivant",
+  "noLessons": "Aucun cours",
+  "nothingScheduled": "Rien de prévu",
+  "break": "Pause",
+  "now": "En cours"
+}

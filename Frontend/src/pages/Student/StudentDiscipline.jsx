@@ -23,38 +23,38 @@ const TONE = { green: 'success', red: 'red', orange: 'warning', amber: 'warning'
 
 // Static school policy data — not from DB
 const conductCategories = [
-    { cardClass: 'uniform',  iconClass: 'orange', icon: 'checkroom',  title: 'Uniform & Appearance',     rules: [
+    { iconClass: 'orange', icon: 'checkroom',  title: 'Uniform & Appearance',     rules: [
         'Full school uniform must be worn every school day',
         'School tie required from Monday to Friday',
         'Hair must be natural: no dye, extensions, or elaborate styles',
         'No jewellery except a plain wristwatch',
         'Shoes must be plain black and well-polished',
     ]},
-    { cardClass: 'attend',   iconClass: 'amber',  icon: 'schedule',   title: 'Attendance & Punctuality', rules: [
+    { iconClass: 'amber',  icon: 'schedule',   title: 'Attendance & Punctuality', rules: [
         'Gates close at 7:25 AM; late arrival requires a late pass',
         'All absences must be explained by a signed parent/guardian note',
         'Minimum 85% attendance required per term',
         'Leaving school grounds requires written permission from administration',
     ]},
-    { cardClass: 'academic', iconClass: 'green',  icon: 'school',     title: 'Academic Integrity',       rules: [
+    { iconClass: 'green',  icon: 'school',     title: 'Academic Integrity',       rules: [
         'Cheating or copying in any assessment is a serious offence',
         'Plagiarism in assignments will result in a zero mark',
         'Electronic devices are not allowed in examinations',
         'All work submitted must be original and the student\'s own',
     ]},
-    { cardClass: 'boarding', iconClass: 'purple', icon: 'home',       title: 'Dormitory & Boarding',     rules: [
+    { iconClass: 'purple', icon: 'home',       title: 'Dormitory & Boarding',     rules: [
         'Lights out at 10:15 PM, no exceptions',
         'No visitors of the opposite gender in dormitories at any time',
         'Students are responsible for cleanliness of their rooms',
         'All personal valuables must be stored in locked trunks',
     ]},
-    { cardClass: 'digital',  iconClass: 'teal',   icon: 'devices',    title: 'Digital & Technology Use', rules: [
+    { iconClass: 'teal',   icon: 'devices',    title: 'Digital & Technology Use', rules: [
         'Personal phones are permitted after 4:30 PM only',
         'Phones must be surrendered to matron by 9:30 PM on school nights',
         'Social media posts that disparage the school or staff are prohibited',
         'School computers are for academic use only',
     ]},
-    { cardClass: '',         iconClass: '',       icon: 'groups',     title: 'General Conduct',           rules: [
+    { iconClass: '',       icon: 'groups',     title: 'General Conduct',           rules: [
         'Bullying, harassment, or intimidation of any kind is strictly prohibited',
         'Students must address all staff respectfully at all times',
         'Damage to school property will result in repair costs and disciplinary action',
@@ -118,9 +118,9 @@ function DisciplineRow({ report }) {
     )
 }
 
-function ConductCategory({ cardClass, iconClass, icon, title, rules }) {
+function ConductCategory({ iconClass, icon, title, rules }) {
     return (
-        <div className={`conduct-category-card ${cardClass}`}>
+        <section className="conduct-category">
             <div className="conduct-category-header">
                 <div className={`conduct-category-icon ${iconClass}`}>
                     <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
@@ -130,7 +130,7 @@ function ConductCategory({ cardClass, iconClass, icon, title, rules }) {
             <ul className="rule-list">
                 {rules.map((rule, i) => <li key={i}>{rule}</li>)}
             </ul>
-        </div>
+        </section>
     )
 }
 
@@ -264,14 +264,22 @@ export function StudentDiscipline() {
                             </div>
                         </div>
 
-                        {/* Code of conduct — static school policy */}
-                        <div className="mb-3">
-                            <h3 className="flex-row-gap-sm disc-section-heading">
-                                <span className="material-symbols-rounded" aria-hidden="true">menu_book</span> Code of Conduct
-                            </h3>
-                        </div>
-                        <div className="conduct-rules-grid">
-                            {conductCategories.map((cat, i) => <ConductCategory key={i} {...cat} />)}
+                        {/* Code of conduct — static school policy. One panel, the
+                            same shape as the records above and the appeals below;
+                            the categories are sections inside it. It used to be a
+                            loose heading over six separate cards, so the one page
+                            section read as six unrelated things. */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="card-title">
+                                    <span className="material-symbols-rounded" aria-hidden="true">menu_book</span> Code of Conduct
+                                </h3>
+                            </div>
+                            <div className="card-content">
+                                <div className="conduct-rules-grid">
+                                    {conductCategories.map(cat => <ConductCategory key={cat.title} {...cat} />)}
+                                </div>
+                            </div>
                         </div>
 
                         {/* Appeals process — static school policy */}

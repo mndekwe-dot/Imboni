@@ -301,7 +301,6 @@
   color: var(--foreground);
   outline: none;
   width: 100%;
-  font-family: inherit;
 }
 .form-field select:focus,
 .form-field input:focus,
@@ -816,7 +815,6 @@ button.stu-name {
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: var(--text-body);
-  font-family: inherit;
   color: #0f172a;
   background: #fff;
   outline: none;

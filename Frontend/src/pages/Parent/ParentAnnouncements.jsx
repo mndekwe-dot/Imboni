@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -18,6 +18,8 @@ import { StatCard } from '../../components/layout/StatCard'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { ListSection } from '../../components/ui/ListSection'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { PaginationBar } from '../../components/ui/PaginationBar'
+import { usePagination } from '../../hooks/usePagination'
 import '../../styles/tables.css'
 
 const CATEGORY_COLOR = {
@@ -37,6 +39,8 @@ const AUDIENCE_LABEL = {
 
 /* Keys, resolved inside the component. As plain strings the whole filter row
    stayed English under the language switch. */
+const PAGE_SIZE = 10
+
 const CHIPS = [
     { key: 'All',      labelKey: 'announcements.filterAll'   },
     { key: 'Urgent',   labelKey: 'announcements.catUrgent'   },
@@ -186,6 +190,9 @@ export function ParentAnnouncements() {
         General:  announcements.filter(a => a.category === 'general').length,
     }
 
+    const listRef = useRef(null)
+    const { pageItems, ...pager } = usePagination(visible, { pageSize: PAGE_SIZE, resetKey: chip, scrollRef: listRef })
+
     return (
         <>
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
@@ -254,11 +261,14 @@ export function ParentAnnouncements() {
                                         : undefined}
                                 />
                             ) : (
-                                <div className="u-stack-sm">
-                                    {visible.map(a => (
-                                        <AnnouncementCard key={a.id} ann={a} onMarkRead={handleMarkRead} />
-                                    ))}
-                                </div>
+                                <>
+                                    <div className="u-stack-sm" ref={listRef}>
+                                        {pageItems.map(a => (
+                                            <AnnouncementCard key={a.id} ann={a} onMarkRead={handleMarkRead} />
+                                        ))}
+                                    </div>
+                                    <PaginationBar {...pager} summary={t('announcements.count', { count: pager.totalCount })} />
+                                </>
                             )}
                         </ListSection>
                     </DashboardContent>

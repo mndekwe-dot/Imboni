@@ -153,9 +153,11 @@
 }
 
 /* A shared TOTP secret is read character by character off the screen and typed
-   into a phone, so it needs a face where 0/O and 1/l cannot be confused. */
+   into a phone. It is base32 (A-Z, 2-7), so the 0/O and 1/l pairs a monospace
+   face was guarding against never occur in it; tabular figures and wide
+   letter-spacing are enough, and it stays in the app's one font. */
 .pf-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.08em;
   word-break: break-all;
 }
