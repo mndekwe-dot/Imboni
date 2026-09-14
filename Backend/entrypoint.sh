@@ -55,6 +55,27 @@ if dcreated:
     print('Created localhost domain for public tenant.')
 else:
     print('localhost domain already exists.')
+
+# The real bare domain has to be registered too. django-tenants 404s any Host
+# with no Domain row, and until this existed only 'localhost' was ever added --
+# so in production every public-schema route (platform console, find-school,
+# signup, apply) returned 404 on imboni.tech while working fine locally.
+import os
+public_domain = os.environ.get('PUBLIC_DOMAIN', '').strip().lower()
+if public_domain and public_domain != 'localhost':
+    existing = Domain.objects.filter(domain=public_domain).select_related('tenant').first()
+    if existing is None:
+        Domain.objects.create(domain=public_domain, tenant=client, is_primary=False)
+        print('Created', public_domain, 'domain for public tenant.')
+    elif existing.tenant_id != client.id:
+        # A school owning the bare domain would be a misconfiguration worth
+        # stopping on, not something to silently reassign.
+        raise SystemExit(
+            f'{public_domain} is registered to school {existing.tenant.schema_name!r}, '
+            f'not the public tenant. Fix the Domain row before deploying.'
+        )
+    else:
+        print(public_domain, 'domain already exists.')
 "
 
 # ---------------------------------------------------------------------------
