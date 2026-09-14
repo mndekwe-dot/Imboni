@@ -24,7 +24,12 @@ export function useAuth(){
         setUser(data.user)
         // Explicit redirect (portal logins) wins; otherwise send the user to
         // their role's home so the generic /login always lands somewhere real.
-        navigate(redirectTo || ROLE_HOME[data.user?.role] || '/')
+        //
+        // `replace`, so the login form does not stay in history underneath the
+        // portal. Otherwise Back from /student returns to /login/student while
+        // still signed in, and after logout the portal's login URL is still
+        // sitting in the history to step back into.
+        navigate(redirectTo || ROLE_HOME[data.user?.role] || '/', { replace: true })
     }
 
     async function login(email,password,portal,redirectTo) {
@@ -44,7 +49,15 @@ export function useAuth(){
     }
 
     async function logout(redirectTo ='/login') {
-        await logoutUser()
+        try {
+            await logoutUser()
+        } catch (e) {
+            // logoutUser has already cleared this browser's session by the time
+            // it throws, so the user IS signed out — the only thing that failed
+            // is revoking the refresh token on the server, which expires on its
+            // own. Nothing for the user to act on, so it is logged, not shown.
+            console.warn('Signed out locally; server-side token revoke failed:', e)
+        }
         setUser(null)
         // The school's structure is cached at module scope for the session.
         // It belongs to the school that was signed in, not to the browser —
@@ -57,7 +70,11 @@ export function useAuth(){
         // a different plan.
         resetLibraryFeatureCache()
         resetFinanceFeatureCache()
-        navigate(redirectTo)
+        // Every role signs out to the generic /login, never back to its own
+        // /login/<portal>, and `replace` takes the portal page out of history
+        // so Back does not step into a portal URL after signing out. Same
+        // behaviour the platform console already had (PlatformLayout).
+        navigate(redirectTo, { replace: true })
     }
     return {user,isAuthenticated,login,completeTwoFactor,logout}
 }
