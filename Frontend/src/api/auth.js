@@ -38,15 +38,23 @@ export const verifyTwoFactor    = (code) => client.post('/imboni/auth/2fa/verify
 export const disableTwoFactor   = (password) => client.post('/imboni/auth/2fa/disable/', { password })
 
 // Logout uses client — user is logged in so the interceptor attaches the token automatically
+//
+// The session is cleared in `finally`, whatever the server says. It used to be
+// cleared only after a successful POST, so a network error or an expired
+// refresh token left the browser signed in with the logout button doing
+// nothing. And with no refresh token stored it returned before clearing
+// anything, so a half-built session (access token, no refresh) could never be
+// signed out of at all. Revoking the refresh token server-side is best effort;
+// signing this browser out is not.
 export async function logoutUser() {
     const refresh = localStorage.getItem('imboni_refresh')
-    if (!refresh) return
-
-    await client.post('/imboni/auth/logout/', { refresh })
-
-    localStorage.removeItem('imboni_access')
-    localStorage.removeItem('imboni_refresh')
-    localStorage.removeItem('imboni_user')
+    try {
+        if (refresh) await client.post('/imboni/auth/logout/', { refresh })
+    } finally {
+        localStorage.removeItem('imboni_access')
+        localStorage.removeItem('imboni_refresh')
+        localStorage.removeItem('imboni_user')
+    }
 }
 
 //send password reset email - no token needed, user is not logged in
