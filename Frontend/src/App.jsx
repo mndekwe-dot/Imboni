@@ -97,7 +97,6 @@ const TeacherExamForm = load(() => import('./pages/Teacher/TeacherExamForm'), 'T
 const DosExamPapers = load(() => import('./pages/Dos/DosExamPapers'), 'DosExamPapers');
 const TeacherTimetable    = load(() => import('./pages/Teacher/TeacherTimetable'), 'TeacherTimetable');
 const TeacherResults      = load(() => import('./pages/Teacher/TeacherResults'), 'TeacherResults');
-const TeacherStudent      = load(() => import('./pages/Teacher/TeacherStudents'), 'TeacherStudent');
 
 // ── Parent ──
 const ParentDashboard     = load(() => import('./pages/Parent/ParentDashboard'), 'ParentDashboard');
@@ -396,7 +395,8 @@ function App() {
       <Route path="/dos/exam-papers" element={<ProtectedRoute role="dos"><DosExamPapers /></ProtectedRoute>} />
       <Route path="/teacher/timetable"   element={<ProtectedRoute role="teacher"><TeacherTimetable /></ProtectedRoute>} />
       <Route path="/teacher/results"     element={<ProtectedRoute role="teacher"><TeacherResults /></ProtectedRoute>} />
-      <Route path="/teacher/students"    element={<ProtectedRoute role="teacher"><TeacherStudent /></ProtectedRoute>} />
+      {/* Merged into Classes & Students; old links and bookmarks land on its Students tab. */}
+      <Route path="/teacher/students"    element={<Navigate to="/teacher/classes?tab=students" replace />} />
       {/* ── Not Found route ── */}
       <Route path="*"    element={<NotFound/>} />
     </Routes>

@@ -211,7 +211,7 @@ describe('style architecture', () => {
     // MAX_HAND_ROLLED reached 0: every page that had copied a shared component
     // now renders it instead. Keep it there - any rise is a new copy.
     const MAX_HAND_ROLLED = 0
-    const MAX_FOREIGN_PREFIX = 37
+    const MAX_FOREIGN_PREFIX = 28
 
     it('does not hand-roll components that already exist', () => {
         const found = handRolledPages()
