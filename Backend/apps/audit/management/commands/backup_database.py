@@ -28,12 +28,8 @@ from pathlib import Path
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from apps.audit.backups import default_backup_dir
 from apps.audit.services import audit
-
-
-def default_backup_dir():
-    """Where backups land unless overridden — settings.BACKUP_DIR or <BASE_DIR>/backups."""
-    return Path(getattr(settings, 'BACKUP_DIR', Path(settings.BASE_DIR) / 'backups'))
 
 
 def build_dump_command(db):
@@ -72,8 +68,8 @@ class Command(BaseCommand):
         parser.add_argument('--output-dir', help='Directory to write the backup into.')
         parser.add_argument(
             '--retention-days', type=int,
-            default=getattr(settings, 'BACKUP_RETENTION_DAYS', 14),
-            help='Delete backups older than this many days (default 14).',
+            default=getattr(settings, 'BACKUP_RETENTION_DAYS', 30),
+            help='Delete backups older than this many days (default settings.BACKUP_RETENTION_DAYS, 30).',
         )
         parser.add_argument(
             '--dry-run', action='store_true',

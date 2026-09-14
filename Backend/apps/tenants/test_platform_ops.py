@@ -349,3 +349,12 @@ class TestHealth:
         assert 'Database' in names and 'Cache / Redis' in names
         assert set(resp.data.keys()) >= {'components', 'schools', 'provisioning', 'attention'}
         assert 'applications_pending' in resp.data['attention']
+
+    def test_health_turns_red_when_there_is_no_recent_backup(self, tmp_path, settings):
+        settings.BACKUP_DIR = str(tmp_path)          # empty: no backup at all
+        op = platform_admin()
+        with _public():
+            resp = platform_ops.PlatformHealthView.as_view()(_authed('get', op))
+        backups = next(c for c in resp.data['components'] if c['name'] == 'Database backups')
+        assert backups['ok'] is False
+        assert 'No backup found' in backups['detail']

@@ -496,11 +496,15 @@ CELERY_TASK_ALWAYS_EAGER  = True if TESTING else config('CELERY_TASK_ALWAYS_EAGE
 CELERY_TASK_EAGER_PROPAGATES = True
 
 # ── Database backups ───────────────────────────────────────────────────────────
-# Where `manage.py backup_database` writes gzipped mysqldump snapshots, and how
+# Where `manage.py backup_database` writes gzipped pg_dump snapshots, and how
 # long to keep them. On a server, point BACKUP_DIR at a mounted volume that is
 # itself copied off-box (a backup on the same disk as the DB is not a backup).
 BACKUP_DIR = config('BACKUP_DIR', default=str(BASE_DIR / 'backups'))
-BACKUP_RETENTION_DAYS = config('BACKUP_RETENTION_DAYS', cast=int, default=14)
+BACKUP_RETENTION_DAYS = config('BACKUP_RETENTION_DAYS', cast=int, default=30)
+# The newest backup older than this is stale: `manage.py check_backup` fails, the
+# hourly check logs an error and the platform Health page turns red. 24 fits the
+# nightly schedule; the hourly check runs at :30 so it never races the 02:00 dump.
+BACKUP_MAX_AGE_HOURS = config('BACKUP_MAX_AGE_HOURS', cast=int, default=24)
 
 # ── Error monitoring (Sentry) ──────────────────────────────────────────────────
 # Only initialises when SENTRY_DSN is set, so local dev and the test suite run
