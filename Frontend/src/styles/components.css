@@ -567,7 +567,6 @@ tr:hover td {
   background: var(--background);
   color: var(--foreground);
   outline: none;
-  font-family: inherit;
   width: 100%;
   box-sizing: border-box;
 }
@@ -1481,7 +1480,6 @@ tr:hover td {
   border-radius: var(--radius-sm);
   background: var(--background);
   color: var(--foreground);
-  font-family: inherit;
   font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
@@ -1519,7 +1517,6 @@ tr:hover td {
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--foreground);
-  font-family: inherit;
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
@@ -1931,7 +1928,7 @@ tr:hover td {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.35rem;
-  font-family: monospace;
+  font-variant-numeric: tabular-nums;
   background: var(--muted);
   padding: 0.75rem;
   border-radius: var(--radius-sm);
@@ -2074,7 +2071,6 @@ tr:hover td {
   color: var(--muted-foreground);
   font-size: var(--text-sm, 0.8rem);
   font-weight: 600;       /* control-label weight, as .btn and .tab-btn */
-  font-family: inherit;   /* a bare <button> otherwise falls back to the UA font */
   cursor: pointer;
   transition: background-color var(--transition-fast),
               border-color var(--transition-fast),
@@ -2263,7 +2259,6 @@ tr:hover td {
   color: var(--muted-foreground);
   font-size: var(--text-sm, 0.8rem);
   font-weight: 500;
-  font-family: inherit;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color var(--transition-fast),
@@ -2650,7 +2645,6 @@ tr:hover td {
   background: transparent;
   text-align: left;
   cursor: pointer;
-  font-family: inherit;
 }
 .student-picker-item:last-child { border-bottom: none; }
 /* Hover and keyboard focus land on the same class, so arrowing through the
@@ -2713,7 +2707,6 @@ tr:hover td {
   color: var(--muted-foreground);
   transition: border-color 0.15s;
   text-align: left;
-  font-family: inherit;
 }
 .form-select-btn:focus {
   border-color: var(--primary);
@@ -2751,7 +2744,6 @@ tr:hover td {
   font-weight: 400;
   background: transparent;
   color: var(--foreground);
-  font-family: inherit;
 }
 .form-select-opt.active { font-weight: 600; background: var(--primary); color: white; }
 .form-select-opt:hover:not(.active) { background: var(--muted); }

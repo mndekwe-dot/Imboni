@@ -25,6 +25,7 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { formatDateWithWeekday, formatWeekdayShort, monthName, weekdayShortNames } from '../../utils/date'
+import { PRINT_FONT_STACK, printFontFace } from '../../utils/printFont'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -549,9 +550,10 @@ export function DosScheduling() {
 <meta charset="utf-8">
 <title>${t('dos.scheduling.printTitle')}</title>
 <style>
+${printFontFace()}
 @page { size: A4 landscape; margin: 10mm 12mm; }
 *     { box-sizing:border-box; margin:0; padding:0; }
-body  { font-family:Arial,Helvetica,sans-serif; font-size:9pt; color:#000; }
+body  { font-family:${PRINT_FONT_STACK}; font-size:9pt; color:#000; }
 
 /* header */
 .hdr  { text-align:center; margin-bottom:10pt; padding-bottom:8pt; border-bottom:1.5pt solid #000; }
@@ -619,7 +621,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
     <span>${t('dos.scheduling.printGenerated', { date: formatDateWithWeekday(new Date()) })}</span>
 </div>
 
-<script>window.onload = function(){ window.focus(); window.print(); }<\/script>
+<script>window.onload = function(){ (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ window.focus(); window.print(); }); }<\/script>
 </body></html>`
 
         const iframe = printFrameRef.current

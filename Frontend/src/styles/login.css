@@ -254,7 +254,6 @@
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   font-size: var(--text-body);
-  font-family: inherit;
   transition: background-color var(--duration-pop) var(--ease-out),
               border-color var(--duration-pop) var(--ease-out),
               box-shadow var(--duration-pop) var(--ease-out),

@@ -2121,7 +2121,6 @@
     border-radius: var(--radius);
     background: var(--card);
     color: var(--foreground);
-    font-family: inherit;
     font-size: var(--text-sm);
     transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
