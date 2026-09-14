@@ -23,7 +23,7 @@ export function ErrorFallback({ error, resetError }) {
                 gap: '1rem',
                 padding: '2rem',
                 textAlign: 'center',
-                fontFamily: 'system-ui, sans-serif',
+                fontFamily: 'var(--font-family, system-ui, sans-serif)',
                 color: 'var(--foreground, #1e293b)',
                 background: 'var(--background, #f8fafc)',
             }}

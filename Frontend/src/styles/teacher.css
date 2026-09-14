@@ -2423,7 +2423,7 @@
 
 /* Code keeps its whitespace or it stops being code. */
 .code-input {
-    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
     font-size: var(--text-sm);
     white-space: pre;
     overflow-x: auto;
