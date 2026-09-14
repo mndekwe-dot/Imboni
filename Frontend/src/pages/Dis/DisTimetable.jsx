@@ -49,7 +49,7 @@ export function DisTimetable() {
     const firstLoad = useRef(true)
 
     // Track the calendar week in DisTimetable so we can keep Timetable mounted
-    // while re-fetching — otherwise WeekPicker resets to today on every navigate.
+    // while re-fetching — otherwise the timetable resets to today on every navigate.
     const [currentMonday, setCurrentMonday] = useState(() => getThisMonday())
     const activeWeek = toWeekKey(currentMonday)
 

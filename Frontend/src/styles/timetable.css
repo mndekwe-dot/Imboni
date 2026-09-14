@@ -1,47 +1,168 @@
-/* ─── Week Picker ─────────────────────────────────────── */
-.week-picker {
+/* ─── Toolbar: Today · ‹ › · date ▾ ········ view ▾ ─────────────────────────
+   Modelled on Google Calendar's header. Type follows ARCHITECTURE.md: every
+   control label is --text-sm / 600. */
+.tt-toolbar {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-3);
 }
-.week-picker-btn {
+.tt-toolbar-nav {
     display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-right: auto;          /* pushes the legend and view menu right */
+    min-width: 0;
+}
+.tt-step { display: flex; gap: var(--space-1); }
+
+.tt-icon-btn,
+.tt-today-btn,
+.tt-date-btn,
+.tt-view-btn {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    gap: var(--space-1);
+    height: 2.25rem;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: var(--radius);
     background: var(--card);
-    cursor: pointer;
     color: var(--foreground);
-    transition: background 0.15s;
-    flex-shrink: 0;
-}
-.week-picker-btn:hover { background: var(--muted); }
-.week-picker-label {
     font-size: var(--text-sm);
     font-weight: 600;
-    color: var(--foreground);
-    min-width: 120px;
-    text-align: center;
-    white-space: nowrap;
-}
-@media (max-width: 480px) {
-    .week-picker-label { min-width: 90px; font-size: var(--text-sm); }
-    .week-picker-today { display: none; }
-}
-.week-picker-today {
-    font-size: var(--text-sm);
-    padding: 0.25rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--card);
     cursor: pointer;
+    transition: background var(--transition-fast, 0.15s);
+}
+.tt-icon-btn { width: 2.25rem; padding: 0; }
+.tt-icon-btn .material-symbols-rounded { font-size: var(--icon-md, 20px); }
+.tt-today-btn,
+.tt-view-btn { padding: 0 var(--space-4); }
+.tt-today-btn { border-radius: 999px; }
+.tt-view-btn  { border-radius: 999px; }
+
+.tt-icon-btn:hover,
+.tt-today-btn:hover:not(:disabled),
+.tt-date-btn:hover,
+.tt-view-btn:hover,
+.tt-date-btn.open,
+.tt-view-btn.open { background: var(--muted); }
+.tt-today-btn:disabled { color: var(--muted-foreground); cursor: default; }
+
+/* The date reads as a heading that happens to open a calendar. */
+.tt-date-btn {
+    border-color: transparent;
+    background: transparent;
+    padding: 0 var(--space-2);
+    font-size: var(--text-body);
+    font-weight: 700;
+    min-width: 0;
+}
+.tt-date-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tt-caret { font-size: var(--icon-sm); color: var(--muted-foreground); transition: transform 0.15s; }
+.open > .tt-caret { transform: rotate(180deg); }
+
+/* ─── Popovers (calendar, view menu) ─────────────────────────────────────── */
+.tt-popover-wrap { position: relative; }
+.tt-popover {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    z-index: var(--z-dropdown);
+    padding: var(--space-2);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+.tt-popover--start { left: 0; }
+.tt-popover--end   { right: 0; min-width: 240px; }
+
+.tt-menu { list-style: none; margin: 0; padding: 0; }
+.tt-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    border-radius: var(--radius);
+    background: transparent;
+    color: inherit;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+.tt-menu-item:hover,
+.tt-menu-item:focus-visible { background: var(--muted); }
+.tt-menu-item.active { color: var(--portal-accent, var(--primary)); }
+.tt-menu-label { flex: 1; }
+.tt-menu-check { width: 1.25rem; font-size: var(--icon-sm); color: var(--portal-accent, var(--primary)); }
+.tt-menu-sep { height: 1px; margin: var(--space-2) 0; background: var(--border); }
+.tt-kbd {
+    font-size: var(--text-caption);
+    font-weight: 600;
     color: var(--muted-foreground);
 }
-.week-picker-today:hover { background: var(--muted); }
+.tt-menu-hint {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin: var(--space-2) 0 0;
+    padding: var(--space-2) var(--space-3) var(--space-1);
+    border-top: 1px solid var(--border);
+    font-size: var(--text-caption);
+    color: var(--muted-foreground);
+}
+.tt-menu-hint .tt-kbd {
+    padding: 0 0.3rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+/* ─── Month calendar ─────────────────────────────────────────────────────── */
+.tt-cal { width: 17.5rem; }
+.tt-cal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+}
+.tt-cal-head .tt-icon-btn { border-color: transparent; }
+.tt-cal-title { font-size: var(--text-sm); font-weight: 700; }
+.tt-cal-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.tt-cal-grid td { padding: 1px; text-align: center; }
+.tt-cal-dow {
+    padding-bottom: var(--space-1);
+    font-size: var(--text-caption);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
+}
+.tt-cal-day {
+    width: 2.1rem;
+    height: 2.1rem;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--foreground);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+.tt-cal-day:hover { background: var(--muted); }
+.tt-cal-day.is-outside  { color: var(--muted-foreground); }
+.tt-cal-day.is-range    { background: var(--portal-accent-light, var(--primary-light)); border-radius: 0; }
+.tt-cal-day.is-today    { font-weight: 800; color: var(--portal-accent, var(--primary)); }
+.tt-cal-day.is-selected {
+    background: var(--portal-accent, var(--primary));
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 700;
+}
 
 /* ─── Day Tabs (mobile only) ───────────────────────────── */
 .day-tabs {
@@ -461,6 +582,7 @@
    subject colours (browsers strip backgrounds by default), and hold the grid
    on one page. */
 @media print {
+    .tt-toolbar,
     .tt-legend-row,
     .day-tabs,
     .tt-cell-edit-btn,
@@ -557,3 +679,69 @@
   border-radius: var(--radius);
 }
 .tt-fetch-overlay-label { font-size: var(--text-sm); color: var(--muted-foreground); }
+
+/* ─── Schedule view: the week as a list ─────────────────────────────────────
+   Each lesson keeps its grid colour: the subject tone's wash and bar for the
+   academic week, the activity-type background for the boarding routine. */
+.tt-agenda { display: flex; flex-direction: column; gap: var(--space-5); }
+.tt-agenda-date {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-body);
+    font-weight: 700;
+}
+.tt-agenda-today {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--portal-accent, var(--primary));
+    color: #fff;
+    font-size: var(--text-caption);
+    font-weight: 700;
+}
+.tt-agenda-empty { margin: 0; font-size: var(--text-sm); color: var(--muted-foreground); }
+.tt-agenda-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.tt-agenda-item,
+.tt-agenda-break {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius);
+}
+.tt-agenda-item { border-left: 4px solid var(--border); }
+/* Only a toned (academic) item takes the wash here. A boarding item gets its
+   background from its .tt-<type> class above, which a background set on every
+   .tt-agenda-item would override. */
+.tt-agenda-item.tt-agenda-toned {
+    background-color: var(--tt-tint);
+    border-left-color: var(--tt-bar);
+}
+.tt-agenda-item.is-now { box-shadow: inset 0 0 0 2px var(--portal-accent, var(--primary)); }
+.tt-agenda-break {
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: var(--text-caption);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
+}
+.tt-agenda-time {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.tt-agenda-body { display: flex; flex-direction: column; min-width: 0; }
+.tt-agenda-subject { font-size: var(--text-body); font-weight: 600; }
+.tt-agenda-meta { font-size: var(--text-sm); color: var(--muted-foreground); }
+
+@media (max-width: 600px) {
+    .tt-toolbar-nav { width: 100%; }
+    .tt-date-btn { flex: 1; justify-content: flex-start; }
+    .tt-agenda-item,
+    .tt-agenda-break { grid-template-columns: 5.5rem 1fr auto; }
+}
