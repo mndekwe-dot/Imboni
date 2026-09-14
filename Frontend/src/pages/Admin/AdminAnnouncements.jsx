@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -6,6 +6,8 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { PaginationBar } from '../../components/ui/PaginationBar'
+import { usePagination } from '../../hooks/usePagination'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
@@ -23,6 +25,8 @@ import { SearchBar } from '../../components/ui/SearchBar'
 import '../../styles/announcements.css'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
+
+const PAGE_SIZE = 10
 
 const CATEGORY_OPTIONS = [
     { value: 'general',  labelKey: 'announcements.catGeneral'  },
@@ -385,6 +389,12 @@ export function AdminAnnouncements() {
           )
         : announcements
 
+    const listRef = useRef(null)
+    // Either a tab switch or a new search is a different list: back to page 1.
+    const { pageItems, ...pager } = usePagination(visible, {
+        pageSize: PAGE_SIZE, resetKey: `${activeTab}|${q}`, scrollRef: listRef,
+    })
+
     const statCards = [
         { icon: 'campaign',      value: loading ? '-' : publishedCount,       label: t('common.published'),          trend: t('announcements.statPublishedTrend'), colorClass: 'info'    },
         { icon: 'draft',         value: loading ? '-' : draftCount,           label: t('announcements.tabDrafts'),   trend: t('announcements.statDraftsTrend'),    colorClass: 'warning' },
@@ -503,17 +513,20 @@ export function AdminAnnouncements() {
                                 description={search ? t('announcements.trySearch') : t('announcements.switchTabs')}
                             />
                         ) : (
-                            <div className="u-stack-sm">
-                                {visible.map(a => (
-                                    <AnnCard
-                                        key={a.id}
-                                        ann={a}
-                                        onEdit={startEdit}
-                                        onDelete={setDeleteTarget}
-                                        onPublish={handlePublish}
-                                    />
-                                ))}
-                            </div>
+                            <>
+                                <div className="u-stack-sm" ref={listRef}>
+                                    {pageItems.map(a => (
+                                        <AnnCard
+                                            key={a.id}
+                                            ann={a}
+                                            onEdit={startEdit}
+                                            onDelete={setDeleteTarget}
+                                            onPublish={handlePublish}
+                                        />
+                                    ))}
+                                </div>
+                                <PaginationBar {...pager} summary={t('announcements.count', { count: pager.totalCount })} />
+                            </>
                         )}
 
                     </DashboardContent>
