@@ -76,4 +76,28 @@ describe('StudentAnnouncements', () => {
 
         await waitFor(() => expect(screen.getByText('No announcements yet.')).toBeInTheDocument())
     })
+
+    it('shows ten announcements a page and pages through the rest', async () => {
+        const many = Array.from({ length: 12 }, (_, i) => ({
+            id: 100 + i, category: 'general', title: `Notice ${i + 1}`,
+            content: 'Body', author: 'Admin', published_at: '2026-03-01',
+        }))
+        getStudentAnnouncements.mockResolvedValue(many)
+        getAnnouncementStats.mockResolvedValue(STATS)
+
+        renderWithRouter(<StudentAnnouncements />)
+
+        await waitFor(() => expect(screen.getByText('Notice 1')).toBeInTheDocument())
+        expect(screen.getByText('Notice 10')).toBeInTheDocument()
+        expect(screen.queryByText('Notice 11')).not.toBeInTheDocument()
+        expect(screen.getByText('12 announcements (Page 1 of 2)')).toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
+        expect(screen.getByText('Notice 11')).toBeInTheDocument()
+        expect(screen.queryByText('Notice 1')).not.toBeInTheDocument()
+
+        // A different filter is a different list: back to page 1.
+        fireEvent.click(screen.getByRole('button', { name: 'General' }))
+        expect(screen.getByText('Notice 1')).toBeInTheDocument()
+    })
 })
