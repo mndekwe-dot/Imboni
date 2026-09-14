@@ -427,6 +427,12 @@ class PlatformHealthView(APIView):
             'detail': f'{workers} online' if workers is not None else 'unreachable',
         })
 
+        # Read from the files, not from Celery: a dead worker is exactly when the
+        # nightly backup stops, and a check that runs on the worker would stop too.
+        from apps.audit.backups import backup_freshness
+        backup = backup_freshness()
+        components.append({'name': 'Database backups', 'ok': backup['ok'], 'detail': backup['detail']})
+
         # ── Operational queues / attention needed ──
         schools = Client.objects.exclude(schema_name=get_public_schema_name())
         expiring = Contract.objects.filter(
