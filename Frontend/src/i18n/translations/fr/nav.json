@@ -50,5 +50,6 @@
   "payroll": "Paie",
   "cash": "Caisse et banque",
   "overdue": "En retard",
-  "stocktake": "Inventaire"
+  "stocktake": "Inventaire",
+  "classesStudents": "Classes et élèves"
 }

@@ -1,14 +1,18 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { Modal } from '../../components/ui/Modal'
-import { EmptyState } from '../../components/ui/EmptyState'
+import { DataTable } from '../../components/ui/DataTable'
+import { SearchBar } from '../../components/ui/SearchBar'
+import { TabGroup } from '../../components/ui/TabGroup'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import '../../styles/tables.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getTeacherMyClasses, getTeacherStudents, getTeacherResultList, bulkSaveResults } from '../../api/teacher'
@@ -31,6 +35,13 @@ function getGrade(pct) {
     if (pct >= 60) return { label: 'C', color: '#f59e0b' }
     if (pct >= 50) return { label: 'D', color: '#f97316' }
     return { label: 'F', color: 'var(--destructive)' }
+}
+
+/* A room arrives either as a bare code ("12") or already named ("Room 100",
+   "Lab 2"). The card used to prefix "Room" to both, so seeded data read
+   "Room Room 100". Only a bare code gets the word. */
+function roomLabel(t, room) {
+    return /^\d/.test(String(room)) ? t('teacher.classes.room', { room }) : room
 }
 
 // ── Class Card ────────────────────────────────────────────────────────────────
@@ -68,7 +79,7 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
                     {cls.room_number && (
                         <div className="class-schedule-item">
                             <span className="material-symbols-rounded icon-schedule" aria-hidden="true">room</span>
-                            <span>Room {cls.room_number}</span>
+                            <span>{roomLabel(t, cls.room_number)}</span>
                         </div>
                     )}
                 </div>
@@ -88,76 +99,119 @@ function ClassCard({ cls, colorIndex, onOpenStudents, onEnterResults }) {
     )
 }
 
-// ── Students Panel Modal ──────────────────────────────────────────────────────
-function StudentsPanel({ cls, onClose, onEnterResult }) {
+// ── Students tab ─────────────────────────────────────────────────────────────
+/* Performance and attendance bands. Returned as translation keys, not labels,
+   so the badge follows the interface language. */
+function performanceBadge(pct) {
+    if (pct == null) return { key: null,                             cls: 'badge-soft-warning' }
+    if (pct >= 75)   return { key: 'teacher.students.perfExcellent', cls: 'badge-soft-success' }
+    if (pct >= 50)   return { key: 'teacher.students.perfGood',      cls: 'badge-soft-info'    }
+    return                  { key: 'teacher.students.perfFair',      cls: 'badge-soft-warning' }
+}
+
+function attendanceBadgeClass(pct) {
+    if (pct == null) return 'badge-soft-warning'
+    if (pct >= 85)   return 'badge-soft-success'
+    if (pct >= 70)   return 'badge-soft-warning'
+    return 'badge-soft-error'
+}
+
+const PERF_FILTERS = [
+    { value: 'all',    labelKey: 'teacher.students.perfAll'    },
+    { value: 'high',   labelKey: 'teacher.students.perfHigh'   },
+    { value: 'medium', labelKey: 'teacher.students.perfMedium' },
+    { value: 'low',    labelKey: 'teacher.students.perfLow'    },
+]
+
+function matchesPerformance(rate, filter) {
+    if (filter === 'all') return true
+    if (rate == null)     return false
+    if (filter === 'high')   return rate >= 75
+    if (filter === 'medium') return rate >= 50 && rate < 75
+    return rate < 50
+}
+
+function StudentRow({ student, onView }) {
     const { t } = useTranslation()
-    const [students, setStudents] = useState([])
-    const [loading,  setLoading]  = useState(true)
-    const [search,   setSearch]   = useState('')
-    const [panelError, setPanelError] = useState(null)
-
-    useEffect(() => {
-        getTeacherStudents({ class_id: cls.class_id })
-            .then(s => setStudents(Array.isArray(s) ? s : []))
-            .catch(err => { setStudents([]); setPanelError(err?.message || t('teacher.classes.loadStudentsFailed')) })
-            .finally(() => setLoading(false))
-    }, [cls.class_id])
-
-    const filtered = students.filter(s =>
-        s.full_name.toLowerCase().includes(search.toLowerCase()) ||
-        s.student_code.toLowerCase().includes(search.toLowerCase())
-    )
-
+    const perf = performanceBadge(student.performance_rate)
     return (
-        <Modal title={t('teacher.classes.panelTitle', { class: cls.class_name })} icon="group" onClose={onClose} size="wide">
-            <div className="modal-search">
-                <span className="material-symbols-rounded" aria-hidden="true">search</span>
-                <input
-                    type="text"
-                    placeholder={t('teacher.classes.searchStudents')}
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                />
-                {search && (
-                    <button onClick={() => setSearch('')} className="modal-search-clear" aria-label={t('common.close')}>
-                        <span className="material-symbols-rounded" aria-hidden="true">close</span>
-                    </button>
-                )}
+        <tr>
+            <td>
+                <div className="student-info-cell">
+                    <div className="student-avatar">{student.initials}</div>
+                    <div>
+                        <div className="student-name">{student.full_name}</div>
+                        <div className="student-id-text">{student.student_code}</div>
+                    </div>
+                </div>
+            </td>
+            <td>{student.class_name}</td>
+            <td>
+                <span className={`badge ${attendanceBadgeClass(student.attendance_rate)}`}>
+                    {student.attendance_rate != null ? `${student.attendance_rate}%` : '-'}
+                </span>
+            </td>
+            <td>
+                <span className={`badge ${perf.cls}`}>
+                    {perf.key ? t(perf.key) : '-'}
+                    {student.performance_rate != null ? ` (${student.performance_rate}%)` : ''}
+                </span>
+            </td>
+            <td>
+                <button type="button" className="btn btn-sm btn-outline" onClick={() => onView(student)}>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">visibility</span>
+                    {t('common.view')}
+                </button>
+            </td>
+        </tr>
+    )
+}
+
+/* The student's profile, plus the one thing the old per-class pop-up did that
+   the table cannot: go straight to entering their marks. A teacher can teach
+   a class more than one subject, so each subject gets its own button. */
+function StudentProfile({ student, subjects, onClose, onEnterResults }) {
+    const { t } = useTranslation()
+    const perf = performanceBadge(student.performance_rate)
+    return (
+        <Modal title={t('teacher.students.profileTitle')} icon="person" onClose={onClose}>
+            <div className="student-profile-header">
+                <div className="student-avatar student-profile-avatar">{student.initials}</div>
+                <div>
+                    <div className="student-profile-name">{student.full_name}</div>
+                    <div className="student-profile-code">{student.student_code}</div>
+                </div>
             </div>
-
-            {panelError && (
-                <p className="tc-panel-err">
-                    <span className="material-symbols-rounded tc-err-icon" aria-hidden="true">error</span>
-                    {panelError}
-                </p>
-            )}
-
-            {loading ? (
-                <p className="tr-empty-pad">{t('common.loadingStudents')}</p>
-            ) : filtered.length === 0 ? (
-                <div className="stu-empty">{t('teacher.classes.noStudents')}</div>
-            ) : (
-                <div className="stu-list">
-                    {filtered.map(student => (
-                        <div key={student.student_id} className="stu-row">
-                            <div className="student-avatar stu-avatar">{student.initials}</div>
-                            <div className="stu-info">
-                                <div className="stu-name">{student.full_name}</div>
-                                <div className="stu-meta">
-                                    {student.student_code}
-                                    {student.attendance_rate != null
-                                        ? ' · ' + t('teacher.classes.attendanceMeta', { rate: student.attendance_rate })
-                                        : ''}
-                                </div>
-                            </div>
-                            <div className="stu-actions">
-                                <button className="btn btn-primary btn-sm" onClick={() => onEnterResult(student)}>
-                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit_note</span>
-                                    {t('teacher.classes.results')}
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+            <div className="resp-grid-2 u-gap-sm">
+                <div>
+                    <div className="detail-label">{t('common.class')}</div>
+                    <div className="detail-value">{student.class_name}</div>
+                </div>
+                <div>
+                    <div className="detail-label">{t('teacher.students.colAttendance')}</div>
+                    <span className={`badge ${attendanceBadgeClass(student.attendance_rate)}`}>
+                        {student.attendance_rate != null ? `${student.attendance_rate}%` : '-'}
+                    </span>
+                </div>
+                <div>
+                    <div className="detail-label">{t('teacher.students.colPerformance')}</div>
+                    <span className={`badge ${perf.cls}`}>
+                        {student.performance_rate != null ? `${student.performance_rate}%` : '-'}
+                    </span>
+                </div>
+            </div>
+            {subjects.length > 0 && (
+                <div className="u-mt">
+                    <div className="detail-label">{t('teacher.students.subjectsYouTeach')}</div>
+                    <div className="u-row-sm u-wrap">
+                        {subjects.map(cls => (
+                            <button key={cls.subject_id} type="button" className="btn btn-primary btn-sm"
+                                onClick={() => onEnterResults(cls)}>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit_note</span>
+                                {t('teacher.classes.enterResultsSubject', { subject: cls.subject_name })}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
         </Modal>
@@ -476,50 +530,113 @@ function ResultsModal({ cls, onClose }) {
 }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
+/**
+ * Classes & Students — what used to be two pages.
+ *
+ * "My Classes" and "Students" shared their filter, their data and most of
+ * their purpose, and the classes page already opened its own cut-down student
+ * list in a pop-up. Here the class picker filters both tabs at once, "View
+ * students" on a card switches to the Students tab with that class selected,
+ * and the student profile leads to results entry. /teacher/students redirects
+ * to ?tab=students, so old links and bookmarks still land on the list.
+ *
+ * Students load once and filter in the browser. The old page refetched on
+ * every class change, but the endpoint's `class_id` only narrows the list:
+ * attendance and performance are per student for the term, not per class, so
+ * the numbers are the same either way.
+ */
 export function TeacherClasses() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const [classes,       setClasses]       = useState([])
-    const [loadingClasses, setLoadingClasses] = useState(true)
+    const [searchParams, setSearchParams] = useSearchParams()
+    const tab = searchParams.get('tab') === 'students' ? 'students' : 'classes'
+    const setTab = key => setSearchParams(key === 'students' ? { tab: 'students' } : {}, { replace: true })
+
+    const [classes,         setClasses]         = useState([])
+    const [students,        setStudents]        = useState([])
+    const [loadingClasses,  setLoadingClasses]  = useState(true)
+    const [loadingStudents, setLoadingStudents] = useState(true)
+    const [classesError,    setClassesError]    = useState(null)
+    const [studentsError,   setStudentsError]   = useState(null)
+
     const { config } = useSchoolConfig()
     // Rebuilt when either the classes or the school's configuration arrives —
     // the config loads asynchronously, so deriving this once inside the fetch
     // would group years before the section names were known.
     const sections = useMemo(() => sectionsFromClasses(classes, config), [classes, config])
-    const [section,       setSection]       = useState('')
-    const [year,          setYear]          = useState('')
-    const [classVal,      setClassVal]      = useState('')
 
-    const [loadError,    setLoadError]    = useState(null)
-    const [openClass,    setOpenClass]    = useState(null)
+    const [section,  setSection]  = useState('')
+    const [year,     setYear]     = useState('')
+    const [classVal, setClassVal] = useState('')
+    const [search,     setSearch]     = useState('')
+    const [perfFilter, setPerfFilter] = useState('all')
+
     const [resultsClass, setResultsClass] = useState(null)
-    const [resultsFromStudent, setResultsFromStudent] = useState(false)
+    const [profile,      setProfile]      = useState(null)
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
     const lastName   = storedUser.last_name  || ''
-    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Teacher'
+    const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || t('roles.teacher')
     const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'T'
 
     useEffect(() => {
         getTeacherMyClasses()
-            .then(data => {
-                const list = Array.isArray(data) ? data : []
-                setClasses(list)
-            })
-            .catch(err => setLoadError(err?.message || 'Failed to load classes.'))
+            .then(data => setClasses(Array.isArray(data) ? data : []))
+            .catch(err => setClassesError(err?.message || t('teacher.students.loadClassesFailed')))
             .finally(() => setLoadingClasses(false))
+        getTeacherStudents()
+            .then(data => setStudents(Array.isArray(data) ? data : []))
+            .catch(err => setStudentsError(err?.message || t('teacher.students.loadStudentsFailed')))
+            .finally(() => setLoadingStudents(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const visible = classes.filter(cls => {
-        const grade   = parseInt(cls.grade)
-        const isO     = grade <= 3
-        if (section === 'O-Level' && !isO)  return false
-        if (section === 'A-Level' && isO)   return false
-        if (year     && cls.grade !== year)   return false
-        if (classVal && cls.section         !== classVal) return false
+    /* Which section a year belongs to comes from the school's configuration.
+       Both old pages guessed with parseInt(cls.grade) <= 3, which is NaN for a
+       year code like "S1" — so choosing a section emptied the page. */
+    const sectionOfYear = useMemo(() => {
+        const map = new Map()
+        for (const sec of sections) for (const y of sec.years) map.set(y.name, sec.name)
+        return map
+    }, [sections])
+
+    const classByName = useMemo(() => new Map(classes.map(c => [c.class_name, c])), [classes])
+
+    function inPickedClasses(grade, stream) {
+        if (section  && sectionOfYear.get(grade) !== section) return false
+        if (year     && grade  !== year)     return false
+        if (classVal && stream !== classVal) return false
         return true
+    }
+
+    const visibleClasses = classes.filter(c => inPickedClasses(c.grade, c.section))
+
+    const q = search.trim().toLowerCase()
+    const visibleStudents = students.filter(s => {
+        const cls = classByName.get(s.class_name)
+        if ((section || year || classVal) && (!cls || !inPickedClasses(cls.grade, cls.section))) return false
+        if (q && !s.full_name.toLowerCase().includes(q) && !s.student_code.toLowerCase().includes(q)) return false
+        return matchesPerformance(s.performance_rate, perfFilter)
     })
+
+    function showStudentsOf(cls) {
+        setSection(sectionOfYear.get(cls.grade) ?? '')
+        setYear(cls.grade)
+        setClassVal(cls.section)
+        setSearch('')
+        setTab('students')
+    }
+
+    const filtersActive = Boolean(section || year || classVal || q || perfFilter !== 'all')
+    function clearFilters() {
+        setSection(''); setYear(''); setClassVal(''); setSearch(''); setPerfFilter('all')
+    }
+
+    const tabs = [
+        { key: 'classes',  label: t('teacher.classes.tabClasses'),  icon: 'book',   count: visibleClasses.length  },
+        { key: 'students', label: t('teacher.classes.tabStudents'), icon: 'people', count: visibleStudents.length },
+    ]
 
     return (
         <>
@@ -527,25 +644,15 @@ export function TeacherClasses() {
             <div className="sidebar-overlay"></div>
 
             {resultsClass && (
-                <ResultsModal
-                    cls={resultsClass}
-                    onClose={() => {
-                        setResultsClass(null)
-                        if (resultsFromStudent) setOpenClass(resultsClass)
-                        setResultsFromStudent(false)
-                    }}
-                />
+                <ResultsModal cls={resultsClass} onClose={() => setResultsClass(null)} />
             )}
 
-            {openClass && (
-                <StudentsPanel
-                    cls={openClass}
-                    onClose={() => setOpenClass(null)}
-                    onEnterResult={() => {
-                        setResultsFromStudent(true)
-                        setResultsClass(openClass)
-                        setOpenClass(null)
-                    }}
+            {profile && (
+                <StudentProfile
+                    student={profile}
+                    subjects={classes.filter(c => c.class_name === profile.class_name)}
+                    onClose={() => setProfile(null)}
+                    onEnterResults={cls => { setProfile(null); setResultsClass(cls) }}
                 />
             )}
 
@@ -563,6 +670,7 @@ export function TeacherClasses() {
                         onNotificationRead={markRead}
                     />
                     <DashboardContent>
+                        {/* One filter for both tabs. */}
                         <ClassPicker
                             sections={sections}
                             section={section}   onSectionChange={v => { setSection(v); setYear(''); setClassVal('') }}
@@ -570,38 +678,83 @@ export function TeacherClasses() {
                             classVal={classVal} onClassChange={setClassVal}
                         />
 
-                        <div className="classes-wrap">
-                            <div className="classes-wrap-header">
-                                <div className="classes-wrap-title">{t('teacher.classes.myClasses')}</div>
-                                <span className="classes-wrap-count">
-                                    {visible.length} class{visible.length !== 1 ? 'es' : ''}
-                                </span>
+                        <TabGroup tabs={tabs} value={tab} onChange={setTab} label={t('teacher.classes.title')} />
+
+                        {tab === 'classes' ? (
+                            <div className="classes-wrap" role="tabpanel" id="panel-classes" aria-labelledby="tab-classes">
+                                <div className="classes-wrap-header">
+                                    <div className="classes-wrap-title">{t('teacher.classes.myClasses')}</div>
+                                    <span className="classes-wrap-count">
+                                        {t('teacher.classes.classCount', { count: visibleClasses.length })}
+                                    </span>
+                                </div>
+                                <div className="classes-wrap-body">
+                                    {loadingClasses ? (
+                                        <p className="tc-load-pad">{t('common.loadingClasses')}</p>
+                                    ) : classesError ? (
+                                        <div className="tc-load-err">
+                                            <span className="material-symbols-rounded tc-load-err-icon" aria-hidden="true">error</span>
+                                            {classesError}
+                                        </div>
+                                    ) : visibleClasses.length === 0 ? (
+                                        <div className="classes-wrap-empty">{t('teacher.classes.noMatching')}</div>
+                                    ) : (
+                                        <div className="classes-grid">
+                                            {visibleClasses.map((cls, i) => (
+                                                <ClassCard
+                                                    key={`${cls.class_id}-${cls.subject_id}`}
+                                                    cls={cls}
+                                                    colorIndex={i}
+                                                    onOpenStudents={showStudentsOf}
+                                                    onEnterResults={setResultsClass}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <div className="classes-wrap-body">
-                                {loadingClasses ? (
-                                    <p className="tc-load-pad">{t('common.loadingClasses')}</p>
-                                ) : loadError ? (
-                                    <div className="tc-load-err">
-                                        <span className="material-symbols-rounded tc-load-err-icon" aria-hidden="true">error</span>
-                                        {loadError}
-                                    </div>
-                                ) : visible.length === 0 ? (
-                                    <div className="classes-wrap-empty">{t('teacher.classes.noMatching')}</div>
-                                ) : (
-                                    <div className="classes-grid">
-                                        {visible.map((cls, i) => (
-                                            <ClassCard
-                                                key={cls.class_id}
-                                                cls={cls}
-                                                colorIndex={i}
-                                                onOpenStudents={setOpenClass}
-                                                onEnterResults={setResultsClass}
-                                            />
-                                        ))}
+                        ) : (
+                            <div role="tabpanel" id="panel-students" aria-labelledby="tab-students">
+                                {studentsError && (
+                                    <div className="alert alert-danger u-mb" role="alert">
+                                        <span className="material-symbols-rounded alert-icon" aria-hidden="true">error</span>
+                                        {studentsError}
                                     </div>
                                 )}
+
+                                <div className="search-filter-bar mb-5">
+                                    <SearchBar
+                                        value={search}
+                                        onChange={setSearch}
+                                        placeholder={t('teacher.classes.searchStudents')}
+                                        label={t('teacher.classes.searchStudents')}
+                                    />
+                                    <div className="filter-group">
+                                        <select className="input input-auto" value={perfFilter}
+                                            aria-label={t('teacher.students.perfFilterLabel')}
+                                            onChange={e => setPerfFilter(e.target.value)}>
+                                            {PERF_FILTERS.map(f => <option key={f.value} value={f.value}>{t(f.labelKey)}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <DataTable
+                                    title={t('teacher.students.dataTableTitle')}
+                                    icon="people"
+                                    data={visibleStudents}
+                                    columns={[
+                                        t('common.student'), t('common.class'),
+                                        t('teacher.students.colAttendance'), t('teacher.students.colPerformance'),
+                                        t('common.actions'),
+                                    ]}
+                                    renderRow={s => <StudentRow key={s.student_id} student={s} onView={setProfile} />}
+                                    emptyIcon="people"
+                                    emptyTitle={loadingStudents ? t('common.loadingStudents') : t('teacher.classes.noStudents')}
+                                    emptyDesc={t('teacher.students.noMatch')}
+                                    onClearFilters={filtersActive ? clearFilters : undefined}
+                                />
                             </div>
-                        </div>
+                        )}
                     </DashboardContent>
                 </main>
             </div>
