@@ -94,3 +94,9 @@ webencodings==0.5.1
 xhtml2pdf==0.2.17
 zopfli==0.4.1
 whitenoise==6.12.0
+
+# Notification channels — optional at runtime: each module degrades to a
+# logged no-op when its credentials or package are absent.
+resend==2.16.0          # transactional email API (apps/notifications/email_backends.py)
+pywebpush==2.0.3        # Web Push / VAPID (apps/notifications/push.py)
+

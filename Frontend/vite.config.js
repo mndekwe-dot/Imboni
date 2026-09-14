@@ -60,6 +60,16 @@ export default defineConfig(({ mode }) => {
     babel({ presets: [reactCompilerPreset()] }),
     VitePWA({
       registerType: 'autoUpdate',
+      // injectManifest (not the default generateSW) because Web Push needs a
+      // real `push` event handler, and a generated worker cannot host one.
+      // src/sw.js reproduces the previous workbox behaviour by hand.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: ['**/inter-latin-ext.woff2'],
+      },
       includeAssets: ['imboni-logo.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'Imboni School',
@@ -73,30 +83,6 @@ export default defineConfig(({ mode }) => {
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: '/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-        ],
-      },
-      workbox: {
-        // Precache the built app shell so Imboni opens with no network
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // latin-ext is 83 KB and its unicode-range means English, Kinyarwanda
-        // and French never reach for it — precaching it would nearly double the
-        // offline install for characters this app does not use.
-        globIgnores: ['**/inter-latin-ext.woff2'],
-        navigateFallback: '/index.html',
-        // API calls are handled by the Dexie layer in src/offline — never by
-        // the service worker (denylist keeps SPA navigation fallback away too)
-        navigateFallbackDenylist: [/^\/imboni\//, /^\/admin\//],
-        runtimeCaching: [
-          {
-            // Google Fonts (Inter + Material Symbols) — needed for offline icons
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
         ],
       },
     }),

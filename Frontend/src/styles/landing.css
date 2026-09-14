@@ -231,10 +231,14 @@
   transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .hero-cta .material-symbols-rounded { font-size: var(--icon-sm); }
-.hero-cta:hover {
-  opacity: 0.92;
-  transform: translateY(var(--hover-lift));
-  box-shadow: 0 10px 34px rgba(249, 115, 22, 0.5);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .hero-cta:hover {
+    opacity: 0.92;
+    transform: translateY(var(--hover-lift));
+    box-shadow: 0 10px 34px rgba(249, 115, 22, 0.5);
+  }
 }
 .hero-cta:active { transform: scale(0.97); }
 
@@ -478,10 +482,14 @@
   transition: opacity 0.25s;
 }
 .portal-card:hover .portal-card-top-bar { opacity: 1; }
-.portal-card:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-  border-color: var(--card-border, rgba(0, 61, 122, 0.2));
-  transform: translateY(var(--hover-lift));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .portal-card:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    border-color: var(--card-border, rgba(0, 61, 122, 0.2));
+    transform: translateY(var(--hover-lift));
+  }
 }
 
 .portal-card-icon {
@@ -496,10 +504,14 @@
   font-size: var(--icon-lg);
   transition: background 0.25s, transform 0.2s;
 }
-.portal-card:hover .portal-card-icon {
-  background: var(--card-gradient, linear-gradient(135deg, #003d7a, #005a8f));
-  color: #fff;
-  transform: scale(var(--hover-scale));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .portal-card:hover .portal-card-icon {
+    background: var(--card-gradient, linear-gradient(135deg, #003d7a, #005a8f));
+    color: #fff;
+    transform: scale(var(--hover-scale));
+  }
 }
 
 .portal-card-title {
@@ -591,9 +603,13 @@
   gap: 0.875rem;
   transition: box-shadow 0.2s, transform 0.2s;
 }
-.about-card:hover {
-  box-shadow: 0 10px 36px rgba(0, 61, 122, 0.09);
-  transform: translateY(var(--hover-lift));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .about-card:hover {
+    box-shadow: 0 10px 36px rgba(0, 61, 122, 0.09);
+    transform: translateY(var(--hover-lift));
+  }
 }
 .about-card-icon {
   width: 50px;
@@ -777,10 +793,14 @@
   font-family: inherit;
 }
 .contact-form-btn .material-symbols-rounded { font-size: var(--icon-sm); }
-.contact-form-btn:hover {
-  opacity: 0.9;
-  transform: translateY(var(--hover-lift));
-  box-shadow: 0 6px 20px rgba(0, 61, 122, 0.38);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .contact-form-btn:hover {
+    opacity: 0.9;
+    transform: translateY(var(--hover-lift));
+    box-shadow: 0 6px 20px rgba(0, 61, 122, 0.38);
+  }
 }
 
 /* ══════════════════════════════════════
@@ -939,10 +959,14 @@
   transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .cta-strip-btn .material-symbols-rounded { font-size: var(--icon-sm); }
-.cta-strip-btn:hover {
-  opacity: 0.92;
-  transform: translateY(var(--hover-lift));
-  box-shadow: 0 12px 36px rgba(249, 115, 22, 0.55);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .cta-strip-btn:hover {
+    opacity: 0.92;
+    transform: translateY(var(--hover-lift));
+    box-shadow: 0 12px 36px rgba(249, 115, 22, 0.55);
+  }
 }
 
 /* ══════════════════════════════════════

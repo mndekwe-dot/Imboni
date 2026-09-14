@@ -76,7 +76,11 @@
   text-decoration: none;
   transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
-.fin-action-card:hover { border-color: var(--portal-accent); transform: translateY(-1px); }
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .fin-action-card:hover { border-color: var(--portal-accent); transform: translateY(-1px); }
+}
 .fin-action-card .material-symbols-rounded {
   font-size: var(--icon-lg);
   color: var(--portal-accent);

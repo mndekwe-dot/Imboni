@@ -245,8 +245,12 @@
   transition: transform var(--transition-base);
 }
 
-.sidebar-logo-icon:hover {
-  transform: scale(1.05) rotate(5deg);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .sidebar-logo-icon:hover {
+    transform: scale(1.05) rotate(5deg);
+  }
 }
 
 .sidebar-logo-icon img {
@@ -270,15 +274,24 @@
   justify-content: center;
   cursor: pointer;
   background: var(--sidebar-foreground);
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
 }
 
-.sidebar-logo .toggle:hover {
-  background: var(--sidebar-foreground);
-  color: var(--sidebar);
-  transform: scale(var(--hover-scale));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .sidebar-logo .toggle:hover {
+    background: var(--sidebar-foreground);
+    color: var(--sidebar);
+    transform: scale(var(--hover-scale));
+  }
 }
 
 .sidebar-logo .toggle:active {
@@ -314,7 +327,12 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
-  transition: all var(--transition-slow);
+  transition: background-color var(--duration-pop) var(--ease-hover),
+              border-color var(--duration-pop) var(--ease-hover),
+              color var(--duration-pop) var(--ease-hover),
+              box-shadow var(--duration-pop) var(--ease-hover),
+              opacity var(--duration-pop) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   background: var(--sidebar-background);
   cursor: pointer;
 }
@@ -436,7 +454,12 @@
   font-weight: 600;
   border-radius: var(--radius);
   color: var(--sidebar-foreground);
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
@@ -460,10 +483,14 @@
   transition: transform var(--transition-base);
 }
 
-.sidebar-nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: var(--sidebar-primary-foreground);
-  transform: translateX(4px);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .sidebar-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--sidebar-primary-foreground);
+    transform: translateX(4px);
+  }
 }
 
 /* The accent bar (::before) plus a quiet fill. The drop shadow that used to be
@@ -591,7 +618,15 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex-shrink: 0;
+  /* Shrinkable, deliberately. This was `flex-shrink: 0`, which meant the
+     title block never gave up a pixel -- so on a 390px phone the header's
+     own actions were pushed off the right edge: the bell ended at 401px and
+     the user avatar at 452px. Nothing looked wrong, because the overflow was
+     clipped rather than scrolled, so the notification button simply was not
+     there.
+     The h1 below already has overflow:hidden and text-overflow:ellipsis. It
+     was built to truncate and flex-shrink:0 guaranteed it never could. */
+  flex-shrink: 1;
   min-width: 0;
 }
 
@@ -694,9 +729,13 @@
   text-decoration: none;
   transition: opacity 0.15s, transform 0.15s;
 }
-.header-user-av:hover {
-  opacity: 0.85;
-  transform: scale(var(--hover-scale));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .header-user-av:hover {
+    opacity: 0.85;
+    transform: scale(var(--hover-scale));
+  }
 }
 
 /* Portal-specific avatar colours */
@@ -739,7 +778,12 @@
   border-radius: 50%;
   color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -748,11 +792,15 @@
   line-height: 1;
 }
 
-.mobile-menu-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-  transform: scale(var(--hover-scale));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .mobile-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    transform: scale(var(--hover-scale));
+  }
 }
 
 .mobile-menu-btn:active {
@@ -832,16 +880,25 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
   border-radius: 50%;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   color: rgba(255, 255, 255, 0.85);
   flex-shrink: 0;
 }
 
-.notification-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-  transform: scale(var(--hover-scale));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .notification-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    transform: scale(var(--hover-scale));
+  }
 }
 
 .notification-badge {
@@ -978,6 +1035,15 @@
 
   .dashboard-header-actions {
     gap: 0.375rem;
+    /* The actions are the fixed half of the header; the title gives way to
+       them, never the other way round. */
+    flex-shrink: 0;
+  }
+
+  /* 2rem of side padding is a third of a phone's width spent on nothing. */
+  .dashboard-header {
+    padding: 0 var(--space-3);
+    gap: var(--space-3);
   }
 }
 

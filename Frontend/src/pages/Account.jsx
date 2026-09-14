@@ -13,6 +13,7 @@ import { DashboardHeader } from '../components/layout/DashboardHeader'
 import { useSessionUser } from '../hooks/useSessionUser'
 import { useNotifications } from '../hooks/useNotifications'
 import { TwoFactorSettings } from '../components/TwoFactorSettings'
+import { enablePush, disablePush } from '../utils/push'
 import '../styles/layout.css'
 import '../styles/components.css'
 import '../styles/parent.css'
@@ -70,6 +71,7 @@ export function Account() {
     const [dragging, setDragging] = useState(false)  // photo drop zone is hovered
     const [prefs, setPrefs] = useState(null)         // null until loaded from the server
     const [prefsSaving, setPrefsSaving] = useState(false)
+    const [pushBusy, setPushBusy] = useState(false)   // browser permission prompt in flight
 
     // --- Sidebar nav ---
     // Role comes from URL (?role=dos) first, then localStorage, then empty string
@@ -122,6 +124,45 @@ export function Account() {
             }))
             .catch(err => toast.error(errorMessage(err, t('common.loadFailed'))))
     }, [])   // eslint-disable-line react-hooks/exhaustive-deps
+
+    /*
+     * Toggling a channel is a plain preference change for email and SMS.
+     *
+     * Push is different: the server preference alone delivers nothing, because
+     * the browser must also grant permission and register a subscription. So
+     * the switch only moves once that actually succeeded — a toggle that looks
+     * on while no notification can ever arrive is the silent failure this whole
+     * feature exists to remove.
+     */
+    async function handleChannelToggle(field, checked) {
+        if (field !== 'notification_push') {
+            setPrefs(p => ({ ...p, [field]: checked }))
+            return
+        }
+
+        if (!checked) {
+            await disablePush()
+            setPrefs(p => ({ ...p, notification_push: false }))
+            return
+        }
+
+        setPushBusy(true)
+        const result = await enablePush()
+        setPushBusy(false)
+
+        if (result.ok) {
+            setPrefs(p => ({ ...p, notification_push: true }))
+            return
+        }
+
+        const reasons = {
+            unsupported: 'account.pushUnsupported',
+            'not-configured': 'account.pushNotConfigured',
+            denied: 'account.pushDenied',
+            'no-service-worker': 'account.pushNoWorker',
+        }
+        toast.error(t(reasons[result.reason] || 'account.pushFailed'))
+    }
 
     useEffect(() => {
         if (role !== 'parent') return
@@ -500,10 +541,11 @@ export function Account() {
                                                             <input
                                                                 type="checkbox"
                                                                 aria-labelledby={`notif-${channel.field}`}
+                                                                disabled={pushBusy && channel.field === 'notification_push'}
                                                                 checked={!!prefs[channel.field]}
-                                                                onChange={e => setPrefs(p => ({
-                                                                    ...p, [channel.field]: e.target.checked,
-                                                                }))}
+                                                                onChange={e => handleChannelToggle(
+                                                                    channel.field, e.target.checked,
+                                                                )}
                                                             />
                                                             <span className="toggle-thumb"></span>
                                                         </label>

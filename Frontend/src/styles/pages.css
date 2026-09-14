@@ -257,7 +257,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
   max-width: 100%;
   overflow: hidden;
@@ -811,7 +816,12 @@
   cursor: pointer;
   white-space: nowrap;
   color: var(--muted-foreground);
-  transition: all 0.15s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 .conv-filter-btn:hover { background: var(--muted); color: var(--foreground); }
 .conv-filter-btn.active {
@@ -1072,7 +1082,11 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   transition: opacity 0.15s, transform 0.15s;
 }
-.send-btn:hover { opacity: 0.9; transform: scale(var(--hover-scale)); }
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .send-btn:hover { opacity: 0.9; transform: scale(var(--hover-scale)); }
+}
 .send-btn .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* ── Responsive — WhatsApp-style mobile ── */

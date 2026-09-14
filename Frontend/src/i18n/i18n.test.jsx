@@ -102,6 +102,41 @@ describe('keys used in code', () => {
             + 'key itself on screen:',
         ).toEqual([])
     })
+
+    /* The check above cannot see PortalLogin's keys: it builds them as
+       t(`portal.${portal}`), which is computed. Both portals added since then
+       shipped broken because of that blind spot -- neither had a portal.* title,
+       so the page rendered the literal string "portal.library" as its heading,
+       and library's portalLogin entry was an object, which i18next refuses and
+       reports by printing its own error message into the page.
+
+       The portal names themselves ARE literals, in App.jsx, so this one
+       computed pattern can be resolved after all. Checking English is enough:
+       the parity test above compares leaf paths, so an object where a string
+       belongs shows up there as a key mismatch. */
+    it('gives every portal login a string title and subtitle', () => {
+        const app = readFileSync(join(SRC, 'App.jsx'), 'utf8')
+        const portals = [...app.matchAll(/<PortalLogin\s+portal="([a-z]+)"/g)].map(m => m[1])
+        expect(portals.length, 'no <PortalLogin portal="..."> found -- has the prop been renamed?')
+            .toBeGreaterThan(5)
+
+        const broken = []
+        for (const portal of portals) {
+            for (const ns of ['portal', 'portalLogin']) {
+                const value = read(en, `${ns}.${portal}`)
+                if (typeof value !== 'string') {
+                    broken.push(`${ns}.${portal} = ${JSON.stringify(value)}`)
+                }
+            }
+        }
+
+        expect(
+            broken.sort(),
+            'A portal login page renders this as its heading or subtitle. Missing '
+            + 'means the key itself appears on screen; an object means i18next '
+            + 'prints an error where the text should be:',
+        ).toEqual([])
+    })
 })
 
 describe('translation files', () => {

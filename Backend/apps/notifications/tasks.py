@@ -77,3 +77,40 @@ def bulk_notify_task(user_ids, title, message, type='announcement', path=''):
 
     users = User.objects.filter(id__in=user_ids, is_active=True)
     return notify_users(users, title, message, type, path)
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def send_sms_task(self, phone_number, message):
+    """
+    Send one SMS through Africa's Talking, retrying transient failures.
+
+    `send_sms` swallows its own errors and returns False, so a retry is only
+    worth attempting when it reports failure *and* the channel is configured —
+    retrying an unconfigured send would burn three attempts to no purpose.
+    """
+    from .sms import is_configured, send_sms
+
+    sent = send_sms(phone_number, message)
+    if not sent and is_configured() and self.request.retries < self.max_retries:
+        raise self.retry(exc=RuntimeError(f'SMS to {phone_number} not accepted'))
+    return sent
+
+
+@shared_task
+def send_push_task(user_id, title, body, path='', tag=''):
+    """
+    Push to every browser a user has subscribed.
+
+    No retry: pywebpush already distinguishes dead subscriptions (deleted on
+    the spot) from transient errors, and a stale push is worth less than a
+    late one — by the time a retry lands the user has usually opened the app.
+    """
+    from apps.authentication.models import User
+
+    from .push import send_to_user
+
+    try:
+        user = User.objects.get(pk=user_id, is_active=True)
+    except User.DoesNotExist:
+        return 0
+    return send_to_user(user, title, body, path=path, tag=tag)
