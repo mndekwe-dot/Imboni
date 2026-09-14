@@ -92,7 +92,12 @@
   font-size: var(--text-sm);
   font-weight: 500;
   border: 1px solid var(--border);
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   cursor: default;
   min-height: var(--touch-min);
 }
@@ -234,15 +239,24 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   max-width: 100%;
   overflow: hidden;
   word-wrap: break-word;
 }
 
-.behavior-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(var(--hover-lift));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .behavior-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(var(--hover-lift));
+  }
 }
 
 .behavior-header {
@@ -1064,7 +1078,12 @@
     font-size: var(--text-body);
     font-weight: 500;
     border-radius: var(--radius-sm);
-    transition: all 0.2s;
+    transition: background-color var(--duration-hover) var(--ease-hover),
+                border-color var(--duration-hover) var(--ease-hover),
+                color var(--duration-hover) var(--ease-hover),
+                box-shadow var(--duration-hover) var(--ease-hover),
+                opacity var(--duration-hover) var(--ease-hover),
+                transform var(--duration-press) var(--ease-out);
 }
 
 .settings-nav-item:hover {
@@ -1287,7 +1306,12 @@
     background: transparent;
     cursor: pointer;
     color: var(--muted-foreground);
-    transition: all 0.15s;
+    transition: background-color var(--duration-hover) var(--ease-hover),
+                border-color var(--duration-hover) var(--ease-hover),
+                color var(--duration-hover) var(--ease-hover),
+                box-shadow var(--duration-hover) var(--ease-hover),
+                opacity var(--duration-hover) var(--ease-hover),
+                transform var(--duration-press) var(--ease-out);
 }
 .pmsg-filter.active {
     background: var(--parent, #7c3aed);
@@ -1397,7 +1421,12 @@
     align-items: center;
     justify-content: center;
     color: var(--muted-foreground);
-    transition: all 0.15s;
+    transition: background-color var(--duration-hover) var(--ease-hover),
+                border-color var(--duration-hover) var(--ease-hover),
+                color var(--duration-hover) var(--ease-hover),
+                box-shadow var(--duration-hover) var(--ease-hover),
+                opacity var(--duration-hover) var(--ease-hover),
+                transform var(--duration-press) var(--ease-out);
 }
 .pmsg-action-btn:hover { background: var(--muted); color: var(--foreground); }
 .pmsg-action-btn .material-symbols-rounded { font-size: var(--icon-sm); }
@@ -1672,7 +1701,12 @@
     font-size: var(--text-sm);
     font-weight: 400;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color var(--duration-hover) var(--ease-hover),
+                border-color var(--duration-hover) var(--ease-hover),
+                color var(--duration-hover) var(--ease-hover),
+                box-shadow var(--duration-hover) var(--ease-hover),
+                opacity var(--duration-hover) var(--ease-hover),
+                transform var(--duration-press) var(--ease-out);
 }
 .pann-chip.active {
     border-color: var(--primary);

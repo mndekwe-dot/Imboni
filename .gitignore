@@ -51,6 +51,8 @@ WORK_LOG.md
 # Editor & local config
 .vscode/
 .claude/
+.agents/
+skills-lock.json
 
 # React / Vite (Frontend/)
 node_modules/

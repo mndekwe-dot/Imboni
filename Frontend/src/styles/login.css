@@ -85,12 +85,16 @@
   animation: cardFadeIn 0.6s ease-out;
 }
 
-.login-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 
-    0 12px 48px rgba(0, 0, 0, 0.35),
-    0 4px 16px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .login-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 12px 48px rgba(0, 0, 0, 0.35),
+      0 4px 16px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
 }
 
 @keyframes cardFadeIn {
@@ -251,17 +255,24 @@
   color: #fff;
   font-size: var(--text-body);
   font-family: inherit;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color var(--duration-pop) var(--ease-out),
+              border-color var(--duration-pop) var(--ease-out),
+              box-shadow var(--duration-pop) var(--ease-out),
+              transform var(--duration-press) var(--ease-out);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .login-card .form-input::placeholder { 
   color: rgba(255, 255, 255, 0.5); 
 }
-.login-card .form-input:hover { 
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .login-card .form-input:hover { 
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 }
 .login-card .form-input:focus {
   outline: none;
@@ -359,7 +370,10 @@
   box-shadow: 
     0 6px 20px rgba(43, 127, 212, 0.35),
     0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color var(--duration-pop) var(--ease-out),
+              border-color var(--duration-pop) var(--ease-out),
+              box-shadow var(--duration-pop) var(--ease-out),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .login-btn::before {
@@ -373,12 +387,16 @@
   transition: left 0.5s;
 }
 
-.login-btn:hover:not(:disabled) { 
-  transform: translateY(-2px);
-  box-shadow: 
-    0 10px 28px rgba(43, 127, 212, 0.45),
-    0 4px 12px rgba(0, 0, 0, 0.25);
-  filter: brightness(1.1);
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .login-btn:hover:not(:disabled) { 
+    transform: translateY(-2px);
+    box-shadow: 
+      0 10px 28px rgba(43, 127, 212, 0.45),
+      0 4px 12px rgba(0, 0, 0, 0.25);
+    filter: brightness(1.1);
+  }
 }
 
 .login-btn:hover:not(:disabled)::before {

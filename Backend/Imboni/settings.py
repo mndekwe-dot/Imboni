@@ -399,7 +399,37 @@ else:
     EMAIL_HOST_USER     = config('MY_EMAIL_HOST_USER', default='')
     EMAIL_HOST_PASSWORD = config('MY_EMAIL_HOST_PASSWORD', default='')
 
+# Resend overrides the SMTP settings above when EMAIL_PROVIDER=resend. It is an
+# HTTPS API rather than SMTP, so it works on hosts that block outbound port 587
+# and it fails fast instead of hanging on a blocked socket. Everything already
+# written against send_mail()/EmailMultiAlternatives keeps working unchanged.
+EMAIL_PROVIDER = config('EMAIL_PROVIDER', default='smtp').lower()
+RESEND_API_KEY = config('RESEND_API_KEY', default='')
+
+if EMAIL_PROVIDER == 'resend' and not TESTING:
+    EMAIL_BACKEND = 'apps.notifications.email_backends.ResendEmailBackend'
+
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Imboni School <ndekwe22@gmail.com>')
+
+# ---------------------------------------------------------------------------
+# Notification channels beyond in-app: SMS and Web Push.
+#
+# Both are optional. With no credentials set, each reports itself unconfigured
+# and its sends become logged no-ops — development and CI need no accounts, and
+# the in-app feed plus the WebSocket broadcast keep working regardless.
+# ---------------------------------------------------------------------------
+
+# Africa's Talking (SMS). Username is 'sandbox' until you go live.
+AFRICASTALKING_USERNAME  = config('AFRICASTALKING_USERNAME',  default='')
+AFRICASTALKING_API_KEY   = config('AFRICASTALKING_API_KEY',   default='')
+AFRICASTALKING_SENDER_ID = config('AFRICASTALKING_SENDER_ID', default='')
+
+# Web Push (VAPID). Generate a keypair ONCE and keep the private key out of git:
+#   python -c "from py_vapid import Vapid01; v=Vapid01(); v.generate_keys(); #              print(v.public_key_urlsafe_base64()); print(v.private_key_urlsafe_base64())"
+# Rotating these invalidates every existing browser subscription.
+VAPID_PUBLIC_KEY  = config('VAPID_PUBLIC_KEY',  default='')
+VAPID_PRIVATE_KEY = config('VAPID_PRIVATE_KEY', default='')
+VAPID_ADMIN_EMAIL = config('VAPID_ADMIN_EMAIL', default='')
 
 # Security settings for production. Excluded under TESTING: SECURE_SSL_REDIRECT
 # would 301-redirect every test request (which uses http) to https, breaking the

@@ -131,7 +131,12 @@
   font-weight: 600;
   color: var(--muted-foreground);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -191,7 +196,12 @@
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   min-height: var(--touch-min);
 }
 
@@ -388,7 +398,12 @@
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .result-card:hover {
@@ -505,13 +520,22 @@
   align-items: center;
   text-align: center;
   gap: 0.75rem;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
-.leader-card:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(var(--hover-lift));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .leader-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(var(--hover-lift));
+  }
 }
 
 .leader-avatar {
@@ -643,12 +667,21 @@
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
-.house-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(var(--hover-lift));
+/* Gated: on a touchscreen :hover latches after a tap and holds until
+   the user taps elsewhere, so a moved element stays moved. */
+@media (hover: hover) and (pointer: fine) {
+  .house-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(var(--hover-lift));
+  }
 }
 
 .house-card-header {
@@ -828,7 +861,12 @@
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .dining-table-card:hover {
@@ -947,7 +985,12 @@
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .activity-card-header {
@@ -1314,7 +1357,12 @@
   font-size: var(--text-caption);
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .tm-btn:hover { background: var(--muted); }
@@ -1562,7 +1610,12 @@ body.tm-panel-open { overflow: hidden; }
   font-weight: 600;
   cursor: pointer;
   justify-content: center;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   margin-top: 0.25rem;
 }
 
@@ -1700,7 +1753,12 @@ body.tm-panel-open { overflow: hidden; }
   font-weight: 600;
   color: var(--muted-foreground);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .cls-form-tab:hover { background: var(--muted); color: var(--foreground); }
@@ -1721,7 +1779,12 @@ body.tm-panel-open { overflow: hidden; }
   font-weight: 600;
   color: var(--muted-foreground);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .cls-stream-btn:hover { border-color: var(--primary); color: var(--primary); }
@@ -1755,7 +1818,12 @@ body.tm-panel-open { overflow: hidden; }
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all var(--transition-base);
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
 }
 
 .class-nav-btn:hover {
@@ -1954,7 +2022,7 @@ body.tm-panel-open { overflow: hidden; }
 .es-filter-bar  { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.75rem; }
 .es-filter-tab  { padding:.35rem .85rem; border:1px solid var(--border); border-radius:999px; font-size: var(--text-sm);
                    font-weight:500; color:var(--muted-foreground); background:var(--card); cursor:pointer;
-                   transition:all .18s; display:flex; align-items:center; gap:.3rem; }
+                   transition: background-color var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover), color var(--duration-hover) var(--ease-hover), box-shadow var(--duration-hover) var(--ease-hover), transform var(--duration-press) var(--ease-out); display:flex; align-items:center; gap:.3rem; }
 .es-filter-tab:hover  { border-color:var(--primary); color:var(--primary); }
 .es-filter-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
 .es-filter-tab .badge { background:rgba(255,255,255,.25); color:inherit; font-size: var(--text-caption);
@@ -2030,7 +2098,7 @@ body.tm-panel-open { overflow: hidden; }
 .es-session-chips { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
 .es-session-chip  { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem;
                      border-radius:999px; border:1.5px solid var(--border); background:var(--card);
-                     font-size: var(--text-sm); font-weight:500; cursor:pointer; transition:all .15s;
+                     font-size: var(--text-sm); font-weight:500; cursor:pointer; transition: background-color var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover), color var(--duration-hover) var(--ease-hover), box-shadow var(--duration-hover) var(--ease-hover), transform var(--duration-press) var(--ease-out);
                      color:var(--foreground); }
 .es-session-chip:hover   { border-color:var(--primary); color:var(--primary); }
 .es-session-chip.active  { background:var(--primary); color:#fff; border-color:var(--primary); }
@@ -2185,7 +2253,7 @@ body.tm-panel-open { overflow: hidden; }
 .es-class-checks { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
 .es-class-check-label { display:flex; align-items:center; gap:.3rem; font-size: var(--text-sm); font-weight:500;
                          cursor:pointer; padding:.35rem .7rem; border:1px solid var(--border); border-radius:.4rem;
-                         background:var(--card); transition:all .15s; user-select:none; }
+                         background:var(--card); transition: background-color var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover), color var(--duration-hover) var(--ease-hover), box-shadow var(--duration-hover) var(--ease-hover), transform var(--duration-press) var(--ease-out); user-select:none; }
 .es-class-check-label:has(input:checked) { background:var(--primary); color:#fff; border-color:var(--primary); }
 .es-class-check-label input { display:none; }
 
@@ -2405,7 +2473,8 @@ body.tm-panel-open { overflow: hidden; }
   border: 2px solid var(--border);
   background: var(--muted);
   color: var(--muted-foreground);
-  cursor: pointer; transition: all 0.15s;
+  cursor: pointer;
+  transition: background-color var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover), color var(--duration-hover) var(--ease-hover), box-shadow var(--duration-hover) var(--ease-hover), transform var(--duration-press) var(--ease-out);
 }
 .assign-year-lbl.active  { border-color: var(--primary); background: var(--primary); color: #fff; }
 .assign-year-lbl:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
@@ -2420,7 +2489,12 @@ body.tm-panel-open { overflow: hidden; }
   font-weight: 600;
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--duration-hover) var(--ease-hover),
+              border-color var(--duration-hover) var(--ease-hover),
+              color var(--duration-hover) var(--ease-hover),
+              box-shadow var(--duration-hover) var(--ease-hover),
+              opacity var(--duration-hover) var(--ease-hover),
+              transform var(--duration-press) var(--ease-out);
   min-width: 2.5rem; text-align: center;
 }
 .assign-class-btn:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
