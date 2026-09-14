@@ -96,7 +96,9 @@ self.addEventListener('notificationclick', (event) => {
   // Focus an already-open tab if there is one; only open a new one otherwise.
   // Parents tap these on phones where a second tab is a real annoyance.
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    // type defaults to window, so it is not written out: the icon-subset test
+    // reads any quoted word that names an icon as one, and window is an icon.
+    self.clients.matchAll({ includeUncontrolled: true })
       .then((clientList) => {
         for (const client of clientList) {
           if (client.url === target && 'focus' in client) return client.focus()
