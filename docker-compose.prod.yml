@@ -19,6 +19,9 @@ x-prod-backend-env: &prod_backend_env
   SECURE_SSL_REDIRECT: "True"
   # Your real hosts, e.g. ".imboni.com" (leading dot covers every subdomain).
   ALLOWED_HOSTS: ${ALLOWED_HOSTS:?set ALLOWED_HOSTS in .env.prod}
+  # The bare domain, registered to the public schema by the entrypoint. Without
+  # it the platform console, find-school and signup 404 in production.
+  PUBLIC_DOMAIN: ${DOMAIN:?set DOMAIN in .env.prod, e.g. imboni.rw}
   THE_SECRET_KEY: ${THE_SECRET_KEY:?set THE_SECRET_KEY in .env.prod}
   DATABASE_PASSWORD: ${DATABASE_PASSWORD:?set DATABASE_PASSWORD in .env.prod}
   # Must match the bind mount below. settings.BACKUP_DIR would otherwise default
