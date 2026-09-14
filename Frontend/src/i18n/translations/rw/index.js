@@ -29,6 +29,7 @@ import student from './student.json'
 import subscription from './subscription.json'
 import teacher from './teacher.json'
 import terms from './terms.json'
+import timetable from './timetable.json'
 import welcome from './welcome.json'
 
 export default {
@@ -63,5 +64,6 @@ export default {
     subscription,
     teacher,
     terms,
+    timetable,
     welcome,
 }

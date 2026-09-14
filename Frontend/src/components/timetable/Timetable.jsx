@@ -1,8 +1,13 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { WeekPicker } from './weekPicker'
+import { addDays, isSameDay, startOfDay } from 'date-fns'
 import { getThisMonday, getTodayDayIndex, getNow } from './dateUtils'
 import { DayTabs } from './DaysTabs'
+import { TimetableToolbar } from './TimetableToolbar'
+import { TimetableAgenda } from './TimetableAgenda'
+import {
+    VIEWS, dayIndexOf, mondayOf, snapToVisible, step, visibleDaysFor,
+} from './timetableNav'
 import { TimetableCell } from './TimetableCell'
 import { DraggableCell } from './DraggableCell'
 import { assignSubjectTones, homeRoomOf, currentPeriodIndex, shortTeacher } from './timetableDisplay'
@@ -14,6 +19,60 @@ import '../../styles/timetable.css'
 /* The academic grid looks a schedule up by class id. A teacher's week is not
    any one class's, so it is filed under a key no class can collide with. */
 const TEACHER_KEY = '__teacher__'
+
+/* How someone likes to look at a timetable is theirs, not the page's: it is
+   remembered in this browser and follows them between portals. */
+const VIEW_STORE    = 'imboni_tt_view'
+const WEEKEND_STORE = 'imboni_tt_weekends'
+
+function useStoredState(key, fallback, isValid) {
+    const [value, setValue] = useState(() => {
+        try {
+            const raw = localStorage.getItem(key)
+            if (raw !== null) {
+                const parsed = JSON.parse(raw)
+                if (isValid(parsed)) return parsed
+            }
+        } catch { /* storage blocked or a stale value: the default is fine */ }
+        return fallback
+    })
+    function update(next) {
+        setValue(next)
+        try { localStorage.setItem(key, JSON.stringify(next)) }
+        catch { /* storage blocked: the choice still holds for this visit */ }
+    }
+    return [value, update]
+}
+
+/**
+ * Google Calendar's single-key shortcuts: D / W / A switch view, T is today,
+ * N or J next, P or K previous.
+ *
+ * Stands down whenever the key clearly belongs to something else — typing in a
+ * field, a modifier held (Ctrl+P is print), or a <dialog> open, which is how
+ * the DOS edit form is shown and which must not have the week move behind it.
+ */
+function useTimetableShortcuts(enabled, handlers) {
+    const latest = useRef(handlers)
+    useEffect(() => { latest.current = handlers })
+
+    useEffect(() => {
+        if (!enabled) return
+        function onKey(e) {
+            if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return
+            const el = e.target
+            if (el instanceof HTMLElement
+                && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return
+            if (document.querySelector('dialog[open]')) return
+            const run = latest.current[e.key.toLowerCase()]
+            if (!run) return
+            e.preventDefault()
+            run()
+        }
+        document.addEventListener('keydown', onKey)
+        return () => document.removeEventListener('keydown', onKey)
+    }, [enabled])
+}
 
 /* A day column heading. Today is filled with the portal accent, and carries a
    dot + screen-reader text as well, so the state is not signalled by colour alone. */
@@ -48,17 +107,31 @@ function PeriodHead({ label, time, isNow }) {
                the static import as fallback)
    todayDayIndex — DAYS index of today (0=Mon…6=Sun), or -1 if not current week
 ─────────────────────────────────────────────────────────────────────────── */
-function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, schedules, todayDayIndex }) {
+function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, schedules, todayDayIndex, days, view, monday }) {
     const data     = schedules || extraSchedules
     const schedule = data[weekKey] ?? data['default'] ?? {}
+
+    if (view === 'schedule') {
+        return (
+            <TimetableAgenda
+                rows={slots}
+                cellAt={(dayName, _i, slot) => schedule[slot.id]?.[dayName]}
+                days={days}
+                monday={monday}
+                todayDayIndex={todayDayIndex}
+                emptyKey="timetable.nothingScheduled"
+            />
+        )
+    }
+
     return (
         <div className="tt-wrap">
-            <table className="tt-table" data-day={selectedDay}>
+            <table className="tt-table" data-day={selectedDay} data-view={view}>
                 <thead>
                     <tr>
                         <th className="tt-time-head" scope="col">Time Slot</th>
-                        {DAYS.map((day, i) => (
-                            <DayHead key={day} label={DAY_SHORT[i]} colIndex={i + 1} isToday={i === todayDayIndex} />
+                        {days.map(i => (
+                            <DayHead key={DAYS[i]} label={DAY_SHORT[i]} colIndex={i + 1} isToday={i === todayDayIndex} />
                         ))}
                     </tr>
                 </thead>
@@ -66,12 +139,12 @@ function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, sch
                     {slots.map(slot => (
                         <tr key={slot.id}>
                             <PeriodHead label={slot.label} time={slot.time} />
-                            {DAYS.map((day, i) => (
+                            {days.map(i => (
                                 <TimetableCell
-                                    key={day}
-                                    cell={schedule[slot.id]?.[day]}
+                                    key={DAYS[i]}
+                                    cell={schedule[slot.id]?.[DAYS[i]]}
                                     editable={editable}
-                                    onEdit={(cell) => onEditCell({ slot, day, cell })}
+                                    onEdit={(cell) => onEditCell({ slot, day: DAYS[i], cell })}
                                     colIndex={i + 1}
                                     today={i === todayDayIndex}
                                 />
@@ -90,7 +163,7 @@ function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, sch
                the static import as fallback)
    todayDayIndex — DAYS index of today, or -1 if not current week
 ─────────────────────────────────────────────────────────────────────────── */
-function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods, schedules, todayDayIndex, onMoveSlot }) {
+function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods, schedules, todayDayIndex, onMoveSlot, days, view, monday }) {
     // A small drag threshold so a click on a cell/edit button never starts a drag.
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
     const [activeCell, setActiveCell] = useState(null)   // lesson being dragged (for the overlay)
@@ -116,10 +189,37 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
         return <p className="tt-note">No timetable found for {classId}.</p>
     }
 
-    /* Mon–Sat only — Sunday excluded from academic schedule */
-    const academicDays     = DAYS.slice(0, 6)
-    const academicDayShort = DAY_SHORT.slice(0, 6)
+    /* The day columns on screen: Mon–Sat, Mon–Fri with weekends hidden, or the
+       one day in Day view. Sunday is never in the academic week. */
+    const academicDays = days.map(i => DAYS[i])
     const dragEnabled = typeof onMoveSlot === 'function'
+
+    const homeRoomNote = homeRoom && (
+        <p className="tt-meta">
+            Home room <strong>{homeRoom}</strong> — only lessons taught elsewhere show a room.
+        </p>
+    )
+
+    if (view === 'schedule') {
+        return (
+            <>
+                {homeRoomNote}
+                <TimetableAgenda
+                    rows={periods}
+                    cellAt={(dayName, periodIndex) => {
+                        const raw = schedule[dayName]?.[periodIndex] ?? null
+                        return raw ? { type: raw.type || 'academic', ...raw } : null
+                    }}
+                    days={days}
+                    monday={monday}
+                    todayDayIndex={todayDayIndex}
+                    nowIndex={nowIndex}
+                    tones={tones}
+                    homeRoom={homeRoom}
+                />
+            </>
+        )
+    }
 
     function handleDragStart(event) {
         setActiveCell(event.active.data.current?.cell ?? null)
@@ -141,12 +241,12 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
     }
 
     const table = (
-        <table className="tt-table" data-day={selectedDay}>
+        <table className="tt-table" data-day={selectedDay} data-view={view}>
             <thead>
                 <tr>
                     <th className="tt-time-head" scope="col">Period</th>
-                    {academicDays.map((day, i) => (
-                        <DayHead key={day} label={academicDayShort[i]} colIndex={i + 1} isToday={i === todayDayIndex} />
+                    {days.map(i => (
+                        <DayHead key={DAYS[i]} label={DAY_SHORT[i]} colIndex={i + 1} isToday={i === todayDayIndex} />
                     ))}
                 </tr>
             </thead>
@@ -177,17 +277,18 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
                     return (
                         <tr key={period.id}>
                             <PeriodHead label={period.label} time={period.time} isNow={isNow} />
-                            {cells.map((cell, i) => {
+                            {cells.map((cell, pos) => {
+                                const dayIdx = days[pos]
                                 const shared = {
                                     cell,
-                                    colIndex: i + 1,
+                                    colIndex: dayIdx + 1,
                                     editable,
                                     tone: cell ? tones.get(cell.subject) : null,
                                     homeRoom,
-                                    today: i === todayDayIndex,
+                                    today: dayIdx === todayDayIndex,
                                     isNow,
                                 }
-                                const day = academicDays[i]
+                                const day = academicDays[pos]
                                 if (dragEnabled) {
                                     return (
                                         <DraggableCell
@@ -214,11 +315,7 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
 
     return (
         <>
-            {homeRoom && (
-                <p className="tt-meta">
-                    Home room <strong>{homeRoom}</strong> — only lessons taught elsewhere show a room.
-                </p>
-            )}
+            {homeRoomNote}
             <div className="tt-wrap">
                 {dragEnabled
                     ? (
@@ -277,6 +374,16 @@ function TimetableLegend({ type }) {
      periods    optional override for PERIODS rows (DOS passes its own state)
      slots      optional override for EXTRA_SLOTS rows (Dis passes its own state)
      schedules  optional live schedule state from the page; null = use static data
+     currentMonday / onWeekChange
+                optional controlled week — pages that fetch a week's data own it.
+                Every move (arrows, Today, the calendar, a shortcut) that lands
+                in another week reports the new Monday through onWeekChange.
+     shortcuts  false to switch the D/W/A/T/N/P keys off for this instance
+
+   Views: Day, Week and Schedule (a list), plus Show weekends — the parts of
+   Google Calendar's view menu that mean something for a week that repeats.
+   Month and Year would show the same week four and fifty-two times over; the
+   month calendar behind the date label covers "go to a date" instead.
 ─────────────────────────────────────────────────────────────────────────── */
 export function Timetable({
     type = 'extracurricular',
@@ -292,6 +399,7 @@ export function Timetable({
     onWeekChange = null,
     currentMonday: controlledMonday = null,
     onMoveSlot   = null,
+    shortcuts    = true,
 }) {
     /* A teacher's rows are pivoted into the academic grid's shape once per
        change, not per render — the tone map and home room downstream are
@@ -306,59 +414,113 @@ export function Timetable({
         [teacherSchedule],
     )
 
+    const [view, setView] = useStoredState(VIEW_STORE, 'week', v => VIEWS.includes(v))
+    const [showWeekends, setShowWeekends] = useStoredState(WEEKEND_STORE, true, v => typeof v === 'boolean')
+    const visibleDays = visibleDaysFor(type, showWeekends)
+
     const [internalMonday, setInternalMonday] = useState(() => getThisMonday())
     const currentMonday = controlledMonday ?? internalMonday
-    const [selectedDay, setSelectedDay] = useState(0)
 
     /* -1 when not on the current week — disables today highlight */
     const todayDayIndex = getTodayDayIndex(currentMonday)
+
+    /* Opens on today when today is on screen, so Day view starts where you are. */
+    const [dayIndex, setDayIndex] = useState(() => {
+        const today = getTodayDayIndex(controlledMonday ?? getThisMonday())
+        return today >= 0 ? today : 0
+    })
+    /* Derived, not corrected in an effect: hiding weekends while on Saturday
+       shows Friday, and showing them again goes back to Saturday. */
+    const selectedDay = visibleDays.includes(dayIndex)
+        ? dayIndex
+        : (visibleDays.filter(d => d < dayIndex).pop() ?? visibleDays[0])
+    const anchor = addDays(currentMonday, selectedDay)
+    const now = getNow()
 
     function handleWeekChange(monday) {
         if (!controlledMonday) setInternalMonday(monday)
         if (onWeekChange) onWeekChange(monday)
     }
 
-    return (
-        <div>
-            <div className="tt-legend-row">
-                <WeekPicker currentMonday={currentMonday} onChange={handleWeekChange} />
-                <TimetableLegend type={type} />
-            </div>
+    /* The one way the timetable moves. Lands on a day the grid shows, and only
+       reports a week change when the week actually changed. */
+    function goTo(date) {
+        const target = snapToVisible(startOfDay(date), visibleDays, 1)
+        const monday = mondayOf(target)
+        if (!isSameDay(monday, currentMonday)) handleWeekChange(monday)
+        setDayIndex(dayIndexOf(target))
+    }
 
-            <DayTabs selected={selectedDay} onChange={setSelectedDay} />
+    const move = dir => goTo(step(anchor, view, visibleDays, dir))
+
+    useTimetableShortcuts(shortcuts, {
+        d: () => setView('day'),
+        w: () => setView('week'),
+        a: () => setView('schedule'),
+        t: () => goTo(now),
+        n: () => move(1),  j: () => move(1),
+        p: () => move(-1), k: () => move(-1),
+    })
+
+    const days = view === 'day' ? [selectedDay] : visibleDays
+    const shared = { days, view, monday: currentMonday, selectedDay, todayDayIndex }
+
+    return (
+        <div className="tt-root">
+            <TimetableToolbar
+                view={view}
+                onViewChange={setView}
+                showWeekends={showWeekends}
+                onShowWeekendsChange={setShowWeekends}
+                anchor={anchor}
+                visibleDays={visibleDays}
+                now={now}
+                onStep={move}
+                onToday={() => goTo(now)}
+                onPick={goTo}
+            >
+                <TimetableLegend type={type} />
+            </TimetableToolbar>
+
+            {/* Phones show one day column of the week at a time; these pick it.
+               Not needed in Day view (it is already one day) or the list. */}
+            {view === 'week' && (
+                <DayTabs
+                    selected={selectedDay}
+                    onChange={setDayIndex}
+                    indices={visibleDays}
+                />
+            )}
 
             {type === 'teacher' && teacherPeriods.length === 0 ? (
                 <p className="tt-note">No lessons scheduled for this term yet.</p>
             ) : type === 'teacher' ? (
                 <AcademicTimetable
+                    {...shared}
                     classId={TEACHER_KEY}
                     editable={false}
                     onEditCell={() => {}}
-                    selectedDay={selectedDay}
                     periods={teacherPeriods}
                     schedules={teacherSchedules}
-                    todayDayIndex={todayDayIndex}
                     onMoveSlot={null}
                 />
             ) : type === 'extracurricular' ? (
                 <ExtraTimetable
+                    {...shared}
                     weekKey={weekKey}
                     editable={editable}
                     onEditCell={onEditCell}
-                    selectedDay={selectedDay}
                     slots={slots}
                     schedules={schedules}
-                    todayDayIndex={todayDayIndex}
                 />
             ) : (
                 <AcademicTimetable
+                    {...shared}
                     classId={classId}
                     editable={editable}
                     onEditCell={onEditCell}
-                    selectedDay={selectedDay}
                     periods={periods}
                     schedules={schedules}
-                    todayDayIndex={todayDayIndex}
                     onMoveSlot={onMoveSlot}
                 />
             )}
