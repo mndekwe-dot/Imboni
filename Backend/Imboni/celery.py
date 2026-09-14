@@ -47,6 +47,12 @@ app.conf.beat_schedule = {
         'task': 'apps.audit.tasks.backup_database_task',
         'schedule': crontab(hour=2, minute=0),
     },
+    # Every hour at :30 — log an error while the newest backup is over 24 h old.
+    # Half past, so it never runs while the 02:00 dump is still being written.
+    'check-backup-freshness': {
+        'task': 'apps.audit.tasks.check_backup_freshness_task',
+        'schedule': crontab(minute=30),
+    },
     # Every day at 03:00 — expire past-grace contracts + auto-suspend uncovered schools
     'enforce-contract-lifecycle': {
         'task': 'apps.tenants.tasks.enforce_contract_lifecycle_task',
