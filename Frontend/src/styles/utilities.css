@@ -56,6 +56,20 @@
 
 /* ── Text ───────────────────────────────────────────────────────────────────── */
 .u-muted       { color: var(--muted-foreground); }
+/* A caption-sized quiet line. Lived in discipline.css while 24 files in every
+   portal used it, so outside the discipline portal it did nothing and the
+   library's field hints rendered at full body size. */
+.text-xs-muted { font-size: var(--text-caption); color: var(--muted-foreground); }
+
+/* These four lived in portal stylesheets (teacher.css, dos.css, discipline.css)
+   while the library and finance pages - which load none of them - used them
+   too, so there they did nothing: no gap under the toolbar, a plain grey
+   "overdue" badge, a one-line textarea. One definition, loaded everywhere. */
+.mb-1        { margin-bottom: 1rem; }
+.mb-1-5      { margin-bottom: 1.5rem; }
+.badge-high  { background: var(--destructive); color: white; font-size: var(--text-caption); }
+.textarea-sm { min-height: 72px; resize: vertical; }
+.alert-icon  { font-size: var(--icon-sm); vertical-align: middle; margin-right: 0.4rem; }
 .u-strong      { font-weight: 600; }
 .u-bold        { font-weight: 700; }
 .u-sm          { font-size: var(--text-sm); }

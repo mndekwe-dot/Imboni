@@ -48,7 +48,7 @@ export function DocumentActions({
             {pdf && (
                 <button
                     type="button"
-                    className="btn-secondary btn-sm"
+                    className="btn btn-outline btn-sm"
                     disabled={disabled || busy !== null}
                     onClick={() => run('pdf', () => printPdf(url, params))}
                 >
@@ -59,7 +59,7 @@ export function DocumentActions({
             {csv && (
                 <button
                     type="button"
-                    className="btn-secondary btn-sm"
+                    className="btn btn-outline btn-sm"
                     disabled={disabled || busy !== null}
                     onClick={() => run('csv', () => exportCsv(url, params, stem))}
                 >

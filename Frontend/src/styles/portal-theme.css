@@ -14,7 +14,7 @@
    would have meant ~800 duplicated rules that drift apart on the
    first edit. One file, seven palettes.
 
-   The palettes live in index.css under :root[data-portal="…"];
+   The palette lives in index.css under :root[data-portal] - one for every portal;
    this file only spends them. Anything that differs BETWEEN
    portals must therefore be a token, not a literal — the two
    chrome colours are --chrome-from / --chrome-to.
@@ -367,6 +367,16 @@
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--foreground);
+}
+
+/* A word in place of a figure - see StatCard. Title role, not stat role. */
+[data-portal] .portal-stat-value.is-long { font-size: var(--text-display); }
+
+[data-portal] .portal-stat-value.is-word {
+  font-size: var(--text-title);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0;
 }
 
 [data-portal] .portal-stat-label {

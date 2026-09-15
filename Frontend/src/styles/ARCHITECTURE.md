@@ -22,6 +22,8 @@ answer and you take the answer rather than choosing:
 | Dialog title | `.tt-modal-title`, `.modal-title` | `--text-title` (18) | 700 | as written |
 | Panel title | `.card-title`, `.dt-title` (`DataTable`, `ListSection`) | `--text-body` (15) | 700 | as written |
 | Stat number | `.portal-stat-value` | `--text-stat` (32) | 800 | as written |
+| Stat long figure | `.portal-stat-value.is-long` (10+ characters: `1,490,000 RWF`) | `--text-display` (24) | 800 | as written |
+| Stat word | `.portal-stat-value.is-word` (`Excellent`, not a figure) | `--text-title` (18) | 700 | as written |
 | Body | prose, form values, table cells | `--text-body` (15) | 400 | as written |
 | **Control label** | `.btn`, `.tab-btn`, `.filter-tab`, `.sidebar-nav-item` | `--text-sm` (13) | **600** | as written |
 | Secondary | table cells, meta lines | `--text-sm` (13) | 400–500 | as written |

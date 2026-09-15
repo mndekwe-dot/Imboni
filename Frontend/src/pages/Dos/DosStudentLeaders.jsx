@@ -9,6 +9,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useDormitories } from '../../hooks/useDormitories'
+import { ClassPicker, splitClassLabel } from '../../components/ui/ClassPicker'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { useSessionUser } from '../../hooks/useSessionUser'
@@ -16,7 +17,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { classesFromConfig, classLabel } from '../../utils/classes'
+import { classLabel } from '../../utils/classes'
 import { formatMonthYear } from '../../utils/date'
 
 
@@ -43,8 +44,9 @@ function getRoleTag(role) {
     return 'prefect'
 }
 
-function LeaderFormModal({ leader, onClose, onSave, allClasses }) {
+function LeaderFormModal({ leader, onClose, onSave }) {
     const { t } = useTranslation()
+    const { config } = useSchoolConfig()
     const isEdit = !!leader
     const [type,   setType]   = useState(leader?.type   || 'prefect')
     const [name,   setName]   = useState(leader?.name   || '')
@@ -105,12 +107,9 @@ function LeaderFormModal({ leader, onClose, onSave, allClasses }) {
                         </div>
                     )}
                     <div className="form-row-2">
-                        <div className="form-group">
-                            <label className="form-label">{t('dos.leaders.classForm')}</label>
-                            <select className="form-input" value={form} onChange={e => setForm(e.target.value)}>
-                                {allClasses.map(y => <option key={y}>{y}</option>)}
-                            </select>
-                        </div>
+                        <ClassPicker variant="form" yearLabel={t('dos.leaders.classForm')}
+                            year={splitClassLabel(form, config).grade} classVal={splitClassLabel(form, config).stream}
+                            onChange={({ grade, stream }) => setForm(`${grade}${stream}`)} />
                         <div className="form-group">
                             <label className="form-label">{t('dos.leaders.since')}</label>
                             <input className="form-input" value={since} onChange={e => setSince(e.target.value)} placeholder={t('dos.leaders.sincePlaceholder')} />
@@ -248,7 +247,6 @@ export function DosStudentLeaders() {
     const sessionUser = useSessionUser()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const { config }  = useSchoolConfig()
-    const allClasses  = classesFromConfig(config)
     const [activeTab,      setActiveTab]      = useState('leaders')
     const [prefectList,    setPrefectList]    = useState([])
     const [captainList,    setCaptainList]    = useState([])
@@ -482,7 +480,6 @@ export function DosStudentLeaders() {
                 <LeaderFormModal
                     onClose={() => setShowAppoint(false)}
                     onSave={data => { handleAppoint(data); setShowAppoint(false) }}
-                    allClasses={allClasses}
                 />
             )}
             {editLeader && (
@@ -490,7 +487,6 @@ export function DosStudentLeaders() {
                     leader={{ ...editLeader.data, type: editLeader.type }}
                     onClose={() => setEditLeader(null)}
                     onSave={handleEditSave}
-                    allClasses={allClasses}
                 />
             )}
         </>

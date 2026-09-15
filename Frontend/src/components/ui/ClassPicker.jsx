@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
@@ -18,9 +19,11 @@ import '../../styles/components.css'
  * structure, intersected with the classes that teacher actually teaches. It is
  * not a place to invent a class list.
  *
- * Two variants:
+ * Three variants:
  *   default   three dropdowns and the current selection spelled out
  *   'chips'   one row of class chips, for a page with room for it
+ *   'form'    a year and a stream, for a FORM that records one class (admitting
+ *             a student, moving one, a class representative). See ClassSelect.
  */
 export function ClassPicker({
     sections,
@@ -28,13 +31,24 @@ export function ClassPicker({
     section, onSectionChange, year, onYearChange, classVal, onClassChange,
     // chip mode — pass `classes` (flat string[]) or let it derive from sections
     variant, classes, value, onChange,
+    // form mode: `year` + `classVal` are the value, onChange({ grade, stream })
+    yearLabel, streamLabel, allowAll, yearOnly, disabled,
 }) {
     const { t } = useTranslation()
+    const id = useId()
     /* Called unconditionally — hooks must be. When the page passed its own
        (narrowed) sections we simply do not read this one; `useSchoolConfig`
        caches at module scope, so the extra call costs no extra request. */
     const { config } = useSchoolConfig()
     const source = sections ?? config
+
+    if (variant === 'form') {
+        return (
+            <ClassSelect source={source} grade={year} stream={classVal} onChange={onChange}
+                yearLabel={yearLabel} streamLabel={streamLabel} allowAll={allowAll}
+                yearOnly={yearOnly} disabled={disabled} />
+        )
+    }
 
     // ── Chip variant ──────────────────────────────────────────────────────────
     if (variant === 'chips') {
@@ -70,9 +84,11 @@ export function ClassPicker({
     // ── Dropdown variant ─────────────────────────────────────────────────────
     const activeSection = source.find(s => s.name === section)
 
-    const yearOptions = activeSection
+    // School order, S1 before S4, whichever section the settings list first.
+    const yearOptions = (activeSection
         ? activeSection.years.map(y => y.name)
-        : [...new Set(source.flatMap(s => s.years.map(y => y.name)))]
+        : [...new Set(source.flatMap(s => s.years.map(y => y.name)))])
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
 
     const activeYear = activeSection?.years.find(y => y.name === year)
     const classOptions = activeYear
@@ -97,9 +113,10 @@ export function ClassPicker({
     return (
         <div className="class-picker">
             <div className="class-picker-group">
-                <label className="class-picker-label" htmlFor="class-picker-section">{t('common.section')}</label>
+                <label className="class-picker-label" htmlFor={`${id}-section`}>{t('common.section')}</label>
                 <select
-                    id="class-picker-section"
+                    id={`${id}-section`}
+                    disabled={disabled}
                     className="picker-select"
                     value={section}
                     onChange={e => handleSectionChange(e.target.value)}
@@ -109,9 +126,10 @@ export function ClassPicker({
                 </select>
             </div>
             <div className="class-picker-group">
-                <label className="class-picker-label" htmlFor="class-picker-year">{t('common.year')}</label>
+                <label className="class-picker-label" htmlFor={`${id}-year`}>{t('common.year')}</label>
                 <select
-                    id="class-picker-year"
+                    id={`${id}-year`}
+                    disabled={disabled}
                     className="picker-select"
                     value={year}
                     onChange={e => handleYearChange(e.target.value)}
@@ -121,9 +139,10 @@ export function ClassPicker({
                 </select>
             </div>
             <div className="class-picker-group">
-                <label className="class-picker-label" htmlFor="class-picker-class">{t('common.class')}</label>
+                <label className="class-picker-label" htmlFor={`${id}-class`}>{t('common.class')}</label>
                 <select
-                    id="class-picker-class"
+                    id={`${id}-class`}
+                    disabled={disabled}
                     className="picker-select"
                     value={classVal}
                     onChange={e => onClassChange(e.target.value)}
@@ -135,4 +154,64 @@ export function ClassPicker({
             <span className="class-picker-current">{current}</span>
         </div>
     )
+}
+
+
+/**
+ * Year, then a stream of THAT year - for recording which one class something is.
+ *
+ * The forms that did this by hand listed every stream in the school under any
+ * year, so S1 could be given the A-Level combination "MPC", and a class-rep form
+ * offered classes the school does not have.
+ *
+ *   allowAll   an "all years" choice (a request sent to the whole school)
+ *   yearOnly   no stream dropdown (something that belongs to a year group)
+ *   disabled   read-only forms
+ */
+function ClassSelect({ source, grade = '', stream = '', onChange, allowAll = false, yearOnly = false,
+    disabled = false, yearLabel, streamLabel }) {
+    const { t } = useTranslation()
+    const id = useId()
+    const years = [...new Set(source.flatMap(s => (s.years || []).map(y => y.name)))]
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    const streams = [...new Set(source.flatMap(s => (s.years || [])
+        .filter(y => y.name === grade).flatMap(y => y.streams || [])))]
+
+    return (
+        <div className="class-select">
+            <div className="form-group">
+                <label className="form-label" htmlFor={`${id}-year`}>{yearLabel || t('common.year')}</label>
+                <select id={`${id}-year`} className="form-select" value={grade} disabled={disabled}
+                    onChange={e => {
+                        const next = e.target.value
+                        const nextStreams = source.flatMap(s => (s.years || [])
+                            .filter(y => y.name === next).flatMap(y => y.streams || []))
+                        // A stream that exists in the new year is kept; otherwise the first one.
+                        onChange({ grade: next, stream: yearOnly || !next ? '' : (nextStreams.includes(stream) ? stream : nextStreams[0] || '') })
+                    }}>
+                    {(allowAll || !grade) && <option value="">{allowAll ? t('common.allYears') : '—'}</option>}
+                    {years.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+            </div>
+            {!yearOnly && (
+                <div className="form-group">
+                    <label className="form-label" htmlFor={`${id}-stream`}>{streamLabel || t('common.stream')}</label>
+                    <select id={`${id}-stream`} className="form-select" value={stream}
+                        disabled={disabled || !grade || streams.length === 0}
+                        onChange={e => onChange({ grade, stream: e.target.value })}>
+                        {streams.length === 0 && <option value="">—</option>}
+                        {streams.map(s => <option key={s} value={s}>{grade}{s}</option>)}
+                    </select>
+                </div>
+            )}
+        </div>
+    )
+}
+
+/** Split a class label ("S5MPC") into { grade, stream } against the school's years. */
+export function splitClassLabel(label, config) {
+    const years = (config || []).flatMap(s => (s.years || []).map(y => y.name))
+        .sort((a, b) => b.length - a.length)
+    const grade = years.find(y => (label || '').startsWith(y)) || ''
+    return { grade, stream: grade ? label.slice(grade.length) : '' }
 }

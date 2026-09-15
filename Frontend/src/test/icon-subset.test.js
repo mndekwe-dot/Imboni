@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, statSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { join } from 'node:path'
 import { collectIconNames } from '../../scripts/fetch-fonts.mjs'
 
@@ -26,6 +27,14 @@ describe('material symbols subset', () => {
     it('ships a manifest and a font file', () => {
         expect(manifest.icons.length).toBeGreaterThan(100)
         expect(statSync(join(ROOT, 'public/fonts/material-symbols-subset.woff2')).size).toBeGreaterThan(1000)
+    })
+
+    /* The manifest is only a promise about the font. Committing one without the
+       other left nine icons listed here and absent from the woff2, and the
+       check below still passed while they rendered as their own names. */
+    it('ships the font the manifest was written for', () => {
+        const font = readFileSync(join(ROOT, 'public/fonts/material-symbols-subset.woff2'))
+        expect(createHash('sha256').update(font).digest('hex')).toBe(manifest.fontSha256)
     })
 
     /* 30s, not the default 5s: this walks and reads every file under src/ from

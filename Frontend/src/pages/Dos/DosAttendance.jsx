@@ -24,6 +24,7 @@ import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { sectionsFromClasses } from '../../utils/classes'
 import { formatDate } from '../../utils/date'
 import { PaginationBar } from '../../components/ui/PaginationBar'
+import { RegisterDatePicker } from '../../components/attendance/RegisterDatePicker'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
@@ -116,16 +117,7 @@ function StudentAttendanceTab({ sections }) {
             />
 
             <div className="toolbar-card att-toolbar">
-                <label className="att-week-label">
-                    {t('dos.attendance.weekOf')}
-                </label>
-                <input
-                    type="date"
-                    className="input input-auto select-xs"
-                    value={weekOf}
-                    max={todayISO()}
-                    onChange={e => setWeekOf(e.target.value)}
-                />
+                <RegisterDatePicker unit="week" value={weekOf} onChange={setWeekOf} />
             </div>
 
             <div className="card mt-1-5">
@@ -291,16 +283,7 @@ function TeacherAttendanceTab() {
     return (
         <>
             <div className="toolbar-card att-toolbar">
-                <label className="att-week-label">
-                    {t('dos.attendance.weekOf')}
-                </label>
-                <input
-                    type="date"
-                    className="input input-auto select-xs"
-                    value={weekOf}
-                    max={todayISO()}
-                    onChange={e => setWeekOf(e.target.value)}
-                />
+                <RegisterDatePicker unit="week" value={weekOf} onChange={setWeekOf} />
                 <div className="u-flex-1" />
                 <button className="btn btn-primary select-xs" onClick={handleSave} disabled={saving || loading || teachers.length === 0}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>

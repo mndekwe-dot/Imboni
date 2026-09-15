@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
@@ -8,6 +8,9 @@ import { FilterBar } from '../../components/ui/FilterBar'
 import { Modal } from '../../components/ui/Modal'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { StatCard } from '../../components/layout/StatCard'
+import { ClassPicker, splitClassLabel } from '../../components/ui/ClassPicker'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
+import { sectionsFromClasses } from '../../utils/classes'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -142,7 +145,7 @@ function GradeModal({ assignment, onClose }) {
                 <p className="u-muted">{t('teacher.assignments.noStudentsIn', { class: assignment.class_name })}</p>
             ) : (
                 <div className="table-responsive">
-                    <table>
+                    <table className="data-table">
                         <thead>
                             <tr>
                                 <th>{t('common.student')}</th>
@@ -209,7 +212,7 @@ function SubmissionsModal({ assignment, onClose, onReview }) {
                 <p className="u-muted">{t('teacher.assignments.noSubmissions')}</p>
             ) : (
                 <div className="table-responsive">
-                    <table>
+                    <table className="data-table">
                         <thead>
                             <tr>
                                 <th>{t('common.student')}</th>
@@ -314,6 +317,12 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                             {t('teacher.assignments.shuffledChip')}
                         </span>
                     )}
+                    {a.mode === 'paper' && a.submission_method === 'upload' && (
+                        <span className="asgn-chip shuffled">{t('teacher.assignments.uploadChip')}</span>
+                    )}
+                    {a.mode === 'online' && a.allow_backtracking === false && (
+                        <span className="asgn-chip shuffled">{t('teacher.assignments.noBackChip')}</span>
+                    )}
                 </div>
                 <div className="asgn-actions">
                     {a.status === 'draft' && (
@@ -385,38 +394,6 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
     )
 }
 
-// ── Class filter dropdown ─────────────────────────────────────────────────────
-
-function ClassDropdown({ value, onChange, options }) {
-    const { t } = useTranslation()
-    const [open, setOpen] = useState(false)
-    const ref = useRef(null)
-    useEffect(() => {
-        function h(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
-        document.addEventListener('mousedown', h)
-        return () => document.removeEventListener('mousedown', h)
-    }, [])
-    return (
-        <div ref={ref} className="class-dd-wrap">
-            <button className="btn btn-outline class-dd-btn" onClick={() => setOpen(o => !o)}>
-                <span className="material-symbols-rounded icon-md" aria-hidden="true">class</span>
-                {value === 'all' ? t('common.allClasses') : value}
-                <span className="material-symbols-rounded icon-md ml-auto" aria-hidden="true">{open ? 'expand_less' : 'expand_more'}</span>
-            </button>
-            {open && (
-                <div className="class-dd-menu">
-                    {[{ key: 'all', label: t('common.allClasses') }, ...options.map(o => ({ key: o, label: o }))].map(item => (
-                        <button key={item.key} onClick={() => { onChange(item.key); setOpen(false) }}
-                            className={`class-dd-opt${value === item.key ? ' active' : ''}`}>
-                            {item.label}
-                        </button>
-                    ))}
-                </div>
-            )}
-        </div>
-    )
-}
-
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function TeacherAssignments() {
@@ -428,7 +405,10 @@ export function TeacherAssignments() {
     const [loading,      setLoading]      = useState(true)
     const [loadError,    setLoadError]    = useState(null)
     const [statusFilter, setStatusFilter] = useState('all')
-    const [classFilter,  setClassFilter]  = useState('all')
+    const [section,      setSection]      = useState('')
+    const [year,         setYear]         = useState('')
+    const [classVal,     setClassVal]     = useState('')
+    const { config } = useSchoolConfig()
     const [publishing,   setPublishing]   = useState(null)
     const [viewSubs,     setViewSubs]     = useState(null)   // assignment to view submissions for
     const [grading,      setGrading]      = useState(null)   // paper assignment being graded
@@ -451,7 +431,15 @@ export function TeacherAssignments() {
             .finally(() => setLoading(false))
     }, [t])
 
-    const classNames = [...new Set(assignments.map(a => a.class_name).filter(Boolean))]
+    // The picker offers only the classes this teacher has set work for, laid
+    // out in the school's own sections and years.
+    const classKey = [...new Set(assignments.map(a => a.class_name).filter(Boolean))].join('|')
+    const sections = useMemo(() => sectionsFromClasses(classKey.split('|').filter(Boolean).map(name => {
+        const { grade, stream } = splitClassLabel(name, config)
+        return { grade: grade || name, section: stream }
+    }), config), [classKey, config])
+    const classFiltered = Boolean(section || year || classVal)
+    const classLabel = [section, year, classVal].filter(Boolean).join(' · ')
     const statusTabs = STATUS_TABS.map(tab => ({
         ...tab,
         label: t(tab.labelKey),
@@ -460,7 +448,13 @@ export function TeacherAssignments() {
 
     const visible = assignments.filter(a => {
         if (statusFilter !== 'all' && a.status !== statusFilter)   return false
-        if (classFilter  !== 'all' && a.class_name !== classFilter) return false
+        if (classFiltered) {
+            const { grade, stream } = splitClassLabel(a.class_name, config)
+            const sec = sections.find(s => s.years.some(y => y.name === (grade || a.class_name)))
+            if (section && sec?.name !== section) return false
+            if (year && grade !== year) return false
+            if (classVal && stream !== classVal) return false
+        }
         return true
     })
 
@@ -494,6 +488,8 @@ export function TeacherAssignments() {
                 questions:          a.questions || [],
                 time_limit_minutes: a.time_limit_minutes || null,
                 shuffle_questions:  a.shuffle_questions || false,
+                submission_method:  a.submission_method || 'in_person',
+                allow_backtracking: a.allow_backtracking ?? true,
             })
             setAssignments(prev => [created, ...prev])
         } catch { /* silent */ }
@@ -575,6 +571,13 @@ export function TeacherAssignments() {
                             </div>
                         )}
 
+                        <ClassPicker
+                            sections={sections}
+                            section={section}   onSectionChange={setSection}
+                            year={year}         onYearChange={setYear}
+                            classVal={classVal} onClassChange={setClassVal}
+                        />
+
                         <div className="portal-stat-grid mb-1-5">
                             {[
                                 { icon: 'assignment',   value: assignments.length,                                    label: t('teacher.assignments.statTotal'),         colorClass: ''        },
@@ -587,7 +590,6 @@ export function TeacherAssignments() {
                         <div className="asgn-toolbar">
                             <FilterBar options={statusTabs} active={statusFilter} onChange={setStatusFilter} />
                             <div className="asgn-toolbar-right">
-                                <ClassDropdown value={classFilter} onChange={setClassFilter} options={classNames} />
                                 <button className="btn btn-primary whitespace-nowrap"
                                     onClick={() => navigate('/teacher/assignments/new')}>
                                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
@@ -603,7 +605,7 @@ export function TeacherAssignments() {
                                 <div className="asgn-list-header">
                                     <span className="asgn-list-count">{t('teacher.assignments.assignmentCount', { count: visible.length })}</span>
                                     <span className="asgn-list-filter">
-                                        {classFilter !== 'all' ? classFilter : t('common.allClasses')}
+                                        {classFiltered ? classLabel : t('common.allClasses')}
                                         {' · '}
                                         {statusFilter !== 'all' ? t(STATUS_LABEL_KEYS[statusFilter]) : t('common.all')}
                                     </span>
@@ -632,17 +634,17 @@ export function TeacherAssignments() {
                         ) : (
                             <EmptyState
                                 icon={statusFilter === 'draft' ? 'draft' : 'assignment'}
-                                title={statusFilter === 'all' && classFilter === 'all'
+                                title={statusFilter === 'all' && !classFiltered
                                     ? t('teacher.assignments.noAssignments')
                                     : t('teacher.assignments.noMatching')}
-                                description={statusFilter !== 'all' || classFilter !== 'all'
+                                description={statusFilter !== 'all' || classFiltered
                                     ? t('teacher.assignments.tryClearing')
                                     : t('teacher.assignments.getStarted')}
-                                secondAction={statusFilter !== 'all' || classFilter !== 'all' ? {
+                                secondAction={statusFilter !== 'all' || classFiltered ? {
                                     label: t('common.clearFilters'), icon: 'filter_alt_off',
-                                    onClick: () => { setStatusFilter('all'); setClassFilter('all') },
+                                    onClick: () => { setStatusFilter('all'); setSection(''); setYear(''); setClassVal('') },
                                 } : undefined}
-                                action={statusFilter === 'all' && classFilter === 'all' ? {
+                                action={statusFilter === 'all' && !classFiltered ? {
                                     label: t('teacher.assignments.newAssignment'), icon: 'add',
                                     onClick: () => navigate('/teacher/assignments/new'),
                                 } : undefined}

@@ -3,11 +3,7 @@
    Identity colour: Indigo #4f46e5
    =============================================== */
 
-:root {
-  --discipline:        #4f46e5;
-  --discipline-hover:  #4338ca;
-  --discipline-light:  rgba(79,70,229,0.1);
-}
+/* Portal colour tokens live in index.css: one palette for every portal. */
 
 /* ── Avatar ── */
 .sidebar-user-avatar.discipline-av {
@@ -313,7 +309,6 @@
 
 /* ── Utility ── */
 .mt-1-5  { margin-top: 1.5rem; }
-.mb-1-5  { margin-bottom: 1.5rem; }
 
 /* ══════════════════════════════════════
    BOARDING — House blocks & class accordion
@@ -736,7 +731,6 @@
 .mb-3 { margin-bottom: 0.75rem; }
 
 .text-sm-muted  { font-size: var(--text-sm);  color: var(--muted-foreground); }
-.text-xs-muted  { font-size: var(--text-caption); color: var(--muted-foreground); }
 .remove-confirm-text { font-size: var(--text-sm); color: var(--muted-foreground); }
 
 /* The activity list card was a second copy of the DataTable frame at a

@@ -1,80 +1,59 @@
-import { useTranslation } from 'react-i18next'
+import { useRef, useState } from 'react'
 
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import '../../styles/components.css'
+import { ClassPicker } from './ClassPicker'
 
 /**
- * Narrow a list to a year group and, optionally, one class within it.
+ * Narrow a list to a section, a year group and, optionally, one class.
  *
- * A filter, not a picker. `ClassPicker` is for CHOOSING the one class a thing
- * belongs to and insists on a complete answer; this is for narrowing a list you
- * are already looking at, so every level has an "all" and leaving it alone
- * means everything. Wiring ClassPicker into a debtor list would force the
- * bursar to pick a stream before seeing anybody.
+ * The same Section / Year / Class card the teacher pages use, so every portal
+ * filters by class the same way. The card stands on its own row above the
+ * toolbar; squeezed into a toolbar next to a search box it was the bare
+ * "All Classes" dropdown nobody recognised as a filter.
  *
- * Options come from the school's own structure via `useSchoolConfig`, the same
- * single source ClassPicker reads, so a filter can never offer a year the
- * school does not teach.
- *
- * NOTE the naming. This emits `grade` (S1..S6) and `stream` (A, B, MPG), which
- * is what the API filters on. The school "section" (O-Level / A-Level) is only
- * used here to narrow which years are offered -- the backend's
- * `Student.section` field holds the STREAM, and passing a section name into it
- * would filter every pupil by the string 'O-Level' and return nothing.
+ * A filter, not a picker: every level has an "all", and leaving it alone means
+ * everything. The page receives `{ grade, stream }`, which is what the API
+ * filters on:
+ *   grade   one year ('S4'), or every year of the chosen section ('S4,S5,S6')
+ *           when a section is picked without a year, so choosing "A-Level"
+ *           actually narrows the list instead of only changing the label
+ *   stream  the class within the year (A, B, MPG). The backend's
+ *           `Student.section` field holds the STREAM; a section name passed
+ *           into it would filter every pupil by 'O-Level' and return nothing.
  */
 export function ClassFilter({ grade, stream, onChange, disabled = false }) {
-    const { t } = useTranslation()
     const { config } = useSchoolConfig()
+    const [section, setSection] = useState('')
+    // ClassPicker resets the year and the class one callback after another.
+    // Each reset builds on the previous one within the same event, rather than
+    // on the props of the render that started it, or the second call would put
+    // the old year back.
+    const pending = useRef(null)
 
-    const years = [...new Set((config || []).flatMap(s => (s.years || []).map(y => y.name)))]
-    const streams = grade
-        ? [...new Set((config || [])
-            .flatMap(s => (s.years || []).filter(y => y.name === grade)
-                .flatMap(y => y.streams || [])))]
-        : []
+    const year = grade && !grade.includes(',') ? grade : ''
 
-    function pickGrade(value) {
-        // Changing the year clears the stream: 'S1' + 'MPG' is a combination
-        // that exists in neither the school nor the data, and leaving a stale
-        // stream behind silently returns nothing.
-        onChange({ grade: value, stream: '' })
+    function yearsOf(name) {
+        const found = (config || []).find(s => s.name === name)
+        return (found?.years || []).map(y => y.name).join(',')
+    }
+
+    function emit(patch) {
+        const next = { section, year, stream: stream || '', ...pending.current, ...patch }
+        pending.current = next
+        queueMicrotask(() => { pending.current = null })
+        onChange({
+            grade: next.year || (next.section ? yearsOf(next.section) : ''),
+            stream: next.stream,
+        })
     }
 
     return (
-        <div className="class-filter" role="group" aria-label={t('common.filterByClass')}>
-            <select
-                className="form-input class-filter-select"
-                value={grade || ''}
-                onChange={e => pickGrade(e.target.value)}
-                disabled={disabled}
-                aria-label={t('common.year')}
-            >
-                <option value="">{t('common.allClasses')}</option>
-                {years.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-
-            {grade && streams.length > 0 && (
-                <select
-                    className="form-input class-filter-select"
-                    value={stream || ''}
-                    onChange={e => onChange({ grade, stream: e.target.value })}
-                    disabled={disabled}
-                    aria-label={t('common.stream')}
-                >
-                    <option value="">{t('common.allStreams')}</option>
-                    {streams.map(s => <option key={s} value={s}>{grade}{s}</option>)}
-                </select>
-            )}
-
-            {(grade || stream) && (
-                <button
-                    type="button"
-                    className="btn-ghost btn-sm"
-                    onClick={() => onChange({ grade: '', stream: '' })}
-                >
-                    {t('common.clear')}
-                </button>
-            )}
-        </div>
+        <ClassPicker
+            section={section}
+            onSectionChange={value => { setSection(value); emit({ section: value }) }}
+            year={year} onYearChange={value => emit({ year: value, stream: '' })}
+            classVal={stream || ''} onClassChange={value => emit({ stream: value })}
+            disabled={disabled}
+        />
     )
 }

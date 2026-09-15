@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import '../../styles/components.css'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { classesFromConfig } from '../../utils/classes'
+import { ClassPicker, splitClassLabel } from '../ui/ClassPicker'
 import { useDormitories } from '../../hooks/useDormitories'
 import { useTranslation } from 'react-i18next'
 
@@ -19,7 +19,6 @@ const STATUSES = [
 export function AdminStudentModal({ student, onClose, onSave, readOnly = false }) {
     const { t } = useTranslation()
     const { config } = useSchoolConfig()
-    const allClasses = classesFromConfig(config)
     // The school's own dormitories, not a fixed four hardcoded here.
     const dormitories = useDormitories()
     const isEditing = !!student
@@ -103,12 +102,10 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
                         </div>
                     </div>
                     <div className="form-row-2">
-                        <div className="form-group">
-                            <label className="form-label">{t('common.class')}</label>
-                            <select className="form-input" name="class" value={form.class} onChange={handleChange} disabled={readOnly}>
-                                {allClasses.map(c => <option key={c}>{c}</option>)}
-                            </select>
-                        </div>
+                        <ClassPicker variant="form" disabled={readOnly}
+                            year={splitClassLabel(form.class, config).grade}
+                            classVal={splitClassLabel(form.class, config).stream}
+                            onChange={({ grade, stream }) => setForm(f => ({ ...f, class: `${grade}${stream}` }))} />
                         <div className="form-group">
                             <label className="form-label">{t('modals.student.houseDormitory')}</label>
                             <select className="form-input" name="house" value={form.house} onChange={handleChange} disabled={readOnly}>

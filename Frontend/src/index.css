@@ -519,66 +519,17 @@ table,
   --card-padding: var(--space-5);
 }
 
-/* ── Per portal ──────────────────────────────────────────────
-   Primaries are chosen, not generated: each keeps the family the
-   portal already had, dark enough to carry white text (all >=5.3:1
-   on white; the old teacher, student and matron accents sat at
-   3.7, 3.7 and 4.2 and could not). Admin and discipline used to be
-   the SAME indigo and parent sat 2 degrees from DOS, so those two
-   moved - they had no distinct identity to protect. The remaining
-   tokens are derived from each primary using DOS's own offsets in
-   OKLCH, which is why DOS comes out byte-identical to the pilot.
+/* ── One palette for every portal ─────────────────────────────
+   Each portal used to carry its own hue - emerald student, cyan
+   teacher, violet parent, magenta matron, ochre library, green
+   finance - over the same navy sidebar and header, so the same
+   school read as nine different products. Every portal now takes
+   the blue the chrome already used (the DOS pilot palette).
 
-   Closest pair is now dE 9.5 (teacher/DOS). It was 0.0. */
-
-/* Student  — emerald */
-:root[data-portal="student"] {
-  --primary:               #047857;
-  --primary-hover:         #205e44;
-  --primary-surface:       #d4e8dd;
-  --primary-text:          #1a5e43;
-  --primary-light:         #e4f1ea;
-  --background:            #e9f0ec;
-  --content-bg:            #e9f0ec;
-  --surface-2:             #f4f8f6;
-  --surface-3:             #e2ece7;
-  --border:                #c3d5cd;
-  --border-hover:          #a8c0b5;
-  --secondary:             #edf3f1;
-  --secondary-hover:       #e1ebe7;
-  --muted:                 #f1f6f4;
-  --muted-hover:           #e8f0ec;
-  --scrollbar-thumb:       #cbdbd4;
-  --scrollbar-thumb-hover: #acc1b7;
-  --portal-accent:         #047857;
-  --portal-accent-light:   #e4f1ea;
-}
-
-/* Teacher  — cyan */
-:root[data-portal="teacher"] {
-  --primary:               #0e7490;
-  --primary-hover:         #1d5d6e;
-  --primary-surface:       #d2e6ed;
-  --primary-text:          #185d6f;
-  --primary-light:         #e3eff4;
-  --background:            #e9f0f2;
-  --content-bg:            #e9f0f2;
-  --surface-2:             #f4f7f9;
-  --surface-3:             #e2ebef;
-  --border:                #c3d3da;
-  --border-hover:          #a8bdc6;
-  --secondary:             #edf3f5;
-  --secondary-hover:       #e1eaee;
-  --muted:                 #f1f6f8;
-  --muted-hover:           #e8eff2;
-  --scrollbar-thumb:       #cbdae0;
-  --scrollbar-thumb-hover: #acbfc7;
-  --portal-accent:         #0e7490;
-  --portal-accent-light:   #e3eff4;
-}
-
-/* DOS      — blue (the pilot; unchanged) */
-:root[data-portal="dos"] {
+   The portal-named tokens older stylesheets still spend (--student,
+   --teacher, --admin, --parent, --matron, --discipline) are aliases
+   of it, so nothing downstream can bring a second hue back. */
+:root[data-portal] {
   --primary:               #1657a0;
   --primary-hover:         #114576;
   --primary-surface:       #d3e4f8;
@@ -598,148 +549,25 @@ table,
   --scrollbar-thumb-hover: #adbdd2;
   --portal-accent:         #1657a0;
   --portal-accent-light:   #e4eefb;
-}
 
-/* Admin    — indigo (unchanged) */
-:root[data-portal="admin"] {
-  --primary:               #4f46e5;
-  --primary-hover:         #3841ad;
-  --primary-surface:       #d9e1ff;
-  --primary-text:          #393eb0;
-  --primary-light:         #e8ecff;
-  --background:            #eaeefc;
-  --content-bg:            #eaeefc;
-  --surface-2:             #f5f6fe;
-  --surface-3:             #e4e8fc;
-  --border:                #c8cdf1;
-  --border-hover:          #aeb6e4;
-  --secondary:             #eff1fc;
-  --secondary-hover:       #e4e7fb;
-  --muted:                 #f3f4fe;
-  --muted-hover:           #eaecfc;
-  --scrollbar-thumb:       #cfd5f4;
-  --scrollbar-thumb-hover: #b1b9e2;
-  --portal-accent:         #4f46e5;
-  --portal-accent-light:   #e8ecff;
-}
-
-/* Parent   — violet */
-:root[data-portal="parent"] {
-  --primary:               #5b21b6;
-  --primary-hover:         #3f2286;
-  --primary-surface:       #e1ddff;
-  --primary-text:          #401e88;
-  --primary-light:         #edeaff;
-  --background:            #eeedfa;
-  --content-bg:            #eeedfa;
-  --surface-2:             #f7f6fd;
-  --surface-3:             #e9e7f9;
-  --border:                #d1cbeb;
-  --border-hover:          #bab3dd;
-  --secondary:             #f2f0fb;
-  --secondary-hover:       #e9e6f7;
-  --muted:                 #f6f3fc;
-  --muted-hover:           #eeebfa;
-  --scrollbar-thumb:       #d7d2f0;
-  --scrollbar-thumb-hover: #bcb5dc;
-  --portal-accent:         #5b21b6;
-  --portal-accent-light:   #edeaff;
-}
-
-/* Matron   — magenta */
-:root[data-portal="matron"] {
-  --primary:               #a21caf;
-  --primary-hover:         #7a298b;
-  --primary-surface:       #f4d7f9;
-  --primary-text:          #7c248b;
-  --primary-light:         #f9e6fa;
-  --background:            #f5eaf6;
-  --content-bg:            #f5eaf6;
-  --surface-2:             #fbf4fb;
-  --surface-3:             #f2e3f4;
-  --border:                #e1c5e1;
-  --border-hover:          #ceacd1;
-  --secondary:             #f8eef7;
-  --secondary-hover:       #f2e3f2;
-  --muted:                 #faf2f9;
-  --muted-hover:           #f5e9f6;
-  --scrollbar-thumb:       #e6cee7;
-  --scrollbar-thumb-hover: #cfafd1;
-  --portal-accent:         #a21caf;
-  --portal-accent-light:   #f9e6fa;
-}
-
-/* Discipline — slate */
-:root[data-portal="discipline"] {
-  --primary:               #475569;
-  --primary-hover:         #36414f;
-  --primary-surface:       #dee2e8;
-  --primary-text:          #35414f;
-  --primary-light:         #eaedf1;
-  --background:            #edeef0;
-  --content-bg:            #edeef0;
-  --surface-2:             #f6f7f8;
-  --surface-3:             #e7e9ec;
-  --border:                #cdd0d5;
-  --border-hover:          #b5bac0;
-  --secondary:             #f1f2f3;
-  --secondary-hover:       #e7e8eb;
-  --muted:                 #f4f5f6;
-  --muted-hover:           #ecedf0;
-  --scrollbar-thumb:       #d4d7dc;
-  --scrollbar-thumb-hover: #b8bcc2;
-  --portal-accent:         #475569;
-  --portal-accent-light:   #eaedf1;
-}
-
-/* Library — warm ochre. The seven portals had taken the cool half of the wheel
-   and slate; a reading room is the one place in a school that is meant to feel
-   warm, and it is also the fastest way to know which portal you are in. */
-:root[data-portal="library"] {
-  --primary:               #a1621b;
-  --primary-hover:         #834f14;
-  --primary-surface:       #f6e6d0;
-  --primary-text:          #7a4a13;
-  --primary-light:         #fbf2e6;
-  --background:            #faf5ee;
-  --content-bg:            #faf5ee;
-  --surface-2:             #fffaf3;
-  --surface-3:             #f3e9db;
-  --border:                #e4d7c4;
-  --border-hover:          #d2c0a6;
-  --secondary:             #f7f1e8;
-  --secondary-hover:       #efe6d8;
-  --muted:                 #f8f3ec;
-  --muted-hover:           #f0e8dc;
-  --scrollbar-thumb:       #ddcfba;
-  --scrollbar-thumb-hover: #c6b498;
-  --portal-accent:         #a1621b;
-  --portal-accent-light:   #fbf2e6;
-}
-
-/* Finance — deep green. Money, and the one portal whose colour should read as
-   steady rather than energetic; the library's ochre is next to it in warmth,
-   so the two Premium portals do not look like the same one. */
-:root[data-portal="finance"] {
-  --primary:               #14715a;
-  --primary-hover:         #0f5a48;
-  --primary-surface:       #d3ece4;
-  --primary-text:          #0e5644;
-  --primary-light:         #e9f6f1;
-  --background:            #eef5f2;
-  --content-bg:            #eef5f2;
-  --surface-2:             #f7fbf9;
-  --surface-3:             #e3efea;
-  --border:                #c8ded6;
-  --border-hover:          #a9c8bd;
-  --secondary:             #eff5f3;
-  --secondary-hover:       #e3edea;
-  --muted:                 #f2f7f5;
-  --muted-hover:           #e8f1ee;
-  --scrollbar-thumb:       #c4dbd3;
-  --scrollbar-thumb-hover: #a2c2b6;
-  --portal-accent:         #14715a;
-  --portal-accent-light:   #e9f6f1;
+  --student:           var(--primary);
+  --student-hover:     var(--primary-hover);
+  --student-light:     var(--primary-light);
+  --teacher:           var(--primary);
+  --teacher-hover:     var(--primary-hover);
+  --teacher-light:     var(--primary-light);
+  --teacher-mid:       var(--primary-surface);
+  --admin:             var(--primary);
+  --admin-hover:       var(--primary-hover);
+  --admin-light:       var(--primary-light);
+  --parent:            var(--primary);
+  --parent-light:      var(--primary-light);
+  --matron:            var(--primary);
+  --matron-hover:      var(--primary-hover);
+  --matron-light:      var(--primary-light);
+  --discipline:        var(--primary);
+  --discipline-hover:  var(--primary-hover);
+  --discipline-light:  var(--primary-light);
 }
 
 /* ===============================================

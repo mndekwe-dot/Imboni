@@ -9,8 +9,8 @@ import { EditActivityModal } from '../../components/modals/EditActivityModal'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
-import { useSchoolConfig } from '../../hooks/useSchoolConfig'
-import { yearsFromConfig, yearLabel } from '../../utils/classes'
+import { yearLabel } from '../../utils/classes'
+import { ClassPicker } from '../../components/ui/ClassPicker'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { getDisActivities, createDisActivity, getConsentRequests, createConsentRequest } from '../../api/discipline'
 import '../../styles/layout.css'
@@ -79,8 +79,6 @@ function ActivityCard({ activity, onEdit }) {
 
 function ConsentRequestsPanel() {
     const { t } = useTranslation()
-    const { config } = useSchoolConfig()
-    const years = yearsFromConfig(config)
 
     const [requests, setRequests] = useState([])
     const [loading, setLoading]   = useState(true)
@@ -161,14 +159,9 @@ function ConsentRequestsPanel() {
                             <input id="cr-deadline" type="date" className="form-input"
                                 value={form.response_deadline} onChange={e => setForm(f => ({ ...f, response_deadline: e.target.value }))} />
                         </div>
-                        <div>
-                            <label className="form-label" htmlFor="cr-grade">{t('dis.activities.gradeLabel')}</label>
-                            <select id="cr-grade" className="form-select" value={form.grade}
-                                onChange={e => setForm(f => ({ ...f, grade: e.target.value }))}>
-                                <option value="">{t('dis.activities.allGrades')}</option>
-                                {years.map(y => <option key={y} value={y}>{y}</option>)}
-                            </select>
-                        </div>
+                        <ClassPicker variant="form" yearOnly allowAll year={form.grade}
+                            yearLabel={t('dis.activities.gradeLabel')}
+                            onChange={({ grade }) => setForm(f => ({ ...f, grade }))} />
                         <div className="cr-actions">
                             <button className="btn btn-primary btn-sm" onClick={handleCreate} disabled={saving}>
                                 {saving ? t('dis.activities.sendingButton') : t('dis.activities.sendButton')}
