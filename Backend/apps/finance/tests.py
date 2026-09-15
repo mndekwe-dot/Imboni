@@ -207,7 +207,7 @@ class TestInvoicing:
             StudentFactory(grade='S4', section='A', status='active')
         StudentFactory(grade='S5', section='A', status='active')
         structure = FeeStructure.objects.create(
-            term=term, grade='S4', section='A', category='tuition',
+            term=term, classes=[{'grade': 'S4', 'stream': 'A'}], category='tuition',
             amount=Decimal('85000.00'), due_date=timezone.localdate() + timedelta(days=14),
         )
 
@@ -220,7 +220,7 @@ class TestInvoicing:
         """The natural response to "did that work?" is to click it again."""
         StudentFactory(grade='S4', section='A', status='active')
         structure = FeeStructure.objects.create(
-            term=term, grade='S4', section='A', category='tuition',
+            term=term, classes=[{'grade': 'S4', 'stream': 'A'}], category='tuition',
             amount=Decimal('85000.00'), due_date=timezone.localdate(),
         )
         services.invoice_from_structure(structure)
@@ -237,7 +237,7 @@ class TestInvoicing:
         student = StudentFactory(grade='S4', section='A', status='active')
         StudentAccount.objects.create(student=student, bursary_percent=Decimal('25.00'))
         structure = FeeStructure.objects.create(
-            term=term, grade='S4', section='A', category='tuition',
+            term=term, classes=[{'grade': 'S4', 'stream': 'A'}], category='tuition',
             amount=Decimal('80000.00'), due_date=timezone.localdate(),
         )
 
@@ -249,7 +249,7 @@ class TestInvoicing:
     def test_an_overdue_due_date_is_billed_as_overdue(self, term):
         StudentFactory(grade='S4', status='active')
         structure = FeeStructure.objects.create(
-            term=term, grade='S4', category='lunch', amount=Decimal('10000'),
+            term=term, classes=[{'grade': 'S4', 'stream': ''}], category='lunch', amount=Decimal('10000'),
             due_date=timezone.localdate() - timedelta(days=1),
         )
 
@@ -294,7 +294,7 @@ class TestBalances:
 @pytest.mark.django_db
 class TestExpenses:
     def test_the_office_records_and_the_head_approves(self, api_client):
-        category = ExpenseCategory.objects.create(name='Utilities')
+        category = ExpenseCategory.objects.get_or_create(name='Utilities')[0]
         bursar = UserFactory(role='bursar')
         api_client.force_authenticate(bursar)
 
@@ -401,7 +401,7 @@ class TestEndpoints:
         for _ in range(2):
             StudentFactory(grade='S3', section='B', status='active')
         structure = FeeStructure.objects.create(
-            term=term, grade='S3', section='B', category='tuition',
+            term=term, classes=[{'grade': 'S3', 'stream': 'B'}], category='tuition',
             amount=Decimal('70000'), due_date=timezone.localdate(),
         )
 

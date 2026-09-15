@@ -3,14 +3,15 @@
 {% block content %}
 <table class="grid">
     <tr>
-        <th>Staff</th><th>Role</th><th class="num">Gross</th><th class="num">Allowances</th>
+        <th>Staff</th><th>Job</th><th>Department</th><th class="num">Gross</th><th class="num">Allowances</th>
         <th class="num">Pension</th><th class="num">Tax</th><th class="num">Other</th>
         <th class="num">Net</th><th>Bank</th>
     </tr>
     {% for p in payslips %}
         <tr>
             <td>{{ p.staff_name }}</td>
-            <td class="muted">{{ p.role }}</td>
+            <td class="muted">{{ p.job_title }}</td>
+            <td class="muted">{{ p.department|default:"-" }}</td>
             <td class="num">{{ p.gross|floatformat:0|intcomma }}</td>
             <td class="num">{{ p.allowances|floatformat:0|intcomma }}</td>
             <td class="num">{{ p.pension|floatformat:0|intcomma }}</td>
@@ -20,10 +21,10 @@
             <td class="muted">{{ p.bank_account }}</td>
         </tr>
     {% empty %}
-        <tr><td colspan="9" class="empty">This run has no payslips yet.</td></tr>
+        <tr><td colspan="10" class="empty">This run has no payslips yet.</td></tr>
     {% endfor %}
     <tr class="total">
-        <td colspan="2">{{ count }} staff</td>
+        <td colspan="3">{{ count }} staff</td>
         <td class="num">{{ totals.gross|floatformat:0|intcomma }}</td>
         <td class="num">{{ totals.allowances|floatformat:0|intcomma }}</td>
         <td class="num">{{ totals.pension|floatformat:0|intcomma }}</td>
@@ -33,6 +34,20 @@
         <td></td>
     </tr>
 </table>
+
+{% if by_department %}
+<table class="grid mt">
+    <tr><th>Department</th><th class="num">Staff</th><th class="num">Gross</th><th class="num">Net</th></tr>
+    {% for d in by_department %}
+        <tr>
+            <td>{{ d.department|default:"No department" }}</td>
+            <td class="num">{{ d.staff }}</td>
+            <td class="num">{{ d.gross|floatformat:0|intcomma }}</td>
+            <td class="num">{{ d.net|floatformat:0|intcomma }}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% endif %}
 
 <p class="mt muted">Status: {{ run.get_status_display }}{% if run.paid_on %} &middot; paid {{ run.paid_on|date:"j M Y" }}{% endif %}</p>
 

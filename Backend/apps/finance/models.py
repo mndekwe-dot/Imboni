@@ -23,6 +23,19 @@ from apps.authentication.models import User
 from apps.student.models import Fee, Student
 
 
+def rwanda_paye_bands():
+    """
+    Rwanda's monthly PAYE bands on employment income, in force since July 2023
+    (Law 027/2022): nothing on the first 60,000, then 10%, 20% and 30%.
+    """
+    return [
+        {'upto': 60000, 'rate': 0},
+        {'upto': 100000, 'rate': 10},
+        {'upto': 200000, 'rate': 20},
+        {'upto': None, 'rate': 30},
+    ]
+
+
 class FinanceSettings(models.Model):
     """
     The office's own rules. One row per school.
@@ -41,6 +54,11 @@ class FinanceSettings(models.Model):
     late_fee_percent  = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     grace_days        = models.PositiveSmallIntegerField(default=0)
     bank_details      = models.TextField(blank=True)
+    # Monthly PAYE bands, lowest first: [{"upto": 60000, "rate": 0}, ...], the
+    # last with "upto": null. Stored rather than hard-coded because the revenue
+    # authority changes them by law, and a school should not wait for a release
+    # to pay its staff correctly. See `services.paye_tax`.
+    paye_bands        = models.JSONField(default=rwanda_paye_bands, blank=True)
     updated_at        = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -55,44 +73,185 @@ class FinanceSettings(models.Model):
         return cls.objects.first() or cls.objects.create()
 
 
+class FeeCategory(models.Model):
+    """
+    A kind of charge the school raises: tuition, boarding, PTA contribution.
+
+    The school's own list. `Fee.category` used to be one of six hard-coded
+    values, so a school that charges an exam fee, a development levy or
+    medical insurance filed each of them under "Other" and could not tell
+    them apart on any report. `code` is what a Fee stores; `name` is what
+    people read.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code        = models.SlugField(max_length=20, unique=True)
+    name        = models.CharField(max_length=80)
+    description = models.CharField(max_length=255, blank=True)
+    is_active   = models.BooleanField(default=True)
+    sort_order  = models.PositiveSmallIntegerField(default=100)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'finance_fee_categories'
+        ordering = ['sort_order', 'name']
+        verbose_name_plural = 'fee categories'
+
+    def __str__(self):
+        return self.name
+
+
+# The categories a school starts with. Codes match what Fee rows already hold.
+DEFAULT_FEE_CATEGORIES = [
+    ('tuition', 'Tuition'),
+    ('boarding', 'Boarding'),
+    ('lunch', 'Lunch'),
+    ('transport', 'Transport'),
+    ('uniform', 'Uniform'),
+    ('activity', 'Activities'),
+    ('exam', 'Examination fee'),
+    ('pta', 'PTA contribution'),
+    ('development', 'Development levy'),
+    ('medical', 'Medical insurance'),
+    ('admission', 'Admission fee'),
+    ('arrears', 'Brought forward'),
+    ('other', 'Other'),
+]
+
+
 class FeeStructure(models.Model):
     """
-    What a year group is charged for a term, before anybody is invoiced.
+    One line of what the school charges for a term, and who pays it.
 
-    The point of it is bulk: a bursar sets "S4 pays 85,000 tuition and 15,000
-    lunch this term" once, and invoicing raises one Fee per student from it.
-    Doing that per student by hand across six year groups is where the errors
-    come from -- one child charged last term's amount, and nobody notices until
-    the parent does.
+    Invoicing turns each line into charges (`services.invoice_from_structure`).
+    A line used to name one year group and one of six categories, which could
+    not describe how a school really bills: boarding only for boarders, an
+    admission fee once for new pupils, transport only for the families who
+    take the bus, the A-Level combination that pays for lab materials, tuition
+    in two instalments. Each of those is a field below.
     """
+    FREQUENCY_CHOICES = [
+        ('term', 'Every term'),
+        ('year', 'Once a year'),
+        ('once', 'Once per student'),
+    ]
+    BOARDING_CHOICES = [
+        ('all', 'Boarders and day students'),
+        ('boarders', 'Boarders only'),
+        ('day', 'Day students only'),
+    ]
+    INTAKE_CHOICES = [
+        ('all', 'New and returning students'),
+        ('new', 'New students only'),
+        ('returning', 'Returning students only'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     term      = models.ForeignKey('results.AcademicTerm', on_delete=models.CASCADE,
                                   related_name='fee_structures')
-    # The school's own year label ('S4', 'P6'), validated where data enters
-    # rather than enumerated here -- see the note on Student.grade.
-    grade     = models.CharField(max_length=10)
-    # Blank means "every stream in that year".
-    section   = models.CharField(max_length=10, blank=True)
-    category  = models.CharField(max_length=20, choices=Fee.CATEGORY_CHOICES)
+    # What families see on the bill; defaults to the category's name.
+    name      = models.CharField(max_length=120, blank=True)
+    # A FeeCategory code.
+    category  = models.CharField(max_length=20)
     amount    = models.DecimalField(max_digits=10, decimal_places=2)
     due_date  = models.DateField()
+    # Which classes: [{"grade": "S4", "stream": ""}, {"grade": "S5", "stream": "MPC"}].
+    # Empty means the whole school; a blank stream means every stream of that year.
+    classes   = models.JSONField(default=list, blank=True)
+    boarding  = models.CharField(max_length=10, choices=BOARDING_CHOICES, default='all')
+    intake    = models.CharField(max_length=10, choices=INTAKE_CHOICES, default='all')
+    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, default='term')
+    # Not mandatory = opt-in: only the students listed below are charged
+    # (transport, extra lessons). A mandatory line with students listed is
+    # narrowed to exactly them (a resit fee).
     is_mandatory = models.BooleanField(default=True)
+    students  = models.ManyToManyField(Student, blank=True, related_name='fee_lines')
+    # Paying in parts: [{"percent": 50, "due_date": "2026-09-15"}, ...]. The
+    # percents add up to 100. Empty means one charge on `due_date`.
+    instalments = models.JSONField(default=list, blank=True)
     notes     = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'finance_fee_structures'
-        ordering = ['grade', 'category']
-        # One amount per year/stream/category/term. Two rows would mean two
-        # answers to what a child is charged.
-        unique_together = ['term', 'grade', 'section', 'category']
+        ordering = ['category', 'name', 'created_at']
 
     def __str__(self):
-        return f'{self.grade}{self.section} {self.category}: {self.amount}'
+        return f'{self.label}: {self.amount}'
+
+    @property
+    def label(self):
+        return self.name or self.category
 
     @property
     def class_label(self):
-        return f'{self.grade}{self.section}' if self.section else self.grade
+        if not self.classes:
+            return 'All classes'
+        return ', '.join(f"{c.get('grade', '')}{c.get('stream', '')}" for c in self.classes)
+
+
+class StructureCharge(models.Model):
+    """
+    Which charge a fee line raised for which student.
+
+    This is what makes invoicing safe to repeat. It used to skip a student who
+    already had a charge of the same CATEGORY that term, so a second line in a
+    category - an exam fee beside another "other" charge, or the second
+    instalment of tuition - was silently never billed.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    structure  = models.ForeignKey(FeeStructure, on_delete=models.CASCADE, related_name='charges')
+    student    = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='structure_charges')
+    fee        = models.OneToOneField(Fee, on_delete=models.CASCADE, related_name='source')
+    instalment = models.PositiveSmallIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'finance_structure_charges'
+        unique_together = ['structure', 'student', 'instalment']
+
+
+class FeeDiscount(models.Model):
+    """
+    A standing reduction applied when charges are raised.
+
+    Applied to the charge, never recorded as a payment: the school did not
+    receive that money. The reason is written onto the charge so a parent
+    can see why their bill is smaller than the fee structure says.
+    """
+    KIND_CHOICES = [('percent', 'Percentage'), ('fixed', 'Fixed amount')]
+    SCOPE_CHOICES = [
+        ('students', 'Chosen students'),
+        # Every child after the first of the same parent, oldest enrolled first.
+        ('siblings', 'Siblings'),
+        ('boarders', 'Boarders'),
+        ('day', 'Day students'),
+        ('all', 'Everyone'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name       = models.CharField(max_length=120)
+    kind       = models.CharField(max_length=8, choices=KIND_CHOICES, default='percent')
+    value      = models.DecimalField(max_digits=10, decimal_places=2)
+    scope      = models.CharField(max_length=10, choices=SCOPE_CHOICES, default='students')
+    students   = models.ManyToManyField(Student, blank=True, related_name='fee_discounts')
+    # For siblings: the discount starts at this child (2 = the second child).
+    from_child = models.PositiveSmallIntegerField(default=2)
+    # FeeCategory codes it reduces; empty means every category.
+    categories = models.JSONField(default=list, blank=True)
+    # Null means every term.
+    term       = models.ForeignKey('results.AcademicTerm', on_delete=models.CASCADE,
+                                   null=True, blank=True, related_name='fee_discounts')
+    is_active  = models.BooleanField(default=True)
+    notes      = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'finance_fee_discounts'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 
 class FeePayment(models.Model):
@@ -103,14 +262,25 @@ class FeePayment(models.Model):
     the exception, which is what the 'partial' status was always trying to say
     without any way to prove it. The Fee's status is recomputed from the sum of
     these; see `services.recalculate_fee`.
+
+    One receipt may also cover several charges: a parent hands over 150,000
+    and it settles arrears, then tuition, then part of lunch. Each charge gets
+    its own row, and the rows share the receipt number the parent was given.
     """
-    METHOD_CHOICES = [
+    # How money is paid - also what an expense or other income can use.
+    PAYMENT_METHODS = [
         ('cash',     'Cash'),
         ('momo',     'Mobile money'),
         ('bank',     'Bank transfer'),
         ('cheque',   'Cheque'),
         ('waiver',   'Waiver / bursary'),
         ('other',    'Other'),
+    ]
+    METHOD_CHOICES = PAYMENT_METHODS + [
+        # Not money: an unpaid balance moved onto an arrears charge in a later
+        # term. It closes the old charge so the debt is owed in one place only.
+        # Never taken at the desk; see `services.carry_arrears_forward`.
+        ('carried',  'Carried to a later term'),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -121,7 +291,7 @@ class FeePayment(models.Model):
     # unique: two schools' worth of slips may collide and a cash payment has none.
     reference  = models.CharField(max_length=80, blank=True)
     # Sequential per school, and what a parent quotes when they query a payment.
-    receipt_no = models.CharField(max_length=40, unique=True)
+    receipt_no = models.CharField(max_length=40, db_index=True)
     paid_on    = models.DateField(default=timezone.localdate)
     received_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                                     related_name='finance_receipts')
@@ -133,12 +303,22 @@ class FeePayment(models.Model):
     reversed_by     = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                                         related_name='finance_reversals')
     reversal_reason = models.CharField(max_length=255, blank=True)
+    # On a 'carried' line: the arrears charge the balance moved to. RESTRICT
+    # so the arrears charge cannot be deleted while a balance sits on it, yet
+    # deleting the whole student still cascades.
+    carried_to = models.ForeignKey(Fee, on_delete=models.RESTRICT, null=True, blank=True,
+                                   related_name='carried_in')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'finance_payments'
         ordering = ['-paid_on', '-created_at']
         indexes = [models.Index(fields=['fee', 'reversed_at'])]
+        constraints = [
+            # A receipt names each charge at most once.
+            models.UniqueConstraint(fields=['receipt_no', 'fee'],
+                                    name='finance_payment_receipt_fee_unique'),
+        ]
 
     def __str__(self):
         return f'{self.receipt_no}: {self.amount}'
@@ -186,7 +366,7 @@ class Expense(models.Model):
     amount      = models.DecimalField(max_digits=12, decimal_places=2)
     spent_on    = models.DateField(default=timezone.localdate)
     payee       = models.CharField(max_length=200, blank=True)
-    method      = models.CharField(max_length=10, choices=FeePayment.METHOD_CHOICES,
+    method      = models.CharField(max_length=10, choices=FeePayment.PAYMENT_METHODS,
                                    default='cash')
     reference   = models.CharField(max_length=80, blank=True)
     status      = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
@@ -400,7 +580,7 @@ class OtherIncome(models.Model):
                                     related_name='entries')
     description = models.CharField(max_length=255)
     amount      = models.DecimalField(max_digits=14, decimal_places=2)
-    method      = models.CharField(max_length=20, choices=FeePayment.METHOD_CHOICES,
+    method      = models.CharField(max_length=20, choices=FeePayment.PAYMENT_METHODS,
                                    default='cash')
     reference   = models.CharField(max_length=80, blank=True)
     received_on = models.DateField(default=timezone.localdate)
@@ -410,6 +590,11 @@ class OtherIncome(models.Model):
                                     null=True, blank=True, related_name='other_income')
     received_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                                     related_name='other_income_taken')
+    # Set on a refund: a negative entry that gives back part of an earlier one,
+    # like a lost-book charge returned when the book turns up. Negative rather
+    # than an expense, because refunded money was never income to spend.
+    refund_of   = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True,
+                                    related_name='refunds')
     created_at  = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -491,7 +676,10 @@ class StaffSalary(models.Model):
     copies the figures it used, and this row is only ever the starting point.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    staff      = models.OneToOneField(User, on_delete=models.CASCADE, related_name='salary')
+    # A worker on the staff register, not a login: the cook and the night guard
+    # are paid too, and neither has an account.
+    staff      = models.OneToOneField('staff.StaffMember', on_delete=models.CASCADE,
+                                      related_name='salary')
     gross      = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     # Allowances the school adds on top: housing, transport, responsibility.
     allowances = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -500,6 +688,14 @@ class StaffSalary(models.Model):
     pension_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     tax_percent     = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     other_deduction = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    TAX_METHOD_CHOICES = [
+        # The progressive bands in FinanceSettings, on gross plus allowances.
+        ('paye', 'PAYE bands'),
+        # tax_percent of gross: a second employer, or a consultant withheld at
+        # a flat rate.
+        ('flat', 'Flat rate'),
+    ]
+    tax_method      = models.CharField(max_length=4, choices=TAX_METHOD_CHOICES, default='paye')
     bank_account    = models.CharField(max_length=80, blank=True)
     is_active       = models.BooleanField(default=True)
     note            = models.CharField(max_length=255, blank=True)
@@ -515,10 +711,10 @@ class StaffSalary(models.Model):
 
     @property
     def net_estimate(self):
-        base = self.gross + self.allowances
-        pension = self.gross * self.pension_percent / Decimal('100')
-        tax = self.gross * self.tax_percent / Decimal('100')
-        return base - pension - tax - self.other_deduction
+        # The same arithmetic the payslip uses, so the salary list and the
+        # month's run never disagree about what someone takes home.
+        from .services import payslip_figures
+        return payslip_figures(self)['net']
 
 
 class PayrollRun(models.Model):
@@ -586,9 +782,14 @@ class Payslip(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     run        = models.ForeignKey(PayrollRun, on_delete=models.CASCADE, related_name='payslips')
-    staff      = models.ForeignKey(User, on_delete=models.PROTECT, related_name='payslips')
-    staff_name = models.CharField(max_length=200)        # snapshot; survives a rename
+    staff      = models.ForeignKey('staff.StaffMember', on_delete=models.PROTECT,
+                                   related_name='payslips')
+    # Snapshots: a payslip says who, what job and which department AS PAID, so
+    # a transfer or a rename next year does not rewrite this one.
+    staff_name = models.CharField(max_length=200)
     role       = models.CharField(max_length=20, blank=True)
+    job_title  = models.CharField(max_length=100, blank=True)
+    department = models.CharField(max_length=80, blank=True)
 
     gross      = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     allowances = models.DecimalField(max_digits=12, decimal_places=2, default=0)

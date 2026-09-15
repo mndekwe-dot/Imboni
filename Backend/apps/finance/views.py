@@ -87,9 +87,11 @@ def student_filters(qs, request, prefix='student'):
     def field(name):
         return f'{prefix}__{name}' if prefix else name
 
-    grade = (request.query_params.get('grade') or '').strip()
-    if grade:
-        qs = qs.filter(**{field('grade'): grade})
+    # One year, or a comma-separated list: the class picker sends every year
+    # of a section when only the section is chosen ("S4,S5,S6" for A-Level).
+    grades = grades_of(request)
+    if grades:
+        qs = qs.filter(**{field('grade') + '__in': grades})
 
     stream = (request.query_params.get('stream') or '').strip()
     if stream:
@@ -106,9 +108,15 @@ def student_filters(qs, request, prefix='student'):
     return qs
 
 
+def grades_of(request):
+    """The years asked for: '?grade=S4' or '?grade=S4,S5,S6'."""
+    raw = request.query_params.get('grade') or ''
+    return [g.strip() for g in raw.split(',') if g.strip()]
+
+
 def class_label_of(request):
     """How the current filter reads on a printed document, e.g. 'S4 A'."""
-    grade = (request.query_params.get('grade') or '').strip()
+    grade = ', '.join(grades_of(request))
     stream = (request.query_params.get('stream') or '').strip()
     if grade and stream:
         return f'{grade}{stream}'
@@ -129,14 +137,17 @@ class FinanceDashboardView(FinanceView):
         term = _current_term(request)
         summary = services.collection_summary(term)
 
-        today = timezone.localdate()
-        expenses = Expense.objects.filter(status__in=['approved', 'paid'])
+        expenses = Expense.objects.all()
         if term is not None:
             expenses = expenses.filter(term=term)
-        spent = money(expenses.aggregate(t=Sum('amount'))['t'])
+        # Spent is what has gone out. An approved expense not yet paid is a
+        # commitment: counting it as spent made "net" look worse than the cash
+        # the school actually held.
+        spent = money(expenses.filter(status='paid').aggregate(t=Sum('amount'))['t'])
+        committed = money(expenses.filter(status='approved').aggregate(t=Sum('amount'))['t'])
 
         recent = (FeePayment.objects.filter(reversed_at__isnull=True)
-                  .select_related('fee__student')[:8])
+                  .exclude(method='carried').select_related('fee__student')[:8])
 
         # The classes furthest behind, which is where the office spends its day.
         by_class = {}
@@ -170,10 +181,12 @@ class FinanceDashboardView(FinanceView):
             'collection_rate': summary['collection_rate'],
             'students_owing': summary['students_owing'],
             'expenses': str(spent),
+            'committed': str(committed),
+            'waived': str(summary['waived']),
             'net': str(summary['collected'] - spent),
             'pending_expenses': Expense.objects.filter(status='pending').count(),
             'overdue_charges': Fee.objects.filter(
-                due_date__lt=today).exclude(status='cleared').count(),
+                due_date__lt=services.overdue_cutoff()).exclude(status='cleared').count(),
             'recent_payments': FeePaymentSerializer(recent, many=True).data,
             'by_class': classes,
         })
@@ -200,6 +213,7 @@ class FeeListView(FinanceView):
         qs = student_filters(qs, request)
 
         if documents.wants(request, 'csv'):
+            labels = services.category_labels()
             return documents.csv_response(
                 f'charges-{class_label_of(request)}',
                 ['Student', 'Class', 'Student ID', 'Category', 'Charged',
@@ -207,7 +221,7 @@ class FeeListView(FinanceView):
                 ([f.student.full_name if f.student else '',
                   f'{f.student.grade}{f.student.section}' if f.student else '',
                   f.student.student_id if f.student else '',
-                  f.get_category_display(), f.amount,
+                  services.category_label(f.category, labels), f.amount,
                   services.paid_total(f), services.balance_of(f),
                   f.due_date, f.get_status_display()]
                  for f in qs))
@@ -243,7 +257,10 @@ class FeeListView(FinanceView):
 
 class PaymentListView(FinanceView):
     def get(self, request):
-        qs = FeePayment.objects.select_related('fee__student__user', 'received_by')
+        # The receipt book: money taken. A balance carried forward is not a
+        # receipt, and listing it would inflate every cash-up.
+        qs = (FeePayment.objects.select_related('fee__student__user', 'received_by')
+              .exclude(method='carried'))
         if request.query_params.get('include_reversed') != 'true':
             qs = qs.filter(reversed_at__isnull=True)
         student = request.query_params.get('student')
@@ -264,6 +281,7 @@ class PaymentListView(FinanceView):
             qs = qs.filter(method=method)
 
         if documents.wants(request, 'csv'):
+            labels = services.category_labels()
             return documents.csv_response(
                 'receipts',
                 ['Receipt', 'Date', 'Student', 'Class', 'Category', 'Amount',
@@ -272,7 +290,7 @@ class PaymentListView(FinanceView):
                   p.fee.student.full_name if p.fee and p.fee.student else '',
                   (f'{p.fee.student.grade}{p.fee.student.section}'
                    if p.fee and p.fee.student else ''),
-                  p.fee.get_category_display() if p.fee else '',
+                  services.category_label(p.fee.category, labels) if p.fee else '',
                   p.amount, p.get_method_display(), p.reference,
                   getattr(p.received_by, 'username', ''),
                   'yes' if p.is_reversed else '']
@@ -284,27 +302,46 @@ class PaymentListView(FinanceView):
 
 
 class RecordPaymentView(BursarView):
+    """
+    Take money: against one charge (`fee`), or as one sum across a student's
+    charges (`student`, with optional `allocations` [{fee, amount}]; without
+    them the oldest charge is settled first).
+    """
+
     def post(self, request):
-        fee = get_object_or_404(Fee, pk=request.data.get('fee'))
         try:
             amount = Decimal(str(request.data.get('amount')))
         except (InvalidOperation, TypeError):
             return Response({'detail': 'That amount is not a number.'}, status=400)
+        details = dict(
+            method=request.data.get('method', 'cash'),
+            reference=request.data.get('reference', ''),
+            received_by=request.user,
+            paid_on=request.data.get('paid_on') or None,
+            payer_name=request.data.get('payer_name', ''),
+            notes=request.data.get('notes', ''),
+        )
         try:
-            payment = services.record_payment(
-                fee, amount,
-                method=request.data.get('method', 'cash'),
-                reference=request.data.get('reference', ''),
-                received_by=request.user,
-                paid_on=request.data.get('paid_on') or None,
-                payer_name=request.data.get('payer_name', ''),
-                notes=request.data.get('notes', ''),
-            )
+            if request.data.get('fee'):
+                fee = get_object_or_404(Fee, pk=request.data.get('fee'))
+                lines = [services.record_payment(fee, amount, **details)]
+            else:
+                student = get_object_or_404(Student, pk=request.data.get('student'))
+                allocations = request.data.get('allocations') or None
+                if allocations is not None and not isinstance(allocations, list):
+                    return Response({'detail': 'Allocations have to be a list.'}, status=400)
+                # The term the desk is showing: see services.open_charges.
+                lines = services.record_split_payment(student, amount, allocations,
+                                                      term=_current_term(request), **details)
         except services.FinanceError as exc:
             return Response({'detail': str(exc)}, status=400)
+        for line in lines:
+            line.fee.refresh_from_db()
         return Response({
-            'payment': FeePaymentSerializer(payment).data,
-            'fee': FeeSerializer(fee).data,
+            'payment': FeePaymentSerializer(lines[0]).data,
+            'payments': FeePaymentSerializer(lines, many=True).data,
+            'total': str(sum((line.amount for line in lines), Decimal('0'))),
+            'fee': FeeSerializer(lines[0].fee).data,
         }, status=201)
 
 
@@ -333,7 +370,7 @@ class DebtorListView(FinanceView):
         fees = student_filters(fees, request)
 
         rows = {}
-        today = timezone.localdate()
+        cutoff = services.overdue_cutoff()
         for fee in fees:
             if fee.student is None:
                 continue
@@ -348,7 +385,7 @@ class DebtorListView(FinanceView):
             })
             row['outstanding'] += balance
             row['charges'] += 1
-            if fee.due_date < today:
+            if fee.due_date < cutoff:
                 row['overdue'] += balance
 
         out = sorted(rows.values(), key=lambda r: r['outstanding'], reverse=True)
@@ -396,55 +433,6 @@ class StudentFinanceView(FinanceView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(StudentAccountSerializer(account).data)
-
-
-# ── Fee structure and invoicing ───────────────────────────────────────────────
-
-class FeeStructureListView(FinanceView):
-    def get(self, request):
-        qs = FeeStructure.objects.select_related('term')
-        term = _current_term(request)
-        if term is not None:
-            qs = qs.filter(term=term)
-        return Response(FeeStructureSerializer(qs, many=True).data)
-
-    def post(self, request):
-        if request.user.role != 'bursar':
-            return Response({'detail': 'Only the finance office sets the fee structure.'},
-                            status=403)
-        data = dict(request.data)
-        if not data.get('term'):
-            term = _current_term(request)
-            if term is None:
-                return Response({'detail': 'There is no current term to bill for.'},
-                                status=400)
-            data['term'] = str(term.id)
-        serializer = FeeStructureSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        return Response(FeeStructureSerializer(serializer.save()).data, status=201)
-
-
-class FeeStructureDetailView(BursarView):
-    def delete(self, request, pk):
-        structure = get_object_or_404(FeeStructure, pk=pk)
-        structure.delete()
-        return Response(status=204)
-
-
-class InvoiceView(BursarView):
-    """
-    Raise the charges for a fee structure.
-
-    Idempotent: a student who already has this charge for this term is skipped,
-    so clicking it twice does not double a family's bill.
-    """
-    def post(self, request, pk):
-        structure = get_object_or_404(FeeStructure, pk=pk)
-        created = services.invoice_from_structure(structure)
-        return Response({
-            'created': len(created),
-            'structure': FeeStructureSerializer(structure).data,
-        }, status=201)
 
 
 # ── Expenses ──────────────────────────────────────────────────────────────────
@@ -533,11 +521,22 @@ class ExpenseDecisionView(FinanceView):
                 return Response({'detail': 'Only an approved expense can be paid.'},
                                 status=400)
 
+        if decision == 'paid':
+            from .models import CashAccount
+            account = None
+            if request.data.get('account'):
+                account = get_object_or_404(CashAccount, pk=request.data['account'], is_active=True)
+            try:
+                services.pay_expense(expense, account=account, paid_by=request.user,
+                                     note=request.data.get('note') or '')
+            except services.FinanceError as exc:
+                return Response({'detail': str(exc)}, status=400)
+            return Response(ExpenseSerializer(expense).data)
+
         expense.status = decision
         expense.decision_note = (request.data.get('note') or '')[:255]
-        if decision in ('approved', 'rejected'):
-            expense.approved_by = request.user
-            expense.decided_at = timezone.now()
+        expense.approved_by = request.user
+        expense.decided_at = timezone.now()
         expense.save(update_fields=['status', 'decision_note', 'approved_by', 'decided_at'])
         return Response(ExpenseSerializer(expense).data)
 
@@ -559,38 +558,54 @@ class ExpenseCategoryListView(FinanceView):
 # ── Reports and settings ──────────────────────────────────────────────────────
 
 class FinanceReportView(FinanceView):
-    """Money in against money out, and where each came from."""
+    """
+    The income and expenditure statement for a term: every source of money in,
+    every category of money out, and the surplus. Also `?format=csv|pdf`.
+
+    It used to count fees only, and approved-but-unpaid expenses as spent: the
+    canteen, the capitation grant and library fines never reached the report,
+    and the "net" was fees minus money that had not left the school.
+    """
     def get(self, request):
         term = _current_term(request)
-        summary = services.collection_summary(term)
+        report = services.income_statement(term)
+        summary = report['summary']
 
-        payments = FeePayment.objects.filter(reversed_at__isnull=True)
-        if term is not None:
-            payments = payments.filter(fee__term=term)
-        by_method = [
-            {'method': row['method'], 'total': str(money(row['total']))}
-            for row in payments.values('method').annotate(total=Sum('amount'))
-        ]
+        if documents.wants(request, 'csv'):
+            rows = ([['Money in', line['label'], line['amount']] for line in report['income']]
+                    + [['Money in', 'Total', report['income_total']]]
+                    + [['Money out', line['label'], line['amount']] for line in report['expenditure']]
+                    + [['Money out', 'Total', report['spent']]]
+                    + [['Committed (approved, not paid)', line['label'], line['amount']]
+                       for line in report['committed_lines']]
+                    + [['Surplus / deficit', '', report['net']],
+                       ['Fees charged', '', summary['charged']],
+                       ['Fees outstanding', '', summary['outstanding']],
+                       ['Collection rate %', '', summary['collection_rate']]])
+            return documents.csv_response('income-and-expenditure', ['Section', 'Line', 'Amount'], rows)
+        if documents.wants(request, 'pdf'):
+            return finance_documents.income_statement_pdf(report)
 
-        expenses = Expense.objects.filter(status__in=['approved', 'paid'])
-        if term is not None:
-            expenses = expenses.filter(term=term)
-        by_category = [
-            {'category': row['category__name'], 'total': str(money(row['total']))}
-            for row in expenses.values('category__name').annotate(total=Sum('amount'))
-        ]
-        spent = money(expenses.aggregate(t=Sum('amount'))['t'])
+        def lines(items):
+            return [{**item, 'amount': str(item['amount'])} for item in items]
 
         return Response({
             'term': summary['term'],
             'charged': str(summary['charged']),
             'collected': str(summary['collected']),
             'outstanding': str(summary['outstanding']),
+            'waived': str(summary['waived']),
             'collection_rate': summary['collection_rate'],
-            'expenses': str(spent),
-            'net': str(summary['collected'] - spent),
-            'by_method': by_method,
-            'by_category': by_category,
+            'income': lines(report['income']),
+            'fees_in': str(report['fees_in']),
+            'other_in': str(report['other_in']),
+            'income_total': str(report['income_total']),
+            'expenditure': lines(report['expenditure']),
+            'expenses': str(report['spent']),
+            'committed': str(report['committed']),
+            'committed_lines': lines(report['committed_lines']),
+            'net': str(report['net']),
+            'by_method': [{**row, 'total': str(row['total'])} for row in report['by_method']],
         })
 
 
@@ -616,7 +631,8 @@ class ReceiptDocumentView(FinanceView):
 
     def get(self, request, pk):
         payment = get_object_or_404(
-            FeePayment.objects.select_related('fee__student__user'), pk=pk)
+            FeePayment.objects.select_related('fee__student__user').exclude(method='carried'),
+            pk=pk)
         return finance_documents.receipt_pdf(payment)
 
 
@@ -660,7 +676,7 @@ class RemindersDocumentView(FinanceView):
             })
             row['outstanding'] += balance
             row['lines'].append({
-                'category': fee.get_category_display(),
+                'category': services.category_label(fee.category),
                 'due_date': fee.due_date,
                 'balance': balance,
             })

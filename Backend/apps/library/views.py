@@ -294,15 +294,17 @@ class FineActionView(LibrarianView):
     def post(self, request, pk):
         fine = get_object_or_404(Fine, pk=pk)
         action = request.data.get('action')
-        if action == 'pay':
-            fine.paid, fine.paid_at = True, timezone.now()
-            fine.save(update_fields=['paid', 'paid_at'])
-        elif action == 'waive':
-            fine.waived = True
-            fine.waived_reason = (request.data.get('reason') or '')[:255]
-            fine.save(update_fields=['waived', 'waived_reason'])
-        else:
-            return Response({'detail': 'action must be "pay" or "waive".'}, status=400)
+        try:
+            if action == 'pay':
+                services.pay_fine(fine, received_by=request.user,
+                                  method=request.data.get('method') or 'cash',
+                                  reference=request.data.get('reference') or '')
+            elif action == 'waive':
+                services.waive_fine(fine, reason=request.data.get('reason') or '')
+            else:
+                return Response({'detail': 'action must be "pay" or "waive".'}, status=400)
+        except services.LibraryError as exc:
+            return Response({'detail': str(exc)}, status=400)
         return Response(FineSerializer(fine).data)
 
 

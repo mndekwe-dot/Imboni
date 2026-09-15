@@ -1,11 +1,13 @@
 from django.contrib import admin
 
 from .models import (
-    Expense, ExpenseCategory, FeePayment, FeeStructure, FinanceSettings,
+    Expense, ExpenseCategory, FeeCategory, FeeDiscount, FeePayment, FeeStructure,
+    FinanceSettings,
     StudentAccount,
 )
 
 admin.site.register([
-    FinanceSettings, FeeStructure, FeePayment, ExpenseCategory, Expense,
+    FinanceSettings, FeeCategory, FeeStructure, FeeDiscount, FeePayment, ExpenseCategory,
+    Expense,
     StudentAccount,
 ])

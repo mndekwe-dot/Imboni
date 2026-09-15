@@ -19,9 +19,9 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.response import Response
 
-from apps.authentication.models import User
 from apps.common import documents
 from apps.results.models import AcademicTerm
+from apps.staff.models import StaffMember
 
 from . import documents as finance_documents
 from . import services
@@ -448,32 +448,34 @@ class StaffSalaryListView(FinanceView):
     """What each member of staff is paid, standing."""
 
     def get(self, request):
-        rows = StaffSalary.objects.select_related('staff')
+        rows = StaffSalary.objects.select_related('staff__department', 'staff__user')
         search = (request.query_params.get('q') or '').strip()
         if search:
             rows = rows.filter(Q(staff__first_name__icontains=search)
                                | Q(staff__last_name__icontains=search))
-        role = (request.query_params.get('role') or '').strip()
-        if role:
-            rows = rows.filter(staff__role=role)
+        department = (request.query_params.get('department') or '').strip()
+        if department:
+            rows = rows.filter(staff__department_id=department)
 
         if documents.wants(request, 'csv'):
             return documents.csv_response(
                 'staff-salaries',
-                ['Staff', 'Role', 'Gross', 'Allowances', 'Pension %', 'Tax %',
-                 'Other deduction', 'Net (estimate)', 'Bank'],
-                ([f'{r.staff.first_name} {r.staff.last_name}'.strip(), r.staff.role,
-                  r.gross, r.allowances, r.pension_percent, r.tax_percent,
+                ['Staff', 'Job title', 'Department', 'Gross', 'Allowances', 'Pension %',
+                 'Tax', 'Other deduction', 'Net (estimate)', 'Bank'],
+                ([r.staff.full_name, r.staff.job_title,
+                  r.staff.department.name if r.staff.department_id else '',
+                  r.gross, r.allowances, r.pension_percent,
+                  'PAYE' if r.tax_method == 'paye' else f'{r.tax_percent}%',
                   r.other_deduction, r.net_estimate, r.bank_account] for r in rows))
         return Response(StaffSalarySerializer(rows, many=True).data)
 
     def post(self, request):
-        """Set or update one person's salary."""
+        """Set or update the salary of one worker on the staff register."""
         if request.user.role != 'bursar':
             return _fail('Only the finance office sets a salary.', 403)
-        staff = get_object_or_404(User, pk=request.data.get('staff'))
-        if staff.role not in services.PAYROLL_ROLES:
-            return _fail('Payroll covers staff, not students or parents.')
+        staff = get_object_or_404(StaffMember, pk=request.data.get('staff'))
+        if not staff.is_active:
+            return _fail('This worker has left. Mark them as working again first.')
         salary, _ = StaffSalary.objects.get_or_create(staff=staff)
         serializer = StaffSalarySerializer(salary, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -522,17 +524,20 @@ class PayrollRunDetailView(FinanceView):
         if documents.wants(request, 'csv'):
             return documents.csv_response(
                 f'payroll-{run.period_year}-{run.period_month:02d}',
-                ['Staff', 'Role', 'Gross', 'Allowances', 'Pension', 'Tax',
+                ['Staff', 'Job title', 'Department', 'Gross', 'Allowances', 'Pension', 'Tax',
                  'Other', 'Net', 'Bank'],
-                ([p.staff_name, p.role, p.gross, p.allowances, p.pension, p.tax,
-                  p.other_deduction, p.net, p.bank_account] for p in payslips))
+                ([p.staff_name, p.job_title, p.department, p.gross, p.allowances, p.pension,
+                  p.tax, p.other_deduction, p.net, p.bank_account] for p in payslips))
         if documents.wants(request, 'pdf'):
-            return finance_documents.payroll_register_pdf(run, payslips, totals)
+            return finance_documents.payroll_register_pdf(
+                run, payslips, totals, services.payroll_by_department(run))
 
         return Response({
             'run': PayrollRunSerializer(run).data,
             'payslips': PayslipSerializer(payslips, many=True).data,
             'totals': {k: str(v) for k, v in totals.items()},
+            'by_department': [{**row, 'gross': str(row['gross']), 'net': str(row['net'])}
+                              for row in services.payroll_by_department(run)],
         })
 
     def delete(self, request, pk):

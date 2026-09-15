@@ -248,8 +248,16 @@ class Fine(models.Model):
     changed in Settings, and a fine already handed to a student must not change
     because the school later decided lateness costs more.
     """
+    KIND_CHOICES = [
+        ('late', 'Late return'),
+        # A book the borrower lost: its replacement price, plus any lateness
+        # already run up before it was reported.
+        ('lost', 'Lost book'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     loan      = models.OneToOneField(Loan, on_delete=models.CASCADE, related_name='fine')
+    kind      = models.CharField(max_length=8, choices=KIND_CHOICES, default='late')
     days_late = models.PositiveSmallIntegerField()
     rate      = models.DecimalField(max_digits=8, decimal_places=2)
     amount    = models.DecimalField(max_digits=10, decimal_places=2)
@@ -257,6 +265,15 @@ class Fine(models.Model):
     paid_at   = models.DateTimeField(null=True, blank=True)
     waived    = models.BooleanField(default=False)
     waived_reason = models.CharField(max_length=255, blank=True)
+    # The finance office's income entry for the money, when it was taken
+    # through it. Not a foreign key: the finance office is a separate portal a
+    # school may not have, and the library must work without it.
+    income_id = models.UUIDField(null=True, blank=True)
+    # A lost book that turns up again: the replacement part of a PAID charge
+    # is given back. What was refunded is kept, not subtracted from `amount`,
+    # so the history still shows what the borrower paid and what came back.
+    refunded    = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    refunded_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

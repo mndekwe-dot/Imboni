@@ -4,10 +4,11 @@
 {% endblock %}
 {% block content %}
 <table class="grid">
-    <tr><th>Staff</th><th>Role</th><th>Period</th><th>Bank</th></tr>
+    <tr><th>Staff</th><th>Job</th><th>Department</th><th>Period</th><th>Bank</th></tr>
     <tr>
         <td>{{ payslip.staff_name }}</td>
-        <td>{{ payslip.role }}</td>
+        <td>{{ payslip.job_title|default:"-" }}</td>
+        <td>{{ payslip.department|default:"-" }}</td>
         <td>{{ run.period_label }}</td>
         <td>{{ payslip.bank_account|default:"-" }}</td>
     </tr>

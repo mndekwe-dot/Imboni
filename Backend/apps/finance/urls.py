@@ -12,6 +12,7 @@ a set of reminders are documents in their own right, not a rendering of a list.
 from django.urls import path
 
 from . import operations_views as ops
+from . import setup_views as setup
 from . import views
 
 urlpatterns = [
@@ -36,13 +37,27 @@ urlpatterns = [
     path('finance/students/<uuid:pk>/', views.StudentFinanceView.as_view(),
          name='finance-student'),
 
-    # Fee structure and invoicing
-    path('finance/structures/', views.FeeStructureListView.as_view(),
+    # What the school charges, and turning it into bills
+    path('finance/fee-categories/', setup.FeeCategoryListView.as_view(),
+         name='finance-fee-categories'),
+    path('finance/fee-categories/<uuid:pk>/', setup.FeeCategoryDetailView.as_view(),
+         name='finance-fee-category'),
+    path('finance/structures/', setup.FeeStructureListView.as_view(),
          name='finance-structures'),
-    path('finance/structures/<uuid:pk>/', views.FeeStructureDetailView.as_view(),
+    path('finance/structures/copy/', setup.CopyStructuresView.as_view(),
+         name='finance-structures-copy'),
+    path('finance/structures/<uuid:pk>/', setup.FeeStructureDetailView.as_view(),
          name='finance-structure'),
-    path('finance/structures/<uuid:pk>/invoice/', views.InvoiceView.as_view(),
+    path('finance/structures/<uuid:pk>/preview/', setup.FeeStructurePreviewView.as_view(),
+         name='finance-structure-preview'),
+    path('finance/structures/<uuid:pk>/invoice/', setup.InvoiceView.as_view(),
          name='finance-invoice'),
+    path('finance/invoice-term/', setup.InvoiceTermView.as_view(), name='finance-invoice-term'),
+    path('finance/discounts/', setup.FeeDiscountListView.as_view(), name='finance-discounts'),
+    path('finance/discounts/<uuid:pk>/', setup.FeeDiscountDetailView.as_view(),
+         name='finance-discount'),
+    path('finance/student-search/', setup.FinanceStudentSearchView.as_view(),
+         name='finance-student-search'),
 
     # Expenses
     path('finance/expenses/', views.ExpenseListView.as_view(), name='finance-expenses'),

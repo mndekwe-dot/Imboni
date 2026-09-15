@@ -61,7 +61,8 @@ def student():
 
 
 def a_fee(student, term, amount='100000', **kwargs):
-    return Fee.objects.create(student=student, term=term, category='tuition',
+    return Fee.objects.create(student=student, term=term,
+                              category=kwargs.pop('category', 'tuition'),
                               amount=Decimal(amount),
                               due_date=kwargs.pop('due_date', timezone.localdate()),
                               **kwargs)
@@ -181,36 +182,141 @@ class TestArrears:
         assert Fee.objects.filter(student=student, term=term,
                                   category='arrears').count() == 1
 
-    def test_a_settled_family_loses_its_arrears_line(self, student, term, older_term):
+    def test_once_carried_last_terms_charge_cannot_be_paid_twice(
+            self, student, term, older_term):
         old = a_fee(student, older_term, '80000')
         services.carry_arrears_forward(term)
 
-        services.record_payment(old, Decimal('80000'))
+        # The debt is on the arrears line now; the old charge is closed.
+        with pytest.raises(services.FinanceError, match='already settled'):
+            services.record_payment(old, Decimal('80000'))
+
+    def test_a_charge_added_to_last_term_later_joins_the_same_arrears_line(
+            self, student, term, older_term):
+        a_fee(student, older_term, '80000')
+        services.carry_arrears_forward(term)
+        a_fee(student, older_term, '15000', category='lunch')
+
+        result = services.carry_arrears_forward(term)
+
+        assert result['updated'] == 1
+        arrears = Fee.objects.get(student=student, term=term, category='arrears')
+        assert arrears.amount == Decimal('95000.00')
+        assert services.student_balance(student)['outstanding'] == Decimal('95000.00')
+
+    def test_an_old_style_arrears_line_is_repaired_not_doubled(
+            self, student, term, older_term):
+        """Raised before balances were moved: a copy of the old balances, part paid."""
+        a_fee(student, older_term, '80000')
+        legacy = Fee.objects.create(student=student, term=term, category='arrears',
+                                    amount=Decimal('80000'), due_date=timezone.localdate(),
+                                    notes='Brought forward from earlier terms.')
+        services.record_payment(legacy, Decimal('20000'))
+
+        services.carry_arrears_forward(term)
+
+        legacy.refresh_from_db()
+        assert legacy.amount == Decimal('80000.00')
+        assert services.student_balance(student)['outstanding'] == Decimal('60000.00')
+
+    def test_an_untouched_old_style_line_with_nothing_owed_is_removed(
+            self, student, term, older_term):
+        Fee.objects.create(student=student, term=term, category='arrears',
+                           amount=Decimal('80000'), due_date=timezone.localdate(),
+                           notes='Brought forward from earlier terms.')
+
         result = services.carry_arrears_forward(term)
 
         assert result['cleared'] == 1
         assert not Fee.objects.filter(student=student, term=term,
                                       category='arrears').exists()
 
-    def test_an_arrears_charge_with_money_against_it_is_never_deleted(
+
+class TestCarryingBalancesForward:
+    """Last term's debt moves onto this term's arrears line; it is never owed twice."""
+
+    def test_the_old_charge_closes_as_the_arrears_line_opens(self, student, term, older_term):
+        old = a_fee(student, older_term, '80000')
+        services.record_payment(old, '30000')
+
+        services.carry_arrears_forward(term)
+
+        old.refresh_from_db()
+        arrears = Fee.objects.get(student=student, term=term, category='arrears')
+        assert services.balance_of(old) == ZERO
+        assert old.status == 'cleared'
+        assert arrears.amount == Decimal('50000.00')
+        # The family owes 50,000 in total, not 100,000.
+        assert services.student_balance(student)['outstanding'] == Decimal('50000.00')
+
+    def test_a_carried_balance_is_not_money_and_takes_no_receipt_number(
+            self, account, student, term, older_term):
+        old = a_fee(student, older_term, '80000')
+        services.carry_arrears_forward(term)
+
+        last_term = services.collection_summary(older_term)
+        assert last_term['collected'] == ZERO
+        assert last_term['waived'] == ZERO
+        assert last_term['carried'] == Decimal('80000.00')
+        assert services.account_balance(account) == Decimal('100000.00')
+
+        arrears = Fee.objects.get(student=student, term=term, category='arrears')
+        assert services.record_payment(arrears, '10000').receipt_no == 'RCT-00001'
+        old.refresh_from_db()
+        assert old.paid_date is None
+
+    def test_paying_the_arrears_line_settles_the_debt(self, student, term, older_term):
+        a_fee(student, older_term, '80000')
+        services.carry_arrears_forward(term)
+        arrears = Fee.objects.get(student=student, term=term, category='arrears')
+
+        services.record_payment(arrears, '80000')
+
+        assert services.student_balance(student)['outstanding'] == ZERO
+        assert services.arrears_for(student, before_term=term) == ZERO
+
+    def test_a_balance_carried_forward_cannot_be_reversed_like_a_receipt(
             self, student, term, older_term):
         old = a_fee(student, older_term, '80000')
         services.carry_arrears_forward(term)
-        arrears = Fee.objects.get(student=student, term=term, category='arrears')
-        services.record_payment(arrears, Decimal('20000'))
-        services.record_payment(old, Decimal('80000'))
 
+        with pytest.raises(services.FinanceError, match='not a receipt'):
+            services.reverse_payment(old.payments.get(method='carried'))
+
+    def test_the_desk_cannot_record_a_carried_payment(self, student, term):
+        fee = a_fee(student, term, '80000')
+
+        with pytest.raises(services.FinanceError, match='way of paying'):
+            services.record_payment(fee, '1000', method='carried')
+
+    def test_a_bounced_payment_from_last_term_lands_on_the_arrears_line(
+            self, account, student, term, older_term):
+        old = a_fee(student, older_term, '80000')
+        cheque = services.record_payment(old, '30000', method='cheque')
         services.carry_arrears_forward(term)
 
-        # Deleting it would erase the charge a receipt was issued against.
-        assert Fee.objects.filter(pk=arrears.pk).exists()
+        services.reverse_payment(cheque, reason='Cheque bounced')
+
+        old.refresh_from_db()
+        arrears = Fee.objects.get(student=student, term=term, category='arrears')
+        assert services.balance_of(old) == ZERO
+        assert arrears.amount == Decimal('80000.00')
+        assert services.student_balance(student)['outstanding'] == Decimal('80000.00')
+
+    def test_the_receipt_book_does_not_list_carried_balances(self, api_client, student, term,
+                                                              older_term):
+        a_fee(student, older_term, '80000')
+        services.carry_arrears_forward(term)
+        api_client.force_authenticate(UserFactory(role='bursar'))
+
+        assert api_client.get('/imboni/finance/payments/').data == []
 
 
 # ── Budget ────────────────────────────────────────────────────────────────────
 
 class TestBudget:
     def test_planned_against_actual(self, term):
-        category = ExpenseCategory.objects.create(name='Utilities')
+        category = ExpenseCategory.objects.get_or_create(name='Utilities')[0]
         budget = Budget.objects.create(name='Term 2', term=term)
         BudgetLine.objects.create(budget=budget, category=category,
                                   planned=Decimal('500000'))
@@ -260,10 +366,13 @@ class TestBudget:
 # ── Payroll ───────────────────────────────────────────────────────────────────
 
 def a_salary(gross='400000', **kwargs):
+    # A flat rate unless a test says otherwise: these tests are about the run,
+    # not the tax table. PAYE bands have their own tests in test_real_life.
+    kwargs.setdefault('tax_method', 'flat')
     staff = UserFactory(role='teacher', **{k: kwargs.pop(k) for k in
                                           list(kwargs) if k in
                                           ('first_name', 'last_name', 'username')})
-    return StaffSalary.objects.create(staff=staff, gross=Decimal(gross), **kwargs)
+    return StaffSalary.objects.create(staff=staff.staff_record, gross=Decimal(gross), **kwargs)
 
 
 class TestPayroll:

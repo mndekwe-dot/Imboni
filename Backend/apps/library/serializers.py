@@ -105,10 +105,11 @@ class FineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Fine
-        fields = ['id', 'loan', 'book_title', 'borrower_detail', 'days_late',
+        fields = ['id', 'loan', 'kind', 'book_title', 'borrower_detail', 'days_late',
                   'rate', 'amount', 'paid', 'paid_at', 'waived', 'waived_reason',
-                  'outstanding', 'created_at']
-        read_only_fields = ['id', 'created_at', 'days_late', 'rate', 'amount']
+                  'refunded', 'refunded_at', 'outstanding', 'created_at']
+        read_only_fields = ['id', 'created_at', 'kind', 'days_late', 'rate', 'amount',
+                            'refunded', 'refunded_at']
 
     def get_borrower_detail(self, obj):
         return person(obj.loan.borrower)

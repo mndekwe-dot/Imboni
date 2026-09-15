@@ -1702,7 +1702,8 @@ class Command(BaseCommand):
             ]:
                 for category, amount in amounts:
                     FeeStructure.objects.create(
-                        term=current_term, grade=grade, section='', category=category,
+                        term=current_term, classes=[{'grade': grade, 'stream': ''}],
+                        category=category,
                         amount=Decimal(amount),
                         due_date=date(2026, 5, 15),
                     )
@@ -1760,6 +1761,55 @@ class Command(BaseCommand):
                 )
                 expense_count += 1
         self.stdout.write(self.style.SUCCESS(f'  {expense_count} expenses created'))
+
+        # ── 33. Staff register and salaries ────────────────────────────────────
+        # Every staff account is already on the register (a signal puts it
+        # there). A school also employs people who never sign in, and payroll
+        # pays them too, so the demo has a kitchen, a gate and a bus.
+        self.stdout.write('Creating staff register and salaries...')
+        from apps.finance.models import StaffSalary
+        from apps.staff.models import Department, StaffMember
+
+        departments = {d.code: d for d in Department.objects.all()}
+        worker_count = 0
+        for staff_no, first, last, title, code, employment, phone in [
+            ('K-001', 'Jeanne', 'Mukamana', 'Head cook', 'kitchen', 'full_time', '+250788100201'),
+            ('K-002', 'Alice', 'Uwimana', 'Cook', 'kitchen', 'full_time', '+250788100202'),
+            ('S-001', 'Eric', 'Niyonzima', 'Night guard', 'security', 'full_time', '+250788100203'),
+            ('S-002', 'Olivier', 'Habineza', 'Day guard', 'security', 'contract', '+250788100204'),
+            ('C-001', 'Vestine', 'Nyiraneza', 'Cleaner', 'cleaning', 'casual', '+250788100205'),
+            ('T-001', 'Jean Bosco', 'Kayitare', 'Bus driver', 'transport', 'full_time', '+250788100206'),
+            ('H-001', 'Solange', 'Ingabire', 'School nurse', 'health', 'part_time', '+250788100207'),
+            ('M-001', 'Innocent', 'Mugisha', 'Groundsman', 'maintenance', 'casual', '+250788100208'),
+        ]:
+            _, created = StaffMember.objects.get_or_create(
+                staff_no=staff_no,
+                defaults={'first_name': first, 'last_name': last, 'job_title': title,
+                          'department': departments.get(code), 'employment_type': employment,
+                          'phone': phone, 'start_date': date(2024, 1, 8)})
+            worker_count += created
+        self.stdout.write(self.style.SUCCESS(f'  {worker_count} workers without accounts added'))
+
+        salary_count = 0
+        if not StaffSalary.objects.exists():
+            pay_by_title = {
+                'Head teacher': '650000', 'Director of Studies': '520000', 'Bursar': '450000',
+                'Director of Discipline': '420000', 'Teacher': '320000', 'Matron': '280000',
+                'Librarian': '260000', 'Head cook': '160000', 'Cook': '120000',
+                'Night guard': '110000', 'Day guard': '100000', 'Cleaner': '80000',
+                'Bus driver': '180000', 'School nurse': '220000', 'Groundsman': '85000',
+            }
+            for member in StaffMember.objects.filter(is_active=True):
+                gross = pay_by_title.get(member.job_title)
+                if not gross:
+                    continue
+                StaffSalary.objects.create(
+                    staff=member, gross=Decimal(gross),
+                    allowances=Decimal('30000') if member.user_id else Decimal('0'),
+                    pension_percent=Decimal('6'), tax_method='paye',
+                    bank_account=f'BK-{400100 + salary_count}')
+                salary_count += 1
+        self.stdout.write(self.style.SUCCESS(f'  {salary_count} salaries set'))
 
         # ── Done ───────────────────────────────────────────────────────────────
         self.stdout.write('')
