@@ -7,6 +7,7 @@ Only endpoints that operate on the public schema belong here — the tenant
 registry (Client/Domain) lives in the public schema, so onboarding + platform
 admin are served from here, NOT from a school subdomain.
 """
+from django.conf import settings
 from django.urls import path, include
 
 from apps.tenants.onboarding import SchoolSignupView, ProvisionStatusView, SchoolApplyView
@@ -37,3 +38,9 @@ urlpatterns = [
     # Platform super-admin API (Phase 5) — IsAdminUser.
     path('imboni/', include('apps.tenants.urls')),
 ]
+
+if settings.DEBUG:
+    # DEBUG adds the toolbar middleware to every request, the bare domain
+    # included, and it reverses 'djdt:' URLs while rendering. Without them here
+    # every platform console call on http://localhost 500s with NoReverseMatch.
+    urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
