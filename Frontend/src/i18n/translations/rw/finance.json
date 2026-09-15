@@ -46,7 +46,14 @@
     "lunch": "Ifunguro",
     "uniform": "Imyambaro",
     "activity": "Ibikorwa",
-    "other": "Ibindi"
+    "other": "Ibindi",
+    "boarding": "Icumbi",
+    "exam": "Amafaranga y'ibizamini",
+    "pta": "Umusanzu w'ababyeyi",
+    "development": "Amafaranga y'iterambere",
+    "medical": "Ubwishingizi bw'indwara",
+    "admission": "Amafaranga yo kwiyandikisha",
+    "arrears": "Ibirarane"
   },
   "methods": {
     "cash": "Amafaranga",
@@ -54,7 +61,8 @@
     "bank": "Banki",
     "cheque": "Sheki",
     "waiver": "Kubabarirwa",
-    "other": "Ubundi"
+    "other": "Ubundi",
+    "carried": "Wimuriwe ku gihembwe gikurikira"
   },
   "status": {
     "cleared": "Byishyuwe",
@@ -64,7 +72,7 @@
   },
   "dashboard": {
     "title": "Imari",
-    "subtitle": "Ibyasabwe, ibyinjiye, n'ibisigaye",
+    "subtitle": "Amafaranga yose y'ishuri muri iki gihembwe",
     "collection": "Ibyakiriwe muri iki gihembwe",
     "owingCount_one": "umuryango {{count}} uracyafite umwenda",
     "owingCount_other": "imiryango {{count}} iracyafite umwenda",
@@ -77,7 +85,24 @@
     "noPaymentsDesc": "Inyemezabwishyu zigaragara hano uko amafaranga akirwa.",
     "chaseDebtors": "Imiryango yo gukurikirana",
     "overdueCharges": "Ibirenze igihe",
-    "pendingExpenses": "Ibiguzi byo kwemeza"
+    "pendingExpenses": "Ibiguzi byo kwemeza",
+    "moneyIn": "Ayinjiye",
+    "moneyOut": "Ayasohotse",
+    "surplus": "Asagutse",
+    "deficit": "Icyuho",
+    "feesOwed": "Amafaranga y'ishuri akiberewemo",
+    "committed": "{{amount}} yemejwe ariko ntarishyurwa",
+    "committedNote": "Hari andi {{amount}} yemejwe ariko atarishyurwa. Ntabarwa kugeza avuye kuri konti.",
+    "collectedOf": "{{collected}} yakiriwe kuri {{charged}}",
+    "statement": "Ibyinjiye n'ibyasohotse",
+    "statementHint": "Amafaranga y'ishuri yakiriwe, ibindi byinjiye n'ibyasohotse muri iki gihembwe",
+    "nothingIn": "Nta cyinjiye kiraboneka",
+    "nothingInDesc": "Ubwishyu bw'amafaranga y'ishuri n'ibindi byinjiye bigaragara hano uko byandikwa.",
+    "nothingOut": "Nta cyasohotse kiraboneka",
+    "nothingOutDesc": "Ibyishyuwe n'imishahara bigaragara hano bikurikije ibyiciro.",
+    "fromFees": "Amafaranga y'ishuri",
+    "otherIncome": "Ibindi byinjiye",
+    "feesByMethod": "Amafaranga y'ishuri hakurikijwe uburyo:"
   },
   "fees": {
     "title": "Ibyasabwe",
@@ -104,12 +129,19 @@
     "taken": "{{amount}} yakiriwe. Inyemezabwishyu {{receipt}}.",
     "failed": "Ubwo bwishyu ntibwashoboye kwandikwa.",
     "findStudent": "Shakisha umunyeshuri ufite umwenda…",
-    "whichCharge": "Ni ikihe cyasabwe uku kwishyura kureba?",
-    "outstandingIs": "Hasigaye {{amount}} kuri iki cyasabwe",
     "nothingOwed": "Uyu munyeshuri nta mwenda afite.",
     "referencePlaceholder": "Nimero ya MoMo, iya banki cyangwa iya sheki",
     "none": "Nta bwishyu burabaho",
-    "noneDesc": "Inyemezabwishyu zigaragara hano uko amafaranga akirwa."
+    "noneDesc": "Inyemezabwishyu zigaragara hano uko amafaranga akirwa.",
+    "splitIntro": "Bishyirwa ku cyasabwe cya kera mbere, byose ku nyemezabwishyu imwe. Kanda hano hepfo niba ushaka kugena amafaranga ya buri cyasabwe.",
+    "chooseAmounts": "Kugena amafaranga ya buri cyasabwe",
+    "charge": "Icyasabwe",
+    "owed": "Ibisigaye",
+    "thisPayment": "Ubu bwishyu",
+    "dueOn": "Itariki ntarengwa {{date}}",
+    "totalOwed": "Umwenda w'iki gihembwe: {{amount}}",
+    "tooMuch": "Ibi birenze umwenda w'iki gihembwe wa {{amount}}.",
+    "amountFor": "Amafaranga ya {{charge}}"
   },
   "debtors": {
     "title": "Abafite imyenda",
@@ -126,18 +158,81 @@
     "bursaryHint": "Ni igabanywa rikorwa igihe cyo gusaba amafaranga — si ubwishyu. Ishuri ntiryigeze ryakira ayo mafaranga."
   },
   "structure": {
-    "title": "Amafaranga y'ishuri",
-    "subtitle": "Ibyo buri rwego rwishyura muri iki gihembwe",
-    "add": "Ongeraho umurongo",
-    "added": "Byongewe ku mafaranga y'ishuri.",
+    "title": "Igenamiterere ry'amafaranga",
+    "add": "Ongeraho amafaranga",
+    "added": "Amafaranga yongeweho.",
     "invoice": "Gusaba",
     "dueBy": "Bigomba kwishyurwa {{date}}",
-    "invoiced_one": "Icyasabwe {{count}} cyashyizweho.",
-    "invoiced_other": "Ibyasabwe {{count}} byashyizweho.",
-    "alreadyInvoiced": "Buri wese muri urwo rwego asanzwe afite iki cyasabwe.",
-    "required": "Hitamo urwego, umubare n'itariki.",
-    "empty": "Nta mafaranga y'ishuri yashyizweho",
-    "emptyDesc": "Shyiraho ibyo buri rwego rwishyura, hanyuma ubisabe icyarimwe."
+    "invoiced_one": "Umunyeshuri {{count}} yasabwe kwishyura.",
+    "invoiced_other": "Abanyeshuri {{count}} basabwe kwishyura.",
+    "alreadyInvoiced": "Abo aya mafaranga areba bose bamaze gusabwa kwishyura.",
+    "empty": "Nta mafaranga yateganyijwe kuri iki gihembwe",
+    "emptyDesc": "Ongeraho ibyo ishuri risaba, cyangwa wimure iby'igihembwe gishize, hanyuma usabe kwishyura.",
+    "edit": "Hindura amafaranga",
+    "invoiceTerm": "Saba kwishyura igihembwe",
+    "invoiceTermTitle": "Saba kwishyura {{term}}",
+    "invoiceTermIntro": "Buri mafaranga akora n'abo azasabira ubu. Abamaze gusabwa barasimbukwa, bityo nta kibazo kubisubiramo.",
+    "invoiceTermConfirm": "Saba {{total}} RWF",
+    "termInvoiced_one": "Icyasabwe {{count}} cyatanzwe, {{total}} RWF.",
+    "termInvoiced_other": "Ibyasabwe {{count}} byatanzwe, {{total}} RWF.",
+    "line": "Amafaranga",
+    "toBill": "Abo gusabwa",
+    "alreadyBilled": "Abamaze gusabwa",
+    "copyFrom": "Kwimura mu kindi gihembwe",
+    "copy": "Imura",
+    "copied_one": "Amafaranga {{count}} yimuwe. Genzura imibare mbere yo gusaba kwishyura.",
+    "copied_other": "Amafaranga {{count}} yimuwe. Genzura imibare mbere yo gusaba kwishyura.",
+    "categories": "Ibyiciro",
+    "categoriesIntro": "Ubwoko bw'amafaranga ishuri risaba. Icyiciro cyakoreshejwe ku cyasabwe gishobora guhagarikwa ariko ntigisibwe.",
+    "inUse": "cyakoreshejwe",
+    "newCategory": "Ongeraho icyiciro",
+    "newCategoryPlaceholder": "urugero: Porogaramu ya mudasobwa",
+    "linesFor": "Amafaranga ya {{term}}",
+    "wholeSchool": "Ishuri ryose",
+    "boarding": {
+      "all": "Abacumbikiwe n'abataha",
+      "boarders": "Abacumbikiwe gusa",
+      "day": "Abataha gusa"
+    },
+    "intake": {
+      "all": "Abashya n'abasanzwe",
+      "new": "Abanyeshuri bashya gusa",
+      "returning": "Abanyeshuri basanzwe gusa"
+    },
+    "frequency": {
+      "term": "Buri gihembwe",
+      "year": "Rimwe mu mwaka",
+      "once": "Rimwe kuri buri munyeshuri"
+    },
+    "optionalTag_one": "Ku bushake · umunyeshuri {{count}}",
+    "optionalTag_other": "Ku bushake · abanyeshuri {{count}}",
+    "instalmentsTag": "Ibice {{count}}",
+    "offTag": "Byahagaritswe",
+    "billedCount_one": "{{count}} yasabwe",
+    "billedCount_other": "{{count}} basabwe",
+    "whoPays": "Ababyishyura",
+    "switchOff": "Hagarika",
+    "switchOn": "Tangiza",
+    "editBilledNote": "Hari imiryango yamaze gusabwa aya mafaranga. Impinduka zireba ibizasabwa guhera ubu; ibyamaze gutangwa bigumana imibare yabyo.",
+    "name": "Izina kuri fagitire",
+    "namePlaceholder": "urugero: Amafaranga y'icumbi, kwiyandikisha ku kizamini S6",
+    "boardingLabel": "Icumbi",
+    "intakeLabel": "Bashya cyangwa basanzwe",
+    "frequencyLabel": "Inshuro",
+    "optional": "Ku bushake: abanyeshuri bari hasi aha gusa ni bo bishyura",
+    "optionalHint": "Imodoka, amasomo y'inyongera, urugendo: ongeraho abanyeshuri babikoresha.",
+    "studentsNarrowHint": "Siga ubusa kugira ngo bose bari hejuru basabwe. Ongeraho abanyeshuri kugira ngo abo gusa basabwe (urugero: gusubiramo ikizamini).",
+    "students": "Abanyeshuri",
+    "findStudent": "Shakisha umunyeshuri ukoresheje izina cyangwa nimero…",
+    "instalments": "Kwishyura mu byiciro",
+    "payAtOnce": "Icyarimwe",
+    "parts": "Ibice {{count}}",
+    "part": "Igice",
+    "percent": "%",
+    "partsMustAddUp": "Ibice byose hamwe ni {{total}}%. Bigomba kuba 100%, buri gice gifite itariki ntarengwa.",
+    "previewSummary_one": "Umunyeshuri {{count}} yasabwa {{total}} RWF ubu. {{skipped}} basimbutswe: bamaze gusabwa cyangwa nta cyo bishyura.",
+    "previewSummary_other": "Abanyeshuri {{count}} basabwa {{total}} RWF ubu. {{skipped}} basimbutswe: bamaze gusabwa cyangwa nta cyo bishyura.",
+    "why": "Igabanywa"
   },
   "expenses": {
     "title": "Ibiguzi",
@@ -169,19 +264,8 @@
       "approved": "Byemejwe",
       "paid": "Byishyuwe",
       "rejected": "Byanzwe"
-    }
-  },
-  "reports": {
-    "title": "Raporo",
-    "subtitle": "Amafaranga yinjiye ugereranyije n'asohotse",
-    "collectionRate": "Ijanisha ry'ibyakiriwe",
-    "net": "Igisigaye",
-    "byMethod": "Uko amafaranga yinjiye",
-    "byCategory": "Aho amafaranga yagiye",
-    "noIncome": "Nta cyakiriwe",
-    "noIncomeDesc": "Inyemezabwishyu zizashyirwa hano hakurikijwe uburyo bwishyuwe.",
-    "noSpending": "Nta cyakoreshejwe",
-    "noSpendingDesc": "Ibiguzi byemejwe bizashyirwa hano hakurikijwe ibyiciro."
+    },
+    "tabExpenses": "Amafaranga yasohotse"
   },
   "settings": {
     "title": "Igenamiterere ry'imari",
@@ -196,7 +280,13 @@
     "grace_days": "Iminsi y'ubuntu",
     "grace_daysHint": "Iminsi nyuma y'itariki mbere y'uko ibiro bitangira gukurikirana.",
     "bank_details": "Amakuru ya banki",
-    "bank_detailsHint": "Acapwa aho imiryango ibwirwa uko yishyura."
+    "bank_detailsHint": "Acapwa aho imiryango ibwirwa uko yishyura.",
+    "payeTitle": "Ibyiciro bya TPR (buri kwezi)",
+    "payeHint": "Buri janisha rireba igice cy'umushahara w'ukwezi kiri mu cyiciro cyaryo gusa. Byashyizwe ku byiciro by'u Rwanda biriho ubu; bihindure hano itegeko nirihinduka.",
+    "payeUpTo": "Umushahara ugeza kuri (RWF)",
+    "payeRate": "Ijanisha (%)",
+    "payeAbove": "Ibirenzeho byose",
+    "payeAdd": "Ongeraho icyiciro"
   },
   "messages": {
     "subtitle": "Ubutumwa n'abakozi n'imiryango"
@@ -206,7 +296,8 @@
     "subtitle": "Ibyo ishuri rihemba abakozi baryo",
     "tab": {
       "runs": "Buri kwezi",
-      "salaries": "Imishahara"
+      "staff": "Abakozi n’imishahara",
+      "departments": "Amashami"
     },
     "onPayroll": "Abahembwa",
     "monthlyNet": "Ayo bahembwa buri kwezi",
@@ -223,7 +314,6 @@
       "paid": "Byishyuwe",
       "cancelled": "Byahagaritswe"
     },
-    "salaries": "Imishahara y’abakozi",
     "gross": "Umushahara mbumbe",
     "allowances": "Inyongera",
     "deductions": "Ibikurwaho",
@@ -234,8 +324,6 @@
     "bankAccount": "Konti ya banki",
     "includeInRuns": "Ashyirwe mu ihembwa rya buri kwezi",
     "deductionNote": "Ijanisha rikurwa ku mushahara mbumbe, atari ku nyongera. Amafaranga ashyirwa ku rupapuro rw’umushahara burundu, bityo guhindura ijanisha ntibihindura urwatanzwe.",
-    "noSalaries": "Nta mishahara yashyizweho",
-    "noSalariesDesc": "Shyiraho umushahara wa buri mukozi, ihembwa ryuzura ryonyine.",
     "salarySaved": "Umushahara wabitswe.",
     "saveFailed": "Ntibyashoboye kubikwa.",
     "rebuild": "Ongera wuzuze",
@@ -252,7 +340,16 @@
       "approve": "Byemejwe.",
       "pay": "Byishyuwe. Ubu bigaragara nk’ikiguzi.",
       "cancel": "Byahagaritswe."
-    }
+    },
+    "taxMethod": "Umusoro",
+    "taxMethods": {
+      "paye": "Ibyiciro bya TPR",
+      "flat": "Ijanisha rimwe"
+    },
+    "pensionPlusPaye": "{{pension}}% + TPR",
+    "payeNote": "TPR ibarwa hakurikijwe ibyiciro biri mu igenamiterere ry'imari, ku mushahara mbumbe n'inyongera. Pansiyo ibarwa ku mushahara mbumbe gusa. Amafaranga ashyirwa ku rupapuro rw'umushahara burundu.",
+    "withoutSalary": "Bakora nta mushahara washyizweho",
+    "byDepartment": "Ikiguzi kuri buri shami"
   },
   "cash": {
     "title": "Amafaranga na banki",
@@ -325,13 +422,7 @@
   "income": {
     "title": "Andi mafaranga n’imyenda ishaje",
     "subtitle": "Amafaranga atari ay’ishuri, n’imyenda y’ibihembwe bishize",
-    "tab": {
-      "income": "Andi mafaranga",
-      "arrears": "Imyenda ishaje"
-    },
     "thisTerm": "Yakiriwe iki gihembwe",
-    "arrearsOwed": "Imyenda y’ibihembwe bishize",
-    "familiesBehind": "Imiryango isigaye inyuma",
     "record": "Andika amafaranga",
     "recorded": "Yanditswe.",
     "saveFailed": "Ntibyashoboye kubikwa.",
@@ -342,10 +433,65 @@
     "newCategory": "Ongeraho icyiciro",
     "newCategoryPlaceholder": "Kantine, imyenda...",
     "arrearsTitle": "Imyenda y’ibihembwe bishize",
-    "arrearsNote": "Buri paji ipima igihembwe kiriho, bityo iyi myenda yari kubura nyamara igihari.",
+    "arrearsNote": "Kwimurira imbere bishyira buri mwenda ku cyasabwe kimwe cy'ibirarane muri iki gihembwe, kandi bigafunga icyasabwe cya kera, bityo umwenda ubarwa hamwe gusa, ntubarwe kabiri.",
     "noArrears": "Nta myenda y’ibihembwe bishize.",
     "carryForward": "Yimurire imbere",
     "carried": "Imyenda {{raised}} yashyizweho, {{updated}} yavuguruwe.",
-    "carryFailed": "Ntibyashoboye kwimurwa."
+    "carryFailed": "Ntibyashoboye kwimurwa.",
+    "entries": "Ibyinjiye muri iki gihembwe",
+    "sources": "Aho byaturutse"
+  },
+  "feesHub": {
+    "title": "Amafaranga y'ishuri",
+    "tab": {
+      "owing": "Abafite umwenda",
+      "charges": "Ibyasabwe",
+      "setup": "Igenamiterere ry'amafaranga",
+      "arrears": "Ibihembwe bishize"
+    },
+    "subtitle": {
+      "owing": "Abasigaye inyuma cyane mbere, ngo ibiro bimenye aho bitangirira",
+      "charges": "Buri cyasabwe cyatanzwe n'ibisigaye kuri cyo",
+      "setup": "Ibyo ishuri risaba, ababyishyura, no kubisabira",
+      "arrears": "Imyenda imiryango igifite y'ibihembwe byarangiye"
+    }
+  },
+  "discounts": {
+    "title": "Igabanywa",
+    "add": "Ongeraho igabanywa",
+    "edit": "Hindura igabanywa",
+    "intro": "Rikorwa igihe basaba kwishyura kandi rigaragara kuri buri cyasabwe, ngo umuryango umenye impamvu byagabanutse. Buruse iri kuri konti y'umunyeshuri nayo irakora.",
+    "none": "Nta gabanywa",
+    "noneDesc": "Abavandimwe, abana b'abakozi, buruse: bishyireho rimwe maze buri cyasabwe kibikurikize.",
+    "scope": {
+      "students_one": "Umunyeshuri {{count}}",
+      "students_other": "Abanyeshuri {{count}}",
+      "siblings": "Guhera ku mwana wa {{child}} mu muryango",
+      "boarders": "Abacumbikiwe",
+      "day": "Abataha",
+      "all": "Bose"
+    },
+    "allCategories": "Ibyiciro byose",
+    "everyTerm": "Buri gihembwe",
+    "appliesFuture": "Bireba gusa ibizasabwa guhera ubu. Ibyamaze gutangwa bigumana imibare yabyo.",
+    "name": "Izina",
+    "namePlaceholder": "urugero: Igabanywa ry'abavandimwe, Umwana w'umukozi",
+    "kindLabel": "Ubwoko",
+    "kind": {
+      "percent": "Ijanisha",
+      "fixed": "Amafaranga ateganyijwe"
+    },
+    "percent": "Ijanisha",
+    "scopeLabel": "Abarihabwa",
+    "scopeOption": {
+      "students": "Abanyeshuri batoranyijwe",
+      "siblings": "Abavandimwe",
+      "boarders": "Abacumbikiwe",
+      "day": "Abataha",
+      "all": "Bose"
+    },
+    "fromChild": "Guhera ku mwana wa",
+    "categoriesLabel": "Ku yahe mafaranga",
+    "active": "Rirakora"
   }
 }

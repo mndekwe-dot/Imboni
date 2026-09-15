@@ -30,12 +30,28 @@ export const getStudentFinance = (id, params) =>
 export const saveStudentAccount = (id, data) =>
     client.put(`/imboni/finance/students/${id}/`, data)
 
-// ── Fee structure and invoicing ───────────────────────────────────────────────
-export const getFeeStructures  = (params) => client.get('/imboni/finance/structures/', { params })
-export const createFeeStructure = (data)  => client.post('/imboni/finance/structures/', data)
-export const deleteFeeStructure = (id)    => client.delete(`/imboni/finance/structures/${id}/`)
-export const invoiceStructure   = (id)    =>
+// ── What the school charges, and invoicing ────────────────────────────────────
+export const getFeeCategories   = (params) => client.get('/imboni/finance/fee-categories/', { params })
+export const createFeeCategory  = (data)   => client.post('/imboni/finance/fee-categories/', data)
+export const updateFeeCategory  = (id, d)  => client.patch(`/imboni/finance/fee-categories/${id}/`, d)
+export const deleteFeeCategory  = (id)     => client.delete(`/imboni/finance/fee-categories/${id}/`)
+export const getFeeStructures   = (params) => client.get('/imboni/finance/structures/', { params })
+export const createFeeStructure = (data)   => client.post('/imboni/finance/structures/', data)
+export const updateFeeStructure = (id, d)  => client.patch(`/imboni/finance/structures/${id}/`, d)
+export const deleteFeeStructure = (id)     => client.delete(`/imboni/finance/structures/${id}/`)
+export const previewStructure   = (id)     => client.get(`/imboni/finance/structures/${id}/preview/`)
+export const invoiceStructure   = (id)     =>
     client.post(`/imboni/finance/structures/${id}/invoice/`, {})
+export const invoiceTerm        = (data)   => client.post('/imboni/finance/invoice-term/', data)
+export const copyStructures     = (fromTerm) =>
+    client.post('/imboni/finance/structures/copy/', { from_term: fromTerm })
+export const getFeeDiscounts    = ()       => client.get('/imboni/finance/discounts/')
+export const createFeeDiscount  = (data)   => client.post('/imboni/finance/discounts/', data)
+export const updateFeeDiscount  = (id, d)  => client.patch(`/imboni/finance/discounts/${id}/`, d)
+export const deleteFeeDiscount  = (id)     => client.delete(`/imboni/finance/discounts/${id}/`)
+// Any active student, not only those who owe (getDebtors).
+export const searchStudents     = (params) => client.get('/imboni/finance/student-search/', { params })
+export const getTerms           = ()       => client.get('/imboni/results/terms/')
 
 // ── Expenses ──────────────────────────────────────────────────────────────────
 export const getExpenses       = (params) => client.get('/imboni/finance/expenses/', { params })

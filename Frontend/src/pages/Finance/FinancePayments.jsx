@@ -15,17 +15,16 @@ import { formatDate } from '../../utils/date'
 import {
     getDebtors, getPayments, getStudentFinance, recordPayment, reversePayment,
 } from '../../api/finance'
-import { FinanceShell, Money } from './FinanceShell'
+import { FinanceShell, Money, formatAmount, categoryName } from './FinanceShell'
 
 const METHODS = ['cash', 'momo', 'bank', 'cheque', 'waiver', 'other']
 
 /**
- * The desk: take money against a charge, and the receipt book behind it.
+ * The desk: take money from a family, and the receipt book behind it.
  *
- * Taking a payment is two steps on purpose — find the family, then pick WHICH
- * charge. A single "pay 20,000" box against a student would have to guess
- * which of tuition, lunch and transport it settles, and guessing wrong is
- * exactly the thing a parent notices at the end of term.
+ * One sum can settle several charges. Where it goes is shown line by line
+ * before it is saved - a "pay 20,000" box that silently picked tuition over
+ * lunch is exactly the thing a parent notices at the end of term.
  */
 export function FinancePayments() {
     const { t } = useTranslation()
@@ -56,6 +55,7 @@ export function FinancePayments() {
 
     useEffect(() => { load() }, [load])
 
+    // Reverses the whole receipt: every charge a split payment covered.
     async function handleReverse(payment) {
         try {
             await reversePayment(payment.id, '')
@@ -77,13 +77,14 @@ export function FinancePayments() {
             )}
             {receipt && <ReceiptModal payment={receipt} onClose={() => setReceipt(null)} />}
 
+            <ClassFilter grade={klass.grade} stream={klass.stream}
+                onChange={setKlass} disabled={loading} />
+
             <div className="toolbar-card mb-1-5">
                 <button className="btn btn-primary" onClick={() => setTaking(true)}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                     {t('finance.payments.take')}
                 </button>
-                <ClassFilter grade={klass.grade} stream={klass.stream}
-                    onChange={setKlass} disabled={loading} />
                 <div className="toolbar-spacer" />
                 {/* Printing the receipt book is the cash-up: the same rows,
                     with a line for whoever counted and whoever checked. */}
@@ -136,15 +137,39 @@ export function FinancePayments() {
     )
 }
 
-/** Find the family, pick the charge, take the money. */
+/**
+ * Split a sum across charges the way the server will when nobody chooses:
+ * oldest due date first, each charge filled before the next gets anything.
+ */
+function allocateOldestFirst(fees, amount) {
+    let left = Math.max(0, Number(amount) || 0)
+    const parts = {}
+    for (const fee of fees) {
+        const part = Math.min(left, Number(fee.balance))
+        parts[fee.id] = part > 0 ? String(part) : ''
+        left -= part
+    }
+    return parts
+}
+
+/**
+ * Find the family, take the money, see where it goes.
+ *
+ * A parent hands over one sum, and it usually covers more than one charge:
+ * arrears, then tuition, then part of lunch. The sum is spread oldest charge
+ * first, shown line by line before anything is saved, and the bursar can set
+ * each line by hand when the family says otherwise (a sponsor pays tuition,
+ * so this money is for lunch). It all goes on one receipt.
+ */
 function TakePaymentModal({ onClose, onDone }) {
     const { t } = useTranslation()
     const toast = useToast()
 
     const [student, setStudent] = useState(null)
     const [account, setAccount] = useState(null)
-    const [feeId, setFeeId]     = useState('')
     const [form, setForm] = useState({ amount: '', method: 'cash', reference: '', payer_name: '' })
+    const [manual, setManual] = useState(false)
+    const [parts, setParts]   = useState({})
     const [busy, setBusy] = useState(false)
 
     const searchStudents = useCallback(q => getDebtors({ q }).then(rows =>
@@ -157,33 +182,58 @@ function TakePaymentModal({ onClose, onDone }) {
         }))), [])
 
     useEffect(() => {
-        if (!student) { setAccount(null); return }
+        if (!student) return
         getStudentFinance(student.id)
-            .then(data => {
-                setAccount(data)
-                // Preselect the oldest unsettled charge — the one a family
-                // paying something almost always means to pay.
-                const open = (data.fees || []).filter(f => Number(f.balance) > 0)
-                setFeeId(open.length ? open[open.length - 1].id : '')
+            .then(setAccount)
+            .catch(e => {
+                setAccount(null)
+                toast.error(errorMessage(e, t('finance.loadFailed')))
             })
-            .catch(() => setAccount(null))
-    }, [student])
+    }, [student, toast, t])
 
-    const openFees = (account?.fees || []).filter(f => Number(f.balance) > 0)
-    const chosen = openFees.find(f => f.id === feeId)
+    const openFees = (student ? account?.fees || [] : [])
+        .filter(f => Number(f.balance) > 0)
+        .sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''))
+    const totalOwed = openFees.reduce((sum, f) => sum + Number(f.balance), 0)
+
+    const shown = manual ? parts : allocateOldestFirst(openFees, form.amount)
+    const amount = manual
+        ? openFees.reduce((sum, f) => sum + (Number(parts[f.id]) || 0), 0)
+        : Number(form.amount) || 0
+    const tooMuch = amount > totalOwed
+    const lineTooMuch = manual && openFees.some(f => Number(parts[f.id]) > Number(f.balance))
+
+    function chooseStudent(next) {
+        setStudent(next)
+        setAccount(null)
+        setManual(false)
+        setParts({})
+    }
+
+    function toggleManual(on) {
+        // Start the hand-set lines from the split already on screen, so ticking
+        // the box changes nothing until a line is edited.
+        if (on) setParts(allocateOldestFirst(openFees, form.amount))
+        setManual(on)
+    }
 
     async function submit() {
-        if (!chosen || !form.amount) return
+        if (!student || amount <= 0 || tooMuch || lineTooMuch) return
         setBusy(true)
         try {
-            const result = await recordPayment({ fee: chosen.id, ...form })
-            onDone(result.payment)
+            const allocations = openFees
+                .filter(f => Number(shown[f.id]) > 0)
+                .map(f => ({ fee: f.id, amount: String(shown[f.id]) }))
+            const result = await recordPayment({
+                student: student.id, ...form, amount: String(amount), allocations,
+            })
+            onDone({ ...result.payment, amount: result.total, lines: result.payments })
             toast.success(t('finance.payments.taken', {
-                amount: form.amount, receipt: result.payment.receipt_no,
+                amount: formatAmount(result.total), receipt: result.payment.receipt_no,
             }))
         } catch (e) {
-            // The server says WHICH rule refused it — more than outstanding,
-            // already settled — so pass its words through.
+            // The server says WHICH rule refused it (more than is owed, lines
+            // that do not add up), so pass its words through.
             toast.error(errorMessage(e, t('finance.payments.failed')))
         } finally {
             setBusy(false)
@@ -200,7 +250,7 @@ function TakePaymentModal({ onClose, onDone }) {
                 <>
                     <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={submit}
-                        disabled={busy || !chosen || !form.amount}>
+                        disabled={busy || !student || amount <= 0 || tooMuch || lineTooMuch}>
                         {t('finance.payments.take')}
                     </button>
                 </>
@@ -208,45 +258,33 @@ function TakePaymentModal({ onClose, onDone }) {
         >
             <StudentSearchPicker
                 value={student}
-                onChange={setStudent}
+                onChange={chooseStudent}
                 fetchStudents={searchStudents}
                 label={t('common.student')}
                 placeholder={t('finance.payments.findStudent')}
             />
 
-            {student && !openFees.length && (
+            {student && account && !openFees.length && (
                 <p className="u-muted mt-1-5">{t('finance.payments.nothingOwed')}</p>
             )}
 
             {openFees.length > 0 && (
                 <>
-                    <div className="mt-1-5">
-                        <label className="form-label" htmlFor="pay-fee">
-                            {t('finance.payments.whichCharge')}
-                        </label>
-                        <select id="pay-fee" className="form-select" value={feeId}
-                            onChange={e => setFeeId(e.target.value)}>
-                            {openFees.map(f => (
-                                <option key={f.id} value={f.id}>
-                                    {t(`finance.categories.${f.category}`)} — {f.balance} ({f.due_date})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
                     <div className="form-grid mt-1-5">
                         <div>
                             <label className="form-label" htmlFor="pay-amount">
                                 {t('finance.fields.amount')}
                             </label>
-                            <input id="pay-amount" type="number" step="0.01" className="form-input"
-                                value={form.amount}
+                            <input id="pay-amount" type="number" min="0" step="1" className="form-input"
+                                value={manual ? String(amount || '') : form.amount}
+                                readOnly={manual}
+                                aria-invalid={tooMuch || undefined}
                                 onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} />
-                            {chosen && (
-                                <p className="text-xs-muted">
-                                    {t('finance.payments.outstandingIs', { amount: chosen.balance })}
-                                </p>
-                            )}
+                            <p className={tooMuch ? 'text-xs-muted u-danger' : 'text-xs-muted'}>
+                                {tooMuch
+                                    ? t('finance.payments.tooMuch', { amount: formatAmount(totalOwed) })
+                                    : t('finance.payments.totalOwed', { amount: formatAmount(totalOwed) })}
+                            </p>
                         </div>
                         <div>
                             <label className="form-label" htmlFor="pay-method">
@@ -275,6 +313,53 @@ function TakePaymentModal({ onClose, onDone }) {
                                 onChange={e => setForm(f => ({ ...f, payer_name: e.target.value }))} />
                         </div>
                     </div>
+
+                    <p className="text-xs-muted mt-1-5">{t('finance.payments.splitIntro')}</p>
+                    <div className="data-table-wrap framed">
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>{t('finance.payments.charge')}</th>
+                                    <th className="u-text-right">{t('finance.payments.owed')}</th>
+                                    <th className="u-text-right">{t('finance.payments.thisPayment')}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {openFees.map(f => (
+                                    <tr key={f.id}>
+                                        <td>
+                                            <strong>{categoryName(t, f.category, f.category_name)}</strong>
+                                            <div className="text-xs-muted">
+                                                {t('finance.payments.dueOn', { date: formatDate(f.due_date) })}
+                                            </div>
+                                        </td>
+                                        <td className="u-text-right"><Money value={f.balance} /></td>
+                                        <td className="u-text-right">
+                                            {manual ? (
+                                                <input type="number" min="0" step="1" max={f.balance}
+                                                    className="form-input fin-split-input"
+                                                    aria-label={t('finance.payments.amountFor', {
+                                                        charge: categoryName(t, f.category, f.category_name),
+                                                    })}
+                                                    aria-invalid={Number(parts[f.id]) > Number(f.balance) || undefined}
+                                                    value={parts[f.id] ?? ''}
+                                                    onChange={e => setParts(p => ({ ...p, [f.id]: e.target.value }))} />
+                                            ) : Number(shown[f.id]) > 0 ? (
+                                                <Money value={shown[f.id]} />
+                                            ) : (
+                                                <span className="text-muted">-</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <label className="form-check mt-1">
+                        <input type="checkbox" checked={manual}
+                            onChange={e => toggleManual(e.target.checked)} />
+                        <span>{t('finance.payments.chooseAmounts')}</span>
+                    </label>
                 </>
             )}
         </Modal>
@@ -315,9 +400,18 @@ function ReceiptModal({ payment, onClose }) {
                 <dl className="detail-grid">
                     <div><dt>{t('common.student')}</dt><dd>{payment.student?.name}</dd></div>
                     <div><dt>{t('common.class')}</dt><dd>{payment.student?.class_label || '-'}</dd></div>
+                    {/* A receipt that covered several charges lists each; one
+                        picked from the receipt book shows its own line. */}
                     <div>
                         <dt>{t('finance.fields.category')}</dt>
-                        <dd>{t(`finance.categories.${payment.category}`)}</dd>
+                        <dd>
+                            {(payment.lines?.length > 1 ? payment.lines : [payment]).map(line => (
+                                <div key={line.id || line.category}>
+                                    {categoryName(t, line.category, line.category_name)}
+                                    {payment.lines?.length > 1 && <> · <Money value={line.amount} /></>}
+                                </div>
+                            ))}
+                        </dd>
                     </div>
                     <div>
                         <dt>{t('finance.fields.method')}</dt>

@@ -13,11 +13,11 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getDebtors, getStudentFinance, saveStudentAccount } from '../../api/finance'
-import { FinanceShell, Money } from './FinanceShell'
+import { Money, formatAmount, categoryName } from './FinanceShell'
 import { badge } from '../../utils/tone'
 
 /** Who owes what, worst first — the list the office actually works from. */
-export function FinanceDebtors() {
+export function DebtorsPanel() {
     const { t } = useTranslation()
     const toast = useToast()
 
@@ -56,10 +56,13 @@ export function FinanceDebtors() {
     const totalOverdue = visible.reduce((sum, r) => sum + Number(r.overdue), 0)
 
     return (
-        <FinanceShell title={t('finance.debtors.title')} subtitle={t('finance.debtors.subtitle')}>
+        <>
             {openId && (
                 <StudentAccountModal id={openId} onClose={() => setOpenId(null)} onSaved={load} />
             )}
+
+            <ClassFilter grade={klass.grade} stream={klass.stream}
+                onChange={setKlass} disabled={loading} />
 
             <div className="portal-stat-grid mb-1-5">
                 <StatCard icon="groups" value={loading ? '-' : visible.length}
@@ -76,8 +79,6 @@ export function FinanceDebtors() {
             <div className="toolbar-card mb-1-5">
                 <SearchBar value={search} onChange={setSearch}
                     placeholder={t('finance.debtors.searchPlaceholder')} />
-                <ClassFilter grade={klass.grade} stream={klass.stream}
-                    onChange={setKlass} disabled={loading} />
                 <div className="toolbar-spacer" />
                 {/* Printed and exported from the server with the same filters,
                     so the paper matches the screen and carries every row rather
@@ -121,7 +122,9 @@ export function FinanceDebtors() {
                                     <Money value={row.outstanding} className="amount-owed" />
                                     {Number(row.overdue) > 0 && (
                                         <span className="badge badge-high">
-                                            {t('finance.debtors.overdueOf', { amount: row.overdue })}
+                                            {/* Formatted like every other figure on the row: this printed the raw
+                                                API string, "90000.00 overdue". */}
+                                            {t('finance.debtors.overdueOf', { amount: formatAmount(row.overdue) })}
                                         </span>
                                     )}
                                 </span>
@@ -130,7 +133,7 @@ export function FinanceDebtors() {
                     </ul>
                 )}
             </ListSection>
-        </FinanceShell>
+        </>
     )
 }
 
@@ -211,7 +214,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
                         emptyDesc={t('finance.debtors.noChargesDesc')}
                         renderRow={fee => (
                             <tr key={fee.id}>
-                                <td><strong>{t(`finance.categories.${fee.category}`)}</strong></td>
+                                <td><strong>{categoryName(t, fee.category, fee.category_name)}</strong></td>
                                 <td><Money value={fee.amount} /></td>
                                 <td><Money value={fee.paid} /></td>
                                 <td><Money value={fee.balance} /></td>

@@ -46,7 +46,14 @@
     "lunch": "Cantine",
     "uniform": "Uniforme",
     "activity": "Activités",
-    "other": "Autre"
+    "other": "Autre",
+    "boarding": "Internat",
+    "exam": "Frais d'examen",
+    "pta": "Contribution APE",
+    "development": "Frais de développement",
+    "medical": "Assurance maladie",
+    "admission": "Frais d'inscription",
+    "arrears": "Report"
   },
   "methods": {
     "cash": "Espèces",
@@ -54,7 +61,8 @@
     "bank": "Virement",
     "cheque": "Chèque",
     "waiver": "Exonération",
-    "other": "Autre"
+    "other": "Autre",
+    "carried": "Reporté sur un trimestre suivant"
   },
   "status": {
     "cleared": "Réglé",
@@ -64,7 +72,7 @@
   },
   "dashboard": {
     "title": "Finances",
-    "subtitle": "Ce qui est facturé, encaissé et dû",
+    "subtitle": "Tout l'argent de l'école ce trimestre",
     "collection": "Encaissement du trimestre",
     "owingCount_one": "{{count}} famille doit encore",
     "owingCount_other": "{{count}} familles doivent encore",
@@ -77,7 +85,24 @@
     "noPaymentsDesc": "Les reçus apparaissent ici au fur et à mesure.",
     "chaseDebtors": "Familles à relancer",
     "overdueCharges": "Échéances dépassées",
-    "pendingExpenses": "Dépenses à approuver"
+    "pendingExpenses": "Dépenses à approuver",
+    "moneyIn": "Entrées",
+    "moneyOut": "Sorties",
+    "surplus": "Excédent",
+    "deficit": "Déficit",
+    "feesOwed": "Frais encore dus",
+    "committed": "{{amount}} approuvés, pas encore payés",
+    "committedNote": "{{amount}} supplémentaires sont approuvés mais pas encore payés. Ils ne comptent qu'une fois sortis d'un compte.",
+    "collectedOf": "{{collected}} encaissés sur {{charged}}",
+    "statement": "Recettes et dépenses",
+    "statementHint": "Frais reçus, autres recettes et dépenses payées ce trimestre",
+    "nothingIn": "Rien reçu pour l'instant",
+    "nothingInDesc": "Les paiements de frais et les autres recettes apparaissent ici au fur et à mesure.",
+    "nothingOut": "Rien payé pour l'instant",
+    "nothingOutDesc": "Les dépenses payées et la paie apparaissent ici par catégorie.",
+    "fromFees": "Frais scolaires",
+    "otherIncome": "Autres recettes",
+    "feesByMethod": "Frais par moyen de paiement :"
   },
   "fees": {
     "title": "Facturation",
@@ -104,12 +129,19 @@
     "taken": "{{amount}} encaissés. Reçu {{receipt}}.",
     "failed": "Ce paiement n'a pas pu être enregistré.",
     "findStudent": "Chercher un élève qui doit…",
-    "whichCharge": "Pour quelle facture ?",
-    "outstandingIs": "{{amount}} restant sur cette facture",
     "nothingOwed": "Cet élève ne doit rien pour le moment.",
     "referencePlaceholder": "Identifiant MoMo, bordereau ou chèque",
     "none": "Aucun paiement",
-    "noneDesc": "Les reçus apparaissent ici au fur et à mesure."
+    "noneDesc": "Les reçus apparaissent ici au fur et à mesure.",
+    "splitIntro": "Appliqué d'abord à la facture la plus ancienne, sur un seul reçu. Cochez ci-dessous pour fixer vous-même le montant de chaque facture.",
+    "chooseAmounts": "Choisir le montant de chaque facture",
+    "charge": "Facture",
+    "owed": "Restant dû",
+    "thisPayment": "Ce paiement",
+    "dueOn": "Échéance {{date}}",
+    "totalOwed": "{{amount}} dus ce trimestre",
+    "tooMuch": "C'est plus que les {{amount}} dus ce trimestre.",
+    "amountFor": "Montant pour {{charge}}"
   },
   "debtors": {
     "title": "Impayés",
@@ -126,18 +158,81 @@
     "bursaryHint": "Une remise appliquée à la facturation — pas un paiement. L'école n'a jamais reçu cet argent."
   },
   "structure": {
-    "title": "Grille tarifaire",
-    "subtitle": "Ce que chaque année paie ce trimestre",
-    "add": "Ajouter une ligne",
-    "added": "Ajouté à la grille.",
+    "title": "Paramétrage des frais",
+    "add": "Ajouter un frais",
+    "added": "Frais ajouté.",
     "invoice": "Facturer",
     "dueBy": "Échéance {{date}}",
-    "invoiced_one": "{{count}} facture émise.",
-    "invoiced_other": "{{count}} factures émises.",
-    "alreadyInvoiced": "Toute l'année a déjà cette facture.",
-    "required": "Choisissez une année, un montant et une échéance.",
-    "empty": "Aucune grille tarifaire",
-    "emptyDesc": "Définissez ce que paie chaque année, puis facturez en une fois."
+    "invoiced_one": "{{count}} élève facturé.",
+    "invoiced_other": "{{count}} élèves facturés.",
+    "alreadyInvoiced": "Tous les élèves concernés ont déjà été facturés.",
+    "empty": "Aucun frais paramétré pour ce trimestre",
+    "emptyDesc": "Ajoutez ce que l'école facture, ou copiez les frais du trimestre précédent, puis facturez.",
+    "edit": "Modifier le frais",
+    "invoiceTerm": "Facturer le trimestre",
+    "invoiceTermTitle": "Facturer {{term}}",
+    "invoiceTermIntro": "Chaque frais actif, et qui il facturera maintenant. Les élèves déjà facturés sont ignorés : on peut relancer sans risque.",
+    "invoiceTermConfirm": "Facturer {{total}} RWF",
+    "termInvoiced_one": "{{count}} facture émise, {{total}} RWF.",
+    "termInvoiced_other": "{{count}} factures émises, {{total}} RWF.",
+    "line": "Frais",
+    "toBill": "À facturer",
+    "alreadyBilled": "Déjà facturés",
+    "copyFrom": "Copier d'un trimestre",
+    "copy": "Copier",
+    "copied_one": "{{count}} frais copié. Vérifiez les montants avant de facturer.",
+    "copied_other": "{{count}} frais copiés. Vérifiez les montants avant de facturer.",
+    "categories": "Catégories",
+    "categoriesIntro": "Les types de frais de l'école. Une catégorie déjà utilisée sur une facture peut être désactivée, pas supprimée.",
+    "inUse": "utilisée sur des factures",
+    "newCategory": "Ajouter une catégorie",
+    "newCategoryPlaceholder": "ex. Programme ordinateurs",
+    "linesFor": "Frais de {{term}}",
+    "wholeSchool": "Toute l'école",
+    "boarding": {
+      "all": "Internes et externes",
+      "boarders": "Internes seulement",
+      "day": "Externes seulement"
+    },
+    "intake": {
+      "all": "Nouveaux et anciens",
+      "new": "Nouveaux élèves seulement",
+      "returning": "Anciens élèves seulement"
+    },
+    "frequency": {
+      "term": "Chaque trimestre",
+      "year": "Une fois par an",
+      "once": "Une fois par élève"
+    },
+    "optionalTag_one": "Facultatif · {{count}} élève",
+    "optionalTag_other": "Facultatif · {{count}} élèves",
+    "instalmentsTag": "{{count}} versements",
+    "offTag": "Désactivé",
+    "billedCount_one": "{{count}} facturé",
+    "billedCount_other": "{{count}} facturés",
+    "whoPays": "Qui paie",
+    "switchOff": "Désactiver",
+    "switchOn": "Activer",
+    "editBilledNote": "Des familles ont déjà été facturées pour ces frais. Les changements s'appliquent aux prochaines factures ; celles déjà émises gardent leur montant.",
+    "name": "Nom sur la facture",
+    "namePlaceholder": "ex. Frais d'internat, inscription examen S6",
+    "boardingLabel": "Internat",
+    "intakeLabel": "Nouveaux ou anciens",
+    "frequencyLabel": "Fréquence",
+    "optional": "Facultatif : seuls les élèves ci-dessous paient",
+    "optionalHint": "Transport, cours supplémentaires, sortie : ajoutez les élèves concernés.",
+    "studentsNarrowHint": "Laissez vide pour facturer tous les élèves ci-dessus. Ajoutez des élèves pour ne facturer qu'eux (frais de rattrapage, par exemple).",
+    "students": "Élèves",
+    "findStudent": "Chercher un élève par nom ou identifiant…",
+    "instalments": "Paiement en plusieurs fois",
+    "payAtOnce": "En une fois",
+    "parts": "{{count}} versements",
+    "part": "Versement",
+    "percent": "%",
+    "partsMustAddUp": "Les versements totalisent {{total}} %. Il faut 100 %, chacun avec une échéance.",
+    "previewSummary_one": "{{count}} élève serait facturé {{total}} RWF maintenant. {{skipped}} ignorés : déjà facturés ou rien à payer.",
+    "previewSummary_other": "{{count}} élèves seraient facturés {{total}} RWF maintenant. {{skipped}} ignorés : déjà facturés ou rien à payer.",
+    "why": "Réductions"
   },
   "expenses": {
     "title": "Dépenses",
@@ -169,19 +264,8 @@
       "approved": "Approuvée",
       "paid": "Payée",
       "rejected": "Refusée"
-    }
-  },
-  "reports": {
-    "title": "Rapports",
-    "subtitle": "Entrées et sorties",
-    "collectionRate": "Taux d'encaissement",
-    "net": "Net",
-    "byMethod": "Origine des encaissements",
-    "byCategory": "Destination des dépenses",
-    "noIncome": "Rien d'encaissé",
-    "noIncomeDesc": "Les reçus seront regroupés ici par moyen de paiement.",
-    "noSpending": "Rien de dépensé",
-    "noSpendingDesc": "Les dépenses approuvées seront regroupées ici par catégorie."
+    },
+    "tabExpenses": "Dépenses"
   },
   "settings": {
     "title": "Paramètres financiers",
@@ -196,7 +280,13 @@
     "grace_days": "Jours de grâce",
     "grace_daysHint": "Jours après l'échéance avant les relances.",
     "bank_details": "Coordonnées bancaires",
-    "bank_detailsHint": "Imprimées là où les familles sont informées du mode de paiement."
+    "bank_detailsHint": "Imprimées là où les familles sont informées du mode de paiement.",
+    "payeTitle": "Barème TPR (mensuel)",
+    "payeHint": "Chaque taux ne s'applique qu'à la part du salaire mensuel comprise dans sa tranche. Réglé sur le barème rwandais actuel ; modifiez-le ici quand la loi change.",
+    "payeUpTo": "Salaire jusqu'à (RWF)",
+    "payeRate": "Taux (%)",
+    "payeAbove": "Tout le reste au-delà",
+    "payeAdd": "Ajouter une tranche"
   },
   "messages": {
     "subtitle": "Messages avec le personnel et les familles"
@@ -206,7 +296,8 @@
     "subtitle": "Ce que l'école verse à son personnel",
     "tab": {
       "runs": "Mois",
-      "salaries": "Salaires"
+      "staff": "Personnel et salaires",
+      "departments": "Départements"
     },
     "onPayroll": "Sur la paie",
     "monthlyNet": "Net mensuel",
@@ -223,7 +314,6 @@
       "paid": "Payé",
       "cancelled": "Annulé"
     },
-    "salaries": "Salaires du personnel",
     "gross": "Brut",
     "allowances": "Indemnités",
     "deductions": "Retenues",
@@ -234,8 +324,6 @@
     "bankAccount": "Compte bancaire",
     "includeInRuns": "Inclure dans les cycles mensuels",
     "deductionNote": "Les pourcentages s'appliquent au brut, pas aux indemnités. Les montants sont figés sur chaque bulletin : changer un taux ne réécrit jamais un bulletin déjà émis.",
-    "noSalaries": "Aucun salaire défini",
-    "noSalariesDesc": "Définissez un salaire par employé et le cycle se construira seul.",
     "salarySaved": "Salaire enregistré.",
     "saveFailed": "Enregistrement impossible.",
     "rebuild": "Reconstruire",
@@ -252,7 +340,16 @@
       "approve": "Cycle approuvé.",
       "pay": "Cycle payé. Il apparaît désormais comme une dépense.",
       "cancel": "Cycle annulé."
-    }
+    },
+    "taxMethod": "Impôt",
+    "taxMethods": {
+      "paye": "Barème TPR",
+      "flat": "Taux fixe"
+    },
+    "pensionPlusPaye": "{{pension}} % + TPR",
+    "payeNote": "La TPR est calculée selon le barème des paramètres financiers, sur le brut plus les indemnités. La pension ne porte que sur le brut. Les montants sont figés sur chaque bulletin.",
+    "withoutSalary": "En poste sans salaire fixé",
+    "byDepartment": "Coût par département"
   },
   "cash": {
     "title": "Caisse et banque",
@@ -325,13 +422,7 @@
   "income": {
     "title": "Autres recettes et arriérés",
     "subtitle": "Recettes hors frais de scolarité, et frais des trimestres passés",
-    "tab": {
-      "income": "Autres recettes",
-      "arrears": "Arriérés"
-    },
     "thisTerm": "Reçu ce trimestre",
-    "arrearsOwed": "Dû des trimestres passés",
-    "familiesBehind": "Familles en retard",
     "record": "Enregistrer une recette",
     "recorded": "Recette enregistrée.",
     "saveFailed": "Enregistrement impossible.",
@@ -342,10 +433,65 @@
     "newCategory": "Ajouter une catégorie",
     "newCategoryPlaceholder": "Cantine, uniformes...",
     "arrearsTitle": "Dû des trimestres passés",
-    "arrearsNote": "Chaque écran mesure le trimestre en cours : ces soldes disparaîtraient sinon tout en restant dus.",
+    "arrearsNote": "Le report déplace chaque solde sur une seule facture d'arriérés de ce trimestre et clôt l'ancienne facture : la dette n'est due qu'à un seul endroit, jamais deux fois.",
     "noArrears": "Rien n’est dû des trimestres passés.",
     "carryForward": "Reporter",
     "carried": "{{raised}} frais créés, {{updated}} mis à jour.",
-    "carryFailed": "Report impossible."
+    "carryFailed": "Report impossible.",
+    "entries": "Entrées ce trimestre",
+    "sources": "Sources"
+  },
+  "feesHub": {
+    "title": "Frais scolaires",
+    "tab": {
+      "owing": "Qui doit",
+      "charges": "Factures",
+      "setup": "Paramétrage des frais",
+      "arrears": "Trimestres passés"
+    },
+    "subtitle": {
+      "owing": "Les plus en retard d'abord, pour savoir par où commencer",
+      "charges": "Chaque facture émise, et ce qu'il en reste",
+      "setup": "Ce que l'école facture, qui paie, et la facturation",
+      "arrears": "Ce que les familles doivent encore des trimestres terminés"
+    }
+  },
+  "discounts": {
+    "title": "Réductions",
+    "add": "Ajouter une réduction",
+    "edit": "Modifier la réduction",
+    "intro": "Appliquées à la facturation et indiquées sur chaque facture, pour que la famille sache pourquoi elle est plus basse. Une bourse saisie sur le compte d'un élève s'applique aussi.",
+    "none": "Aucune réduction",
+    "noneDesc": "Fratries, enfants du personnel, bourses : paramétrez-les une fois et chaque facture les applique.",
+    "scope": {
+      "students_one": "{{count}} élève",
+      "students_other": "{{count}} élèves",
+      "siblings": "À partir de l'enfant n° {{child}} d'une famille",
+      "boarders": "Internes",
+      "day": "Externes",
+      "all": "Tout le monde"
+    },
+    "allCategories": "Toutes les catégories",
+    "everyTerm": "Chaque trimestre",
+    "appliesFuture": "Seules les prochaines factures sont concernées. Celles déjà émises gardent leur montant.",
+    "name": "Nom",
+    "namePlaceholder": "ex. Réduction fratrie, Enfant du personnel",
+    "kindLabel": "Type",
+    "kind": {
+      "percent": "Pourcentage",
+      "fixed": "Montant fixe"
+    },
+    "percent": "Pourcentage",
+    "scopeLabel": "Bénéficiaires",
+    "scopeOption": {
+      "students": "Élèves choisis",
+      "siblings": "Fratries",
+      "boarders": "Internes",
+      "day": "Externes",
+      "all": "Tout le monde"
+    },
+    "fromChild": "À partir de l'enfant n°",
+    "categoriesLabel": "Sur quels frais",
+    "active": "En vigueur"
   }
 }

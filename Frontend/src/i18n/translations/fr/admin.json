@@ -95,24 +95,15 @@
     "subtitle": "Configuration de l'école : structure, matières, salles et préférences"
   },
   "staff": {
-    "academic": "Pédagogique",
-    "admin": "Administration",
-    "allDepartments": "Tous les départements",
-    "allRoles": "Tous les rôles",
-    "disciplineMaster": "Responsable de la discipline",
     "invitationSent": "Invitation envoyée !",
     "invitationSentTo": "Un lien d'invitation a été envoyé à",
     "invitations": "Invitations du personnel",
     "invite": "Inviter un membre du personnel",
     "inviteMember": "Inviter un membre du personnel",
-    "list": "Liste du personnel",
-    "loading": "Chargement du personnel…",
     "noInvitations": "Aucune invitation envoyée pour le moment. Cliquez sur",
-    "profile": "Fiche du personnel",
     "recipient": "Destinataire",
-    "subtitle": "Enseignants, personnel de vie scolaire et d'administration",
-    "title": "Gestion du personnel",
-    "welfare": "Vie scolaire"
+    "subtitle": "Tout le personnel de l'établissement, ses départements et ses comptes",
+    "title": "Gestion du personnel"
   },
   "students": {
     "subtitle": "Inscriptions, admissions et dossiers des élèves",

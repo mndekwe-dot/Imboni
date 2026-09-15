@@ -115,6 +115,24 @@
 .fin-add-category-row  { display: flex; gap: var(--space-2); align-items: center; }
 .fin-add-category-row .form-input { flex: 1; }
 
+/* ── Fee setup ───────────────────────────────────────────────────────────── */
+
+/* Who a fee line bills, as tags under its name. */
+.fin-line-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-block: 0.3rem; }
+/* A switched-off line or discount stays listed - its bills exist - but reads as inactive. */
+.fin-line-off .row-main,
+.fin-line-off .fin-money { opacity: 0.55; }
+.fin-form-heading {
+  font-size: var(--text-body);
+  font-weight: 600;
+  margin: var(--space-5) 0 var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+.fin-split-choice { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.fin-split-input { max-width: 7rem; }
+.fin-copy-term { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+
 @media (max-width: 767px) {
   .row-item { flex-wrap: wrap; }
   .row-actions { width: 100%; }
