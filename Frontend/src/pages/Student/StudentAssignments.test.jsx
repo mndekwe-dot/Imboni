@@ -2,16 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { StudentAssignments } from './StudentAssignments'
 import { getStudentProfile, getStudentAssignments, submitAssignment } from '../../api/student'
-import { getStudentQuizzes } from '../../api/teacher'
 
 vi.mock('../../api/student', () => ({
   getStudentProfile: vi.fn(),
   getStudentAssignments: vi.fn(),
   submitAssignment: vi.fn(),
-}))
-
-vi.mock('../../api/teacher', () => ({
-  getStudentQuizzes: vi.fn(),
 }))
 
 vi.mock('../../api/notifications', () => ({
@@ -29,7 +24,6 @@ const ASSIGNMENTS = [
 describe('StudentAssignments', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    getStudentQuizzes.mockResolvedValue([])
   })
 
   it('shows a loading state before assignments resolve', () => {
@@ -94,16 +88,48 @@ describe('StudentAssignments', () => {
     await waitFor(() => expect(submitAssignment).toHaveBeenCalledWith(1, {}))
   })
 
-  it('renders the online quizzes section when quizzes exist', async () => {
+  it('lists online work in the same list, with a Start button', async () => {
     getStudentProfile.mockResolvedValue(PROFILE)
-    getStudentAssignments.mockResolvedValue([])
-    getStudentQuizzes.mockResolvedValue([
-      { id: 5, title: 'Algebra Quiz', subject_name: 'Mathematics', question_count: 10, time_limit_minutes: 20, due_date: '2026-07-01', submitted: false },
+    getStudentAssignments.mockResolvedValue([
+      { id: 5, title: 'Algebra Quiz', subject: 'Mathematics', due_date: '2099-07-01', status: 'pending',
+        mode: 'online', question_count: 10, time_limit_minutes: 20, allow_backtracking: false },
     ])
 
     renderWithRouter(<StudentAssignments />)
 
     await waitFor(() => expect(screen.getByText('Algebra Quiz')).toBeInTheDocument())
-    expect(screen.getByRole('button', { name: /Take Quiz/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Start/ })).toBeInTheDocument()
+    expect(screen.getByText('No going back')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Mark as done/i })).not.toBeInTheDocument()
+  })
+
+  it('treats a late hand-in as handed in, not overdue', async () => {
+    getStudentProfile.mockResolvedValue(PROFILE)
+    getStudentAssignments.mockResolvedValue([
+      { id: 7, title: 'Ecosystems Report', subject: 'Biology', due_date: '2026-05-20', status: 'late',
+        is_late: true, submitted_at: '2026-09-15T08:00:00Z' },
+    ])
+
+    renderWithRouter(<StudentAssignments />)
+    await waitFor(() => expect(screen.getByText('Ecosystems Report')).toBeInTheDocument())
+
+    expect(screen.getByText('Late')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Mark as done/i })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Overdue/ }))
+    expect(screen.getByText('No overdue assignments')).toBeInTheDocument()
+  })
+
+  it('offers only the upload button when the teacher asked for a file', async () => {
+    getStudentProfile.mockResolvedValue(PROFILE)
+    getStudentAssignments.mockResolvedValue([
+      { id: 8, title: 'Design Brief', subject: 'Computer Science', due_date: '2099-01-01', status: 'pending',
+        submission_method: 'upload' },
+    ])
+
+    renderWithRouter(<StudentAssignments />)
+    await waitFor(() => expect(screen.getByText('Design Brief')).toBeInTheDocument())
+
+    expect(screen.getByRole('button', { name: /Upload & submit/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Mark as done/i })).not.toBeInTheDocument()
   })
 })

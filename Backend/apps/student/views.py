@@ -760,6 +760,16 @@ class StudentAssignmentsView(APIView):
                 # The student portal sends online assignments to the quiz page
                 # and paper ones to the hand-in control, so it has to know which.
                 'mode':        a.mode,
+                # Paper: whether the work is a file to upload or something
+                # handed in physically, which decides the one button offered.
+                'submission_method': a.submission_method,
+                # Online: whether the paper can be moved back through.
+                'allow_backtracking': a.allow_backtracking,
+                # When the work actually came in. The card used to print the
+                # due date under "Submitted", which is a different day.
+                'submitted_at': (sub.submitted_at.isoformat()
+                                 if sub and sub.is_submitted and a.mode == 'paper' else None),
+                'is_late':     bool(sub and sub.is_submitted and sub.is_late),
                 'question_count': len(a.questions or []) if a.mode == 'online' else 0,
                 'time_limit_minutes': a.time_limit_minutes,
                 'has_attachment': bool(sub and sub.file),
@@ -815,6 +825,16 @@ class StudentAssignmentSubmitView(APIView):
         if existing and existing.is_submitted:
             return Response({'error': 'Already submitted.'}, status=400)
 
+        # The teacher said how this comes back. An upload task marked "done"
+        # with no file leaves nothing to mark. A physical hand-in needs no file,
+        # though a photo of the work is still kept if one is sent.
+        upload = request.FILES.get('file')
+        if assignment.submission_method == 'upload' and not upload:
+            return Response(
+                {'error': 'This assignment needs a file uploaded.'},
+                status=400,
+            )
+
         is_late = assignment.due_date < date.today()
         if is_late and not assignment.accept_late_submissions:
             return Response(
@@ -828,7 +848,7 @@ class StudentAssignmentSubmitView(APIView):
                 'student_name': student.full_name,
                 'student_code': student.student_id,
                 'max_score':    assignment.max_score,
-                'file':         request.FILES.get('file'),
+                'file':         upload,
                 'notes':        request.data.get('notes', ''),
                 'is_late':      is_late,
             },

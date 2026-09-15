@@ -14,12 +14,7 @@
   border-radius: 50%;
 }
 
-/* ── Student portal accent (teal) ── */
-:root {
-  --student:           #0d9488;
-  --student-hover:     #0f766e;
-  --student-light:     rgba(13, 148, 136, 0.1);
-}
+/* Portal colour tokens live in index.css: one palette for every portal. */
 
 /* ===============================================
    DASHBOARD - Student/student.html
@@ -321,7 +316,7 @@
    =============================================== */
 
 .attendance-hero {
-  background: linear-gradient(135deg, var(--student), #0f766e);
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   border-radius: var(--radius);
   padding: 1.5rem 2rem;
   color: white;
@@ -477,7 +472,15 @@
 .tag-submitted { background: var(--success-light); color: var(--success); }
 .tag-overdue   { background: var(--destructive-light); color: var(--destructive); }
 
-.assignment-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.tag-late      { background: var(--warning-light); color: var(--warning); }
+
+/* How the work comes back: online, upload, or handed in physically. Quiet -
+   it explains the button, it is not a status. */
+.assignment-kind { font-size: var(--text-caption); color: var(--muted-foreground); }
+.assignment-kind + .assignment-kind::before { content: '·'; margin-right: 0.75rem; }
+
+.assignment-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; flex-shrink: 0; }
+.assignment-note { font-size: var(--text-sm); color: var(--muted-foreground); }
 
 /* Assignment feedback, grade badge & status tab buttons */
 .assignment-feedback { font-size: var(--text-sm); color: var(--muted-foreground); margin-top: 0.3rem; }

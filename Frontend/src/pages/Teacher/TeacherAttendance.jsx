@@ -7,6 +7,7 @@ import { ClassPicker } from '../../components/ui/ClassPicker'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
 import { OfflineIndicator } from '../../components/ui/OfflineIndicator'
+import { RegisterDatePicker } from '../../components/attendance/RegisterDatePicker'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
@@ -32,8 +33,11 @@ const STATUS_COLORS = {
 
 const STATUS_LABELS = { present: 'Present', absent: 'Absent', late: 'Late', excused: 'Excused' }
 
+// Local date, not toISOString(): that is UTC, and before 02:00 in Kigali it
+// still reads as yesterday - the register opened on the wrong day.
 function todayISO() {
-    return new Date().toISOString().split('T')[0]
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 export function TeacherAttendance() {
@@ -217,13 +221,7 @@ export function TeacherAttendance() {
                                     </button>
                                     <OfflineIndicator />
                                     <div className="toolbar-spacer" />
-                                    <input
-                                        type="date"
-                                        className="input input-auto select-xs"
-                                        value={selectedDate}
-                                        max={todayISO()}
-                                        onChange={e => setSelectedDate(e.target.value)}
-                                    />
+                                    <RegisterDatePicker unit="day" value={selectedDate} onChange={setSelectedDate} />
                                 </div>
 
                                 {error && (

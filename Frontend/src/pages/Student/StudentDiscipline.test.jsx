@@ -51,8 +51,11 @@ describe('StudentDiscipline', () => {
         expect(screen.getByText('Uniform violation')).toBeInTheDocument()
         expect(screen.getByText('B')).toBeInTheDocument()
         expect(screen.getByText('Good Standing')).toBeInTheDocument()
-        expect(screen.getByText('+1')).toBeInTheDocument()
-        expect(screen.getByText('-1')).toBeInTheDocument()
+        // Counts of reports, with no sign glued on ("+1", "-0").
+        const tile = label => screen.getByText(label).closest('.portal-stat-card')
+        expect(tile('Positive Records')).toHaveTextContent('1')
+        expect(tile('Negative Records')).toHaveTextContent('1')
+        expect(screen.queryByText('+1')).not.toBeInTheDocument()
     })
 
     it('filters records by type when a filter tab is clicked', async () => {

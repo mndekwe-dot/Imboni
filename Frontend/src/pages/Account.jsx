@@ -25,6 +25,8 @@ import { parentNavItems, parentSecondaryItems } from './Parent/parentNav'
 import { matronNavItems, matronSecondaryItems } from './Matron/matronNav'
 import { disNavItems, disSecondaryItems } from './Dis/disNav'
 import { adminNavItems, adminSecondaryItems } from './Admin/adminNav'
+import { librarianNavItems, librarianSecondaryItems } from './Library/librarianNav'
+import { bursarNavItems, bursarSecondaryItems } from './Finance/bursarNav'
 import { TabGroup } from '../components/ui/TabGroup'
 
 // Lookup table — given a role string, returns the correct sidebar nav items.
@@ -37,6 +39,10 @@ const NAV = {
     matron: { navItems: matronNavItems, secondaryItems: matronSecondaryItems },
     discipline: { navItems: disNavItems, secondaryItems: disSecondaryItems },
     admin: { navItems: adminNavItems, secondaryItems: adminSecondaryItems },
+    // The two Premium portals were missing, so a librarian or bursar opening
+    // their own settings got a sidebar with nothing in it and no way back.
+    librarian: { navItems: librarianNavItems, secondaryItems: librarianSecondaryItems },
+    bursar: { navItems: bursarNavItems, secondaryItems: bursarSecondaryItems },
 }
 
 // The settings tabs, in display order. `family` is filtered out for everyone

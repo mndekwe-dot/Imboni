@@ -1,5 +1,5 @@
-import { addDays, startOfWeek, isSameDay } from 'date-fns'
-import { formatDate, formatDateShort } from '../../utils/date'
+import { addDays, addMonths, endOfMonth, isSameDay, isSameMonth, startOfMonth, startOfWeek } from 'date-fns'
+import { formatDate, formatDateShort, monthName } from '../../utils/date'
 
 /**
  * Date arithmetic for the timetable's views — pure, so it is tested on its own.
@@ -15,7 +15,10 @@ export const VIEWS = ['day', 'week', 'schedule']
 /* The letter each view answers to, as in Google Calendar. Kept identical in
    every language: a shortcut that moves when the UI language changes is one
    nobody can learn. */
-export const VIEW_KEYS = { day: 'D', week: 'W', schedule: 'A' }
+export const VIEW_KEYS = { day: 'D', week: 'W', schedule: 'A', month: 'M' }
+
+/* Month is not a timetable view - a lesson grid a month wide says nothing -
+   but the attendance record uses the same toolbar and needs it. */
 
 /* The academic week is Mon–Sat; the boarding routine runs all seven days. */
 export function allDaysFor(type) {
@@ -51,6 +54,7 @@ export function snapToVisible(date, visibleDays, dir = 1) {
 /** One step back or forward: a visible day in Day view, a week otherwise. */
 export function step(anchor, view, visibleDays, dir) {
     if (view === 'day') return snapToVisible(addDays(anchor, dir), visibleDays, dir)
+    if (view === 'month') return addMonths(anchor, dir)
     return addDays(anchor, 7 * dir)
 }
 
@@ -60,6 +64,7 @@ export function step(anchor, view, visibleDays, dir) {
  */
 export function rangeLabel(anchor, view, visibleDays, formatDay) {
     if (view === 'day') return formatDay(anchor)
+    if (view === 'month') return `${monthName(anchor.getFullYear(), anchor.getMonth())} ${anchor.getFullYear()}`
     const monday = mondayOf(anchor)
     const first  = addDays(monday, visibleDays[0] ?? 0)
     const last   = addDays(monday, visibleDays[visibleDays.length - 1] ?? 6)
@@ -72,6 +77,7 @@ export function rangeLabel(anchor, view, visibleDays, formatDay) {
 /** True when the anchor date is already where "Today" would take you. */
 export function isAtToday(anchor, view, visibleDays, now) {
     const today = snapToVisible(now, visibleDays, 1)
+    if (view === 'month') return isSameMonth(anchor, today)
     return view === 'day' ? isSameDay(anchor, today) : isSameDay(mondayOf(anchor), mondayOf(today))
 }
 
@@ -80,6 +86,10 @@ export function isAtToday(anchor, view, visibleDays, now) {
    second of the last day, because isWithinInterval compares instants. */
 export function shadedRange(anchor, view, visibleDays) {
     if (view === 'day') return null
+    if (view === 'month') {
+        const last = endOfMonth(anchor)
+        return { start: startOfMonth(anchor), end: new Date(last.getFullYear(), last.getMonth(), last.getDate(), 23, 59, 59) }
+    }
     const monday = mondayOf(anchor)
     const last = addDays(monday, visibleDays[visibleDays.length - 1] ?? 6)
     return {

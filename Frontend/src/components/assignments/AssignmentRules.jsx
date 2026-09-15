@@ -67,6 +67,46 @@ export function AssignmentRules({ form, onChange }) {
                     <p className="u-sm u-muted">{t('teacher.assignments.worksheetHint')}</p>
                 </div>
 
+                {/* How paper work comes back. Decides the one button the
+                    student sees: upload a file, or confirm it was handed in. */}
+                {form.mode === 'paper' && (
+                    <fieldset className="form-group rules-choice">
+                        <legend className="form-label">{t('teacher.assignments.handInLabel')}</legend>
+                        {[
+                            ['in_person', 'handInPerson', 'handInPersonHint'],
+                            ['upload', 'handInUpload', 'handInUploadHint'],
+                        ].map(([value, label, hint]) => (
+                            <label key={value} className="rules-choice-option">
+                                <input type="radio" name="submission_method" value={value}
+                                    checked={form.submission_method === value}
+                                    onChange={() => onChange({ submission_method: value })} />
+                                <span>
+                                    <span className="rules-choice-title">{t(`teacher.assignments.${label}`)}</span>
+                                    <span className="u-sm u-muted">{t(`teacher.assignments.${hint}`)}</span>
+                                </span>
+                            </label>
+                        ))}
+                    </fieldset>
+                )}
+
+                {/* Going back through a quiz. Off, the paper is sat one
+                    question at a time and each answer locks on the server. */}
+                {form.mode === 'online' && (
+                    <>
+                        <div className="form-group shuffle-row col-full">
+                            <input type="checkbox" id="allow-back" className="checkbox-sm"
+                                checked={form.allow_backtracking}
+                                onChange={e => onChange({ allow_backtracking: e.target.checked })} />
+                            <label htmlFor="allow-back" className="u-pointer u-sm">
+                                {t('teacher.assignments.allowBacktracking')}
+                            </label>
+                        </div>
+                        {!form.allow_backtracking && (
+                            <p className="u-sm u-muted">{t('teacher.assignments.noBacktrackingHint')}</p>
+                        )}
+                    </>
+                )}
+
                 {/* Late work */}
                 <div className="form-group shuffle-row col-full">
                     <input type="checkbox" id="accept-late" className="checkbox-sm"

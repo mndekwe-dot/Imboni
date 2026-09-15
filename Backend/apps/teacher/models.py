@@ -215,6 +215,23 @@ class Assignment(models.Model):
     # otherwise.
     accept_late_submissions = models.BooleanField(default=True)
 
+    # Paper only: how the work comes back. `upload` is a file handed in through
+    # the portal; `in_person` is an exercise book or a model put on the
+    # teacher's desk, which the student confirms by marking it done (a photo
+    # of it may still be attached). Both used to offer both buttons, so an
+    # upload task could be "handed in" with nothing attached.
+    SUBMISSION_METHOD_CHOICES = [
+        ('upload',    'Upload a file'),
+        ('in_person', 'Hand in physically'),
+    ]
+    submission_method   = models.CharField(max_length=10, choices=SUBMISSION_METHOD_CHOICES,
+                                           default='in_person')
+
+    # Online quizzes only. When False the paper is sat one question at a time
+    # and an answer is locked the moment the student moves on. Enforced on the
+    # server (AssignmentSubmission.progress), not just by hiding a button.
+    allow_backtracking  = models.BooleanField(default=True)
+
     # Online quizzes only. More than one attempt is a deliberate choice by the
     # teacher (a practice quiz), not the default - the review screen shows the
     # correct answers, so an unlimited retake is a free full mark.
@@ -279,6 +296,13 @@ class AssignmentSubmission(models.Model):
     started_at   = models.DateTimeField(null=True, blank=True)
     time_spent_seconds = models.PositiveIntegerField(default=0)
     attempt_count = models.PositiveSmallIntegerField(default=1)
+
+    # The attempt in progress: {'order': [question ids as served],
+    # 'position': index of the first question still open, 'answers': {id:
+    # answer} for the questions already locked}. The order is fixed on first
+    # open so a reload neither reshuffles the paper nor, when backtracking is
+    # off, reopens a question the student has moved past. Cleared on submit.
+    progress     = models.JSONField(default=dict, blank=True)
 
     # When the mark was made visible to the student and their parents. Null
     # means marked but held back - see Assignment.release_marks_immediately.

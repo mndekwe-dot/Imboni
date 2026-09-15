@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDateWithWeekday } from '../../utils/date'
 import { MiniCalendar } from './MiniCalendar'
-import { VIEWS, VIEW_KEYS, isAtToday, rangeLabel, shadedRange } from './timetableNav'
+import { VIEWS, VIEW_KEYS, isAtToday, rangeLabel, shadedRange, step } from './timetableNav'
 
 /**
  * Escape and an outside click close a popover, and Escape hands focus back to
@@ -32,6 +32,7 @@ function useDismiss(open, setOpen, wrapRef, triggerRef) {
 function viewLabel(t, view) {
     if (view === 'day') return t('common.day')
     if (view === 'schedule') return t('common.schedule')
+    if (view === 'month') return t('timetable.month')
     return t('timetable.week')
 }
 
@@ -45,19 +46,36 @@ function viewLabel(t, view) {
  *   visibleDays                 day indices on screen (0 = Mon)
  *   now                         Date — school-timezone "now"
  *   onStep(dir), onToday(), onPick(date)
+ *   views                       which views the menu offers (default: the
+ *                               timetable's three). One view hides the menu.
+ *   maxDate                     optional last date that may be shown - a
+ *                               register cannot be taken for tomorrow.
  *   children                    trailing content for the row (the legend)
+ *
+ * Leave onShowWeekendsChange out and the menu has no weekends toggle.
  */
+const STEP_TITLES = {
+    day:   ['timetable.previousDay', 'timetable.nextDay'],
+    month: ['timetable.previousMonth', 'timetable.nextMonth'],
+}
+
 export function TimetableToolbar({
     view, onViewChange, showWeekends, onShowWeekendsChange,
     anchor, visibleDays, now, onStep, onToday, onPick, children,
+    views = VIEWS, maxDate = null,
 }) {
     const { t } = useTranslation()
     const atToday = isAtToday(anchor, view, visibleDays, now)
     const label = rangeLabel(anchor, view, visibleDays, formatDateWithWeekday)
 
-    const dayView = view === 'day'
-    const prevTitle = t(dayView ? 'timetable.previousDay' : 'timetable.previousWeek')
-    const nextTitle = t(dayView ? 'timetable.nextDay' : 'timetable.nextWeek')
+    const [prevKey, nextKey] = STEP_TITLES[view] ?? ['timetable.previousWeek', 'timetable.nextWeek']
+    const prevTitle = t(prevKey)
+    const nextTitle = t(nextKey)
+    /* Past the limit is judged by where a step would land: the first day of
+       the next week or month, not the anchor, which may already be the max. */
+    const nextRange = shadedRange(step(anchor, view, visibleDays, 1), view, visibleDays)
+    const nextStart = nextRange ? nextRange.start : step(anchor, view, visibleDays, 1)
+    const atMax = !!maxDate && nextStart > maxDate
 
     return (
         <div className="tt-toolbar">
@@ -71,7 +89,7 @@ export function TimetableToolbar({
                         <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                     </button>
                     <button type="button" className="tt-icon-btn" onClick={() => onStep(1)}
-                        title={nextTitle} aria-label={nextTitle}>
+                        title={nextTitle} aria-label={nextTitle} disabled={atMax}>
                         <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                     </button>
                 </div>
@@ -81,22 +99,26 @@ export function TimetableToolbar({
                     range={shadedRange(anchor, view, visibleDays)}
                     today={now}
                     onPick={onPick}
+                    maxDate={maxDate}
                 />
             </div>
 
             {children}
 
-            <ViewMenu
-                view={view}
-                onViewChange={onViewChange}
-                showWeekends={showWeekends}
-                onShowWeekendsChange={onShowWeekendsChange}
-            />
+            {(views.length > 1 || onShowWeekendsChange) && (
+                <ViewMenu
+                    views={views}
+                    view={view}
+                    onViewChange={onViewChange}
+                    showWeekends={showWeekends}
+                    onShowWeekendsChange={onShowWeekendsChange}
+                />
+            )}
         </div>
     )
 }
 
-function DatePopover({ label, anchor, range, today, onPick }) {
+function DatePopover({ label, anchor, range, today, onPick, maxDate }) {
     const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const wrapRef = useRef(null)
@@ -130,6 +152,7 @@ function DatePopover({ label, anchor, range, today, onPick }) {
                         selected={anchor}
                         range={range}
                         today={today}
+                        maxDate={maxDate}
                         onPick={date => { setOpen(false); onPick(date); triggerRef.current?.focus() }}
                     />
                 </div>
@@ -138,7 +161,7 @@ function DatePopover({ label, anchor, range, today, onPick }) {
     )
 }
 
-function ViewMenu({ view, onViewChange, showWeekends, onShowWeekendsChange }) {
+function ViewMenu({ views, view, onViewChange, showWeekends, onShowWeekendsChange }) {
     const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const wrapRef = useRef(null)
@@ -180,7 +203,7 @@ function ViewMenu({ view, onViewChange, showWeekends, onShowWeekendsChange }) {
                 <div className="tt-popover tt-popover--end">
                     <ul className="tt-menu" role="menu" aria-label={t('timetable.changeView')}
                         ref={listRef} onKeyDown={onMenuKey}>
-                        {VIEWS.map(v => (
+                        {views.length > 1 && views.map(v => (
                             <li key={v} role="none">
                                 <button
                                     type="button"
@@ -194,8 +217,10 @@ function ViewMenu({ view, onViewChange, showWeekends, onShowWeekendsChange }) {
                                 </button>
                             </li>
                         ))}
-                        <li role="separator" className="tt-menu-sep" />
-                        <li role="none">
+                        {views.length > 1 && onShowWeekendsChange && (
+                            <li role="separator" className="tt-menu-sep" />
+                        )}
+                        {onShowWeekendsChange && <li role="none">
                             {/* Stays open, as a checkbox in a menu should: you
                                 toggle it and look at the grid behind. */}
                             <button
@@ -210,7 +235,7 @@ function ViewMenu({ view, onViewChange, showWeekends, onShowWeekendsChange }) {
                                 </span>
                                 <span className="tt-menu-label">{t('timetable.showWeekends')}</span>
                             </button>
-                        </li>
+                        </li>}
                     </ul>
                     <p className="tt-menu-hint">
                         <span>{t('common.today')} <kbd className="tt-kbd">T</kbd></span>

@@ -308,7 +308,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             'class_id', 'class_name', 'subject_id', 'subject_name',
             'created_at', 'published_at', 'submitted', 'total',
             'attachment', 'accept_late_submissions', 'max_attempts',
-            'release_marks_immediately',
+            'release_marks_immediately', 'submission_method', 'allow_backtracking',
         ]
         read_only_fields = ['id', 'created_at', 'published_at']
 
@@ -352,7 +352,7 @@ class AssignmentWriteSerializer(serializers.ModelSerializer):
             # A worksheet handed out with the work, and the rules for handing
             # it back in.
             'attachment', 'accept_late_submissions', 'max_attempts',
-            'release_marks_immediately',
+            'release_marks_immediately', 'submission_method', 'allow_backtracking',
         ]
         read_only_fields = ['id']
 

@@ -1,0 +1,19 @@
+{
+  "subtitle": "Your attendance record",
+  "subtitleWithClass": "Your attendance record for {{class}}",
+  "overallRate": "Overall rate",
+  "daysPresent": "Days present",
+  "daysAbsent": "Days absent",
+  "lateArrivals": "Late arrivals",
+  "excusedCount_one": "{{count}} excused",
+  "excusedCount_other": "{{count}} excused",
+  "record": "Attendance record",
+  "legend": "What the colours mean",
+  "noRecord": "No record",
+  "timeIn": "In at {{time}}",
+  "recordsShown": "Records",
+  "summary": "{{present}} present · {{absent}} absent · {{late}} late · {{excused}} excused",
+  "noRecordsWeek": "No attendance recorded this week.",
+  "noRecordsMonth": "No attendance recorded this month.",
+  "loadFailed": "Could not load attendance."
+}

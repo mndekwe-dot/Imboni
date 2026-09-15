@@ -216,7 +216,7 @@ export function ParentResults() {
                                             <p className="u-muted">{t('parent.results.noAssessments')}</p>
                                         ) : (
                                             <div className="table-responsive">
-                                                <table>
+                                                <table className="data-table">
                                                     <thead>
                                                         <tr>
                                                             <th>{t('common.subject')}</th>
@@ -245,7 +245,7 @@ export function ParentResults() {
                                         </div>
                                         <div className="card-content">
                                             <div className="table-responsive">
-                                                <table>
+                                                <table className="data-table">
                                                     <thead>
                                                         <tr>
                                                             <th>{t('common.subject')}</th>

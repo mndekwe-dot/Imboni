@@ -26,6 +26,10 @@ export const EMPTY_FORM = {
     max_attempts: '1',
     release_marks_immediately: true,
     attachment: null,
+    // Paper: an exercise book handed in physically unless the teacher asks for
+    // a file. Online: going back through the paper is allowed unless turned off.
+    submission_method: 'in_person',
+    allow_backtracking: true,
 }
 
 export function newQuestion(type = 'mcq') {

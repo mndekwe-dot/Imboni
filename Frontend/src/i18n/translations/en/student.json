@@ -55,7 +55,29 @@
     "takeQuiz": "Take Quiz",
     "teacherFeedback": "Teacher’s feedback",
     "totalThisTerm": "Total This Term",
-    "worksheet": "Worksheet"
+    "worksheet": "Worksheet",
+    "handedInOn": "Handed in {{date}}",
+    "handedIn": "Handed in",
+    "status": {
+      "pending": "Pending",
+      "submitted": "Handed in",
+      "overdue": "Overdue"
+    },
+    "lateTag": "Late",
+    "kind": {
+      "online": "Done online",
+      "upload": "Upload a file",
+      "inPerson": "Hand in on paper"
+    },
+    "noGoingBack": "No going back",
+    "start": "Start",
+    "uploadSubmit": "Upload & submit",
+    "closedNote": "No longer accepting work",
+    "awaitingMark": "Awaiting mark",
+    "questionCount_one": "{{count}} question",
+    "questionCount_other": "{{count}} questions",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min"
   },
   "attendance": {
     "daysAbsent": "Days Absent",

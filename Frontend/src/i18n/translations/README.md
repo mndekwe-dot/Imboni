@@ -20,6 +20,7 @@ readable off the key itself: `teacher.assignments.due` is in `<lang>/teacher.jso
 | File | Covers |
 |---|---|
 | `account.json` | `pages/Account.jsx` |
+| `attendance.json` | `components/attendance/AttendanceRecord.jsx` — one person's attendance, shared by the student and parent portals |
 | `admin.json` | `pages/Admin/*` |
 | `announcements.json` | `components/announcements/`, the four `*Announcement*` pages |
 | `auth.json` | `pages/login.jsx`, `pages/PortalLogin.jsx` |

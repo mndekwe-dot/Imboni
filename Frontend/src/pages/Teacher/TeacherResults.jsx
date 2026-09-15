@@ -216,7 +216,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                 <p className="u-muted">No students found in this class.</p>
             ) : (
                 <div className="table-responsive tr-score-scroll">
-                    <table>
+                    <table className="data-table">
                         <thead className="tr-sticky-head">
                             <tr>
                                 <th>Student</th>

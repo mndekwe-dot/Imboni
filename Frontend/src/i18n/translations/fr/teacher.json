@@ -194,7 +194,16 @@
     "viewSubmissions": "Voir les copies rendues",
     "work": "Travail",
     "worksheet": "Fiche de travail",
-    "worksheetHint": "Un PDF, un document ou une image distribué avec le devoir."
+    "worksheetHint": "Un PDF, un document ou une image distribué avec le devoir.",
+    "handInLabel": "Comment le travail est-il rendu ?",
+    "handInPerson": "Sur papier, en classe",
+    "handInPersonHint": "Les élèves vous remettent le travail et le marquent comme fait ici.",
+    "handInUpload": "Déposé en fichier",
+    "handInUploadHint": "Les élèves doivent déposer un fichier pour que le travail compte comme rendu.",
+    "allowBacktracking": "Permettre de revenir aux questions précédentes",
+    "noBacktrackingHint": "Les élèves voient une question à la fois. Une réponse est verrouillée dès qu'ils passent à la suivante, et recharger la page ne la rouvre pas.",
+    "uploadChip": "Dépôt de fichier",
+    "noBackChip": "Sans retour en arrière"
   },
   "attendance": {
     "fetchingClasses": "Récupération des classes qui vous sont affectées.",

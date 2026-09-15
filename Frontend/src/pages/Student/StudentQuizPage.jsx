@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
-import { getQuizForStudent, submitQuizAnswers } from '../../api/teacher'
+import { getQuizForStudent, submitQuizAnswers, lockQuizAnswer } from '../../api/teacher'
 
 // ── Timer ─────────────────────────────────────────────────────────────────────
 
@@ -192,11 +192,16 @@ export function StudentQuizPage() {
     const [results,    setResults]    = useState(null)
     const [startTime,  setStartTime]  = useState(null)
     const [timedOut,   setTimedOut]   = useState(false)
+    /* No going back: the question on screen. Everything before it is locked
+       on the server, which is where a reload resumes from. */
+    const [position,   setPosition]   = useState(0)
+    const [locking,    setLocking]    = useState(false)
 
     useEffect(() => {
         getQuizForStudent(assignmentId)
             .then(data => {
                 setQuiz(data)
+                setPosition(data.position ?? 0)
                 setStartTime(Date.now())
             })
             .catch(err => setLoadError(err?.response?.status === 404
@@ -228,6 +233,25 @@ export function StudentQuizPage() {
 
     function setAnswer(qid, value) {
         setAnswers(prev => ({ ...prev, [qid]: value }))
+    }
+
+    /* Moving on locks the answer first. Only when the server has it does the
+       next question appear - otherwise a failed request would look like a
+       locked answer that was never saved. */
+    async function lockAndNext() {
+        const q = quiz.questions[position]
+        setLocking(true); setSubmitError(null)
+        try {
+            const res = await lockQuizAnswer(assignmentId, { question_id: q.id, answer: answers[q.id] ?? null })
+            setPosition(res?.position ?? position + 1)
+        } catch (e) {
+            const data = e?.response?.data
+            // Already past it (another tab, a stale page): go where the server is.
+            if (e?.response?.status === 409 && typeof data?.position === 'number') setPosition(data.position)
+            setSubmitError(data?.error || data?.detail || e?.message || 'Could not save your answer. Please try again.')
+        } finally {
+            setLocking(false)
+        }
     }
 
     const answeredCount = quiz ? quiz.questions.filter(q => {
@@ -264,6 +288,10 @@ export function StudentQuizPage() {
     }
 
     // ── Quiz taking view ───────────────────────────────────────────────────────
+    const oneAtATime = quiz.allow_backtracking === false
+    const current = quiz.questions[position]
+    const onLast = position >= quiz.question_count - 1
+
     return (
         <div className="sqz-page">
             {/* Header */}
@@ -305,7 +333,25 @@ export function StudentQuizPage() {
                 )}
 
                 {/* Questions */}
-                {quiz.questions.map((q, qi) => (
+                {oneAtATime ? (
+                    <>
+                        <div className="alert alert-info u-mb sqz-no-back">
+                            <span className="material-symbols-rounded sqz-alert-icon" aria-hidden="true">lock</span>
+                            One question at a time. Once you move on, you cannot go back to change an answer.
+                        </div>
+                        <p className="sqz-progress" aria-live="polite">
+                            Question {Math.min(position + 1, quiz.question_count)} of {quiz.question_count}
+                        </p>
+                        {current && (
+                            <QuestionCard key={current.id} q={current} qi={position} total={quiz.question_count}
+                                answer={answers[current.id]}
+                                onChange={val => setAnswer(current.id, val)}
+                                submitted={false}
+                                result={undefined}
+                            />
+                        )}
+                    </>
+                ) : quiz.questions.map((q, qi) => (
                     <QuestionCard key={q.id} q={q} qi={qi} total={quiz.question_count}
                         answer={answers[q.id]}
                         onChange={val => setAnswer(q.id, val)}
@@ -324,15 +370,23 @@ export function StudentQuizPage() {
 
                 {/* Submit button */}
                 <div className="sqz-submit-row">
-                    {answeredCount < quiz.question_count && (
+                    {oneAtATime && !onLast && (
+                        <button className="btn btn-primary" onClick={lockAndNext} disabled={locking || submitting}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">{locking ? 'progress_activity' : 'arrow_forward'}</span>
+                            {locking ? 'Saving…' : 'Next question'}
+                        </button>
+                    )}
+                    {(!oneAtATime || onLast) && answeredCount < quiz.question_count && (
                         <span className="sqz-unanswered">
                             {quiz.question_count - answeredCount} question{quiz.question_count - answeredCount !== 1 ? 's' : ''} unanswered
                         </span>
                     )}
-                    <button className="btn btn-primary" onClick={() => handleSubmit(false)} disabled={submitting}>
-                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">{submitting ? 'progress_activity' : 'send'}</span>
-                        {submitting ? 'Submitting…' : 'Submit Quiz'}
-                    </button>
+                    {(!oneAtATime || onLast) && (
+                        <button className="btn btn-primary" onClick={() => handleSubmit(false)} disabled={submitting}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">{submitting ? 'progress_activity' : 'send'}</span>
+                            {submitting ? 'Submitting…' : 'Submit Quiz'}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

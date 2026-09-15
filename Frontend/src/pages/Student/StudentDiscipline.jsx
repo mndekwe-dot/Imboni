@@ -89,16 +89,8 @@ function reportBadge(type) {
     }
 }
 
-function pointsDisplay(type) {
-    if (type === 'positive' || type === 'achievement') return { label: '+', cls: 'disc-points-pos' }
-    if (type === 'incident')                            return { label: '-', cls: 'disc-points-neg' }
-    if (type === 'warning')                             return { label: 'W', cls: ''               }
-    return { label: '-', cls: '' }
-}
-
 function DisciplineRow({ report }) {
     const badge  = reportBadge(report.report_type)
-    const points = pointsDisplay(report.report_type)
     const dateStr = report.date
         ? formatDate(report.date)
         : '-'
@@ -108,12 +100,6 @@ function DisciplineRow({ report }) {
             <td><span className="badge" style={{ background: badge.bg, color: badge.color }}>{badge.label}</span></td>
             <td>{report.description}</td>
             <td>{report.reported_by || '-'}</td>
-            <td>
-                {points.cls
-                    ? <span className={points.cls}>{points.label}</span>
-                    : <span className="text-warning-bold">{points.label}</span>
-                }
-            </td>
         </tr>
     )
 }
@@ -186,8 +172,11 @@ export function StudentDiscipline() {
 
     const conductStats = [
         { iconClass: 'teal',  icon: 'verified',   value: loading ? '-' : conductGrade,    valueColor: 'var(--student)',     label: 'Conduct Grade'   },
-        { iconClass: 'green', icon: 'thumb_up',   value: loading ? '-' : `+${positiveCount}`, valueColor: 'var(--success)',  label: 'Positive Points' },
-        { iconClass: 'red',   icon: 'thumb_down', value: loading ? '-' : `-${negativeCount}`, valueColor: 'var(--destructive)', label: 'Negative Points' },
+        /* Counts of reports, not points: behaviour reports carry no points, so
+           the "+1 / -0 Points" these tiles showed were a sign glued to a count,
+           and the table's Points column printed "+", "-" or "W" per row. */
+        { iconClass: 'green', icon: 'thumb_up',   value: loading ? '-' : positiveCount, valueColor: 'var(--success)',  label: 'Positive Records' },
+        { iconClass: 'red',   icon: 'thumb_down', value: loading ? '-' : negativeCount, valueColor: 'var(--destructive)', label: 'Negative Records' },
         { iconClass: 'blue',  icon: 'shield',     value: loading ? '-' : conductLabel,    valueColor: 'var(--primary)',     label: 'Current Standing'},
     ]
 
@@ -247,12 +236,12 @@ export function StudentDiscipline() {
                                         No {typeFilter.toLowerCase() !== 'all' ? typeFilter.toLowerCase() + ' ' : ''}records found.
                                     </p>
                                 ) : (
-                                    <div className="table-responsive">
-                                        <table>
+                                    <div className="data-table-wrap framed">
+                                        <table className="data-table">
                                             <thead>
                                                 <tr>
                                                     <th>Date</th><th>Type</th><th>Description</th>
-                                                    <th>Issued By</th><th>Points</th>
+                                                    <th>Issued By</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

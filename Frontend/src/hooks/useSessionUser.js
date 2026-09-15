@@ -8,6 +8,9 @@ const ROLE_DISPLAY = {
     parent:     { label: 'Parent',                 avatarClass: 'parent-av' },
     student:    { label: 'Student',                avatarClass: 'student-av' },
     teacher:    { label: 'Teacher',                avatarClass: 'teacher-av' },
+    // Without these the header printed the raw role code: "librarian", "bursar".
+    librarian:  { label: 'Librarian',              avatarClass: '' },
+    bursar:     { label: 'Bursar',                 avatarClass: '' },
 }
 
 export function useSessionUser() {

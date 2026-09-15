@@ -232,7 +232,7 @@ export function ParentDashboard() {
                                                         <h3 className="card-title">Recent Results</h3>
                                                     </div>
                                                     <div className="card-content">
-                                                        <table>
+                                                        <table className="data-table">
                                                             <thead>
                                                                 <tr>
                                                                     <th>Subject</th>

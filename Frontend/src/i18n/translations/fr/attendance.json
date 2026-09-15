@@ -1,0 +1,19 @@
+{
+  "subtitle": "Votre relevé de présence",
+  "subtitleWithClass": "Votre relevé de présence en {{class}}",
+  "overallRate": "Taux global",
+  "daysPresent": "Jours de présence",
+  "daysAbsent": "Jours d'absence",
+  "lateArrivals": "Retards",
+  "excusedCount_one": "{{count}} excusée",
+  "excusedCount_other": "{{count}} excusées",
+  "record": "Relevé de présence",
+  "legend": "Signification des couleurs",
+  "noRecord": "Aucun relevé",
+  "timeIn": "Arrivé à {{time}}",
+  "recordsShown": "Relevés",
+  "summary": "{{present}} présent · {{absent}} absent · {{late}} en retard · {{excused}} excusé",
+  "noRecordsWeek": "Aucune présence relevée cette semaine.",
+  "noRecordsMonth": "Aucune présence relevée ce mois-ci.",
+  "loadFailed": "Impossible de charger les présences."
+}

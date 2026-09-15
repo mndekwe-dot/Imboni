@@ -237,7 +237,7 @@ export function StudentDashboard() {
                                     <p className="u-muted">{t('student.dashboard.noResults')}</p>
                                 ) : (
                                     <div className="table-responsive">
-                                        <table>
+                                        <table className="data-table">
                                             <thead>
                                                 <tr>
                                                     <th>{t('common.subject')}</th><th>{t('common.term')}</th><th>{t('common.score')}</th><th>{t('common.grade')}</th>

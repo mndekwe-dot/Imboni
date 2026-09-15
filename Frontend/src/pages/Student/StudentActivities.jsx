@@ -280,7 +280,7 @@ export function StudentActivities() {
                                     pad={false}
                                 >
                                     <div className="table-responsive">
-                                        <table>
+                                        <table className="data-table">
                                             <thead>
                                                 <tr>
                                                     <th>Date</th><th>Type</th><th>Description</th>
