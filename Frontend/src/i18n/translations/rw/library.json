@@ -151,7 +151,15 @@
     "paid": "Byanditswe ko byishyuwe.",
     "waived": "Amande yababariwe.",
     "none": "Nta mande ahari",
-    "noneDesc": "Nta gitabo cyagarutse kirenze igihe kitishyuwe."
+    "noneDesc": "Nta gitabo cyagarutse kirenze igihe kitishyuwe.",
+    "reason": "Impamvu",
+    "kind": {
+      "late": "Yagaruwe itinze",
+      "lost": "Igitabo cyatakaye"
+    },
+    "waiveTitle": "Kureka iyi amande",
+    "waiveIntro": "{{name}} afite amande ya {{amount}}. Kuyireka bivuze ko ikigo kitazakira aya mafaranga.",
+    "waiveReason": "Kuki iyi amande irekwa?"
   },
   "members": {
     "title": "Abaguza",
@@ -166,7 +174,11 @@
     "history": "Amateka yo kuguza",
     "noLoans": "Nta cyaragujwe",
     "noLoansDesc": "Uyu muntu ntaraguza igitabo.",
-    "owes": "Amande atarishyurwa: {{amount}}"
+    "owes": "Amande atarishyurwa: {{amount}}",
+    "borrower": "Uguza",
+    "classOrRole": "Ishuri cyangwa inshingano",
+    "onLoan": "Byatijwe",
+    "overdue": "Byarengeje igihe"
   },
   "reservations": {
     "title": "Ubusabe bw'ibitabo",
@@ -378,5 +390,13 @@
     "wasExisting": "Cyongewe ku gitabo gisanzwe gihari",
     "printLabels": "Capa utumenyetso {{count}}",
     "failed": "Icyo gitabo nticyashoboye kwongerwamo."
+  },
+  "found": {
+    "title": "Igitabo cyatakaye cyagarutse",
+    "unpaidIntro": "{{name}} yasabwe {{amount}} yo gusimbura {{title}}, kandi ntarayishyura.",
+    "paidIntro": "{{name}} yishyuye {{amount}} yo gusimbura {{title}}.",
+    "cancel": "Gukuraho amafaranga {{amount}} yo gusimbura",
+    "refund": "Gusubiza amafaranga {{amount}} yo gusimbura",
+    "keepHint": "Amande yo gutinda kukigarura arasigara. Kuramo akamenyetso niba ishuri ryaramaze kugura ikindi gitabo."
   }
 }

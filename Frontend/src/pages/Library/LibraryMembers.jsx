@@ -2,14 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SearchBar } from '../../components/ui/SearchBar'
-import { ListSection } from '../../components/ui/ListSection'
-import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
 import { Modal } from '../../components/ui/Modal'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getMember, getMembers } from '../../api/library'
+import { formatAmount } from '../Finance/FinanceShell'
 import { LibraryShell } from './LibraryShell'
 
 /**
@@ -54,49 +53,54 @@ export function LibraryMembers() {
                     placeholder={t('library.members.searchPlaceholder')} />
             </div>
 
-            <ListSection
-                icon="people"
-                title={t('library.members.title')}
-                count={loading ? null : t('library.memberCount', { count: visible.length })}
-            >
-                {loading ? (
-                    <p className="u-muted">{t('common.loading')}</p>
-                ) : visible.length === 0 ? (
-                    <EmptyState
-                        icon="search_off"
-                        title={search ? t('common.noResults', { query: search }) : t('library.members.empty')}
-                        description={search ? t('common.trySearch') : t('library.members.emptyDesc')}
-                        action={search
-                            ? { label: t('common.clear'), icon: 'close', onClick: () => setSearch('') }
-                            : undefined}
-                    />
-                ) : (
-                    <div className="lib-member-grid">
-                        {visible.map(m => (
-                            <button key={m.id} className="lib-member-card" onClick={() => setOpenId(m.id)}>
-                                <span className="lib-member-avatar">{initials(m.name)}</span>
-                                <span className="lib-member-body">
-                                    <span className="u-strong u-sm">{m.name}</span>
-                                    <span className="text-xs-muted">
-                                        {m.class_label || t(`roles.${m.role}`)}
-                                        {m.student_id ? ` · ${m.student_id}` : ''}
-                                    </span>
-                                </span>
-                                <span className="lib-member-counts">
-                                    <span className="badge">
-                                        {t('library.members.outOfLimit', { out: m.on_loan, limit: m.limit })}
-                                    </span>
-                                    {m.overdue > 0 && (
-                                        <span className="badge badge-high">
-                                            {t('library.members.overdueCount', { count: m.overdue })}
-                                        </span>
-                                    )}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                )}
-            </ListSection>
+            {/* A list, not a card grid: the desk scans down names and counts,
+                and four columns of cards wrapped long names and IDs mid-word. */}
+            {loading ? (
+                <p className="u-muted">{t('common.loading')}</p>
+            ) : (
+                <DataTable
+                    icon="people"
+                    title={t('library.members.title')}
+                    headerRight={<span className="text-xs-muted">{t('library.memberCount', { count: visible.length })}</span>}
+                    data={visible}
+                    pageSize={15}
+                    rowHeight={56}
+                    columns={[
+                        t('library.members.borrower'),
+                        t('library.members.classOrRole'),
+                        t('common.admNo'),
+                        { label: t('library.members.onLoan'), align: 'right' },
+                        { label: t('library.members.overdue'), align: 'right' },
+                    ]}
+                    emptyIcon="search_off"
+                    emptyTitle={search ? t('common.noResults', { query: search }) : t('library.members.empty')}
+                    emptyDesc={search ? t('common.trySearch') : t('library.members.emptyDesc')}
+                    onClearFilters={search ? () => setSearch('') : undefined}
+                    renderRow={m => (
+                        <tr key={m.id} className="lib-member-row" onClick={() => setOpenId(m.id)}>
+                            <td>
+                                <div className="dt-cell-user">
+                                    <div className="dt-avatar">{initials(m.name)}</div>
+                                    <button type="button" className="lib-member-name"
+                                        onClick={e => { e.stopPropagation(); setOpenId(m.id) }}>
+                                        {m.name}
+                                    </button>
+                                </div>
+                            </td>
+                            <td>{m.class_label || t(`roles.${m.role}`)}</td>
+                            <td className="text-muted">{m.student_id || '-'}</td>
+                            <td className="u-text-right">
+                                {t('library.members.outOfLimit', { out: m.on_loan, limit: m.limit })}
+                            </td>
+                            <td className="u-text-right">
+                                {m.overdue > 0
+                                    ? <span className="badge badge-high">{m.overdue}</span>
+                                    : <span className="text-muted">0</span>}
+                            </td>
+                        </tr>
+                    )}
+                />
+            )}
         </LibraryShell>
     )
 }
@@ -166,9 +170,8 @@ function MemberDetail({ id, onClose }) {
                     {data.outstanding_fines?.length > 0 && (
                         <p className="lib-fine-note">
                             {t('library.members.owes', {
-                                amount: data.outstanding_fines
-                                    .reduce((sum, f) => sum + Number(f.amount), 0)
-                                    .toFixed(2),
+                                amount: formatAmount(data.outstanding_fines
+                                    .reduce((sum, f) => sum + Number(f.amount), 0)),
                             })}
                         </p>
                     )}

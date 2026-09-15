@@ -212,43 +212,20 @@
 
 /* ── Borrowers ───────────────────────────────────────────────────────────── */
 
-.lib-member-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-3);
-}
-
-.lib-member-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--card);
-  font: inherit;
-  color: inherit;
+/* Borrowers are a table row each; the whole row opens the record, and the
+   name is the button so the keyboard reaches it. */
+.lib-member-row { cursor: pointer; }
+.lib-member-name {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  font-weight: 600;
   text-align: left;
   cursor: pointer;
-  width: 100%;
 }
-.lib-member-card:hover { border-color: var(--portal-accent); }
-
-.lib-member-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  flex-shrink: 0;
-  border-radius: var(--radius-full, 999px);
-  background: var(--primary-surface);
-  color: var(--primary-text);
-  font-size: var(--text-caption);
-  font-weight: 700;
-}
-.lib-member-body   { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.lib-member-counts { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.lib-member-name:hover { color: var(--primary); text-decoration: underline; }
 
 /* ── Forms and detail ────────────────────────────────────────────────────── */
 
