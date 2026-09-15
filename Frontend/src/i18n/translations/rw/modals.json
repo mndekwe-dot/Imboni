@@ -129,23 +129,6 @@
     "typePartial": "Igice",
     "typeScholarship": "Buruse"
   },
-  "staff": {
-    "addTitle": "Ongeraho umukozi",
-    "contractFullTime": "Igihe cyose",
-    "contractPartTime": "Igice cy'igihe",
-    "contractType": "Ubwoko bw'amasezerano",
-    "deptAcademic": "Amasomo",
-    "deptAdmin": "Ubuyobozi",
-    "deptWelfare": "Imibereho",
-    "editTitle": "Hindura umukozi",
-    "egRole": "urugero: Umwarimu w'imibare",
-    "egStaffId": "urugero: STF-009",
-    "egStaffName": "urugero: Madamu Mukamana Grace",
-    "roleRequired": "Inshingano / Umwanya *",
-    "staffId": "Nomero y'umukozi",
-    "statusInactive": "Ntakora",
-    "statusOnLeave": "Mu kiruhuko"
-  },
   "student": {
     "admitTitle": "Emeza umunyeshuri",
     "detailsTitle": "Ibisobanuro by'umunyeshuri",

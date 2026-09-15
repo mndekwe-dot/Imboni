@@ -11,13 +11,13 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getFees } from '../../api/finance'
-import { FinanceShell, Money } from './FinanceShell'
+import { Money, categoryName } from './FinanceShell'
 import { badge } from '../../utils/tone'
 
 const FILTERS = ['all', 'outstanding', 'overdue', 'cleared']
 
 /** Every charge the school has raised, and what has been received against it. */
-export function FinanceFees() {
+export function ChargesPanel() {
     const { t } = useTranslation()
     const toast = useToast()
 
@@ -57,12 +57,13 @@ export function FinanceFees() {
 
 
     return (
-        <FinanceShell title={t('finance.fees.title')} subtitle={t('finance.fees.subtitle')}>
+        <>
+            <ClassFilter grade={klass.grade} stream={klass.stream}
+                onChange={setKlass} disabled={loading} />
+
             <div className="toolbar-card mb-1-5">
                 <SearchBar value={search} onChange={setSearch}
                     placeholder={t('finance.fees.searchPlaceholder')} />
-                <ClassFilter grade={klass.grade} stream={klass.stream}
-                    onChange={setKlass} disabled={loading} />
                 <div className="toolbar-spacer" />
                 <DocumentActions url="/imboni/finance/fees/" params={docParams}
                     stem="charges" disabled={loading} />
@@ -74,8 +75,13 @@ export function FinanceFees() {
                     active={status}
                     onChange={next => {
                         setStatus(next)
-                        setSearchParams(next === 'outstanding' ? {} : { status: next },
-                            { replace: true })
+                        // Keep the rest of the address: the Fees page's tab lives there too.
+                        setSearchParams(prev => {
+                            const nextParams = new URLSearchParams(prev)
+                            if (next === 'outstanding') nextParams.delete('status')
+                            else nextParams.set('status', next)
+                            return nextParams
+                        }, { replace: true })
                     }}
                 />
             </div>
@@ -98,7 +104,7 @@ export function FinanceFees() {
                                 <span className="class-chip">{fee.student.class_label}</span>
                             )}
                         </td>
-                        <td>{t(`finance.categories.${fee.category}`)}</td>
+                        <td>{categoryName(t, fee.category, fee.category_name)}</td>
                         <td><Money value={fee.amount} /></td>
                         <td><Money value={fee.paid} /></td>
                         <td>
@@ -117,6 +123,6 @@ export function FinanceFees() {
                 )}
             />
             {loading && <p className="u-pad u-muted">{t('common.loading')}</p>}
-        </FinanceShell>
+        </>
     )
 }

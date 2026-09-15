@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor, within } from '../../test/test-utils'
 import { FinancePayments } from './FinancePayments'
 import {
-    getDebtors, getFinanceAvailability, getPayments, recordPayment, reversePayment,
+    getDebtors, getFinanceAvailability, getPayments, getStudentFinance, recordPayment,
+    reversePayment,
 } from '../../api/finance'
 
 vi.mock('../../api/finance', () => ({
@@ -86,6 +87,44 @@ describe('FinancePayments', () => {
         const submit = within(dialog).getByRole('button', { name: /Take a payment/i })
         expect(submit).toBeDisabled()
         expect(recordPayment).not.toHaveBeenCalled()
+    })
+
+    it('spreads one sum over the oldest charges first, on one receipt', async () => {
+        getDebtors.mockResolvedValue([{ student: { id: 's1', name: 'Amina Uwase', class_label: 'S4A' } }])
+        getStudentFinance.mockResolvedValue({
+            fees: [
+                { id: 'lunch', category: 'lunch', balance: '40000.00', due_date: '2026-10-01' },
+                { id: 'arrears', category: 'arrears', balance: '30000.00', due_date: '2026-07-01' },
+                { id: 'tuition', category: 'tuition', balance: '100000.00', due_date: '2026-09-01' },
+            ],
+        })
+        recordPayment.mockResolvedValue({
+            payment: { ...PAYMENT, id: 'pay-9', receipt_no: 'RCT-00009' },
+            payments: [{ ...PAYMENT, id: 'pay-9' }, { ...PAYMENT, id: 'pay-10', category: 'arrears' }],
+            total: '50000.00',
+        })
+        renderWithRouter(<FinancePayments />)
+        await waitFor(() => expect(screen.getByText('RCT-00001')).toBeInTheDocument())
+        fireEvent.click(screen.getByRole('button', { name: /Take a payment/i }))
+        const dialog = await screen.findByRole('dialog')
+
+        fireEvent.change(within(dialog).getByRole('combobox'), { target: { value: 'Amina' } })
+        fireEvent.click(await within(dialog).findByRole('option', {}, { timeout: 2000 }))
+        fireEvent.change(await within(dialog).findByLabelText('Amount'), { target: { value: '50000' } })
+
+        // Arrears (oldest) in full, then 20,000 of tuition, lunch untouched.
+        const rows = within(dialog).getAllByRole('row').slice(1)
+        expect(rows[0]).toHaveTextContent(/30,000 RWF.*30,000 RWF/)
+        expect(rows[1]).toHaveTextContent(/100,000 RWF.*20,000 RWF/)
+        expect(rows[2]).toHaveTextContent(/-$/)
+
+        fireEvent.click(within(dialog).getByRole('button', { name: /Take a payment/i }))
+
+        await waitFor(() => expect(recordPayment).toHaveBeenCalledWith(expect.objectContaining({
+            student: 's1',
+            amount: '50000',
+            allocations: [{ fee: 'arrears', amount: '30000' }, { fee: 'tuition', amount: '20000' }],
+        })))
     })
 
     it('shows the upgrade notice, and asks for nothing, off the plan', async () => {

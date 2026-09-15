@@ -71,16 +71,12 @@ const LibraryReports      = load(() => import('./pages/Library/LibraryReports'),
 
 // -- Finance (Pro-only; the portal's own shell refuses a school off the plan) --
 const FinanceDashboard    = load(() => import('./pages/Finance/FinanceDashboard'), 'FinanceDashboard');
-const FinanceFees         = load(() => import('./pages/Finance/FinanceFees'), 'FinanceFees');
+const FinanceFeesHub      = load(() => import('./pages/Finance/FinanceFeesHub'), 'FinanceFeesHub');
 const FinancePayments     = load(() => import('./pages/Finance/FinancePayments'), 'FinancePayments');
-const FinanceDebtors      = load(() => import('./pages/Finance/FinanceDebtors'), 'FinanceDebtors');
-const FinanceStructure    = load(() => import('./pages/Finance/FinanceStructure'), 'FinanceStructure');
 const FinanceExpenses     = load(() => import('./pages/Finance/FinanceExpenses'), 'FinanceExpenses');
-const FinanceReports      = load(() => import('./pages/Finance/FinanceReports'), 'FinanceReports');
 const FinanceSettings     = load(() => import('./pages/Finance/FinanceSettings'), 'FinanceSettings');
 const FinanceMessages     = load(() => import('./pages/Finance/FinanceMessages'), 'FinanceMessages');
 const FinanceIncome       = load(() => import('./pages/Finance/FinanceIncome'), 'FinanceIncome');
-const FinanceBudget       = load(() => import('./pages/Finance/FinanceBudget'), 'FinanceBudget');
 const FinancePayroll      = load(() => import('./pages/Finance/FinancePayroll'), 'FinancePayroll');
 const FinanceCash         = load(() => import('./pages/Finance/FinanceCash'), 'FinanceCash');
 
@@ -301,15 +297,17 @@ function App() {
           Role guard here; the PLAN guard is in FinanceShell. Expenses is the
           page an admin may open too — the office records what it spent, the
           head signs it off, and they cannot be the same person. */}
-      <Route path="/finance" element={<ProtectedRoute role="bursar"><FinanceDashboard /></ProtectedRoute>} />
-      <Route path="/finance/fees" element={<ProtectedRoute role="bursar"><FinanceFees /></ProtectedRoute>} />
+      <Route path="/finance" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceDashboard /></ProtectedRoute>} />
+      {/* Charges, Who owes, Fee structure and earlier-term arrears are tabs of one Fees page;
+          Reports is part of the dashboard; Budget is a tab of Expenses. The old addresses redirect. */}
+      <Route path="/finance/fees" element={<ProtectedRoute role="bursar"><FinanceFeesHub /></ProtectedRoute>} />
       <Route path="/finance/payments" element={<ProtectedRoute role="bursar"><FinancePayments /></ProtectedRoute>} />
-      <Route path="/finance/debtors" element={<ProtectedRoute role="bursar"><FinanceDebtors /></ProtectedRoute>} />
-      <Route path="/finance/structure" element={<ProtectedRoute role="bursar"><FinanceStructure /></ProtectedRoute>} />
+      <Route path="/finance/debtors" element={<Navigate to="/finance/fees" replace />} />
+      <Route path="/finance/structure" element={<Navigate to="/finance/fees?tab=setup" replace />} />
       <Route path="/finance/expenses" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceExpenses /></ProtectedRoute>} />
-      <Route path="/finance/reports" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceReports /></ProtectedRoute>} />
+      <Route path="/finance/reports" element={<Navigate to="/finance" replace />} />
       <Route path="/finance/income" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceIncome /></ProtectedRoute>} />
-      <Route path="/finance/budget" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceBudget /></ProtectedRoute>} />
+      <Route path="/finance/budget" element={<Navigate to="/finance/expenses?tab=budget" replace />} />
       <Route path="/finance/payroll" element={<ProtectedRoute role={["bursar", "admin"]}><FinancePayroll /></ProtectedRoute>} />
       <Route path="/finance/cash" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceCash /></ProtectedRoute>} />
       <Route path="/finance/settings" element={<ProtectedRoute role="bursar"><FinanceSettings /></ProtectedRoute>} />

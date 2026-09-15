@@ -129,23 +129,6 @@
     "typePartial": "Partiel",
     "typeScholarship": "Bourse"
   },
-  "staff": {
-    "addTitle": "Ajouter un membre du personnel",
-    "contractFullTime": "Temps plein",
-    "contractPartTime": "Temps partiel",
-    "contractType": "Type de contrat",
-    "deptAcademic": "Pédagogique",
-    "deptAdmin": "Administration",
-    "deptWelfare": "Vie scolaire",
-    "editTitle": "Modifier le membre du personnel",
-    "egRole": "ex. Enseignant de mathématiques",
-    "egStaffId": "ex. STF-009",
-    "egStaffName": "ex. Mme Mukamana Grace",
-    "roleRequired": "Rôle / fonction *",
-    "staffId": "Matricule du personnel",
-    "statusInactive": "Inactif",
-    "statusOnLeave": "En congé"
-  },
   "student": {
     "admitTitle": "Admettre un élève",
     "detailsTitle": "Fiche de l'élève",

@@ -46,7 +46,14 @@
     "lunch": "Lunch",
     "uniform": "Uniform",
     "activity": "Activities",
-    "other": "Other"
+    "other": "Other",
+    "boarding": "Boarding",
+    "exam": "Examination fee",
+    "pta": "PTA contribution",
+    "development": "Development levy",
+    "medical": "Medical insurance",
+    "admission": "Admission fee",
+    "arrears": "Brought forward"
   },
   "methods": {
     "cash": "Cash",
@@ -54,7 +61,8 @@
     "bank": "Bank transfer",
     "cheque": "Cheque",
     "waiver": "Waiver",
-    "other": "Other"
+    "other": "Other",
+    "carried": "Carried to a later term"
   },
   "status": {
     "cleared": "Settled",
@@ -64,7 +72,7 @@
   },
   "dashboard": {
     "title": "Finance",
-    "subtitle": "What is billed, what is in, and what is owed",
+    "subtitle": "All of the school's money this term",
     "collection": "Collection this term",
     "owingCount_one": "{{count}} family still owes",
     "owingCount_other": "{{count}} families still owe",
@@ -77,7 +85,24 @@
     "noPaymentsDesc": "Receipts appear here as money is taken at the desk.",
     "chaseDebtors": "Families to chase",
     "overdueCharges": "Charges past due",
-    "pendingExpenses": "Expenses to approve"
+    "pendingExpenses": "Expenses to approve",
+    "moneyIn": "Money in",
+    "moneyOut": "Money out",
+    "surplus": "Surplus",
+    "deficit": "Deficit",
+    "feesOwed": "Fees still owed",
+    "committed": "{{amount}} approved, not yet paid",
+    "committedNote": "A further {{amount}} is approved and not yet paid. It is not counted until it leaves an account.",
+    "collectedOf": "{{collected}} of {{charged}} collected",
+    "statement": "Income and expenditure",
+    "statementHint": "Fees received, every other income, and expenses paid this term",
+    "nothingIn": "Nothing received yet",
+    "nothingInDesc": "Fee payments and other income appear here as they are recorded.",
+    "nothingOut": "Nothing paid out yet",
+    "nothingOutDesc": "Paid expenses and payroll appear here by category.",
+    "fromFees": "School fees",
+    "otherIncome": "Other income",
+    "feesByMethod": "Fees by method:"
   },
   "fees": {
     "title": "Charges",
@@ -104,12 +129,19 @@
     "taken": "{{amount}} received. Receipt {{receipt}}.",
     "failed": "That payment could not be recorded.",
     "findStudent": "Search a student who owes…",
-    "whichCharge": "Which charge is this for?",
-    "outstandingIs": "{{amount}} outstanding on this charge",
     "nothingOwed": "This student owes nothing at the moment.",
     "referencePlaceholder": "MoMo id, slip or cheque number",
     "none": "No payments yet",
-    "noneDesc": "Receipts appear here as money is taken at the desk."
+    "noneDesc": "Receipts appear here as money is taken at the desk.",
+    "splitIntro": "Applied to the oldest charge first, all on one receipt. Tick below to set the amount for each charge yourself.",
+    "chooseAmounts": "Choose the amount for each charge",
+    "charge": "Charge",
+    "owed": "Outstanding",
+    "thisPayment": "This payment",
+    "dueOn": "Due {{date}}",
+    "totalOwed": "{{amount}} owed this term",
+    "tooMuch": "That is more than the {{amount}} owed this term.",
+    "amountFor": "Amount for {{charge}}"
   },
   "debtors": {
     "title": "Who owes",
@@ -126,18 +158,81 @@
     "bursaryHint": "A discount applied when charges are raised — not a payment. The school never received that money."
   },
   "structure": {
-    "title": "Fee structure",
-    "subtitle": "What each year group is charged this term",
-    "add": "Add a line",
-    "added": "Added to the fee structure.",
+    "title": "Fee setup",
+    "add": "Add a fee",
+    "added": "Fee added.",
     "invoice": "Invoice",
     "dueBy": "Due {{date}}",
-    "invoiced_one": "{{count}} charge raised.",
-    "invoiced_other": "{{count}} charges raised.",
-    "alreadyInvoiced": "Everybody in that year already has this charge.",
-    "required": "Choose a year, an amount and a due date.",
-    "empty": "No fee structure yet",
-    "emptyDesc": "Set what each year group pays, then invoice them all at once."
+    "invoiced_one": "{{count}} student billed.",
+    "invoiced_other": "{{count}} students billed.",
+    "alreadyInvoiced": "Everybody this fee applies to has already been billed.",
+    "empty": "No fees set up for this term",
+    "emptyDesc": "Add what the school charges, or copy last term's fees, then invoice.",
+    "edit": "Edit fee",
+    "invoiceTerm": "Invoice the term",
+    "invoiceTermTitle": "Invoice {{term}}",
+    "invoiceTermIntro": "Every active fee, and who it will bill now. Students already billed are skipped, so this is safe to run again.",
+    "invoiceTermConfirm": "Bill {{total}} RWF",
+    "termInvoiced_one": "{{count}} bill raised, {{total}} RWF.",
+    "termInvoiced_other": "{{count}} bills raised, {{total}} RWF.",
+    "line": "Fee",
+    "toBill": "To bill",
+    "alreadyBilled": "Already billed",
+    "copyFrom": "Copy from a term",
+    "copy": "Copy",
+    "copied_one": "{{count}} fee copied. Check the amounts before invoicing.",
+    "copied_other": "{{count}} fees copied. Check the amounts before invoicing.",
+    "categories": "Categories",
+    "categoriesIntro": "The kinds of charge the school raises. A category already used on a bill can be switched off but not deleted.",
+    "inUse": "used on bills",
+    "newCategory": "Add a category",
+    "newCategoryPlaceholder": "e.g. Laptop programme",
+    "linesFor": "Fees for {{term}}",
+    "wholeSchool": "Whole school",
+    "boarding": {
+      "all": "Boarders and day students",
+      "boarders": "Boarders only",
+      "day": "Day students only"
+    },
+    "intake": {
+      "all": "New and returning",
+      "new": "New students only",
+      "returning": "Returning students only"
+    },
+    "frequency": {
+      "term": "Every term",
+      "year": "Once a year",
+      "once": "Once per student"
+    },
+    "optionalTag_one": "Optional · {{count}} student",
+    "optionalTag_other": "Optional · {{count}} students",
+    "instalmentsTag": "{{count}} instalments",
+    "offTag": "Switched off",
+    "billedCount_one": "{{count}} billed",
+    "billedCount_other": "{{count}} billed",
+    "whoPays": "Who pays",
+    "switchOff": "Switch off",
+    "switchOn": "Switch on",
+    "editBilledNote": "Some families have already been billed for this fee. Changes apply to bills raised from now on; bills already raised keep their amounts.",
+    "name": "Name on the bill",
+    "namePlaceholder": "e.g. Boarding fee, S6 exam registration",
+    "boardingLabel": "Boarding",
+    "intakeLabel": "New or returning",
+    "frequencyLabel": "How often",
+    "optional": "Optional: only the students listed below pay",
+    "optionalHint": "Transport, extra lessons, a trip: add the students who take it.",
+    "studentsNarrowHint": "Leave empty to bill everyone above. Add students to bill only them (a resit fee, for example).",
+    "students": "Students",
+    "findStudent": "Search a student by name or ID…",
+    "instalments": "Paying in parts",
+    "payAtOnce": "All at once",
+    "parts": "{{count}} instalments",
+    "part": "Part",
+    "percent": "%",
+    "partsMustAddUp": "The parts add up to {{total}}%. They need to add up to 100%, each with a due date.",
+    "previewSummary_one": "{{count}} student would be billed {{total}} RWF now. {{skipped}} skipped: already billed or nothing to pay.",
+    "previewSummary_other": "{{count}} students would be billed {{total}} RWF now. {{skipped}} skipped: already billed or nothing to pay.",
+    "why": "Discounts"
   },
   "expenses": {
     "title": "Expenses",
@@ -169,19 +264,8 @@
       "approved": "Approved",
       "paid": "Paid",
       "rejected": "Rejected"
-    }
-  },
-  "reports": {
-    "title": "Reports",
-    "subtitle": "Money in against money out",
-    "collectionRate": "Collection rate",
-    "net": "Net",
-    "byMethod": "How money came in",
-    "byCategory": "Where money went",
-    "noIncome": "Nothing received yet",
-    "noIncomeDesc": "Receipts will be grouped here by how they were paid.",
-    "noSpending": "Nothing spent yet",
-    "noSpendingDesc": "Approved expenses will be grouped here by category."
+    },
+    "tabExpenses": "Expenses"
   },
   "settings": {
     "title": "Finance settings",
@@ -196,7 +280,13 @@
     "grace_days": "Grace days",
     "grace_daysHint": "Days after the due date before the office starts chasing.",
     "bank_details": "Bank details",
-    "bank_detailsHint": "Printed where families are told how to pay."
+    "bank_detailsHint": "Printed where families are told how to pay.",
+    "payeTitle": "PAYE bands (monthly)",
+    "payeHint": "Each rate applies only to the part of a month's pay inside its band. Set to Rwanda's current bands; change them here when the law changes.",
+    "payeUpTo": "Pay up to (RWF)",
+    "payeRate": "Rate (%)",
+    "payeAbove": "Everything above",
+    "payeAdd": "Add a band"
   },
   "messages": {
     "subtitle": "Messages with staff and families"
@@ -206,7 +296,8 @@
     "subtitle": "What the school pays its staff",
     "tab": {
       "runs": "Monthly runs",
-      "salaries": "Salaries"
+      "staff": "Staff & salaries",
+      "departments": "Departments"
     },
     "onPayroll": "On payroll",
     "monthlyNet": "Monthly net",
@@ -223,7 +314,6 @@
       "paid": "Paid",
       "cancelled": "Cancelled"
     },
-    "salaries": "Staff salaries",
     "gross": "Gross",
     "allowances": "Allowances",
     "deductions": "Deductions",
@@ -234,8 +324,6 @@
     "bankAccount": "Bank account",
     "includeInRuns": "Include in monthly runs",
     "deductionNote": "Percentages apply to gross pay, not to allowances. The amounts are frozen onto each payslip, so changing a rate never rewrites a payslip already issued.",
-    "noSalaries": "No salaries set",
-    "noSalariesDesc": "Set a salary for each member of staff and a monthly run will build itself.",
     "salarySaved": "Salary saved.",
     "saveFailed": "That could not be saved.",
     "rebuild": "Rebuild from salaries",
@@ -252,7 +340,16 @@
       "approve": "Run approved.",
       "pay": "Run paid. It now shows as an expense.",
       "cancel": "Run cancelled."
-    }
+    },
+    "taxMethod": "Tax",
+    "taxMethods": {
+      "paye": "PAYE bands",
+      "flat": "Flat rate"
+    },
+    "pensionPlusPaye": "{{pension}}% + PAYE",
+    "payeNote": "PAYE is worked out from the bands in Finance settings, on gross pay plus allowances. Pension is a percentage of gross only. The amounts are frozen onto each payslip.",
+    "withoutSalary": "Working without a salary set",
+    "byDepartment": "Cost by department"
   },
   "cash": {
     "title": "Cash & bank",
@@ -325,13 +422,7 @@
   "income": {
     "title": "Other income & arrears",
     "subtitle": "Money that is not school fees, and fees from earlier terms",
-    "tab": {
-      "income": "Other income",
-      "arrears": "Arrears"
-    },
     "thisTerm": "Received this term",
-    "arrearsOwed": "Owed from earlier terms",
-    "familiesBehind": "Families behind",
     "record": "Record income",
     "recorded": "Income recorded.",
     "saveFailed": "That could not be saved.",
@@ -342,10 +433,65 @@
     "newCategory": "Add a category",
     "newCategoryPlaceholder": "Canteen, uniforms...",
     "arrearsTitle": "Owed from earlier terms",
-    "arrearsNote": "Every screen measures the current term, so these balances would otherwise disappear while still being owed.",
+    "arrearsNote": "Carrying forward moves each balance onto one arrears charge in this term and closes the old charge, so the debt is owed in one place, never twice.",
     "noArrears": "Nothing is owed from earlier terms.",
     "carryForward": "Carry forward",
     "carried": "{{raised}} charges raised, {{updated}} updated.",
-    "carryFailed": "Those balances could not be carried forward."
+    "carryFailed": "Those balances could not be carried forward.",
+    "entries": "Entries this term",
+    "sources": "Sources"
+  },
+  "feesHub": {
+    "title": "Fees",
+    "tab": {
+      "owing": "Who owes",
+      "charges": "Charges",
+      "setup": "Fee setup",
+      "arrears": "Earlier terms"
+    },
+    "subtitle": {
+      "owing": "Worst first, so the office knows where to start",
+      "charges": "Every charge raised, and what is left on it",
+      "setup": "What the school charges, who pays it, and billing it",
+      "arrears": "What families still owe from terms that have ended"
+    }
+  },
+  "discounts": {
+    "title": "Discounts",
+    "add": "Add a discount",
+    "edit": "Edit discount",
+    "intro": "Applied as bills are raised, and written on each charge so the family can see why it is lower. A bursary set on a student's account still applies too.",
+    "none": "No discounts",
+    "noneDesc": "Sibling discounts, staff children, scholarships: set them once and every bill applies them.",
+    "scope": {
+      "students_one": "{{count}} student",
+      "students_other": "{{count}} students",
+      "siblings": "From the child number {{child}} of a family",
+      "boarders": "Boarders",
+      "day": "Day students",
+      "all": "Everyone"
+    },
+    "allCategories": "All categories",
+    "everyTerm": "Every term",
+    "appliesFuture": "Only bills raised from now on are affected. Bills already raised keep their amounts.",
+    "name": "Name",
+    "namePlaceholder": "e.g. Sibling discount, Staff child",
+    "kindLabel": "Type",
+    "kind": {
+      "percent": "Percentage",
+      "fixed": "Fixed amount"
+    },
+    "percent": "Percentage",
+    "scopeLabel": "Who gets it",
+    "scopeOption": {
+      "students": "Chosen students",
+      "siblings": "Siblings",
+      "boarders": "Boarders",
+      "day": "Day students",
+      "all": "Everyone"
+    },
+    "fromChild": "Starting from child number",
+    "categoriesLabel": "On which fees",
+    "active": "In use"
   }
 }

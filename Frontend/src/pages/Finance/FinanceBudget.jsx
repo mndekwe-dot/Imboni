@@ -12,7 +12,7 @@ import {
 } from '../../api/finance'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
-import { FinanceShell, Money, formatAmount } from './FinanceShell'
+import { Money, formatAmount } from './FinanceShell'
 import { pill } from '../../utils/tone'
 
 /**
@@ -22,7 +22,7 @@ import { pill } from '../../utils/tone'
  * what may happen — which is what turns the expenses page from a diary into a
  * control.
  */
-export function FinanceBudget() {
+export function BudgetPanel() {
     const { t } = useTranslation()
     const toast = useToast()
 
@@ -80,7 +80,7 @@ export function FinanceBudget() {
     const overspent = lines.filter(l => l.over)
 
     return (
-        <FinanceShell title={t('finance.budget.title')} subtitle={t('finance.budget.subtitle')}>
+        <>
             {editing && budget && (
                 <LineModal budgetId={budget.id} categories={categories} lines={lines}
                     onClose={() => setEditing(false)} onSaved={() => { loadReport(); load() }} />
@@ -193,7 +193,7 @@ export function FinanceBudget() {
             </ListSection>
 
             <p className="u-muted u-sm mt-1">{t('finance.budget.actualsNote')}</p>
-        </FinanceShell>
+        </>
     )
 }
 

@@ -14,11 +14,40 @@ import { readStoredUser } from '../../utils/roles'
 import {
     createExpense, createExpenseCategory, decideExpense, getExpenseCategories, getExpenses,
 } from '../../api/finance'
+import { TabGroup } from '../../components/ui/TabGroup'
 import { FinanceShell, Money } from './FinanceShell'
+import { BudgetPanel } from './FinanceBudget'
 import { badge } from '../../utils/tone'
 
 const FILTERS = ['all', 'pending', 'approved', 'paid', 'rejected']
 const METHODS = ['cash', 'momo', 'bank', 'cheque', 'other']
+
+/**
+ * Money out: what has been spent and approved, and what the term planned to spend.
+ *
+ * Budget was its own page, but a budget is only read against these same
+ * expenses ("planned 2,000,000, spent 1,450,000"), so the two sit together.
+ */
+export function FinanceExpenses() {
+    const { t } = useTranslation()
+    const [params, setParams] = useSearchParams()
+    const tab = params.get('tab') === 'budget' ? 'budget' : 'expenses'
+
+    return (
+        <FinanceShell title={t('finance.expenses.title')}
+            subtitle={t(tab === 'budget' ? 'finance.budget.subtitle' : 'finance.expenses.subtitle')}>
+            <TabGroup label={t('finance.expenses.title')} value={tab} idPrefix="exp-"
+                onChange={key => setParams(key === 'budget' ? { tab: 'budget' } : {}, { replace: true })}
+                tabs={[
+                    { key: 'expenses', icon: 'shopping_bag', label: t('finance.expenses.tabExpenses') },
+                    { key: 'budget', icon: 'request_quote', label: t('finance.budget.title') },
+                ]} />
+            <div role="tabpanel" id={`exp-panel-${tab}`} aria-labelledby={`exp-tab-${tab}`}>
+                {tab === 'budget' ? <BudgetPanel /> : <ExpensesPanel />}
+            </div>
+        </FinanceShell>
+    )
+}
 
 /**
  * Money out: recorded by the office, approved by the head, then paid.
@@ -27,7 +56,7 @@ const METHODS = ['cash', 'momo', 'bank', 'cheque', 'other']
  * action would make the control meaningless — the person who spent it cannot
  * be the person who signs it off.
  */
-export function FinanceExpenses() {
+export function ExpensesPanel() {
     const { t } = useTranslation()
     const toast = useToast()
     const role = readStoredUser()?.role
@@ -79,7 +108,7 @@ export function FinanceExpenses() {
     const pending = rows.filter(r => r.status === 'pending').length
 
     return (
-        <FinanceShell title={t('finance.expenses.title')} subtitle={t('finance.expenses.subtitle')}>
+        <>
             {showNew && (
                 <ExpenseForm
                     categories={categories}
@@ -175,7 +204,7 @@ export function FinanceExpenses() {
                     </ul>
                 )}
             </ListSection>
-        </FinanceShell>
+        </>
     )
 }
 

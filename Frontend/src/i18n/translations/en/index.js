@@ -31,8 +31,12 @@ import teacher from './teacher.json'
 import terms from './terms.json'
 import timetable from './timetable.json'
 import welcome from './welcome.json'
+import attendance from './attendance.json'
+import staff from './staff.json'
 
 export default {
+    staff,
+    attendance,
     acceptInvite,
     account,
     admin,

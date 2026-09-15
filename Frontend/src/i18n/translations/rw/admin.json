@@ -95,24 +95,15 @@
     "subtitle": "Igenamiterere ry'ikigo: imiterere, amasomo, ibyumba n'ibyifuzo"
   },
   "staff": {
-    "academic": "Amasomo",
-    "admin": "Ubuyobozi",
-    "allDepartments": "Amashami yose",
-    "allRoles": "Inshingano zose",
-    "disciplineMaster": "Ushinzwe imyitwarire",
     "invitationSent": "Ubutumire bwoherejwe!",
     "invitationSentTo": "Umuyoboro w'ubutumire woherejwe kuri",
     "invitations": "Ubutumire bw'abakozi",
     "invite": "Tumira abakozi",
     "inviteMember": "Tumira umukozi",
-    "list": "Urutonde rw'abakozi",
-    "loading": "Turimo gukura abakozi…",
     "noInvitations": "Nta butumire bwoherejwe. Kanda",
-    "profile": "Umwirondoro w'umukozi",
     "recipient": "Uwoherejwe",
-    "subtitle": "Abarimu, abita ku mibereho n'abakozi b'ubuyobozi",
-    "title": "Gucunga abakozi",
-    "welfare": "Imibereho"
+    "subtitle": "Abakozi bose b’ikigo, amashami yabo na konti zabo",
+    "title": "Gucunga abakozi"
   },
   "students": {
     "subtitle": "Kwiyandikisha, kwakirwa n'inyandiko z'abanyeshuri",

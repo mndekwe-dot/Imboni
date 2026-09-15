@@ -13,6 +13,9 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/tables.css'
 import '../../styles/finance.css'
+import { formatAmount } from '../../utils/money'
+
+export { formatAmount }
 
 /**
  * The frame every finance page sits in: rail, header, content — and the plan
@@ -71,20 +74,7 @@ export function FinanceNotInPlan() {
     )
 }
 
-/**
- * An amount, with its currency, right-aligned by the caller.
- *
- * One place formats money so a figure reads the same on the dashboard, the
- * receipt and the debtor list. `Intl` groups the thousands, which is the
- * difference between 1250000 and 1,250,000 at a glance.
- */
-export function formatAmount(value) {
-    const amount = Number(value ?? 0)
-    return Number.isFinite(amount)
-        ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(amount)
-        : '0'
-}
-
+/** An amount with its currency. The digits come from `formatAmount` in utils/money. */
 export function Money({ value, currency = 'RWF', className = '' }) {
     return (
         <span className={`fin-money ${className}`.trim()}>
@@ -92,3 +82,14 @@ export function Money({ value, currency = 'RWF', className = '' }) {
         </span>
     )
 }
+
+/**
+ * A fee category as people read it. The built-in ones are translated; one the
+ * school added itself shows the name the school gave it.
+ */
+export function categoryName(t, code, name) {
+    return t(`finance.categories.${code}`, { defaultValue: name || code })
+}
+
+/* What Money puts on screen, so a StatCard can size a tile holding one. */
+Money.statText = ({ value, currency = 'RWF' }) => `${formatAmount(value)} ${currency}`

@@ -1,70 +1,44 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
-import { DataTable } from '../../components/ui/DataTable'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { TabGroup } from '../../components/ui/TabGroup'
+import { StaffRegister } from '../../components/staff/StaffRegister'
+import { DepartmentsPanel } from '../../components/staff/DepartmentsPanel'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { formatDate } from '../../utils/date'
 import {
-    getAdminStaff, getAdminTeacherStats,
+    getAdminTeacherStats,
     getInvitations, sendInvitation, resendInvitation, cancelInvitation,
 } from '../../api/admin'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
-import { SearchBar } from '../../components/ui/SearchBar'
 
 const ROLE_LABEL = {
     teacher:    'Teacher',
     dos:        'Director of Studies',
     matron:     'Matron',
     discipline: 'Discipline Master',
+    librarian:  'Librarian',
+    bursar:     'Bursar',
     admin:      'Administrator',
 }
 
-const DEPT_FOR_ROLE = {
-    teacher:    'Academic',
-    dos:        'Academic',
-    matron:     'Welfare',
-    discipline: 'Welfare',
-    admin:      'Admin',
-}
-
-const INVITE_ROLES = [
-    { value: 'teacher',    label: 'Teacher'             },
-    { value: 'dos',        label: 'Director of Studies' },
-    { value: 'matron',     label: 'Matron'              },
-    { value: 'discipline', label: 'Discipline Master'   },
-    { value: 'admin',      label: 'Administrator'       },
-]
+// Every role that signs in. The librarian and the bursar were missing, so a
+// school could not invite the two people who run the library and the money.
+const INVITE_ROLES = Object.entries(ROLE_LABEL).map(([value, label]) => ({ value, label }))
 
 const BLANK_INVITE = { first_name: '', last_name: '', email: '', role: 'teacher', phone_number: '' }
 
-function initials(name = '') {
-    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
-}
-
-function avatarClass(role) {
-    const map = { teacher: 'teacher', dos: 'dos', matron: 'matron', discipline: 'dis', admin: 'admin-av' }
-    return map[role] || 'support'
-}
-
-function contractLabel(empType) {
-    if (empType === 'full_time') return 'Full-Time'
-    if (empType === 'part_time') return 'Part-Time'
-    return '-'
-}
-function contractClass(empType) {
-    if (empType === 'full_time') return 'fulltime'
-    if (empType === 'part_time') return 'parttime'
-    return ''
-}
+const TABS = ['staff', 'departments', 'invitations']
 
 function inviteStatusClass(inv) {
     if (inv.is_used)                       return 'active'
@@ -75,43 +49,6 @@ function inviteStatusLabel(inv) {
     if (inv.is_used)                       return 'Accepted'
     if (inv.status === 'cancelled')        return 'Cancelled'
     return 'Pending'
-}
-
-function StaffRow({ member, onView }) {
-    const name    = member.name || member.full_name || `${member.first_name || ''} ${member.last_name || ''}`.trim()
-    const role    = member.role
-    const dept    = member.department || DEPT_FOR_ROLE[role] || 'Admin'
-    const empType = member.employment_type || ''
-    const active  = member.is_active !== false
-
-    return (
-        <tr>
-            <td>
-                <div className="adm-cell">
-                    <div className={`adm-av ${avatarClass(role)}`}>{initials(name)}</div>
-                    <div>
-                        <div className="adm-name">{name}</div>
-                        <div className="adm-sub">{member.email}</div>
-                    </div>
-                </div>
-            </td>
-            <td>{ROLE_LABEL[role] || role}</td>
-            <td>{dept}</td>
-            <td>
-                {empType ? (
-                    <span className={`adm-badge ${contractClass(empType)}`}>{contractLabel(empType)}</span>
-                ) : '-'}
-            </td>
-            <td>
-                <span className={`adm-badge ${active ? 'active' : 'pending'}`}>{active ? 'Active' : 'Inactive'}</span>
-            </td>
-            <td>
-                <button className="adm-btn" onClick={() => onView(member)}>
-                    <span className="material-symbols-rounded" aria-hidden="true">visibility</span> View
-                </button>
-            </td>
-        </tr>
-    )
 }
 
 function InviteModal({ onClose, onSent }) {
@@ -150,7 +87,7 @@ function InviteModal({ onClose, onSent }) {
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2 className="modal-title">Invite Staff Member</h2>
+                    <h2 className="modal-title">{t('admin.staff.inviteMember')}</h2>
                     <button className="modal-close" onClick={onClose} aria-label={t('common.close')}>
                         <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
@@ -206,31 +143,24 @@ function InviteModal({ onClose, onSent }) {
     )
 }
 
+/**
+ * The school's people: everyone it employs, the departments they work in, and
+ * the invitations that give some of them an Imboni login.
+ *
+ * The staff list used to be the login accounts only, with a department guessed
+ * from the role and a filter that compared translated labels against English
+ * words. It is now the staff register, the same one payroll pays from, so the
+ * cook and the night guard are on it and a department is something recorded.
+ */
 export function AdminStaff() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
-    const [staffList,   setStaffList]   = useState([])
+    const [params, setParams] = useSearchParams()
+    const activeTab = TABS.includes(params.get('tab')) ? params.get('tab') : 'staff'
     const [stats,       setStats]       = useState(null)
-    const [loading,     setLoading]     = useState(true)
-    const [search,      setSearch]      = useState('')
-    const [deptFilter,  setDeptFilter]  = useState('All Departments')
-    const [roleFilter,  setRoleFilter]  = useState('All Roles')
-    const [viewing,     setViewing]     = useState(null)
     const [showInvite,  setShowInvite]  = useState(false)
     const [invitations, setInvitations] = useState([])
-    const [activeTab,   setActiveTab]   = useState('staff')
-
-    function loadStaff() {
-        setLoading(true)
-        Promise.all([
-            getAdminStaff().catch(() => []),
-            getAdminTeacherStats().catch(() => null),
-        ]).then(([staff, s]) => {
-            setStaffList(Array.isArray(staff) ? staff : (staff?.results ?? []))
-            setStats(s)
-        }).finally(() => setLoading(false))
-    }
 
     function loadInvitations() {
         getInvitations().then(data => {
@@ -238,7 +168,11 @@ export function AdminStaff() {
         }).catch(e => toast.error(errorMessage(e, 'Could not load invitations.')))
     }
 
-    useEffect(() => { loadStaff(); loadInvitations() }, [])
+    useEffect(() => {
+        getAdminTeacherStats().then(setStats)
+            .catch(e => toast.error(errorMessage(e, t('common.loadFailed'))))
+        loadInvitations()
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     async function handleResend(id) {
         try {
@@ -271,48 +205,10 @@ export function AdminStaff() {
         { icon: 'group',    value: '-', label: 'Student:Teacher',  trend: 'Loading…', colorClass: 'warning' },
     ]
 
-    const filtered = staffList.filter(s => {
-        const name  = (s.name || s.full_name || `${s.first_name || ''} ${s.last_name || ''}`).toLowerCase()
-        const q     = search.toLowerCase()
-        const dept  = s.department || DEPT_FOR_ROLE[s.role] || 'Admin'
-        const matchSearch = !q || name.includes(q) || (s.email || '').toLowerCase().includes(q)
-        const matchDept   = deptFilter === 'All Departments' || dept === deptFilter
-        const matchRole   = roleFilter === 'All Roles' || s.role === roleFilter
-        return matchSearch && matchDept && matchRole
-    })
-
     const pendingCount = invitations.filter(i => !i.is_used && i.status !== 'cancelled').length
 
     return (
         <>
-            {viewing && (
-                <div className="modal-overlay" onClick={() => setViewing(null)}>
-                    <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2 className="modal-title">{t('admin.staff.profile')}</h2>
-                            <button className="modal-close" onClick={() => setViewing(null)} aria-label={t('common.close')}>
-                                <span className="material-symbols-rounded" aria-hidden="true">close</span>
-                            </button>
-                        </div>
-                        <div className="modal-body u-stack-sm">
-                            {[
-                                ['Name',     (viewing.name || viewing.full_name || `${viewing.first_name || ''} ${viewing.last_name || ''}`.trim())],
-                                ['Email',    viewing.email],
-                                ['Phone',    viewing.phone_number || '-'],
-                                ['Role',     ROLE_LABEL[viewing.role] || viewing.role],
-                                ['Contract', contractLabel(viewing.employment_type)],
-                                ['Status',   viewing.is_active !== false ? 'Active' : 'Inactive'],
-                            ].map(([label, val]) => (
-                                <div key={label} className="adm-kv-row">
-                                    <span className="adm-kv-key">{label}</span>
-                                    <span className="adm-kv-val">{val}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {showInvite && (
                 <InviteModal onClose={() => setShowInvite(false)} onSent={loadInvitations} />
             )}
@@ -329,136 +225,88 @@ export function AdminStaff() {
                             {statCards.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
-                        {/* Tab bar + Invite button */}
                         <div className="u-row-sm u-justify-between u-wrap">
-                            <div className="u-flex u-gap-025">
-                                <button
-                                    className={`btn btn-sm ${activeTab === 'staff' ? 'btn-primary' : 'btn-outline'}`}
-                                    onClick={() => setActiveTab('staff')}
-                                >
-                                    <span className="material-symbols-rounded" aria-hidden="true">badge</span> Staff List
-                                </button>
-                                <button
-                                    className={`btn btn-sm u-relative ${activeTab === 'invitations' ? 'btn-primary' : 'btn-outline'}`}
-                                    onClick={() => setActiveTab('invitations')}
-                                >
-                                    <span className="material-symbols-rounded" aria-hidden="true">mail</span>
-                                    Invitations
-                                    {pendingCount > 0 && (
-                                        <span className="adm-count-badge">
-                                            {pendingCount}
-                                        </span>
-                                    )}
-                                </button>
-                            </div>
+                            <TabGroup label={t('admin.staff.title')} value={activeTab} idPrefix="staff-"
+                                onChange={key => setParams(key === 'staff' ? {} : { tab: key }, { replace: true })}
+                                tabs={[
+                                    { key: 'staff', icon: 'badge', label: t('staff.register') },
+                                    { key: 'departments', icon: 'corporate_fare', label: t('staff.departmentsTitle') },
+                                    { key: 'invitations', icon: 'mail', label: t('admin.staff.invitations'), count: pendingCount },
+                                ]} />
                             <button className="btn btn-primary btn-sm" onClick={() => setShowInvite(true)}>
                                 <span className="material-symbols-rounded" aria-hidden="true">person_add</span>
-                                Invite Staff
+                                {t('admin.staff.invite')}
                             </button>
                         </div>
 
-                        {activeTab === 'staff' && (
-                            <>
-                                <div className="toolbar-card">
-                                    <SearchBar
-                                        value={search}
-                                        onChange={setSearch}
-                                        placeholder={t('common.searchStaff')}
-                                    />
-                                    <select className="input input-auto select-xs" value={deptFilter} onChange={e => setDeptFilter(e.target.value)}>
-                                        <option>{t('admin.staff.allDepartments')}</option>
-                                        <option>{t('admin.staff.academic')}</option><option>{t('admin.staff.welfare')}</option><option>Admin</option>
-                                    </select>
-                                    <select className="input input-auto select-xs" value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
-                                        <option>{t('admin.staff.allRoles')}</option>
-                                        <option value="teacher">{t('common.teacher')}</option>
-                                        <option value="dos">{t('roles.dos')}</option>
-                                        <option value="matron">{t('roles.matron')}</option>
-                                        <option value="discipline">{t('admin.staff.disciplineMaster')}</option>
-                                        <option value="admin">{t('roles.admin')}</option>
-                                    </select>
-                                </div>
-
-                                {loading ? (
-                                    <p className="u-muted u-pad">Loading staff…</p>
-                                ) : (
-                                    <DataTable
-                                        title="All Staff"
-                                        data={filtered}
-                                        columns={['Name', 'Role', 'Department', 'Contract', 'Status', 'Actions']}
-                                        renderRow={s => <StaffRow key={s.id} member={s} onView={setViewing} />}
-                                        emptyIcon="badge"
-                                        emptyTitle="No staff found"
-                                        emptyDesc={search ? `No results for "${search}"` : 'No staff match the selected filters.'}
-                                        onClearFilters={() => { setSearch(''); setDeptFilter('All Departments'); setRoleFilter('All Roles') }}
-                                    />
-                                )}
-                            </>
-                        )}
-
-                        {activeTab === 'invitations' && (
-                            <div className="card">
-                                <div className="card-header">
-                                    <h2 className="card-title">{t('admin.staff.invitations')}</h2>
-                                    <button className="btn btn-outline btn-sm" onClick={loadInvitations}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">refresh</span> {t('common.refresh')}
-                                    </button>
-                                </div>
-                                <div className="card-content">
-                                    {invitations.length === 0 ? (
-                                        <div className="u-center-text u-muted u-pad-lg">
-                                            <span className="material-symbols-rounded u-empty-icon" aria-hidden="true">mail_outline</span>
-                                            No invitations sent yet. Click <strong>Invite Staff</strong> to get started.
-                                        </div>
-                                    ) : (
-                                        <div className="data-table-wrap">
-                                            <table className="data-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>{t('admin.staff.recipient')}</th>
-                                                        <th>{t('common.role')}</th>
-                                                        <th>{t('common.status')}</th>
-                                                        <th>{t('common.sent')}</th>
-                                                        <th>{t('common.actions')}</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {invitations.map(inv => (
-                                                        <tr key={inv.id}>
-                                                            <td>
-                                                                <div className="adm-name">{`${inv.first_name || ''} ${inv.last_name || ''}`.trim() || '-'}</div>
-                                                                <div className="adm-sub">{inv.email}</div>
-                                                            </td>
-                                                            <td>{ROLE_LABEL[inv.role] || inv.role || '-'}</td>
-                                                            <td>
-                                                                <span className={`adm-badge ${inviteStatusClass(inv)}`}>
-                                                                    {inviteStatusLabel(inv)}
-                                                                </span>
-                                                            </td>
-                                                            <td className="adm-sent-cell">
-                                                                {inv.created_at ? formatDate(inv.created_at) : '-'}
-                                                            </td>
-                                                            <td>
-                                                                {!inv.is_used && inv.status !== 'cancelled' && (
-                                                                    <div className="u-flex u-gap-035">
-                                                                        <button className="adm-btn" title="Resend invitation" onClick={() => handleResend(inv.id)}>
-                                                                            <span className="material-symbols-rounded" aria-hidden="true">forward_to_inbox</span>
-                                                                        </button>
-                                                                        <button className="adm-btn u-destructive" title="Cancel invitation" onClick={() => handleCancel(inv.id)}>
-                                                                            <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
-                                                                        </button>
-                                                                    </div>
-                                                                )}
-                                                            </td>
+                        <div role="tabpanel" id={`staff-panel-${activeTab}`} aria-labelledby={`staff-tab-${activeTab}`}
+                            className="page-stack">
+                            {activeTab === 'staff' && <StaffRegister />}
+                            {activeTab === 'departments' && <DepartmentsPanel />}
+                            {activeTab === 'invitations' && (
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h2 className="card-title">{t('admin.staff.invitations')}</h2>
+                                        <button className="btn btn-outline btn-sm" onClick={loadInvitations}>
+                                            <span className="material-symbols-rounded" aria-hidden="true">refresh</span> {t('common.refresh')}
+                                        </button>
+                                    </div>
+                                    <div className="card-content">
+                                        {invitations.length === 0 ? (
+                                            <div className="u-center-text u-muted u-pad-lg">
+                                                <span className="material-symbols-rounded u-empty-icon" aria-hidden="true">mail_outline</span>
+                                                No invitations sent yet. Click <strong>Invite Staff</strong> to get started.
+                                            </div>
+                                        ) : (
+                                            <div className="data-table-wrap">
+                                                <table className="data-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>{t('admin.staff.recipient')}</th>
+                                                            <th>{t('common.role')}</th>
+                                                            <th>{t('common.status')}</th>
+                                                            <th>{t('common.sent')}</th>
+                                                            <th>{t('common.actions')}</th>
                                                         </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )}
+                                                    </thead>
+                                                    <tbody>
+                                                        {invitations.map(inv => (
+                                                            <tr key={inv.id}>
+                                                                <td>
+                                                                    <div className="adm-name">{`${inv.first_name || ''} ${inv.last_name || ''}`.trim() || '-'}</div>
+                                                                    <div className="adm-sub">{inv.email}</div>
+                                                                </td>
+                                                                <td>{ROLE_LABEL[inv.role] || inv.role || '-'}</td>
+                                                                <td>
+                                                                    <span className={`adm-badge ${inviteStatusClass(inv)}`}>
+                                                                        {inviteStatusLabel(inv)}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="adm-sent-cell">
+                                                                    {inv.created_at ? formatDate(inv.created_at) : '-'}
+                                                                </td>
+                                                                <td>
+                                                                    {!inv.is_used && inv.status !== 'cancelled' && (
+                                                                        <div className="u-flex u-gap-035">
+                                                                            <button className="adm-btn" title="Resend invitation" onClick={() => handleResend(inv.id)}>
+                                                                                <span className="material-symbols-rounded" aria-hidden="true">forward_to_inbox</span>
+                                                                            </button>
+                                                                            <button className="adm-btn u-destructive" title="Cancel invitation" onClick={() => handleCancel(inv.id)}>
+                                                                                <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
 
                     </DashboardContent>
                 </main>

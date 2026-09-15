@@ -129,23 +129,6 @@
     "typePartial": "Partial",
     "typeScholarship": "Scholarship"
   },
-  "staff": {
-    "addTitle": "Add Staff Member",
-    "contractFullTime": "Full-Time",
-    "contractPartTime": "Part-Time",
-    "contractType": "Contract Type",
-    "deptAcademic": "Academic",
-    "deptAdmin": "Admin",
-    "deptWelfare": "Welfare",
-    "editTitle": "Edit Staff Member",
-    "egRole": "e.g. Mathematics Teacher",
-    "egStaffId": "e.g. STF-009",
-    "egStaffName": "e.g. Ms. Mukamana Grace",
-    "roleRequired": "Role / Position *",
-    "staffId": "Staff ID",
-    "statusInactive": "Inactive",
-    "statusOnLeave": "On Leave"
-  },
   "student": {
     "admitTitle": "Admit Student",
     "detailsTitle": "Student Details",

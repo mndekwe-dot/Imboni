@@ -95,24 +95,15 @@
     "subtitle": "School-wide configuration: structure, subjects, rooms and preferences"
   },
   "staff": {
-    "academic": "Academic",
-    "admin": "Admin",
-    "allDepartments": "All Departments",
-    "allRoles": "All Roles",
-    "disciplineMaster": "Discipline Master",
     "invitationSent": "Invitation sent!",
     "invitationSentTo": "An invitation link was sent to",
     "invitations": "Staff Invitations",
     "invite": "Invite Staff",
     "inviteMember": "Invite Staff Member",
-    "list": "Staff List",
-    "loading": "Loading staff…",
     "noInvitations": "No invitations sent yet. Click",
-    "profile": "Staff Profile",
     "recipient": "Recipient",
-    "subtitle": "Teachers, welfare and administration staff",
-    "title": "Staff Management",
-    "welfare": "Welfare"
+    "subtitle": "Everyone the school employs, their departments and their logins",
+    "title": "Staff Management"
   },
   "students": {
     "subtitle": "Enrollment, admissions and student records",
