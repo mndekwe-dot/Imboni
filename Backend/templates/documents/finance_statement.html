@@ -11,7 +11,7 @@ against it rather than one net figure they have no way to check.
     </tr>
     {% for line in lines %}
         <tr>
-            <td>{{ line.fee.get_category_display }}{% if line.fee.notes %}<div class="muted">{{ line.fee.notes }}</div>{% endif %}</td>
+            <td>{{ line.fee.category_label|default:line.fee.get_category_display }}{% if line.fee.notes %}<div class="muted">{{ line.fee.notes }}</div>{% endif %}</td>
             <td>{{ line.fee.due_date|date:"j M Y" }}</td>
             <td class="num">{{ line.fee.amount|floatformat:0|intcomma }}</td>
             <td class="num">{{ line.paid|floatformat:0|intcomma }}</td>

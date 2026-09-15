@@ -38,7 +38,7 @@ def _fail(message, status=400):
 
 
 def _class_label(request):
-    grade = (request.query_params.get('grade') or '').strip()
+    grade = ', '.join(g.strip() for g in (request.query_params.get('grade') or '').split(',') if g.strip())
     stream = (request.query_params.get('stream') or '').strip()
     if grade and stream:
         return f'{grade}{stream}'
@@ -167,7 +167,10 @@ class CopyEventView(LibrarianView):
                 reason=request.data.get('reason', ''),
                 borrower=borrower,
                 charged=request.data.get('charged') or None,
-                recorded_by=request.user)
+                recorded_by=request.user,
+                # False when the school already bought a replacement: the
+                # borrower's charge stands even though the book turned up.
+                settle_charge=request.data.get('settle_charge', True) not in (False, 'false', '0'))
         except services.LibraryError as exc:
             return _fail(str(exc))
         return Response(CopyEventSerializer(event).data, status=201)
@@ -195,7 +198,21 @@ class LostAndDamagedView(LibrarianView):
                 ([c.copy_code, c.book.title, c.book.author, c.get_status_display(),
                   c.get_condition_display(), c.price] for c in copies))
 
-        return Response(BookCopySerializer(copies, many=True).data)
+        copies = list(copies)
+        rows = BookCopySerializer(copies, many=True).data
+        # What a borrower was charged for a copy that is still missing, so the
+        # librarian marking it found knows there is a charge to cancel or a
+        # refund to pay before they click.
+        charges = services.open_lost_charges(copies)
+        for row, copy in zip(rows, copies):
+            fine = charges.get(copy.pk)
+            row['lost_charge'] = None if fine is None else {
+                'amount': str(fine.amount),
+                'replacement': str(services.lost_charge_parts(fine)[1]),
+                'paid': fine.paid,
+                'borrower_name': fine.loan.borrower.get_full_name(),
+            }
+        return Response(rows)
 
 
 # ── Counting the shelves ──────────────────────────────────────────────────────

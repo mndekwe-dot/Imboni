@@ -24,7 +24,7 @@ the amount taken invites the same question again next week.
         <tr>
             <td>
                 <div class="muted">Received, with thanks</div>
-                <div class="rcpt-amount">{{ payment.amount|floatformat:0|intcomma }}</div>
+                <div class="rcpt-amount">{{ total|floatformat:0|intcomma }}</div>
                 <div class="muted">{{ payment.get_method_display }}{% if payment.reference %} &middot; {{ payment.reference }}{% endif %}</div>
             </td>
             <td class="right">
@@ -37,16 +37,19 @@ the amount taken invites the same question again next week.
 </div>
 
 <table class="grid">
-    <tr><th>Charge</th><th class="num">Charged</th><th class="num">Paid to date</th><th class="num">Still owed</th></tr>
+    <tr><th>Charge</th><th class="num">This receipt</th><th class="num">Charged</th><th class="num">Paid to date</th><th class="num">Still owed</th></tr>
+    {% for line in lines %}
     <tr>
-        <td>{{ fee.get_category_display }}{% if fee.term %} &middot; Term {{ fee.term.term }} {{ fee.term.year }}{% endif %}</td>
-        <td class="num">{{ charged|floatformat:0|intcomma }}</td>
-        <td class="num">{{ paid_so_far|floatformat:0|intcomma }}</td>
+        <td>{{ line.fee.category_label|default:line.fee.get_category_display }}{% if line.fee.term %} &middot; Term {{ line.fee.term.term }} {{ line.fee.term.year }}{% endif %}</td>
+        <td class="num">{{ line.payment.amount|floatformat:0|intcomma }}</td>
+        <td class="num">{{ line.charged|floatformat:0|intcomma }}</td>
+        <td class="num">{{ line.paid_so_far|floatformat:0|intcomma }}</td>
         <td class="num">
-            {% if settled %}<span class="pill pill-good">Settled</span>
-            {% else %}{{ balance|floatformat:0|intcomma }}{% endif %}
+            {% if line.settled %}<span class="pill pill-good">Settled</span>
+            {% else %}{{ line.balance|floatformat:0|intcomma }}{% endif %}
         </td>
     </tr>
+    {% endfor %}
 </table>
 
 {% if payment.payer_name %}<p class="mt muted">Paid by {{ payment.payer_name }}.</p>{% endif %}

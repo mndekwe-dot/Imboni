@@ -37,7 +37,17 @@ def receipt_pdf(payment):
     """
     fee = payment.fee
     student = fee.student if fee else None
-    balance = services.balance_of(fee) if fee else ZERO
+    # One receipt can cover several charges; the slip lists each of them, with
+    # what is still owed on it afterwards.
+    lines = []
+    for line in services.receipt_lines(payment):
+        services.label_fees([line.fee])
+        balance = services.balance_of(line.fee)
+        lines.append({
+            'payment': line, 'fee': line.fee, 'charged': line.fee.amount,
+            'paid_so_far': services.paid_total(line.fee),
+            'balance': balance, 'settled': balance <= ZERO,
+        })
     context = document_context(
         f'Receipt {payment.receipt_no}',
         subtitle=student.full_name if student else '',
@@ -45,10 +55,8 @@ def receipt_pdf(payment):
         fee=fee,
         student=student,
         class_label=f'{student.grade}{student.section}' if student else '',
-        charged=fee.amount if fee else ZERO,
-        paid_so_far=services.paid_total(fee) if fee else ZERO,
-        balance=balance,
-        settled=balance <= ZERO,
+        lines=lines,
+        total=sum((line['payment'].amount for line in lines), ZERO),
     )
     return pdf_response('documents/finance_receipt.html', context,
                         f'receipt-{payment.receipt_no}', inline=True)
@@ -62,7 +70,7 @@ def statement_pdf(student, term, balance):
     its payments underneath rather than a single net figure they cannot check.
     """
     lines = []
-    for fee in balance['fees']:
+    for fee in services.label_fees(balance['fees']):
         lines.append({
             'fee': fee,
             'paid': services.paid_total(fee),
@@ -118,7 +126,7 @@ def charges_pdf(request, fees, term):
     rows = [{'fee': fee,
              'paid': services.paid_total(fee),
              'balance': services.balance_of(fee)}
-            for fee in fees]
+            for fee in services.label_fees(fees)]
     context = document_context(
         'Charges',
         subtitle=f'{class_label_of(request)} · {_term_label(term)}',
@@ -128,6 +136,14 @@ def charges_pdf(request, fees, term):
         outstanding=sum((r['balance'] for r in rows), ZERO))
     return pdf_response('documents/finance_charges.html', context,
                         f'charges-{class_label_of(request)}')
+
+
+def income_statement_pdf(report):
+    """The term's income and expenditure, for the head and the board."""
+    context = document_context('Income and expenditure', subtitle=_term_label(report['term']),
+                               report=report, summary=report['summary'])
+    return pdf_response('documents/finance_income_statement.html', context,
+                        'income-and-expenditure')
 
 
 def reminders_pdf(rows, term):
@@ -152,7 +168,7 @@ def expenses_pdf(rows, term, totals):
     return pdf_response('documents/finance_expenses.html', context, 'expenses')
 
 
-def payroll_register_pdf(run, payslips, totals):
+def payroll_register_pdf(run, payslips, totals, by_department=()):
     """
     The whole month on one sheet: who is paid what, and what it costs.
 
@@ -161,7 +177,8 @@ def payroll_register_pdf(run, payslips, totals):
     """
     context = document_context(
         'Payroll register', subtitle=run.period_label,
-        run=run, payslips=payslips, totals=totals, count=len(payslips))
+        run=run, payslips=payslips, totals=totals, count=len(payslips),
+        by_department=by_department)
     return pdf_response('documents/finance_payroll.html', context,
                         f'payroll-{run.period_year}-{run.period_month:02d}')
 

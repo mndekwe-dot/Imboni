@@ -9,7 +9,7 @@
         <tr>
             <td>{{ r.fee.student.full_name|default:"-" }}</td>
             <td>{{ r.fee.student.grade }}{{ r.fee.student.section }}</td>
-            <td>{{ r.fee.get_category_display }}</td>
+            <td>{{ r.fee.category_label|default:r.fee.get_category_display }}</td>
             <td>{{ r.fee.due_date|date:"j M" }}</td>
             <td class="num">{{ r.fee.amount|floatformat:0|intcomma }}</td>
             <td class="num">{{ r.paid|floatformat:0|intcomma }}</td>

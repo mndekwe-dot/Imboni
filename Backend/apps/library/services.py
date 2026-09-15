@@ -32,6 +32,12 @@ def outstanding_fines_for(user):
     return Fine.objects.filter(loan__borrower=user, paid=False, waived=False)
 
 
+# Who a school library lends to: pupils and staff. A parent has an account for
+# the parent portal, not a library card.
+BORROWER_ROLES = ('student', 'teacher', 'dos', 'matron', 'discipline', 'librarian',
+                  'bursar', 'admin')
+
+
 def borrowing_block(user, settings_row=None):
     """
     Why this person may not borrow right now, or None if they may.
@@ -39,12 +45,26 @@ def borrowing_block(user, settings_row=None):
     Returns a reason rather than a boolean so the librarian is told which rule
     stopped them -- "at their limit" and "has an overdue book" need different
     answers at the desk, and a bare False sends them to guess.
+
+    An unpaid fine stops borrowing, as it does at any library desk: without it
+    a fine was a number nobody ever had a reason to settle. So does an account
+    that has been switched off (a pupil who has left) and a role that is not a
+    borrower at all.
     """
     settings_row = settings_row or LibrarySettings.load()
+    name = user.get_full_name() or user.username
+    if not user.is_active:
+        return f'{name} no longer has an active account.'
+    if getattr(user, 'role', None) not in BORROWER_ROLES:
+        return f'{name} is not a library borrower.'
     overdue = [loan for loan in open_loans_for(user) if loan.is_overdue]
     if overdue:
         titles = ', '.join(loan.copy.book.title for loan in overdue[:3])
         return f'{user.get_full_name()} has an overdue book ({titles}).'
+    owed = sum((f.amount for f in outstanding_fines_for(user)), Decimal('0'))
+    if owed > 0:
+        return (f'{name} owes {owed} {settings_row.currency} in library fines, '
+                'which have to be settled first.')
     limit = settings_row.max_books_for(user)
     current = open_loans_for(user).count()
     if current >= limit:
@@ -56,6 +76,9 @@ def borrowing_block(user, settings_row=None):
 def issue(copy, borrower, issued_by=None, settings_row=None):
     """Put a copy in someone's hands, and close the hold that was waiting for it."""
     settings_row = settings_row or LibrarySettings.load()
+    # Locked for the rest of the transaction: two desks scanning the same copy
+    # at once would otherwise both see it available and both issue it.
+    copy = BookCopy.objects.select_for_update().get(pk=copy.pk)
 
     if copy.status == 'on_loan':
         raise LibraryError(f'{copy.copy_code} is already on loan.')
@@ -167,6 +190,54 @@ def renew(loan, settings_row=None):
     loan.renewed_count += 1
     loan.save(update_fields=['due_on', 'renewed_count'])
     return loan
+
+
+@transaction.atomic
+def pay_fine(fine, *, received_by=None, method='cash', reference=''):
+    """
+    Take the money for a fine, and give it to the finance office's books.
+
+    Marking a fine paid used to be a tick in the library and nothing else: the
+    cash went into a drawer no account knew about. When the school has the
+    finance office, the money is recorded there as income under "Library
+    fines", which puts it in a cash account and on the income report.
+    """
+    from django.apps import apps
+
+    if not fine.outstanding:
+        raise LibraryError('That fine is already settled.')
+
+    if apps.is_installed('apps.finance'):
+        from apps.finance import services as finance
+        from apps.finance.models import IncomeCategory
+
+        category, _ = IncomeCategory.objects.get_or_create(
+            name='Library fines',
+            defaults={'description': 'Late and lost books, taken at the library desk.'})
+        loan = fine.loan
+        entry = finance.record_income(
+            category, fine.amount,
+            description=(f'{fine.get_kind_display()}: {loan.copy.book.title} '
+                         f'- {loan.borrower.get_full_name()}'),
+            method=method, reference=reference, received_by=received_by)
+        fine.income_id = entry.id
+
+    fine.paid, fine.paid_at = True, timezone.now()
+    fine.save(update_fields=['paid', 'paid_at', 'income_id'])
+    return fine
+
+
+@transaction.atomic
+def waive_fine(fine, *, reason):
+    """Let a fine go. A reason is required: it is money the school chose not to take."""
+    if not fine.outstanding:
+        raise LibraryError('That fine is already settled.')
+    if not (reason or '').strip():
+        raise LibraryError('Say why the fine is being waived.')
+    fine.waived = True
+    fine.waived_reason = reason.strip()[:255]
+    fine.save(update_fields=['waived', 'waived_reason'])
+    return fine
 
 
 @transaction.atomic
@@ -343,18 +414,46 @@ _EVENT_STATUS = {
 
 @transaction.atomic
 def record_copy_event(copy, kind, *, reason='', borrower=None, charged=None,
-                      recorded_by=None, stocktake=None):
+                      recorded_by=None, stocktake=None, settle_charge=True):
     """
     Note what happened to one physical book, and move its status to match.
 
     Returning a lost copy to the shelf while an open loan still points at it
     would leave the borrower owing a book that is back on the shelf, so the
     loan is closed here rather than left for somebody to notice.
+
+    A lost copy that is found again also settles what its borrower was charged
+    for it - see `_settle_found_copy`. `settle_charge=False` keeps the charge,
+    for when the school had already bought the replacement.
     """
     from .models import CopyEvent, Loan
 
     if kind not in dict(CopyEvent.KIND_CHOICES):
         raise LibraryError('That is not something that happens to a book.')
+
+    open_loan = Loan.objects.filter(copy=copy, returned_at__isnull=True).first()
+
+    if kind in ('found', 'restored') and copy.status in ('lost', 'withdrawn') and settle_charge:
+        note, charged_borrower = _settle_found_copy(copy, recorded_by=recorded_by)
+        if note:
+            reason = f'{reason} {note}'.strip()
+            borrower = borrower or charged_borrower
+
+    # A borrowed book that is lost is the borrower's to replace. This used to
+    # close the loan as though the book had come back and charge nothing, so
+    # losing a book was the cheapest way to stop owing it.
+    fine = None
+    if kind in ('lost', 'written_off') and open_loan is not None:
+        borrower = borrower or open_loan.borrower
+        settings_row = LibrarySettings.load()
+        replacement = Decimal(str(charged)) if charged not in (None, '') else (copy.price or Decimal('0'))
+        days = open_loan.days_late
+        rate = Decimal(settings_row.fine_per_day or 0)
+        amount = replacement + rate * days
+        if amount > 0 and not Fine.objects.filter(loan=open_loan).exists():
+            fine = Fine.objects.create(loan=open_loan, kind='lost', days_late=days,
+                                       rate=rate, amount=amount)
+            charged = amount
 
     event = CopyEvent.objects.create(
         copy=copy, kind=kind, reason=reason[:255], borrower=borrower,
@@ -372,14 +471,77 @@ def record_copy_event(copy, kind, *, reason='', borrower=None, charged=None,
         copy.status = new_status
         copy.save(update_fields=['status'])
 
-    if kind in ('lost', 'written_off', 'found', 'restored'):
-        open_loan = Loan.objects.filter(copy=copy, returned_at__isnull=True).first()
-        if open_loan is not None:
-            open_loan.returned_at = timezone.now()
-            open_loan.returned_to = recorded_by
-            open_loan.save(update_fields=['returned_at', 'returned_to'])
+    if kind in ('lost', 'written_off', 'found', 'restored') and open_loan is not None:
+        open_loan.returned_at = timezone.now()
+        open_loan.returned_to = recorded_by
+        if kind in ('lost', 'written_off'):
+            # The loan is over, but the book did not come back: say so, so the
+            # history does not read as an ordinary return.
+            open_loan.notes = (open_loan.notes + '\n' if open_loan.notes else '') + 'Reported lost.'
+        open_loan.save(update_fields=['returned_at', 'returned_to', 'notes'])
 
     return event
+
+
+def open_lost_charges(copies):
+    """{copy id: the lost-book Fine still standing against it}, newest per copy."""
+    fines = (Fine.objects.select_related('loan__borrower', 'loan__copy__book')
+             .filter(loan__copy__in=copies, kind='lost', waived=False, refunded=0)
+             .order_by('created_at'))
+    return {fine.loan.copy_id: fine for fine in fines}
+
+
+def lost_charge_parts(fine):
+    """(lateness, replacement price) inside a lost-book charge."""
+    lateness = Decimal(fine.rate or 0) * fine.days_late
+    return lateness, max(Decimal(fine.amount) - lateness, Decimal('0'))
+
+
+def _settle_found_copy(copy, *, recorded_by=None):
+    """
+    Undo the replacement part of a lost-book charge, now the book is back.
+
+    The borrower was charged the book's price plus any lateness. The book being
+    found cancels the price and never the lateness - it still came back late.
+    Unpaid, the charge drops to the lateness (or goes, if there was none).
+    Paid, the price is refunded: through the finance office when the money went
+    there, out of the account it went into. Returns (note for the event,
+    borrower), or ('', None) when there was nothing to settle.
+    """
+    from django.apps import apps
+
+    fine = open_lost_charges([copy]).get(copy.pk)
+    if fine is None:
+        return '', None
+    borrower = fine.loan.borrower
+    lateness, replacement = lost_charge_parts(fine)
+    if replacement <= 0:
+        return '', None
+
+    if not fine.paid:
+        if lateness > 0:
+            fine.kind, fine.amount = 'late', lateness
+            fine.save(update_fields=['kind', 'amount'])
+        else:
+            fine.delete()
+        return f'Replacement charge of {replacement:,.0f} cancelled.', borrower
+
+    if fine.income_id and apps.is_installed('apps.finance'):
+        from apps.finance import services as finance
+        from apps.finance.models import OtherIncome
+
+        entry = OtherIncome.objects.filter(pk=fine.income_id).first()
+        if entry is not None:
+            try:
+                finance.refund_income(
+                    entry, replacement, refunded_by=recorded_by,
+                    reason=(f'{fine.loan.copy.book.title} found - '
+                            f'{fine.loan.borrower.get_full_name()}'))
+            except finance.FinanceError as exc:
+                raise LibraryError(f'The refund could not be paid: {exc}')
+    fine.refunded, fine.refunded_at = replacement, timezone.now()
+    fine.save(update_fields=['refunded', 'refunded_at'])
+    return f'{replacement:,.0f} refunded to {borrower.get_full_name()}.', borrower
 
 
 # ── Chasing what is late ──────────────────────────────────────────────────────
@@ -396,8 +558,10 @@ def overdue_loans(*, grade='', stream='', as_of=None):
     as_of = as_of or _today()
     qs = (Loan.objects.filter(returned_at__isnull=True, due_on__lt=as_of)
           .select_related('copy__book', 'borrower'))
-    if grade:
-        qs = qs.filter(borrower__student_profile__grade=grade)
+    # One year or a comma-separated list, as the class picker sends a section.
+    grades = [g.strip() for g in (grade or '').split(',') if g.strip()]
+    if grades:
+        qs = qs.filter(borrower__student_profile__grade__in=grades)
     if stream:
         qs = qs.filter(borrower__student_profile__section=stream)
     return qs.order_by('due_on')
@@ -418,7 +582,10 @@ def borrower_history(user, *, limit=None):
     today = _today()
 
     fines = Fine.objects.filter(loan__borrower=user).select_related('loan__copy__book')
-    owed = sum((f.amount for f in fines if not f.is_paid and not f.waived_at), Decimal('0'))
+    # `outstanding`: Fine has `paid` and `waived`. This read `is_paid` and
+    # `waived_at`, which do not exist, so the borrower history page could only
+    # ever answer with a server error.
+    owed = sum((f.amount for f in fines if f.outstanding), Decimal('0'))
 
     return {
         'borrower': user,

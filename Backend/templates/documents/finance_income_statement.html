@@ -1,0 +1,45 @@
+{% extends "documents/base.html" %}{% load humanize %}
+{% comment %}
+The page a head teacher takes to the board: where the term's money came from,
+where it went, and what is left. Committed spending is shown apart - approved,
+not yet paid - so the surplus is the cash picture, not a promise.
+{% endcomment %}
+{% block content %}
+<table class="grid">
+    <tr><th colspan="2">Money in</th></tr>
+    {% for line in report.income %}
+        <tr><td>{{ line.label }}{% if line.source == 'fees' %} <span class="muted">(fees)</span>{% endif %}</td>
+            <td class="num">{{ line.amount|floatformat:0|intcomma }}</td></tr>
+    {% empty %}
+        <tr><td colspan="2" class="empty">Nothing received this term.</td></tr>
+    {% endfor %}
+    <tr class="total"><td>Total money in</td><td class="num">{{ report.income_total|floatformat:0|intcomma }}</td></tr>
+</table>
+
+<table class="grid">
+    <tr><th colspan="2">Money out</th></tr>
+    {% for line in report.expenditure %}
+        <tr><td>{{ line.label }}</td><td class="num">{{ line.amount|floatformat:0|intcomma }}</td></tr>
+    {% empty %}
+        <tr><td colspan="2" class="empty">Nothing paid out this term.</td></tr>
+    {% endfor %}
+    <tr class="total"><td>Total money out</td><td class="num">{{ report.spent|floatformat:0|intcomma }}</td></tr>
+</table>
+
+<table class="grid">
+    <tr class="total"><td>{% if report.net < 0 %}Deficit{% else %}Surplus{% endif %}</td>
+        <td class="num">{{ report.net|floatformat:0|intcomma }}</td></tr>
+    {% if report.committed %}
+        <tr><td>Approved but not yet paid</td><td class="num">{{ report.committed|floatformat:0|intcomma }}</td></tr>
+    {% endif %}
+</table>
+
+<table class="grid">
+    <tr><th colspan="2">School fees</th></tr>
+    <tr><td>Charged</td><td class="num">{{ summary.charged|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Received</td><td class="num">{{ summary.collected|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Waived or bursaries</td><td class="num">{{ summary.waived|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Still owed</td><td class="num">{{ summary.outstanding|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Collection rate</td><td class="num">{{ summary.collection_rate }}%</td></tr>
+</table>
+{% endblock %}

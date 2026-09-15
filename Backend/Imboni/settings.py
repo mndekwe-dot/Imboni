@@ -95,6 +95,7 @@ TENANT_APPS = [
     'apps.discipline',
     'apps.matron',
     'apps.library',
+    'apps.staff',                # departments and every worker, account or not
     'apps.finance',
     'apps.notifications',
     'apps.audit',
@@ -279,6 +280,11 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+    # `?format=csv` / `?format=pdf` belong to the views (apps/common/documents.py
+    # `wants`). Left on, DRF reads `format` itself, finds no csv/pdf renderer
+    # and answers 404 before the view runs - which is how every Print and
+    # Export button in the product failed without a single test noticing.
+    'URL_FORMAT_OVERRIDE': None,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     # Return JSON faster — disable the browsable HTML API in production
