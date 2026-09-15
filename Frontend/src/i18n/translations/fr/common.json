@@ -287,5 +287,6 @@
   "choose": "Choisir...",
   "note": "Remarque",
   "from": "Du",
-  "to": "Au"
+  "to": "Au",
+  "removeItem": "Retirer {{name}}"
 }

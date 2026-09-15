@@ -106,6 +106,40 @@
     border-radius: var(--radius);
   }
 }
+
+/* ── Page rhythm ────────────────────────────────────────────────────────────
+   One rule spaces the blocks of every page: the container that holds them
+   sets the gap, and the blocks carry no outer margin of their own.
+
+   The page itself (.dc-inner) always had a gap, but a tab panel is a wrapper
+   div inside it, so the stat cards and toolbar inside Fees or Budget sat
+   flush against each other with no gap at all. Blocks had tried to space
+   themselves with margin-bottom instead, and the portal theme then zeroed
+   the stat grid's margin, so half the pages touched and the other half
+   stacked gap + margin into a 40px hole.
+
+   A panel with its own layout (a class on it) keeps that layout; a plain
+   wrapper, or anything given .page-stack, stacks like the page. */
+.page-stack,
+.dc-inner > [role="tabpanel"]:not([class]),
+.dc-inner > div:not([class]):not([role]),
+.tabs-content.active {
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+  min-width: 0;
+}
+.page-stack,
+.tabs-content.active { gap: 1rem; }
+
+.dc-inner > *,
+.page-stack > *,
+.dc-inner > [role="tabpanel"]:not([class]) > *,
+.dc-inner > div:not([class]):not([role]) > *,
+.tabs-content.active > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
 @media (max-width: 480px) {
   .dc-inner {
     padding: 0.625rem;
@@ -736,31 +770,9 @@
   }
 }
 
-/* Portal-specific avatar colours */
-.header-user-av.dos-av {
-  background: #1d6fbf;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-.header-user-av.discipline-av {
-  background: #6d63e8;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-.header-user-av.teacher-av {
-  background: #0891b2;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-.header-user-av.parent-av {
-  background: #059669;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-.header-user-av.student-av {
-  background: #7c3aed;
-  border-color: rgba(255, 255, 255, 0.35);
-}
-.header-user-av.matron-av {
-  background: #b45309;
-  border-color: rgba(255, 255, 255, 0.35);
-}
+/* The avatar is the same in every portal. It used to be tinted per portal -
+   blue, indigo, cyan, green, violet, amber - which is how a student's own
+   initials came out purple on a blue header. */
 
 /* Mobile Menu Button */
 .mobile-menu-btn {

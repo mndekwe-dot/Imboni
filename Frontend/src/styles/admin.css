@@ -4,11 +4,7 @@
    Portal: Principal / School Administrator
    =============================================== */
 
-:root {
-  --admin:       #4f46e5;
-  --admin-light: rgba(79, 70, 229, 0.1);
-  --admin-hover: #4338ca;
-}
+/* Portal colour tokens live in index.css: one palette for every portal. */
 
 /* ── Portal accent (used by StatCard, WelcomeBanner, etc.) ── */
 /* Points at the palette rather than at a second copy of the indigo, so the

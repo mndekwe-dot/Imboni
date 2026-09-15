@@ -287,5 +287,6 @@
   "choose": "Choose...",
   "note": "Note",
   "from": "From",
-  "to": "To"
+  "to": "To",
+  "removeItem": "Remove {{name}}"
 }

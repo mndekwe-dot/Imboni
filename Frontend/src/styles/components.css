@@ -100,6 +100,19 @@
   background-color: var(--secondary-hover);
 }
 
+/* Bare text for the least important action in a row (Clear, Edit, Cancel run).
+   It was used on nine buttons and defined nowhere, so each rendered as the
+   browser's own grey button beside the styled ones. */
+.btn-ghost {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--primary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--muted);
+}
+
 .btn-outline {
   background-color: transparent;
   border: 1px solid var(--border);
@@ -1523,6 +1536,42 @@ tr:hover td {
   transition: border-color var(--transition-fast), background var(--transition-fast),
               color var(--transition-fast);
 }
+/* ClassPicker variant="form": year and stream side by side in a form. */
+.class-select { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: var(--space-3); }
+.class-select .form-group { margin-bottom: 0; }
+
+/* ClassMultiPicker: a year per box, its streams as chips once it is ticked. */
+.class-multi { border: 0; padding: 0; margin: 0; min-width: 0; }
+.class-multi-years {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-2);
+  margin-block: var(--space-2);
+}
+.class-multi-year {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+}
+.class-multi-year.on { border-color: var(--primary); background: var(--primary-light); }
+.class-multi-year-label { display: flex; align-items: center; gap: var(--space-2); font-weight: 600; cursor: pointer; }
+.class-multi-streams { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: var(--space-2); }
+
+/* StudentMultiPicker: the chosen students, removable. */
+.student-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: var(--space-2); }
+.student-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  font-size: var(--text-sm);
+}
+.student-chip button {
+  border: 0; background: transparent; cursor: pointer; color: var(--muted-foreground);
+  display: inline-flex; padding: 0.1rem; border-radius: var(--radius-full);
+}
+.student-chip button:hover { color: var(--foreground); background: var(--surface-3); }
+
 .class-picker-chip:hover {
   border-color: var(--portal-accent, var(--primary));
   color: var(--portal-accent, var(--primary));
@@ -1641,6 +1690,10 @@ tr:hover td {
 
 .portal-stat-value  { font-size: var(--text-stat); font-weight: 800; line-height: 1; margin-bottom: 2px; }
 .portal-stat-label  { font-size: var(--text-sm); color: var(--muted-foreground); font-weight: 500; }
+.portal-stat-value.is-word { font-size: var(--text-title); font-weight: 700; line-height: 1.25; }
+.portal-stat-value.is-long { font-size: var(--text-display); }
+.portal-stat-body { min-width: 0; }
+.portal-stat-value { overflow-wrap: anywhere; }
 .portal-stat-trend  { font-size: var(--text-caption); margin-top: 3px; }
 .portal-stat-trend.positive { color: var(--success); }
 .portal-stat-trend.negative { color: var(--destructive); }
@@ -1650,7 +1703,8 @@ tr:hover td {
   .portal-stat-card { padding: 0.75rem; gap: 0.625rem; }
   .portal-stat-icon { width: 34px; height: 34px; border-radius: var(--radius-sm); }
   .portal-stat-icon .material-symbols-rounded { font-size: var(--icon-sm); }
-  .portal-stat-value { font-size: var(--text-title); }
+  .portal-stat-value,
+  .portal-stat-value.is-long { font-size: var(--text-title); }
   .portal-stat-label { font-size: var(--text-caption); }
   .portal-stat-trend { font-size: var(--text-caption); }
 }
@@ -2009,7 +2063,10 @@ tr:hover td {
 .form-group--flush { margin-bottom: 0; }
 .form-group--end   { display: flex; align-items: flex-end; padding-bottom: 0.5rem; }
 
-/* Inline checkbox + label pair */
+/* Inline checkbox + label pair. `.form-check` is the label wrapping both; it
+   was used on seven forms (payroll, cash, fee setup) and defined nowhere, so
+   the box sat flush against its text. */
+.form-check,
 .form-check-label {
   display: flex;
   align-items: center;
@@ -2947,6 +3004,19 @@ td .class-chip { margin-left: 4px; }
    domain added five more. A status is mapped to a TONE in JS (utils/tone.js)
    and the tone is what carries colour, so "pending" looks the same whether it
    is an expense, a payroll run, a budget or a stock count. */
+/* The shape every tone sits in. Only the tones were ever defined, so a status
+   pill rendered as tinted text with no padding and read like a text selection. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.55rem;
+  border-radius: 999px;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 .pill-ok     { background: var(--success-surface, #dcfce7); color: var(--success, #16a34a); }
 .pill-warn   { background: var(--warning-surface, #fef3c7); color: var(--warning, #b45309); }
 .pill-info   { background: var(--primary-surface); color: var(--primary-text); }
@@ -3067,4 +3137,144 @@ h1, h2, h3,
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ATTENDANCE RECORD (<AttendanceRecord>)
+
+   One person's attendance, shared by the student and parent portals. The
+   month grid it replaced gave every day a square cell as wide as a seventh of
+   the page, so a single month ran well past the fold. Days here are short
+   rows: a week is one strip, a month a table of fixed-height cells.
+
+   Every status selector is compound (`.att-day.att-late`) because dos.css
+   already styles `.att-status-select.att-late`; a bare `.att-late` would
+   repaint the DOS register's dropdowns.
+   ═══════════════════════════════════════════════════════════════ */
+
+.att-legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-caption);
+  color: var(--muted-foreground);
+}
+.att-legend-row li { display: inline-flex; align-items: center; gap: var(--space-1); }
+.att-swatch { width: 0.625rem; height: 0.625rem; border-radius: 999px; background: var(--border); }
+.att-swatch.att-present { background: var(--success); }
+.att-swatch.att-absent  { background: var(--destructive); }
+.att-swatch.att-late    { background: var(--warning); }
+.att-swatch.att-excused { background: var(--info); }
+
+/* Week: one strip of day tiles. */
+.att-week {
+  display: grid;
+  grid-template-columns: repeat(var(--att-cols, 5), minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  list-style: none;
+}
+.att-day {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  min-width: 0;
+}
+.att-day-name   { font-size: var(--text-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); }
+.att-day-date   { font-size: var(--text-sm); color: var(--muted-foreground); }
+.att-day-status { font-size: var(--text-sm); font-weight: 600; }
+.att-day-time   { font-size: var(--text-caption); color: var(--muted-foreground); }
+.att-day.is-today { box-shadow: inset 0 0 0 1px var(--portal-accent, var(--primary)); }
+
+.att-day.att-present { border-left-color: var(--success);     background: var(--success-surface); }
+.att-day.att-absent  { border-left-color: var(--destructive); background: var(--destructive-surface); }
+.att-day.att-late    { border-left-color: var(--warning);     background: var(--warning-surface); }
+.att-day.att-excused { border-left-color: var(--info);        background: var(--info-surface); }
+.att-day.att-present .att-day-status { color: var(--success-text); }
+.att-day.att-absent  .att-day-status { color: var(--destructive-text); }
+.att-day.att-late    .att-day-status { color: var(--warning-text); }
+.att-day.att-excused .att-day-status { color: var(--info-text); }
+.att-day.att-none .att-day-status,
+.att-day.att-future .att-day-status,
+.att-day.att-weekend .att-day-status { color: var(--muted-foreground); font-weight: 500; }
+.att-day.att-future { opacity: 0.6; }
+
+/* Month: a table of short cells, tinted by status. */
+.att-month {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 3px;
+  margin: 0 0 var(--space-5);
+}
+.att-month th {
+  padding: var(--space-1) 0;
+  border: 0;
+  text-align: center;
+}
+.att-mday {
+  height: 2.5rem;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  text-align: center;
+  vertical-align: middle;
+  font-size: var(--text-sm);
+}
+.att-mday.is-outside { border-color: transparent; background: transparent; }
+.att-mday-num { font-weight: 600; }
+.att-mday.is-today { box-shadow: inset 0 0 0 2px var(--portal-accent, var(--primary)); }
+.att-mday.att-present { background: var(--success-surface);     border-color: transparent; color: var(--success-text); }
+.att-mday.att-absent  { background: var(--destructive-surface); border-color: transparent; color: var(--destructive-text); }
+.att-mday.att-late    { background: var(--warning-surface);     border-color: transparent; color: var(--warning-text); }
+.att-mday.att-excused { background: var(--info-surface);        border-color: transparent; color: var(--info-text); }
+.att-mday.att-weekend,
+.att-mday.att-future  { color: var(--muted-foreground); background: var(--muted); border-color: transparent; }
+.att-mday.att-future  { opacity: 0.6; }
+
+.att-records-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.att-records-title   { margin: 0; font-size: var(--text-body); font-weight: 700; }
+.att-records-summary { font-size: var(--text-sm); color: var(--muted-foreground); }
+
+.badge.att-badge.att-present { background: var(--success-surface);     color: var(--success-text); }
+.badge.att-badge.att-absent  { background: var(--destructive-surface); color: var(--destructive-text); }
+.badge.att-badge.att-late    { background: var(--warning-surface);     color: var(--warning-text); }
+.badge.att-badge.att-excused { background: var(--info-surface);        color: var(--info-text); }
+
+@media (max-width: 640px) {
+  /* Seven tiles do not fit a phone; the week stacks into a list. */
+  .att-week { grid-template-columns: 1fr; }
+  .att-day  { flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: var(--space-3); }
+  .att-mday { height: 2.25rem; padding: 0; }
+}
+
+/* ── Staff register — components/staff ────────────────────────────────────
+   Shared by the admin's Staff page and the finance office's Payroll. */
+.staff-account-pill { margin-left: var(--space-2); }
+.staff-row-off .row-main,
+.staff-row-off .row-icon { opacity: 0.55; }
+.staff-dept-costs { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr)); }
+
+/* ── Cards grid — shared by the DOS and admin dashboards and reports ─────── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 1rem;
 }

@@ -3,11 +3,7 @@
    Identity colour: Violet #8b5cf6
    =============================================== */
 
-:root {
-  --matron:            #8b5cf6;
-  --matron-hover:      #7c3aed;
-  --matron-light:      rgba(139, 92, 246, 0.1);
-}
+/* Portal colour tokens live in index.css: one palette for every portal. */
 
 /* ── Avatar ── */
 .sidebar-user-avatar.matron-av {

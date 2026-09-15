@@ -101,3 +101,26 @@ describe('ClassPicker: chips variant', () => {
     expect(screen.queryByText('S1A')).not.toBeInTheDocument()
   })
 })
+
+describe('ClassPicker: form variant', () => {
+  it('offers only the streams of the chosen year', () => {
+    render(<ClassPicker variant="form" sections={sections} year="S5" classVal="Sci" onChange={() => {}} />)
+    const [, streamSelect] = screen.getAllByRole('combobox')
+    expect([...streamSelect.options].map(o => o.value)).toEqual(['Sci'])
+  })
+
+  it('picks a stream that exists when the year changes', () => {
+    const onChange = vi.fn()
+    render(<ClassPicker variant="form" sections={sections} year="S1" classVal="B" onChange={onChange} />)
+    const [yearSelect] = screen.getAllByRole('combobox')
+    fireEvent.change(yearSelect, { target: { value: 'S2' } })
+    expect(onChange).toHaveBeenCalledWith({ grade: 'S2', stream: 'A' })
+  })
+
+  it('can be a year alone, with an all-years choice', () => {
+    const onChange = vi.fn()
+    render(<ClassPicker variant="form" sections={sections} year="" yearOnly allowAll onChange={onChange} />)
+    expect(screen.getAllByRole('combobox')).toHaveLength(1)
+    expect(screen.getByText('All Years')).toBeInTheDocument()
+  })
+})

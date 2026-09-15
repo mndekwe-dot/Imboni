@@ -164,16 +164,7 @@
   font-weight: 700;
 }
 
-/* ===============================================
-   CARDS GRID
-   =============================================== */
-
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
+/* .cards-grid moved to components.css: the admin pages use it without this file. */
 
 /* ===============================================
    SEARCH & FILTER
@@ -1128,9 +1119,6 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
-  .cards-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 767px) {
@@ -1899,7 +1887,6 @@ body.tm-panel-open { overflow: hidden; }
    =============================================== */
 
 .mb-1 { margin-bottom: 1rem; }
-.mb-1-5 { margin-bottom: 1.5rem; }
 .mt-1 { margin-top: 1rem; }
 .mt-1-5 { margin-top: 1.5rem; }
 .text-center { text-align: center; }

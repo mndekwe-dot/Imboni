@@ -287,5 +287,6 @@
   "choose": "Hitamo...",
   "note": "Icyitonderwa",
   "from": "Kuva",
-  "to": "Kugeza"
+  "to": "Kugeza",
+  "removeItem": "Kuramo {{name}}"
 }

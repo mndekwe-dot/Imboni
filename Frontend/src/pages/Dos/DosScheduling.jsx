@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { classesFromConfig } from '../../utils/classes'
+import { ClassPicker } from '../../components/ui/ClassPicker'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -344,8 +345,10 @@ export function DosScheduling() {
     const [examsLoading,    setExamsLoading]    = useState(false)
     const [examsLoaded,     setExamsLoaded]     = useState(false)
     const [selectedSession, setSelectedSession] = useState('all')
-    const [sectionFilter,   setSectionFilter]   = useState('all')
-    const [classFilter,     setClassFilter]     = useState('all')
+    // The same Section / Year / Class filter as every other portal; '' is "all".
+    const [sectionFilter,   setSectionFilter]   = useState('')
+    const [yearFilter,      setYearFilter]      = useState('')
+    const [streamFilter,    setStreamFilter]    = useState('')
     const [showExamForm,    setShowExamForm]    = useState(false)
     const [editingExam,     setEditingExam]     = useState(null)
     const [defaultSession,  setDefaultSession]  = useState('')
@@ -450,25 +453,17 @@ export function DosScheduling() {
         if (available.length && !available.includes(classId)) setClassId(available[0])
     }
 
-    const classesInSection = (() => {
-        if (sectionFilter === 'all') return []
-        const sec = (config||[]).find(s => s.name === sectionFilter)
-        if (!sec) return []
-        return (sec.years||[]).flatMap(year =>
-            (year.streams||[]).map(stream => `${year.name}${stream}`)
-        )
-    })()
-
     const filteredExams = exams.filter(e => {
         if (selectedSession !== 'all' && e.title !== selectedSession) return false
-        if (sectionFilter !== 'all') {
-            // exams with no class are school-wide — they pass all section filters
-            if (e.class_name) {
-                const ys = sectionYearSets[sectionFilter]
-                if (ys && ys.size > 0 && !ys.has(yearPfx(e.class_name))) return false
-            }
+        // exams with no class are school-wide — they pass every class filter
+        if (!e.class_name) return true
+        const year = yearPfx(e.class_name)
+        if (sectionFilter) {
+            const ys = sectionYearSets[sectionFilter]
+            if (ys && ys.size > 0 && !ys.has(year)) return false
         }
-        if (classFilter !== 'all' && e.class_name !== classFilter) return false
+        if (yearFilter && year !== yearFilter) return false
+        if (streamFilter && e.class_name.slice(year.length) !== streamFilter) return false
         return true
     })
 
@@ -517,8 +512,8 @@ export function DosScheduling() {
 
         const sessionTitle = selectedSession !== 'all' ? selectedSession.toUpperCase() : t('dos.scheduling.printAllSessions')
         const filterNote   = [
-            sectionFilter !== 'all' ? sectionFilter : '',
-            classFilter   !== 'all' ? classFilter   : '',
+            sectionFilter,
+            yearFilter ? `${yearFilter}${streamFilter}` : streamFilter,
         ].filter(Boolean).join(' · ')
 
         const colWidth = Math.max(60, Math.floor(600 / columns.length))
@@ -805,33 +800,11 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                             </div>
                                         </div>
 
-                                        {/* Level */}
-                                        <div className="es-filter-section">
-                                            <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">layers</span> {t('common.level')}</div>
-                                            <div className="att-mode-bar u-mb-0">
-                                                <button className={`att-mode-btn${sectionFilter==='all'?' active':''}`} onClick={() => {setSectionFilter('all');setClassFilter('all')}}>{t('dos.scheduling.allLevels')}</button>
-                                                {(config||[]).map(sec => (
-                                                    <button key={sec.id||sec.name} className={`att-mode-btn${sectionFilter===sec.name?' active':''}`} onClick={() => {setSectionFilter(sec.name);setClassFilter('all')}}>
-                                                        <span className="material-symbols-rounded" aria-hidden="true">school</span>
-                                                        {sec.name}
-                                                        {(sec.years||[]).length>0 && <span className="es-section-range">{sec.years[0].name}-{sec.years[sec.years.length-1].name}</span>}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* Class (only when section selected) */}
-                                        {sectionFilter!=='all' && classesInSection.length>0 && (
-                                            <div className="es-filter-section">
-                                                <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">group</span> {t('common.class')}</div>
-                                                <div className="es-class-chips">
-                                                    <button className={`es-class-chip-btn${classFilter==='all'?' active':''}`} onClick={() => setClassFilter('all')}>{t('common.all')}</button>
-                                                    {classesInSection.map(cls => (
-                                                        <button key={cls} className={`es-class-chip-btn${classFilter===cls?' active':''}`} onClick={() => setClassFilter(cls)}>{cls}</button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
+                                        <ClassPicker
+                                            section={sectionFilter} onSectionChange={setSectionFilter}
+                                            year={yearFilter}       onYearChange={setYearFilter}
+                                            classVal={streamFilter} onClassChange={setStreamFilter}
+                                        />
 
                                         {/* Legend */}
                                         <div className="es-cal-legend">

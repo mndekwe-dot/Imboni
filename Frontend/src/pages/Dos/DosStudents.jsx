@@ -228,20 +228,11 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                         <input className="form-control" type="email" placeholder="student@example.com"
                             value={student.email} onChange={e => setStudent(p => ({ ...p, email: e.target.value }))} />
                     </div>
-                    <div className="resp-grid-2 dos-grid-gap">
-                        <div className="form-group">
-                            <label className="form-label">{t('dos.students.yearRequired')}</label>
-                            <select className="form-control" value={student.year} onChange={e => setStudent(p => ({ ...p, year: e.target.value }))}>
-                                {admitYears.map(y => <option key={y}>{y}</option>)}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">{t('dos.students.streamRequired')}</label>
-                            <select className="form-control" value={student.stream} onChange={e => setStudent(p => ({ ...p, stream: e.target.value }))}>
-                                {admitStreams.map(s => <option key={s}>{s}</option>)}
-                            </select>
-                        </div>
-                    </div>
+                    {/* Streams follow the year: the hand-built pair offered every
+                        stream in the school under S1, A-Level combinations included. */}
+                    <ClassPicker variant="form" year={student.year} classVal={student.stream}
+                        yearLabel={t('dos.students.yearRequired')} streamLabel={t('dos.students.streamRequired')}
+                        onChange={({ grade, stream }) => setStudent(p => ({ ...p, year: grade, stream }))} />
                 </div>
 
                 <hr className="dos-hr" />
@@ -367,7 +358,7 @@ const LEADER_ROLES = [
     { value: 'games_captain',    labelKey: 'modals.leader.roleGamesCaptain'   },
 ]
 
-function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
+function StudentDetailDrawer({ studentId, onClose, onStudentUpdated }) {
     const { t } = useTranslation()
     const [student,      setStudent]      = useState(null)
     const [loading,      setLoading]      = useState(true)
@@ -406,9 +397,6 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
             setDownloading(false)
         }
     }
-
-    const availYears   = yearsFromConfig(config)
-    const availStreams  = [...new Set(config.flatMap(s => s.years.flatMap(y => y.streams)))]
 
     useEffect(() => {
         setLoading(true); setActionErr(''); setChangeClassOpen(false); setAppointOpen(false)
@@ -601,20 +589,8 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated, config }) {
                         </button>
                     ) : (
                         <div className="dos-inline-panel">
-                            <div className="dos-class-row">
-                                <div className="flex-1">
-                                    <label className="form-label">{t('common.year')}</label>
-                                    <select className="form-control" value={newYear} onChange={e => setNewYear(e.target.value)}>
-                                        {availYears.map(y => <option key={y} value={y}>{y}</option>)}
-                                    </select>
-                                </div>
-                                <div className="flex-1">
-                                    <label className="form-label">{t('common.stream')}</label>
-                                    <select className="form-control" value={newStream} onChange={e => setNewStream(e.target.value)}>
-                                        {availStreams.map(s => <option key={s} value={s}>{s}</option>)}
-                                    </select>
-                                </div>
-                            </div>
+                            <ClassPicker variant="form" year={newYear} classVal={newStream}
+                                onChange={({ grade, stream }) => { setNewYear(grade); setNewStream(stream) }} />
                             <div className="modal-confirm-actions">
                                 <button className="btn btn-outline btn-sm" onClick={() => setChangeClassOpen(false)}>{t('common.cancel')}</button>
                                 <button className="btn btn-primary btn-sm" onClick={handleChangeClass} disabled={saving}>
@@ -962,7 +938,6 @@ export function DosStudents() {
                     studentId={selectedStudentId}
                     onClose={() => setSelectedStudentId(null)}
                     onStudentUpdated={loadData}
-                    config={config}
                 />
             )}
         </>

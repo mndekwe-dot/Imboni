@@ -3,13 +3,7 @@
    Page-specific styles for teacher pages
    =============================================== */
 
-/* ---- Teacher accent color tokens ---- */
-:root {
-  --teacher:           #0891b2;
-  --teacher-hover:     #0e7490;
-  --teacher-light:     rgba(8, 145, 178, 0.09);
-  --teacher-mid:       rgba(8, 145, 178, 0.18);
-}
+/* Portal colour tokens live in index.css: one palette for every portal. */
 
 /* ===============================================
    CLASSES GRID - Teacher/teacher-classes.html
@@ -568,12 +562,6 @@
   color: var(--success);
 }
 
-.badge-high {
-  background: var(--destructive);
-  color: white;
-  font-size: var(--text-caption);
-}
-
 .badge-medium {
   background: var(--warning);
   color: white;
@@ -745,10 +733,6 @@
 /* ===============================================
    LAYOUT UTILITIES
    =============================================== */
-
-.mb-1-5 {
-  margin-bottom: 1.5rem;
-}
 
 .flex-column-gap {
   display: flex;
@@ -1894,6 +1878,8 @@
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 .asgn-toolbar-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+/* The filter chips carry a standalone bottom margin; in this row it lifted them above the button. */
+.asgn-toolbar .filter-tabs-bar { margin-bottom: 0; }
 .asgn-list-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
 .asgn-list-header { padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .asgn-list-count  { font-weight: 700; font-size: var(--text-body); }
@@ -1929,7 +1915,6 @@
 
 /* ── Misc helpers ── */
 .label-muted  { font-weight: 400; color: var(--muted-foreground); }
-.textarea-sm  { min-height: 72px; resize: vertical; }
 .input-muted  { background: var(--muted) !important; cursor: default; }
 .attach-label { font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 0.6rem; }
 .attach-label-opt { font-weight: 400; text-transform: none; letter-spacing: 0; }
@@ -1944,11 +1929,6 @@
 .quiz-q-empty { text-align: center; padding: 1.5rem; color: var(--muted-foreground); font-size: var(--text-sm); border: 1px dashed var(--border); border-radius: 10px; margin-bottom: 0.75rem; }
 
 /* ── Class filter dropdown ── */
-.class-dd-wrap { position: relative; }
-.class-dd-menu { position: absolute; top: calc(100% + 6px); right: 0; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 200; min-width: 140px; max-height: 220px; overflow-y: auto; }
-.class-dd-opt { display: block; width: 100%; text-align: left; padding: 0.55rem 1rem; border: none; cursor: pointer; font-size: var(--text-sm); font-weight: 400; background: transparent; color: var(--foreground); }
-.class-dd-opt:hover:not(.active) { background: var(--muted); }
-.class-dd-opt.active { background: var(--primary); color: white; font-weight: 600; }
 
 /* ── Utility ── */
 .w-full      { width: 100%; }
@@ -2193,6 +2173,23 @@
 /* Padding-top aligned the box with the input in the column beside it; spanning
    the whole row there is nothing to line up with. */
 .form-group.shuffle-row.col-full { padding-top: 0.25rem; }
+
+/* A choice of two with a line of explanation each (how paper work comes back). */
+.rules-choice { border: 0; padding: 0; margin: 0 0 1rem; min-width: 0; }
+.rules-choice-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.rules-choice-option + .rules-choice-option { margin-top: 0.5rem; }
+.rules-choice-option:has(input:checked) { border-color: var(--primary); background: var(--primary-surface, var(--primary-light)); }
+.rules-choice-option input { margin-top: 0.2rem; accent-color: var(--primary); }
+.rules-choice-option > span { display: flex; flex-direction: column; gap: 2px; }
+.rules-choice-title { font-size: var(--text-sm); font-weight: 600; }
 .checkbox-sm { width: 1rem; height: 1rem; cursor: pointer; }
 .section-label-sm.flush { margin-bottom: 0; }
 
@@ -2200,10 +2197,8 @@
 .asgn-chip.shuffled { background: rgba(245,158,11,0.1); color: var(--warning); }
 
 /* ── Class filter dropdown trigger ── */
-.btn.class-dd-btn { font-size: var(--text-sm); gap: 0.4rem; min-width: 120px; }
 
 /* ── Inline alert icon ── */
-.alert-icon { font-size: var(--icon-sm); vertical-align: middle; margin-right: 0.4rem; }
 
 /* ── Teacher Dashboard (TeacherDashboard) — new-task modal + activities ── */
 .td-priority-row { display: flex; gap: 0.5rem; }
@@ -2305,6 +2300,8 @@
 .sqz-instructions-label { font-weight: 600; color: var(--foreground); }
 .sqz-submit-row  { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem; }
 .sqz-unanswered  { font-size: var(--text-sm); color: var(--muted-foreground); align-self: center; }
+.sqz-progress    { font-size: var(--text-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground); margin: 0 0 0.5rem; }
+.sqz-no-back     { display: flex; align-items: center; gap: 0.5rem; }
 
 /* ── Student quiz REVIEW page (StudentQuizReview) — reuses the sqz-qcard /
    sqz-q-* question classes above; these are the review-only extras. Score
