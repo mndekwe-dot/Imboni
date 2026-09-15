@@ -196,7 +196,7 @@ export function DisDashboard() {
                                         <p className="dis-card-empty">No recent incidents.</p>
                                     ) : (
                                         <div className="table-responsive">
-                                            <table>
+                                            <table className="data-table">
                                                 <thead>
                                                     <tr>
                                                         <th>Student</th>

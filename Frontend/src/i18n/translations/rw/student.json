@@ -55,7 +55,29 @@
     "takeQuiz": "Kora ikizamini",
     "teacherFeedback": "Igitekerezo cy’umwarimu",
     "totalThisTerm": "Byose muri iki gihembwe",
-    "worksheet": "Urupapuro rw’imyitozo"
+    "worksheet": "Urupapuro rw’imyitozo",
+    "handedInOn": "Byatanzwe {{date}}",
+    "handedIn": "Byatanzwe",
+    "status": {
+      "pending": "Bitegerejwe",
+      "submitted": "Byatanzwe",
+      "overdue": "Byarengeje igihe"
+    },
+    "lateTag": "Byatanzwe bitinze",
+    "kind": {
+      "online": "Bikorerwa kuri murandasi",
+      "upload": "Ohereza dosiye",
+      "inPerson": "Bitangwa ku mpapuro"
+    },
+    "noGoingBack": "Nta gusubira inyuma",
+    "start": "Tangira",
+    "uploadSubmit": "Ohereza utange",
+    "closedNote": "Ntibicyakira imirimo",
+    "awaitingMark": "Bitegereje amanota",
+    "questionCount_one": "Ikibazo {{count}}",
+    "questionCount_other": "Ibibazo {{count}}",
+    "minutes_one": "Iminota {{count}}",
+    "minutes_other": "Iminota {{count}}"
   },
   "attendance": {
     "daysAbsent": "Iminsi yasibye",

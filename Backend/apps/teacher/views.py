@@ -1894,6 +1894,52 @@ def _auto_grade(assignment, answers_submitted):
 # Quiz submission (student submits answers)
 # ---------------------------------------------------------------------------
 
+def _quiz_progress(assignment, submission):
+    """
+    The attempt in progress for one student, with the question order fixed.
+
+    The order is chosen once - shuffled if the teacher asked for it - and kept
+    on the submission row. It used to be reshuffled on every fetch, so a reload
+    moved every question, and a paper that forbids going back had no stable
+    idea of which questions were already behind the student.
+
+    Starts again if the paper's questions no longer match the stored order
+    (the teacher edited it mid-attempt): an order naming questions that do not
+    exist cannot be served.
+    """
+    import random
+
+    ids = [str(q.get('id')) for q in (assignment.questions or [])]
+    progress = dict(submission.progress or {}) if submission else {}
+    order = progress.get('order')
+    if not order or sorted(order) != sorted(ids):
+        order = ids[:]
+        if assignment.shuffle_questions:
+            random.shuffle(order)
+        progress = {'order': order, 'position': 0, 'answers': {}}
+        if submission is not None:
+            submission.progress = progress
+            submission.save(update_fields=['progress'])
+    return progress
+
+
+def _quiz_time_up(assignment, submission):
+    """The time-limit refusal for a quiz, or None while there is time left."""
+    started_at = submission.started_at if submission else None
+    if not (assignment.time_limit_minutes and started_at):
+        return None
+    elapsed = int((timezone.now() - started_at).total_seconds())
+    # A small grace covers the round trip and a slow last click - the point is
+    # to stop someone sitting the paper all evening, not to punish latency.
+    if elapsed > assignment.time_limit_minutes * 60 + 30:
+        return Response(
+            {'error': 'Your time for this quiz has run out.',
+             'time_limit_minutes': assignment.time_limit_minutes},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    return None
+
+
 class QuizSubmissionViewSet(viewsets.ViewSet):
     """
     POST /imboni/quiz/<assignment_id>/submit/  — student submits answers
@@ -1921,6 +1967,10 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
             )
             for q in quizzes:
                 sub = AssignmentSubmission.objects.filter(assignment=q, student=student).first()
+                # Opening a quiz makes a row to start the clock; that row is not
+                # a sitting, and counting it put a 0% "Completed" on a paper the
+                # student had only looked at.
+                done = bool(sub and sub.is_submitted)
                 data.append({
                     'id':                 str(q.id),
                     'title':              q.title,
@@ -1930,9 +1980,10 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
                     'max_score':          q.max_score,
                     'question_count':     len(q.questions or []),
                     'time_limit_minutes': q.time_limit_minutes,
-                    'submitted':          sub is not None,
-                    'score':              float(sub.score)      if sub else None,
-                    'percentage':         float(sub.percentage) if sub else None,
+                    'allow_backtracking': q.allow_backtracking,
+                    'submitted':          done,
+                    'score':              float(sub.score)      if done else None,
+                    'percentage':         float(sub.percentage) if done else None,
                 })
         except Exception:
             pass
@@ -1940,7 +1991,6 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         """Return quiz questions without revealing correct answers."""
-        import random
         try:
             assignment = Assignment.objects.select_related('subject', 'class_obj').get(
                 pk=pk, mode='online', status='active'
@@ -1953,8 +2003,9 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
         # not run - close the tab, or POST straight to submit, and it never
         # applied. Only the first open counts: re-fetching must not buy time.
         student = getattr(request.user, 'student_profile', None)
+        submission = None
         if student is not None:
-            AssignmentSubmission.objects.get_or_create(
+            submission, created = AssignmentSubmission.objects.get_or_create(
                 assignment=assignment, student=student,
                 defaults={
                     'student_name': student.full_name,
@@ -1964,13 +2015,21 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
                     'is_graded':    False,
                 },
             )
+            # A permitted retake: the last sitting is on the row and no attempt
+            # is under way, so this open starts a new clock. Without it the
+            # retake was timed from the first sitting and refused as over time.
+            attempts_used = submission.attempt_count if submission.answers else 0
+            if (not created and submission.answers and not submission.progress
+                    and attempts_used < (assignment.max_attempts or 1)):
+                submission.started_at = timezone.now()
+                submission.save(update_fields=['started_at'])
 
-        questions = [
-            {k: v for k, v in q.items() if k not in ('correct', 'correct_answer')}
+        progress = _quiz_progress(assignment, submission)
+        by_id = {
+            str(q.get('id')): {k: v for k, v in q.items() if k not in ('correct', 'correct_answer')}
             for q in (assignment.questions or [])
-        ]
-        if assignment.shuffle_questions:
-            random.shuffle(questions)
+        }
+        questions = [by_id[qid] for qid in progress['order'] if qid in by_id]
 
         return Response({
             'id':                 str(assignment.id),
@@ -1981,9 +2040,75 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
             'due_date':           assignment.due_date,
             'max_score':          assignment.max_score,
             'time_limit_minutes': assignment.time_limit_minutes,
+            'allow_backtracking': assignment.allow_backtracking,
+            # Where a no-going-back paper resumes after a reload: every
+            # question before this index is locked.
+            'position':           0 if assignment.allow_backtracking else progress.get('position', 0),
             'questions':          questions,
             'question_count':     len(questions),
         })
+
+    def answer(self, request, pk=None):
+        """
+        POST /imboni/quiz/<pk>/answer/  { question_id, answer }
+
+        Lock one answer on a paper that does not allow going back, and move
+        past it. Every question before it locks too, answered or not - skipping
+        ahead is moving on. Refused for a question already behind the student,
+        which is the whole rule: hiding the Previous button alone would leave
+        a reload, or a direct call, free to change it.
+        """
+        try:
+            assignment = Assignment.objects.get(pk=pk, mode='online', status='active')
+        except Assignment.DoesNotExist:
+            return Response({'detail': 'Quiz not found or not published.'}, status=404)
+
+        if assignment.allow_backtracking:
+            return Response(
+                {'error': 'This quiz is answered all at once - submit it instead.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        student = getattr(request.user, 'student_profile', None)
+        if student is None:
+            return Response({'detail': 'Only students can answer a quiz.'}, status=403)
+
+        submission = AssignmentSubmission.objects.filter(
+            assignment=assignment, student=student).first()
+        if submission is None or not submission.started_at:
+            return Response({'error': 'Open the quiz before answering it.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        attempts_used = submission.attempt_count if submission.answers else 0
+        if attempts_used >= (assignment.max_attempts or 1):
+            return Response(
+                {'error': 'You have used all your attempts at this quiz.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        time_up = _quiz_time_up(assignment, submission)
+        if time_up:
+            return time_up
+
+        progress = _quiz_progress(assignment, submission)
+        qid = str(request.data.get('question_id', ''))
+        if qid not in progress['order']:
+            return Response({'error': 'That question is not on this quiz.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        index = progress['order'].index(qid)
+        if index < progress.get('position', 0):
+            return Response(
+                {'error': 'You have already moved past that question.',
+                 'position': progress.get('position', 0)},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        progress['answers'][qid] = request.data.get('answer')
+        progress['position'] = index + 1
+        submission.progress = progress
+        submission.save(update_fields=['progress'])
+        return Response({'position': progress['position']})
 
     def review(self, request, pk=None):
         """
@@ -2056,9 +2181,6 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
             return Response(serializer.errors, status=400)
 
         answers = serializer.validated_data['answers']
-        graded, score, max_score = _auto_grade(assignment, answers)
-
-        pct = round(score / max_score * 100, 1) if max_score else 0
         is_late = date.today() > assignment.due_date
 
         # Resolve student record
@@ -2096,20 +2218,28 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # The time limit, measured against the server's own start time. A small
-        # grace covers the round trip and a slow last click - the point is to
-        # stop someone sitting the paper all evening, not to punish a few
-        # seconds of latency.
+        # The time limit, measured against the server's own start time.
         started_at = existing.started_at if existing else None
         elapsed = int((timezone.now() - started_at).total_seconds()) if started_at else 0
-        if assignment.time_limit_minutes and started_at:
-            allowed = assignment.time_limit_minutes * 60 + 30
-            if elapsed > allowed:
-                return Response(
-                    {'error': 'Your time for this quiz has run out.',
-                     'time_limit_minutes': assignment.time_limit_minutes},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        time_up = _quiz_time_up(assignment, existing)
+        if time_up:
+            return time_up
+
+        # No going back: what was locked on the way through is the answer, and
+        # the final post may only fill in the questions still open. Otherwise
+        # the submit body would be a second way to rewrite a locked answer.
+        progress = (existing.progress or {}) if existing else {}
+        if not assignment.allow_backtracking and progress.get('order'):
+            locked = progress.get('answers') or {}
+            still_open = set(progress['order'][progress.get('position', 0):])
+            answers = (
+                [{'question_id': qid, 'answer': ans} for qid, ans in locked.items()]
+                + [a for a in answers
+                   if str(a['question_id']) in still_open and str(a['question_id']) not in locked]
+            )
+
+        graded, score, max_score = _auto_grade(assignment, answers)
+        pct = round(score / max_score * 100, 1) if max_score else 0
 
         submission, _ = AssignmentSubmission.objects.update_or_create(
             assignment=assignment,
@@ -2126,6 +2256,8 @@ class QuizSubmissionViewSet(viewsets.ViewSet):
                 'attempt_count': attempts_used + 1,
                 'time_spent_seconds': elapsed,
                 'started_at':   started_at,
+                # The attempt is over; a retake starts from a clean paper.
+                'progress':     {},
                 # An auto-marked quiz is released as it is marked unless the
                 # teacher is holding the whole class back.
                 'released_at':  timezone.now() if assignment.release_marks_immediately else None,

@@ -194,7 +194,16 @@
     "viewSubmissions": "Reba ibyatanzwe",
     "work": "Umukoro",
     "worksheet": "Urupapuro rw’imyitozo",
-    "worksheetHint": "PDF, inyandiko cyangwa ifoto bitangwa hamwe n’umukoro."
+    "worksheetHint": "PDF, inyandiko cyangwa ifoto bitangwa hamwe n’umukoro.",
+    "handInLabel": "Bitangwa gute?",
+    "handInPerson": "Ku mpapuro, mu ishuri",
+    "handInPersonHint": "Abanyeshuri bakuzanira umukoro bakemeza hano ko bawutanze.",
+    "handInUpload": "Byoherezwa nka dosiye",
+    "handInUploadHint": "Abanyeshuri bagomba kohereza dosiye kugira ngo umukoro ubarwe ko watanzwe.",
+    "allowBacktracking": "Emerera abanyeshuri gusubira ku bibazo byabanje",
+    "noBacktrackingHint": "Abanyeshuri babona ikibazo kimwe kimwe. Igisubizo gifungwa iyo bakomeje, kandi kongera gufungura paji ntibigisubiza.",
+    "uploadChip": "Kohereza dosiye",
+    "noBackChip": "Nta gusubira inyuma"
   },
   "attendance": {
     "fetchingClasses": "Turimo gushaka amashuri wahawe.",

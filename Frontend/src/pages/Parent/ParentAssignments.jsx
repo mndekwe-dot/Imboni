@@ -30,6 +30,11 @@ const STATUS_CLASS = {
 
 const FILTERS = ['all', 'pending', 'overdue', 'submitted', 'graded']
 
+/* Work handed in late is still handed in. It has its own badge, but it used to
+   match no filter except "all", so a parent looking at "submitted" never saw it. */
+const matchesFilter = (a, key) =>
+    key === 'submitted' ? (a.status === 'submitted' || a.status === 'late') : a.status === key
+
 /**
  * A parent's view of their child's homework.
  *
@@ -74,7 +79,7 @@ export function ParentAssignments() {
 
     const visible = filter === 'all'
         ? assignments
-        : assignments.filter(a => a.status === filter)
+        : assignments.filter(a => matchesFilter(a, filter))
 
     /* Counted over everything, not the filtered view: a tile that changed with
        the filter would be measuring the filter, not the child. */
@@ -87,7 +92,7 @@ export function ParentAssignments() {
     const filterOptions = FILTERS.map(key => ({
         key,
         label: t(`parent.assignments.filter.${key}`),
-        count: key === 'all' ? undefined : assignments.filter(a => a.status === key).length,
+        count: key === 'all' ? undefined : assignments.filter(a => matchesFilter(a, key)).length,
     }))
 
     return (

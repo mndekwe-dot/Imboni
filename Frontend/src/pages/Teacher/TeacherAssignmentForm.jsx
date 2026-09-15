@@ -89,6 +89,8 @@ export function TeacherAssignmentForm() {
                         accept_late_submissions: assignment.accept_late_submissions ?? true,
                         max_attempts:       String(assignment.max_attempts ?? 1),
                         release_marks_immediately: assignment.release_marks_immediately ?? true,
+                        submission_method:  assignment.submission_method || 'in_person',
+                        allow_backtracking: assignment.allow_backtracking ?? true,
                         // The URL of the worksheet already uploaded, if any.
                         // Replaced only when a new File is picked.
                         attachment:         assignment.attachment || null,
@@ -184,6 +186,9 @@ export function TeacherAssignmentForm() {
             shuffle_questions:  form.mode === 'online' ? form.shuffle_questions : false,
             accept_late_submissions: form.accept_late_submissions,
             release_marks_immediately: form.release_marks_immediately,
+            submission_method:  form.submission_method,
+            // Only a quiz has questions to go back through.
+            allow_backtracking: form.mode === 'online' ? form.allow_backtracking : true,
             // Attempts only mean anything for a quiz; a paper is handed in once.
             max_attempts:       form.mode === 'online' ? (parseInt(form.max_attempts) || 1) : 1,
             // A File replaces the worksheet, null clears it, and a string is

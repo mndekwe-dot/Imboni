@@ -1,0 +1,19 @@
+{
+  "subtitle": "Inyandiko z'ubwitabire bwawe",
+  "subtitleWithClass": "Inyandiko z'ubwitabire bwawe muri {{class}}",
+  "overallRate": "Igipimo rusange",
+  "daysPresent": "Iminsi yaje",
+  "daysAbsent": "Iminsi yasibye",
+  "lateArrivals": "Inshuro yatinze",
+  "excusedCount_one": "{{count}} yemerewe gusiba",
+  "excusedCount_other": "{{count}} yemerewe gusiba",
+  "record": "Inyandiko z'ubwitabire",
+  "legend": "Icyo amabara asobanura",
+  "noRecord": "Nta nyandiko",
+  "timeIn": "Yinjiye saa {{time}}",
+  "recordsShown": "Inyandiko",
+  "summary": "{{present}} yaje · {{absent}} yasibye · {{late}} yatinze · {{excused}} yemerewe gusiba",
+  "noRecordsWeek": "Nta bwitabire bwanditswe muri iki cyumweru.",
+  "noRecordsMonth": "Nta bwitabire bwanditswe muri uku kwezi.",
+  "loadFailed": "Ntibyakunze gukura ubwitabire."
+}

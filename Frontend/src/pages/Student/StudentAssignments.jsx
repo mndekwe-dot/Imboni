@@ -11,7 +11,6 @@ import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAssignments, submitAssignment } from '../../api/student'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
-import { getStudentQuizzes } from '../../api/teacher'
 import { formatDate, formatDateLong } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -20,10 +19,11 @@ import { StatCard } from '../../components/layout/StatCard'
 
 const STATUS_TABS = ['All', 'Pending', 'Submitted', 'Overdue']
 
+/* `late` is work handed in after the due date - handed in all the same. It
+   was grouped with `overdue`, so a late hand-in stayed on the Overdue tab with
+   its buttons still showing, and "Mark as done" looked like it did nothing. */
 function normaliseStatus(status) {
-    if (status === 'graded') return 'Submitted'
-    if (status === 'submitted') return 'Submitted'
-    if (status === 'late') return 'Overdue'
+    if (status === 'graded' || status === 'submitted' || status === 'late') return 'Submitted'
     if (status === 'overdue') return 'Overdue'
     return 'Pending'
 }
@@ -54,15 +54,18 @@ function dueDateColor(dateStr, status) {
     return 'var(--muted-foreground)'
 }
 
-function formatDueDate(dateStr, status) {
+function formatDueDate(dateStr, status, submittedAt, t) {
+    if (status === 'Submitted') {
+        /* The day it came in. This printed the due date under "Submitted". */
+        return submittedAt
+            ? t('student.assignments.handedInOn', { date: formatDate(submittedAt) })
+            : t('student.assignments.handedIn')
+    }
     if (!dateStr) return '-'
     const today = new Date()
     const due = new Date(dateStr)
     today.setHours(0, 0, 0, 0)
     due.setHours(0, 0, 0, 0)
-    if (status === 'Submitted') {
-        return `Submitted ${formatDate(due)}`
-    }
     const diff = Math.round((due - today) / 86400000)
     if (diff < 0) return `Was due ${formatDate(due)}`
     if (diff === 0) return `Due today: ${formatDateLong(due)}`
@@ -99,36 +102,65 @@ function AssignmentStat({ iconClass, icon, value, label }) {
     return <StatCard icon={icon} value={value} label={label} colorClass={TONE[iconClass] ?? ''} />
 }
 
-function AssignmentCard({ assignment, onSubmit }) {
+/**
+ * One piece of work, with the one action it needs:
+ *   online              Start (Review once it has been sat)
+ *   paper, upload       Upload & submit - a file is required
+ *   paper, in person    Mark as handed in - the work is on the teacher's desk
+ * Offering both paper buttons on every card let an upload task be "done" with
+ * nothing attached.
+ */
+function AssignmentCard({ assignment, onSubmit, onOpenQuiz }) {
     const { t } = useTranslation()
-    /* The button was labelled "Upload" and opened nothing - there was no file
-       input anywhere in the student pages, and the submit call sent an empty
-       body. The API has always accepted a file. */
     const fileRef = useRef(null)
-    const { id, title, subject, teacher, due_date, status: rawStatus, grade, max_score: maxScore, feedback, attachment } = assignment
-    const status  = normaliseStatus(rawStatus)
-    const icon    = subjectIcon(subject)
-    const dueText = formatDueDate(due_date, status)
+    const {
+        id, title, subject, teacher, due_date, status: rawStatus, grade, max_score: maxScore,
+        feedback, attachment, mode, submission_method: method, allow_backtracking: canGoBack,
+        submitted_at: submittedAt, is_late: isLate, closed, accept_late_submissions: acceptsLate,
+        question_count: questionCount, time_limit_minutes: timeLimit,
+    } = assignment
+    const status   = normaliseStatus(rawStatus)
+    const online   = mode === 'online'
+    const icon     = online ? 'quiz' : subjectIcon(subject)
+    const dueText  = formatDueDate(due_date, status, submittedAt, t)
     const dueColor = dueDateColor(due_date, status)
     const percent  = gradePercent(grade, maxScore)
     const gs       = gradeStyle(percent)
 
-    const cardClass  = status === 'Submitted' ? 'submitted' : status === 'Overdue' ? 'overdue' : 'pending'
-    const tagClass   = `tag-${cardClass}`
-    const dueIcon    = status === 'Submitted' ? 'check_circle' : 'event'
+    const cardClass = status === 'Submitted' ? 'submitted' : status === 'Overdue' ? 'overdue' : 'pending'
+    const tagClass  = `tag-${cardClass}`
+    const dueIcon   = status === 'Submitted' ? 'check_circle' : 'event'
+
+    /* The backend refuses work on a closed assignment, and late work when the
+       teacher turned it off - so no button that can only fail. */
+    const open = status !== 'Submitted' && !closed && !(status === 'Overdue' && acceptsLate === false)
+    const actionClass = `btn btn-sm ${status === 'Overdue' ? 'btn-outline btn-destructive-outline' : 'btn-primary'}`
+
+    const kind = online
+        ? t('student.assignments.kind.online')
+        : method === 'upload' ? t('student.assignments.kind.upload') : t('student.assignments.kind.inPerson')
 
     return (
         <div className={`assignment-card ${cardClass}`}>
             <div className="assignment-icon"><span className="material-symbols-rounded" aria-hidden="true">{icon}</span></div>
             <div className="assignment-body">
                 <div className="assignment-title">{title}</div>
-                <div className="assignment-subject">{subject}{teacher ? ` · ${teacher}` : ''}</div>
+                <div className="assignment-subject">
+                    {subject}{teacher ? ` · ${teacher}` : ''}
+                    {online && questionCount > 0 ? ` · ${t('student.assignments.questionCount', { count: questionCount })}` : ''}
+                    {online && timeLimit ? ` · ${t('student.assignments.minutes', { count: timeLimit })}` : ''}
+                </div>
                 <div className="assignment-meta">
                     <span className="assignment-due" style={{ color: dueColor }}>
                         <span className="material-symbols-rounded" aria-hidden="true">{dueIcon}</span>
                         {dueText}
                     </span>
-                    <span className={`assignment-status-tag ${tagClass}`}>{status}</span>
+                    <span className={`assignment-status-tag ${tagClass}`}>{t(`student.assignments.status.${cardClass}`)}</span>
+                    {isLate && <span className="assignment-status-tag tag-late">{t('student.assignments.lateTag')}</span>}
+                    <span className="assignment-kind">{kind}</span>
+                    {online && canGoBack === false && (
+                        <span className="assignment-kind">{t('student.assignments.noGoingBack')}</span>
+                    )}
                 </div>
                 {attachment && (
                     <a className="assignment-attachment" href={attachment}
@@ -147,41 +179,53 @@ function AssignmentCard({ assignment, onSubmit }) {
                 )}
             </div>
             <div className="assignment-actions">
-                {(status === 'Overdue' || status === 'Pending') && (
+                {open && online && (
+                    <button className={actionClass} onClick={() => onOpenQuiz(id)}>
+                        <span className="material-symbols-rounded" aria-hidden="true">play_arrow</span>
+                        {t('student.assignments.start')}
+                    </button>
+                )}
+                {open && !online && method === 'upload' && (
                     <>
                         <input ref={fileRef} type="file" className="u-hidden"
                             aria-label={t('student.assignments.chooseFile')}
                             onChange={e => {
                                 const file = e.target.files?.[0]
-                                onSubmit(id, file)
+                                if (file) onSubmit(id, file)
                                 // Cleared so picking the same file again still fires.
                                 e.target.value = ''
                             }} />
-                        <button
-                            className={`btn btn-sm ${status === 'Overdue'
-                                ? 'btn-outline btn-destructive-outline' : 'btn-primary'}`}
-                            onClick={() => fileRef.current?.click()}>
-                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload_file</span>
-                            {status === 'Overdue'
-                                ? t('student.assignments.submitNow')
-                                : t('common.upload')}
-                        </button>
-                        {/* Not every assignment is a file - a hand-written
-                            exercise book is handed in physically, and the
-                            student still needs to say they have done it. */}
-                        <button className="btn btn-sm btn-outline" onClick={() => onSubmit(id, null)}>
-                            {t('student.assignments.markDone')}
+                        <button className={actionClass} onClick={() => fileRef.current?.click()}>
+                            <span className="material-symbols-rounded" aria-hidden="true">upload_file</span>
+                            {t('student.assignments.uploadSubmit')}
                         </button>
                     </>
                 )}
-                {gs && (
+                {open && !online && method !== 'upload' && (
+                    <button className={actionClass} onClick={() => onSubmit(id, null)}>
+                        <span className="material-symbols-rounded" aria-hidden="true">task_alt</span>
+                        {t('student.assignments.markDone')}
+                    </button>
+                )}
+                {!open && status !== 'Submitted' && (
+                    <span className="assignment-note">{t('student.assignments.closedNote')}</span>
+                )}
+                {status === 'Submitted' && online && (
+                    <button className="btn btn-sm btn-outline" onClick={() => onOpenQuiz(id, true)}>
+                        <span className="material-symbols-rounded" aria-hidden="true">visibility</span>
+                        {t('common.revise')}
+                    </button>
+                )}
+                {gs ? (
                     <span className="badge assignment-grade-badge" style={gs}>
                         {/* The mark as the teacher entered it, over what it was
                             out of. This printed the raw score with a % sign, so
                             18 out of 20 read as "18%". */}
-                        {grade != null ? `${parseFloat(grade)}/${maxScore}` : '-'}
+                        {`${parseFloat(grade)}/${maxScore}`}
                     </span>
-                )}
+                ) : status === 'Submitted' ? (
+                    <span className="assignment-note">{t('student.assignments.awaitingMark')}</span>
+                ) : null}
             </div>
         </div>
     )
@@ -194,7 +238,6 @@ export function StudentAssignments() {
     const toast = useToast()
     const [profile,     setProfile]     = useState(null)
     const [assignments, setAssignments] = useState([])
-    const [quizzes,     setQuizzes]     = useState([])
     const [loading,     setLoading]     = useState(true)
     const [statusFilter, setStatusFilter] = useState('All')
 
@@ -207,12 +250,13 @@ export function StudentAssignments() {
     useEffect(() => {
         Promise.all([
             getStudentProfile().catch(() => null),
-            getStudentAssignments().catch(() => []),
-            getStudentQuizzes().catch(() => []),
-        ]).then(([prof, ass, qzs]) => {
+            getStudentAssignments().catch(e => {
+                toast.error(errorMessage(e, t('common.loadFailed')))
+                return []
+            }),
+        ]).then(([prof, ass]) => {
             setProfile(prof)
             setAssignments(Array.isArray(ass) ? ass : [])
-            setQuizzes(Array.isArray(qzs) ? qzs : [])
         }).finally(() => setLoading(false))
     }, [])
 
@@ -242,16 +286,13 @@ export function StudentAssignments() {
         ? `${t('roles.student')} · ${gradeSection}`
         : t('roles.student')
 
-    /* The list below is headed "paper assignments" and offers a hand-in button,
-       so it must hold only those. Online quizzes are in their own section above
-       with the controls a quiz needs - a timer, a start button, a review link.
-       Before this filter they appeared in both places, the second time with a
-       hand-in button the backend rejects. */
-    const paperAssignments = assignments.filter(a => a.mode !== 'online')
-
-    const pendingCount   = paperAssignments.filter(a => normaliseStatus(a.status) === 'Pending').length
-    const submittedCount = paperAssignments.filter(a => normaliseStatus(a.status) === 'Submitted').length
-    const overdueCount   = paperAssignments.filter(a => normaliseStatus(a.status) === 'Overdue').length
+    /* Paper and online work in one list: the tabs mean the same thing for both
+       (still to do, handed in, overdue), and each card carries its own action.
+       Quizzes used to sit in a separate section with a different layout,
+       counted in the tiles but missing from every tab. */
+    const pendingCount   = assignments.filter(a => normaliseStatus(a.status) === 'Pending').length
+    const submittedCount = assignments.filter(a => normaliseStatus(a.status) === 'Submitted').length
+    const overdueCount   = assignments.filter(a => normaliseStatus(a.status) === 'Overdue').length
 
     const statData = [
         { iconClass: 'orange', icon: 'pending',    value: pendingCount,   valueColor: 'var(--warning)',     label: 'Pending'         },
@@ -264,13 +305,17 @@ export function StudentAssignments() {
 
     /* The tabs filter the list they sit above, so they count the same set. */
     function countFor(tab) {
-        if (tab === 'All') return paperAssignments.length
-        return paperAssignments.filter(a => normaliseStatus(a.status) === tab).length
+        if (tab === 'All') return assignments.length
+        return assignments.filter(a => normaliseStatus(a.status) === tab).length
     }
 
     const filtered = statusFilter === 'All'
-        ? paperAssignments
-        : paperAssignments.filter(a => normaliseStatus(a.status) === statusFilter)
+        ? assignments
+        : assignments.filter(a => normaliseStatus(a.status) === statusFilter)
+
+    function openQuiz(id, review = false) {
+        navigate(review ? `/student/quiz/${id}/review` : `/student/quiz/${id}`)
+    }
 
     return (
         <>
@@ -310,60 +355,7 @@ export function StudentAssignments() {
                             ))}
                         </div>
 
-                        {/* Online quizzes section */}
-                        {quizzes.length > 0 && (
-                            <ListSection
-                                className="u-mb-lg"
-                                icon="quiz"
-                                title={t('student.assignments.onlineQuizzes')}
-                                count={`${quizzes.length} quiz${quizzes.length !== 1 ? 'zes' : ''}`}
-                                pad={false}
-                            >
-                                <div>
-                                    {quizzes.map((q, i) => (
-                                        <div key={q.id} className={`quiz-row ${i < quizzes.length - 1 ? 'border-bottom-sep' : ''}`}>
-                                            <div className={`quiz-icon-box ${q.submitted ? 'submitted' : 'pending'}`}>
-                                                <span className="material-symbols-rounded" aria-hidden="true">
-                                                    {q.submitted ? 'check_circle' : 'quiz'}
-                                                </span>
-                                            </div>
-                                            <div className="quiz-info">
-                                                <div className="quiz-title">{q.title}</div>
-                                                <div className="quiz-meta">
-                                                    {q.subject_name} · {q.question_count} question{q.question_count !== 1 ? 's' : ''}
-                                                    {q.time_limit_minutes ? ` · ${q.time_limit_minutes} min` : ''}
-                                                    {' · Due '}
-                                                    <span style={{ color: new Date(q.due_date) < new Date() ? 'var(--destructive)' : 'inherit' }}>{q.due_date}</span>
-                                                </div>
-                                            </div>
-                                            {q.submitted ? (
-                                                <div className="u-row u-shrink-0">
-                                                    <div className="quiz-score-box">
-                                                        <div className="quiz-score-value" style={{ color: q.percentage >= 50 ? 'var(--success)' : '#dc2626' }}>
-                                                            {q.percentage}%
-                                                        </div>
-                                                        <div className="quiz-score-label">{t('common.completed')}</div>
-                                                    </div>
-                                                    <button className="btn btn-outline btn-sm"
-                                                        onClick={() => navigate(`/student/quiz/${q.id}/review`)}>
-                                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">visibility</span>
-                                                        {t('common.revise')}
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <button className="btn btn-primary btn-sm u-shrink-0"
-                                                    onClick={() => navigate(`/student/quiz/${q.id}`)}>
-                                                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">play_arrow</span>
-                                                    {t('student.assignments.takeQuiz')}
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </ListSection>
-                        )}
-
-                        {/* Paper assignments */}
+                        {/* Assignments: paper and online */}
                         {loading ? (
                             <p className="u-pad u-muted">{t('student.assignments.loading')}</p>
                         ) : filtered.length === 0 ? (
@@ -383,7 +375,7 @@ export function StudentAssignments() {
                                 <div>
                                     {filtered.map((item, i) => (
                                         <div key={item.id} className={i < filtered.length - 1 ? 'border-bottom-sep' : ''}>
-                                            <AssignmentCard assignment={item} onSubmit={handleSubmit} />
+                                            <AssignmentCard assignment={item} onSubmit={handleSubmit} onOpenQuiz={openQuiz} />
                                         </div>
                                     ))}
                                 </div>

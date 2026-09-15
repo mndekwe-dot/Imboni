@@ -4,11 +4,12 @@ import { render, screen, waitFor, fireEvent, cleanup, act } from '@testing-libra
 import { MemoryRouter } from 'react-router'
 import { AnnouncementsProvider } from '../../context/AnnouncementsContext'
 import { StudentQuizPage } from './StudentQuizPage'
-import { getQuizForStudent, submitQuizAnswers } from '../../api/teacher'
+import { getQuizForStudent, submitQuizAnswers, lockQuizAnswer } from '../../api/teacher'
 
 vi.mock('../../api/teacher', () => ({
     getQuizForStudent: vi.fn(),
     submitQuizAnswers: vi.fn(),
+    lockQuizAnswer: vi.fn(),
 }))
 
 function renderQuizPage(assignmentId = '42') {
@@ -153,5 +154,47 @@ describe('StudentQuizPage', () => {
         expect(payload.answers).toEqual([])
 
         vi.useRealTimers()
+    })
+
+    describe('when the teacher does not allow going back', () => {
+        const ONE_WAY = { ...QUIZ, time_limit_minutes: null, allow_backtracking: false, position: 0 }
+
+        it('shows one question at a time and locks the answer before moving on', async () => {
+            getQuizForStudent.mockResolvedValue(ONE_WAY)
+            lockQuizAnswer.mockResolvedValue({ position: 1 })
+            renderQuizPage()
+
+            await waitFor(() => expect(screen.getByText('What is 2+2?')).toBeInTheDocument())
+            expect(screen.queryByText('Capital of Rwanda?')).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', { name: /Submit Quiz/i })).not.toBeInTheDocument()
+
+            fireEvent.click(screen.getByLabelText('4'))
+            fireEvent.click(screen.getByRole('button', { name: /Next question/i }))
+
+            await waitFor(() => expect(screen.getByText('Capital of Rwanda?')).toBeInTheDocument())
+            expect(lockQuizAnswer).toHaveBeenCalledWith('42', { question_id: 1, answer: 1 })
+            expect(screen.queryByText('What is 2+2?')).not.toBeInTheDocument()
+            expect(screen.getByRole('button', { name: /Submit Quiz/i })).toBeInTheDocument()
+        })
+
+        it('resumes at the question the server says, after a reload', async () => {
+            getQuizForStudent.mockResolvedValue({ ...ONE_WAY, position: 1 })
+            renderQuizPage()
+
+            await waitFor(() => expect(screen.getByText('Capital of Rwanda?')).toBeInTheDocument())
+            expect(screen.queryByText('What is 2+2?')).not.toBeInTheDocument()
+        })
+
+        it('stays on the question when the answer could not be saved', async () => {
+            getQuizForStudent.mockResolvedValue(ONE_WAY)
+            lockQuizAnswer.mockRejectedValue({ message: 'Network Error' })
+            renderQuizPage()
+
+            await waitFor(() => expect(screen.getByText('What is 2+2?')).toBeInTheDocument())
+            fireEvent.click(screen.getByRole('button', { name: /Next question/i }))
+
+            await waitFor(() => expect(screen.getByText('Network Error')).toBeInTheDocument())
+            expect(screen.getByText('What is 2+2?')).toBeInTheDocument()
+        })
     })
 })

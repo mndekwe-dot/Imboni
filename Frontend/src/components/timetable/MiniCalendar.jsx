@@ -24,8 +24,9 @@ const iso = d => format(d, 'yyyy-MM-dd')
  *   range      {start, end} | null   days currently on screen, shaded
  *   today      Date
  *   onPick     (date) => void
+ *   maxDate    Date | null   days after it cannot be picked
  */
-export function MiniCalendar({ selected, range, today, onPick }) {
+export function MiniCalendar({ selected, range, today, onPick, maxDate = null }) {
     const { t } = useTranslation()
     const [focused, setFocused] = useState(() => startOfDay(selected))
     const gridRef = useRef(null)
@@ -101,6 +102,7 @@ export function MiniCalendar({ selected, range, today, onPick }) {
                                 const isSel    = isSameDay(day, selected)
                                 const isToday  = isSameDay(day, today)
                                 const inRange  = range && isWithinInterval(day, range)
+                                const tooLate  = !!maxDate && day > maxDate
                                 const cls = ['tt-cal-day',
                                     outside && 'is-outside',
                                     inRange && 'is-range',
@@ -115,6 +117,7 @@ export function MiniCalendar({ selected, range, today, onPick }) {
                                             tabIndex={isSameDay(day, focused) ? 0 : -1}
                                             aria-label={formatDateLong(day)}
                                             aria-current={isToday ? 'date' : undefined}
+                                            disabled={tooLate}
                                             onClick={() => onPick(day)}
                                         >
                                             {day.getDate()}

@@ -194,7 +194,16 @@
     "viewSubmissions": "View submissions",
     "work": "Work",
     "worksheet": "Worksheet",
-    "worksheetHint": "A PDF, document or image given out with the assignment."
+    "worksheetHint": "A PDF, document or image given out with the assignment.",
+    "handInLabel": "How is it handed in?",
+    "handInPerson": "On paper, in class",
+    "handInPersonHint": "Students give you the work and mark it as done here.",
+    "handInUpload": "Uploaded as a file",
+    "handInUploadHint": "Students must upload a file before it counts as handed in.",
+    "allowBacktracking": "Let students go back to earlier questions",
+    "noBacktrackingHint": "Students see one question at a time. An answer locks when they move on, and reloading the page does not reopen it.",
+    "uploadChip": "File upload",
+    "noBackChip": "No going back"
   },
   "attendance": {
     "fetchingClasses": "Fetching your assigned classes.",

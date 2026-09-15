@@ -247,7 +247,7 @@ export function StudentResults() {
                                             <p className="u-muted">{t('student.results.noAssessments')}</p>
                                         ) : (
                                             <div className="table-responsive">
-                                                <table>
+                                                <table className="data-table">
                                                     <thead>
                                                         <tr>
                                                             <th>{t('common.subject')}</th><th>{t('student.results.assessment')}</th><th>{t('student.results.max')}</th>

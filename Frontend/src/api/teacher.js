@@ -105,6 +105,8 @@ export const deleteFromQuestionBank = id     => client.delete(`/imboni/teacher/q
 export const getStudentQuizzes  = ()        => client.get('/imboni/quiz/')
 export const getQuizForStudent  = id        => client.get(`/imboni/quiz/${id}/`)
 export const submitQuizAnswers  = (id, d)   => client.post(`/imboni/quiz/${id}/submit/`, d)
+// No-going-back papers: lock one answer and move past it ({ question_id, answer }).
+export const lockQuizAnswer     = (id, d)   => client.post(`/imboni/quiz/${id}/answer/`, d)
 export const getQuizReview      = id        => client.get(`/imboni/quiz/${id}/review/`)
 
 // Exam papers — written here, vetted by the DOS before they can be printed.

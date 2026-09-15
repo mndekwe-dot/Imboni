@@ -22,7 +22,7 @@ const CHILDREN = [
 const STATS = { overall_rate: 95, attendance_label: 'Good', days_present: 90, days_absent: 5, excused_absences: 2, late_arrivals: 3, late_label: 'Improving' }
 
 describe('ParentAttendance', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => { vi.clearAllMocks(); localStorage.clear() })
 
   it('shows a loading state before children resolve', () => {
     getMyChildren.mockReturnValue(new Promise(() => {}))
@@ -45,7 +45,7 @@ describe('ParentAttendance', () => {
 
     await waitFor(() => expect(screen.getByText('95%')).toBeInTheDocument())
     expect(screen.getByText('90')).toBeInTheDocument()
-    expect(screen.getByText(/Eric N\.:/)).toBeInTheDocument()
+    expect(screen.getByText('Attendance record')).toBeInTheDocument()
   })
 
   it('switching the child tab re-fetches attendance scoped to that child only', async () => {
@@ -63,19 +63,17 @@ describe('ParentAttendance', () => {
     expect(getChildAttendanceStats).toHaveBeenCalledWith(2)
   })
 
-  it('navigates to the previous and next month, re-fetching the calendar', async () => {
+  it('asks for the whole month, unpaginated, and steps back a week', async () => {
     getMyChildren.mockResolvedValue([CHILDREN[0]])
     getChildAttendanceStats.mockResolvedValue(STATS)
     getChildAttendanceCalendar.mockResolvedValue([])
 
     renderWithRouter(<ParentAttendance />)
     await waitFor(() => expect(screen.getByText('95%')).toBeInTheDocument())
-    const initialCalls = getChildAttendanceCalendar.mock.calls.length
+    await waitFor(() => expect(getChildAttendanceCalendar).toHaveBeenCalled())
+    expect(getChildAttendanceCalendar.mock.calls[0][0]).toBe(1)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Previous' }))
-    await waitFor(() => expect(getChildAttendanceCalendar.mock.calls.length).toBe(initialCalls + 1))
-
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }))
-    await waitFor(() => expect(getChildAttendanceCalendar.mock.calls.length).toBe(initialCalls + 2))
+    fireEvent.click(screen.getByRole('button', { name: 'Previous week' }))
+    expect(await screen.findByText('No attendance recorded this week.')).toBeInTheDocument()
   })
 })

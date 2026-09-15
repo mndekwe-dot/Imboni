@@ -91,6 +91,10 @@ class StudentAttendanceCalendarView(generics.ListAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = AttendanceRecordSerializer
+    # A month is one screen, not a page of one. The default page size is 20 and
+    # a school month runs to 22 or 23 days, so the calendar silently lost its
+    # last days - they read as "no record" to a parent checking on a child.
+    pagination_class = None
 
     def get_queryset(self):
         if not can_view_student(self.request.user, self.kwargs['pk']):

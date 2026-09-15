@@ -55,7 +55,29 @@
     "takeQuiz": "Passer le quiz",
     "teacherFeedback": "Commentaire de l’enseignant",
     "totalThisTerm": "Total ce trimestre",
-    "worksheet": "Fiche de travail"
+    "worksheet": "Fiche de travail",
+    "handedInOn": "Rendu le {{date}}",
+    "handedIn": "Rendu",
+    "status": {
+      "pending": "À faire",
+      "submitted": "Rendu",
+      "overdue": "En retard"
+    },
+    "lateTag": "Rendu en retard",
+    "kind": {
+      "online": "En ligne",
+      "upload": "Fichier à déposer",
+      "inPerson": "À rendre sur papier"
+    },
+    "noGoingBack": "Sans retour en arrière",
+    "start": "Commencer",
+    "uploadSubmit": "Déposer et rendre",
+    "closedNote": "N'accepte plus de travaux",
+    "awaitingMark": "En attente de note",
+    "questionCount_one": "{{count}} question",
+    "questionCount_other": "{{count}} questions",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min"
   },
   "attendance": {
     "daysAbsent": "Jours d'absence",

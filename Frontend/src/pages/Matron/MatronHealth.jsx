@@ -530,7 +530,7 @@ export const MatronHealth = () => {
                             </div>
                             <div className="card-content">
                                 <div className="table-responsive">
-                                    <table>
+                                    <table className="data-table">
                                         <thead>
                                             <tr>
                                                 <th>{t('common.date')}</th>

@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect, useRef } from "react"
+import { useState, useMemo } from "react"
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { addDays, isSameDay, startOfDay } from 'date-fns'
 import { getThisMonday, getTodayDayIndex, getNow } from './dateUtils'
 import { DayTabs } from './DaysTabs'
 import { TimetableToolbar } from './TimetableToolbar'
+import { useStoredState, useCalendarShortcuts } from './calendarControls'
 import { TimetableAgenda } from './TimetableAgenda'
 import {
     VIEWS, dayIndexOf, mondayOf, snapToVisible, step, visibleDaysFor,
@@ -24,55 +25,6 @@ const TEACHER_KEY = '__teacher__'
    remembered in this browser and follows them between portals. */
 const VIEW_STORE    = 'imboni_tt_view'
 const WEEKEND_STORE = 'imboni_tt_weekends'
-
-function useStoredState(key, fallback, isValid) {
-    const [value, setValue] = useState(() => {
-        try {
-            const raw = localStorage.getItem(key)
-            if (raw !== null) {
-                const parsed = JSON.parse(raw)
-                if (isValid(parsed)) return parsed
-            }
-        } catch { /* storage blocked or a stale value: the default is fine */ }
-        return fallback
-    })
-    function update(next) {
-        setValue(next)
-        try { localStorage.setItem(key, JSON.stringify(next)) }
-        catch { /* storage blocked: the choice still holds for this visit */ }
-    }
-    return [value, update]
-}
-
-/**
- * Google Calendar's single-key shortcuts: D / W / A switch view, T is today,
- * N or J next, P or K previous.
- *
- * Stands down whenever the key clearly belongs to something else — typing in a
- * field, a modifier held (Ctrl+P is print), or a <dialog> open, which is how
- * the DOS edit form is shown and which must not have the week move behind it.
- */
-function useTimetableShortcuts(enabled, handlers) {
-    const latest = useRef(handlers)
-    useEffect(() => { latest.current = handlers })
-
-    useEffect(() => {
-        if (!enabled) return
-        function onKey(e) {
-            if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return
-            const el = e.target
-            if (el instanceof HTMLElement
-                && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return
-            if (document.querySelector('dialog[open]')) return
-            const run = latest.current[e.key.toLowerCase()]
-            if (!run) return
-            e.preventDefault()
-            run()
-        }
-        document.addEventListener('keydown', onKey)
-        return () => document.removeEventListener('keydown', onKey)
-    }, [enabled])
-}
 
 /* A day column heading. Today is filled with the portal accent, and carries a
    dot + screen-reader text as well, so the state is not signalled by colour alone. */
@@ -453,7 +405,7 @@ export function Timetable({
 
     const move = dir => goTo(step(anchor, view, visibleDays, dir))
 
-    useTimetableShortcuts(shortcuts, {
+    useCalendarShortcuts(shortcuts, {
         d: () => setView('day'),
         w: () => setView('week'),
         a: () => setView('schedule'),
