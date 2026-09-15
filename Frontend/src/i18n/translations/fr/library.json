@@ -151,7 +151,15 @@
     "paid": "Marquée comme payée.",
     "waived": "Amende annulée.",
     "none": "Aucune amende",
-    "noneDesc": "Rien n'est revenu en retard et impayé."
+    "noneDesc": "Rien n'est revenu en retard et impayé.",
+    "reason": "Motif",
+    "kind": {
+      "late": "Retour en retard",
+      "lost": "Livre perdu"
+    },
+    "waiveTitle": "Annuler cette amende",
+    "waiveIntro": "{{name}} doit {{amount}}. L'annuler signifie que l'école ne percevra pas cet argent.",
+    "waiveReason": "Pourquoi l'amende est-elle annulée ?"
   },
   "members": {
     "title": "Emprunteurs",
@@ -166,7 +174,11 @@
     "history": "Historique des emprunts",
     "noLoans": "Aucun emprunt",
     "noLoansDesc": "Cette personne n'a encore rien emprunté.",
-    "owes": "Amendes dues : {{amount}}"
+    "owes": "Amendes dues : {{amount}}",
+    "borrower": "Emprunteur",
+    "classOrRole": "Classe ou rôle",
+    "onLoan": "En prêt",
+    "overdue": "En retard"
   },
   "reservations": {
     "title": "Réservations",
@@ -378,5 +390,13 @@
     "wasExisting": "Ajouté à un titre déjà présent",
     "printLabels": "Imprimer {{count}} étiquettes",
     "failed": "Ce livre n’a pas pu être ajouté."
+  },
+  "found": {
+    "title": "Un livre perdu est revenu",
+    "unpaidIntro": "{{name}} doit {{amount}} pour remplacer {{title}} et ne l'a pas encore payé.",
+    "paidIntro": "{{name}} a payé {{amount}} pour remplacer {{title}}.",
+    "cancel": "Annuler les {{amount}} de remplacement",
+    "refund": "Rembourser les {{amount}} de remplacement",
+    "keepHint": "L'amende de retard reste due. Décochez si l'école a déjà acheté un exemplaire de remplacement."
   }
 }

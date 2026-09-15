@@ -17,6 +17,7 @@ import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { LibraryShell } from './LibraryShell'
 import { pill } from '../../utils/tone'
+import { formatAmount } from '../Finance/FinanceShell'
 
 /**
  * Counting the shelves against the catalogue.
@@ -33,6 +34,8 @@ export function LibraryStocktake() {
     const [starting, setStarting] = useState(false)
     const [missing, setMissing] = useState([])
     const [loading, setLoading] = useState(true)
+    // A found copy somebody was charged for: asked about before it is marked.
+    const [finding, setFinding] = useState(null)
 
     const load = useCallback(() => {
         setLoading(true)
@@ -49,12 +52,26 @@ export function LibraryStocktake() {
 
     const open = counts.filter(c => c.status === 'open')
 
+    async function markFound(copy, settleCharge = true) {
+        try {
+            await recordCopyEvent(copy.id, { kind: 'found', settle_charge: settleCharge })
+            setFinding(null)
+            toast.success(t('library.stocktake.restored'))
+            load()
+        } catch (error) {
+            toast.error(errorMessage(error, t('library.stocktake.actionFailed')))
+        }
+    }
+
     return (
         <LibraryShell title={t('library.stocktake.title')}
             subtitle={t('library.stocktake.subtitle')}>
             {starting && (
                 <StartModal onClose={() => setStarting(false)}
                     onStarted={id => { load(); setOpenId(id) }} />
+            )}
+            {finding && (
+                <FoundModal copy={finding} onClose={() => setFinding(null)} onConfirm={markFound} />
             )}
             {openId && (
                 <CountModal id={openId} onClose={() => setOpenId(null)} onChanged={load} />
@@ -131,16 +148,8 @@ export function LibraryStocktake() {
                             <td>{c.status_label || c.status}</td>
                             <td>{c.condition_label || c.condition}</td>
                             <td className="action-cell">
-                                <button className="btn-ghost btn-sm"
-                                    onClick={async () => {
-                                        try {
-                                            await recordCopyEvent(c.id, { kind: 'found' })
-                                            toast.success(t('library.stocktake.restored'))
-                                            load()
-                                        } catch (error) {
-                                            toast.error(errorMessage(error, t('library.stocktake.actionFailed')))
-                                        }
-                                    }}>
+                                <button className="btn btn-ghost btn-sm"
+                                    onClick={() => (c.lost_charge ? setFinding(c) : markFound(c))}>
                                     {t('library.stocktake.markFound')}
                                 </button>
                             </td>
@@ -152,6 +161,54 @@ export function LibraryStocktake() {
                 />
             </div>
         </LibraryShell>
+    )
+}
+
+/**
+ * A lost book turns up, and its borrower was charged for it.
+ *
+ * The replacement price is cancelled (unpaid) or refunded (paid); lateness
+ * stays either way. Unticking keeps the charge, for when the school had
+ * already bought the replacement.
+ */
+function FoundModal({ copy, onClose, onConfirm }) {
+    const { t } = useTranslation()
+    const [settle, setSettle] = useState(true)
+    const [busy, setBusy] = useState(false)
+    const charge = copy.lost_charge
+    const amount = formatAmount(charge.replacement)
+
+    async function confirm() {
+        setBusy(true)
+        await onConfirm(copy, settle)
+        setBusy(false)
+    }
+
+    return (
+        <Modal
+            title={t('library.found.title')}
+            icon="assignment_return"
+            onClose={onClose}
+            footer={(
+                <>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
+                    <button className="btn btn-primary" disabled={busy} onClick={confirm}>
+                        {t('library.stocktake.markFound')}
+                    </button>
+                </>
+            )}
+        >
+            <p className="u-sm">
+                {t(charge.paid ? 'library.found.paidIntro' : 'library.found.unpaidIntro', {
+                    name: charge.borrower_name, amount, title: copy.book_title || copy.title,
+                })}
+            </p>
+            <label className="form-check mt-1">
+                <input type="checkbox" checked={settle} onChange={e => setSettle(e.target.checked)} />
+                <span>{t(charge.paid ? 'library.found.refund' : 'library.found.cancel', { amount })}</span>
+            </label>
+            <p className="text-xs-muted">{t('library.found.keepHint')}</p>
+        </Modal>
     )
 }
 
@@ -355,7 +412,7 @@ function CountModal({ id, onClose, onChanged }) {
 
                     {data.stocktake.status === 'open' && (
                         <div className="mt-1-5">
-                            <button className="btn-ghost btn-sm" disabled={busy}
+                            <button className="btn btn-ghost btn-sm" disabled={busy}
                                 onClick={async () => {
                                     await abandonStocktake(id); onChanged(); onClose()
                                 }}>

@@ -16,6 +16,8 @@ import {
     getFines, getLoans, getMembers, issueLoan, payFine, renewLoan, resolveScan,
     returnByScan, returnLoan, waiveFine,
 } from '../../api/library'
+import { Modal } from '../../components/ui/Modal'
+import { formatAmount } from '../Finance/FinanceShell'
 import { LibraryShell } from './LibraryShell'
 
 const LOAN_FILTERS = ['open', 'overdue', 'returned']
@@ -78,7 +80,7 @@ export function LibraryCirculation() {
             if (result?.held_for) {
                 toast.success(t('library.circulation.holdFor', { name: result.held_for.name }))
             } else if (result?.fine) {
-                toast.success(t('library.circulation.returnedWithFine', { amount: result.fine.amount }))
+                toast.success(t('library.circulation.returnedWithFine', { amount: formatAmount(result.fine.amount) }))
             } else {
                 toast.success(t('library.circulation.returned'))
             }
@@ -97,11 +99,18 @@ export function LibraryCirculation() {
         }
     }
 
-    async function handleFine(fine, action) {
+    /* Letting a fine go is money the school chose not to take, so it needs a
+       reason on the record. It used to send an empty one. */
+    const [waiving, setWaiving] = useState(null)
+    const [waiveReason, setWaiveReason] = useState('')
+
+    async function handleFine(fine, action, reason = '') {
         try {
             if (action === 'pay') await payFine(fine.id)
-            else await waiveFine(fine.id, '')
+            else await waiveFine(fine.id, reason)
             loadFines()
+            setWaiving(null)
+            setWaiveReason('')
             toast.success(t(action === 'pay' ? 'library.fines.paid' : 'library.fines.waived'))
         } catch (e) {
             toast.error(errorMessage(e, t('library.saveFailed')))
@@ -185,7 +194,8 @@ export function LibraryCirculation() {
                         data={fines}
                         columns={[
                             t('library.fields.borrower'), t('library.fields.title'),
-                            t('library.fines.daysLate'), t('library.fines.amount'),
+                            t('library.fines.reason'), t('library.fines.daysLate'),
+                            { label: t('library.fines.amount'), align: 'right' },
                             t('common.actions'),
                         ]}
                         emptyIcon="payments"
@@ -195,11 +205,12 @@ export function LibraryCirculation() {
                             <tr key={fine.id}>
                                 <td><strong>{fine.borrower_detail?.name}</strong></td>
                                 <td>{fine.book_title}</td>
+                                <td>{t(`library.fines.kind.${fine.kind || 'late'}`)}</td>
                                 <td>{fine.days_late}</td>
-                                <td><strong>{fine.amount}</strong></td>
+                                <td className="u-text-right"><strong>{formatAmount(fine.amount)}</strong></td>
                                 <td className="action-cell">
                                     <button className="btn btn-outline btn-sm"
-                                        onClick={() => handleFine(fine, 'waive')}>
+                                        onClick={() => { setWaiving(fine); setWaiveReason('') }}>
                                         {t('library.fines.waive')}
                                     </button>
                                     <button className="btn btn-primary btn-sm"
@@ -211,6 +222,35 @@ export function LibraryCirculation() {
                         )}
                     />
                 </div>
+            )}
+
+            {waiving && (
+                <Modal
+                    title={t('library.fines.waiveTitle')}
+                    icon="money_off"
+                    onClose={() => setWaiving(null)}
+                    footer={(
+                        <>
+                            <button className="btn btn-outline" onClick={() => setWaiving(null)}>
+                                {t('common.cancel')}
+                            </button>
+                            <button className="btn btn-primary" disabled={!waiveReason.trim()}
+                                onClick={() => handleFine(waiving, 'waive', waiveReason.trim())}>
+                                {t('library.fines.waive')}
+                            </button>
+                        </>
+                    )}
+                >
+                    <p className="u-sm u-mb">
+                        {t('library.fines.waiveIntro', {
+                            name: waiving.borrower_detail?.name || '',
+                            amount: formatAmount(waiving.amount),
+                        })}
+                    </p>
+                    <label className="form-label" htmlFor="waive-reason">{t('library.fines.waiveReason')}</label>
+                    <textarea id="waive-reason" className="form-control textarea-sm" autoFocus
+                        value={waiveReason} onChange={e => setWaiveReason(e.target.value)} />
+                </Modal>
             )}
         </LibraryShell>
     )
@@ -264,7 +304,7 @@ function ScanPanel({ onBorrower, onCopy, onChanged }) {
             toast.success(outcome.held_for
                 ? t('library.scan.returnedHeld', { name: outcome.held_for })
                 : t('library.scan.returned'))
-            if (outcome.fine) toast.info(t('library.scan.fined', { amount: outcome.fine.amount }))
+            if (outcome.fine) toast.info(t('library.scan.fined', { amount: formatAmount(outcome.fine.amount) }))
         } catch (error) {
             toast.error(errorMessage(error, t('library.scan.returnFailed')))
         } finally {

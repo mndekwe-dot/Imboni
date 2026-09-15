@@ -64,6 +64,9 @@ export function LibraryOverdue() {
                 <BorrowerModal id={borrower} onClose={() => setBorrower(null)} />
             )}
 
+            <ClassFilter grade={klass.grade} stream={klass.stream}
+                onChange={setKlass} disabled={loading} />
+
             <div className="portal-stat-grid mb-1-5">
                 <StatCard icon="event_busy" value={loading ? '-' : loans.length}
                     label={t('library.overdue.booksOut')}
@@ -73,8 +76,6 @@ export function LibraryOverdue() {
             </div>
 
             <div className="toolbar-card mb-1-5">
-                <ClassFilter grade={klass.grade} stream={klass.stream}
-                    onChange={setKlass} disabled={loading} />
                 <div className="toolbar-spacer" />
                 {/* One page per borrower rather than one list: a sheet naming
                     forty pupils and their debts is not a reminder. */}
@@ -102,7 +103,7 @@ export function LibraryOverdue() {
                 renderRow={l => (
                     <tr key={l.id}>
                         <td>
-                            <button className="btn-ghost btn-sm"
+                            <button className="btn btn-ghost btn-sm"
                                 onClick={() => setBorrower(l.borrower?.id ?? l.borrower)}>
                                 {l.borrower?.name || l.borrower_name}
                             </button>

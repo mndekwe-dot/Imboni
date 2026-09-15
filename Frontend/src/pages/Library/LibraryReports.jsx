@@ -169,66 +169,69 @@ export function LibraryReports() {
 
             <div className="mt-1-5">
                 <ListSection icon="upload_file" title={t('library.reports.import')}>
-                    <p className="u-muted">{t('library.reports.importDesc')}</p>
+                    {/* Stacked, so the file controls, the result and the idle note never touch. */}
+                    <div className="u-stack-1">
+                        <p className="u-muted">{t('library.reports.importDesc')}</p>
 
-                    <div className="toolbar-card mt-1">
-                        <label className="btn btn-primary btn-sm">
-                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload</span>
-                            {importing ? t('common.preparing') : t('library.reports.chooseFile')}
-                            <input type="file" accept=".csv,text/csv" hidden
-                                onChange={handleImport} disabled={importing} />
-                        </label>
-                        <div className="toolbar-spacer" />
-                        {/* The template, so nobody has to guess the columns. */}
-                        <DocumentActions url="/imboni/library/import/" stem="catalogue-template"
-                            pdf={false} />
-                        <button className="btn btn-outline btn-sm"
-                            onClick={() => printPdf('/imboni/library/export/catalogue/')}>
-                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">print</span>
-                            {t('library.reports.printCatalogue')}
-                        </button>
-                        <DocumentActions url="/imboni/library/export/catalogue/"
-                            stem="catalogue" pdf={false} />
-                        <DocumentActions url="/imboni/library/export/loans/"
-                            stem="loans" pdf={false} />
-                    </div>
-
-                    {result && (
-                        <div className="card u-banner mt-1">
-                            <p className="u-strong">
-                                {t('library.reports.importSummary', {
-                                    created: result.created, updated: result.updated,
-                                    copies: result.copies,
-                                })}
-                            </p>
-                            {result.problems?.length > 0 && (
-                                <>
-                                    {/* Reported rather than swallowed: a 3,000-row
-                                        file with two broken rows should import
-                                        2,998 books and say which two failed. */}
-                                    <p className="u-muted u-sm mt-1">
-                                        {t('library.reports.importProblems', {
-                                            count: result.problems.length,
-                                        })}
-                                    </p>
-                                    <ul className="u-muted u-sm">
-                                        {result.problems.slice(0, 10).map(p => (
-                                            <li key={p.row}>
-                                                {t('library.reports.rowError', {
-                                                    row: p.row, error: p.error,
-                                                })}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </>
-                            )}
+                        <div className="toolbar-card">
+                            <label className="btn btn-primary btn-sm">
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload</span>
+                                {importing ? t('common.preparing') : t('library.reports.chooseFile')}
+                                <input type="file" accept=".csv,text/csv" hidden
+                                    onChange={handleImport} disabled={importing} />
+                            </label>
+                            <div className="toolbar-spacer" />
+                            {/* The template, so nobody has to guess the columns. */}
+                            <DocumentActions url="/imboni/library/import/" stem="catalogue-template"
+                                pdf={false} />
+                            <button className="btn btn-outline btn-sm"
+                                onClick={() => printPdf('/imboni/library/export/catalogue/')}>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">print</span>
+                                {t('library.reports.printCatalogue')}
+                            </button>
+                            <DocumentActions url="/imboni/library/export/catalogue/"
+                                stem="catalogue" pdf={false} />
+                            <DocumentActions url="/imboni/library/export/loans/"
+                                stem="loans" pdf={false} />
                         </div>
-                    )}
 
-                    {!result && !importing && (
-                        <EmptyState icon="upload_file" title={t('library.reports.importIdle')}
-                            description={t('library.reports.importIdleDesc')} />
-                    )}
+                        {result && (
+                            <div className="card u-banner">
+                                <p className="u-strong">
+                                    {t('library.reports.importSummary', {
+                                        created: result.created, updated: result.updated,
+                                        copies: result.copies,
+                                    })}
+                                </p>
+                                {result.problems?.length > 0 && (
+                                    <>
+                                        {/* Reported rather than swallowed: a 3,000-row
+                                            file with two broken rows should import
+                                            2,998 books and say which two failed. */}
+                                        <p className="u-muted u-sm mt-1">
+                                            {t('library.reports.importProblems', {
+                                                count: result.problems.length,
+                                            })}
+                                        </p>
+                                        <ul className="u-muted u-sm">
+                                            {result.problems.slice(0, 10).map(p => (
+                                                <li key={p.row}>
+                                                    {t('library.reports.rowError', {
+                                                        row: p.row, error: p.error,
+                                                    })}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {!result && !importing && (
+                            <EmptyState icon="upload_file" title={t('library.reports.importIdle')}
+                                description={t('library.reports.importIdleDesc')} />
+                        )}
+                    </div>
                 </ListSection>
             </div>
         </LibraryShell>

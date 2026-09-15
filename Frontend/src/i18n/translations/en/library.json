@@ -151,7 +151,15 @@
     "paid": "Marked as paid.",
     "waived": "Fine waived.",
     "none": "No fines outstanding",
-    "noneDesc": "Nothing has come back late and unpaid."
+    "noneDesc": "Nothing has come back late and unpaid.",
+    "reason": "For",
+    "kind": {
+      "late": "Late return",
+      "lost": "Lost book"
+    },
+    "waiveTitle": "Waive this fine",
+    "waiveIntro": "{{name}} owes {{amount}}. Waiving it means the school will not collect this money.",
+    "waiveReason": "Why is it being waived?"
   },
   "members": {
     "title": "Borrowers",
@@ -166,7 +174,11 @@
     "history": "Borrowing history",
     "noLoans": "Nothing borrowed",
     "noLoansDesc": "This borrower has not taken a book out yet.",
-    "owes": "Outstanding fines: {{amount}}"
+    "owes": "Outstanding fines: {{amount}}",
+    "borrower": "Borrower",
+    "classOrRole": "Class or role",
+    "onLoan": "On loan",
+    "overdue": "Overdue"
   },
   "reservations": {
     "title": "Reservations",
@@ -378,5 +390,13 @@
     "wasExisting": "Added to a title already held",
     "printLabels": "Print {{count}} labels",
     "failed": "That book could not be added."
+  },
+  "found": {
+    "title": "A lost book is back",
+    "unpaidIntro": "{{name}} was charged {{amount}} to replace {{title}}, and has not paid it yet.",
+    "paidIntro": "{{name}} paid {{amount}} to replace {{title}}.",
+    "cancel": "Cancel the {{amount}} replacement charge",
+    "refund": "Refund the {{amount}} replacement charge",
+    "keepHint": "Any fine for returning it late stays. Untick if the school has already bought a replacement."
   }
 }
