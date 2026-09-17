@@ -21,5 +21,3 @@ export const getStudentAnnouncements      = ()              => client.get('/imbo
 export const getAnnouncementStats         = ()              => client.get('/imboni/announcements/stats/')
 
 // Messages — no backend endpoint yet
-export const getStudentMessages = () => client.get('/imboni/student/messages/')
-export const sendStudentMessage = (d) => client.post('/imboni/student/messages/', d)

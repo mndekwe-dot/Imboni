@@ -20,6 +20,8 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
 import { TabGroup } from '../../components/ui/TabGroup'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage, partialLoad } from '../../utils/errors'
 
 const BOARDING_TYPE_LABEL = {
     full_boarder:   'Full Boarder',
@@ -252,6 +254,7 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function DisBoarding() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -268,17 +271,17 @@ export function DisBoarding() {
         Promise.all([
             getDisBoarding(),
             getDisFacilities({ type: 'dormitory' }),
-            getDisOccupancy().catch(() => null),
+            getDisOccupancy().catch(partialLoad(toast, null)),
         ]).then(([boarding, dorms, occ]) => {
             setStudents(Array.isArray(boarding) ? boarding : [])
             setDormitories(Array.isArray(dorms) ? dorms : [])
             setOccupancy(occ)
         })
-    ), [])
+    ), [toast])
 
     useEffect(() => {
-        loadBoarding().catch(console.error).finally(() => setLoading(false))
-    }, [loadBoarding])
+        loadBoarding().catch(e => toast.error(errorMessage(e, "Could not load this page's data."))).finally(() => setLoading(false))
+    }, [loadBoarding, toast])
 
     // Section-grouped filter data
     const sectionNames  = [...new Set(dormitories.map(d => d.section_name).filter(Boolean))]
@@ -369,7 +372,7 @@ export function DisBoarding() {
 
                         {tab === 'planner' && (
                             <DormPlannerTab
-                                onCommitted={() => loadBoarding().catch(console.error)}
+                                onCommitted={() => loadBoarding().catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))}
                             />
                         )}
 

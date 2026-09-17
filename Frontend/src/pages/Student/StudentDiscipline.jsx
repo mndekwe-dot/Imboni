@@ -13,6 +13,8 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { StatCard } from '../../components/layout/StatCard'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 // The Student pages named colours (blue, teal, orange, amber, purple) where
 // the rest of the app names meanings. purple was never even defined in
@@ -133,6 +135,7 @@ function AppealStep({ num, title, desc }) {
 }
 
 export function StudentDiscipline() {
+    const toast = useToast()
     const { t } = useTranslation()
     const [profile,    setProfile]    = useState(null)
     const [discipline, setDiscipline] = useState(null)
@@ -149,13 +152,13 @@ export function StudentDiscipline() {
 
     useEffect(() => {
         Promise.all([
-            getStudentProfile().catch(() => null),
-            getStudentDiscipline().catch(() => null),
+            getStudentProfile().catch(partialLoad(toast, null)),
+            getStudentDiscipline().catch(partialLoad(toast, null)),
         ]).then(([prof, disc]) => {
             setProfile(prof)
             setDiscipline(disc)
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
     const userRole     = gradeSection

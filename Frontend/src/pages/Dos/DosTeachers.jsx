@@ -20,6 +20,8 @@ import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { formatDate } from '../../utils/date'
 import { SearchBar } from '../../components/ui/SearchBar'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TYPES = ['Full-Time', 'Part-Time']
@@ -454,6 +456,7 @@ const typeMap = { full_time: 'Full-Time', part_time: 'Part-Time' }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function DosTeachers() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -541,7 +544,7 @@ export function DosTeachers() {
             setTeachers(prev => prev.map(t =>
                 t.id === editing.id ? { ...t, name, type, status, classes } : t
             ))
-        } catch (err) { console.error(err) }
+        } catch (err) { toast.error(errorMessage(err, 'Could not save that teacher.')) }
     }
 
     const filtered = teachers.filter(t => {

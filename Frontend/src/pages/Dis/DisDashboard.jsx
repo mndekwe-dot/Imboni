@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
-import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
@@ -17,6 +15,8 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 const TYPE_META = {
     incident:    { cls: 'negative', label: 'Incident'    },
@@ -95,7 +95,7 @@ export function DisDashboard() {
             setStats(dash.stats)
             setIncidents(dash.recent_incidents || [])
             setStaff((staffList || []).slice(0, 4))
-        }).catch(console.error)
+        }).catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
           .finally(() => setLoading(false))
         getDisTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, t('common.loadFailed'))))
     }, [])

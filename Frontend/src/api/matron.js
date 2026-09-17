@@ -38,8 +38,6 @@ export const getMatronNightCheck   = (params) => client.get('/imboni/matron/nigh
 export const submitMatronNightCheck = (data) => client.post('/imboni/matron/night-check/', data)
 
 // Messages
-export const getMatronMessages = () => client.get('/imboni/matron/messages/')
-export const sendMatronMessage = (data) => client.post('/imboni/matron/messages/', data)
 
 // Medication Schedule
 export const getMedications        = ()        => client.get('/imboni/matron/medications/')

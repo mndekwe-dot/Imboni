@@ -23,6 +23,8 @@ import {
 import {
     ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 const ASSESSMENT_TYPES = [
     { value: 'quiz',         label: 'Quiz'         },
@@ -43,6 +45,7 @@ function getGrade(pct) {
 // ── Enter New Results Modal ───────────────────────────────────────────────────
 
 function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
+    const toast = useToast()
     const { t } = useTranslation()
     // Derive all subjects this teacher teaches in this class
     const subjectsForClass = classes
@@ -88,9 +91,9 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                 setSkipped(initSkip)
                 setNotes(initNotes)
             })
-            .catch(() => {})
+            .catch(e => toast.error(errorMessage(e, 'Could not load the class list.')))
             .finally(() => setLoadingStud(false))
-    }, [classObj.class_id])
+    }, [classObj.class_id, toast])
 
     function handle(field, value) {
         setForm(prev => ({ ...prev, [field]: value }))

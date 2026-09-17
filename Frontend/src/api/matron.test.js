@@ -71,13 +71,4 @@ describe('matron api', () => {
       params: { search: 'Uwase' },
     })
   })
-
-  it('messages', () => {
-    matron.getMatronMessages()
-    expect(client.get).toHaveBeenCalledWith('/imboni/matron/messages/')
-
-    const data = { text: 'hi' }
-    matron.sendMatronMessage(data)
-    expect(client.post).toHaveBeenCalledWith('/imboni/matron/messages/', data)
-  })
 })

@@ -5,15 +5,16 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { Modal } from '../../components/ui/Modal'
 import { useNotifications } from '../../hooks/useNotifications'
-import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
 import { getMyTickets, raiseTicket, replyMyTicket } from '../../api/support'
+import { toList } from '../../api/client'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/support.css'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 const STATUS_LABEL = { open: 'Open', in_progress: 'In progress', resolved: 'Resolved', closed: 'Closed' }
 
@@ -85,7 +86,7 @@ export function AdminSupport() {
 
     const load = useCallback(async () => {
         setLoading(true)
-        try { setTickets(await getMyTickets()) }
+        try { setTickets(toList(await getMyTickets())) }
         catch (e) { toast.error(errorMessage(e, 'Could not load your tickets.')) }
         finally { setLoading(false) }
     }, [toast])

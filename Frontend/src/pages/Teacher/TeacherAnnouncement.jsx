@@ -18,6 +18,8 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
 import '../../styles/pages.css'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 const CATEGORY_OPTIONS = [
     { value: 'academic', label: 'Academic' },
@@ -137,6 +139,7 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export function TeacherAnnouncement() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements,  setAnnouncements]  = useState([])
@@ -173,8 +176,8 @@ export function TeacherAnnouncement() {
         loadAnnouncements()
         getTeacherAudienceOptions()
             .then(data => setAudienceOpts(Array.isArray(data) ? data : []))
-            .catch(() => {})
-    }, [])
+            .catch(e => toast.error(errorMessage(e, 'Could not load who you can send to.')))
+    }, [toast])
 
     // Build a stable key for each audience option
     function audienceKey(opt) {

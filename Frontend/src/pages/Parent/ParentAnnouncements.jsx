@@ -21,6 +21,8 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { PaginationBar } from '../../components/ui/PaginationBar'
 import { usePagination } from '../../hooks/usePagination'
 import '../../styles/tables.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 const CATEGORY_COLOR = {
     urgent:   { bg: '#fef2f2', border: '#ef4444', badge: '#fee2e2', text: '#dc2626', icon: 'priority_high'  },
@@ -135,6 +137,7 @@ function AnnouncementCard({ ann, onMarkRead }) {
 }
 
 export function ParentAnnouncements() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -146,8 +149,8 @@ export function ParentAnnouncements() {
 
     function load() {
         return Promise.all([
-            getPublishedAnnouncements().catch(() => []),
-            getAnnouncementStats().catch(() => null),
+            getPublishedAnnouncements().catch(partialLoad(toast, [])),
+            getAnnouncementStats().catch(partialLoad(toast, null)),
         ]).then(([anns, s]) => {
             setAnnouncements(Array.isArray(anns) ? anns : (anns?.results ?? []))
             setStats(s)

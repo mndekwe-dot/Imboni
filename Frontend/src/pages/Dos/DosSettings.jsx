@@ -15,6 +15,8 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Small reusable components ────────────────────────────────────────────────
 
@@ -160,6 +162,7 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export function DosSettings() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -178,9 +181,9 @@ export function DosSettings() {
     }, [settingsLoading, setting.timezone])
 
     useEffect(() => {
-        getSubjects().then(setSubjects).catch(console.error)
-        getDosRooms().then(data => setRooms(data)).catch(console.error)
-    }, [])
+        getSubjects().then(setSubjects).catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
+        getDosRooms().then(data => setRooms(data)).catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
+    }, [toast])
 
     async function handleAddRoom() {
         const name = roomInput.trim()
@@ -202,9 +205,7 @@ export function DosSettings() {
         try {
             await deleteDosRoom(id)
             setRooms(prev => prev.filter(r => r.id !== id))
-        } catch (e) {
-            console.error(e)
-        }
+        } catch (e) { toast.error(errorMessage(e, 'Could not delete that room.')) }
     }
 
     // ── Subject / Type handlers ───────────────────────────────────────────────
@@ -292,9 +293,7 @@ export function DosSettings() {
             await updateSchoolSettings({timezone})
             setTzSaved(true)
             setTimeout(()=>setTzSaved(false),3000)
-        }catch (err){
-            console.error(err)
-        } finally{
+        }catch (err) { toast.error(errorMessage(err, 'Could not save the time zone.')) } finally{
             setTzSaving(false)
         }
     }
