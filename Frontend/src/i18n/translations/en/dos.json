@@ -1,8 +1,4 @@
 {
-  "analytics": {
-    "subtitle": "Comprehensive school performance insights",
-    "title": "School Analytics"
-  },
   "announcements": {
     "subtitle": "Compose and broadcast school-wide announcements"
   },
@@ -133,6 +129,7 @@
     "generate": "Generate",
     "generateFailed": "Could not generate a schedule.",
     "generateTitle": "Generate Exam Schedule",
+    "loadFailed": "Could not load the exam schedule.",
     "loadTermsFailed": "Could not load academic terms.",
     "preview": "Preview",
     "rescheduleFailed": "Could not reschedule that exam.",
@@ -152,11 +149,6 @@
     "weightShort": "Wt"
   },
   "leaders": {
-    "activate": "Activate",
-    "appointLeader": "Appoint Leader",
-    "bannerDesc": "Appoint and manage prefects, house captains, club leaders, and other student representatives for the {{year}} academic year.",
-    "bannerTitle": "Student Leadership Programme",
-    "captainsTitle": "Dormitory Captains",
     "catArt": "Arts & Crafts",
     "catCommunity": "Community Service",
     "catDebate": "Debate",
@@ -164,37 +156,7 @@
     "catMusic": "Music",
     "catOther": "Other",
     "catScience": "Science",
-    "catSport": "Sports",
-    "classForm": "Class / Form",
-    "clubSummary": "{{active}} active · {{inactive}} inactive",
-    "clubsTitle": "Clubs & Activities",
-    "deactivate": "Deactivate",
-    "editAppointments": "Edit Appointments",
-    "editLeader": "Edit Leader",
-    "loadingClubs": "Loading clubs…",
-    "memberCount": "{{enrolled}} / {{max}} members",
-    "namePlaceholder": "e.g. Uwase Amina",
-    "noCaptains": "No captains assigned this term.",
-    "noClubs": "No clubs found.",
-    "noPrefects": "No prefects appointed this term.",
-    "prefectsTitle": "School Prefects",
-    "since": "Since",
-    "sincePlaceholder": "e.g. Jan 2026",
-    "sinceValue": "Since {{date}}",
-    "statCaptains": "Dormitory Captains",
-    "statCaptainsTrend": "By house",
-    "statOther": "Other Leaders",
-    "statOtherTrend": "Active",
-    "statPrefects": "Prefects",
-    "statPrefectsTrend": "School-wide",
-    "statTotal": "Total Leaders",
-    "statTotalTrend": "This term",
-    "subtitle": "Appoint and manage school prefects, house captains, and club leaders",
-    "tabClubs": "Clubs & Activities",
-    "tabLeaders": "Student Leaders",
-    "title": "Student Leaders",
-    "typeCaptain": "Dormitory Captain",
-    "typePrefect": "School Prefect"
+    "catSport": "Sports"
   },
   "messages": {
     "subtitle": "Communicate with teachers, staff and parents"
@@ -223,7 +185,12 @@
     "subtitle": "Approval queue and school performance analytics",
     "viewDetails": "View Details",
     "viewFeedback": "View Feedback",
-    "viewing": "Viewing:"
+    "viewing": "Viewing:",
+    "attentionTitle": "Students needing attention",
+    "attentionNone": "No students flagged: averages are above 50% and attendance above 80%.",
+    "attentionScore": "Avg {{avg}}% · {{failing}} failing",
+    "attentionAbsence": "Attendance {{rate}}% · {{days}} days absent",
+    "attentionLoadFailed": "Could not load the students needing attention."
   },
   "scheduling": {
     "addExam": "Add Exam",
@@ -370,14 +337,21 @@
   },
   "timetable": {
     "academicTerm": "Academic Term *",
+    "chooseClass": "Choose a year and class to see its week.",
     "conflictBody": "This slot clashes with the existing timetable:",
     "conflictTitle": "Scheduling Conflict",
     "generateFailed": "Could not generate a timetable.",
     "generateTitle": "Generate Timetable",
     "generating": "Generating…",
     "inThisClass": "In this class",
+    "loadFailed": "Could not load the timetable.",
     "loadTermsFailed": "Could not load academic terms.",
     "loadingTimetable": "Loading timetable…",
+    "periodInvalid": "Check the time of \"{{name}}\": use a start and end like 08:00 - 08:40.",
+    "periodsFromLessons": "These periods come from the times your lessons already use. Open Edit Periods and save to make them the school's bell schedule, which the generator uses.",
+    "periodsNotSet": "No bell schedule is saved yet. Open Edit Periods, set your school day and save it before generating a timetable.",
+    "periodsSaveFailed": "Could not save the bell schedule.",
+    "periodsSaved": "Bell schedule saved.",
     "replaceExisting": "Replace existing timetable",
     "saveAnyway": "Save Anyway",
     "saveFailed": "Could not save the timetable.",

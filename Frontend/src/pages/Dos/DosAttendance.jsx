@@ -392,7 +392,7 @@ export function DosAttendance() {
         getDosAttendanceStats()
             .then(res => setAttStats(res))
             .catch(e => toast.error(errorMessage(e, 'Could not load attendance stats.')))
-    }, [])
+    }, [toast])
 
     return (
         <>

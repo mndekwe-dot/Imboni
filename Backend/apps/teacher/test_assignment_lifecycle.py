@@ -13,38 +13,12 @@ from django.utils import timezone
 from rest_framework import status
 
 from apps.authentication.factories import UserFactory, StudentFactory
-from apps.results.models import Subject, AcademicTerm, Assessment
-from apps.teacher.models import Class, ClassAssignment, Assignment, AssignmentSubmission
+from apps.results.models import Assessment
+from apps.teacher.models import ClassAssignment, Assignment, AssignmentSubmission
 from apps.announcements.models import Announcement
 
 TODAY = datetime.date.today()
 YESTERDAY = TODAY - datetime.timedelta(days=1)
-
-
-@pytest.fixture
-def term():
-    return AcademicTerm.objects.create(
-        name='Term 1 2025', term='term1', year=2025,
-        start_date=datetime.date(2025, 1, 1),
-        end_date=datetime.date(2025, 4, 1), is_current=True,
-    )
-
-
-@pytest.fixture
-def subject():
-    return Subject.objects.create(name='Mathematics', code='MATH101')
-
-
-@pytest.fixture
-def klass():
-    return Class.objects.create(name='S4A', grade='S4', section='A')
-
-
-@pytest.fixture
-def enrolled_student(klass, term):
-    student = StudentFactory(grade='S4', section='A')
-    ClassAssignment.objects.create(student=student, class_obj=klass, term=term)
-    return student
 
 
 def as_user(client, user):

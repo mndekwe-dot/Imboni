@@ -24,6 +24,8 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 function barColor(v) {
     if (v >= 80) return '#10b981'
@@ -226,6 +228,7 @@ function CreateTaskModal({ onClose, onCreated }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherDashboard() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
@@ -249,10 +252,10 @@ export function TeacherDashboard() {
 
     useEffect(() => {
         Promise.all([
-            getTeacherDashboardStats().catch(() => null),
-            getTeacherTodaySchedule().catch(() => []),
-            getTeacherTasks().catch(() => []),
-            getTeacherClassPerformance().catch(() => []),
+            getTeacherDashboardStats().catch(partialLoad(toast, null)),
+            getTeacherTodaySchedule().catch(partialLoad(toast, [])),
+            getTeacherTasks().catch(partialLoad(toast, [])),
+            getTeacherClassPerformance().catch(partialLoad(toast, [])),
             getTeacherRecentActivities({ limit: 10, offset: 0 }).catch(err => ({ _error: err?.message })),
         ]).then(([s, sched, taskList, perf, act]) => {
             setStats(s)
@@ -266,7 +269,7 @@ export function TeacherDashboard() {
                 setLoadError(act._error)
             }
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     async function loadMore() {
         setLoadingMore(true)

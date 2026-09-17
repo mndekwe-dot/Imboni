@@ -19,6 +19,8 @@ import '../../styles/admin.css'
 import '../../styles/tables.css'
 import '../../styles/discipline.css'
 import { SearchBar } from '../../components/ui/SearchBar'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -54,6 +56,7 @@ function AttBar({ label, value, color }) {
 }
 
 function StudentDetailModal({ student, onClose }) {
+    const toast = useToast()
     const { t } = useTranslation()
     const [detail,     setDetail]     = useState(null)
     const [attendance, setAttendance] = useState(null)
@@ -65,15 +68,15 @@ function StudentDetailModal({ student, onClose }) {
 
     useEffect(() => {
         Promise.all([
-            getStudentDetail(id).catch(() => null),
-            getStudentAttendanceStats(id).catch(() => null),
-            getStudentTermResults(id).catch(() => []),
+            getStudentDetail(id).catch(partialLoad(toast, null)),
+            getStudentAttendanceStats(id).catch(partialLoad(toast, null)),
+            getStudentTermResults(id).catch(partialLoad(toast, [])),
         ]).then(([d, a, r]) => {
             setDetail(d)
             setAttendance(a)
             setResults(Array.isArray(r) ? r : (r?.results ?? []))
         }).finally(() => setLoading(false))
-    }, [id])
+    }, [id, toast])
 
     const cls    = gradeLabel(detail?.grade ?? student.grade, detail?.section ?? student.section)
     const sid    = detail?.student_id || detail?.student_code || student.student_id || student.student_code || '-'
@@ -221,6 +224,7 @@ function StudentRow({ student, onView }) {
 }
 
 export function AdminStudents() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [studentList, setStudentList] = useState([])
@@ -236,13 +240,13 @@ export function AdminStudents() {
         setLoading(true)
         const grade = year || undefined
         Promise.all([
-            getAdminStudents(grade ? { grade } : {}).catch(() => []),
-            getAdminStudentStats().catch(() => null),
+            getAdminStudents(grade ? { grade } : {}).catch(partialLoad(toast, [])),
+            getAdminStudentStats().catch(partialLoad(toast, null)),
         ]).then(([students, s]) => {
             setStudentList(Array.isArray(students) ? students : (students?.results ?? []))
             setStats(s)
         }).finally(() => setLoading(false))
-    }, [year])
+    }, [year, toast])
 
     const statCards = stats ? [
         { icon: 'groups',       value: stats.total_students  || 0, label: 'Total Students',  trend: 'All enrolled',               colorClass: ''        },

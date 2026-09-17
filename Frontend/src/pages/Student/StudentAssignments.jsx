@@ -10,7 +10,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAssignments, submitAssignment } from '../../api/student'
 import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
+import { errorMessage, partialLoad } from '../../utils/errors'
 import { formatDate, formatDateLong } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -249,7 +249,7 @@ export function StudentAssignments() {
 
     useEffect(() => {
         Promise.all([
-            getStudentProfile().catch(() => null),
+            getStudentProfile().catch(partialLoad(toast, null)),
             getStudentAssignments().catch(e => {
                 toast.error(errorMessage(e, t('common.loadFailed')))
                 return []

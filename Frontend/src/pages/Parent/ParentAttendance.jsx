@@ -6,8 +6,6 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { AttendanceRecord } from '../../components/attendance/AttendanceRecord'
-import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
 import {
     getMyChildren, getChildAttendanceStats, getChildAttendanceCalendar,
@@ -15,6 +13,8 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 
@@ -46,6 +46,7 @@ function AttendancePanel({ childId }) {
 }
 
 export function ParentAttendance() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -56,9 +57,9 @@ export function ParentAttendance() {
     useEffect(() => {
         getMyChildren()
             .then(d => setChildren(toList(d)))
-            .catch(console.error)
+            .catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
             .finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const child = children[activeIdx]
 

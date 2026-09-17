@@ -55,6 +55,7 @@ const StudentAnnouncements = load(() => import('./pages/Student/StudentAnnouncem
 const StudentMessages     = load(() => import('./pages/Student/StudentMessages'), 'StudentMessages');
 const StudentDiscipline   = load(() => import('./pages/Student/StudentDiscipline'), 'StudentDiscipline');
 const StudentLibrary      = load(() => import('./pages/Student/StudentLibrary'), 'StudentLibrary');
+const StudentMaterials    = load(() => import('./pages/Student/StudentMaterials'), 'StudentMaterials');
 
 // -- Library (Pro-only; the portal's own shell refuses a school off the plan) --
 const LibraryDashboard    = load(() => import('./pages/Library/LibraryDashboard'), 'LibraryDashboard');
@@ -93,6 +94,7 @@ const TeacherExamForm = load(() => import('./pages/Teacher/TeacherExamForm'), 'T
 const DosExamPapers = load(() => import('./pages/Dos/DosExamPapers'), 'DosExamPapers');
 const TeacherTimetable    = load(() => import('./pages/Teacher/TeacherTimetable'), 'TeacherTimetable');
 const TeacherResults      = load(() => import('./pages/Teacher/TeacherResults'), 'TeacherResults');
+const TeacherMaterials    = load(() => import('./pages/Teacher/TeacherMaterials'), 'TeacherMaterials');
 
 // ── Parent ──
 const ParentDashboard     = load(() => import('./pages/Parent/ParentDashboard'), 'ParentDashboard');
@@ -101,8 +103,10 @@ const ParentChildren      = load(() => import('./pages/Parent/ParentChildren'), 
 const ParentResults       = load(() => import('./pages/Parent/ParentResults'), 'ParentResults');
 const ParentAttendance    = load(() => import('./pages/Parent/ParentAttendance'), 'ParentAttendance');
 const ParentBehaviour     = load(() => import('./pages/Parent/ParentBehaviour'), 'ParentBehaviour');
+const ParentTimetable     = load(() => import('./pages/Parent/ParentTimetable'), 'ParentTimetable');
 const ParentAnnouncements = load(() => import('./pages/Parent/ParentAnnouncements'), 'ParentAnnouncements');
 const ParentMessages      = load(() => import('./pages/Parent/ParentMessages'), 'ParentMessages');
+const ParentMaterials     = load(() => import('./pages/Parent/ParentMaterials'), 'ParentMaterials');
 
 // ── Discipline ──
 const DisDashboard        = load(() => import('./pages/Dis/DisDashboard'), 'DisDashboard');
@@ -125,10 +129,7 @@ const DosTeachers         = load(() => import('./pages/Dos/DosTeachers'), 'DosTe
 const DosResults          = load(() => import('./pages/Dos/DosResults'), 'DosResults');
 const DosScheduling       = load(() => import('./pages/Dos/DosScheduling'), 'DosScheduling');
 const DosAttendance       = load(() => import('./pages/Dos/DosAttendance'), 'DosAttendance');
-const DosTimetable        = load(() => import('./pages/Dos/DosTimetable'), 'DosTimetable');
 const DosExamSchedule     = load(() => import('./pages/Dos/DosExamSchedule'), 'DosExamSchedule');
-const DosAnalytics        = load(() => import('./pages/Dos/DosAnalytics'), 'DosAnalytics');
-const DosStudentLeaders   = load(() => import('./pages/Dos/DosStudentLeaders'), 'DosStudentLeaders');
 const DosAnnouncement     = load(() => import('./pages/Dos/DosAnnouncement'), 'DosAnnouncement');
 const DosMessages         = load(() => import('./pages/Dos/DosMessages'), 'DosMessages');
 const DosSettings         = load(() => import('./pages/Dos/DosSettings'), 'DosSettings');
@@ -150,7 +151,6 @@ const AdminReports        = load(() => import('./pages/Admin/AdminReports'), 'Ad
 const AdminAnnouncements  = load(() => import('./pages/Admin/AdminAnnouncements'), 'AdminAnnouncements');
 const AdminMessages       = load(() => import('./pages/Admin/AdminMessages'), 'AdminMessages');
 const AdminSettings       = load(() => import('./pages/Admin/AdminSettings'), 'AdminSettings');
-const AdminAuditLog       = load(() => import('./pages/Admin/AdminAuditLog'), 'AdminAuditLog');
 const AdminBilling        = load(() => import('./pages/Admin/AdminBilling'), 'AdminBilling');
 const AdminSupport        = load(() => import('./pages/Admin/AdminSupport'), 'AdminSupport');
 
@@ -277,6 +277,7 @@ function App() {
       <Route path="/student/announcements" element={<ProtectedRoute role="student"><StudentAnnouncements /></ProtectedRoute>} />
       <Route path="/student/messages" element={<ProtectedRoute role="student"><StudentMessages /></ProtectedRoute>} />
       <Route path="/student/library" element={<ProtectedRoute role="student"><StudentLibrary /></ProtectedRoute>} />
+      <Route path="/student/materials" element={<ProtectedRoute role="student"><StudentMaterials /></ProtectedRoute>} />
       {/* ── Librarian routes (Pro plan) ──
           The role guard is here; the PLAN guard is in LibraryShell, so a
           librarian at a school on Free sees an upgrade notice rather than a
@@ -325,8 +326,10 @@ function App() {
       <Route path="/parent/assignments" element={<ProtectedRoute role="parent"><ParentAssignments /></ProtectedRoute>} />
       <Route path="/parent/attendance" element={<ProtectedRoute role="parent"><ParentAttendance /></ProtectedRoute>} />
       <Route path="/parent/behaviour" element={<ProtectedRoute role="parent"><ParentBehaviour /></ProtectedRoute>} />
+      <Route path="/parent/timetable" element={<ProtectedRoute role="parent"><ParentTimetable /></ProtectedRoute>} />
       <Route path="/parent/announcements" element={<ProtectedRoute role="parent"><ParentAnnouncements /></ProtectedRoute>} />
       <Route path="/parent/messages" element={<ProtectedRoute role="parent"><ParentMessages /></ProtectedRoute>} />
+      <Route path="/parent/materials" element={<ProtectedRoute role="parent"><ParentMaterials /></ProtectedRoute>} />
       {/* ── Discipline routes ── */}
       <Route path="/discipline" element={<ProtectedRoute role="discipline"><DisDashboard /></ProtectedRoute>} />
       <Route path="/discipline/students" element={<ProtectedRoute role="discipline"><DisStudents /></ProtectedRoute>} />
@@ -354,12 +357,12 @@ function App() {
       <Route path="/dos/scheduling" element={<ProtectedRoute role="dos"><DosScheduling /></ProtectedRoute>} />
       <Route path="/dos/announcements" element={<ProtectedRoute role="dos"><DosAnnouncement /></ProtectedRoute>} />
       <Route path="/dos/messages" element={<ProtectedRoute role="dos"><DosMessages /></ProtectedRoute>} />
-      <Route path="/dos/leaders" element={<ProtectedRoute role="dos"><DosStudentLeaders /></ProtectedRoute>} />
+      <Route path="/dos/leaders" element={<Navigate to="/dos/students" replace />} />
       <Route path="/dos/settings" element={<ProtectedRoute role="dos"><DosSettings /></ProtectedRoute>} />
       {/* legacy routes kept for compatibility */}
-      <Route path="/dos/timetable" element={<ProtectedRoute role="dos"><DosTimetable /></ProtectedRoute>} />
+      <Route path="/dos/timetable" element={<Navigate to="/dos/scheduling" replace />} />
       <Route path="/dos/exams" element={<ProtectedRoute role="dos"><DosExamSchedule /></ProtectedRoute>} />
-      <Route path="/dos/analytics" element={<ProtectedRoute role="dos"><DosAnalytics /></ProtectedRoute>} />
+      <Route path="/dos/analytics" element={<Navigate to="/dos/results?tab=analytics" replace />} />
       {/* ── Matron routes ── */}
       <Route path="/matron" element={<ProtectedRoute role="matron"><MatronDashboard /></ProtectedRoute>} />
       <Route path="/matron/health" element={<ProtectedRoute role="matron"><MatronHealth /></ProtectedRoute>} />
@@ -376,7 +379,7 @@ function App() {
       <Route path="/admin/announcements" element={<ProtectedRoute role="admin"><AdminAnnouncements /></ProtectedRoute>} />
       <Route path="/admin/messages" element={<ProtectedRoute role="admin"><AdminMessages /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute role="admin"><AdminSettings /></ProtectedRoute>} />
-      <Route path="/admin/audit" element={<ProtectedRoute role="admin"><AdminAuditLog /></ProtectedRoute>} />
+      <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
       <Route path="/admin/billing" element={<ProtectedRoute role="admin"><AdminBilling /></ProtectedRoute>} />
       <Route path="/admin/support" element={<ProtectedRoute role="admin"><AdminSupport /></ProtectedRoute>} />
       {/* ── Shared routes ── */}
@@ -385,6 +388,7 @@ function App() {
       <Route path="/student/discipline" element={<ProtectedRoute role="student"><StudentDiscipline /></ProtectedRoute>} />
       {/* ── Teacher extra routes ── */}
       <Route path="/teacher/assignments" element={<ProtectedRoute role="teacher"><TeacherAssignments /></ProtectedRoute>} />
+      <Route path="/teacher/materials" element={<ProtectedRoute role="teacher"><TeacherMaterials /></ProtectedRoute>} />
       <Route path="/teacher/assignments/new" element={<ProtectedRoute role="teacher"><TeacherAssignmentForm /></ProtectedRoute>} />
       <Route path="/teacher/assignments/:id/edit" element={<ProtectedRoute role="teacher"><TeacherAssignmentForm /></ProtectedRoute>} />
       <Route path="/teacher/exams" element={<ProtectedRoute role="teacher"><TeacherExams /></ProtectedRoute>} />

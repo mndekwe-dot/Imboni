@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next'
 import { QuestionEditor } from './QuestionEditor'
 import { QUESTION_TYPES, newQuestion, calcMaxScore } from './quizModel'
 import { saveToQuestionBank } from '../../api/teacher'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 /**
  * The ordered list of questions, with the controls to add, reorder and remove
@@ -10,6 +12,7 @@ import { saveToQuestionBank } from '../../api/teacher'
  */
 export function QuizBuilder({ questions, onChange, onOpenBank }) {
     const { t } = useTranslation()
+    const toast = useToast()
     function update(id, updated) { onChange(questions.map(q => q.id === id ? updated : q)) }
     function remove(id)          { onChange(questions.filter(q => q.id !== id)) }
     function moveUp(idx) {
@@ -36,8 +39,8 @@ export function QuizBuilder({ questions, onChange, onOpenBank }) {
                 points:         q.points,
                 image:          q.image,
             })
-            alert(t('teacher.assignments.savedToBank'))
-        } catch { alert(t('teacher.assignments.saveQuestionFailed')) }
+            toast.success(t('teacher.assignments.savedToBank'))
+        } catch (e) { toast.error(errorMessage(e, t('teacher.assignments.saveQuestionFailed'))) }
     }
 
     const totalPoints = calcMaxScore(questions)

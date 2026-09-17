@@ -15,6 +15,8 @@ import '../../styles/discipline.css'
 import '../../styles/announcements.css'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { formatDateShort } from '../../utils/date'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -128,6 +130,7 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisAnnouncements() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -152,7 +155,7 @@ export function DisAnnouncements() {
                 setHasMore(data.has_more)
                 setAnnouncements(prev => append ? [...prev, ...data.results] : data.results)
             })
-            .catch(console.error)
+            .catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
             .finally(() => { setLoading(false); setLoadingMore(false) })
     }
 
@@ -215,21 +218,21 @@ export function DisAnnouncements() {
         try {
             await deleteDisAnnouncement(id)
             setAnnouncements(prev => prev.filter(a => a.id !== id))
-        } catch (e) { console.error(e) }
+        } catch (e) { toast.error(errorMessage(e, 'Could not delete that announcement.')) }
     }
 
     async function handlePublish(id) {
         try {
             const updated = await updateDisAnnouncement(id, { status: 'published' })
             setAnnouncements(prev => prev.map(a => a.id === id ? updated : a))
-        } catch (e) { console.error(e) }
+        } catch (e) { toast.error(errorMessage(e, 'Could not publish that announcement.')) }
     }
 
     async function handleArchive(id) {
         try {
             const updated = await updateDisAnnouncement(id, { status: 'archived' })
             setAnnouncements(prev => prev.map(a => a.id === id ? updated : a))
-        } catch (e) { console.error(e) }
+        } catch (e) { toast.error(errorMessage(e, 'Could not update that announcement.')) }
     }
 
     return (

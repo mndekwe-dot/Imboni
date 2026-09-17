@@ -2,7 +2,7 @@
 How work comes back: uploaded, handed in physically, or sat online with no
 going back.
 
-Companion to test_assignment_lifecycle.py, whose fixtures it borrows.
+Companion to test_assignment_lifecycle.py; the fixtures are in conftest.py.
 """
 import datetime
 
@@ -11,9 +11,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 
 from apps.teacher.models import AssignmentSubmission
-from apps.teacher.test_assignment_lifecycle import (  # noqa: F401 - fixtures
-    QUIZ_QUESTIONS, YESTERDAY, enrolled_student, klass, make_assignment, subject, term,
-)
+from apps.teacher.test_assignment_lifecycle import QUIZ_QUESTIONS, YESTERDAY, make_assignment
 
 THREE_QUESTIONS = QUIZ_QUESTIONS + [
     {'id': 'q3', 'type': 'true_false', 'text': 'The sky is green.', 'correct': 1, 'points': 5},

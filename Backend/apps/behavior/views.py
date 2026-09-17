@@ -1,7 +1,9 @@
 from rest_framework import generics
 from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from apps.authentication.permissions import IsDisciplineOrMatron
+from apps.authentication.access import can_view_student
 
 from .models import BehaviorReport, ConductGrade
 from .serializers import BehaviorReportSerializer
@@ -23,9 +25,13 @@ class StudentBehaviorStatsView(APIView):
         conduct_label     — human label, e.g. "Excellent"
         achievements      — count of achievement report_type entries this term
     """
-    permission_classes = [IsDisciplineOrMatron]
+    # Parents read their own child's page and students their own; the pk comes
+    # from the URL, so who may see it is decided per student, not per role.
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
+        if not can_view_student(request.user, pk):
+            raise NotFound()
         # Scope counts to the current term's date range
         from apps.results.models import AcademicTerm
         current_term = AcademicTerm.objects.filter(is_current=True).first()
@@ -87,9 +93,11 @@ class StudentBehaviorReportsView(generics.ListAPIView):
     Optional query param:  ?type=positive|warning|incident|achievement
     """
     serializer_class = BehaviorReportSerializer
-    permission_classes = [IsDisciplineOrMatron]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if not can_view_student(self.request.user, self.kwargs['pk']):
+            raise NotFound()
         qs = (
             BehaviorReport.objects
             .filter(student_id=self.kwargs['pk'])

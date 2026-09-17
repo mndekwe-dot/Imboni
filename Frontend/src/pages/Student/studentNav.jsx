@@ -4,6 +4,7 @@ export const studentNavItems = [
     { to: '/student/attendance',    icon: 'fact_check',     labelKey: 'nav.attendance'               },
     { to: '/student/timetable',     icon: 'calendar_month', labelKey: 'nav.timetable'                },
     { to: '/student/assignments',   icon: 'assignment',     labelKey: 'nav.assignments'              },
+    { to: '/student/materials',     icon: 'folder_open',    labelKey: 'nav.materials'                },
     { to: '/student/activities',    icon: 'emoji_events',   labelKey: 'nav.activities'               },
     /* Pro-only. <Sidebar> drops any item whose `feature` the school's plan
        does not include, so this line is the whole of the gating here. */

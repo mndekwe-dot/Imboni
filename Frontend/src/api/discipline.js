@@ -92,8 +92,6 @@ export const getStudentBehaviorStats   = (id) => client.get(`/imboni/behavior/st
 export const getStudentBehaviorReports = (id, params) => client.get(`/imboni/behavior/students/${id}/reports/`, { params })
 
 // Messages
-export const getDisMessages = () => client.get('/imboni/discipline/messages/')
-export const sendDisMessage = (d) => client.post('/imboni/discipline/messages/', d)
 
 // Tasks
 export const getDisTasks    = ()      => client.get('/imboni/tasks/')

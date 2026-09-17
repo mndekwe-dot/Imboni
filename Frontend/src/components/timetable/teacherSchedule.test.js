@@ -133,6 +133,6 @@ describe('teacherSlotsToSchedule', () => {
         // The cell renders these directly; undefined would print "undefined".
         const { schedule } = teacherSlotsToSchedule([{ day: 'monday', start_time: '08:00', end_time: '09:00' }])
 
-        expect(schedule.Monday[0]).toEqual({ type: 'academic', subject: '', meta: '', room: '' })
+        expect(schedule.Monday[0]).toEqual({ type: 'academic', subject: '', teacher: '', room: '' })
     })
 })

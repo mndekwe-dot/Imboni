@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { renderWithRouter as render, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { StudentConductModal } from './StudentConductModal'
 import { getStudentBehaviorStats, getStudentBehaviorReports, createDisReport } from '../../api/discipline'
 
@@ -15,8 +15,9 @@ describe('StudentConductModal', () => {
   })
 
   it('renders nothing when no student is given', () => {
-    const { container } = render(<StudentConductModal student={null} onClose={() => {}} />)
-    expect(container).toBeEmptyDOMElement()
+    render(<StudentConductModal student={null} onClose={() => {}} />)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(getStudentBehaviorStats).not.toHaveBeenCalled()
   })
 
   it('loads and shows profile stats for the student', async () => {
