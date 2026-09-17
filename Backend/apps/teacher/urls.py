@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from . import views
+from . import materials_api, views
 
 router = DefaultRouter()
 # More specific prefixes MUST be registered before the bare 'teacher' prefix below —
@@ -15,6 +15,7 @@ router.register(r'teacher/assignments',  views.AssignmentViewSet,       basename
 router.register(r'teacher/question-bank', views.QuestionBankViewSet,   basename='question-bank')
 router.register(r'quiz',                 views.QuizSubmissionViewSet,   basename='quiz')
 router.register(r'teacher/exam-papers', views.ExamPaperViewSet, basename='exam-paper')
+router.register(r'teacher/materials',   materials_api.TeacherMaterialViewSet, basename='teacher-material')
 router.register(r'teacher',              views.TeacherViewSet,          basename='teacher')
 
 urlpatterns = [

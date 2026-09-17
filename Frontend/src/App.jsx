@@ -55,6 +55,7 @@ const StudentAnnouncements = load(() => import('./pages/Student/StudentAnnouncem
 const StudentMessages     = load(() => import('./pages/Student/StudentMessages'), 'StudentMessages');
 const StudentDiscipline   = load(() => import('./pages/Student/StudentDiscipline'), 'StudentDiscipline');
 const StudentLibrary      = load(() => import('./pages/Student/StudentLibrary'), 'StudentLibrary');
+const StudentMaterials    = load(() => import('./pages/Student/StudentMaterials'), 'StudentMaterials');
 
 // -- Library (Pro-only; the portal's own shell refuses a school off the plan) --
 const LibraryDashboard    = load(() => import('./pages/Library/LibraryDashboard'), 'LibraryDashboard');
@@ -93,6 +94,7 @@ const TeacherExamForm = load(() => import('./pages/Teacher/TeacherExamForm'), 'T
 const DosExamPapers = load(() => import('./pages/Dos/DosExamPapers'), 'DosExamPapers');
 const TeacherTimetable    = load(() => import('./pages/Teacher/TeacherTimetable'), 'TeacherTimetable');
 const TeacherResults      = load(() => import('./pages/Teacher/TeacherResults'), 'TeacherResults');
+const TeacherMaterials    = load(() => import('./pages/Teacher/TeacherMaterials'), 'TeacherMaterials');
 
 // ── Parent ──
 const ParentDashboard     = load(() => import('./pages/Parent/ParentDashboard'), 'ParentDashboard');
@@ -104,6 +106,7 @@ const ParentBehaviour     = load(() => import('./pages/Parent/ParentBehaviour'),
 const ParentTimetable     = load(() => import('./pages/Parent/ParentTimetable'), 'ParentTimetable');
 const ParentAnnouncements = load(() => import('./pages/Parent/ParentAnnouncements'), 'ParentAnnouncements');
 const ParentMessages      = load(() => import('./pages/Parent/ParentMessages'), 'ParentMessages');
+const ParentMaterials     = load(() => import('./pages/Parent/ParentMaterials'), 'ParentMaterials');
 
 // ── Discipline ──
 const DisDashboard        = load(() => import('./pages/Dis/DisDashboard'), 'DisDashboard');
@@ -274,6 +277,7 @@ function App() {
       <Route path="/student/announcements" element={<ProtectedRoute role="student"><StudentAnnouncements /></ProtectedRoute>} />
       <Route path="/student/messages" element={<ProtectedRoute role="student"><StudentMessages /></ProtectedRoute>} />
       <Route path="/student/library" element={<ProtectedRoute role="student"><StudentLibrary /></ProtectedRoute>} />
+      <Route path="/student/materials" element={<ProtectedRoute role="student"><StudentMaterials /></ProtectedRoute>} />
       {/* ── Librarian routes (Pro plan) ──
           The role guard is here; the PLAN guard is in LibraryShell, so a
           librarian at a school on Free sees an upgrade notice rather than a
@@ -325,6 +329,7 @@ function App() {
       <Route path="/parent/timetable" element={<ProtectedRoute role="parent"><ParentTimetable /></ProtectedRoute>} />
       <Route path="/parent/announcements" element={<ProtectedRoute role="parent"><ParentAnnouncements /></ProtectedRoute>} />
       <Route path="/parent/messages" element={<ProtectedRoute role="parent"><ParentMessages /></ProtectedRoute>} />
+      <Route path="/parent/materials" element={<ProtectedRoute role="parent"><ParentMaterials /></ProtectedRoute>} />
       {/* ── Discipline routes ── */}
       <Route path="/discipline" element={<ProtectedRoute role="discipline"><DisDashboard /></ProtectedRoute>} />
       <Route path="/discipline/students" element={<ProtectedRoute role="discipline"><DisStudents /></ProtectedRoute>} />
@@ -383,6 +388,7 @@ function App() {
       <Route path="/student/discipline" element={<ProtectedRoute role="student"><StudentDiscipline /></ProtectedRoute>} />
       {/* ── Teacher extra routes ── */}
       <Route path="/teacher/assignments" element={<ProtectedRoute role="teacher"><TeacherAssignments /></ProtectedRoute>} />
+      <Route path="/teacher/materials" element={<ProtectedRoute role="teacher"><TeacherMaterials /></ProtectedRoute>} />
       <Route path="/teacher/assignments/new" element={<ProtectedRoute role="teacher"><TeacherAssignmentForm /></ProtectedRoute>} />
       <Route path="/teacher/assignments/:id/edit" element={<ProtectedRoute role="teacher"><TeacherAssignmentForm /></ProtectedRoute>} />
       <Route path="/teacher/exams" element={<ProtectedRoute role="teacher"><TeacherExams /></ProtectedRoute>} />

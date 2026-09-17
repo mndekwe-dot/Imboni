@@ -509,3 +509,57 @@ class ExamPaper(models.Model):
         Sending it back for changes returns control.
         """
         return self.status in ('draft', 'rejected')
+
+
+class TeachingMaterial(models.Model):
+    """
+    Notes, slides, a past paper or a video a teacher shares with a class.
+
+    The only upload a teacher had was the worksheet on an assignment, so
+    anything that was not set work - the week's notes, a revision pack, a
+    video explaining a topic - had to go out on paper, in a message, or not at
+    all, and students had nowhere to find it again.
+
+    A material is either a file or a link, never both. `kind` is derived on
+    save so the student list can show a video differently without every client
+    guessing from the URL.
+
+    Tied to the term it was posted in: classes keep their names from year to
+    year, and next year's S3A should not open to last year's notes.
+    """
+    KIND_CHOICES = [
+        ('file',  'File'),
+        ('link',  'Link'),
+        ('video', 'Video'),
+    ]
+    VIDEO_HOSTS = ('youtube.com', 'youtu.be', 'vimeo.com')
+
+    id          = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    teacher     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='teaching_materials')
+    class_obj   = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='materials')
+    subject     = models.ForeignKey(Subject, on_delete=models.PROTECT, related_name='materials')
+    term        = models.ForeignKey(AcademicTerm, on_delete=models.CASCADE, related_name='materials')
+    title       = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    kind        = models.CharField(max_length=10, choices=KIND_CHOICES, default='file')
+    file        = models.FileField(upload_to='teaching-materials/', blank=True, null=True)
+    url         = models.URLField(max_length=500, blank=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'teaching_materials'
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['class_obj', 'term'])]
+
+    def __str__(self):
+        return f"{self.title} ({self.class_obj})"
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            self.kind = 'file'
+        else:
+            host = self.url.split('//', 1)[-1].split('/', 1)[0].lower()
+            is_video = any(host == h or host.endswith('.' + h) for h in self.VIDEO_HOSTS)
+            self.kind = 'video' if is_video else 'link'
+        super().save(*args, **kwargs)

@@ -29,6 +29,7 @@ readable off the key itself: `teacher.assignments.due` is in `<lang>/teacher.jso
 | `dos.json` | `pages/Dos/*` (director of studies portal) |
 | `landing.json` | `pages/LandingPage.jsx` |
 | `language.json` | `components/ui/LanguageSwitcher.jsx` |
+| `materials.json` | `components/materials/`, the Teacher, Student and Parent `*Materials` pages |
 | `matron.json` | `pages/Matron/*` |
 | `messaging.json` | `components/messaging/*` |
 | `modals.json` | `components/modals/*` |

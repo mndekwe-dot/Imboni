@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
+from apps.teacher.materials_api import ParentChildMaterialsView
 from . import views
 
 # Main router
@@ -26,6 +27,7 @@ urlpatterns = router.urls + students_router.urls + [
     path('parents/<uuid:pk>/schedule/today/', views.StudentTodayScheduleView.as_view(), name='student-schedule-today'),
     path('parents/<uuid:pk>/timetable/', views.StudentWeekTimetableView.as_view(), name='student-week-timetable'),
     path('parents/<uuid:pk>/assignments/', views.StudentAssignmentListView.as_view(), name='student-assignments'),
+    path('parents/<uuid:pk>/materials/', ParentChildMaterialsView.as_view(), name='student-materials'),
     # Account Settings — Family Connections: request a link to an existing
     # student by code. The request grants nothing until staff approve it below.
     path('account/family/link/', views.LinkStudentView.as_view(), name='account-family-link'),

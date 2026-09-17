@@ -77,6 +77,26 @@ function assignmentBody(d) {
 export const createTeacherAssignment  = d           => client.post('/imboni/teacher/assignments/', assignmentBody(d))
 export const updateTeacherAssignment  = (id, d)    => client.patch(`/imboni/teacher/assignments/${id}/`, assignmentBody(d))
 export const deleteTeacherAssignment  = id          => client.delete(`/imboni/teacher/assignments/${id}/`)
+
+// Teaching materials: notes, slides and video links shared with a class.
+// A picked File travels as multipart; a link is plain JSON. Sending the URL
+// clears a stored file on the server, so switching kinds needs nothing else.
+function materialBody(d) {
+    if (!(d.file instanceof File)) {
+        const { file, ...rest } = d
+        return rest
+    }
+    const form = new FormData()
+    for (const [key, value] of Object.entries(d)) {
+        if (key === 'url' || value === undefined || value === null) continue
+        form.append(key, value)
+    }
+    return form
+}
+export const getTeacherMaterials      = params      => client.get('/imboni/teacher/materials/', { params })
+export const createTeacherMaterial    = d           => client.post('/imboni/teacher/materials/', materialBody(d))
+export const updateTeacherMaterial    = (id, d)     => client.patch(`/imboni/teacher/materials/${id}/`, materialBody(d))
+export const deleteTeacherMaterial    = id          => client.delete(`/imboni/teacher/materials/${id}/`)
 // Stop / resume accepting submissions. `closed` was a status the model declared
 // but nothing could reach, so an assignment stayed open indefinitely.
 export const closeTeacherAssignment   = id          => client.post(`/imboni/teacher/assignments/${id}/close/`)
