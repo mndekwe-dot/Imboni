@@ -9,7 +9,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { PaginationBar } from '../../components/ui/PaginationBar'
 import { usePagination } from '../../hooks/usePagination'
 import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
+import { errorMessage, partialLoad } from '../../utils/errors'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { formatDate } from '../../utils/date'
 import {
@@ -304,13 +304,13 @@ export function AdminAnnouncements() {
                 setPublishedCount(list.filter(a => a.status === 'published').length)
             })
             .catch(e => toast.error(errorMessage(e, t('announcements.loadFailed'))))
-    }, [activeTab, t])
+    }, [activeTab, t, toast])
 
     useEffect(() => {
         Promise.all([
             load('all'),
-            getAdminAudienceOptions().catch(() => null),
-            getAnnouncementTemplates().catch(() => []),
+            getAdminAudienceOptions().catch(partialLoad(toast, null)),
+            getAnnouncementTemplates().catch(partialLoad(toast, [])),
         ]).then(([, opts, tmpl]) => {
             if (Array.isArray(opts) && opts.length) setAudienceOptions(opts)
             if (Array.isArray(tmpl) && tmpl.length) setTemplates(tmpl)

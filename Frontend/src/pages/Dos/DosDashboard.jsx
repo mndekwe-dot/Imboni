@@ -152,7 +152,7 @@ export function DosDashboard() {
 
         fetchActivityPage(0, false)
         getDosTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
-    }, [])
+    }, [toast])
 
     async function handleCreateTask() {
         if (!taskTitle.trim()) return

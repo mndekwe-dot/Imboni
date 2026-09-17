@@ -1,6 +1,6 @@
-﻿import { useState, useEffect, useRef } from 'react'
-import { useToast } from '../context/ToastContext'
+﻿import { useToast } from '../context/ToastContext'
 import { errorMessage } from '../utils/errors'
+import { useState, useEffect, useRef } from 'react'
 import { changePassword, getProfile, updateProfile, uploadAvatar,
          getMyPreferences, updateMyPreferences } from '../api/account'
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher'
@@ -116,9 +116,9 @@ export function Account() {
                     phone_number: data.phone_number ?? '',
                 })
             })
-            .catch(err => console.error(err))
+            .catch(err => toast.error(errorMessage(err, 'Could not load your profile.')))
             .finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     // Notification channels come from the same preferences row as language.
     useEffect(() => {

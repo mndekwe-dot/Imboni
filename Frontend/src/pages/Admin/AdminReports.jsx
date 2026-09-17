@@ -21,6 +21,8 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 const GRADE_COLORS = ['#003d7a', '#2563eb', '#0ea5e9', '#10b981', '#f59e0b', '#f97316']
 const PIE_COLORS   = { Excellent: '#10b981', Good: '#003d7a', Average: '#f59e0b', 'Below Average': '#dc2626' }
@@ -153,6 +155,7 @@ function SubjectChart({ data }) {
 }
 
 export function AdminReports() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [stats,       setStats]       = useState(null)
@@ -165,12 +168,12 @@ export function AdminReports() {
 
     useEffect(() => {
         Promise.all([
-            getAdminDashboardStats().catch(() => null),
-            getPerformanceByGrade().catch(() => []),
-            getWeeklyTrend().catch(() => []),
-            getEnrollmentByGrade().catch(() => []),
-            getPerformanceDistribution().catch(() => []),
-            getTeachersBySubject().catch(() => []),
+            getAdminDashboardStats().catch(partialLoad(toast, null)),
+            getPerformanceByGrade().catch(partialLoad(toast, [])),
+            getWeeklyTrend().catch(partialLoad(toast, [])),
+            getEnrollmentByGrade().catch(partialLoad(toast, [])),
+            getPerformanceDistribution().catch(partialLoad(toast, [])),
+            getTeachersBySubject().catch(partialLoad(toast, [])),
         ]).then(([s, grade, weekly, enroll, dist, subject]) => {
             setStats(s)
             setByGrade(Array.isArray(grade) ? grade : (grade?.results ?? []))
@@ -179,7 +182,7 @@ export function AdminReports() {
             setDistribution(Array.isArray(dist) ? dist : (dist?.results ?? []))
             setBySubject(Array.isArray(subject) ? subject : (subject?.results ?? []))
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const statCards = stats ? [
         { icon: 'groups',       value: stats.total_students    || 0,     label: 'Total Students',   trend: `+${stats.new_students || 0} this term`, colorClass: ''        },

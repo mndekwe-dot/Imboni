@@ -13,6 +13,8 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 // DRF paginates by default (PageNumberPagination, PAGE_SIZE 20), so list
 // endpoints answer with { count, next, previous, results } rather than a bare
@@ -86,6 +88,7 @@ function AssessmentRow({ subject_name, title, max_score, score_obtained, percent
 }
 
 export function StudentResults() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [profile,     setProfile]     = useState(null)
@@ -102,8 +105,8 @@ export function StudentResults() {
 
     useEffect(() => {
         Promise.all([
-            getStudentProfile().catch(() => null),
-            getStudentResults().catch(() => []),
+            getStudentProfile().catch(partialLoad(toast, null)),
+            getStudentResults().catch(partialLoad(toast, [])),
         ]).then(([prof, results]) => {
             const termList = asList(results)
             setProfile(prof)
@@ -111,13 +114,13 @@ export function StudentResults() {
             if (termList.length) setActiveTerm(termList[0].term_id)
 
             if (prof?.student_id) {
-                return getStudentAssessments(prof.student_id).catch(() => [])
+                return getStudentAssessments(prof.student_id).catch(partialLoad(toast, []))
             }
             return []
         }).then(ass => {
             setAssessments(asList(ass))
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
     const userRole     = gradeSection

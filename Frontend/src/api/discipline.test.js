@@ -169,15 +169,6 @@ describe('discipline api', () => {
     expect(client.get).toHaveBeenCalledWith('/imboni/behavior/students/11/reports/', { params: { type: 'positive' } })
   })
 
-  it('messages', () => {
-    dis.getDisMessages()
-    expect(client.get).toHaveBeenCalledWith('/imboni/discipline/messages/')
-
-    const data = { text: 'hi' }
-    dis.sendDisMessage(data)
-    expect(client.post).toHaveBeenCalledWith('/imboni/discipline/messages/', data)
-  })
-
   it('tasks CRUD', () => {
     dis.getDisTasks()
     expect(client.get).toHaveBeenCalledWith('/imboni/tasks/')

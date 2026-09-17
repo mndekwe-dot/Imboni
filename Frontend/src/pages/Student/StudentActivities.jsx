@@ -16,6 +16,8 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 const MAIN_TABS   = ['Discipline Records', 'Extracurricular Activities', 'Upcoming Events']
 const TYPE_TABS   = ['All', 'Positive', 'Negative', 'Warning']
@@ -106,6 +108,7 @@ function ActivityCard({ activity, enrolled, onJoin, onWithdraw, joining }) {
 }
 
 export function StudentActivities() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [mainTab,    setMainTab]    = useState('Discipline Records')
@@ -125,17 +128,17 @@ export function StudentActivities() {
 
     useEffect(() => {
         Promise.all([
-            getStudentProfile().catch(() => null),
-            getStudentDiscipline().catch(() => null),
-            getStudentActivities().catch(() => null),
-            getStudentActivityEvents().catch(() => []),
+            getStudentProfile().catch(partialLoad(toast, null)),
+            getStudentDiscipline().catch(partialLoad(toast, null)),
+            getStudentActivities().catch(partialLoad(toast, null)),
+            getStudentActivityEvents().catch(partialLoad(toast, [])),
         ]).then(([prof, disc, act, ev]) => {
             setProfile(prof)
             setDiscipline(disc)
             setActivities(act)
             setEvents(Array.isArray(ev) ? ev : [])
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
     const userRole     = gradeSection

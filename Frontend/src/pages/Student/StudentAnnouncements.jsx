@@ -13,6 +13,8 @@ import { formatDate } from '../../utils/date'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 const CATEGORY_ICON = {
     urgent:   'priority_high',
@@ -57,6 +59,7 @@ function AnnouncementItem({ ann }) {
 }
 
 export function StudentAnnouncements() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [announcements, setAnnouncements] = useState([])
@@ -72,13 +75,13 @@ export function StudentAnnouncements() {
 
     useEffect(() => {
         Promise.all([
-            getStudentAnnouncements().catch(() => []),
-            getAnnouncementStats().catch(() => null),
+            getStudentAnnouncements().catch(partialLoad(toast, [])),
+            getAnnouncementStats().catch(partialLoad(toast, null)),
         ]).then(([anns, s]) => {
             setAnnouncements(Array.isArray(anns) ? anns : [])
             setStats(s)
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const urgentCount = announcements.filter(a => a.category === 'urgent').length
     const eventCount  = announcements.filter(a => a.category === 'event').length

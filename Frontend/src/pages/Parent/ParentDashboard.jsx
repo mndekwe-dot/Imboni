@@ -15,6 +15,8 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage, partialLoad } from '../../utils/errors'
 
 const ASSESSMENT_ICON = {
     quiz:          { iconClass: 'quiz',  icon: 'quiz'        },
@@ -121,6 +123,7 @@ function ChildStats({ stats, loading }) {
 }
 
 export function ParentDashboard() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -136,9 +139,9 @@ export function ParentDashboard() {
     useEffect(() => {
         getMyChildren()
             .then(data => setChildren(Array.isArray(data) ? data : (data?.results ?? [])))
-            .catch(console.error)
+            .catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
             .finally(() => setLoadingChildren(false))
-    }, [])
+    }, [toast])
 
     useEffect(() => {
         if (!children.length) return
@@ -152,17 +155,17 @@ export function ParentDashboard() {
 
         getChildDashboard(child.id)
             .then(setStats)
-            .catch(console.error)
+            .catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
             .finally(() => setLoadingStats(false))
 
         Promise.all([
-            getChildAssessments(child.id).catch(() => []),
-            getChildSummative(child.id).catch(() => []),
+            getChildAssessments(child.id).catch(partialLoad(toast, [])),
+            getChildSummative(child.id).catch(partialLoad(toast, [])),
         ]).then(([a, s]) => {
             setAssessments(Array.isArray(a) ? a : (a?.results ?? []))
             setSummative(Array.isArray(s) ? s : (s?.results ?? []))
         }).finally(() => setLoadingData(false))
-    }, [children, activeIdx])
+    }, [children, activeIdx, toast])
 
     const child = children[activeIdx]
 

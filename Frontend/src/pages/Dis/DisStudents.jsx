@@ -17,6 +17,8 @@ import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
 import { TabGroup } from '../../components/ui/TabGroup'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -231,6 +233,7 @@ function ReportRow({ report, onMarkComplete }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisStudents() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -267,20 +270,20 @@ export function DisStudents() {
     useEffect(() => {
         if (activeTab !== 'students' || studLoaded) return
         setStudLoaded(true); setStudLoading(true)
-        getDisStudents().then(setStudents).catch(console.error).finally(() => setStudLoading(false))
-    }, [activeTab, studLoaded])
+        getDisStudents().then(setStudents).catch(e => toast.error(errorMessage(e, "Could not load this page's data."))).finally(() => setStudLoading(false))
+    }, [activeTab, studLoaded, toast])
 
     useEffect(() => {
         if (activeTab !== 'reports' || repLoaded) return
         setRepLoaded(true); setRepLoading(true)
-        getDisReports().then(setReports).catch(console.error).finally(() => setRepLoading(false))
-    }, [activeTab, repLoaded])
+        getDisReports().then(setReports).catch(e => toast.error(errorMessage(e, "Could not load this page's data."))).finally(() => setRepLoading(false))
+    }, [activeTab, repLoaded, toast])
 
     async function handleMarkComplete(id) {
         try {
             await updateDisReport(id, { follow_up_completed: true })
             setReports(prev => prev.map(r => r.id === id ? { ...r, follow_up_completed: true } : r))
-        } catch(e) { console.error(e) }
+        } catch (e) { toast.error(errorMessage(e, 'Could not mark that follow-up complete.')) }
     }
 
     async function handleReview(id, action, notes) {
@@ -289,7 +292,7 @@ export function DisStudents() {
             setReports(prev => prev.map(r =>
                 r.id === id ? { ...r, status: updated.status, reviewed_by: updated.reviewed_by, reviewed_at: updated.reviewed_at } : r
             ))
-        } catch(e) { console.error(e) }
+        } catch (e) { toast.error(errorMessage(e, 'Could not review that report.')) }
     }
 
     // ── Filters ──

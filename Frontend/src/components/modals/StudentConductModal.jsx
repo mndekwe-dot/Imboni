@@ -4,6 +4,8 @@ import { TabGroup } from '../ui/TabGroup'
 import { getStudentBehaviorStats, getStudentBehaviorReports, createDisReport } from '../../api/discipline'
 import { formatDate } from '../../utils/date'
 import '../../styles/components.css'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 const TABS = [
     { key: 'profile', labelKey: 'modals.conduct.tabProfile', icon: 'person' },
@@ -338,6 +340,7 @@ function LogTab({ student, onReportSaved }) {
 // ── Modal shell ────────────────────────────────────────────────────────────────
 
 export function StudentConductModal({ student, onClose }) {
+    const toast = useToast()
     const { t } = useTranslation()
     const [tab,        setTab]        = useState('profile')
     const [stats,      setStats]      = useState(null)
@@ -358,11 +361,11 @@ export function StudentConductModal({ student, onClose }) {
         ]).then(([s, h]) => {
             setStats(s)
             setHistory(Array.isArray(h) ? h : (h?.results || []))
-        }).catch(console.error)
+        }).catch(e => toast.error(errorMessage(e, 'Could not load this student\'s conduct record.')))
           .finally(() => setHistLoading(false))
 
         return () => { document.body.style.overflow = '' }
-    }, [student?.id])
+    }, [student?.id, toast])
 
     if (!student) return null
 
@@ -378,7 +381,7 @@ export function StudentConductModal({ student, onClose }) {
         ]).then(([s, h]) => {
             setStats(s)
             setHistory(Array.isArray(h) ? h : (h?.results || []))
-        }).catch(console.error)
+        }).catch(e => toast.error(errorMessage(e, 'Could not load this student\'s conduct record.')))
           .finally(() => setHistLoading(false))
     }
 
