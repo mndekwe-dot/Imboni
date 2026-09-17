@@ -286,9 +286,33 @@ class StudentDocumentListView(generics.ListAPIView):
         return StudentDocument.objects.filter(student_id=self.kwargs['pk'])
 
 
+def _child_lessons(request, pk):
+    """The current term's lessons for a parent's own child, by day and time."""
+    from apps.teacher.models import ClassAssignment, Timetable
+    from apps.results.models import AcademicTerm
+
+    if _verify_parent_owns_student(request, pk) is None:
+        raise Http404
+
+    current_term = AcademicTerm.objects.filter(is_current=True).first()
+    if not current_term:
+        return Timetable.objects.none()
+
+    assignment = ClassAssignment.objects.filter(student_id=pk, term=current_term).first()
+    if not assignment:
+        return Timetable.objects.none()
+
+    return (
+        Timetable.objects
+        .filter(class_obj=assignment.class_obj, term=current_term)
+        .select_related('subject', 'teacher', 'class_obj')
+        .order_by('day', 'start_time')
+    )
+
+
 class StudentTodayScheduleView(generics.ListAPIView):
     """
-    GET /imboni/students/<pk>/schedule/today/
+    GET /imboni/parents/<pk>/schedule/today/
     Returns today's timetable periods for a student's class, ordered by start time.
     """
     permission_classes = [IsParent]
@@ -298,32 +322,25 @@ class StudentTodayScheduleView(generics.ListAPIView):
         return TimetableSerializer
 
     def get_queryset(self):
-        from apps.teacher.models import ClassAssignment, Timetable
-        from apps.results.models import AcademicTerm
+        # The school's day, not UTC's: after 22:00 UTC it is already tomorrow in Kigali.
+        day_name = timezone.localtime().strftime('%A').lower()
+        return _child_lessons(self.request, self.kwargs['pk']).filter(day=day_name).order_by('start_time')
 
-        if _verify_parent_owns_student(self.request, self.kwargs['pk']) is None:
-            raise Http404
 
-        today = timezone.now().date()
-        day_name = today.strftime('%A').lower()  # e.g. 'monday'
-        current_term = AcademicTerm.objects.filter(is_current=True).first()
+class StudentWeekTimetableView(generics.ListAPIView):
+    """
+    GET /imboni/parents/<pk>/timetable/
+    The child's whole week, in the same row shape as the teacher's timetable.
+    """
+    permission_classes = [IsParent]
+    pagination_class = None
 
-        if not current_term:
-            return Timetable.objects.none()
+    def get_serializer_class(self):
+        from apps.teacher.serializers import TimetableSerializer
+        return TimetableSerializer
 
-        assignment = ClassAssignment.objects.filter(
-            student_id=self.kwargs['pk'], term=current_term
-        ).first()
-
-        if not assignment:
-            return Timetable.objects.none()
-
-        return (
-            Timetable.objects
-            .filter(class_obj=assignment.class_obj, term=current_term, day=day_name)
-            .select_related('subject', 'teacher')
-            .order_by('start_time')
-        )
+    def get_queryset(self):
+        return _child_lessons(self.request, self.kwargs['pk'])
 
 
 class StudentAssignmentListView(_APIView):

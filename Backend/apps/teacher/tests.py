@@ -669,3 +669,43 @@ class TestTaskViewSet:
         response = client.get('/imboni/tasks/')
 
         assert [t['title'] for t in response.data] == ['Mine']
+
+
+@pytest.mark.django_db
+class TestStudentAndParentSeeTheRealWeek:
+    """Students and parents read the class timetable the DOS built, not sample data."""
+
+    def _week(self, student):
+        term = _make_term()
+        class_obj = _make_class()
+        ClassAssignment.objects.create(student=student, class_obj=class_obj, term=term)
+        teacher = UserFactory(role='teacher', first_name='Pacifique', last_name='Rurangwa')
+        Timetable.objects.create(
+            class_obj=class_obj, subject=_make_subject(), teacher=teacher, term=term,
+            day='monday', start_time='08:00', end_time='08:40', room_number='12',
+        )
+
+    def test_the_student_gets_flat_rows(self, make_authenticated_client):
+        client, user = make_authenticated_client('student')
+        student = StudentFactory(user=user)
+        self._week(student)
+
+        slots = client.get('/imboni/student/timetable/').data['slots']
+
+        assert len(slots) == 1
+        assert slots[0]['subject_name'] == 'Mathematics'
+        assert slots[0]['teacher_name'] == 'Pacifique Rurangwa'
+        assert slots[0]['day'] == 'monday'
+
+    def test_a_parent_reads_only_their_own_childs_week(self, make_authenticated_client):
+        from apps.authentication.factories import ParentStudentRelationshipFactory
+        client, parent = make_authenticated_client('parent')
+        child = ParentStudentRelationshipFactory(parent=parent).student
+        self._week(child)
+
+        response = client.get(f'/imboni/parents/{child.id}/timetable/')
+        assert response.status_code == status.HTTP_200_OK
+        assert [s['room_number'] for s in response.data] == ['12']
+
+        stranger = StudentFactory()
+        assert client.get(f'/imboni/parents/{stranger.id}/timetable/').status_code == status.HTTP_404_NOT_FOUND
