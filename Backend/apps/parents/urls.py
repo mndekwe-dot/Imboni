@@ -24,6 +24,7 @@ urlpatterns = router.urls + students_router.urls + [
     path('parents/<uuid:pk>/fees/', views.StudentFeeListView.as_view(), name='student-fees'),
     path('parents/<uuid:pk>/documents/', views.StudentDocumentListView.as_view(), name='student-documents'),
     path('parents/<uuid:pk>/schedule/today/', views.StudentTodayScheduleView.as_view(), name='student-schedule-today'),
+    path('parents/<uuid:pk>/timetable/', views.StudentWeekTimetableView.as_view(), name='student-week-timetable'),
     path('parents/<uuid:pk>/assignments/', views.StudentAssignmentListView.as_view(), name='student-assignments'),
     # Account Settings — Family Connections: request a link to an existing
     # student by code. The request grants nothing until staff approve it below.

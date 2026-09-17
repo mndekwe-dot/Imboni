@@ -247,7 +247,7 @@ class DOSPerformanceByGradeView(APIView):
 
     Response: [ { grade: "Grade 1", avg_score: 72.5 }, ... ]
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         term = _current_term()
@@ -447,7 +447,7 @@ class TeachersBySubjectView(APIView):
     Response: [ { subject_id, subject_name, teacher_count, percentage }, ... ]
     percentage = subject teacher count / total teachers * 100
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.teacher.models import SubjectTeacherAssignment
@@ -762,7 +762,7 @@ class StudentEnrollmentByGradeView(APIView):
 
     Response: [ { grade, student_count, percentage }, ... ]
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from django.db.models import Count
@@ -808,7 +808,7 @@ class StudentPerformanceDistributionView(APIView):
         Average    — avg 60–70%
         Below      — avg < 60%
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         term = _current_term()
@@ -2161,10 +2161,16 @@ class SchoolConfigView(APIView):
 
 class SchoolSettingsView(APIView):
     """
-    GET   /imboni/dos/school-settings/  — return timezone and school name
-    PATCH /imboni/dos/school-settings/  — update timezone or school name
+    GET   /imboni/dos/school-settings/  — any signed-in member of the school
+    PATCH /imboni/dos/school-settings/  — DOS or admin only
+
+    Every portal needs the school's name, terms, currency and timezone to
+    render, so reading is open to the school; changing them is not.
     """
-    permission_classes = [IsDOSOrAdmin]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.IsAuthenticated()]
+        return [IsDOSOrAdmin()]
 
     def get(self, request):
         settings = SchoolSetting.get_setting()
@@ -2742,6 +2748,12 @@ class DosTimetableSlotView(APIView):
         for field in('day','start_time','end_time','room_number'):
             if field in request.data:
                 setattr(slot,field,request.data[field])
+        # Creating a lesson takes `room`; editing one used to ignore it, so a
+        # room changed in the edit form was silently dropped.
+        if 'room' in request.data and 'room_number' not in request.data:
+            slot.room_number = request.data['room'] or ''
+        if 'day' in request.data:
+            slot.day = str(request.data['day']).lower()
         if 'subject_id' in request.data:
             slot.subject_id = request.data['subject_id']
         if 'teacher_id' in request.data:

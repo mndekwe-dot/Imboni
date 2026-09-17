@@ -1269,7 +1269,8 @@ class DisciplineTimetableView(APIView):
     """GET /imboni/discipline/timetable/?grade=&date=YYYY-MM-DD"""
     permission_classes = [IsDiscipline]
     def get(self, request):
-        from apps.teacher.models import TimetablePeriod, Class
+        from apps.results.models import AcademicTerm
+        from apps.teacher.models import Timetable
         from django.utils import timezone
 
         date_str = request.query_params.get('date')
@@ -1286,9 +1287,11 @@ class DisciplineTimetableView(APIView):
 
         day_name = target_date.strftime('%A').lower()
 
-        qs = TimetablePeriod.objects.select_related(
+        # Lessons live in teacher.Timetable; there is no per-lesson period model.
+        term = AcademicTerm.objects.filter(is_current=True).first()
+        qs = Timetable.objects.select_related(
             'subject', 'teacher', 'class_obj'
-        ).filter(day_of_week=day_name).order_by('class_obj__grade', 'class_obj__section', 'start_time')
+        ).filter(term=term, day=day_name).order_by('class_obj__grade', 'class_obj__section', 'start_time')
 
         if grade:
             qs = qs.filter(class_obj__grade=grade)
