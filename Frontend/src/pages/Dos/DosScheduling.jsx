@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
-import { classesFromConfig } from '../../utils/classes'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -11,11 +10,9 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { StatCard } from '../../components/layout/StatCard'
 import { DutyRosterTab } from './DutyRosterTab'
 import { DiningPlannerTab } from './DiningPlannerTab'
-import { Timetable } from '../../components/timetable/Timetable'
-import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
-import { PeriodManager } from '../../components/timetable/PeriodManager'
 import { Modal } from '../../components/timetable/Modal'
-import { PERIODS, academicSchedules } from '../../data/academicTimetable'
+import { DosTimetablePanel } from './DosTimetable'
+import { ExamGenerateModal } from './DosExamSchedule'
 import {
     getDosExamSchedule, createDosExamSchedule, updateDosExamSchedule, deleteDosExamSchedule,
     getSubjects, getDosClasses, getDosRooms, getDosTeachers, getCurrentTerm,
@@ -27,6 +24,8 @@ import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { formatDateWithWeekday, formatWeekdayShort, monthName, weekdayShortNames } from '../../utils/date'
 import { PRINT_FONT_STACK, printFontFace } from '../../utils/printFont'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -327,18 +326,9 @@ export function DosScheduling() {
     const sessionUser = useSessionUser()
     const { config } = useSchoolConfig()
     const { setting } = useSchoolSettings()
-    const allClasses = classesFromConfig(config)
+    const toast = useToast()
+    const loadFailed = e => toast.error(errorMessage(e, t('dos.examSchedule.loadFailed')))
     const [activeTab, setActiveTab] = useState('timetable')
-
-    // ── Timetable state ──
-    const [classId,           setClassId]           = useState('S3A')
-    const [ttLevel,           setTtLevel]           = useState('all')
-    const [editingSlot,       setEditingSlot]       = useState(null)
-    const [showForm,          setShowForm]          = useState(false)
-    const [periods,           setPeriods]           = useState(PERIODS)
-    const [showPeriodManager, setShowPeriodManager] = useState(false)
-
-    const [schedules, setSchedules] = useState(academicSchedules)
 
     // ── Exam state ──
     const [exams,           setExams]           = useState([])
@@ -350,6 +340,7 @@ export function DosScheduling() {
     const [yearFilter,      setYearFilter]      = useState('')
     const [streamFilter,    setStreamFilter]    = useState('')
     const [showExamForm,    setShowExamForm]    = useState(false)
+    const [showExamGenerate, setShowExamGenerate] = useState(false)
     const [editingExam,     setEditingExam]     = useState(null)
     const [defaultSession,  setDefaultSession]  = useState('')
     const [defaultDate,     setDefaultDate]     = useState('')
@@ -373,48 +364,40 @@ export function DosScheduling() {
     const printFrameRef = useRef(null)
 
     useEffect(() => {
-        getSubjects().then(setSubjects).catch(console.error)
-        getDosClasses().then(setClasses).catch(console.error)
-        getDosRooms().then(setRooms).catch(console.error)
-        getDosTeachers().then(data => setTeachers(Array.isArray(data) ? data : (data.results||[]))).catch(console.error)
-        getCurrentTerm().then(setCurrentTerm).catch(console.error)
+        getSubjects().then(setSubjects).catch(loadFailed)
+        getDosClasses().then(setClasses).catch(loadFailed)
+        getDosRooms().then(setRooms).catch(loadFailed)
+        getDosTeachers().then(data => setTeachers(Array.isArray(data) ? data : (data.results||[]))).catch(loadFailed)
+        getCurrentTerm().then(setCurrentTerm).catch(loadFailed)
     }, [])
 
     useEffect(() => {
         if (activeTab !== 'exams' || examsLoaded) return
         setExamsLoaded(true); setExamsLoading(true)
-        getDosExamSchedule().then(setExams).catch(console.error).finally(() => setExamsLoading(false))
+        getDosExamSchedule().then(setExams).catch(loadFailed).finally(() => setExamsLoading(false))
     }, [activeTab, examsLoaded])
-
-    // Every number here is read from what the school actually has configured.
-    const timetableStats = [
-        { colorClass: 'info',    icon: 'calendar_view_week', value: periods.length,             label: t('dos.scheduling.periodsPerDay'),    trend: t('dos.scheduling.dayRange')        },
-        { colorClass: 'success', icon: 'menu_book',          value: subjects.length,            label: t('common.subject'),                  trend: t('dos.scheduling.allClassesTrend') },
-        { colorClass: 'warning', icon: 'school',             value: teachers.length,            label: t('dos.scheduling.teachersAssigned'), trend: t('dos.scheduling.allClassesTrend') },
-        { colorClass: '',        icon: 'event_available',    value: currentTerm?.name || '-',   label: t('dos.scheduling.currentTerm'),      trend: currentTerm?.year || '' },
-    ]
 
     async function handleExamSave(formData) {
         try {
             if (editingExam) await updateDosExamSchedule(editingExam.id, formData)
             else             await createDosExamSchedule(formData)
             setShowExamForm(false); setEditingExam(null); setDefaultSession(''); setDefaultDate('')
-            getDosExamSchedule().then(setExams).catch(console.error)
-        } catch(e) { console.error(e) }
+            getDosExamSchedule().then(setExams).catch(loadFailed)
+        } catch(e) { toast.error(errorMessage(e, t('dos.examSchedule.saveFailed'))) }
     }
 
     async function handleExamDelete(id) {
         try {
             await deleteDosExamSchedule(id)
             setExams(prev => prev.filter(e => e.id !== id))
-        } catch(e) { console.error(e) }
+        } catch(e) { toast.error(errorMessage(e, t('dos.examSchedule.deleteFailed'))) }
     }
 
     async function handleExamReschedule(id, newDate) {
         try {
             await updateDosExamSchedule(id, { exam_date: newDate })
-            getDosExamSchedule().then(setExams).catch(console.error)
-        } catch(e) { console.error(e) }
+            getDosExamSchedule().then(setExams).catch(loadFailed)
+        } catch(e) { toast.error(errorMessage(e, t('dos.examSchedule.rescheduleFailed'))) }
     }
 
     function prevMonth() {
@@ -436,22 +419,6 @@ export function DosScheduling() {
         acc[sec.name] = new Set((sec.years||[]).map(y => y.name))
         return acc
     }, {})
-
-    /* The timetable always shows exactly one class, so the level chips narrow
-       which classes are offered rather than filtering the grid itself. */
-    const ttClasses = ttLevel === 'all'
-        ? allClasses
-        : classesFromConfig((config || []).filter(s => s.name === ttLevel))
-
-    function selectTtLevel(level) {
-        setTtLevel(level)
-        const available = level === 'all'
-            ? allClasses
-            : classesFromConfig((config || []).filter(s => s.name === level))
-        // Keep the current class when the new level still offers it; otherwise the
-        // grid would show a class that no chip is highlighting.
-        if (available.length && !available.includes(classId)) setClassId(available[0])
-    }
 
     const filteredExams = exams.filter(e => {
         if (selectedSession !== 'all' && e.title !== selectedSession) return false
@@ -482,12 +449,14 @@ export function DosScheduling() {
         if (!window.confirm(t('dos.scheduling.deleteSessionConfirm', {
             name, count: exams.filter(e=>e.title===name).length }))) return
         const toDelete = exams.filter(e => e.title === name)
-        await Promise.all(toDelete.map(e => deleteDosExamSchedule(e.id).catch(console.error)))
+        const results = await Promise.allSettled(toDelete.map(e => deleteDosExamSchedule(e.id)))
+        const failed = results.find(r => r.status === 'rejected')
+        if (failed) toast.error(errorMessage(failed.reason, t('dos.examSchedule.deleteFailed')))
         const updated = customSessions.filter(s => s !== name)
         setCustomSessions(updated)
         localStorage.setItem('imboni_sessions', JSON.stringify(updated))
         if (selectedSession === name) setSelectedSession('all')
-        getDosExamSchedule().then(setExams).catch(console.error)
+        getDosExamSchedule().then(setExams).catch(loadFailed)
     }
 
     // ── Print ──
@@ -497,7 +466,7 @@ export function DosScheduling() {
         const hasGeneral = filteredExams.some(e => !e.class_name)
         const columns = [...classSet].sort()
         if (hasGeneral) columns.unshift('GENERAL')
-        if (columns.length === 0) { alert(t('dos.scheduling.nothingToPrint')); return }
+        if (columns.length === 0) { toast.info(t('dos.scheduling.nothingToPrint')); return }
 
         // Rows = unique dates sorted
         const dates = [...new Set(filteredExams.map(e => e.exam_date))].sort()
@@ -636,34 +605,6 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
     const calDays = getCalendarDays(calYear, calMonth)
 
-    // ── Timetable handlers ──
-    function handleEditCell(slotInfo) { setEditingSlot(slotInfo); setShowForm(true) }
-    function handleSave(formData) {
-        const { day, slotId, subject, teacher, room } = formData
-        if (!day||!slotId) return
-        const pi = periods.findIndex(p => String(p.id)===String(slotId))
-        if (pi===-1) return
-        setSchedules(prev => {
-            const cd = {...(prev[classId]||{})}
-            const da = [...(cd[day]||Array(periods.length).fill(null))]
-            da[pi]   = subject ? {subject,teacher,room,teacherId:editingSlot?.cell?.teacherId||''} : null
-            return {...prev,[classId]:{...cd,[day]:da}}
-        })
-        setShowForm(false); setEditingSlot(null)
-    }
-    function handleDelete(slotInfo) {
-        const {period,day} = slotInfo
-        const pi = periods.findIndex(p => p.id===period.id)
-        if (pi===-1) return
-        setSchedules(prev => {
-            const cd = {...(prev[classId]||{})}
-            const da = [...(cd[day]||[])]
-            da[pi]   = null
-            return {...prev,[classId]:{...cd,[day]:da}}
-        })
-        setShowForm(false); setEditingSlot(null)
-    }
-
     return (
         <>
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
@@ -696,56 +637,16 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                         {activeTab==='dining' && <DiningPlannerTab />}
 
                         {/* ── TIMETABLE TAB ── */}
-                        {activeTab==='timetable' && (
-                            <>
-                                <div className="portal-stat-grid mb-5">
-                                    {timetableStats.map((s,i) => <StatCard key={i} {...s}/>)}
-                                </div>
+                        {activeTab==='timetable' && <DosTimetablePanel />}
 
-                                <div className="card">
-                                    <div className="card-header">
-                                        <h2 className="card-title">{t('dos.scheduling.classLabel', { name: classId })}</h2>
-                                        <div className="flex-row-gap">
-                                            <button className="btn btn-outline btn-sm" onClick={() => setShowPeriodManager(true)}>
-                                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">schedule</span> {t('dos.scheduling.editPeriods')}
-                                            </button>
-                                            <button className="btn btn-primary btn-sm" onClick={() => {setEditingSlot(null);setShowForm(true)}}>
-                                                <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dos.scheduling.addSlot')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="card-content">
-                                        {/* Class filter — the same level/class chips the exam tab uses, so
-                                            picking a class works identically on both tabs. It replaces a
-                                            dropdown that hid all 18 classes behind a click. */}
-                                        {(config||[]).length > 1 && (
-                                            <div className="es-filter-section">
-                                                <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">layers</span> {t('common.level')}</div>
-                                                <div className="att-mode-bar u-mb-0">
-                                                    <button className={`att-mode-btn${ttLevel==='all'?' active':''}`} onClick={() => selectTtLevel('all')}>{t('dos.scheduling.allLevels')}</button>
-                                                    {(config||[]).map(sec => (
-                                                        <button key={sec.id||sec.name} className={`att-mode-btn${ttLevel===sec.name?' active':''}`} onClick={() => selectTtLevel(sec.name)}>
-                                                            <span className="material-symbols-rounded" aria-hidden="true">school</span> {sec.name}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                        <div className="es-filter-section">
-                                            <div className="es-filter-section-label"><span className="material-symbols-rounded" aria-hidden="true">group</span> {t('common.class')}</div>
-                                            <div className="es-class-chips">
-                                                {ttClasses.map(cls => (
-                                                    <button key={cls} className={`es-class-chip-btn${classId===cls?' active':''}`} onClick={() => setClassId(cls)}>{cls}</button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <Timetable type="academic" classId={classId} editable onEditCell={handleEditCell} periods={periods} schedules={schedules}/>
-                                    </div>
-                                </div>
-                                {showPeriodManager && <PeriodManager periods={periods} onChange={setPeriods} onClose={() => setShowPeriodManager(false)}/>}
-                                {showForm && <TimetableEditForm type="academic" editingSlot={editingSlot} onSave={handleSave} onDelete={handleDelete} onCancel={() => setShowForm(false)} periods={periods}/>}
-                            </>
+                        {showExamGenerate && (
+                            <ExamGenerateModal
+                                onClose={() => setShowExamGenerate(false)}
+                                onCommitted={() => {
+                                    setShowExamGenerate(false)
+                                    getDosExamSchedule().then(setExams).catch(loadFailed)
+                                }}
+                            />
                         )}
 
                         {/* ── EXAM SCHEDULE TAB ── */}
@@ -756,6 +657,8 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                         <h2 className="card-title">{t('dos.scheduling.tabExams')}</h2>
                                         <div className="es-card-actions">
                                             <button className="btn btn-outline btn-sm" onClick={handlePrint}><span className="material-symbols-rounded" aria-hidden="true">print</span> {t('common.print')}</button>
+                                            {/* The exam generator lived only on /dos/exams, which nothing linked to. */}
+                                            <button className="btn btn-outline btn-sm" onClick={() => setShowExamGenerate(true)}><span className="material-symbols-rounded" aria-hidden="true">auto_awesome</span> {t('common.generate')}</button>
                                             <button className="btn btn-primary btn-sm" onClick={() => {setDefaultSession(selectedSession!=='all'?selectedSession:'');setDefaultDate('');setEditingExam(null);setShowExamForm(true)}}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dos.scheduling.addExam')}
                                             </button>

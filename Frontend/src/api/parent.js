@@ -9,6 +9,7 @@ export const getChildCard       = (id) => client.get(`/imboni/parents/${id}/card
 export const getChildFees       = (id) => client.get(`/imboni/parents/${id}/fees/`)
 export const getChildDocuments  = (id) => client.get(`/imboni/parents/${id}/documents/`)
 export const getChildSchedule   = (id) => client.get(`/imboni/parents/${id}/schedule/today/`)
+export const getChildTimetable  = (id) => client.get(`/imboni/parents/${id}/timetable/`)
 export const getChildAssignments = (id) => client.get(`/imboni/parents/${id}/assignments/`)
 
 // ── Results ──────────────────────────────────────────────────────────────────
@@ -33,8 +34,6 @@ export const markAnnouncementRead      = id => client.post(`/imboni/announcement
 export const markAllAnnouncementsRead  = ()  => client.post('/imboni/announcements/mark-all-read/')
 
 // ── Messages (no backend endpoint yet) ───────────────────────────────────────
-export const getParentMessages = () => client.get('/imboni/parent/messages/')
-export const sendParentMessage = (d) => client.post('/imboni/parent/messages/', d)
 
 // ── Consent Requests ──────────────────────────────────────────────────────────
 export const getConsentRequests    = ()        => client.get('/imboni/parents/consent-requests/')

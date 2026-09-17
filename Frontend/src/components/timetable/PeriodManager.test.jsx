@@ -30,6 +30,13 @@ describe('PeriodManager', () => {
     ])
   })
 
+  it('marks a row as a break', () => {
+    const onChange = vi.fn()
+    render(<PeriodManager periods={periods} onChange={onChange} onClose={() => {}} />)
+    fireEvent.click(screen.getByLabelText('Period 2 is a break'))
+    expect(onChange).toHaveBeenCalledWith([periods[0], { ...periods[1], isBreak: true }])
+  })
+
   it('adds a new blank row', () => {
     const onChange = vi.fn()
     render(<PeriodManager periods={periods} onChange={onChange} onClose={() => {}} />)

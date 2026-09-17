@@ -1,29 +1,36 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Select } from '../../components/ui/Select'
-import { Sidebar } from '../../components/layout/Sidebar'
-import { DashboardHeader } from '../../components/layout/DashboardHeader'
-import { useNotifications } from '../../hooks/useNotifications'
-import { useSessionUser } from '../../hooks/useSessionUser'
 import { StatCard } from '../../components/layout/StatCard'
 import { Timetable } from '../../components/timetable/Timetable'
 import { TimetableEditForm } from '../../components/timetable/TimetableEditForm'
 import { PeriodManager } from '../../components/timetable/PeriodManager'
+import { ClassPicker } from '../../components/ui/ClassPicker'
 import { PERIODS } from '../../data/academicTimetable'
-import { getDosClasses, getDosTimetable, saveDosSlot, updateDosSlot, deleteDosSlot, getSubjects, getDosTeachersBySubjectAndClass, getDosRooms, getTerms, generateDosTimetable, commitDosTimetable } from '../../api/dos'
-import '../../styles/layout.css'
+import { DAYS } from '../../data/extraTimetable'
+import {
+    getDosClasses, getDosTimetable, saveDosSlot, updateDosSlot, deleteDosSlot, getSubjects,
+    getDosTeachersBySubjectAndClass, getDosRooms, getTerms, generateDosTimetable, commitDosTimetable,
+    getTimetablePeriods, saveTimetablePeriods,
+} from '../../api/dos'
+import { toList } from '../../api/client'
+import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import '../../styles/components.css'
 import '../../styles/dos.css'
-import { dosNavItems, dosSecondaryItems } from './dosNav'
-import { DashboardContent } from '../../components/layout/DashboardContent'
 import { Modal } from '../../components/ui/Modal'
+import { classLabel as formatClass, sectionsFromClasses } from '../../utils/classes'
 import { useToast } from '../../context/ToastContext'
-import { classLabel as formatClass } from '../../utils/classes'
+import { errorMessage } from '../../utils/errors'
+
+/* Monday to Saturday: the days the academic grid draws. */
+const ACADEMIC_DAYS = DAYS.slice(0, 6)
+
+/* The sample school day, used only when a school has no bell schedule and no lessons yet. */
+const SAMPLE_PERIODS = PERIODS.map(p => ({ ...p, isBreak: p.id === 'break' }))
 
 // "8:00", "08:00" → 480 (minutes since midnight). Lets us match times
-// regardless of zero-padding differences between the API and PERIODS data.
+// regardless of zero-padding differences between the API and period labels.
 function toMinutes(t) {
-    const [h, m] = t.trim().split(':').map(Number)
+    const [h, m] = String(t).trim().split(':').map(Number)
     return h * 60 + m
 }
 
@@ -53,22 +60,44 @@ export function buildMovePayload(cell, targetPeriod, toDay) {
     }
 }
 
-/* Convert backend slots array → { [classId]: { [day]: [9 items] } }
-   matching each slot to a period row by start_time */
-function slotsToSchedules(classId, slots, periods) {
+/* The bell schedule from the API → the grid's rows. The id is the start time,
+   so a period keeps its identity when the DOS relabels it. */
+export function periodsFromApi(rows = []) {
+    return rows.map(r => ({
+        id:      r.start_time,
+        label:   r.label || '',
+        time:    `${r.start_time} - ${r.end_time}`,
+        isBreak: Boolean(r.is_break),
+    }))
+}
+
+/* The grid's rows → the API body, or `{ error }` naming the first bad row. */
+export function periodsToApi(periods) {
+    const rows = []
+    for (const p of periods) {
+        const match = /^\s*(\d{1,2}:\d{2})\s*[–—-]\s*(\d{1,2}:\d{2})\s*$/.exec(p.time || '')
+        if (!match) return { error: p.label || p.time || '?' }
+        const { start_time, end_time } = periodTimes({ time: `${match[1]} - ${match[2]}` })
+        if (toMinutes(end_time) <= toMinutes(start_time)) return { error: p.label || p.time }
+        rows.push({ label: p.label || '', start_time, end_time, is_break: Boolean(p.isBreak) })
+    }
+    return { rows }
+}
+
+/* Convert backend slots → { [classId]: { [day]: [one cell per period] } },
+   matching each slot to a period row by start time. Break rows are filled on
+   every day so the grid draws them as one band. */
+export function slotsToSchedules(classId, slots, periods) {
     const dayMap = {}
+    for (const day of ACADEMIC_DAYS) {
+        dayMap[day] = periods.map(p => (p.isBreak ? { type: 'break', subject: p.label || 'Break' } : null))
+    }
     for (const slot of slots) {
-        // Backend stores day lowercase (see handleSave's day.toLowerCase()), but the
-        // Timetable component looks rows up by the capitalized names in DAYS — without
-        // this normalization, fetched slots never render in the grid.
+        // Backend stores day lowercase; the grid keys rows by capitalised names.
         const day = slot.day.charAt(0).toUpperCase() + slot.day.slice(1)
-        if (!dayMap[day]) {
-            dayMap[day] = Array(periods.length).fill(null)
-        }
-        // Compare by minutes-since-midnight, not string prefix — the API sends
-        // zero-padded times ("08:00") while PERIODS uses unpadded ("8:00"), so
-        // startsWith() would never match and slots would silently vanish.
-        const idx = periods.findIndex(p => periodStartMinutes(p) === toMinutes(slot.start_time))
+        if (!dayMap[day]) continue
+        // Compare by minutes-since-midnight, not string prefix: "08:00" vs "8:00".
+        const idx = periods.findIndex(p => !p.isBreak && periodStartMinutes(p) === toMinutes(slot.start_time))
         if (idx !== -1) {
             dayMap[day][idx] = {
                 _id:     slot.id,
@@ -96,7 +125,7 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
     useEffect(() => {
         getTerms()
             .then(data => {
-                const list = Array.isArray(data) ? data : (data?.results || [])
+                const list = toList(data)
                 setTerms(list)
                 const current = list.find(term => term.is_current) || list[0]
                 if (current) setForm(f => ({ ...f, term_id: String(current.id) }))
@@ -118,7 +147,7 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
             setPreview(plan)
             plan.warnings?.forEach(w => toast.info(w))
         } catch (err) {
-            toast.error(err.response?.data?.detail || t('dos.timetable.generateFailed'))
+            toast.error(errorMessage(err, t('dos.timetable.generateFailed')))
         } finally {
             setBusy(false)
         }
@@ -131,7 +160,7 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
             toast.success(t('dos.timetable.savedLessons', { count: result.created }))
             onCommitted()
         } catch (err) {
-            toast.error(err.response?.data?.detail || t('dos.timetable.saveFailed'))
+            toast.error(errorMessage(err, t('dos.timetable.saveFailed')))
         } finally {
             setBusy(false)
         }
@@ -213,115 +242,126 @@ function TimetableGenerateModal({ onClose, onCommitted }) {
     )
 }
 
-export function DosTimetable() {
+/**
+ * The class timetable editor, shown on the DOS Scheduling page.
+ *
+ * Rows are the school's bell schedule (saved periods, or the times its lessons
+ * already use); lessons are read from and written to the timetable API. The
+ * Scheduling page used to show the static sample timetable here, edited in
+ * memory and lost on reload, while this editor sat on a page nothing linked to.
+ */
+export function DosTimetablePanel() {
     const { t } = useTranslation()
-    const { notifications: liveNotifications, markRead } = useNotifications()
-    const sessionUser = useSessionUser()
+    const toast = useToast()
+    const { config } = useSchoolConfig()
     const [classes, setClasses]           = useState([])
-    const [classId, setClassId]           = useState('')
+    const [section, setSection]           = useState('')
+    const [year, setYear]                 = useState('')
+    const [stream, setStream]             = useState('')
     const [schedules, setSchedules]       = useState({})
     const [loading, setLoading]           = useState(false)
     const [editingSlot, setEditingSlot]   = useState(null)
     const [showForm, setShowForm]         = useState(false)
-    const [periods, setPeriods]           = useState(PERIODS)
-    const [showPeriodManager, setShowPeriodManager] = useState(false)
+    const [periods, setPeriods]           = useState(null)
+    const [periodSource, setPeriodSource] = useState('school')
+    const [draftPeriods, setDraftPeriods] = useState(null)
     const [subjects, setSubjects] = useState([])
     const [teachers, setTeachers] = useState([])
     const [rooms, setRooms]       = useState([])
-    const [conflict, setConflict] = useState(null)   // { formData, conflicts: [...] }
+    const [conflict, setConflict] = useState(null)   // { conflicts: [...], onForce }
     const [showGenerate, setShowGenerate] = useState(false)
     const [currentTerm, setCurrentTerm] = useState(null)
-
-    // Load class list, subjects and rooms on mount
-    useEffect(() => {
-        getDosClasses().then(list => {
-            setClasses(list)
-            if (list.length > 0) setClassId(list[0].id)
-        })
-        getSubjects().then(data => setSubjects(data)).catch(err => console.error('subjects failed:', err))
-        getDosRooms().then(data => setRooms(data)).catch(err => console.error('rooms failed:', err))
-        getTerms()
-            .then(data => {
-                const list = Array.isArray(data) ? data : (data?.results || [])
-                setCurrentTerm(list.find(term => term.is_current) || null)
-            })
-            .catch(err => console.error('terms failed:', err))
-    }, [])
-
     const [refreshKey, setRefreshKey] = useState(0)
 
-    function loadTimetable() {
-        setRefreshKey(k => k + 1)
-    }
+    const fail = useCallback((err, fallback) => toast.error(errorMessage(err, fallback)), [toast])
 
-    // Load timetable whenever selected class, periods, or refreshKey changes
     useEffect(() => {
-        if (!classId) return
+        getDosClasses()
+            .then(data => {
+                const list = toList(data)
+                setClasses(list)
+                if (list.length > 0) { setYear(list[0].grade); setStream(list[0].section) }
+            })
+            .catch(err => fail(err, t('dos.timetable.loadFailed')))
+        getSubjects().then(data => setSubjects(toList(data))).catch(err => fail(err, t('dos.timetable.loadFailed')))
+        getDosRooms().then(data => setRooms(toList(data))).catch(err => fail(err, t('dos.timetable.loadFailed')))
+        getTerms()
+            .then(data => setCurrentTerm(toList(data).find(term => term.is_current) || null))
+            .catch(err => fail(err, t('dos.timetable.loadTermsFailed')))
+        getTimetablePeriods()
+            .then(data => {
+                const rows = periodsFromApi(data?.periods)
+                setPeriodSource(data?.source || 'none')
+                setPeriods(rows.length ? rows : SAMPLE_PERIODS)
+            })
+            .catch(err => {
+                setPeriodSource('none')
+                setPeriods(SAMPLE_PERIODS)
+                fail(err, t('dos.timetable.loadFailed'))
+            })
+    }, [fail, t])
+
+    const selectedClass = classes.find(c => c.grade === year && c.section === stream) || null
+    const classId = selectedClass?.id || ''
+
+    const loadTimetable = () => setRefreshKey(k => k + 1)
+
+    useEffect(() => {
+        if (!classId || !periods) return
         let cancelled = false
-
-        async function fetchTimetable() {
-            setLoading(true)
-            try {
-                const data = await getDosTimetable(classId)
-                if (!cancelled) setSchedules(slotsToSchedules(classId, data.slots, periods))
-            } finally {
-                if (!cancelled) setLoading(false)
-            }
-        }
-
-        fetchTimetable()
+        setLoading(true)
+        getDosTimetable(classId)
+            .then(data => { if (!cancelled) setSchedules(slotsToSchedules(classId, data?.slots || [], periods)) })
+            .catch(err => { if (!cancelled) fail(err, t('dos.timetable.loadFailed')) })
+            .finally(() => { if (!cancelled) setLoading(false) })
         return () => { cancelled = true }
-    }, [classId, periods, refreshKey])
+    }, [classId, periods, refreshKey, fail, t])
 
     function handleEditCell(slotInfo) {
         setTeachers([])
         setEditingSlot(slotInfo)
         if (slotInfo?.cell?.subjectId && classId) {
             getDosTeachersBySubjectAndClass(slotInfo.cell.subjectId, classId)
-                .then(data => setTeachers(data))
+                .then(data => setTeachers(toList(data)))
+                .catch(err => fail(err, t('dos.timetable.loadFailed')))
         }
         setShowForm(true)
     }
 
     async function handleSave(formData, { force = false } = {}) {
         const { day, slotId, room, subjectId, teacherId } = formData
-        if (!day || !slotId) return
+        if (!day || !slotId || !classId) return
 
         const period = periods.find(p => String(p.id) === String(slotId))
         if (!period) return
-
-        // Parse "8:00 – 8:40" → "08:00" and "08:40"
-        const [startRaw, endRaw] = period.time.split(/[–—-]/).map(s => s.trim())
-        const toHHMM = t => t.length === 4 ? '0' + t : t
+        const { start_time, end_time } = periodTimes(period)
 
         const payload = {
             class_id:   classId,
             subject_id: subjectId,
             teacher_id: teacherId || null,
             day:        day.toLowerCase(),
-            start_time: toHHMM(startRaw),
-            end_time:   toHHMM(endRaw),
+            start_time,
+            end_time,
             room:       room || '',
             ...(force ? { force: true } : {}),
         }
 
         const existingId = editingSlot?.cell?._id
         try {
-            if (existingId) {
-                await updateDosSlot(existingId, payload)
-            } else {
-                await saveDosSlot(payload)
-            }
+            if (existingId) await updateDosSlot(existingId, payload)
+            else            await saveDosSlot(payload)
         } catch (err) {
             if (err?.response?.status === 409) {
-                // Teacher or room double-booked — let the DOS decide
+                // Teacher or room double-booked: let the DOS decide
                 setConflict({
                     conflicts: err.response.data?.conflicts || [],
                     onForce: () => handleSave(formData, { force: true }),
                 })
                 return
             }
-            throw err
+            fail(err, t('dos.timetable.saveFailed'))
+            return
         }
 
         setConflict(null)
@@ -335,7 +375,7 @@ export function DosTimetable() {
     async function handleMoveSlot({ cell, toDay, toPeriodIndex }, { force = false } = {}) {
         if (!cell?._id) return
         const targetPeriod = periods[toPeriodIndex]
-        if (!targetPeriod) return
+        if (!targetPeriod || targetPeriod.isBreak) return
 
         const payload = buildMovePayload(cell, targetPeriod, toDay)
         if (force) payload.force = true
@@ -350,7 +390,8 @@ export function DosTimetable() {
                 })
                 return
             }
-            throw err
+            fail(err, t('dos.timetable.saveFailed'))
+            return
         }
 
         setConflict(null)
@@ -360,28 +401,48 @@ export function DosTimetable() {
     async function handleDelete(slotInfo) {
         const id = slotInfo?.cell?._id
         if (!id) return
-        await deleteDosSlot(id)
+        try {
+            await deleteDosSlot(id)
+        } catch (err) {
+            fail(err, t('dos.timetable.saveFailed'))
+            return
+        }
         setShowForm(false)
         setEditingSlot(null)
         loadTimetable()
     }
-    function handleSubjectChange(subjectId){
+
+    function handleSubjectChange(subjectId) {
         setTeachers([])
         if (!subjectId || !classId) return
-        getDosTeachersBySubjectAndClass(subjectId,classId)
-            .then(data => setTeachers(data))
-            .catch(err => console.error('teachers-by-subject failed:', err))
+        getDosTeachersBySubjectAndClass(subjectId, classId)
+            .then(data => setTeachers(toList(data)))
+            .catch(err => fail(err, t('dos.timetable.loadFailed')))
     }
 
-    const selectedClass = classes.find(c => c.id === classId)
-    const classLabel = selectedClass
-        ? formatClass(selectedClass.grade, selectedClass.section)
-        : ''
+    /* Period edits are a draft saved when the editor closes, so a half-typed
+       time never reaches the grid or the server. */
+    async function closePeriodManager() {
+        const draft = draftPeriods
+        if (!draft || draft === periods) { setDraftPeriods(null); return }
+        const { rows, error } = periodsToApi(draft)
+        if (error) {
+            toast.error(t('dos.timetable.periodInvalid', { name: error }))
+            return
+        }
+        try {
+            const saved = await saveTimetablePeriods(rows)
+            setPeriods(periodsFromApi(saved.periods))
+            setPeriodSource('school')
+            setDraftPeriods(null)
+            toast.success(t('dos.timetable.periodsSaved'))
+        } catch (err) {
+            fail(err, t('dos.timetable.periodsSaveFailed'))
+        }
+    }
 
-    // Read from what is loaded, not from constants. The break row is not a
-    // teaching period, and the teacher count is the teachers this class
-    // actually sees in the week on screen.
-    const lessonPeriods = periods.filter(p => p.id !== 'break')
+    const classLabel = selectedClass ? formatClass(selectedClass.grade, selectedClass.section) : ''
+    const lessonPeriods = (periods || []).filter(p => !p.isBreak)
     const classTeachers = new Set(
         Object.values(schedules[classId] || {})
             .flat()
@@ -400,153 +461,113 @@ export function DosTimetable() {
     ]
 
     return (
-        <>
-            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
-            <div className="sidebar-overlay"></div>
-            <div className="dashboard-layout">
-                <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
-                <main className="dashboard-main" id="main-content">
-                    <DashboardHeader
-                        title={t('dos.timetable.title')}
-                        subtitle={t('dos.timetable.subtitle')}
-                        {...sessionUser}
-                        notifications={liveNotifications}
-                        onNotificationRead={markRead}
-                        actions={
-                            <button className="btn btn-secondary" onClick={() => setShowGenerate(true)}>
-                                <span className="material-symbols-rounded" aria-hidden="true">auto_awesome</span> {t('common.generate')}
-                            </button>
-                        }
-                    />
-                    <DashboardContent>
-
-                        <div className="portal-stat-grid mb-5">
-                            {timetableStats.map((stat, i) => (
-                                <StatCard key={i} {...stat} />
-                            ))}
-                        </div>
-
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">
-                                    {classLabel
-                                        ? t('dos.timetable.weeklyFor', { name: classLabel })
-                                        : t('dos.timetable.weekly')}
-                                </h2>
-                                <div className="flex-row-gap">
-                                    <div className="flex-row-gap">
-                                        <label className="form-label mb-0">{t('dos.scheduling.classColon')}</label>
-                                        <Select
-                                            value={classId}
-                                            onChange={setClassId}
-                                            placeholder={t('common.selectClass')}
-                                            options={classes.map(c => ({
-                                                value: c.id,
-                                                label: formatClass(c.grade, c.section),
-                                            }))}
-                                        />
-                                    </div>
-                                    <button
-                                        className="btn btn-outline btn-sm"
-                                        onClick={() => setShowPeriodManager(true)}
-                                    >
-                                        <span className="material-symbols-rounded icon-sm" aria-hidden="true">schedule</span>
-                                        {t('dos.scheduling.editPeriods')}
-                                    </button>
-                                    <button
-                                        className="btn btn-primary btn-sm"
-                                        onClick={() => { setEditingSlot(null); setShowForm(true) }}
-                                    >
-                                        <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dos.scheduling.addSlot')}
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="card-content">
-                                {loading ? (
-                                    <p className="dos-tt-note">{t('dos.timetable.loadingTimetable')}</p>
-                                ) : (
-                                    <Timetable
-                                        type="academic"
-                                        classId={classId}
-                                        editable={true}
-                                        onEditCell={handleEditCell}
-                                        periods={periods}
-                                        schedules={schedules}
-                                        onMoveSlot={handleMoveSlot}
-                                    />
-                                )}
-                            </div>
-                        </div>
-
-                        {showGenerate && (
-                            <TimetableGenerateModal
-                                onClose={() => setShowGenerate(false)}
-                                onCommitted={() => {
-                                    setShowGenerate(false)
-                                    loadTimetable()
-                                }}
-                            />
-                        )}
-
-                        {showPeriodManager && (
-                            <PeriodManager
-                                periods={periods}
-                                onChange={setPeriods}
-                                onClose={() => setShowPeriodManager(false)}
-                            />
-                        )}
-
-                        {showForm && (
-                            <TimetableEditForm
-                                type="academic"
-                                editingSlot={editingSlot}
-                                onSave={handleSave}
-                                onDelete={handleDelete}
-                                onCancel={() => { setShowForm(false); setConflict(null) }}
-                                periods={periods}
-                                subjects={subjects}
-                                teachers={teachers}
-                                rooms={rooms}
-                                onSubjectChange={handleSubjectChange}
-                            />
-                        )}
-
-                        {conflict && (
-                            <div className="modal-overlay" onClick={() => setConflict(null)}>
-                                <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
-                                    <div className="modal-header">
-                                        <div className="modal-header-left">
-                                            <span className="material-symbols-rounded dos-tt-warn-icon" aria-hidden="true">warning</span>
-                                            <h2 className="modal-title">{t('dos.timetable.conflictTitle')}</h2>
-                                        </div>
-                                        <button className="btn-icon-clean" onClick={() => setConflict(null)} aria-label={t('common.close')}>
-                                            <span className="material-symbols-rounded" aria-hidden="true">close</span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <p className="dos-tt-conflict-title">
-                                            {t('dos.timetable.conflictBody')}
-                                        </p>
-                                        <ul className="dos-tt-conflict-list">
-                                            {conflict.conflicts.map((c, i) => (
-                                                <li key={i} className="dos-tt-conflict-item">{c.message}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button className="btn btn-secondary" onClick={() => setConflict(null)}>{t('common.goBack')}</button>
-                                        <button className="btn btn-primary"
-                                            onClick={() => conflict.onForce?.()}>
-                                            {t('dos.timetable.saveAnyway')}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                    </DashboardContent>
-                </main>
+        <div className="page-stack">
+            <div className="portal-stat-grid">
+                {timetableStats.map((stat, i) => <StatCard key={i} {...stat} />)}
             </div>
-        </>
+
+            <ClassPicker
+                sections={sectionsFromClasses(classes, config)}
+                section={section} onSectionChange={setSection}
+                year={year}       onYearChange={setYear}
+                classVal={stream} onClassChange={setStream}
+            />
+
+            {periodSource !== 'school' && periods && (
+                <div className="tt-notice">
+                    <span className="material-symbols-rounded" aria-hidden="true">info</span>
+                    <div>{t(periodSource === 'lessons' ? 'dos.timetable.periodsFromLessons' : 'dos.timetable.periodsNotSet')}</div>
+                </div>
+            )}
+
+            <div className="card">
+                <div className="card-header">
+                    <h2 className="card-title">
+                        {classLabel ? t('dos.timetable.weeklyFor', { name: classLabel }) : t('dos.timetable.weekly')}
+                    </h2>
+                    <div className="flex-row-gap">
+                        <button className="btn btn-outline btn-sm" onClick={() => setDraftPeriods(periods)} disabled={!periods}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">schedule</span>
+                            {t('dos.scheduling.editPeriods')}
+                        </button>
+                        <button className="btn btn-outline btn-sm" onClick={() => setShowGenerate(true)}>
+                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">auto_awesome</span> {t('common.generate')}
+                        </button>
+                        <button className="btn btn-primary btn-sm" disabled={!classId}
+                                onClick={() => { setEditingSlot(null); setShowForm(true) }}>
+                            <span className="material-symbols-rounded" aria-hidden="true">add</span> {t('dos.scheduling.addSlot')}
+                        </button>
+                    </div>
+                </div>
+                <div className="card-content">
+                    {!classId ? (
+                        <p className="dos-tt-note">{t('dos.timetable.chooseClass')}</p>
+                    ) : loading || !periods ? (
+                        <p className="dos-tt-note">{t('dos.timetable.loadingTimetable')}</p>
+                    ) : (
+                        <Timetable
+                            type="academic"
+                            classId={classId}
+                            editable={true}
+                            onEditCell={handleEditCell}
+                            periods={periods}
+                            schedules={schedules}
+                            onMoveSlot={handleMoveSlot}
+                        />
+                    )}
+                </div>
+            </div>
+
+            {showGenerate && (
+                <TimetableGenerateModal
+                    onClose={() => setShowGenerate(false)}
+                    onCommitted={() => { setShowGenerate(false); loadTimetable() }}
+                />
+            )}
+
+            {draftPeriods && (
+                <PeriodManager
+                    periods={draftPeriods}
+                    onChange={setDraftPeriods}
+                    onClose={closePeriodManager}
+                />
+            )}
+
+            {showForm && (
+                <TimetableEditForm
+                    type="academic"
+                    editingSlot={editingSlot}
+                    onSave={handleSave}
+                    onDelete={handleDelete}
+                    onCancel={() => { setShowForm(false); setConflict(null) }}
+                    periods={lessonPeriods}
+                    subjects={subjects}
+                    teachers={teachers}
+                    rooms={rooms}
+                    onSubjectChange={handleSubjectChange}
+                />
+            )}
+
+            {conflict && (
+                <Modal
+                    title={t('dos.timetable.conflictTitle')}
+                    icon="warning"
+                    onClose={() => setConflict(null)}
+                    footer={
+                        <>
+                            <button className="btn btn-secondary" onClick={() => setConflict(null)}>{t('common.goBack')}</button>
+                            <button className="btn btn-primary" onClick={() => conflict.onForce?.()}>{t('dos.timetable.saveAnyway')}</button>
+                        </>
+                    }
+                >
+                    <p className="dos-tt-conflict-title">{t('dos.timetable.conflictBody')}</p>
+                    <ul className="dos-tt-conflict-list">
+                        {conflict.conflicts.map((c, i) => (
+                            <li key={i} className="dos-tt-conflict-item">{c.message}</li>
+                        ))}
+                    </ul>
+                </Modal>
+            )}
+        </div>
     )
 }

@@ -3,11 +3,12 @@ import { Modal } from './Modal'
 
 /* ─── PeriodManager ─────────────────────────────────────────────────────────
    Modal editor for the periods/time-slots list.
-   Renders one editable row per period: label + time string.
+   Renders one editable row per period: label, time string and whether it
+   is a break (breaks are drawn as a band and never get lessons).
    Changes are lifted up immediately via onChange so the timetable re-renders.
 
    Props:
-     periods  — current array of { id, label, time }
+     periods  — current array of { id, label, time, isBreak? }
      onChange — called with the updated array on every change
      onClose  — called when the user closes the modal
 ──────────────────────────────────────────────────────────────────────────── */
@@ -43,6 +44,7 @@ export function PeriodManager({ periods, onChange, onClose }) {
                 <div className="tt-period-row">
                     <span className="form-label">Label</span>
                     <span className="form-label">Time</span>
+                    <span className="form-label">Break</span>
                     <span className="tt-period-spacer"></span>
                 </div>
 
@@ -60,6 +62,13 @@ export function PeriodManager({ periods, onChange, onClose }) {
                             value={p.time}
                             onChange={e => updateRow(i, 'time', e.target.value)}
                             placeholder="e.g. 8:00 - 8:40"
+                        />
+                        <input
+                            type="checkbox"
+                            className="tt-period-break"
+                            checked={Boolean(p.isBreak)}
+                            onChange={e => updateRow(i, 'isBreak', e.target.checked)}
+                            aria-label={`${p.label || 'Row'} is a break`}
                         />
                         {/* Two-step delete: first click arms it, second click confirms */}
                         {pendingDelete === i ? (
