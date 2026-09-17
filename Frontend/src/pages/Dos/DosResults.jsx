@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
-import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
     PieChart, Pie, Legend, AreaChart, Area,
@@ -24,6 +23,9 @@ import { PaginationBar } from '../../components/ui/PaginationBar'
 import { classLabel } from '../../utils/classes'
 import { formatDate } from '../../utils/date'
 import { SearchBar } from '../../components/ui/SearchBar'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
+import { StudentsNeedingAttention } from './StudentsNeedingAttention'
 
 const STATUS_MAP = { submitted: 'pending', approved: 'approved', rejected: 'rejected' }
 
@@ -379,8 +381,11 @@ export function DosResults() {
     const { notifications: liveNotifications, markRead } = useNotifications()
     const toast = useToast()
     const sessionUser = useSessionUser()
-    // UI tab: 'approval' shows the result cards, 'analytics' shows charts
-    const [activeTab, setActiveTab] = useState('approval')
+    // UI tab: 'approval' shows the result cards, 'analytics' shows charts.
+    // Kept in the URL so /dos/analytics can land on the charts.
+    const [searchParams, setSearchParams] = useSearchParams()
+    const activeTab = searchParams.get('tab') === 'analytics' ? 'analytics' : 'approval'
+    const setActiveTab = key => setSearchParams(key === 'approval' ? {} : { tab: key }, { replace: true })
     // Filter buttons: 'all', 'pending', 'approved', 'rejected'
     const [statusFilter, setStatusFilter] = useState('all')
     const [search, setSearch] = useState('')
@@ -463,7 +468,7 @@ export function DosResults() {
             // Update the card's status in local state so UI reflects change immediately
             // without needing to refetch from the API
             setCards(prev => prev.map(c => c.key === card.key ? { ...c, status: 'approved' } : c))
-        } catch (err) { console.error(err) }
+        } catch (err) { toast.error(errorMessage(err, 'Could not approve those results.')) }
     }
 
     // Same pattern as approve — reject all results in this card group
@@ -471,7 +476,7 @@ export function DosResults() {
         try {
             await Promise.all(card.ids.map(id => rejectResult(id, '')))
             setCards(prev => prev.map(c => c.key === card.key ? { ...c, status: 'rejected' } : c))
-        } catch (err) { console.error(err) }
+        } catch (err) { toast.error(errorMessage(err, 'Could not reject those results.')) }
     }
 
     // Add a count badge to each filter tab (e.g. "Pending 3")
@@ -751,6 +756,8 @@ export function DosResults() {
                                             </ResponsiveContainer>
                                         </div>
                                     </div>
+
+                                    <StudentsNeedingAttention termId={activeTermId} />
                                 </>
                             )
                         })()}

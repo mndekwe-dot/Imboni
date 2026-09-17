@@ -13,9 +13,6 @@
     "subtitle": "Examinez et validez les résultats d'examen saisis par les enseignants",
     "title": "Validation des résultats"
   },
-  "auditLog": {
-    "subtitle": "Qui a fait quoi, et quand : les actions administratives sensibles"
-  },
   "billing": {
     "checkoutFailed": "Impossible de démarrer le paiement.",
     "loadFailed": "Impossible de charger la facturation.",
@@ -26,24 +23,6 @@
     "subtitle": "Vue d'ensemble de l'école",
     "subtitleWithTerm": "Vue d'ensemble de l'école ({{term}}, {{year}})",
     "title": "Tableau de bord administrateur"
-  },
-  "finance": {
-    "category": "Catégorie",
-    "collected": "Encaissé",
-    "dueDate": "Date d'échéance",
-    "loading": "Chargement des données de frais…",
-    "noOutstanding": "Aucun impayé ce trimestre.",
-    "ofTarget": "{{rate}} % de l'objectif",
-    "outstanding": "Impayé",
-    "outstandingTitle": "Frais impayés",
-    "overdueCount": "{{count}} en retard",
-    "quickActions": "Actions rapides",
-    "student": "Élève",
-    "subtitle": "Recouvrement des frais, paiements et budget de l'école",
-    "subtitleWithTerm": "Recouvrement des frais, paiements et budget de l'école ({{term}}, {{year}})",
-    "title": "Finances",
-    "totalExpected": "Total des frais attendus",
-    "unavailable": "Les données de frais sont indisponibles. Vérifiez qu'un trimestre est marqué comme trimestre en cours."
   },
   "messages": {
     "subtitle": "Échangez avec le personnel, les chefs de département et les parents"

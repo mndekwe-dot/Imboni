@@ -1,8 +1,4 @@
 {
-  "analytics": {
-    "subtitle": "Analyses complètes des performances de l'école",
-    "title": "Analyses de l'école"
-  },
   "announcements": {
     "subtitle": "Rédigez et diffusez des annonces à toute l'école"
   },
@@ -133,6 +129,7 @@
     "generate": "Générer",
     "generateFailed": "Impossible de générer un calendrier.",
     "generateTitle": "Générer le calendrier des examens",
+    "loadFailed": "Impossible de charger le calendrier des examens.",
     "loadTermsFailed": "Impossible de charger les trimestres scolaires.",
     "preview": "Aperçu",
     "rescheduleFailed": "Impossible de reprogrammer cet examen.",
@@ -152,11 +149,6 @@
     "weightShort": "Coef."
   },
   "leaders": {
-    "activate": "Activer",
-    "appointLeader": "Nommer un délégué",
-    "bannerDesc": "Nommez et gérez les préfets, les capitaines de maison, les responsables de club et les autres représentants des élèves pour l'année scolaire {{year}}.",
-    "bannerTitle": "Programme de représentation des élèves",
-    "captainsTitle": "Capitaines de dortoir",
     "catArt": "Arts et artisanat",
     "catCommunity": "Service à la communauté",
     "catDebate": "Débat",
@@ -164,37 +156,7 @@
     "catMusic": "Musique",
     "catOther": "Autre",
     "catScience": "Sciences",
-    "catSport": "Sports",
-    "classForm": "Classe / niveau",
-    "clubSummary": "{{active}} actifs · {{inactive}} inactifs",
-    "clubsTitle": "Clubs et activités",
-    "deactivate": "Désactiver",
-    "editAppointments": "Modifier les nominations",
-    "editLeader": "Modifier le délégué",
-    "loadingClubs": "Chargement des clubs…",
-    "memberCount": "{{enrolled}} / {{max}} membres",
-    "namePlaceholder": "ex. Uwase Amina",
-    "noCaptains": "Aucun capitaine désigné ce trimestre.",
-    "noClubs": "Aucun club trouvé.",
-    "noPrefects": "Aucun préfet nommé ce trimestre.",
-    "prefectsTitle": "Préfets de l'école",
-    "since": "Depuis",
-    "sincePlaceholder": "ex. janv. 2026",
-    "sinceValue": "Depuis {{date}}",
-    "statCaptains": "Capitaines de dortoir",
-    "statCaptainsTrend": "Par maison",
-    "statOther": "Autres délégués",
-    "statOtherTrend": "Actifs",
-    "statPrefects": "Préfets",
-    "statPrefectsTrend": "Toute l'école",
-    "statTotal": "Total des délégués",
-    "statTotalTrend": "Ce trimestre",
-    "subtitle": "Nommez et gérez les préfets de l'école, les capitaines de maison et les responsables de club",
-    "tabClubs": "Clubs et activités",
-    "tabLeaders": "Délégués des élèves",
-    "title": "Délégués des élèves",
-    "typeCaptain": "Capitaine de dortoir",
-    "typePrefect": "Préfet de l'école"
+    "catSport": "Sports"
   },
   "messages": {
     "subtitle": "Échangez avec les enseignants, le personnel et les parents"
@@ -223,7 +185,12 @@
     "subtitle": "File d'attente de validation et analyses des performances de l'école",
     "viewDetails": "Voir le détail",
     "viewFeedback": "Voir le retour",
-    "viewing": "Affichage :"
+    "viewing": "Affichage :",
+    "attentionTitle": "Élèves à suivre",
+    "attentionNone": "Aucun élève signalé : moyennes au-dessus de 50 % et présence au-dessus de 80 %.",
+    "attentionScore": "Moy. {{avg}} % · {{failing}} en échec",
+    "attentionAbsence": "Présence {{rate}} % · {{days}} jours d'absence",
+    "attentionLoadFailed": "Impossible de charger les élèves à suivre."
   },
   "scheduling": {
     "addExam": "Ajouter un examen",
@@ -370,14 +337,21 @@
   },
   "timetable": {
     "academicTerm": "Trimestre scolaire *",
+    "chooseClass": "Choisissez une année et une classe pour voir sa semaine.",
     "conflictBody": "Ce créneau entre en conflit avec l'emploi du temps existant :",
     "conflictTitle": "Conflit de planification",
     "generateFailed": "Impossible de générer un emploi du temps.",
     "generateTitle": "Générer l'emploi du temps",
     "generating": "Génération…",
     "inThisClass": "Dans cette classe",
+    "loadFailed": "Impossible de charger l'emploi du temps.",
     "loadTermsFailed": "Impossible de charger les trimestres scolaires.",
     "loadingTimetable": "Chargement de l'emploi du temps…",
+    "periodInvalid": "Vérifiez l'heure de « {{name}} » : indiquez un début et une fin, par ex. 08:00 - 08:40.",
+    "periodsFromLessons": "Ces périodes viennent des heures déjà utilisées par vos cours. Ouvrez Modifier les périodes et enregistrez pour en faire l'horaire de l'école, utilisé par le générateur.",
+    "periodsNotSet": "Aucun horaire n'est encore enregistré. Ouvrez Modifier les périodes, définissez la journée scolaire et enregistrez avant de générer un emploi du temps.",
+    "periodsSaveFailed": "Impossible d'enregistrer l'horaire des cours.",
+    "periodsSaved": "Horaire des cours enregistré.",
     "replaceExisting": "Remplacer l'emploi du temps existant",
     "saveAnyway": "Enregistrer quand même",
     "saveFailed": "Impossible d'enregistrer l'emploi du temps.",

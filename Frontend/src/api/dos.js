@@ -33,7 +33,6 @@ export const generateDosExamSchedule       = (data) => client.post('/imboni/dos/
 export const commitDosExamSchedule         = (data) => client.post('/imboni/dos/exam-schedule/generate/commit/', data)
 
 //  Student Leaders 
-export const getDosStudentLeaders = () => client.get("/imboni/dos/student-leaders/");
 
 //  Academic Terms 
 export const getTerms = () => client.get("/imboni/results/terms/");
@@ -93,6 +92,9 @@ export const getDosTimetable = (classId) => client.get('/imboni/dos/timetable/',
 export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
 export const updateDosSlot = (id,data) => client.patch(`/imboni/dos/timetable/${id}/`,data)
 export const deleteDosSlot = (id) => client.delete(`/imboni/dos/timetable/${id}/`)
+// The school's bell schedule: the rows of every class's week, and the slots the generator fills.
+export const getTimetablePeriods  = ()        => client.get('/imboni/dos/timetable/periods/')
+export const saveTimetablePeriods = (periods) => client.put('/imboni/dos/timetable/periods/', { periods })
 export const getDosTeachersBySubjectAndClass = (subjectId,classId)=>client.get('/imboni/dos/teachers/',{params:{subject_id:subjectId,class_id:classId}})
 //  Dining Planner
 export const getDiningSittings   = ()         => client.get('/imboni/dos/dining-sittings/')
@@ -147,11 +149,6 @@ export const getDosTasks    = ()      => client.get('/imboni/tasks/')
 export const createDosTask  = d       => client.post('/imboni/tasks/', d)
 export const updateDosTask  = (id, d) => client.patch(`/imboni/tasks/${id}/`, d)
 export const deleteDosTask  = id      => client.delete(`/imboni/tasks/${id}/`)
-
-// Activity (Club) Management
-export const getDosActivities   = ()           => client.get('/imboni/dos/activities/')
-export const patchDosActivity   = (id, data)   => client.patch(`/imboni/dos/activities/${id}/`, data)
-export const deleteDosActivity  = (id)         => client.delete(`/imboni/dos/activities/${id}/`)
 
 // Exam papers awaiting the DOS's approval.
 export const getDosExamPapers    = (params)      => client.get('/imboni/dos/exam-papers/', { params })

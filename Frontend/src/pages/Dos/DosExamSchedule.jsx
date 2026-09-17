@@ -1,4 +1,6 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
@@ -19,7 +21,6 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
 import { Modal } from '../../components/ui/Modal'
-import { useToast } from '../../context/ToastContext'
 
 
 
@@ -64,7 +65,7 @@ const EXAM_TYPES = [
 
 // Auto-scheduler modal: collect a window, preview the DSatur-generated plan,
 // then commit it. Nothing is written until the DOS confirms the preview.
-function ExamGenerateModal({ onClose, onCommitted }) {
+export function ExamGenerateModal({ onClose, onCommitted }) {
     const { t } = useTranslation()
     const toast = useToast()
     const [terms,     setTerms]     = useState([])
@@ -277,7 +278,7 @@ export function DosExamSchedule() {
             await deleteDosExamSchedule(id)
             setExams(prev => prev.filter(e => e.id !== id))
             setRawExams(prev => prev.filter(e => e.id !== id))
-        } catch (err) { console.error(err) }
+        } catch (err) { toast.error(errorMessage(err, 'Could not delete that exam.')) }
     }
 
     // Drag-and-drop reschedule: move optimistically, roll back if the PATCH fails.

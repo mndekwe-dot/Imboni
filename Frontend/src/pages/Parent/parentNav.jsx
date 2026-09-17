@@ -3,6 +3,7 @@ export const parentNavItems = [
     { to: '/parent/children',      icon: 'family_history', labelKey: 'nav.myChildren'            },
     { to: '/parent/results',       icon: 'assessment',     labelKey: 'nav.results'                },
     { to: '/parent/assignments',   icon: 'assignment',     labelKey: 'nav.assignments'            },
+    { to: '/parent/timetable',     icon: 'calendar_month', labelKey: 'nav.timetable'              },
     { to: '/parent/attendance',    icon: 'fact_check',     labelKey: 'nav.attendance'             },
     { to: '/parent/behaviour',     icon: 'person',         labelKey: 'nav.behaviour'              },
     { to: '/parent/announcements', icon: 'announcement',   labelKey: 'nav.announcements'          },
