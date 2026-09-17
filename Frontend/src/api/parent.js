@@ -11,6 +11,7 @@ export const getChildDocuments  = (id) => client.get(`/imboni/parents/${id}/docu
 export const getChildSchedule   = (id) => client.get(`/imboni/parents/${id}/schedule/today/`)
 export const getChildTimetable  = (id) => client.get(`/imboni/parents/${id}/timetable/`)
 export const getChildAssignments = (id) => client.get(`/imboni/parents/${id}/assignments/`)
+export const getChildMaterials   = (id) => client.get(`/imboni/parents/${id}/materials/`)
 
 // ── Results ──────────────────────────────────────────────────────────────────
 export const getChildAssessments = (id) => client.get(`/imboni/results/students/${id}/assessments/`)

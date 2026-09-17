@@ -3278,3 +3278,38 @@ h1, h2, h3,
   grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 1rem;
 }
+
+/* ── Teaching materials — components/materials ─────────────────────────────
+   One list for the teacher who shares and the student and parent who read. */
+.material-list { list-style: none; margin: 0; padding: 0; }
+.material-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+.material-row:first-child { border-top: 0; }
+.material-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background: var(--primary-light);
+  color: var(--primary);
+}
+.material-icon--video { background: var(--destructive-light); color: var(--destructive); }
+.material-icon--link  { background: var(--info-light); color: var(--info); }
+.material-body { flex: 1; min-width: 0; }
+.material-title { font-weight: 600; color: var(--foreground); overflow-wrap: anywhere; }
+.material-title:hover { color: var(--primary); }
+.material-desc { margin: 0.125rem 0; font-size: var(--text-sm); white-space: pre-line; overflow-wrap: anywhere; }
+.material-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
+.material-kind-set { border: 0; padding: 0; margin: 0; min-width: 0; }
+.material-kind { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+@media (max-width: 640px) {
+  .material-row { flex-wrap: wrap; padding: 0.75rem 1rem; }
+  .material-actions { width: 100%; justify-content: flex-start; padding-left: calc(2.5rem + var(--space-3)); }
+}
