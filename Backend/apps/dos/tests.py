@@ -391,3 +391,58 @@ class TestTermRollover:
         client, _dos = make_authenticated_client('dos')
         response = client.post('/imboni/dos/term-rollover/', {}, format='json')
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestDOSResultRejection:
+    def _submitted(self, teacher):
+        # Subjects and terms are unique, so they are made once per test.
+        self.subject = getattr(self, 'subject', None) or _make_subject()
+        self.term = getattr(self, 'term', None) or _make_term()
+        return Result.objects.create(
+            student=StudentFactory(), subject=self.subject, term=self.term,
+            exam_score=60, final_score=80, grade='B', status='submitted', teacher=teacher,
+        )
+
+    def test_single_reject_keeps_the_reason_whichever_name_it_arrives_under(self, make_authenticated_client):
+        client, _ = make_authenticated_client('dos')
+        result = self._submitted(UserFactory(role='teacher'))
+
+        client.patch(f'/imboni/dos/results/{result.id}/reject/', {'reason': 'Marks do not add up'}, format='json')
+
+        result.refresh_from_db()
+        assert result.status == 'rejected'
+        assert result.rejection_reason == 'Marks do not add up'
+
+    def test_rejecting_tells_the_submitting_teacher_why(self, make_authenticated_client):
+        from apps.notifications.models import Notification
+        client, _ = make_authenticated_client('dos')
+        teacher = UserFactory(role='teacher')
+        result = self._submitted(teacher)
+
+        client.patch(f'/imboni/dos/results/{result.id}/reject/', {'reason': 'Check S4A marks'}, format='json')
+
+        note = Notification.objects.get(user=teacher)
+        assert 'Check S4A marks' in note.message
+
+    def test_bulk_reject_needs_a_reason_and_sends_one_notice_per_teacher(self, make_authenticated_client):
+        from apps.notifications.models import Notification
+        client, _ = make_authenticated_client('dos')
+        teacher = UserFactory(role='teacher')
+        a, b = self._submitted(teacher), self._submitted(teacher)
+
+        refused = client.post('/imboni/dos/results/bulk-reject/', {'ids': [str(a.id), str(b.id)]}, format='json')
+        assert refused.status_code == status.HTTP_400_BAD_REQUEST
+
+        ok = client.post('/imboni/dos/results/bulk-reject/',
+                         {'ids': [str(a.id), str(b.id)], 'reason': 'Incomplete'}, format='json')
+        assert ok.data['rejected'] == 2
+        assert Notification.objects.filter(user=teacher).count() == 1
+        a.refresh_from_db()
+        assert a.status == 'rejected' and a.rejection_reason == 'Incomplete'
+
+    def test_teacher_cannot_bulk_reject(self, make_authenticated_client):
+        client, _ = make_authenticated_client('teacher')
+        response = client.post('/imboni/dos/results/bulk-reject/', {'ids': ['x'], 'reason': 'no'}, format='json')
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+

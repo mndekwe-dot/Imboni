@@ -72,5 +72,7 @@
   "tzMiddleEast": "Uburasirazuba bwo Hagati",
   "tzNorthAfrica": "Afurika y'Amajyaruguru",
   "tzSouthernAfrica": "Afurika y'Epfo",
-  "tzWestAfrica": "Afurika y'Iburengerazuba"
+  "tzWestAfrica": "Afurika y'Iburengerazuba",
+  "roomCapacityPlaceholder": "Intebe",
+  "roomSeats": "Intebe {{count}}"
 }

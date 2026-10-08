@@ -51,6 +51,7 @@ urlpatterns = [
 
     # ── Results Approval ────────────────────────────────────────────────────
     path('dos/results/',                    views.DOSResultsListView.as_view(),       name='dos-results-list'),
+    path('dos/results/bulk-reject/',        views.DOSResultBulkRejectView.as_view(),  name='dos-results-bulk-reject'),
     path('dos/results/bulk-approve/',       views.DOSResultBulkApproveView.as_view(), name='dos-results-bulk-approve'),
     path('dos/results/<uuid:pk>/approve/',  views.DOSResultApproveView.as_view(),     name='dos-result-approve'),
     path('dos/results/<uuid:pk>/reject/',   views.DOSResultRejectView.as_view(),      name='dos-result-reject'),

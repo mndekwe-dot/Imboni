@@ -72,5 +72,7 @@
   "tzMiddleEast": "Moyen-Orient",
   "tzNorthAfrica": "Afrique du Nord",
   "tzSouthernAfrica": "Afrique australe",
-  "tzWestAfrica": "Afrique de l'Ouest"
+  "tzWestAfrica": "Afrique de l'Ouest",
+  "roomCapacityPlaceholder": "Places",
+  "roomSeats": "{{count}} places"
 }

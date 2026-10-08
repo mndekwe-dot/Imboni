@@ -36,6 +36,9 @@ class Student(models.Model):
 
     blood_group = models.CharField(max_length=5, blank=True)
     allergies = models.TextField(blank=True)
+    # Codes from apps.discipline.dietary.DIETARY_FLAGS. Meal rosters show these
+    # beside the name so a kitchen never has to read free-text allergies.
+    dietary_flags = models.JSONField(default=list, blank=True)
     medical_conditions = models.TextField(blank=True)
 
     current_gpa = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)

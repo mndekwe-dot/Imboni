@@ -6,5 +6,6 @@
   "logoAlt": "Logo Imboni",
   "mainNavigation": "Navigation principale",
   "openMenu": "Ouvrir le menu",
-  "tagline": "L'éducation relie"
+  "tagline": "L'éducation relie",
+  "waiting": "{{count}} en attente"
 }

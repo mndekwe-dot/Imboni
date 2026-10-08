@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { getAtRiskStudents, getChronicAbsence } from '../../api/dos'
 import { toList } from '../../api/client'
@@ -37,7 +38,7 @@ export function buildAttentionList(atRisk, chronic, t) {
  * Part of the Results → Analytics tab; it used to be the only thing a separate
  * Analytics page added on top of the same charts.
  */
-export function StudentsNeedingAttention({ termId }) {
+export function StudentsNeedingAttention({ termId, limit, seeAllTo }) {
     const { t } = useTranslation()
     const toast = useToast()
     const [atRisk,  setAtRisk]  = useState([])
@@ -60,6 +61,8 @@ export function StudentsNeedingAttention({ termId }) {
     }, [termId, toast, t])
 
     const attention = buildAttentionList(atRisk, chronic, t)
+    // On the dashboard only the worst few show; the full list lives on the analytics tab.
+    const shown = limit ? attention.slice(0, limit) : attention
 
     return (
         <div className="card">
@@ -77,7 +80,7 @@ export function StudentsNeedingAttention({ termId }) {
                     <p className="empty-note">{t('dos.results.attentionNone')}</p>
                 ) : (
                     <div className="dos-attention-list">
-                        {attention.map(s => (
+                        {shown.map(s => (
                             <div key={s.student_code} className="dos-attention-row">
                                 <div className="dos-attention-name-col">
                                     <div className="u-strong u-sm">{s.student_name}</div>
@@ -96,6 +99,11 @@ export function StudentsNeedingAttention({ termId }) {
                             </div>
                         ))}
                     </div>
+                )}
+                {limit && seeAllTo && attention.length > shown.length && (
+                    <Link to={seeAllTo} className="btn btn-outline btn-sm">
+                        {t('dos.results.attentionSeeAll', { count: attention.length })}
+                    </Link>
                 )}
             </div>
         </div>

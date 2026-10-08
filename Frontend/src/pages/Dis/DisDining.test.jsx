@@ -107,7 +107,31 @@ describe('DisDining', () => {
         fireEvent.click(screen.getByLabelText('Half Board'))
         fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }))
 
-        await waitFor(() => expect(patchDisDining).toHaveBeenCalledWith(1, { plan_type: 'half_board' }))
+        await waitFor(() => expect(patchDisDining).toHaveBeenCalledWith(1, { plan_type: 'half_board', dietary_flags: [], allergies: '' }))
+    })
+
+    it('shows dietary flags beside the name so the kitchen sees them', async () => {
+        getDisDining.mockResolvedValue([{ ...plan, dietary_flags: ['peanut_allergy', 'diabetic'], allergies: 'No groundnut oil' }])
+        renderWithRouter(<DisDining />)
+
+        expect(await screen.findByText('Peanut allergy')).toBeInTheDocument()
+        expect(screen.getByText('Diabetic')).toBeInTheDocument()
+        expect(screen.getByText('No groundnut oil')).toBeInTheDocument()
+    })
+
+    it('saves the dietary flags ticked in the edit form', async () => {
+        getDisDining.mockResolvedValue([plan])
+        patchDisDining.mockResolvedValue({ ...plan, dietary_flags: ['halal'] })
+        renderWithRouter(<DisDining />)
+        await waitFor(() => expect(screen.getByText('Iris N.')).toBeInTheDocument())
+
+        const editButtons = screen.getAllByRole('button').filter(b => b.querySelector('.material-symbols-rounded')?.textContent === 'edit')
+        fireEvent.click(editButtons[0])
+        await waitFor(() => expect(screen.getByText('Edit Dining Plan')).toBeInTheDocument())
+        fireEvent.click(screen.getByLabelText('Halal'))
+        fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }))
+
+        await waitFor(() => expect(patchDisDining).toHaveBeenCalledWith(1, expect.objectContaining({ dietary_flags: ['halal'] })))
     })
 
     it('deletes a dining plan after confirming', async () => {

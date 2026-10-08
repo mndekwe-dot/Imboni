@@ -14,7 +14,8 @@ from apps.behavior.serializers import BehaviorReportSerializer
 from apps.matron.models import ParentCommunication
 from apps.matron.serializers import ParentCommunicationSerializer
 from django.utils import timezone
-from django.db.models import Count, OuterRef, Q, Subquery
+from django.db.models import Count, OuterRef, Q, Subquery, Sum
+from .ladder import ladder_payload, step_for
 from apps.authentication.permissions import IsDiscipline, IsMatron, IsDisciplineOrMatron
 from apps.dos.structure import year_label
 
@@ -60,6 +61,58 @@ def _notify_parent(dis_user, parent_user, report):
     Message.objects.create(conversation=conv, sender=dis_user, content=content)
     conv.updated_at = timezone.now()
     conv.save(update_fields=['updated_at'])
+
+
+# Severities that call for a phone call, not just the written notice.
+CALL_SEVERITIES = ('serious', 'critical')
+
+
+def _draft_parent_call(report, by_user):
+    """Put a call to the parent on the communications log, ready to make.
+
+    A serious incident should not depend on someone remembering to ring the
+    family. The entry is pre-filled with what happened and who to call, marked
+    "awaiting reply" so it sits in the log until the call is made and the entry
+    is updated. It is created once per report: the report's id is in the notes.
+    """
+    from apps.matron.models import ParentCommunication
+    from apps.parents.models import ParentStudentRelationship
+
+    if report.report_type != 'incident' or report.severity not in CALL_SEVERITIES:
+        return None
+    marker = f"[report:{report.id}]"
+    if ParentCommunication.objects.filter(student=report.student, notes__contains=marker).exists():
+        return None
+
+    rel = (
+        ParentStudentRelationship.objects.filter(student=report.student)
+        .select_related('parent').order_by('-is_primary_contact').first()
+    )
+    parent = rel.parent if rel else None
+    who = (parent.get_full_name() if parent else '') or 'Parent / guardian'
+    phone = getattr(parent, 'phone_number', '') if parent else ''
+    notes = (
+        f"Auto-drafted from a {report.severity} incident report - call the family.\n"
+        f"Student: {report.student.user.get_full_name()}\n"
+        f"Incident: {report.title} ({report.date})\n"
+        f"{report.description}\n"
+        + (f"Action taken: {report.action_taken}\n" if report.action_taken else '')
+        + (f"Phone: {phone}\n" if phone else '')
+        + marker
+    )
+    return ParentCommunication.objects.create(
+        student=report.student,
+        parent_contact=who,
+        comm_type='call',
+        contacted_at=timezone.now(),
+        subject=f"Incident: {report.title}",
+        notes=notes,
+        outcome='awaiting_reply',
+        urgency='urgent' if report.severity == 'critical' else 'important',
+        follow_up_required=True,
+        follow_up_date=timezone.localdate(),
+        recorded_by=by_user,
+    )
 
 
 # Number of approved warning/incident reports in one term that triggers an
@@ -331,6 +384,8 @@ class DisciplineReportListView(APIView):
         # Discipline-filed reports are auto-approved and count toward escalation
         if report.status == 'approved' and report.report_type in ('warning', 'incident'):
             _check_escalation(student)
+        if report.status == 'approved':
+            _draft_parent_call(report, request.user)
 
         return Response({
             'id': str(report.id),
@@ -460,6 +515,7 @@ class DisciplineReportReviewView(APIView):
 
             if report.report_type in ('warning', 'incident'):
                 _check_escalation(report.student)
+            _draft_parent_call(report, request.user)
 
         return Response({
             'id': str(report.id),
@@ -521,6 +577,14 @@ class DisciplineStudentListView(APIView):
                 distinct=True,
             ),
         )
+        # Marks deducted by approved reports in the current term: what the
+        # escalation ladder is measured against.
+        deducted_filter = Q(behavior_reports__status='approved')
+        if current_term:
+            deducted_filter &= Q(behavior_reports__date__gte=current_term.start_date)
+        qs = qs.annotate(
+            marks_deducted_total=Sum('behavior_reports__marks_deducted', filter=deducted_filter),
+        )
         if current_term:
             qs = qs.annotate(
                 term_conduct=Subquery(
@@ -546,6 +610,8 @@ class DisciplineStudentListView(APIView):
             'section': s.section,
             'conduct_grade': getattr(s, 'term_conduct', None),
             'incident_count': s.incident_total,
+            'marks_deducted': s.marks_deducted_total or 0,
+            'ladder_step': step_for(s.marks_deducted_total),
             'status': s.status,
         } for s in qs[:limit]]
 
@@ -610,12 +676,19 @@ class DisciplineStudentDetailView(APIView):
             for l in leaders
         ]
 
+        deducted = BehaviorReport.objects.filter(student=student, status='approved')
+        if current_term:
+            deducted = deducted.filter(date__gte=current_term.start_date)
+        marks_deducted = deducted.aggregate(total=Sum('marks_deducted'))['total'] or 0
+
         return Response({
             'id': str(student.id),
             'student_id': student.student_id,
             'name': student.user.get_full_name(),
             'grade': student.grade,
             'section': student.section,
+            'marks_deducted': marks_deducted,
+            'ladder_step': step_for(marks_deducted),
             'current_conduct_grade': conduct_grade,
             'conduct_history': conduct_history,
             'reports': reports_data,
@@ -1140,6 +1213,14 @@ class DiningPlanDetailView(APIView):
         if 'is_active' in request.data:
             plan.is_active = bool(request.data['is_active'])
         plan.save()
+        if 'dietary_flags' in request.data or 'allergies' in request.data:
+            from .dietary import clean_flags
+            student = plan.student
+            if 'dietary_flags' in request.data:
+                student.dietary_flags = clean_flags(request.data['dietary_flags'])
+            if 'allergies' in request.data:
+                student.allergies = str(request.data['allergies'] or '')[:500]
+            student.save(update_fields=['dietary_flags', 'allergies'])
         return Response(DiningPlanSerializer(plan).data)
 
     def delete(self, request, pk):
@@ -1569,3 +1650,11 @@ class DisciplineParentCommsView(APIView):
 # ---------------------------------------------------------------------------
 # Boarding Schedule (standing weekly routine — read-only for the matron)
 # ---------------------------------------------------------------------------
+
+
+class DisciplineLadderView(APIView):
+    """GET /imboni/discipline/ladder/ - the demerit escalation steps."""
+    permission_classes = [IsDiscipline]
+
+    def get(self, request):
+        return Response({'steps': ladder_payload(), 'budget': 40})
