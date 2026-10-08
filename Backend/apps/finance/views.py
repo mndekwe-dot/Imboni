@@ -337,6 +337,12 @@ class RecordPaymentView(BursarView):
             return Response({'detail': str(exc)}, status=400)
         for line in lines:
             line.fee.refresh_from_db()
+        if details['method'] == 'waiver':
+            # Money the school chose not to take: somebody has to be able to ask who.
+            from apps.audit.services import audit
+            who = lines[0].fee.student
+            audit(request.user, 'finance.waiver', f"{who.user.get_full_name()} ({who.student_id})",
+                  {'amount': str(sum((line.amount for line in lines), Decimal('0'))), 'notes': details['notes']})
         return Response({
             'payment': FeePaymentSerializer(lines[0]).data,
             'payments': FeePaymentSerializer(lines, many=True).data,

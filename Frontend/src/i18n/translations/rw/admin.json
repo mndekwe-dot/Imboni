@@ -99,5 +99,25 @@
   },
   "support": {
     "subtitle": "Saba ubufasha ku itsinda rya Imboni"
+  },
+  "audit": {
+    "title": "Amateka y’ibikorwa",
+    "subtitle": "Ninde wakoze iki, ryari. Ibyanditswe ntibishobora guhindurwa cyangwa gusibwa.",
+    "action": "Igikorwa",
+    "allActions": "Ibikorwa byose",
+    "actor": "Ninde",
+    "actorPlaceholder": "Shakisha izina…",
+    "target": "Bireba",
+    "targetPlaceholder": "Umunyeshuri, amanota, inyemezabwishyu…",
+    "from": "Kuva",
+    "to": "Kugeza",
+    "when": "Ryari",
+    "role": "Inshingano",
+    "detail": "Ibisobanuro",
+    "empty": "Nta cyanditswe gihuye.",
+    "emptyDesc": "Gerageza igihe kinini cyangwa ushungure bike.",
+    "loadFailed": "Ntibishobotse gukura amateka y’ibikorwa.",
+    "showing": "Bigaragara {{shown}} muri {{count}}",
+    "more": "Zana ibindi"
   }
 }

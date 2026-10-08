@@ -152,6 +152,7 @@ const AdminAnnouncements  = load(() => import('./pages/Admin/AdminAnnouncements'
 const AdminMessages       = load(() => import('./pages/Admin/AdminMessages'), 'AdminMessages');
 const AdminSettings       = load(() => import('./pages/Admin/AdminSettings'), 'AdminSettings');
 const AdminBilling        = load(() => import('./pages/Admin/AdminBilling'), 'AdminBilling');
+const AdminAudit          = load(() => import('./pages/Admin/AdminAudit'), 'AdminAudit');
 const AdminSupport        = load(() => import('./pages/Admin/AdminSupport'), 'AdminSupport');
 
 // ── Shared ──
@@ -379,7 +380,7 @@ function App() {
       <Route path="/admin/announcements" element={<ProtectedRoute role="admin"><AdminAnnouncements /></ProtectedRoute>} />
       <Route path="/admin/messages" element={<ProtectedRoute role="admin"><AdminMessages /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute role="admin"><AdminSettings /></ProtectedRoute>} />
-      <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
+      <Route path="/admin/audit" element={<ProtectedRoute role="admin"><AdminAudit /></ProtectedRoute>} />
       <Route path="/admin/billing" element={<ProtectedRoute role="admin"><AdminBilling /></ProtectedRoute>} />
       <Route path="/admin/support" element={<ProtectedRoute role="admin"><AdminSupport /></ProtectedRoute>} />
       {/* ── Shared routes ── */}

@@ -99,5 +99,25 @@
   },
   "support": {
     "subtitle": "Get help from the Imboni team"
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Who did what, and when. Entries cannot be edited or deleted.",
+    "action": "Action",
+    "allActions": "All actions",
+    "actor": "Who",
+    "actorPlaceholder": "Search by name…",
+    "target": "About",
+    "targetPlaceholder": "Student, result, invoice…",
+    "from": "From",
+    "to": "To",
+    "when": "When",
+    "role": "Role",
+    "detail": "Detail",
+    "empty": "No entries match.",
+    "emptyDesc": "Try a wider date range or fewer filters.",
+    "loadFailed": "Could not load the audit log.",
+    "showing": "Showing {{shown}} of {{count}}",
+    "more": "Load more"
   }
 }
