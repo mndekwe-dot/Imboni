@@ -137,6 +137,7 @@ const DosSettings         = load(() => import('./pages/Dos/DosSettings'), 'DosSe
 // ── Matron ──
 const MatronDashboard     = load(() => import('./pages/Matron/MatronDashboard'), 'MatronDashboard');
 const MatronHealth        = load(() => import('./pages/Matron/MatronHealth'), 'MatronHealth');
+const MatronPharmacy      = load(() => import('./pages/Matron/MatronPharmacy'), 'MatronPharmacy');
 const MatronIncidents     = load(() => import('./pages/Matron/MatronIncidents'), 'MatronIncidents');
 const MatronMessages      = load(() => import('./pages/Matron/MatronMessages'), 'MatronMessages');
 const MatronStudents      = load(() => import('./pages/Matron/MatronStudents'), 'MatronStudents');
@@ -367,6 +368,7 @@ function App() {
       {/* ── Matron routes ── */}
       <Route path="/matron" element={<ProtectedRoute role="matron"><MatronDashboard /></ProtectedRoute>} />
       <Route path="/matron/health" element={<ProtectedRoute role="matron"><MatronHealth /></ProtectedRoute>} />
+      <Route path="/matron/pharmacy" element={<ProtectedRoute role="matron"><MatronPharmacy /></ProtectedRoute>} />
       <Route path="/matron/incidents" element={<ProtectedRoute role="matron"><MatronIncidents /></ProtectedRoute>} />
       <Route path="/matron/messages" element={<ProtectedRoute role="matron"><MatronMessages /></ProtectedRoute>} />
       <Route path="/matron/students" element={<ProtectedRoute role="matron"><MatronStudents /></ProtectedRoute>} />
