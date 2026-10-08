@@ -96,5 +96,27 @@
     "leaves": "Départ",
     "back": "Retour avant",
     "cancel": "Annuler"
+  },
+  "pay": {
+    "owing": "Reste à payer ce trimestre : {{amount}}",
+    "button": "Payer par mobile money",
+    "title": "Payer les frais scolaires",
+    "intro": "Vous recevrez une demande sur votre téléphone pour approuver le paiement. Imboni ne voit jamais votre code PIN.",
+    "amount": "Montant à payer",
+    "phone": "Numéro mobile money",
+    "send": "Envoyer la demande à mon téléphone",
+    "waiting": "Vérifiez votre téléphone et approuvez le paiement avec votre code PIN…",
+    "success": "Payé. Reçu {{receipt}}. Merci.",
+    "failed": "Le paiement n’a pas abouti : {{reason}}",
+    "close": "Fermer",
+    "failedStart": "Impossible de lancer le paiement.",
+    "review": "Votre argent est arrivé et le bureau de l’école va le confirmer sous peu.",
+    "recent": "Paiements en ligne récents",
+    "status": {
+      "pending": "En attente d’approbation",
+      "successful": "Payé",
+      "failed": "Non payé",
+      "needs_review": "Reçu : le bureau confirme"
+    }
   }
 }

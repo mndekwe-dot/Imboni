@@ -58,7 +58,7 @@ class SchoolViewSet(AuditedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     # route, and silently ignored by any other mounting -- `as_view({...})` in
     # a test, or a hand-written path(). Deciding who may switch a school off is
     # not somewhere to depend on how the view happened to be wired up.
-    OPERATIONS_ACTIONS = frozenset({'restrict', 'suspend', 'reactivate', 'modules'})
+    OPERATIONS_ACTIONS = frozenset({'restrict', 'suspend', 'reactivate', 'modules', 'support_session'})
 
     def get_permissions(self):
         if self.action in self.OPERATIONS_ACTIONS:
@@ -120,6 +120,35 @@ class SchoolViewSet(AuditedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         self.audit('modules', school, client=school, label=school.name,
                    changes={'disabled_modules': [was, school.disabled_modules]})
         return Response(self.get_serializer(school).data)
+
+    @action(detail=True, methods=['post'], url_path='support-session')
+    def support_session(self, request, pk=None):
+        """
+        Open a read-only, time-limited view of this school as its administrator.
+
+        Body: ``{"reason": "...", "minutes": 20}``. Returns the URL to open; the
+        token is in its fragment. The reason is required and is recorded on both
+        the platform audit log and the school's own.
+        """
+        from .support_session import SupportSessionError, open_support_session
+        school = self.get_object()
+        try:
+            token, admin, minutes = open_support_session(
+                school, request.user, request.data.get('reason'), request.data.get('minutes'))
+        except SupportSessionError as exc:
+            return Response({'detail': str(exc)}, status=http_status.HTTP_400_BAD_REQUEST)
+
+        domain = school.domains.filter(is_primary=True).first() or school.domains.first()
+        if domain is None:
+            return Response({'detail': 'This school has no domain to open.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        port = request.get_port()
+        host = domain.domain + (f':{port}' if port not in ('80', '443') else '')
+        scheme = 'https' if request.is_secure() else 'http'
+        self.audit('support_session', school, client=school, label=school.name,
+                   changes={'reason': request.data.get('reason', '')[:500], 'minutes': minutes,
+                            'as': admin.email or admin.username})
+        return Response({'url': f'{scheme}://{host}/support-session#token={token}',
+                         'minutes': minutes, 'as': admin.get_full_name() or admin.username})
 
     @action(detail=True, methods=['get'])
     def overview(self, request, pk=None):

@@ -813,3 +813,35 @@ class Payslip(models.Model):
     @property
     def total_deductions(self):
         return self.pension + self.tax + self.other_deduction
+
+
+class OnlinePayment(models.Model):
+    """
+    A parent's attempt to pay fees from their phone, and what became of it.
+
+    The row is created BEFORE the prompt is sent and the money is only recorded
+    (as an ordinary receipt, by ``online_payments.settle``) once the provider says
+    it was successful, so an abandoned or failed prompt never touches the books.
+    """
+    STATUS_CHOICES = [
+        ('pending',      'Waiting for the parent to approve'),
+        ('successful',   'Paid and receipted'),
+        ('failed',       'Failed or declined'),
+        ('needs_review', 'Paid, but the office must place it'),
+    ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='online_payments')
+    paid_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='online_payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    phone = models.CharField(max_length=15)
+    provider_ref = models.UUIDField(default=uuid.uuid4, unique=True)
+    transaction_id = models.CharField(max_length=80, blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='pending')
+    detail = models.CharField(max_length=255, blank=True)
+    receipt_no = models.CharField(max_length=40, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'finance_online_payments'
+        ordering = ['-created_at']

@@ -99,6 +99,8 @@ export const getPlatformSchools = () => client.get('/imboni/platform/schools/').
 export const suspendSchool    = (id) => client.post(`/imboni/platform/schools/${id}/suspend/`).then(r => r.data)
 export const restrictSchool   = (id) => client.post(`/imboni/platform/schools/${id}/restrict/`).then(r => r.data)
 export const reactivateSchool = (id) => client.post(`/imboni/platform/schools/${id}/reactivate/`).then(r => r.data)
+export const openSupportSession = (id, reason, minutes) =>
+    client.post(`/imboni/platform/schools/${id}/support-session/`, { reason, minutes }).then(r => r.data)
 export const setSchoolModules = (id, disabled) => client.post(`/imboni/platform/schools/${id}/modules/`, { disabled }).then(r => r.data)
 export const getSchoolOverview = (id) => client.get(`/imboni/platform/schools/${id}/overview/`).then(r => r.data)
 

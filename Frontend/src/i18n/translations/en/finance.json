@@ -545,5 +545,14 @@
     "applyFailed": "Could not record the payments.",
     "unmatchedHint": "Not matched: find the family under Take payment.",
     "discard": "Leave this match? Nothing has been recorded yet."
+  },
+  "onlineReview": {
+    "title": "Online payments to place",
+    "intro": "These arrived from a parent’s phone but could not be put on a charge. Credit, refund or receipt each one, then close it.",
+    "note": "What was done with the money",
+    "close": "Close",
+    "closed": "Closed.",
+    "failed": "Could not close it.",
+    "loadFailed": "Could not load online payments."
   }
 }

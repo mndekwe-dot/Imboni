@@ -192,6 +192,51 @@ def renew(loan, settings_row=None):
     return loan
 
 
+def bill_to_finance(fine, settings_row=None):
+    """
+    Put a lost book's cost on the student's fee account, if the school bills it there.
+
+    Then it appears in Who owes beside everything else the family owes, and is
+    paid at the bursar's desk - not in a drawer at the library. Only for a
+    pupil, only when the setting is on, and only when the finance office exists;
+    anything else is left as an ordinary library fine.
+    """
+    from django.apps import apps
+
+    settings_row = settings_row or LibrarySettings.load()
+    if not settings_row.bill_lost_to_finance or not apps.is_installed('apps.finance'):
+        return None
+    student = getattr(fine.loan.borrower, 'student_profile', None)
+    if student is None:
+        return None
+
+    from apps.results.models import AcademicTerm
+    from apps.student.models import Fee
+    fee = Fee.objects.create(
+        student=student, term=AcademicTerm.objects.filter(is_current=True).first(),
+        category='other', amount=fine.amount, due_date=_today(),
+        notes=f'Lost library book: {fine.loan.copy.book.title}')
+    fine.billed_fee_id = fee.id
+    fine.save(update_fields=['billed_fee_id'])
+    return fee
+
+
+def sync_billed_fines(fee):
+    """
+    Keep a billed fine's `paid` in step with the fee account it was put on.
+
+    Called by the finance office whenever it recomputes a charge, so paying (or
+    reversing a payment on) the lost-book charge there is all it takes.
+    """
+    fines = Fine.objects.filter(billed_fee_id=fee.id)
+    if not fines.exists():
+        return
+    if fee.status == 'cleared':
+        fines.filter(paid=False).update(paid=True, paid_at=timezone.now())
+    else:
+        fines.filter(paid=True).update(paid=False, paid_at=None)
+
+
 @transaction.atomic
 def pay_fine(fine, *, received_by=None, method='cash', reference=''):
     """
@@ -206,6 +251,9 @@ def pay_fine(fine, *, received_by=None, method='cash', reference=''):
 
     if not fine.outstanding:
         raise LibraryError('That fine is already settled.')
+    if fine.billed_fee_id:
+        raise LibraryError("This charge is on the student's fee account. Take the payment at the "
+                           "bursar's desk and it will clear here.")
 
     if apps.is_installed('apps.finance'):
         from apps.finance import services as finance
@@ -227,6 +275,19 @@ def pay_fine(fine, *, received_by=None, method='cash', reference=''):
     return fine
 
 
+def _clear_billed_charge(fine, note):
+    """Waive whatever is still owing on the fee a fine was billed to (the money paid stays paid)."""
+    from apps.finance import services as finance
+    from apps.student.models import Fee
+
+    fee = Fee.objects.filter(pk=fine.billed_fee_id).first()
+    if fee is None:
+        return
+    balance = finance.balance_of(fee)
+    if balance > 0:
+        finance.record_payment(fee, balance, method='waiver', notes=note[:250])
+
+
 @transaction.atomic
 def waive_fine(fine, *, reason):
     """Let a fine go. A reason is required: it is money the school chose not to take."""
@@ -234,6 +295,8 @@ def waive_fine(fine, *, reason):
         raise LibraryError('That fine is already settled.')
     if not (reason or '').strip():
         raise LibraryError('Say why the fine is being waived.')
+    if fine.billed_fee_id:
+        _clear_billed_charge(fine, f'Library fine waived: {reason.strip()}')
     fine.waived = True
     fine.waived_reason = reason.strip()[:255]
     fine.save(update_fields=['waived', 'waived_reason'])
@@ -450,8 +513,9 @@ def record_copy_event(copy, kind, *, reason='', borrower=None, charged=None,
         rate = Decimal(settings_row.fine_per_day or 0)
         amount = replacement + rate * days
         if amount > 0 and not Fine.objects.filter(loan=open_loan).exists():
-            Fine.objects.create(loan=open_loan, kind='lost', days_late=days,
-                                rate=rate, amount=amount)
+            fine = Fine.objects.create(loan=open_loan, kind='lost', days_late=days,
+                                       rate=rate, amount=amount)
+            bill_to_finance(fine, settings_row)
             charged = amount
 
     event = CopyEvent.objects.create(
@@ -518,6 +582,8 @@ def _settle_found_copy(copy, *, recorded_by=None):
         return '', None
 
     if not fine.paid:
+        if fine.billed_fee_id:
+            _clear_billed_charge(fine, f'Book found: replacement of {replacement:,.0f} cancelled')
         if lateness > 0:
             fine.kind, fine.amount = 'late', lateness
             fine.save(update_fields=['kind', 'amount'])
@@ -540,6 +606,10 @@ def _settle_found_copy(copy, *, recorded_by=None):
                 raise LibraryError(f'The refund could not be paid: {exc}')
     fine.refunded, fine.refunded_at = replacement, timezone.now()
     fine.save(update_fields=['refunded', 'refunded_at'])
+    if fine.billed_fee_id:
+        # The money went through the fee account, so the refund is made there.
+        return (f'{replacement:,.0f} was paid through the fee account: reverse that receipt in Finance '
+                f'to refund {borrower.get_full_name()}.'), borrower
     return f'{replacement:,.0f} refunded to {borrower.get_full_name()}.', borrower
 
 

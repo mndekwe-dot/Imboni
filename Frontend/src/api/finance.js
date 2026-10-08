@@ -20,6 +20,8 @@ export const getFees      = (params) => client.get('/imboni/finance/fees/', { pa
 export const createFee    = (data)   => client.post('/imboni/finance/fees/', data)
 export const getPayments  = (params) => client.get('/imboni/finance/payments/', { params })
 export const recordPayment = (data)  => client.post('/imboni/finance/payments/record/', data)
+export const getOnlinePayments = (params) => client.get('/imboni/finance/online-payments/', { params })
+export const resolveOnlinePayment = (id, note) => client.post(`/imboni/finance/online-payments/${id}/resolve/`, { note })
 export const matchStatement = (data) => client.post('/imboni/finance/reconcile/statement/', data)
 export const applyStatement = (data) => client.post('/imboni/finance/reconcile/statement/apply/', data)
 export const reversePayment = (id, reason) =>

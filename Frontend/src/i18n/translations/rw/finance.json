@@ -545,5 +545,14 @@
     "applyFailed": "Ntibishobotse kwandika amafaranga.",
     "unmatchedHint": "Ntibihuye: shakira umuryango muri «Akira amafaranga».",
     "discard": "Uvuye muri uku guhuza? Nta kintu cyari cyandikwa."
+  },
+  "onlineReview": {
+    "title": "Ubwishyu bwa interineti bugomba gushyirwa mu mwanya",
+    "intro": "Ubu bwishyu bwaturutse kuri telefone y’umubyeyi ariko ntibwashyizwe ku madeni. Bishyire ku mwenda, usubize cyangwa ukore inyemezabwishyu, hanyuma ubifunge.",
+    "note": "Icyakozwe ku mafaranga",
+    "close": "Funga",
+    "closed": "Byafunzwe.",
+    "failed": "Ntibishobotse kubifunga.",
+    "loadFailed": "Ntibishobotse gukura ubwishyu bwa interineti."
   }
 }

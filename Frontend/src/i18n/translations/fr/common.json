@@ -278,6 +278,13 @@
   "subjects": "Matières",
   "submitted": "Rendu",
   "sun": "Dim",
+  "supportSession": {
+    "banner": "Le support Imboni consulte cette école. Lecture seule : rien ne peut être modifié. Fin à {{time}}.",
+    "end": "Terminer la session",
+    "opening": "Ouverture de la session de support…",
+    "invalid": "Ce lien de support n’est pas valide ou a expiré.",
+    "failed": "Impossible d’ouvrir la session de support."
+  },
   "suspended": "Suspendu",
   "taskTitlePlaceholder": "Titre de la tâche…",
   "taskUpdateFailed": "Impossible de mettre à jour la tâche.",

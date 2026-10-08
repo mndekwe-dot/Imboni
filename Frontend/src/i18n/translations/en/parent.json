@@ -96,5 +96,27 @@
     "leaves": "Leaves",
     "back": "Back by",
     "cancel": "Cancel"
+  },
+  "pay": {
+    "owing": "Owing this term: {{amount}}",
+    "button": "Pay with mobile money",
+    "title": "Pay school fees",
+    "intro": "You will get a prompt on your phone to approve the payment. Imboni never sees your PIN.",
+    "amount": "Amount to pay",
+    "phone": "Mobile money number",
+    "send": "Send the prompt to my phone",
+    "waiting": "Check your phone and approve the payment with your PIN…",
+    "success": "Paid. Receipt {{receipt}}. Thank you.",
+    "failed": "The payment did not go through: {{reason}}",
+    "close": "Close",
+    "failedStart": "Could not start the payment.",
+    "review": "Your money has arrived and the school office will confirm it shortly.",
+    "recent": "Recent online payments",
+    "status": {
+      "pending": "Waiting for approval",
+      "successful": "Paid",
+      "failed": "Not paid",
+      "needs_review": "Received: office confirming"
+    }
   }
 }

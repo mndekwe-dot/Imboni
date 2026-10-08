@@ -6,6 +6,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
 import { Modal } from '../../components/ui/Modal'
 import { StatementModal } from './FinanceStatement'
+import { OnlinePaymentsReview } from './OnlinePaymentsReview'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import { ClassFilter } from '../../components/ui/ClassFilter'
 import { openDocument } from '../../api/documents'
@@ -79,6 +80,8 @@ export function FinancePayments() {
             )}
             {receipt && <ReceiptModal payment={receipt} onClose={() => setReceipt(null)} />}
             {importing && <StatementModal onClose={() => setImporting(false)} onDone={load} />}
+
+            <OnlinePaymentsReview />
 
             <ClassFilter grade={klass.grade} stream={klass.stream}
                 onChange={setKlass} disabled={loading} />

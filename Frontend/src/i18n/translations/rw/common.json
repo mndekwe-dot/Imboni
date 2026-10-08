@@ -278,6 +278,13 @@
   "subjects": "Amasomo",
   "submitted": "Byatanzwe",
   "sun": "Cyumweru",
+  "supportSession": {
+    "banner": "Ubufasha bwa Imboni burimo kureba iri shuri. Gusoma gusa: nta cyahindurwa. Birangira saa {{time}}.",
+    "end": "Hagarika",
+    "opening": "Turimo gufungura ubufasha…",
+    "invalid": "Iyi link y’ubufasha ntifite agaciro cyangwa yararangiye.",
+    "failed": "Ntibishobotse gufungura ubufasha."
+  },
   "suspended": "Yahagaritswe",
   "taskTitlePlaceholder": "Umutwe w’umurimo…",
   "taskUpdateFailed": "Ntibishobotse guhindura umurimo.",

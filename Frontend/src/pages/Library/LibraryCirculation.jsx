@@ -221,10 +221,14 @@ export function LibraryCirculation() {
                                         onClick={() => { setWaiving(fine); setWaiveReason('') }}>
                                         {t('library.fines.waive')}
                                     </button>
-                                    <button className="btn btn-primary btn-sm"
-                                        onClick={() => handleFine(fine, 'pay')}>
-                                        {t('library.fines.markPaid')}
-                                    </button>
+                                    {fine.billed_to_finance ? (
+                                        <span className="badge badge-soft-info">{t('library.fines.onFeeAccount')}</span>
+                                    ) : (
+                                        <button className="btn btn-primary btn-sm"
+                                            onClick={() => handleFine(fine, 'pay')}>
+                                            {t('library.fines.markPaid')}
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         )}

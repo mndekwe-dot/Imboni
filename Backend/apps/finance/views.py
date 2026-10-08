@@ -876,3 +876,48 @@ class StatementApplyView(BursarView):
         audit(request.user, 'finance.statement_applied', f'{len(taken)} payments',
               {'method': method, 'skipped': len(skipped)})
         return Response({'taken': taken, 'skipped': skipped}, status=201 if taken else 200)
+
+
+class OnlinePaymentListView(BursarView):
+    """
+    GET /imboni/finance/online-payments/?status=needs_review
+
+    Payments parents made from their phones. The one that matters to the office
+    is ``needs_review``: the money arrived but could not be placed on a charge.
+    """
+
+    def get(self, request):
+        from .models import OnlinePayment
+        rows = OnlinePayment.objects.select_related('student__user', 'paid_by')
+        if request.query_params.get('status'):
+            rows = rows.filter(status=request.query_params['status'])
+        return Response([{
+            'id': str(o.id), 'student': o.student.user.get_full_name(), 'student_id': o.student.student_id,
+            'paid_by': o.paid_by.get_full_name() if o.paid_by else '', 'phone': o.phone,
+            'amount': str(o.amount), 'status': o.status, 'detail': o.detail,
+            'transaction_id': o.transaction_id, 'receipt_no': o.receipt_no, 'created_at': o.created_at,
+        } for o in rows[:200]])
+
+
+class OnlinePaymentResolveView(BursarView):
+    """
+    POST /imboni/finance/online-payments/<id>/resolve/   {note}
+
+    The office has dealt with a payment that arrived with nowhere to go (credited
+    it, refunded it, or receipted it by hand). Closes it, with the note and the
+    name of whoever did, so it stops being waved at every morning.
+    """
+
+    def post(self, request, pk):
+        from apps.audit.services import audit
+        from .models import OnlinePayment
+        op = get_object_or_404(OnlinePayment, pk=pk)
+        if op.status != 'needs_review':
+            return Response({'detail': 'Only a payment waiting for review can be closed this way.'}, status=400)
+        note = (request.data.get('note') or '').strip()
+        if not note:
+            return Response({'detail': 'Say what was done with the money.'}, status=400)
+        op.status, op.detail = 'successful', f'Handled by {request.user.get_full_name()}: {note}'[:255]
+        op.save(update_fields=['status', 'detail', 'updated_at'])
+        audit(request.user, 'finance.online_payment_resolved', op.student.student_id, {'note': note[:200], 'amount': str(op.amount)})
+        return Response({'id': str(op.id), 'status': op.status})

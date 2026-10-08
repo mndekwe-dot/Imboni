@@ -559,3 +559,13 @@ STRIPE_SUCCESS_PATH = config('STRIPE_SUCCESS_PATH', default='/admin/settings?bil
 STRIPE_CANCEL_PATH  = config('STRIPE_CANCEL_PATH',  default='/admin/settings?billing=cancelled')
 
 STRIPE_ENABLED = bool(STRIPE_SECRET_KEY)
+
+# ── Mobile-money collections (parents paying fees online) ──────────────────────
+# MTN MoMo "Collection" API. Left blank, the Pay button is simply not offered:
+# a school turns this on by adding its own credentials, never by a code change.
+MOMO_SUBSCRIPTION_KEY = config('MOMO_SUBSCRIPTION_KEY', default='')
+MOMO_API_USER         = config('MOMO_API_USER',         default='')
+MOMO_API_KEY          = config('MOMO_API_KEY',          default='')
+MOMO_BASE_URL         = config('MOMO_BASE_URL',         default='https://sandbox.momodeveloper.mtn.com')
+MOMO_ENVIRONMENT      = config('MOMO_ENVIRONMENT',      default='sandbox')   # sandbox | mtnrwanda
+MOMO_CURRENCY         = config('MOMO_CURRENCY',         default='RWF')

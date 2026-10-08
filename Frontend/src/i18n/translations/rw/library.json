@@ -160,7 +160,8 @@
     },
     "waiveTitle": "Kureka iyi amande",
     "waiveIntro": "{{name}} afite amande ya {{amount}}. Kuyireka bivuze ko ikigo kitazakira aya mafaranga.",
-    "waiveReason": "Kuki iyi amande irekwa?"
+    "waiveReason": "Kuki iyi amande irekwa?",
+    "onFeeAccount": "Biri ku mafaranga y’ishuri: bishyurirwa ku biro by’imari"
   },
   "members": {
     "title": "Abaguza",
@@ -243,7 +244,9 @@
     "fine_per_day": "Amande ku munsi",
     "fine_per_dayHint": "Guhindura ibi bireba amande mashya gusa — amande yamaze gutangwa akomeza afite igipimo yabazwe.",
     "currency": "Ifaranga",
-    "currencyHint": "Rigaragara iruhande rw'umubare wose."
+    "currencyHint": "Rigaragara iruhande rw'umubare wose.",
+    "bill_lost_to_finance": "Shyira igitabo cyatakaye ku mafaranga y’ishuri",
+    "bill_lost_to_financeHint": "Igiciro cyo gusimbura igitabo cyatakaye gishyirwa ku mafaranga y’umunyeshuri kandi kikishyurirwa ku biro by’imari, aho kuba mu isomero."
   },
   "messages": {
     "subtitle": "Ubutumwa n'abakozi n'abanyeshuri"

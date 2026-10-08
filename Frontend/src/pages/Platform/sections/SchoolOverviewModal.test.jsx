@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor } from '../../../test/test-utils'
 import { SchoolOverviewModal } from './SchoolOverviewModal'
-import { getSchoolOverview, setSchoolModules } from '../../../api/platform'
+import { getSchoolOverview, setSchoolModules, openSupportSession } from '../../../api/platform'
 
 vi.mock('../../../api/platform', () => ({
     getSchoolOverview: vi.fn(),
@@ -9,6 +9,7 @@ vi.mock('../../../api/platform', () => ({
     restrictSchool: vi.fn(),
     reactivateSchool: vi.fn(),
     setSchoolModules: vi.fn(),
+    openSupportSession: vi.fn(),
 }))
 
 const overview = (disabled = []) => ({
@@ -43,5 +44,21 @@ describe('SchoolOverviewModal modules', () => {
 
         expect(await screen.findByText('Only operations can do this.')).toBeInTheDocument()
         expect(screen.getByLabelText('Infirmary')).toBeChecked()
+    })
+
+    it('will not open a support session without a reason, and opens one with it', async () => {
+        getSchoolOverview.mockResolvedValue(overview())
+        openSupportSession.mockResolvedValue({ url: 'http://day.school/support-session#token=abc', minutes: 20, as: 'Head Teacher' })
+        const open = vi.spyOn(window, 'open').mockReturnValue({})
+        renderWithRouter(<SchoolOverviewModal schoolId="s1" onClose={() => {}} />)
+
+        fireEvent.click(await screen.findByRole('button', { name: /Open a read-only view/ }))
+        expect(screen.getByRole('button', { name: 'Open session' })).toBeDisabled()
+        fireEvent.change(screen.getByLabelText('Why do you need to look?'), { target: { value: 'Teacher cannot see marks' } })
+        fireEvent.click(screen.getByRole('button', { name: 'Open session' }))
+
+        await waitFor(() => expect(openSupportSession).toHaveBeenCalledWith('s1', 'Teacher cannot see marks', 20))
+        expect(open).toHaveBeenCalledWith('http://day.school/support-session#token=abc', '_blank', 'noopener')
+        open.mockRestore()
     })
 })

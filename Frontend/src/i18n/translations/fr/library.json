@@ -160,7 +160,8 @@
     },
     "waiveTitle": "Annuler cette amende",
     "waiveIntro": "{{name}} doit {{amount}}. L'annuler signifie que l'école ne percevra pas cet argent.",
-    "waiveReason": "Pourquoi l'amende est-elle annulée ?"
+    "waiveReason": "Pourquoi l'amende est-elle annulée ?",
+    "onFeeAccount": "Sur le compte des frais : à régler chez l’économe"
   },
   "members": {
     "title": "Emprunteurs",
@@ -243,7 +244,9 @@
     "fine_per_day": "Amende par jour de retard",
     "fine_per_dayHint": "Ne s'applique qu'aux nouvelles amendes — une amende déjà émise garde son taux.",
     "currency": "Devise",
-    "currencyHint": "Affichée à côté de chaque montant."
+    "currencyHint": "Affichée à côté de chaque montant.",
+    "bill_lost_to_finance": "Facturer les livres perdus sur le compte des frais",
+    "bill_lost_to_financeHint": "Le coût de remplacement d’un livre perdu est ajouté aux frais de l’élève et réglé chez l’économe, et non à la bibliothèque."
   },
   "messages": {
     "subtitle": "Messages avec le personnel et les élèves"

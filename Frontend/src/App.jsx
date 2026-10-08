@@ -10,6 +10,8 @@ import { useSyncStoredLanguage } from './hooks/useLanguage';
 import { LandingPage } from './pages/LandingPage';
 import { LogIn } from './pages/login';
 import { NotFound } from './pages/NotFound';
+import { SupportSession } from './pages/SupportSession';
+import { SupportBanner } from './components/SupportBanner';
 import { PortalLogin } from './pages/PortalLogin';
 import { PlatformLogin } from './pages/Platform/PlatformLogin';
 import { PlatformLayout } from './pages/Platform/PlatformLayout';
@@ -185,6 +187,7 @@ function App() {
     {/* Keyboard users can jump past the sidebar straight to page content.
         Every portal page renders <main id="main-content">. */}
     <a href="#main-content" className="skip-link">Skip to main content</a>
+    <SupportBanner />
     <Suspense fallback={<RouteFallback />}>
     <Routes>
       <Route path="/" element={<LandingPage />} />
@@ -382,6 +385,7 @@ function App() {
       <Route path="/admin/announcements" element={<ProtectedRoute role="admin"><AdminAnnouncements /></ProtectedRoute>} />
       <Route path="/admin/messages" element={<ProtectedRoute role="admin"><AdminMessages /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute role="admin"><AdminSettings /></ProtectedRoute>} />
+      <Route path="/support-session" element={<SupportSession />} />
       <Route path="/admin/audit" element={<ProtectedRoute role="admin"><AdminAudit /></ProtectedRoute>} />
       <Route path="/admin/billing" element={<ProtectedRoute role="admin"><AdminBilling /></ProtectedRoute>} />
       <Route path="/admin/support" element={<ProtectedRoute role="admin"><AdminSupport /></ProtectedRoute>} />

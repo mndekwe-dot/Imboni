@@ -278,6 +278,13 @@
   "subjects": "Subjects",
   "submitted": "Submitted",
   "sun": "Sun",
+  "supportSession": {
+    "banner": "Imboni support is viewing this school. Read-only: nothing can be changed. Ends at {{time}}.",
+    "end": "End session",
+    "opening": "Opening the support session…",
+    "invalid": "This support link is not valid or has expired.",
+    "failed": "Could not open the support session."
+  },
   "suspended": "Suspended",
   "taskTitlePlaceholder": "Task title…",
   "taskUpdateFailed": "Could not update the task.",
