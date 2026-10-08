@@ -141,7 +141,10 @@
     "dueOn": "Itariki ntarengwa {{date}}",
     "totalOwed": "Umwenda w'iki gihembwe: {{amount}}",
     "tooMuch": "Ibi birenze umwenda w'iki gihembwe wa {{amount}}.",
-    "amountFor": "Amafaranga ya {{charge}}"
+    "amountFor": "Amafaranga ya {{charge}}",
+    "printA4": "Priinta (A4)",
+    "printRoll80": "Priinta ku rupapuro rwa 80 mm",
+    "printRoll58": "Priinta ku rupapuro rwa 58 mm"
   },
   "debtors": {
     "title": "Abafite imyenda",

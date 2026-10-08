@@ -141,7 +141,10 @@
     "dueOn": "Due {{date}}",
     "totalOwed": "{{amount}} owed this term",
     "tooMuch": "That is more than the {{amount}} owed this term.",
-    "amountFor": "Amount for {{charge}}"
+    "amountFor": "Amount for {{charge}}",
+    "printA4": "Print (A4)",
+    "printRoll80": "Print on 80 mm roll",
+    "printRoll58": "Print on 58 mm roll"
   },
   "debtors": {
     "title": "Who owes",

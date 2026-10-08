@@ -373,8 +373,8 @@ function ReceiptModal({ payment, onClose }) {
     // The server renders this one. A receipt printed from the browser is a
     // two-column table with no letterhead, no balance and nowhere to sign --
     // the parent is being handed a document, not a screenshot.
-    function print() {
-        openDocument(`/imboni/finance/payments/${payment.id}/receipt/`)
+    function print(paper) {
+        openDocument(`/imboni/finance/payments/${payment.id}/receipt/`, paper ? { paper } : {})
     }
 
     return (
@@ -385,9 +385,12 @@ function ReceiptModal({ payment, onClose }) {
             footer={
                 <>
                     <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
-                    <button className="btn btn-primary" onClick={print}>
+                    {/* A school with a till-roll printer at the desk prints there; the A4 letterhead is for the file. */}
+                    <button className="btn btn-outline" onClick={() => print('58mm')}>{t('finance.payments.printRoll58')}</button>
+                    <button className="btn btn-outline" onClick={() => print('80mm')}>{t('finance.payments.printRoll80')}</button>
+                    <button className="btn btn-primary" onClick={() => print()}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">print</span>
-                        {t('common.print')}
+                        {t('finance.payments.printA4')}
                     </button>
                 </>
             }
