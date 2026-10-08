@@ -83,5 +83,18 @@
   "timetable": {
     "subtitle": "View your child's weekly academic schedule",
     "title": "Class Timetable"
+  },
+  "exeat": {
+    "title": "Leave from school (exéat)",
+    "request": "Request leave",
+    "intro": "Ask for your child to be let out of the boarding school. The school office still has to approve it.",
+    "none": "No leave requests yet.",
+    "reason": "Why does {{name}} need to leave?",
+    "send": "Send request",
+    "sent": "Request sent to the school office.",
+    "sendFailed": "Could not send the request.",
+    "leaves": "Leaves",
+    "back": "Back by",
+    "cancel": "Cancel"
   }
 }

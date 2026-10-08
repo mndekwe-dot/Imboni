@@ -17,6 +17,8 @@ export const getChildMaterials   = (id) => client.get(`/imboni/parents/${id}/mat
 export const getChildAssessments = (id) => client.get(`/imboni/results/students/${id}/assessments/`)
 export const getChildSummative   = (id) => client.get(`/imboni/results/students/${id}/summative/`)
 export const getChildReviews     = (id) => client.get(`/imboni/results/students/${id}/reviews/`)
+export const getChildExeats    = (id)       => client.get(`/imboni/parents/${id}/exeat/`)
+export const requestChildExeat = (id, data) => client.post(`/imboni/parents/${id}/exeat/`, data)
 export const downloadChildReportCard = (id) =>
     client.get(`/imboni/parents/${id}/report-card/`, { responseType: 'blob' })
 

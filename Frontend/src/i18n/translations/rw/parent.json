@@ -83,5 +83,18 @@
   "timetable": {
     "subtitle": "Reba gahunda y'icyumweru y'umwana wawe",
     "title": "Gahunda y'ishuri"
+  },
+  "exeat": {
+    "title": "Uruhushya rwo gusohoka mu ishuri",
+    "request": "Saba uruhushya",
+    "intro": "Saba ko umwana wawe yemererwa gusohoka mu icumbi. Ibiro by’ishuri biracyakeneye kubyemeza.",
+    "none": "Nta busabe bw’uruhushya burahari.",
+    "reason": "Kuki {{name}} akeneye gusohoka?",
+    "send": "Ohereza ubusabe",
+    "sent": "Ubusabe bwoherejwe ku biro by’ishuri.",
+    "sendFailed": "Ntibishobotse kohereza ubusabe.",
+    "leaves": "Asohoka",
+    "back": "Agaruka bitarenze",
+    "cancel": "Bireke"
   }
 }

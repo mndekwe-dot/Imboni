@@ -816,3 +816,59 @@ class ChildReportCardView(_APIView):
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
         # Reuse the DOS generator as is; it only reads query params and the pk.
         return StudentReportCardView().get(request, pk)
+
+
+class ChildExeatView(_APIView):
+    """
+    GET|POST /imboni/parents/<pk>/exeat/
+
+    A parent asks for their boarder to be let out (a hospital appointment, a
+    family emergency), instead of phoning the school. The request lands on the
+    discipline office's register already marked "parent approved" - the parent
+    is the one asking - and the office still has to approve it, so a request
+    never lets a child leave by itself.
+    """
+    permission_classes = [IsParent]
+
+    def _child(self, request, pk):
+        from apps.tenants.modules import module_enabled
+        if not module_enabled('boarding'):
+            return None
+        return _verify_parent_owns_student(request, pk)
+
+    def get(self, request, pk):
+        from apps.discipline.exeat_api import ExeatSerializer
+        from apps.discipline.models import ExeatPass
+        student = self._child(request, pk)
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        passes = ExeatPass.objects.filter(student=student).select_related('student__user', 'gate_verified_by')[:20]
+        return Response(ExeatSerializer(passes, many=True).data)
+
+    def post(self, request, pk):
+        from apps.discipline.exeat_api import ExeatSerializer
+        from apps.discipline.models import BoardingStudent, ExeatPass
+        from apps.notifications.services import notify_users
+        student = self._child(request, pk)
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if not BoardingStudent.objects.filter(student=student, is_active=True).exists():
+            return Response({'detail': 'Only boarders need an exeat pass.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not (request.data.get('reason') or '').strip():
+            return Response({'detail': 'Tell the school why.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ExeatSerializer(data={**request.data, 'student': str(student.id)})
+        serializer.is_valid(raise_exception=True)
+        exeat = serializer.save(
+            created_by=request.user, parent_approval='approved',
+            parent_note=f"Requested by {request.user.get_full_name()} (parent)"[:200],
+        )
+
+        staff = User.objects.filter(role__in=['discipline', 'matron'], is_active=True)
+        notify_users(
+            staff, 'Exeat requested by a parent',
+            f"{student.user.get_full_name()}: {exeat.get_reason_type_display().lower()}, "
+            f"leaving {exeat.departure_at:%d %b %H:%M}, back {exeat.expected_return_at:%d %b %H:%M}.",
+            'attendance', path='/discipline/boarding?tab=exeat',
+        )
+        return Response(ExeatSerializer(exeat).data, status=status.HTTP_201_CREATED)
