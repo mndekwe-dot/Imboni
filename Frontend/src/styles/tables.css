@@ -339,6 +339,13 @@
 .dt-badge-danger  { background: var(--destructive-light); color: var(--destructive); }
 .dt-badge-info    { background: var(--info-light);        color: var(--info);        }
 .dt-badge-muted   { background: var(--muted);             color: var(--muted-foreground); }
+/* A teacher's periods this week against what the school's week allows. */
+.dt-workload {
+  display: block;
+  width: 7rem;
+  height: 0.5rem;
+}
+
 .dt-chip {
   display: inline-block;
   font-size: var(--text-caption);

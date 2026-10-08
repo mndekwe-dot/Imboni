@@ -66,12 +66,34 @@
     "subtitle": "Affectations aux dortoirs et dossiers d'internat",
     "title": "Internat",
     "typeRequired": "Type d'internat *",
-    "unassignedCount": "{{count}} non affectés"
+    "unassignedCount": "{{count}} non affectés",
+    "exeat": "Permissions de sortie",
+    "floorPlan": "Plan des dortoirs"
   },
   "dashboard": {
     "deleteTaskFailed": "Impossible de supprimer la tâche.",
     "deleteTasksFailed": "Certaines tâches n'ont pas pu être supprimées.",
-    "subtitle": "Vue d'ensemble du responsable de la discipline"
+    "followUp": "Suivi",
+    "headMatron": "Surveillante générale",
+    "incident": "Incident",
+    "incidentsThisMonth": "Incidents ce mois-ci",
+    "loadFailed": "Impossible de charger les données de cette page.",
+    "loading": "Chargement…",
+    "matron": "Surveillante",
+    "noRecentIncidents": "Aucun incident récent.",
+    "noStaff": "Aucun membre du personnel enregistré.",
+    "patron": "Responsable d’activité",
+    "pendingFollowUps": "Suivis en attente",
+    "recentIncidents": "Incidents récents",
+    "reportedBy": "Signalé par",
+    "staffUnderSupervision": "Personnel supervisé",
+    "studentLeaders": "Élèves responsables",
+    "subtitle": "Vue d'ensemble du responsable de la discipline",
+    "totalStudents": "Total des élèves",
+    "typeAchievement": "Réussite",
+    "typeIncident": "Incident",
+    "typePositive": "Positif",
+    "typeWarning": "Avertissement"
   },
   "dining": {
     "addPlan": "Ajouter une formule",
@@ -92,7 +114,21 @@
     "subtitle": "Plans de restauration des élèves pour le trimestre en cours",
     "termNote": "La formule est affectée au trimestre en cours.",
     "title": "Restauration",
-    "totalPlans": "Total des formules"
+    "totalPlans": "Total des formules",
+    "dietary": "Besoins alimentaires",
+    "dietaryNone": "Aucun",
+    "allergiesLabel": "Allergies et remarques pour la cuisine",
+    "specialDiets": "Régimes spéciaux",
+    "flags": {
+      "peanut_allergy": "Allergie à l’arachide",
+      "nut_allergy": "Allergie aux noix",
+      "lactose_intolerant": "Intolérant au lactose",
+      "gluten_free": "Sans gluten",
+      "diabetic": "Diabétique",
+      "vegetarian": "Végétarien",
+      "halal": "Halal",
+      "other": "Autre"
+    }
   },
   "dormPlanner": {
     "addDorm": "Ajouter un dortoir",
@@ -358,10 +394,89 @@
     "pendingReview": "En attente de révision",
     "studentConductRecords": "Dossiers de conduite des élèves",
     "studentIdColumn": "Matricule de l'élève",
-    "subtitle": "Dossiers de conduite et rapports d'incident"
+    "subtitle": "Dossiers de conduite et rapports d'incident",
+    "marksColumn": "Points perdus",
+    "ladderTitle": "Échelle de sanctions",
+    "ladderHint": "Points retirés ce trimestre, sur {{budget}}. Un même total appelle la même réponse pour tous.",
+    "ladderAt": "À partir de {{count}} points",
+    "ladderSteps": {
+      "detention": "Retenue",
+      "parent_summons": "Convocation des parents",
+      "suspension_warning": "Avertissement de suspension"
+    },
+    "ladderLoadFailed": "Impossible de charger l’échelle de sanctions."
   },
   "timetable": {
     "subtitle": "Planifiez, créez et mettez à jour l'emploi du temps hebdomadaire des activités non scolaires",
     "title": "Emploi du temps extrascolaire"
+  },
+  "exeat": {
+    "newPass": "Nouvelle permission de sortie",
+    "request": "Demander la permission",
+    "pickStudent": "Choisissez d’abord un élève.",
+    "created": "Permission de sortie demandée.",
+    "createFailed": "Impossible de créer la permission.",
+    "loadFailed": "Impossible de charger le registre des sorties.",
+    "actionFailed": "Impossible de mettre à jour la permission.",
+    "reasonType": "Motif",
+    "departure": "Départ",
+    "expectedReturn": "Retour prévu",
+    "details": "Détails (facultatif)",
+    "parent": "Parent",
+    "overdue": "En retard",
+    "overdueBanner": "{{count}} en retard :",
+    "backAt": "Rentré {{when}}",
+    "gateBy": "Portail : {{name}}",
+    "emptyTitle": "Aucune permission ici",
+    "emptyDesc": "Demandez une permission lorsqu’un interne doit quitter l’école.",
+    "filters": {
+      "open": "En attente",
+      "out": "Hors de l’école",
+      "overdue": "En retard",
+      "returned": "Clôturées",
+      "all": "Toutes"
+    },
+    "reasons": {
+      "weekend": "Week-end",
+      "medical": "Médical / hôpital",
+      "family": "Affaire familiale",
+      "event": "Événement ou compétition",
+      "other": "Autre"
+    },
+    "statuses": {
+      "requested": "Demandée",
+      "approved": "Approuvée",
+      "declined": "Refusée",
+      "out": "Sorti",
+      "returned": "Rentré"
+    },
+    "parentStates": {
+      "pending": "En attente du parent",
+      "approved": "Parent d’accord",
+      "declined": "Parent a refusé"
+    },
+    "actions": {
+      "parentApproved": "Parent d’accord",
+      "parentDeclined": "Parent a refusé",
+      "approve": "Approuver",
+      "signOut": "Sortie au portail",
+      "markReturned": "Marquer rentré",
+      "decline": "Refuser"
+    }
+  },
+  "beds": {
+    "loadFailed": "Impossible de charger le plan.",
+    "empty": "Aucun dortoir ni chambre configuré. Ajoutez-les dans le planificateur.",
+    "occupancy": "{{occupied}} lits occupés sur {{capacity}}",
+    "room": "Chambre {{number}}",
+    "closed": "Fermée",
+    "free": "libres",
+    "bed": "Lit {{number}}",
+    "bedFree": "Lit {{number}} : libre",
+    "bedTaken": "Lit {{number}} : {{name}}",
+    "overflow": "Sans lit : {{names}}",
+    "legendTaken": "Occupé",
+    "legendFree": "Disponible",
+    "legendClosed": "Fermé / maintenance"
   }
 }

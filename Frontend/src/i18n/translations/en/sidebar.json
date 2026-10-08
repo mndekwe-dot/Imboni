@@ -6,5 +6,6 @@
   "logoAlt": "Imboni Logo",
   "mainNavigation": "Main navigation",
   "openMenu": "Open menu",
-  "tagline": "Education Connects"
+  "tagline": "Education Connects",
+  "waiting": "{{count}} waiting"
 }

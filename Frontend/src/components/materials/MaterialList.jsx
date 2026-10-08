@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FilterBar } from '../ui/FilterBar'
 import { EmptyState } from '../ui/EmptyState'
+import { SearchBar } from '../ui/SearchBar'
 import { formatDate } from '../../utils/date'
 import '../../styles/components.css'
 
@@ -92,6 +93,7 @@ export function MaterialList({ materials, actions, showClass = false }) {
 export function ClassMaterials({ materials }) {
     const { t } = useTranslation()
     const [subject, setSubject] = useState('all')
+    const [query,   setQuery]   = useState('')
 
     if (materials.length === 0) {
         return <EmptyState icon="folder_open" title={t('materials.emptyTitle')}
@@ -105,10 +107,18 @@ export function ClassMaterials({ materials }) {
         ...subjects.map(g => ({ key: g.subject, label: g.subject, count: g.items.length })),
     ]
 
+    const needle = query.trim().toLowerCase()
+    const shown = materials
+        .filter(m => active === 'all' || m.subject_name === active)
+        .filter(m => !needle || [m.title, m.description, m.subject_name].some(v => (v || '').toLowerCase().includes(needle)))
+
     return (
         <>
+            <SearchBar value={query} onChange={setQuery} placeholder={t('materials.searchPlaceholder')} />
             {subjects.length > 1 && <FilterBar options={options} active={active} onChange={setSubject} />}
-            <MaterialList materials={active === 'all' ? materials : materials.filter(m => m.subject_name === active)} />
+            {shown.length === 0
+                ? <p className="u-pad u-muted">{t('materials.noMatches')}</p>
+                : <MaterialList materials={shown} />}
         </>
     )
 }

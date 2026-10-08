@@ -51,4 +51,29 @@ describe('Modal', () => {
     render(<Modal title="T" onClose={() => {}} size="wide">body</Modal>)
     expect(document.querySelector('dialog')).toHaveClass('tt-modal-wide')
   })
+
+  it('asks before closing when there is unsaved work, and stays open if declined', () => {
+    const onClose = vi.fn()
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    render(<Modal title="T" onClose={onClose} unsavedMessage="Discard?">body</Modal>)
+
+    fireEvent.click(screen.getByLabelText('Close'))
+    expect(confirm).toHaveBeenCalledWith('Discard?')
+    expect(onClose).not.toHaveBeenCalled()
+
+    confirm.mockReturnValue(true)
+    fireEvent.click(screen.getByLabelText('Close'))
+    expect(onClose).toHaveBeenCalledTimes(1)
+    confirm.mockRestore()
+  })
+
+  it('does not ask when nothing is unsaved', () => {
+    const onClose = vi.fn()
+    const confirm = vi.spyOn(window, 'confirm')
+    render(<Modal title="T" onClose={onClose}>body</Modal>)
+    fireEvent.click(screen.getByLabelText('Close'))
+    expect(confirm).not.toHaveBeenCalled()
+    expect(onClose).toHaveBeenCalled()
+    confirm.mockRestore()
+  })
 })

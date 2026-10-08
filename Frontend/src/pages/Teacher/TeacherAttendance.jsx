@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
@@ -49,6 +50,10 @@ export function TeacherAttendance() {
     const fullName   = storedUser.full_name  || `${firstName} ${lastName}`.trim() || 'Teacher'
     const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'T'
 
+    // The dashboard's schedule hands over the class it was clicked from.
+    const location = useLocation()
+    const arrivedFor = useRef(location.state?.grade ? location.state : null)
+
     const [section, setSection]   = useState('')
     const [year, setYear]         = useState('')
     const [classVal, setClassVal] = useState('')
@@ -61,6 +66,19 @@ export function TeacherAttendance() {
     // would group years before the section names were known.
     const sections = useMemo(() => sectionsFromClasses(myClasses, config), [myClasses, config])
     const [classIdMap, setClassIdMap] = useState({})
+
+    // Opens the register for that class once, as soon as the picker knows it.
+    // The teacher can still change it - this only saves the three clicks.
+    useEffect(() => {
+        const wanted = arrivedFor.current
+        if (!wanted) return
+        const sec = sections.find(sc => sc.years.some(y => y.name === wanted.grade && y.streams.includes(wanted.section)))
+        if (!sec) return
+        arrivedFor.current = null
+        setSection(sec.name)
+        setYear(wanted.grade)
+        setClassVal(wanted.section)
+    }, [sections])
 
     const [students, setStudents] = useState([])
     const [stats, setStats]       = useState(null)
@@ -119,7 +137,13 @@ export function TeacherAttendance() {
                 setStats(statsRes)
                 const init = {}
                 stuRes.forEach(s => {
-                    init[s.student_id] = { status: s.status ?? 'present', notes: s.notes ?? '' }
+                    // A student signed out on an exéat is not a truant: until the teacher says
+                    // otherwise they start as excused, with the reason in the note.
+                    const away = s.status == null && s.on_exeat
+                    init[s.student_id] = {
+                        status: s.status ?? (away ? 'excused' : 'present'),
+                        notes: s.notes || (away ? t('teacher.attendance.onExeatNote') : ''),
+                    }
                 })
                 setAttendance(init)
             } catch {
@@ -269,6 +293,7 @@ export function TeacherAttendance() {
                                                             <div>
                                                                 <div className="dt-name">{s.full_name}</div>
                                                                 <div className="dt-sub">{s.student_code}</div>
+                                                                {s.on_exeat && <span className="badge badge-soft-info">{t('teacher.attendance.onExeat')}</span>}
                                                             </div>
                                                         </div>
                                                     </td>

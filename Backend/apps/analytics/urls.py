@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import student_360, views
 
 urlpatterns = [
     # Academic Performance
@@ -8,6 +8,9 @@ urlpatterns = [
     path('analytics/performance/by-subject/',      views.PerformanceBysubjectView.as_view(),      name='analytics-performance-by-subject'),
     path('analytics/performance/top-students/',    views.TopStudentsView.as_view(),               name='analytics-top-students'),
     path('analytics/performance/at-risk/',         views.AtRiskStudentsView.as_view(),            name='analytics-at-risk'),
+
+    # One student across the academic and discipline offices
+    path('analytics/student/<uuid:pk>/360/',       student_360.Student360View.as_view(),          name='analytics-student-360'),
 
     # Attendance
     path('analytics/attendance/overview/',         views.AttendanceOverviewView.as_view(),        name='analytics-attendance-overview'),

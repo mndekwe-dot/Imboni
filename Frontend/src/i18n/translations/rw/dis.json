@@ -66,12 +66,34 @@
     "subtitle": "Igenwa ry'amacumbi n'inyandiko zo kuba ku ishuri",
     "title": "Kuba ku ishuri",
     "typeRequired": "Ubwoko bwo kuba ku ishuri *",
-    "unassignedCount": "Ntibashyizwe {{count}}"
+    "unassignedCount": "Ntibashyizwe {{count}}",
+    "exeat": "Uruhushya rwo gusohoka",
+    "floorPlan": "Igishushanyo cy’amacumbi"
   },
   "dashboard": {
     "deleteTaskFailed": "Gusiba umurimo byanze.",
     "deleteTasksFailed": "Buri bimwe mu mirimo ntibyashobotse gusiba.",
-    "subtitle": "Incamake y'Ushinzwe imyitwarire"
+    "followUp": "Ikurikirana",
+    "headMatron": "Umurezi mukuru",
+    "incident": "Ikibazo",
+    "incidentsThisMonth": "Ibibazo by’uku kwezi",
+    "loadFailed": "Ntibishobotse gukura amakuru y’uru rupapuro.",
+    "loading": "Turimo gukura…",
+    "matron": "Umurezi w’abakobwa",
+    "noRecentIncidents": "Nta bibazo biheruka.",
+    "noStaff": "Nta bakozi banditse.",
+    "patron": "Umuyobozi w’ikigo cy’ibikorwa",
+    "pendingFollowUps": "Ibikurikiranwa bitegereje",
+    "recentIncidents": "Ibibazo biheruka",
+    "reportedBy": "Cyatanzwe na",
+    "staffUnderSupervision": "Abakozi bakurikiranwa",
+    "studentLeaders": "Abayobozi b’abanyeshuri",
+    "subtitle": "Incamake y'Ushinzwe imyitwarire",
+    "totalStudents": "Abanyeshuri bose",
+    "typeAchievement": "Intsinzi",
+    "typeIncident": "Ikibazo",
+    "typePositive": "Byiza",
+    "typeWarning": "Umuburo"
   },
   "dining": {
     "addPlan": "Ongeraho gahunda y’ifunguro",
@@ -92,7 +114,21 @@
     "subtitle": "Gahunda yo kurya y'abanyeshuri muri iki gihembwe",
     "termNote": "Gahunda ishyirwa ku gihembwe kiriho.",
     "title": "Kurya",
-    "totalPlans": "Gahunda zose"
+    "totalPlans": "Gahunda zose",
+    "dietary": "Ibyo kurya bisaba",
+    "dietaryNone": "Nta byo",
+    "allergiesLabel": "Allergie n’inyandiko ku gikoni",
+    "specialDiets": "Indyo zihariye",
+    "flags": {
+      "peanut_allergy": "Allergie ku ibishyimbo bya nyakatsi",
+      "nut_allergy": "Allergie ku mbuto z’ibinyamisogwe",
+      "lactose_intolerant": "Ntabasha amata",
+      "gluten_free": "Nta gluten",
+      "diabetic": "Afite diyabete",
+      "vegetarian": "Ntarya inyama",
+      "halal": "Halal",
+      "other": "Ikindi"
+    }
   },
   "dormPlanner": {
     "addDorm": "Ongeraho icumbi",
@@ -358,10 +394,89 @@
     "pendingReview": "Bitegereje isuzuma",
     "studentConductRecords": "Inyandiko z'imyitwarire y'abanyeshuri",
     "studentIdColumn": "Nimero y'Umunyeshuri",
-    "subtitle": "Inyandiko z'imyitwarire na raporo z'ibibazo"
+    "subtitle": "Inyandiko z'imyitwarire na raporo z'ibibazo",
+    "marksColumn": "Amanota yatakaye",
+    "ladderTitle": "Intambwe z’ibihano",
+    "ladderHint": "Amanota yakuweho muri iki gihembwe, kuri {{budget}}. Igiteranyo kimwe gihabwa igisubizo kimwe kuri bose.",
+    "ladderAt": "Guhera ku manota {{count}}",
+    "ladderSteps": {
+      "detention": "Guhagarikwa mu ishuri",
+      "parent_summons": "Guhamagaza ababyeyi",
+      "suspension_warning": "Umuburo wo gusezererwa by’agateganyo"
+    },
+    "ladderLoadFailed": "Ntibishobotse gukura intambwe z’ibihano."
   },
   "timetable": {
     "subtitle": "Tegura, ukore kandi uvugurure gahunda y'icyumweru y'ibikorwa bitari amasomo",
     "title": "Gahunda y'ibikorwa byo kwidagadura"
+  },
+  "exeat": {
+    "newPass": "Uruhushya rushya rwo gusohoka",
+    "request": "Saba uruhushya",
+    "pickStudent": "Banza uhitemo umunyeshuri.",
+    "created": "Uruhushya rwasabwe.",
+    "createFailed": "Ntibishobotse gukora uruhushya.",
+    "loadFailed": "Ntibishobotse gukura urutonde rw’uruhushya.",
+    "actionFailed": "Ntibishobotse guhindura uruhushya.",
+    "reasonType": "Impamvu",
+    "departure": "Asohoka",
+    "expectedReturn": "Azagaruka",
+    "details": "Ibisobanuro (si ngombwa)",
+    "parent": "Umubyeyi",
+    "overdue": "Yatinze",
+    "overdueBanner": "{{count}} batinze:",
+    "backAt": "Yagarutse {{when}}",
+    "gateBy": "Ku irembo: {{name}}",
+    "emptyTitle": "Nta ruhushya rurimo",
+    "emptyDesc": "Saba uruhushya igihe uwiga acumbikirwa asabwa gusohoka mu ishuri.",
+    "filters": {
+      "open": "Bitegereje",
+      "out": "Bari hanze",
+      "overdue": "Batinze",
+      "returned": "Byarangiye",
+      "all": "Byose"
+    },
+    "reasons": {
+      "weekend": "Impera z’icyumweru",
+      "medical": "Ubuvuzi / ibitaro",
+      "family": "Ikibazo cyo mu muryango",
+      "event": "Ibirori cyangwa amarushanwa",
+      "other": "Ikindi"
+    },
+    "statuses": {
+      "requested": "Rwasabwe",
+      "approved": "Rwemejwe",
+      "declined": "Rwanzwe",
+      "out": "Ari hanze",
+      "returned": "Yagarutse"
+    },
+    "parentStates": {
+      "pending": "Utegereje umubyeyi",
+      "approved": "Umubyeyi yemeye",
+      "declined": "Umubyeyi yanze"
+    },
+    "actions": {
+      "parentApproved": "Umubyeyi yemeye",
+      "parentDeclined": "Umubyeyi yanze",
+      "approve": "Emeza",
+      "signOut": "Sohora ku irembo",
+      "markReturned": "Yagarutse",
+      "decline": "Anga"
+    }
+  },
+  "beds": {
+    "loadFailed": "Ntibishobotse gukura igishushanyo.",
+    "empty": "Nta macumbi cyangwa ibyumba byashyizweho. Byongere muri gahunda y’amacumbi.",
+    "occupancy": "Ibitanda {{occupied}} muri {{capacity}} byafashwe",
+    "room": "Icyumba {{number}}",
+    "closed": "Gifunze",
+    "free": "bihari",
+    "bed": "Igitanda {{number}}",
+    "bedFree": "Igitanda {{number}}: gihari",
+    "bedTaken": "Igitanda {{number}}: {{name}}",
+    "overflow": "Nta gitanda: {{names}}",
+    "legendTaken": "Cyafashwe",
+    "legendFree": "Gihari",
+    "legendClosed": "Gifunze / gisanwa"
   }
 }

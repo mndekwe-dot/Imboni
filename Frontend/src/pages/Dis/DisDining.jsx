@@ -22,6 +22,9 @@ const PLAN_TYPES = [
     { value: 'day_scholar', labelKey: 'dis.dining.dayScholar' },
 ]
 
+// Mirrors apps.discipline.dietary.DIETARY_FLAGS; the server drops any other code.
+const DIETARY_FLAGS = ['peanut_allergy', 'nut_allergy', 'lactose_intolerant', 'gluten_free', 'diabetic', 'vegetarian', 'halal', 'other']
+
 const PLAN_TYPE_KEY = Object.fromEntries(PLAN_TYPES.map(p => [p.value, p.labelKey]))
 const PLAN_TYPE_CLS = { full_board: 'success', half_board: 'warning', day_scholar: '' }
 
@@ -41,6 +44,8 @@ function DiningModal({ plan, onClose, onSave }) {
     )
 
     const [planType, setPlanType] = useState(plan?.plan_type || 'full_board')
+    const [flags,     setFlags]     = useState(plan?.dietary_flags || [])
+    const [allergies, setAllergies] = useState(plan?.allergies || '')
     const [saving,   setSaving]   = useState(false)
     const [error,    setError]    = useState(null)
 
@@ -54,7 +59,7 @@ function DiningModal({ plan, onClose, onSave }) {
         setSaving(true); setError(null)
         try {
             const data = isEditing
-                ? { plan_type: planType }
+                ? { plan_type: planType, dietary_flags: flags, allergies }
                 : { student_id: selectedStudent.id, plan_type: planType }
             await onSave(data)
         } catch (e) {
@@ -107,6 +112,24 @@ function DiningModal({ plan, onClose, onSave }) {
                         </div>
                     </div>
 
+                    {isEditing && (
+                        <fieldset className="form-group">
+                            <legend className="form-label">{t('dis.dining.dietary')}</legend>
+                            <div className="u-row-sm u-wrap">
+                                {DIETARY_FLAGS.map(f => (
+                                    <label key={f} className={`dis-plan-opt${flags.includes(f) ? ' on' : ''}`}>
+                                        <input type="checkbox" className="dis-radio" checked={flags.includes(f)}
+                                            onChange={() => setFlags(cur => cur.includes(f) ? cur.filter(x => x !== f) : [...cur, f])} />
+                                        {t(`dis.dining.flags.${f}`)}
+                                    </label>
+                                ))}
+                            </div>
+                            <label className="form-label" htmlFor="dining-allergies">{t('dis.dining.allergiesLabel')}</label>
+                            <textarea id="dining-allergies" className="form-control" rows={2} value={allergies}
+                                onChange={e => setAllergies(e.target.value)} />
+                        </fieldset>
+                    )}
+
                     {!isEditing && (
                         <p className="dis-modal-note">{t('dis.dining.termNote')}</p>
                     )}
@@ -131,7 +154,7 @@ function DiningModal({ plan, onClose, onSave }) {
 function DiningRow({ plan, onEdit, onDelete }) {
     const { t } = useTranslation()
     const [confirmDelete, setConfirmDelete] = useState(false)
-    const { student_name, student_id, plan_type, term_name } = plan
+    const { student_name, student_id, plan_type, term_name, dietary_flags = [], allergies } = plan
     const label = planLabel(t, plan_type)
     const cls   = PLAN_TYPE_CLS[plan_type] || ''
 
@@ -141,6 +164,14 @@ function DiningRow({ plan, onEdit, onDelete }) {
             <td className="text-muted">{student_id}</td>
             <td><span className={`badge${cls ? ' badge-' + cls : ''}`}>{label}</span></td>
             <td className="text-muted">{term_name || '-'}</td>
+            <td>
+                {dietary_flags.length === 0 && !allergies ? <span className="dis-dash">-</span> : (
+                    <div className="u-row-sm u-wrap">
+                        {dietary_flags.map(f => <span key={f} className="badge badge-soft-destructive">{t(`dis.dining.flags.${f}`)}</span>)}
+                        {allergies && <span className="cell-sub">{allergies}</span>}
+                    </div>
+                )}
+            </td>
             <td className="action-cell">
                 {confirmDelete ? (
                     <>
@@ -189,6 +220,7 @@ export function DisDining() {
         { iconClass: 'success', icon: 'restaurant',      value: plans.filter(p => p.plan_type === 'full_board').length,  label: t('dis.dining.fullBoard')  },
         { iconClass: 'warning', icon: 'lunch_dining',    value: plans.filter(p => p.plan_type === 'half_board').length,  label: t('dis.dining.halfBoard')  },
         { iconClass: '',        icon: 'directions_walk', value: plans.filter(p => p.plan_type === 'day_scholar').length, label: t('dis.dining.dayScholar') },
+        { iconClass: 'red',     icon: 'warning',         value: plans.filter(p => (p.dietary_flags || []).length > 0 || p.allergies).length, label: t('dis.dining.specialDiets') },
         { iconClass: 'info',    icon: 'groups',          value: plans.length,                                            label: t('dis.dining.totalPlans') },
     ]
 
@@ -264,7 +296,7 @@ export function DisDining() {
                                 data={visible}
                                 columns={[
                                     t('common.student'), t('common.admissionNo'),
-                                    t('dis.dining.planType'), t('common.term'), t('common.actions'),
+                                    t('dis.dining.planType'), t('common.term'), t('dis.dining.dietary'), t('common.actions'),
                                 ]}
                                 renderRow={(p, i) => (
                                     <DiningRow

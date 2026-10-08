@@ -90,7 +90,7 @@ describe('DosSettings', () => {
     const roomsCard = screen.getByText('Rooms & Venues').closest('.card')
     fireEvent.click(within(roomsCard).getByRole('button', { name: /Add/ }))
 
-    await waitFor(() => expect(createDosRoom).toHaveBeenCalledWith('Lab 1'))
+    await waitFor(() => expect(createDosRoom).toHaveBeenCalledWith('Lab 1', null))
     expect(await screen.findByText('Lab 1')).toBeInTheDocument()
   })
 

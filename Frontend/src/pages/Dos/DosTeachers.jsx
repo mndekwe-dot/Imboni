@@ -488,6 +488,10 @@ export function DosTeachers() {
                     type: typeMap[t.employment_type] || 'Full-Time',
                     classes: [],
                     status: 'Active',
+                    periods: t.periods_per_week ?? 0,
+                    capacity: t.weekly_capacity ?? 0,
+                    level: t.workload_level || 'unknown',
+                    doubleBooked: t.double_booked ?? 0,
                 }))
                 const classResults = await Promise.all(
                     teacherList.map(t => getDosTeacherClasses(t.id).catch(() => ({ classes: [] })))
@@ -604,7 +608,7 @@ export function DosTeachers() {
                         <DataTable
                             title={t('dos.teachers.allTeachers')}
                             data={filtered}
-                            columns={[t('common.teacher'), t('common.subject'), t('common.type'), t('dos.teachers.classesAssigned'), t('common.status'), t('common.actions')]}
+                            columns={[t('common.teacher'), t('common.subject'), t('common.type'), t('dos.teachers.classesAssigned'), t('dos.teachers.workload'), t('common.status'), t('common.actions')]}
                             renderRow={teacher => (
                                 <tr key={teacher.id}>
                                     <td>
@@ -616,6 +620,22 @@ export function DosTeachers() {
                                     <td className="fw-600">{teacher.subject}</td>
                                     <td><span className={`tm-badge ${teacher.type === 'Full-Time' ? 'fulltime' : 'parttime'}`}>{teacher.type}</span></td>
                                     <td>{teacher.classes.length > 0 ? teacher.classes.map((cls, i) => <span key={i} className="dt-chip">{cls}</span>) : <span className="dt-sub">{t('dos.teachers.noneAssigned')}</span>}</td>
+                                    <td>
+                                        {teacher.capacity > 0 && (
+                                            <meter className="dt-workload" min={0} max={teacher.capacity} value={Math.min(teacher.periods, teacher.capacity)}
+                                                high={Math.round(teacher.capacity * 0.9)} optimum={Math.round(teacher.capacity * 0.6)}
+                                                aria-label={t('dos.teachers.periodsOfCapacity', { periods: teacher.periods, capacity: teacher.capacity })} />
+                                        )}
+                                        <div className="dt-sub">
+                                            {teacher.capacity > 0 ? t('dos.teachers.periodsOfCapacity', { periods: teacher.periods, capacity: teacher.capacity }) + ' · ' : ''}
+                                            {t(`dos.teachers.levels.${teacher.level}`)}
+                                        </div>
+                                        {teacher.doubleBooked > 0 && (
+                                            <span className="badge badge-soft-destructive" title={t('dos.teachers.doubleBookedHint')}>
+                                                {t('dos.teachers.doubleBooked', { count: teacher.doubleBooked })}
+                                            </span>
+                                        )}
+                                    </td>
                                     <td>
                                         <span className={`dt-status${teacher.status === 'Active' ? ' dt-status-active' : ' dt-status-inactive'}`}>
                                             <span className={`dt-status-dot${teacher.status === 'Active' ? ' dt-status-dot-active' : ' dt-status-dot-inactive'}`} />

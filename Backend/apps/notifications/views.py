@@ -108,3 +108,80 @@ class PushSubscribeView(APIView):
             endpoint=endpoint, user=request.user
         ).delete()
         return Response({'deleted': deleted})
+
+
+class NavBadgesView(APIView):
+    """
+    GET /imboni/nav-badges/
+
+    The small numbers beside sidebar entries, in one cheap call instead of one
+    request per entry. Every key is a count of things waiting on this user:
+
+        messages       unread messages from other people
+        announcements  published announcements they have not opened
+        assignments    (students) open work still to hand in
+        grading        (teachers) hand-ins waiting for a mark
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        role = getattr(user, 'role', None)
+        data = {'messages': self._messages(user), 'announcements': self._announcements(user, role)}
+        if role == 'student':
+            data['assignments'] = self._open_assignments(user)
+        elif role == 'teacher':
+            data['grading'] = self._to_grade(user)
+        return Response(data)
+
+    @staticmethod
+    def _messages(user):
+        from apps.messages.models import Message
+        return (
+            Message.objects
+            .filter(conversation__participants=user, is_read=False)
+            .exclude(sender=user)
+            .count()
+        )
+
+    @staticmethod
+    def _announcements(user, role):
+        from apps.announcements.models import Announcement
+        qs = Announcement.objects.filter(status='published')
+        if role == 'parent':
+            qs = qs.filter(target_audience__in=['all', 'parents'])
+        elif role == 'student':
+            qs = qs.filter(target_audience__in=['all', 'students'])
+        return qs.exclude(read_receipts__user=user).count()
+
+    @staticmethod
+    def _open_assignments(user):
+        """Active work for the student's class, still open, not yet handed in."""
+        from apps.results.models import AcademicTerm
+        from apps.teacher.models import Assignment, AssignmentSubmission, ClassAssignment
+        student = getattr(user, 'student_profile', None)
+        term = AcademicTerm.objects.filter(is_current=True).first()
+        if not student or not term:
+            return 0
+        placement = ClassAssignment.objects.filter(student=student, term=term).first()
+        if not placement:
+            return 0
+        open_work = Assignment.objects.filter(
+            class_obj=placement.class_obj, status='active', due_date__gte=timezone.localdate(),
+        )
+        handed_in = {
+            sub.assignment_id
+            for sub in AssignmentSubmission.objects.filter(student=student, assignment__in=open_work)
+            if sub.is_submitted
+        }
+        return open_work.exclude(id__in=handed_in).count()
+
+    @staticmethod
+    def _to_grade(user):
+        """Hand-ins to this teacher's assignments that have no mark yet."""
+        from apps.teacher.models import AssignmentSubmission
+        return sum(
+            1 for sub in AssignmentSubmission.objects.filter(assignment__teacher=user, is_graded=False)
+            if sub.is_submitted
+        )
+

@@ -13,8 +13,35 @@
     "weekOf": "Semaine du"
   },
   "dashboard": {
+    "activeTeachers": "enseignants actifs",
+    "activityCount": "{{shown}} sur {{total}}",
+    "allLoaded": "Les {{count}} activités sont chargées",
+    "approveResults": "Approuver les résultats",
+    "attendance": "Présence",
+    "avgPerformance": "Performance moyenne",
+    "avgScore": "Note moyenne",
+    "changeThisTerm": "{{value}}% ce trimestre",
+    "errorPrefix": "Erreur : {{message}}",
+    "loadMoreRemaining": "Charger plus ({{count}} restants)",
+    "manageStudents": "Gérer les élèves",
+    "newThisTerm": "+{{count}} ce trimestre",
+    "overview": "Aperçu",
+    "pendingApprovals": "Approbations en attente",
+    "performance": "Performance",
+    "performanceByGrade": "Performance par classe",
+    "performanceByGradeSubtitle": "Note moyenne par niveau, trimestre en cours",
+    "quickActions": "Actions rapides",
+    "recentActivity": "Activité récente",
+    "requiresAction": "Action requise",
+    "saveTaskFailed": "Impossible d’enregistrer la tâche.",
     "subtitle": "Présences, résultats et effectifs en un coup d'œil",
-    "title": "Tableau de bord du directeur des études"
+    "teachingStaff": "Personnel enseignant",
+    "termTrend": "Tendance du trimestre",
+    "title": "Tableau de bord du directeur des études",
+    "totalStudents": "Total des élèves",
+    "viewTeachers": "Voir les enseignants",
+    "vsTerm1": "{{value}}% par rapport au trimestre 1",
+    "weeklyTrendSubtitle": "Présence et performance par semaine"
   },
   "dining": {
     "addSittingFailed": "Impossible d'ajouter le service",
@@ -146,7 +173,15 @@
     "tableView": "Tableau",
     "title": "Calendrier des examens",
     "unplaced": "{{count}} non placés",
-    "weightShort": "Coef."
+    "weightShort": "Coef.",
+    "clashBadge": "Conflit",
+    "clashConfirm": "Cette épreuve est en conflit :\n{{details}}\n\nL’enregistrer quand même ?",
+    "clash": {
+      "class": "La même classe a déjà une épreuve à ce moment ({{with}})",
+      "venue": "La salle est déjà réservée à ce moment ({{with}})",
+      "invigilator": "Le surveillant est déjà occupé à ce moment ({{with}})",
+      "capacity": "La salle est trop petite : {{needed}} candidats pour {{seats}} places"
+    }
   },
   "leaders": {
     "catArt": "Arts et artisanat",
@@ -190,7 +225,19 @@
     "attentionNone": "Aucun élève signalé : moyennes au-dessus de 50 % et présence au-dessus de 80 %.",
     "attentionScore": "Moy. {{avg}} % · {{failing}} en échec",
     "attentionAbsence": "Présence {{rate}} % · {{days}} jours d'absence",
-    "attentionLoadFailed": "Impossible de charger les élèves à suivre."
+    "attentionLoadFailed": "Impossible de charger les élèves à suivre.",
+    "approveAll": "Tout approuver",
+    "approveAllConfirm": "Approuver les {{count}} soumissions en attente affichées ?",
+    "approvedAll": "{{count}} résultats approuvés.",
+    "rejectTitle": "Renvoyer pour correction",
+    "rejectReasonLabel": "Que faut-il corriger ? L’enseignant en sera informé.",
+    "rejectReasonPlaceholder": "p. ex. Les totaux ne correspondent pas à la feuille de notes",
+    "rejectConfirm": "Renvoyer",
+    "rejectNeedsReason": "Écrivez d’abord un court motif pour que l’enseignant sache quoi corriger.",
+    "rejectedDone": "Renvoyé à l’enseignant.",
+    "approveFailed": "Impossible d’approuver ces résultats.",
+    "rejectFailed": "Impossible de rejeter ces résultats.",
+    "attentionSeeAll": "Voir les {{count}}"
   },
   "scheduling": {
     "addExam": "Ajouter un examen",
@@ -304,7 +351,10 @@
     "template": "Modèle",
     "title": "Gestion des élèves",
     "yearRequired": "Année *",
-    "yearStream": "Année/filière"
+    "yearStream": "Année/filière",
+    "downloadFailedRows": "Télécharger les lignes en échec",
+    "failedRowsName": "invitations-en-echec",
+    "errorColumn": "erreur"
   },
   "teachers": {
     "allSubjects": "Toutes les matières",
@@ -333,7 +383,19 @@
     "subjectRequired": "Matière *",
     "subtitle": "Consultez, ajoutez et modifiez les enseignants, et gérez les affectations de classe",
     "teacherDetails": "Informations de l'enseignant",
-    "title": "Gestion des enseignants"
+    "title": "Gestion des enseignants",
+    "workload": "Charge de travail",
+    "periodsOfCapacity": "{{periods}} sur {{capacity}} périodes",
+    "doubleBooked": "{{count}} en double",
+    "doubleBookedHint": "Planifié pour deux classes différentes en même temps.",
+    "levels": {
+      "none": "Aucun cours",
+      "light": "Légère",
+      "normal": "Équilibrée",
+      "heavy": "Lourde",
+      "over": "Au-delà de la capacité",
+      "unknown": "Pas d’horaire de cloches"
+    }
   },
   "timetable": {
     "academicTerm": "Trimestre scolaire *",
