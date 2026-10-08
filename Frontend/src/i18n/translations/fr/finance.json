@@ -141,7 +141,10 @@
     "dueOn": "Échéance {{date}}",
     "totalOwed": "{{amount}} dus ce trimestre",
     "tooMuch": "C'est plus que les {{amount}} dus ce trimestre.",
-    "amountFor": "Montant pour {{charge}}"
+    "amountFor": "Montant pour {{charge}}",
+    "printA4": "Imprimer (A4)",
+    "printRoll80": "Imprimer sur rouleau 80 mm",
+    "printRoll58": "Imprimer sur rouleau 58 mm"
   },
   "debtors": {
     "title": "Impayés",

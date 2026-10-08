@@ -639,7 +639,11 @@ class ReceiptDocumentView(FinanceView):
         payment = get_object_or_404(
             FeePayment.objects.select_related('fee__student__user').exclude(method='carried'),
             pk=pk)
-        return finance_documents.receipt_pdf(payment)
+        # ?paper=80mm|58mm for a till-roll printer; anything else is the A4 letterhead.
+        paper = request.query_params.get('paper', 'a4')
+        if paper != 'a4' and paper not in finance_documents.THERMAL_PAPER:
+            return Response({'detail': 'paper must be a4, 80mm or 58mm.'}, status=400)
+        return finance_documents.receipt_pdf(payment, paper=paper)
 
 
 class StatementDocumentView(FinanceView):
