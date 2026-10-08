@@ -55,6 +55,8 @@ function AttBar({ label, value, color }) {
     )
 }
 
+const statusLabel = (t, status) => t(`admin.students.statuses.${status}`, { defaultValue: status.charAt(0).toUpperCase() + status.slice(1) })
+
 function StudentDetailModal({ student, onClose }) {
     const toast = useToast()
     const { t } = useTranslation()
@@ -107,20 +109,20 @@ function StudentDetailModal({ student, onClose }) {
 
                 {loading ? (
                     <div className="modal-body u-center-text u-muted u-pad">
-                        Loading profile…
+                        {t('admin.students.loadingProfile')}
                     </div>
                 ) : (
                     <div className="modal-body adm-student-body">
 
                         {/* Basic info */}
                         <div>
-                            <p className="adm-modal-label">Profile</p>
+                            <p className="adm-modal-label">{t('admin.students.profile')}</p>
                             <div className="adm-profile-grid">
                                 {[
-                                    ['Class',     cls],
-                                    ['Dormitory', dorm],
-                                    ['Status',    status.charAt(0).toUpperCase() + status.slice(1)],
-                                    ['GPA',       gpa != null ? gpa : '-'],
+                                    [t('common.class'),     cls],
+                                    [t('common.dormitory'), dorm],
+                                    [t('common.status'),    statusLabel(t, status)],
+                                    [t('admin.students.gpa'), gpa != null ? gpa : '-'],
                                 ].map(([label, val]) => (
                                     <div key={label} className="adm-profile-row">
                                         <span className="adm-profile-key">{label}</span>
@@ -133,7 +135,7 @@ function StudentDetailModal({ student, onClose }) {
                         {/* Attendance */}
                         <div>
                             <p className="adm-modal-label">
-                                Attendance
+                                {t('admin.students.attendance')}
                                 {attRate != null && (
                                     <span style={{ marginLeft: '0.5rem', color: attRate >= 80 ? '#16a34a' : '#dc2626', fontWeight: 700 }}>
                                         {attRate}%
@@ -142,24 +144,24 @@ function StudentDetailModal({ student, onClose }) {
                             </p>
                             {attendance && presentPct != null ? (
                                 <>
-                                    <AttBar label="Present" value={presentPct} color="#16a34a" />
-                                    {latePct   != null && <AttBar label="Late"    value={latePct}   color="#f59e0b" />}
-                                    {absentPct != null && <AttBar label="Absent"  value={absentPct} color="#dc2626" />}
+                                    <AttBar label={t('common.present')} value={presentPct} color="#16a34a" />
+                                    {latePct   != null && <AttBar label={t('common.late')}    value={latePct}   color="#f59e0b" />}
+                                    {absentPct != null && <AttBar label={t('common.absent')}  value={absentPct} color="#dc2626" />}
                                 </>
                             ) : (
-                                <p className="empty-note">No attendance data available.</p>
+                                <p className="empty-note">{t('admin.students.noAttendance')}</p>
                             )}
                         </div>
 
                         {/* Term Results */}
                         <div>
-                            <p className="adm-modal-label">Term Results</p>
+                            <p className="adm-modal-label">{t('admin.students.termResults')}</p>
                             {results.length === 0 ? (
-                                <p className="empty-note">No results submitted yet.</p>
+                                <p className="empty-note">{t('admin.students.noResults')}</p>
                             ) : (
                                 <div className="adm-result-list">
                                     {results.slice(0, 8).map((r, i) => {
-                                        const subject = r.subject_name || r.subject?.name || `Subject ${i + 1}`
+                                        const subject = r.subject_name || r.subject?.name || t('admin.students.subjectN', { n: i + 1 })
                                         const score   = r.total_score ?? r.score ?? r.final_score ?? '-'
                                         const grade   = r.letter_grade || r.grade_letter || '-'
                                         return (
@@ -176,7 +178,7 @@ function StudentDetailModal({ student, onClose }) {
                                     })}
                                     {results.length > 8 && (
                                         <p className="adm-result-more">
-                                            +{results.length - 8} more subjects
+                                            {t('admin.students.moreSubjects', { count: results.length - 8 })}
                                         </p>
                                     )}
                                 </div>
@@ -191,6 +193,7 @@ function StudentDetailModal({ student, onClose }) {
 }
 
 function StudentRow({ student, onView }) {
+    const { t } = useTranslation()
     const name   = student.name || `${student.first_name || ''} ${student.last_name || ''}`.trim()
     const cls    = gradeLabel(student.grade, student.section)
     const active = student.status === 'active' || student.is_active !== false
@@ -211,12 +214,12 @@ function StudentRow({ student, onView }) {
             <td>{student.dormitory || student.house || '-'}</td>
             <td>
                 <span className={`adm-badge ${active ? 'active' : 'pending'}`}>
-                    {student.status ? student.status.charAt(0).toUpperCase() + student.status.slice(1) : (active ? 'Active' : 'Inactive')}
+                    {statusLabel(t, student.status || (active ? 'active' : 'inactive'))}
                 </span>
             </td>
             <td>
                 <button className="adm-btn" onClick={() => onView(student)}>
-                    <span className="material-symbols-rounded" aria-hidden="true">visibility</span> View
+                    <span className="material-symbols-rounded" aria-hidden="true">visibility</span> {t('common.view')}
                 </button>
             </td>
         </tr>
@@ -249,15 +252,15 @@ export function AdminStudents() {
     }, [year, toast])
 
     const statCards = stats ? [
-        { icon: 'groups',       value: stats.total_students  || 0, label: 'Total Students',  trend: 'All enrolled',               colorClass: ''        },
-        { icon: 'person_add',   value: stats.new_admissions  || 0, label: 'New Admissions',  trend: 'This term',                  colorClass: 'info'    },
-        { icon: 'check_circle', value: stats.active_students || 0, label: 'Active',          trend: `${stats.enrollment_pct || 0}% enrollment`, colorClass: 'success' },
-        { icon: 'trending_up',  value: `${stats.avg_performance || 0}%`, label: 'Avg Performance', trend: stats.avg_performance_change >= 0 ? `+${stats.avg_performance_change}%` : `${stats.avg_performance_change}%`, colorClass: 'warning' },
+        { icon: 'groups',       value: stats.total_students  || 0, label: t('common.totalStudents'),  trend: t('admin.students.allEnrolled'),               colorClass: ''        },
+        { icon: 'person_add',   value: stats.new_admissions  || 0, label: t('admin.students.newAdmissions'),  trend: t('admin.students.thisTerm'),                  colorClass: 'info'    },
+        { icon: 'check_circle', value: stats.active_students || 0, label: t('common.active'),          trend: t('admin.students.enrollmentPct', { pct: stats.enrollment_pct || 0 }), colorClass: 'success' },
+        { icon: 'trending_up',  value: `${stats.avg_performance || 0}%`, label: t('admin.students.avgPerformance'), trend: stats.avg_performance_change >= 0 ? `+${stats.avg_performance_change}%` : `${stats.avg_performance_change}%`, colorClass: 'warning' },
     ] : [
-        { icon: 'groups',       value: '-', label: 'Total Students',   trend: 'Loading…', colorClass: ''        },
-        { icon: 'person_add',   value: '-', label: 'New Admissions',   trend: 'Loading…', colorClass: 'info'    },
-        { icon: 'check_circle', value: '-', label: 'Active',           trend: 'Loading…', colorClass: 'success' },
-        { icon: 'trending_up',  value: '-', label: 'Avg Performance',  trend: 'Loading…', colorClass: 'warning' },
+        { icon: 'groups',       value: '-', label: t('common.totalStudents'),   trend: t('common.loading'), colorClass: ''        },
+        { icon: 'person_add',   value: '-', label: t('admin.students.newAdmissions'),   trend: t('common.loading'), colorClass: 'info'    },
+        { icon: 'check_circle', value: '-', label: t('common.active'),           trend: t('common.loading'), colorClass: 'success' },
+        { icon: 'trending_up',  value: '-', label: t('admin.students.avgPerformance'),  trend: t('common.loading'), colorClass: 'warning' },
     ]
 
     const filtered = studentList.filter(s => {
@@ -274,7 +277,7 @@ export function AdminStudents() {
                 <StudentDetailModal student={viewing} onClose={() => setViewing(null)} />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
@@ -310,18 +313,18 @@ export function AdminStudents() {
                         </div>
 
                         {loading ? (
-                            <p className="u-muted u-pad">Loading students…</p>
+                            <p className="u-muted u-pad">{t('admin.students.loadingStudents')}</p>
                         ) : (
                             <DataTable
-                                title="All Students"
+                                title={t('admin.students.allStudents')}
                                 data={filtered}
-                                columns={['Student', 'Class', 'House / Dorm', 'Status', 'Actions']}
+                                columns={[t('common.student'), t('common.class'), t('admin.students.houseDorm'), t('common.status'), t('common.actions')]}
                                 renderRow={s => (
                                     <StudentRow key={s.id || s.student_id} student={s} onView={setViewing} />
                                 )}
                                 emptyIcon="groups"
-                                emptyTitle="No students found"
-                                emptyDesc={search ? `No results for "${search}"` : 'No students match the selected filters.'}
+                                emptyTitle={t('admin.students.emptyTitle')}
+                                emptyDesc={search ? t('admin.students.noResultsFor', { query: search }) : t('admin.students.noMatch')}
                                 onClearFilters={() => { setSearch(''); setSection(''); setYear(''); setClassVal('') }}
                             />
                         )}
