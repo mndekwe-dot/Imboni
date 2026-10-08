@@ -14,6 +14,15 @@ export const findMySchool = (email) =>
     client.post('/imboni/find-school/', { email })
 
 /**
+ * Turn a typed school code into the school's name and host.
+ *
+ * Bare domain only. Rejects with a 404 for any code that is not a school, so
+ * callers can tell "no such school" (404) from "could not reach us".
+ */
+export const lookupSchoolByCode = (code) =>
+    client.get('/imboni/school-by-code/', { params: { code } })
+
+/**
  * The school behind the current hostname, for branding the login page.
  *
  * Unauthenticated by design: the name has to render before anyone signs in.

@@ -1,0 +1,14 @@
+{
+  "checking": "Vérification…",
+  "codeHint": "C'est la première partie de l'adresse de votre école, par exemple greenhills.imboni.tech.",
+  "codeLabel": "Code de l'école",
+  "codePlaceholder": "ex. greenhills",
+  "connectFailed": "Impossible de joindre Imboni. Vérifiez votre connexion et réessayez.",
+  "continue": "Continuer",
+  "forgotCode": "Vous ne connaissez pas le code de votre école ?",
+  "notFound": "Nous n'avons trouvé aucune école avec ce code. Vérifiez-le et réessayez.",
+  "notYourSchool": "Ce n'est pas votre école ?",
+  "opening": "Ouverture de {{school}}…",
+  "subtitle": "Saisissez le code de votre école pour continuer.",
+  "title": "Ouvrir votre école"
+}
