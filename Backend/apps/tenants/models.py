@@ -327,6 +327,24 @@ class SchoolApplication(models.Model):
         return f'{self.school_name} ({self.status})'
 
 
+class ContractReminder(models.Model):
+    """
+    That a school was told its contract ends in about ``days_before`` days.
+
+    The reminder job runs daily and must be safe to run twice, or after a
+    missed day: this row is how it knows what has already been said.
+    """
+    contract = models.ForeignKey('Contract', on_delete=models.CASCADE, related_name='reminders')
+    days_before = models.PositiveSmallIntegerField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+    # False for thresholds that were skipped because the contract was already
+    # closer than that when it was first seen - recorded so they are not sent late.
+    delivered = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [('contract', 'days_before')]
+
+
 class Contract(models.Model):
     """
     A subscription contract between Imboni and a school (Phase 7): its terms and
