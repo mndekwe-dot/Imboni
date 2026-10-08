@@ -83,5 +83,18 @@
   "timetable": {
     "subtitle": "Consultez l'emploi du temps hebdomadaire de votre enfant",
     "title": "Emploi du temps de la classe"
+  },
+  "exeat": {
+    "title": "Sortie de l’école (exéat)",
+    "request": "Demander une sortie",
+    "intro": "Demandez que votre enfant puisse quitter l’internat. Le bureau de l’école doit encore l’approuver.",
+    "none": "Aucune demande de sortie.",
+    "reason": "Pourquoi {{name}} doit-il sortir ?",
+    "send": "Envoyer la demande",
+    "sent": "Demande envoyée au bureau de l’école.",
+    "sendFailed": "Impossible d’envoyer la demande.",
+    "leaves": "Départ",
+    "back": "Retour avant",
+    "cancel": "Annuler"
   }
 }

@@ -7,6 +7,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { AttendanceRecord } from '../../components/attendance/AttendanceRecord'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
+import { ExeatRequestPanel } from './ParentExeat'
 import {
     getMyChildren, getChildAttendanceStats, getChildAttendanceCalendar,
 } from '../../api/parent'
@@ -98,7 +99,10 @@ export function ParentAttendance() {
                         ) : !child ? (
                             <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
-                            <AttendancePanel key={child.id} childId={child.id} />
+                            <>
+                                <AttendancePanel key={child.id} childId={child.id} />
+                                <ExeatRequestPanel key={`exeat-${child.id}`} child={child} />
+                            </>
                         )}
                     </DashboardContent>
                 </main>

@@ -7,6 +7,8 @@ vi.mock('../../api/parent', () => ({
   getMyChildren: vi.fn(),
   getChildAttendanceStats: vi.fn(),
   getChildAttendanceCalendar: vi.fn(),
+  getChildExeats: vi.fn().mockResolvedValue([]),
+  requestChildExeat: vi.fn(),
 }))
 
 vi.mock('../../api/notifications', () => ({
