@@ -37,6 +37,9 @@ import { Contact } from './pages/Contact';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { FindSchool } from './pages/FindSchool';
+// The installed desktop app's start_url. Eager: it is the first thing that
+// app ever paints, so it must not wait on a second chunk.
+import { Start } from './pages/Start';
 
 // Lazy helper for named exports (React.lazy expects a default export).
 // The import string stays static so the bundler can split each page out.
@@ -197,6 +200,8 @@ function App() {
       <Route path="/terms" element={<Terms />} />
       {/* Recovery for the subdomain model: a user who lost their school URL. */}
       <Route path="/find-school" element={<FindSchool />} />
+      {/* Where the installed app opens: finds the school, then hands over. */}
+      <Route path="/start" element={<Start />} />
       <Route path="/login" element={<LogIn />} />
       <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
       {/* Where a newly provisioned school lands from its invitation email.
