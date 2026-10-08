@@ -125,7 +125,12 @@
     "fullTime": "Temps plein",
     "partTime": "Temps partiel",
     "studentTeacher": "Élèves : enseignant",
-    "noInvitationsHint": "pour commencer."
+    "noInvitationsHint": "pour commencer.",
+    "rolesTitle": "Rôles supplémentaires pour {{name}}",
+    "rolesHint": "En plus d’être {{role}}, cette personne peut ouvrir ces portails. N’accordez que ce que le poste exige : chacun donne ses pouvoirs.",
+    "rolesSave": "Enregistrer les rôles",
+    "rolesSaved": "Rôles enregistrés.",
+    "rolesFailed": "Impossible d’enregistrer les rôles."
   },
   "students": {
     "subtitle": "Inscriptions, admissions et dossiers des élèves",

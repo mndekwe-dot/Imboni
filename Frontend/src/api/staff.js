@@ -14,3 +14,4 @@ export const getStaffMembers   = (params)   => client.get('/imboni/staff/members
 export const createStaffMember = (data)     => client.post('/imboni/staff/members/', data)
 export const updateStaffMember = (id, data) => client.patch(`/imboni/staff/members/${id}/`, data)
 export const deleteStaffMember = (id)       => client.delete(`/imboni/staff/members/${id}/`)
+export const setStaffExtraRoles = (id, extra_roles) => client.patch(`/imboni/staff/members/${id}/roles/`, { extra_roles })

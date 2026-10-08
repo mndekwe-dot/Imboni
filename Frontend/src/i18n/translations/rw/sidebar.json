@@ -7,5 +7,6 @@
   "mainNavigation": "Urutonde rw'ibyerekana",
   "openMenu": "Fungura urutonde",
   "tagline": "Uburezi Buhuza",
-  "waiting": "{{count}} bitegereje"
+  "waiting": "{{count}} bitegereje",
+  "switchTo": "Hindukira kuri: {{role}}"
 }

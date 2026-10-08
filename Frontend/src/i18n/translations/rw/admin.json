@@ -125,7 +125,12 @@
     "fullTime": "Igihe cyose",
     "partTime": "Igice cy’igihe",
     "studentTeacher": "Abanyeshuri:Umwarimu",
-    "noInvitationsHint": "utangire."
+    "noInvitationsHint": "utangire.",
+    "rolesTitle": "Inshingano z’inyongera za {{name}}",
+    "rolesHint": "Uretse kuba {{role}}, ashobora no gufungura ibi biro. Tanga gusa ibikenewe: buri kimwe gitanga ububasha bwacyo.",
+    "rolesSave": "Bika inshingano",
+    "rolesSaved": "Inshingano zabitswe.",
+    "rolesFailed": "Ntibishobotse kubika inshingano."
   },
   "students": {
     "subtitle": "Kwiyandikisha, kwakirwa n'inyandiko z'abanyeshuri",
