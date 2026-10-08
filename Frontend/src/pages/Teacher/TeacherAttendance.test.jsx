@@ -107,4 +107,16 @@ describe('TeacherAttendance', () => {
     expect(await screen.findByText('On exéat')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Signed out on an exéat pass')).toBeInTheDocument()
   })
+
+  it('starts a student admitted to the sick bay as excused, with the reason in the note', async () => {
+    getTeacherMyClasses.mockResolvedValue(CLASSES)
+    getTeacherAttendanceStats.mockResolvedValue({})
+    getTeacherAttendanceStudents.mockResolvedValue([
+      { student_id: 'a', student_code: 'ADM1', full_name: 'Amina Uwase', initials: 'AU', status: null, notes: '', in_sick_bay: true },
+    ])
+    renderWithRouter(<TeacherAttendance />, { route: { pathname: '/teacher/attendance', state: { grade: 'S1', section: 'A' } } })
+
+    expect(await screen.findByText('In sick bay')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Admitted to the sick bay')).toBeInTheDocument()
+  })
 })

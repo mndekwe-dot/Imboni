@@ -215,7 +215,9 @@
     "subtitle": "Kurikirana ubwitabire bw'abanyeshuri",
     "title": "Andika ubwitabire",
     "onExeat": "Ku ruhushya",
-    "onExeatNote": "Yasohotse afite uruhushya rwo gusohoka"
+    "onExeatNote": "Yasohotse afite uruhushya rwo gusohoka",
+    "inSickBay": "Ku bitaro by’ishuri",
+    "inSickBayNote": "Yashyizwe ku bitaro by’ishuri"
   },
   "classes": {
     "assessmentNamePlaceholder": "urugero: Ikizamini cyo hagati, CAT 1…",
