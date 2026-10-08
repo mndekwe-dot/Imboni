@@ -1,5 +1,6 @@
 from django.urls import path
 
+from . import clearance_views as clearance
 from . import operations_views as ops
 from . import views
 
@@ -21,6 +22,8 @@ urlpatterns = [
     # Circulation
     path('library/loans/', views.LoanListView.as_view(), name='library-loans'),
     path('library/loans/issue/', views.IssueLoanView.as_view(), name='library-issue'),
+    path('library/loans/issue-class/', clearance.IssueClassSetView.as_view(), name='library-issue-class'),
+    path('library/clearance/', clearance.ClearanceView.as_view(), name='library-clearance'),
     path('library/loans/<uuid:pk>/return/', views.ReturnLoanView.as_view(), name='library-return'),
     path('library/loans/<uuid:pk>/renew/',  views.RenewLoanView.as_view(),  name='library-renew'),
 

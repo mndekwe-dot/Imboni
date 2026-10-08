@@ -19,6 +19,7 @@ import {
 import { Modal } from '../../components/ui/Modal'
 import { formatAmount } from '../Finance/FinanceShell'
 import { LibraryShell } from './LibraryShell'
+import { ClassSetsPanel } from './LibraryClassSets'
 
 const LOAN_FILTERS = ['open', 'overdue', 'returned']
 
@@ -35,8 +36,8 @@ export function LibraryCirculation() {
 
     const [searchParams, setSearchParams] = useSearchParams()
     const tabParam = searchParams.get('tab')
-    const activeTab = tabParam === 'fines' ? 'fines' : 'loans'
-    const setActiveTab = tab => setSearchParams(tab === 'fines' ? { tab: 'fines' } : {},
+    const activeTab = ['fines', 'classes'].includes(tabParam) ? tabParam : 'loans'
+    const setActiveTab = tab => setSearchParams(tab === 'loans' ? {} : { tab },
         { replace: true })
     // /library/circulation?status=overdue is where the dashboard's "chase these"
     // tile points, so the filter has to be readable from the URL.
@@ -127,6 +128,7 @@ export function LibraryCirculation() {
                     { key: 'loans', label: t('library.circulation.loansTab'), icon: 'swap_horiz' },
                     { key: 'fines', label: t('library.circulation.finesTab'), icon: 'payments',
                       count: fines.length },
+                    { key: 'classes', label: t('library.circulation.classesTab'), icon: 'groups' },
                 ]}
                 value={activeTab}
                 onChange={setActiveTab}
@@ -184,6 +186,12 @@ export function LibraryCirculation() {
                             </ul>
                         )}
                     </ListSection>
+                </div>
+            )}
+
+            {activeTab === 'classes' && (
+                <div id="lib-circ-panel-classes" role="tabpanel" aria-labelledby="lib-circ-tab-classes">
+                    <ClassSetsPanel />
                 </div>
             )}
 

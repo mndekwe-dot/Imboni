@@ -761,3 +761,54 @@ def _copy_prefix(book):
     """A readable barcode stem from the title: 'Things Fall Apart' -> 'THI'."""
     letters = ''.join(c for c in book.title.upper() if c.isalnum())
     return (letters[:3] or 'BOK')
+
+
+# ── Start of term and end of term ─────────────────────────────────────────────
+
+def issue_class_set(book, students, *, issued_by=None, settings_row=None):
+    """
+    Hand one copy of ``book`` to each of ``students``: the textbook round at the
+    start of term, without scanning forty barcodes.
+
+    Each pupil goes through the same rules as a single issue (an unpaid fine or
+    a full set of books still stops them), so a class set cannot do what the
+    desk would refuse. Copies are taken in code order and run out honestly:
+    pupils with no copy left are reported as ``short`` rather than failing the
+    whole round. Returns ``{'issued': [...], 'skipped': [(student, reason)], 'short': [...]}``.
+    """
+    settings_row = settings_row or LibrarySettings.load()
+    result = {'issued': [], 'skipped': [], 'short': []}
+    for student in students:
+        # A pupil who already holds this title is not given a second copy.
+        if open_loans_for(student.user).filter(copy__book=book).exists():
+            result['skipped'].append((student, 'Already has a copy of this title.'))
+            continue
+        copy = book.copies.filter(status='available').order_by('copy_code').first()
+        if copy is None:
+            result['short'].append(student)
+            continue
+        try:
+            result['issued'].append((student, issue(copy, student.user, issued_by=issued_by,
+                                                    settings_row=settings_row)))
+        except LibraryError as exc:
+            result['skipped'].append((student, str(exc)))
+    return result
+
+
+def clearance(user):
+    """
+    Whether this person owes the library nothing: no book out, no fine unpaid.
+
+    What a pupil leaving or transferring has to show before the school lets
+    them go. Returns the reasons rather than a bare yes/no so the office can
+    tell the family exactly what to bring back or pay.
+    """
+    loans = list(open_loans_for(user).select_related('copy__book'))
+    fines = list(outstanding_fines_for(user))
+    owed = sum((f.amount for f in fines), Decimal('0'))
+    return {
+        'cleared': not loans and not fines,
+        'books_out': [{'title': l.copy.book.title, 'copy_code': l.copy.copy_code,
+                       'due_on': l.due_on, 'overdue': l.is_overdue} for l in loans],
+        'owed': owed,
+    }

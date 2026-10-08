@@ -140,7 +140,8 @@
       "overdue": "Aucun retard",
       "returned": "Aucun retour pour le moment"
     },
-    "emptyDesc": "Les livres apparaissent ici dès qu'ils sont prêtés."
+    "emptyDesc": "Les livres apparaissent ici dès qu'ils sont prêtés.",
+    "classesTab": "Lots de classe et quitus"
   },
   "fines": {
     "outstanding": "Amendes impayées",
@@ -398,5 +399,27 @@
     "cancel": "Annuler les {{amount}} de remplacement",
     "refund": "Rembourser les {{amount}} de remplacement",
     "keepHint": "L'amende de retard reste due. Décochez si l'école a déjà acheté un exemplaire de remplacement."
+  },
+  "classes": {
+    "setTitle": "Distribuer un lot de classe",
+    "setNote": "Un exemplaire du même titre à chaque élève d’une classe, pour la rentrée. Les règles habituelles s’appliquent à chaque élève.",
+    "findBook": "Trouver le titre…",
+    "noBooks": "Aucun titre disponible ne correspond.",
+    "available": "{{count}} disponibles",
+    "chosen": "Prêt de : {{title}}",
+    "issue": "Prêter à la classe",
+    "chooseFirst": "Choisissez d’abord un titre et un niveau.",
+    "result": "{{issued}} élèves sur {{size}} ont maintenant un exemplaire.",
+    "short": "Plus d’exemplaire pour : {{names}}",
+    "skipped": "Non prêté : {{list}}",
+    "issueFailed": "Impossible de distribuer le lot.",
+    "clearTitle": "Quitus de fin de trimestre",
+    "clearNote": "Qui, dans cette classe, a encore un livre ou une amende impayée.",
+    "check": "Vérifier la classe",
+    "allClear": "Toute la classe est en règle.",
+    "checkFailed": "Impossible de vérifier le quitus.",
+    "notCleared": "{{count}} sur {{size}} pas en règle",
+    "owes": "doit {{amount}}",
+    "booksOut": "a : {{titles}}"
   }
 }
