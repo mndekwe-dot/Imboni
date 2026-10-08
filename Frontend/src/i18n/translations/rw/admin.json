@@ -71,7 +71,16 @@
     "studentsGraduating": "Abanyeshuri barangiza",
     "studentsGraduatingYear": "Abanyeshuri barangiza ({{year}})",
     "studentsPromoted": "Abanyeshuri bazamuwe",
-    "subtitle": "Igenamiterere ry'ikigo: imiterere, amasomo, ibyumba n'ibyifuzo"
+    "subtitle": "Igenamiterere ry'ikigo: imiterere, amasomo, ibyumba n'ibyifuzo",
+    "studentsRepeating": "Abasubiramo umwaka",
+    "repeatersTitle": "Ni nde usubiramo umwaka?",
+    "repeatersHint": "Bose barazamuka keretse abo uhitamo hano. Usubiramo agumana umwaka n’ishuri rye; uri mu mwaka wa nyuma usubiramo ntarangiza.",
+    "repeatsLabel": "Arasubiramo",
+    "findPupil": "Shaka umunyeshuri…",
+    "outcomePromoted": "Arazamuka",
+    "outcomeGraduates": "Ararangiza",
+    "outcomeRepeats": "Arasubiramo",
+    "rolloverSummaryRepeat": "{{promoted}} bazamutse · {{repeating}} basubiramo · {{graduated}} barangije · {{rosters}} lisiti zakozwe"
   },
   "staff": {
     "invitationSent": "Ubutumire bwoherejwe!",

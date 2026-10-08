@@ -18,6 +18,7 @@ import {
     getCurrentTerm,
 } from '../../api/dos'
 import { runTermRollover } from '../../api/admin'
+import { SearchBar } from '../../components/ui/SearchBar'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -458,6 +459,43 @@ function RoomsSection() {
 
 // ── Term Rollover ─────────────────────────────────────────────────────────────
 
+/** Tick the pupils who repeat; everyone else moves up (or graduates) as the school's years dictate. */
+function RepeaterPicker({ students, retain, onToggle }) {
+    const { t } = useTranslation()
+    const [search, setSearch] = useState('')
+    const q = search.trim().toLowerCase()
+    const shown = students.filter(s => !q
+        || s.name.toLowerCase().includes(q)
+        || s.student_id.toLowerCase().includes(q)
+        || s.class_label.toLowerCase().includes(q))
+    return (
+        <div className="adm-ro-panel">
+            <p className="u-strong u-mb-sm">{t('admin.settings.repeatersTitle')}</p>
+            <p className="u-muted u-sm">{t('admin.settings.repeatersHint')}</p>
+            <SearchBar value={search} onChange={setSearch} placeholder={t('admin.settings.findPupil')} />
+            <ul className="row-list adm-ro-list">
+                {shown.map(s => (
+                    <li key={s.id} className="row-item">
+                        <label className="form-check">
+                            <input type="checkbox" checked={retain.has(s.id)} onChange={() => onToggle(s.id)}
+                                aria-label={`${t('admin.settings.repeatsLabel')}: ${s.name}`} />
+                            <span className="row-main">
+                                <span className="u-strong u-sm">{s.name}</span>
+                                <span className="text-xs-muted">{s.class_label} · {s.student_id}</span>
+                            </span>
+                        </label>
+                        <span className="badge badge-secondary">
+                            {retain.has(s.id) ? t('admin.settings.outcomeRepeats')
+                                : s.outcome === 'graduates' ? t('admin.settings.outcomeGraduates')
+                                    : t('admin.settings.outcomePromoted')}
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
+}
+
 function TermRolloverSection() {
     const { t } = useTranslation()
     // The school's own terms, not a hard-coded term1/2/3 — a semester system has
@@ -475,6 +513,7 @@ function TermRolloverSection() {
     const [result, setResult]   = useState(null)
     const [busy, setBusy]       = useState(false)
     const [error, setError]     = useState(null)
+    const [retain, setRetain]   = useState(() => new Set())
 
     useEffect(() => {
         getCurrentTerm().then(setCurrentTerm).catch(() => setCurrentTerm(null))
@@ -494,8 +533,11 @@ function TermRolloverSection() {
     async function handlePreview() {
         setBusy(true); setError(null)
         try {
-            const data = await runTermRollover({ ...form, name: form.name.trim(), dry_run: true })
+            // Always asked with nobody held back: the server says what would happen by default,
+            // and the ticks are applied on top of that here, so toggling is instant.
+            const data = await runTermRollover({ ...form, name: form.name.trim(), dry_run: true, include_students: true })
             setPreview(data)
+            setRetain(new Set())
             setStep(2)
         } catch (err) {
             setError(err?.response?.data?.error || t('admin.settings.previewFailed'))
@@ -507,7 +549,9 @@ function TermRolloverSection() {
     async function handleExecute() {
         setBusy(true); setError(null)
         try {
-            const data = await runTermRollover({ ...form, name: form.name.trim(), dry_run: false })
+            const data = await runTermRollover({
+                ...form, name: form.name.trim(), dry_run: false, retain: [...retain],
+            })
             setResult(data)
             setStep(3)
         } catch (err) {
@@ -515,6 +559,22 @@ function TermRolloverSection() {
         } finally {
             setBusy(false)
         }
+    }
+
+    function toggleRetain(id) {
+        setRetain(prev => {
+            const next = new Set(prev)
+            if (next.has(id)) next.delete(id); else next.add(id)
+            return next
+        })
+    }
+
+    // The preview counts with the ticks applied.
+    const students = preview?.students ?? []
+    const withTicks = data => {
+        if (!students.length || data !== preview) return data
+        const count = outcome => students.filter(s => (retain.has(s.id) ? 'repeats' : s.outcome) === outcome).length
+        return { ...data, students_promoted: count('promoted'), students_graduated: count('graduates'), students_retained: count('repeats') }
     }
 
     const summaryRows = (data) => [
@@ -529,6 +589,9 @@ function TermRolloverSection() {
                 : t('admin.settings.studentsGraduating'),
             value: data.students_graduated,
         },
+        ...(data.students_retained > 0
+            ? [{ label: t('admin.settings.studentsRepeating'), value: data.students_retained }]
+            : []),
         { label: t('admin.settings.rostersCreated'), value: data.rosters_created },
     ]
 
@@ -585,7 +648,7 @@ function TermRolloverSection() {
                         <p className="u-strong u-mb-sm">
                             {preview.current_term} → {preview.new_term}
                         </p>
-                        {summaryRows(preview).map(row => (
+                        {summaryRows(withTicks(preview)).map(row => (
                             <div key={row.label} className="adm-ro-sumrow">
                                 <span className="u-muted">{row.label}</span>
                                 <strong>{row.value}</strong>
@@ -598,6 +661,9 @@ function TermRolloverSection() {
                             </p>
                         )}
                     </div>
+                    {preview.mode === 'promotion' && students.length > 0 && (
+                        <RepeaterPicker students={students} retain={retain} onToggle={toggleRetain} />
+                    )}
                     <p className="adm-ro-danger">
                         {t('admin.settings.rolloverDanger', { term: preview.current_term })}
                     </p>
@@ -619,8 +685,10 @@ function TermRolloverSection() {
                         {t('admin.settings.rolloverDone', { term: result.new_term })}
                     </p>
                     <p className="u-muted u-fs-085">
-                        {t('admin.settings.rolloverSummary', {
+                        {t(result.students_retained > 0
+                            ? 'admin.settings.rolloverSummaryRepeat' : 'admin.settings.rolloverSummary', {
                             promoted: result.students_promoted,
+                            repeating: result.students_retained,
                             graduated: result.students_graduated,
                             rosters: result.rosters_created,
                         })}

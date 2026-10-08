@@ -71,7 +71,16 @@
     "studentsGraduating": "Students graduating",
     "studentsGraduatingYear": "Students graduating ({{year}})",
     "studentsPromoted": "Students promoted",
-    "subtitle": "School-wide configuration: structure, subjects, rooms and preferences"
+    "subtitle": "School-wide configuration: structure, subjects, rooms and preferences",
+    "studentsRepeating": "Repeating the year",
+    "repeatersTitle": "Who repeats the year?",
+    "repeatersHint": "Everyone moves up unless you tick them here. A pupil who repeats keeps their year and class; a final-year pupil who repeats does not graduate.",
+    "repeatsLabel": "Repeats",
+    "findPupil": "Find a pupil…",
+    "outcomePromoted": "Moves up",
+    "outcomeGraduates": "Graduates",
+    "outcomeRepeats": "Repeats",
+    "rolloverSummaryRepeat": "{{promoted}} promoted · {{repeating}} repeating · {{graduated}} graduated · {{rosters}} rosters created"
   },
   "staff": {
     "invitationSent": "Invitation sent!",

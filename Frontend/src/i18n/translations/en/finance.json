@@ -493,5 +493,22 @@
     "fromChild": "Starting from child number",
     "categoriesLabel": "On which fees",
     "active": "In use"
+  },
+  "reminders": {
+    "open": "Send reminders",
+    "title": "Remind families who owe",
+    "minPercent": "Owing at least this % of the bill",
+    "minAmount": "and at least this amount",
+    "message": "Message",
+    "placeholders": "You can use {student_name}, {student_code} and {balance}.",
+    "defaultMessage": "Fees reminder: {student_name} ({student_code}) has {balance} outstanding this term. Please pay at the school office or by mobile money.",
+    "alsoSms": "Also send as an SMS (the in-app notice is always sent)",
+    "preview": "Preview",
+    "send": "Send to {{count}}",
+    "nobody": "No family matches these thresholds.",
+    "sample": "The first message will read:",
+    "sent": "Reminders sent. {{reached}} families reached, {{unreachable}} have no linked parent.",
+    "sendFailed": "Could not send the reminders.",
+    "previewFailed": "Could not work out who would be reminded."
   }
 }

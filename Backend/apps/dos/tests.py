@@ -340,6 +340,46 @@ class TestTermRollover:
         assert s6_student.status == 'active'                # unchanged
         assert not AcademicTerm.objects.filter(year=2026).exists()
 
+    def test_a_repeating_pupil_keeps_their_year_and_class(self, make_authenticated_client):
+        from apps.results.models import AcademicTerm
+        from apps.teacher.models import Class, ClassAssignment
+        client, _admin = make_authenticated_client('admin')
+        term, s2_student, s6_student, _ = self._setup_school()
+        s2_class = Class.objects.get(grade='S2', section='A')
+
+        response = client.post('/imboni/dos/term-rollover/',
+                               self._payload(retain=[str(s2_student.id)]), format='json')
+
+        assert response.status_code == 200
+        assert response.data['students_retained'] == 1
+        assert response.data['students_promoted'] == 0
+        s2_student.refresh_from_db()
+        assert s2_student.grade == 'S2'
+        new_term = AcademicTerm.objects.get(term='term1', year=2026)
+        assert ClassAssignment.objects.filter(class_obj=s2_class, student=s2_student, term=new_term).exists()
+
+    def test_a_final_year_pupil_who_repeats_does_not_graduate(self, make_authenticated_client):
+        client, _admin = make_authenticated_client('admin')
+        _term, _s2, s6_student, _ = self._setup_school()
+
+        response = client.post('/imboni/dos/term-rollover/',
+                               self._payload(retain=[str(s6_student.id)]), format='json')
+
+        s6_student.refresh_from_db()
+        assert s6_student.status == 'active' and s6_student.grade == 'S6'
+        assert response.data['students_graduated'] == 0
+
+    def test_the_review_lists_every_pupil_with_what_will_happen(self, make_authenticated_client):
+        client, _admin = make_authenticated_client('admin')
+        _term, s2_student, s6_student, _ = self._setup_school()
+
+        response = client.post('/imboni/dos/term-rollover/',
+                               self._payload(dry_run=True, include_students=True,
+                                             retain=[str(s2_student.id)]), format='json')
+
+        outcomes = {row['id']: row['outcome'] for row in response.data['students']}
+        assert outcomes == {str(s2_student.id): 'repeats', str(s6_student.id): 'graduates'}
+
     def test_new_year_rollover_promotes_and_graduates(self, make_authenticated_client):
         from apps.results.models import AcademicTerm
         from apps.teacher.models import ClassAssignment

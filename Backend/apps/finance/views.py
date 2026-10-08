@@ -646,40 +646,133 @@ class StatementDocumentView(FinanceView):
         return finance_documents.statement_pdf(student, term, balance)
 
 
+def _families_owing(request, term):
+    """
+    Who owes what, per student, for the class the picker is showing.
+
+    Shared by the printed letters and the bulk send, so "owes" means the same
+    thing in both. `charged` is the whole bill, so a caller can ask for those
+    who still owe more than half of it.
+    """
+    fees = Fee.objects.select_related('student__user').prefetch_related('payments')
+    if term is not None:
+        fees = fees.filter(term=term)
+    fees = student_filters(fees, request)
+
+    families = {}
+    for fee in fees:
+        if fee.student is None:
+            continue
+        row = families.setdefault(str(fee.student.id), {
+            'student': student_brief(fee.student),
+            'outstanding': Decimal('0'),
+            'charged': Decimal('0'),
+            'lines': [],
+        })
+        row['charged'] += money(fee.amount)
+        balance = services.balance_of(fee)
+        if balance <= Decimal('0'):
+            continue
+        row['outstanding'] += balance
+        row['lines'].append({
+            'category': services.category_label(fee.category),
+            'due_date': fee.due_date,
+            'balance': balance,
+        })
+
+    rows = [r for r in families.values() if r['outstanding'] > Decimal('0')]
+    return sorted(rows, key=lambda r: r['outstanding'], reverse=True)
+
+
 class RemindersDocumentView(FinanceView):
     """
     A letter per family that owes, for the class the picker is showing.
 
     One page each rather than one list: a reminder is handed to a particular
-    parent, and a sheet carrying forty families\' debts tells every one of them
+    parent, and a sheet carrying forty families' debts tells every one of them
     what the others owe.
     """
 
     def get(self, request):
         term = _current_term(request)
-        fees = Fee.objects.select_related('student__user').prefetch_related('payments')
-        if term is not None:
-            fees = fees.filter(term=term)
-        fees = student_filters(fees, request)
+        return finance_documents.reminders_pdf(_families_owing(request, term), term)
 
-        families = {}
-        for fee in fees:
-            if fee.student is None:
-                continue
-            balance = services.balance_of(fee)
-            if balance <= Decimal('0'):
-                continue
-            row = families.setdefault(str(fee.student.id), {
-                'student': student_brief(fee.student),
-                'outstanding': Decimal('0'),
-                'lines': [],
-            })
-            row['outstanding'] += balance
-            row['lines'].append({
-                'category': services.category_label(fee.category),
-                'due_date': fee.due_date,
-                'balance': balance,
-            })
 
-        rows = sorted(families.values(), key=lambda r: r['outstanding'], reverse=True)
-        return finance_documents.reminders_pdf(rows, term)
+DEFAULT_REMINDER = (
+    'Fees reminder: {student_name} ({student_code}) has {balance} outstanding '
+    'this term. Please pay at the school office or by mobile money.'
+)
+REMINDER_PLACEHOLDERS = ('student_name', 'student_code', 'balance')
+
+
+class _Blank(dict):
+    def __missing__(self, key):
+        return ''
+
+
+class RemindersSendView(BursarView):
+    """
+    POST /imboni/finance/reminders/send/
+
+    One send to every family that owes more than a threshold, instead of the
+    bursar ticking them one by one. `dry_run` answers "who would get it, and
+    what would it say" without sending anything, so the office can look first.
+
+        min_percent  only those who still owe at least this share of the bill (default 50)
+        min_amount   and at least this much in money (default 0)
+        message      text with {student_name} {student_code} {balance}
+        sms          also send as an SMS (default true); in-app always
+        grade, stream, term   the same class picker as the lists
+    """
+
+    def post(self, request):
+        data = request.data
+        try:
+            min_percent = Decimal(str(data.get('min_percent', 50)))
+            min_amount = Decimal(str(data.get('min_amount', 0)))
+        except InvalidOperation:
+            return Response({'detail': 'Thresholds must be numbers.'}, status=400)
+        if not (Decimal('0') <= min_percent <= Decimal('100')) or min_amount < 0:
+            return Response({'detail': 'Percentage must be 0-100 and amount cannot be negative.'}, status=400)
+        template = (data.get('message') or DEFAULT_REMINDER).strip()
+        try:
+            template.format_map(_Blank())
+        except (ValueError, KeyError, IndexError):
+            return Response({'detail': 'The message has a { or } that is not a placeholder.'}, status=400)
+
+        term = _current_term(request)
+        chosen = []
+        for r in _families_owing(request, term):
+            share = (r['outstanding'] / r['charged'] * 100) if r['charged'] else Decimal('100')
+            if share >= min_percent and r['outstanding'] >= min_amount:
+                chosen.append(r)
+
+        def text(r):
+            return template.format_map(_Blank(
+                student_name=r['student']['name'], student_code=r['student']['student_id'],
+                balance=f"{r['outstanding']:,.0f}",
+            ))
+
+        total = sum((r['outstanding'] for r in chosen), Decimal('0'))
+        summary = {
+            'families': len(chosen), 'total': str(total),
+            'sample': text(chosen[0]) if chosen else '',
+        }
+        if data.get('dry_run'):
+            return Response({**summary, 'sent': 0})
+
+        from apps.notifications.services import notify_parents_of
+        sent = reached = 0
+        for r in chosen:
+            student = Student.objects.get(pk=r['student']['id'])
+            n = notify_parents_of(
+                student, 'Fees reminder', text(r), type='announcement',
+                path='/parent/children', send_sms=bool(data.get('sms', True)),
+            )
+            sent += n
+            reached += 1 if n else 0
+        from apps.audit.services import audit
+        audit(request.user, 'finance.reminders_sent', f'{len(chosen)} families',
+              {'min_percent': str(min_percent), 'min_amount': str(min_amount), 'notified': sent})
+        return Response({**summary, 'sent': sent, 'reached': reached,
+                         'unreachable': len(chosen) - reached})

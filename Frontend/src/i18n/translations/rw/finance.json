@@ -493,5 +493,22 @@
     "fromChild": "Guhera ku mwana wa",
     "categoriesLabel": "Ku yahe mafaranga",
     "active": "Rirakora"
+  },
+  "reminders": {
+    "open": "Ohereza ibyibutsa",
+    "title": "Ibutsa imiryango ifite ibirarane",
+    "minPercent": "Ifitiye nibura iki gice (%) cy’amafaranga",
+    "minAmount": "kandi nibura aya mafaranga",
+    "message": "Ubutumwa",
+    "placeholders": "Ushobora gukoresha {student_name}, {student_code} na {balance}.",
+    "defaultMessage": "Kwibutsa amafaranga y’ishuri: {student_name} ({student_code}) afite {balance} atarishyurwa muri iki gihembwe. Mwishyure ku biro by’ishuri cyangwa kuri mobile money.",
+    "alsoSms": "Ohereza no kuri SMS (ubutumwa bwo muri porogaramu burohererezwa buri gihe)",
+    "preview": "Reba mbere",
+    "send": "Ohereza kuri {{count}}",
+    "nobody": "Nta muryango uhuye n’ibi bipimo.",
+    "sample": "Ubutumwa bwa mbere buzaba:",
+    "sent": "Ibyibutsa byoherejwe. Imiryango {{reached}} yagezeho, {{unreachable}} nta mubyeyi uhujwe.",
+    "sendFailed": "Ntibishobotse kohereza ibyibutsa.",
+    "previewFailed": "Ntibishobotse kumenya abazibutswa."
   }
 }

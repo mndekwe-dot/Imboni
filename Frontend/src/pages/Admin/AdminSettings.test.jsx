@@ -203,4 +203,37 @@ describe('AdminSettings', () => {
     await waitFor(() => expect(screen.getByText(/is now the current term/)).toBeInTheDocument())
     expect(runTermRollover).toHaveBeenLastCalledWith(expect.objectContaining({ dry_run: false }))
   })
+
+  it('lets the admin tick a pupil who repeats, and sends that with the rollover', async () => {
+    getCurrentTerm.mockResolvedValue({ id: 't1', name: 'Term 3 2026' })
+    const base = {
+      mode: 'promotion', current_term: 'Term 3 2026', new_term: 'Term 1 2027',
+      students_promoted: 2, students_graduated: 1, students_retained: 0, rosters_created: 3, missing_classes: [],
+      students: [
+        { id: 'a', name: 'Amina Uwase', student_id: 'ADM1', class_label: 'S2A', outcome: 'promoted' },
+        { id: 'b', name: 'Eric Habimana', student_id: 'ADM2', class_label: 'S2A', outcome: 'promoted' },
+        { id: 'c', name: 'Joy Kamali', student_id: 'ADM3', class_label: 'S6A', outcome: 'graduates' },
+      ],
+    }
+    runTermRollover.mockResolvedValueOnce({ ...base, dry_run: true }).mockResolvedValueOnce({ ...base, dry_run: false })
+
+    renderWithRouter(<AdminSettings />)
+    fireEvent.click(screen.getByRole('button', { name: /Term Rollover/ }))
+    await waitFor(() => expect(screen.getByText(/Current term:/)).toBeInTheDocument())
+    fireEvent.change(screen.getByLabelText('Year'), { target: { value: '2027' } })
+    fireEvent.change(screen.getByLabelText('Display name'), { target: { value: 'Term 1 2027' } })
+    fireEvent.change(screen.getByLabelText('Start date'), { target: { value: '2027-01-05' } })
+    fireEvent.change(screen.getByLabelText('End date'), { target: { value: '2027-04-02' } })
+    fireEvent.click(screen.getByRole('button', { name: /Preview Rollover/ }))
+
+    fireEvent.click(await screen.findByLabelText('Repeats: Eric Habimana'))
+    fireEvent.click(screen.getByLabelText('Repeats: Joy Kamali'))
+    expect(screen.getByText('Repeating the year')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Run Rollover/ }))
+    await waitFor(() => expect(screen.getByText(/is now the current term/)).toBeInTheDocument())
+    const sent = runTermRollover.mock.calls.at(-1)[0]
+    expect(sent.dry_run).toBe(false)
+    expect(sent.retain.sort()).toEqual(['b', 'c'])
+  })
 })

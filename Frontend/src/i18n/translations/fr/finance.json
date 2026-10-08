@@ -493,5 +493,22 @@
     "fromChild": "À partir de l'enfant n°",
     "categoriesLabel": "Sur quels frais",
     "active": "En vigueur"
+  },
+  "reminders": {
+    "open": "Envoyer des rappels",
+    "title": "Relancer les familles débitrices",
+    "minPercent": "Doit au moins ce % de la facture",
+    "minAmount": "et au moins ce montant",
+    "message": "Message",
+    "placeholders": "Vous pouvez utiliser {student_name}, {student_code} et {balance}.",
+    "defaultMessage": "Rappel de frais : {student_name} ({student_code}) a {balance} à payer ce trimestre. Merci de régler au bureau de l’école ou par mobile money.",
+    "alsoSms": "Envoyer aussi par SMS (la notification dans l’application est toujours envoyée)",
+    "preview": "Aperçu",
+    "send": "Envoyer à {{count}}",
+    "nobody": "Aucune famille ne correspond à ces seuils.",
+    "sample": "Le premier message sera :",
+    "sent": "Rappels envoyés. {{reached}} familles jointes, {{unreachable}} sans parent lié.",
+    "sendFailed": "Impossible d’envoyer les rappels.",
+    "previewFailed": "Impossible de déterminer qui serait relancé."
   }
 }
