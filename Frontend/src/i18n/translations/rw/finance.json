@@ -144,7 +144,8 @@
     "amountFor": "Amafaranga ya {{charge}}",
     "printA4": "Priinta (A4)",
     "printRoll80": "Priinta ku rupapuro rwa 80 mm",
-    "printRoll58": "Priinta ku rupapuro rwa 58 mm"
+    "printRoll58": "Priinta ku rupapuro rwa 58 mm",
+    "importStatement": "Injiza raporo ya banki"
   },
   "debtors": {
     "title": "Abafite imyenda",
@@ -513,5 +514,36 @@
     "sent": "Ibyibutsa byoherejwe. Imiryango {{reached}} yagezeho, {{unreachable}} nta mubyeyi uhujwe.",
     "sendFailed": "Ntibishobotse kohereza ibyibutsa.",
     "previewFailed": "Ntibishobotse kumenya abazibutswa."
+  },
+  "statement": {
+    "title": "Huza raporo ya banki cyangwa ya mobile money n’imiryango",
+    "intro": "Shyiramo dosiye ya CSV y’iyo raporo. Buri murongo uhuzwa n’umuryango; usuzuma mbere y’uko amafaranga yandikwa.",
+    "method": "Amafaranga yaje ate?",
+    "bank": "Banki",
+    "momo": "Mobile money",
+    "file": "Dosiye ya raporo (CSV)",
+    "noAmount": "Nta nkingi y’amafaranga ibonetse. Dosiye ikeneye inkingi yitwa Amount cyangwa Credit.",
+    "noRows": "Nta mafaranga yinjiye ari muri iyi dosiye.",
+    "match": "Huza imirongo",
+    "matching": "Birahuzwa…",
+    "matchFailed": "Ntibishobotse guhuza raporo.",
+    "line": "Umurongo",
+    "amount": "Amafaranga",
+    "reference": "Nomero",
+    "family": "Umuryango",
+    "record": "Andika",
+    "choose": "Hitamo umuryango…",
+    "status": {
+      "suggested": "Byatanzwe",
+      "ambiguous": "Hitamo umwe",
+      "recorded": "Byamaze kwandikwa",
+      "unmatched": "Ntibihuye"
+    },
+    "summary": "{{ready}} byiteguye · {{review}} byo guhitamo · {{skip}} bizasimbukwa",
+    "apply": "Andika amafaranga {{count}}",
+    "applied": "Amafaranga {{taken}} yanditswe, {{skipped}} yasimbutse.",
+    "applyFailed": "Ntibishobotse kwandika amafaranga.",
+    "unmatchedHint": "Ntibihuye: shakira umuryango muri «Akira amafaranga».",
+    "discard": "Uvuye muri uku guhuza? Nta kintu cyari cyandikwa."
   }
 }

@@ -5,6 +5,7 @@ import { ListSection } from '../../components/ui/ListSection'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
 import { Modal } from '../../components/ui/Modal'
+import { StatementModal } from './FinanceStatement'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import { ClassFilter } from '../../components/ui/ClassFilter'
 import { openDocument } from '../../api/documents'
@@ -34,6 +35,7 @@ export function FinancePayments() {
     const [loading, setLoading]   = useState(true)
     const [taking, setTaking]     = useState(false)
     const [receipt, setReceipt]   = useState(null)
+    const [importing, setImporting] = useState(false)
 
     const [klass, setKlass] = useState({ grade: '', stream: '' })
 
@@ -76,6 +78,7 @@ export function FinancePayments() {
                 />
             )}
             {receipt && <ReceiptModal payment={receipt} onClose={() => setReceipt(null)} />}
+            {importing && <StatementModal onClose={() => setImporting(false)} onDone={load} />}
 
             <ClassFilter grade={klass.grade} stream={klass.stream}
                 onChange={setKlass} disabled={loading} />
@@ -84,6 +87,10 @@ export function FinancePayments() {
                 <button className="btn btn-primary" onClick={() => setTaking(true)}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                     {t('finance.payments.take')}
+                </button>
+                <button className="btn btn-outline" onClick={() => setImporting(true)}>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload_file</span>
+                    {t('finance.payments.importStatement')}
                 </button>
                 <div className="toolbar-spacer" />
                 {/* Printing the receipt book is the cash-up: the same rows,

@@ -144,7 +144,8 @@
     "amountFor": "Amount for {{charge}}",
     "printA4": "Print (A4)",
     "printRoll80": "Print on 80 mm roll",
-    "printRoll58": "Print on 58 mm roll"
+    "printRoll58": "Print on 58 mm roll",
+    "importStatement": "Import a statement"
   },
   "debtors": {
     "title": "Who owes",
@@ -513,5 +514,36 @@
     "sent": "Reminders sent. {{reached}} families reached, {{unreachable}} have no linked parent.",
     "sendFailed": "Could not send the reminders.",
     "previewFailed": "Could not work out who would be reminded."
+  },
+  "statement": {
+    "title": "Match a bank or mobile-money statement",
+    "intro": "Upload the statement CSV. Each line is matched to a family; you review before any money is recorded.",
+    "method": "Where did the money come in?",
+    "bank": "Bank",
+    "momo": "Mobile money",
+    "file": "Statement file (CSV)",
+    "noAmount": "No amount column was found. The file needs a column headed Amount or Credit.",
+    "noRows": "No incoming payments found in this file.",
+    "match": "Match lines",
+    "matching": "Matching…",
+    "matchFailed": "Could not match the statement.",
+    "line": "Line",
+    "amount": "Amount",
+    "reference": "Reference",
+    "family": "Family",
+    "record": "Record",
+    "choose": "Choose a family…",
+    "status": {
+      "suggested": "Suggested",
+      "ambiguous": "Choose one",
+      "recorded": "Already recorded",
+      "unmatched": "Not matched"
+    },
+    "summary": "{{ready}} ready to record · {{review}} to choose · {{skip}} will be skipped",
+    "apply": "Record {{count}} payments",
+    "applied": "{{taken}} payments recorded, {{skipped}} skipped.",
+    "applyFailed": "Could not record the payments.",
+    "unmatchedHint": "Not matched: find the family under Take payment.",
+    "discard": "Leave this match? Nothing has been recorded yet."
   }
 }
