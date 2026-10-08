@@ -786,3 +786,93 @@ class RemindersSendView(BursarView):
               {'min_percent': str(min_percent), 'min_amount': str(min_amount), 'notified': sent})
         return Response({**summary, 'sent': sent, 'reached': reached,
                          'unreachable': len(chosen) - reached})
+
+
+class StatementMatchView(BursarView):
+    """
+    POST /imboni/finance/reconcile/statement/   {rows: [{reference, amount, description, phone, date}], term?}
+
+    Say which family each line of a bank or mobile-money statement belongs to.
+    Writes nothing: the bursar reviews the suggestions, then applies them.
+    """
+
+    def post(self, request):
+        from . import statement_match as sm
+        rows = request.data.get('rows')
+        if not isinstance(rows, list) or not rows:
+            return Response({'detail': 'Send the statement lines to match.'}, status=400)
+        if len(rows) > 2000:
+            return Response({'detail': 'Match at most 2,000 lines at a time.'}, status=400)
+
+        families = []
+        for fee_group in _families_owing(request, _current_term(request)):
+            student = fee_group['student']
+            account = StudentAccount.objects.filter(student_id=student['id']).first()
+            families.append({
+                'id': str(student['id']), 'student_id': student['student_id'], 'name': student['name'],
+                'class_label': student['class_label'],
+                'phone': account.payer_phone if account else '',
+                'outstanding': fee_group['outstanding'],
+            })
+        by_id = {f['id']: f for f in families}
+        recorded = {r.lower() for r in FeePayment.objects.exclude(reference='')
+                    .filter(reversed_at__isnull=True).values_list('reference', flat=True)}
+
+        results = sm.match_statement(rows, families, recorded)
+        for result in results:
+            result['candidates'] = [
+                {'id': c, 'name': by_id[c]['name'], 'student_id': by_id[c]['student_id'],
+                 'class_label': by_id[c]['class_label'], 'outstanding': str(by_id[c]['outstanding'])}
+                for c in result['candidates']]
+        counts = {}
+        for r in results:
+            counts[r['status']] = counts.get(r['status'], 0) + 1
+        return Response({'results': results, 'counts': counts})
+
+
+class StatementApplyView(BursarView):
+    """
+    POST /imboni/finance/reconcile/statement/apply/
+        {method: 'momo'|'bank', rows: [{student, amount, reference, date?, payer_name?}]}
+
+    Take the money for the lines the bursar confirmed. A reference that is
+    already on a receipt is skipped rather than taken twice, so clicking Apply
+    again after a timeout cannot double a family's payment.
+    """
+
+    def post(self, request):
+        from . import statement_match as sm
+        method = request.data.get('method', 'bank')
+        if method not in ('bank', 'momo'):
+            return Response({'detail': 'method must be bank or momo.'}, status=400)
+        rows = request.data.get('rows')
+        if not isinstance(rows, list) or not rows:
+            return Response({'detail': 'Nothing to apply.'}, status=400)
+
+        term = _current_term(request)
+        taken, skipped = [], []
+        for row in rows:
+            amount = sm.parse_amount(row.get('amount'))
+            reference = (row.get('reference') or '').strip()[:80]
+            student = Student.objects.filter(pk=row.get('student')).first() if row.get('student') else None
+            if student is None or amount is None:
+                skipped.append({'reference': reference, 'reason': 'No family or amount.'})
+                continue
+            if reference and FeePayment.objects.filter(
+                    reference__iexact=reference, reversed_at__isnull=True).exists():
+                skipped.append({'reference': reference, 'reason': 'Already recorded.'})
+                continue
+            try:
+                lines = services.record_split_payment(
+                    student, amount, None, method=method, reference=reference,
+                    received_by=request.user, paid_on=row.get('date') or None,
+                    payer_name=row.get('payer_name', ''), notes='From a statement', term=term)
+            except services.FinanceError as exc:
+                skipped.append({'reference': reference, 'reason': str(exc)})
+                continue
+            taken.append({'reference': reference, 'student': student.full_name,
+                          'receipt_no': lines[0].receipt_no, 'amount': str(amount)})
+        from apps.audit.services import audit
+        audit(request.user, 'finance.statement_applied', f'{len(taken)} payments',
+              {'method': method, 'skipped': len(skipped)})
+        return Response({'taken': taken, 'skipped': skipped}, status=201 if taken else 200)

@@ -144,7 +144,8 @@
     "amountFor": "Montant pour {{charge}}",
     "printA4": "Imprimer (A4)",
     "printRoll80": "Imprimer sur rouleau 80 mm",
-    "printRoll58": "Imprimer sur rouleau 58 mm"
+    "printRoll58": "Imprimer sur rouleau 58 mm",
+    "importStatement": "Importer un relevé"
   },
   "debtors": {
     "title": "Impayés",
@@ -513,5 +514,36 @@
     "sent": "Rappels envoyés. {{reached}} familles jointes, {{unreachable}} sans parent lié.",
     "sendFailed": "Impossible d’envoyer les rappels.",
     "previewFailed": "Impossible de déterminer qui serait relancé."
+  },
+  "statement": {
+    "title": "Rapprocher un relevé bancaire ou mobile money",
+    "intro": "Importez le relevé CSV. Chaque ligne est associée à une famille ; vous vérifiez avant tout enregistrement.",
+    "method": "D’où vient l’argent ?",
+    "bank": "Banque",
+    "momo": "Mobile money",
+    "file": "Fichier du relevé (CSV)",
+    "noAmount": "Aucune colonne de montant. Le fichier doit avoir une colonne Amount ou Credit.",
+    "noRows": "Aucun paiement reçu dans ce fichier.",
+    "match": "Associer les lignes",
+    "matching": "Association…",
+    "matchFailed": "Impossible d’associer le relevé.",
+    "line": "Ligne",
+    "amount": "Montant",
+    "reference": "Référence",
+    "family": "Famille",
+    "record": "Enregistrer",
+    "choose": "Choisir une famille…",
+    "status": {
+      "suggested": "Suggérée",
+      "ambiguous": "À choisir",
+      "recorded": "Déjà enregistrée",
+      "unmatched": "Non associée"
+    },
+    "summary": "{{ready}} prêtes · {{review}} à choisir · {{skip}} ignorées",
+    "apply": "Enregistrer {{count}} paiements",
+    "applied": "{{taken}} paiements enregistrés, {{skipped}} ignorés.",
+    "applyFailed": "Impossible d’enregistrer les paiements.",
+    "unmatchedHint": "Non associée : retrouvez la famille sous Encaisser un paiement.",
+    "discard": "Quitter ce rapprochement ? Rien n’a encore été enregistré."
   }
 }
