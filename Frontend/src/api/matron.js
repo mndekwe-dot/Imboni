@@ -47,3 +47,9 @@ export const patchMedication       = (id, d)   => client.patch(`/imboni/matron/m
 export const deleteMedication      = (id)      => client.delete(`/imboni/matron/medications/${id}/`)
 export const getMedicationsToday   = (params)  => client.get('/imboni/matron/medications/today/', { params })
 export const administerMedication  = (id, d)   => client.post(`/imboni/matron/medications/${id}/administer/`, d)
+
+// ── The sick bay's cupboard ──────────────────────────────────────────────────
+export const getPharmacy        = () => client.get('/imboni/matron/pharmacy/')
+export const addPharmacyItem    = (data) => client.post('/imboni/matron/pharmacy/', data)
+export const movePharmacyStock  = (id, data) => client.post(`/imboni/matron/pharmacy/${id}/move/`, data)
+export const getPharmacyHistory = (id) => client.get(`/imboni/matron/pharmacy/${id}/history/`)

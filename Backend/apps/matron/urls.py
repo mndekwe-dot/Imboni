@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import pharmacy_api, views
 
 urlpatterns = [
     # Dashboard
@@ -29,6 +29,12 @@ urlpatterns = [
     # Boarding Schedule (standing weekly routine)
     path('matron/boarding-schedule/',       views.MatronBoardingScheduleView.as_view(), name='matron-boarding-schedule'),
     path('matron/weekly-schedule/',         views.MatronWeeklyScheduleView.as_view(),    name='matron-weekly-schedule'),
+
+    # The sick bay's cupboard
+    path('matron/pharmacy/',                           pharmacy_api.PharmacyListView.as_view(),        name='matron-pharmacy'),
+    path('matron/pharmacy/<uuid:pk>/',                 pharmacy_api.PharmacyDetailView.as_view(),      name='matron-pharmacy-item'),
+    path('matron/pharmacy/<uuid:pk>/move/',            pharmacy_api.PharmacyMoveView.as_view(),        name='matron-pharmacy-move'),
+    path('matron/pharmacy/<uuid:pk>/history/',         pharmacy_api.PharmacyHistoryView.as_view(),     name='matron-pharmacy-history'),
 
     # Medication Schedule
     path('matron/medications/',                        views.MatronMedicationListView.as_view(),       name='matron-medications'),
