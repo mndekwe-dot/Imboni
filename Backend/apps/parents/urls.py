@@ -22,6 +22,7 @@ urlpatterns = router.urls + students_router.urls + [
     path('parents/<uuid:pk>/dashboard/', views.StudentDashboardView.as_view(), name='student-dashboard'),
     path('parents/my-children/', views.MyChildrenView.as_view(), name='parent-my-children'),
     path('parents/<uuid:pk>/card/', views.StudentCardView.as_view(), name='student-card'),
+    path('parents/<uuid:pk>/report-card/', views.ChildReportCardView.as_view(), name='student-report-card'),
     path('parents/<uuid:pk>/fees/', views.StudentFeeListView.as_view(), name='student-fees'),
     path('parents/<uuid:pk>/documents/', views.StudentDocumentListView.as_view(), name='student-documents'),
     path('parents/<uuid:pk>/schedule/today/', views.StudentTodayScheduleView.as_view(), name='student-schedule-today'),

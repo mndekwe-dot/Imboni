@@ -1,14 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { ParentResults } from './ParentResults'
-import { getMyChildren, getChildAssessments, getChildSummative, getChildReviews } from '../../api/parent'
+import { getMyChildren, getChildAssessments, getChildSummative, getChildReviews, downloadChildReportCard } from '../../api/parent'
+import { saveBlob } from '../../utils/download'
 
 vi.mock('../../api/parent', () => ({
   getMyChildren: vi.fn(),
   getChildAssessments: vi.fn(),
   getChildSummative: vi.fn(),
   getChildReviews: vi.fn(),
+  downloadChildReportCard: vi.fn(),
 }))
+
+vi.mock('../../utils/download', () => ({ saveBlob: vi.fn() }))
 
 vi.mock('../../api/notifications', () => ({
   getNotifications: vi.fn().mockResolvedValue([]),
@@ -83,5 +87,34 @@ describe('ParentResults', () => {
     expect(screen.queryByText('Eric Quiz')).not.toBeInTheDocument()
     expect(getChildAssessments).toHaveBeenCalledWith(1)
     expect(getChildAssessments).toHaveBeenCalledWith(2)
+  })
+
+  it('downloads the report card of the child being viewed', async () => {
+    getMyChildren.mockResolvedValue([CHILDREN[0]])
+    getChildAssessments.mockResolvedValue([])
+    getChildSummative.mockResolvedValue([])
+    getChildReviews.mockResolvedValue([])
+    downloadChildReportCard.mockResolvedValue(new Blob(['%PDF']))
+
+    renderWithRouter(<ParentResults />)
+    fireEvent.click(await screen.findByRole('button', { name: /Report card/ }))
+
+    await waitFor(() => expect(saveBlob).toHaveBeenCalled())
+    expect(downloadChildReportCard).toHaveBeenCalledWith(1)
+    expect(saveBlob.mock.calls[0][1]).toBe('report-card-Eric-N..pdf')
+  })
+
+  it('says so when there is no approved report yet, instead of failing silently', async () => {
+    getMyChildren.mockResolvedValue([CHILDREN[0]])
+    getChildAssessments.mockResolvedValue([])
+    getChildSummative.mockResolvedValue([])
+    getChildReviews.mockResolvedValue([])
+    downloadChildReportCard.mockRejectedValue({ response: { status: 404 } })
+
+    renderWithRouter(<ParentResults />)
+    fireEvent.click(await screen.findByRole('button', { name: /Report card/ }))
+
+    expect(await screen.findByText(/no report card to download/)).toBeInTheDocument()
+    expect(saveBlob).not.toHaveBeenCalled()
   })
 })

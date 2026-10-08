@@ -798,3 +798,21 @@ class ParentConsentRespondView(generics.GenericAPIView):
             'student_id': str(rel.student.id),
             'status':     resp.status,
         })
+
+
+class ChildReportCardView(_APIView):
+    """
+    GET /imboni/parents/<pk>/report-card/?term_id=<uuid>
+
+    The same PDF the DOS prints, for a parent's own child. Only approved
+    results appear in it, so a parent never sees marks a teacher has not
+    had signed off.
+    """
+    permission_classes = [IsParent]
+
+    def get(self, request, pk):
+        from apps.dos.report_views import StudentReportCardView
+        if _verify_parent_owns_student(request, pk) is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        # Reuse the DOS generator as is; it only reads query params and the pk.
+        return StudentReportCardView().get(request, pk)

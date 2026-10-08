@@ -1030,6 +1030,8 @@ class TeacherAttendanceStudentsView(APIView):
 
         from apps.discipline.exeat_service import students_away
         away = students_away([enr.student_id for enr in enrollments], target_date)
+        from apps.matron.sickbay_service import students_in_sick_bay
+        sick = students_in_sick_bay([enr.student_id for enr in enrollments], target_date)
 
         data = []
         for enr in enrollments:
@@ -1045,6 +1047,7 @@ class TeacherAttendanceStudentsView(APIView):
                 'status':       record.status if record else None,
                 'notes':        record.notes  if record else '',
                 'on_exeat':     student.id in away,
+                'in_sick_bay':  student.id in sick,
             })
 
         return Response(TeacherAttendanceStudentSerializer(data, many=True).data)

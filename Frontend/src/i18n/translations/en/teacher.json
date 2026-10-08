@@ -215,7 +215,9 @@
     "subtitle": "Track student attendance for your classes",
     "title": "Mark Attendance",
     "onExeat": "On exéat",
-    "onExeatNote": "Signed out on an exéat pass"
+    "onExeatNote": "Signed out on an exéat pass",
+    "inSickBay": "In sick bay",
+    "inSickBayNote": "Admitted to the sick bay"
   },
   "classes": {
     "assessmentNamePlaceholder": "e.g. Mid-Term Exam, CAT 1, Quiz 3…",
