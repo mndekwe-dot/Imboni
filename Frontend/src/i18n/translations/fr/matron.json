@@ -126,5 +126,23 @@
     "subtitle": "{{house}}, {{count}} élèves",
     "subtitleNoHouse": "{{count}} élèves",
     "title": "Mes élèves"
+  },
+  "medical": {
+    "title": "Alertes santé",
+    "hint": "Problèmes que le personnel doit voir d’un coup d’œil. Affichés sur la liste, le réfectoire et l’infirmerie.",
+    "save": "Enregistrer les alertes",
+    "saved": "Alertes santé enregistrées.",
+    "saveFailed": "Impossible d’enregistrer les alertes santé.",
+    "allergies": "Allergies",
+    "alert": "Alerte santé",
+    "flags": {
+      "asthma": "Asthme (inhalateur)",
+      "epilepsy": "Épilepsie",
+      "diabetes_insulin": "Diabète (insuline)",
+      "severe_allergy": "Allergie sévère",
+      "sickle_cell": "Drépanocytose",
+      "heart_condition": "Cardiopathie",
+      "other": "Autre problème"
+    }
   }
 }

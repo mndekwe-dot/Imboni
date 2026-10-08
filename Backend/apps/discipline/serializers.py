@@ -66,13 +66,14 @@ class DiningPlanSerializer(serializers.ModelSerializer):
     student_pk = serializers.UUIDField(source='student.id', read_only=True)
     dietary_flags = serializers.JSONField(source='student.dietary_flags', read_only=True)
     allergies = serializers.CharField(source='student.allergies', read_only=True)
+    medical_flags = serializers.JSONField(source='student.medical_flags', read_only=True)
 
     class Meta:
         model = DiningPlan
         fields = [
             'id', 'student_name', 'student_id', 'term_name',
             'plan_type', 'is_active', 'created_at',
-            'student_pk', 'dietary_flags', 'allergies',
+            'student_pk', 'dietary_flags', 'allergies', 'medical_flags',
         ]
 
     def get_student_name(self, obj):

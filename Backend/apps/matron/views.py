@@ -213,6 +213,9 @@ class MatronStudentDetailView(APIView):
             'bed_number': record.bed_number,
             'boarding_type': record.boarding_type,
             'conduct_grade': conduct_grade,
+            'medical_flags': student.medical_flags,
+            'allergies': student.allergies,
+            'medical_conditions': student.medical_conditions,
             'recent_incidents': [
                 {
                     'id': str(r.id),
@@ -225,6 +228,41 @@ class MatronStudentDetailView(APIView):
                 for r in recent_incidents
             ],
         })
+
+
+class MatronMedicalAlertsView(APIView):
+    """
+    PATCH /imboni/matron/students/<pk>/medical/
+    Body: { medical_flags: [codes], allergies?: str, medical_conditions?: str }
+
+    The matron keeps the short list of conditions staff must see at a glance
+    (asthma, epilepsy, insulin...). It is shown beside the student on the
+    roll, the dining list and the sick bay; unknown codes are dropped.
+    """
+    permission_classes = [IsMatron]
+
+    def patch(self, request, pk):
+        from apps.student.medical import clean_flags
+        try:
+            record = BoardingStudent.objects.select_related('student').get(pk=pk)
+        except BoardingStudent.DoesNotExist:
+            return Response({'error': 'Not found.'}, status=404)
+        student = record.student
+        fields = []
+        if 'medical_flags' in request.data:
+            student.medical_flags = clean_flags(request.data['medical_flags'])
+            fields.append('medical_flags')
+        for name in ('allergies', 'medical_conditions'):
+            if name in request.data:
+                setattr(student, name, str(request.data[name] or '')[:2000])
+                fields.append(name)
+        if fields:
+            student.save(update_fields=fields)
+            from apps.audit.services import audit
+            audit(request.user, 'student.medical_alerts', student.student_id,
+                  {'medical_flags': student.medical_flags})
+        return Response({'medical_flags': student.medical_flags, 'allergies': student.allergies,
+                         'medical_conditions': student.medical_conditions})
 
 
 # Incidents
