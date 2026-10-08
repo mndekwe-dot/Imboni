@@ -65,9 +65,10 @@ class ClientSerializer(serializers.ModelSerializer):
             'created_on',
             'is_demo',
             'demo_expires_on',
+            'disabled_modules',
             'usage',
         ]
-        read_only_fields = ['id', 'schema_name', 'created_on', 'is_demo']
+        read_only_fields = ['id', 'schema_name', 'created_on', 'is_demo', 'disabled_modules']
 
     def get_primary_domain(self, obj):
         domain = obj.domains.filter(is_primary=True).first() or obj.domains.first()

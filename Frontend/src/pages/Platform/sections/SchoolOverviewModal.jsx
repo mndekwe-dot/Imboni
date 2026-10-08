@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react'
 import { Modal } from '../../../components/ui/Modal'
-import { getSchoolOverview, suspendSchool, reactivateSchool } from '../../../api/platform'
+import { getSchoolOverview, suspendSchool, reactivateSchool, setSchoolModules } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { StatusChip } from './SchoolsSection'
 
 const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
 const num = v => (v === null || v === undefined ? '-' : v)
+
+// The parts of the product an operator can switch off for one school.
+const MODULES = [
+    { key: 'boarding', label: 'Boarding', note: 'Dormitories, exeat passes and dining plans' },
+    { key: 'matron',   label: 'Infirmary', note: 'Sick bay, medication and parent calls' },
+    { key: 'library',  label: 'Library',  note: 'Catalogue, loans and fines' },
+]
 
 function Field({ label, value, capitalize }) {
     return (
@@ -45,6 +52,19 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
         finally { setBusy(false) }
     }
 
+    async function toggleModule(key, on) {
+        const s = data.school
+        const off = new Set(s.disabled_modules || [])
+        if (on) off.delete(key); else off.add(key)
+        setBusy(true)
+        try {
+            const updated = await setSchoolModules(s.id, MODULES.map(m => m.key).filter(k => off.has(k)))
+            setData(d => ({ ...d, school: { ...d.school, ...updated } }))
+            toast.success(`${MODULES.find(m => m.key === key).label} switched ${on ? 'on' : 'off'} for ${s.name}.`)
+        } catch (e) { toast.error(errorMessage(e, 'Could not change the modules.')) }
+        finally { setBusy(false) }
+    }
+
     const s = data?.school
 
     return (
@@ -70,6 +90,19 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
                         <Field label="Students" value={num(s.usage?.students)} />
                         <Field label="Staff" value={num(s.usage?.staff)} />
                     </div>
+
+                    <p className="platform-section-title">Modules</p>
+                    <p className="platform-muted pf-mb">Switch off what this school does not use. Nothing is deleted; switching it back on restores it.</p>
+                    {MODULES.map(m => {
+                        const on = !(s.disabled_modules || []).includes(m.key)
+                        return (
+                            <label key={m.key} className="pf-list-row">
+                                <span>{m.label} <span className="platform-muted">{m.note}</span></span>
+                                <input type="checkbox" checked={on} disabled={busy}
+                                    aria-label={m.label} onChange={e => toggleModule(m.key, e.target.checked)} />
+                            </label>
+                        )
+                    })}
 
                     <p className="platform-section-title">Contracts</p>
                     {data.contracts.length === 0 ? <p className="platform-muted">No contracts.</p> : data.contracts.map(c => (

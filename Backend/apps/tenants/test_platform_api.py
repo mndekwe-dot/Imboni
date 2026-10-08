@@ -84,7 +84,7 @@ class TestClientSerializer:
         assert set(data.keys()) == {
             'id', 'name', 'schema_name', 'primary_domain', 'plan', 'status',
             'paid_until', 'on_trial', 'created_on', 'usage',
-            'is_demo', 'demo_expires_on',
+            'is_demo', 'demo_expires_on', 'disabled_modules',
         }
         assert data['name'] == 'Springfield High'
         assert data['plan'] == 'premium'

@@ -18,6 +18,7 @@ import '../i18n'
 // vi.mock could register, and every mocked test would make a real request.
 import { resetSchoolConfigCache } from '../hooks/schoolConfigCache'
 import { resetLibraryFeatureCache } from '../hooks/libraryFeatureCache'
+import { resetSchoolModulesCache } from '../hooks/schoolModulesCache'
 import { resetFinanceFeatureCache } from '../hooks/financeFeatureCache'
 import { resetSubscriptionStatus } from '../api/subscriptionState'
 
@@ -52,6 +53,7 @@ afterEach(() => {
   // module scope, so without this a test that mocks it as enabled leaves the
   // next one unable to see the upgrade notice.
   resetLibraryFeatureCache()
+  resetSchoolModulesCache()
   // Whether the plan includes the finance portal is cached the same way.
   resetFinanceFeatureCache()
   // The school's billing standing is module-scope too, and it is set from a

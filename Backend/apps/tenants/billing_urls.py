@@ -6,8 +6,10 @@ the public schema in Imboni.urls_public.
 from django.urls import path
 
 from .billing import BillingStatusView, CheckoutView
+from .modules_api import SchoolModulesView
 
 urlpatterns = [
     path('imboni/billing/status/', BillingStatusView.as_view(), name='billing-status'),
     path('imboni/billing/checkout/', CheckoutView.as_view(), name='billing-checkout'),
+    path('imboni/school/modules/', SchoolModulesView.as_view(), name='school-modules'),
 ]

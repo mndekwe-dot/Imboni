@@ -33,6 +33,10 @@ class Client(TenantMixin):
     on_trial = models.BooleanField(default=True)
     created_on = models.DateField(auto_now_add=True)
 
+    # Parts of the product the operator has switched off for this school (see
+    # modules.py). A list of module names; empty means everything the plan allows.
+    disabled_modules = models.JSONField(default=list, blank=True)
+
     # Stripe billing links (Phase 3) — set when the school subscribes.
     stripe_customer_id = models.CharField(max_length=64, blank=True, default='')
     stripe_subscription_id = models.CharField(max_length=64, blank=True, default='')
