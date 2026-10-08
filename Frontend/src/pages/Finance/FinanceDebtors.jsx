@@ -15,6 +15,7 @@ import { formatDate } from '../../utils/date'
 import { getDebtors, getStudentFinance, saveStudentAccount } from '../../api/finance'
 import { Money, formatAmount, categoryName } from './FinanceShell'
 import { badge } from '../../utils/tone'
+import { RemindersModal } from './FinanceReminders'
 
 /** Who owes what, worst first — the list the office actually works from. */
 export function DebtorsPanel() {
@@ -25,6 +26,7 @@ export function DebtorsPanel() {
     const [loading, setLoading] = useState(true)
     const [search, setSearch]   = useState('')
     const [openId, setOpenId]   = useState(null)
+    const [reminding, setReminding] = useState(false)
     const [klass, setKlass]     = useState({ grade: '', stream: '' })
 
     // The class narrows the QUERY, not the rendered rows. Filtering a capped
@@ -61,6 +63,8 @@ export function DebtorsPanel() {
                 <StudentAccountModal id={openId} onClose={() => setOpenId(null)} onSaved={load} />
             )}
 
+            {reminding && <RemindersModal params={params} onClose={() => setReminding(false)} />}
+
             <ClassFilter grade={klass.grade} stream={klass.stream}
                 onChange={setKlass} disabled={loading} />
 
@@ -80,6 +84,11 @@ export function DebtorsPanel() {
                 <SearchBar value={search} onChange={setSearch}
                     placeholder={t('finance.debtors.searchPlaceholder')} />
                 <div className="toolbar-spacer" />
+                <button className="btn btn-primary btn-sm" onClick={() => setReminding(true)}
+                    disabled={loading || rows.length === 0}>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">sms</span>
+                    {t('finance.reminders.open')}
+                </button>
                 {/* Printed and exported from the server with the same filters,
                     so the paper matches the screen and carries every row rather
                     than the page's first 300. */}

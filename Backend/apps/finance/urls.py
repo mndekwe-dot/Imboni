@@ -71,6 +71,8 @@ urlpatterns = [
          name='finance-receipt'),
     path('finance/students/<uuid:pk>/statement/', views.StatementDocumentView.as_view(),
          name='finance-statement'),
+    path('finance/reminders/send/', views.RemindersSendView.as_view(),
+         name='finance-reminders-send'),
     path('finance/reminders/', views.RemindersDocumentView.as_view(),
          name='finance-reminders'),
 

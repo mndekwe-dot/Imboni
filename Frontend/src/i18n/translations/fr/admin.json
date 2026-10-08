@@ -71,7 +71,16 @@
     "studentsGraduating": "Élèves sortants",
     "studentsGraduatingYear": "Élèves sortants ({{year}})",
     "studentsPromoted": "Élèves promus",
-    "subtitle": "Configuration de l'école : structure, matières, salles et préférences"
+    "subtitle": "Configuration de l'école : structure, matières, salles et préférences",
+    "studentsRepeating": "Redoublants",
+    "repeatersTitle": "Qui redouble ?",
+    "repeatersHint": "Tout le monde passe au niveau supérieur sauf ceux que vous cochez ici. Un élève qui redouble garde son niveau et sa classe ; un élève de dernière année qui redouble n’est pas diplômé.",
+    "repeatsLabel": "Redouble",
+    "findPupil": "Trouver un élève…",
+    "outcomePromoted": "Passe",
+    "outcomeGraduates": "Diplômé",
+    "outcomeRepeats": "Redouble",
+    "rolloverSummaryRepeat": "{{promoted}} promus · {{repeating}} redoublants · {{graduated}} diplômés · {{rosters}} listes créées"
   },
   "staff": {
     "invitationSent": "Invitation envoyée !",

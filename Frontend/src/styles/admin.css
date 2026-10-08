@@ -531,6 +531,7 @@
 /* Term rollover */
 .adm-ro-grid       { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
 .adm-ro-panel      { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+.adm-ro-list       { max-height: 16rem; overflow-y: auto; margin-top: 0.75rem; }
 .adm-ro-sumrow     { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: var(--text-sm); }
 .adm-ro-warn       { color: var(--warning, #d97706); font-size: var(--text-sm); margin-top: 0.75rem; }
 .adm-ro-warn-icon  { font-size: var(--icon-sm); vertical-align: middle; }

@@ -83,6 +83,7 @@ export const createIncomeCategory = (d) => client.post('/imboni/finance/income-c
 // ── What is owed from earlier terms ───────────────────────────────────────────
 export const getArrears     = (params) => client.get('/imboni/finance/arrears/', { params })
 export const carryArrears   = (data)   => client.post('/imboni/finance/arrears/', data || {})
+export const sendFeeReminders = (data) => client.post('/imboni/finance/reminders/send/', data)
 
 // ── Budget ────────────────────────────────────────────────────────────────────
 export const getBudgets     = (params) => client.get('/imboni/finance/budgets/', { params })
