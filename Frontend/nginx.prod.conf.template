@@ -98,6 +98,19 @@ server {
         image/svg+xml
         font/woff2;
 
+    # ---- Installed-app origin association ----------------------------------
+    # The desktop app (Microsoft Store package) lives on the bare domain, and its
+    # manifest extends its scope to every school subdomain. A browser only
+    # honours that if each subdomain confirms it here. Every host runs this one
+    # server block, so one answer covers all schools - and it names the bare
+    # domain's app identity (the manifest `id`), never the school's own host.
+    # Must be JSON and must not be the SPA fallback below.
+    location = /.well-known/web-app-origin-association {
+        default_type application/json;
+        add_header Cache-Control "public, max-age=3600";
+        return 200 '{"web_apps":[{"web_app_identity":"https://${IMBONI_DOMAIN}/"}]}';
+    }
+
     # ---- SPA: client-side routing fallback ---------------------------------
     location / {
         try_files $uri $uri/ /index.html;

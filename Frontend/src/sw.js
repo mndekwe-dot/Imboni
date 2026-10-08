@@ -38,7 +38,7 @@ precacheAndRoute(self.__WB_MANIFEST)
 // to the network — serving index.html for /imboni/... would break every fetch.
 registerRoute(
   new NavigationRoute(createHandlerBoundToURL('/index.html'), {
-    denylist: [/^\/imboni\//, /^\/admin\//],
+    denylist: [/^\/imboni\//, /^\/admin\//, /^\/\.well-known\//],
   })
 )
 
