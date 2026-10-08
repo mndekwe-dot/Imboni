@@ -880,3 +880,46 @@ class ChildExeatView(_APIView):
             'attendance', path='/discipline/boarding?tab=exeat',
         )
         return Response(ExeatSerializer(exeat).data, status=status.HTTP_201_CREATED)
+
+
+class ChildPayView(_APIView):
+    """
+    GET  /imboni/parents/<pk>/pay/                 can they pay online, how much is owed, recent attempts
+    POST /imboni/parents/<pk>/pay/                 {amount, phone}: send the prompt to their phone
+    GET  /imboni/parents/<pk>/pay/<attempt>/       how that attempt is going (and settle it if paid)
+    """
+    permission_classes = [IsParent]
+
+    @staticmethod
+    def _row(op):
+        return {'id': str(op.id), 'amount': str(op.amount), 'status': op.status, 'detail': op.detail,
+                'receipt_no': op.receipt_no, 'created_at': op.created_at}
+
+    def get(self, request, pk, attempt=None):
+        from apps.finance import momo, online_payments
+        from apps.finance.models import OnlinePayment
+        from apps.tenants.limits import tenant_has_feature
+        student = _verify_parent_owns_student(request, pk)
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if attempt is not None:
+            op = get_object_or_404(OnlinePayment, pk=attempt, student=student, paid_by=request.user)
+            return Response(self._row(online_payments.refresh(op)))
+
+        enabled = momo.configured() and tenant_has_feature('finance')
+        outstanding = online_payments.outstanding_for(student)[0] if enabled else 0
+        recent = OnlinePayment.objects.filter(student=student, paid_by=request.user)[:5]
+        return Response({'enabled': enabled, 'outstanding': str(max(outstanding, 0)),
+                         'attempts': [self._row(o) for o in recent]})
+
+    def post(self, request, pk):
+        from apps.finance import online_payments
+        student = _verify_parent_owns_student(request, pk)
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            op = online_payments.initiate(student, request.user, request.data.get('amount'), request.data.get('phone'))
+        except online_payments.OnlinePaymentError as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(self._row(op), status=status.HTTP_201_CREATED)

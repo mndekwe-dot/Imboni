@@ -125,7 +125,7 @@ function StockModal({ item, onClose, onSaved }) {
                 </div>
             </form>
 
-            <h3 className="stu-modal-section">{t('matron.pharmacy.history')}</h3>
+            <h3 className="card-title mt-1-5">{t('matron.pharmacy.history')}</h3>
             {history && history.length === 0 && <p className="empty-note">{t('matron.pharmacy.noHistory')}</p>}
             <ul className="row-list">
                 {(history || []).map(m => (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Modal } from '../../../components/ui/Modal'
-import { getSchoolOverview, suspendSchool, reactivateSchool, setSchoolModules } from '../../../api/platform'
+import { getSchoolOverview, suspendSchool, reactivateSchool, setSchoolModules, openSupportSession } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { StatusChip } from './SchoolsSection'
@@ -65,6 +65,21 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
         finally { setBusy(false) }
     }
 
+    const [support, setSupport] = useState(null)   // null = closed; otherwise {reason, minutes}
+
+    async function startSupport(e) {
+        e.preventDefault()
+        setBusy(true)
+        try {
+            const out = await openSupportSession(data.school.id, support.reason, Number(support.minutes))
+            // The token is in the fragment of this URL; it never goes to a server in transit.
+            window.open(out.url, '_blank', 'noopener')
+            toast.success(`Read-only session for ${out.minutes} minutes, as ${out.as}. The school can see this in its audit log.`)
+            setSupport(null)
+        } catch (err) { toast.error(errorMessage(err, 'Could not open the support session.')) }
+        finally { setBusy(false) }
+    }
+
     const s = data?.school
 
     return (
@@ -90,6 +105,30 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
                         <Field label="Students" value={num(s.usage?.students)} />
                         <Field label="Staff" value={num(s.usage?.staff)} />
                     </div>
+
+                    <p className="platform-section-title">Support session</p>
+                    {!support ? (
+                        <button className="btn btn-outline btn-sm pf-mb" onClick={() => setSupport({ reason: '', minutes: 20 })}>
+                            Open a read-only view as the school administrator
+                        </button>
+                    ) : (
+                        <form className="pf-mb" onSubmit={startSupport}>
+                            <p className="platform-muted">Read-only, time-limited, and recorded: the school sees the reason in its own audit log.</p>
+                            <label className="form-group">
+                                <span className="form-label">Why do you need to look?</span>
+                                <textarea className="form-input form-textarea" rows="2" required minLength={10} value={support.reason}
+                                    onChange={e => setSupport(x => ({ ...x, reason: e.target.value }))} />
+                            </label>
+                            <label className="form-group">
+                                <span className="form-label">Minutes (5 to 30)</span>
+                                <input className="form-input" type="number" min="5" max="30" value={support.minutes}
+                                    onChange={e => setSupport(x => ({ ...x, minutes: e.target.value }))} />
+                            </label>
+                            <button type="submit" className="btn btn-primary btn-sm" disabled={busy || support.reason.trim().length < 10}>Open session</button>
+                            {' '}
+                            <button type="button" className="btn btn-outline btn-sm" onClick={() => setSupport(null)}>Cancel</button>
+                        </form>
+                    )}
 
                     <p className="platform-section-title">Modules</p>
                     <p className="platform-muted pf-mb">Switch off what this school does not use. Nothing is deleted; switching it back on restores it.</p>

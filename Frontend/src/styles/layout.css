@@ -1336,3 +1336,11 @@
 @media (max-width: 1024px) {
   .sidebar-toggle { display: none; }
 }
+
+/* Shown on every page of a support session: someone from Imboni is looking at this school. */
+.support-banner {
+  position: sticky; top: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.5rem 1rem; background: var(--warning-light); color: var(--warning);
+  border-bottom: 1px solid var(--warning); font-weight: 600;
+}

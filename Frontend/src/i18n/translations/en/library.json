@@ -160,7 +160,8 @@
     },
     "waiveTitle": "Waive this fine",
     "waiveIntro": "{{name}} owes {{amount}}. Waiving it means the school will not collect this money.",
-    "waiveReason": "Why is it being waived?"
+    "waiveReason": "Why is it being waived?",
+    "onFeeAccount": "On the fee account: paid at the bursar’s desk"
   },
   "members": {
     "title": "Borrowers",
@@ -243,7 +244,9 @@
     "fine_per_day": "Fine per day late",
     "fine_per_dayHint": "Changing this affects new fines only — a fine already raised keeps the rate it was worked out at.",
     "currency": "Currency",
-    "currencyHint": "Shown beside every amount."
+    "currencyHint": "Shown beside every amount.",
+    "bill_lost_to_finance": "Bill lost books to the fee account",
+    "bill_lost_to_financeHint": "A lost book’s replacement cost goes on the student’s fees and is paid at the bursar’s desk, instead of at the library."
   },
   "messages": {
     "subtitle": "Messages with staff and students"

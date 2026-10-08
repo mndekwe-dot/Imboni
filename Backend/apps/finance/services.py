@@ -135,7 +135,16 @@ def recalculate_fee(fee):
         fee.paid_date = None
 
     fee.save(update_fields=['status', 'paid_date', 'updated_at'])
+    _tell_the_library(fee)
     return fee
+
+
+def _tell_the_library(fee):
+    """A lost-book charge cleared (or reopened) here clears (or reopens) the library fine behind it."""
+    from django.apps import apps
+    if apps.is_installed('apps.library'):
+        from apps.library.services import sync_billed_fines
+        sync_billed_fines(fee)
 
 
 def next_receipt_no(settings_row=None):

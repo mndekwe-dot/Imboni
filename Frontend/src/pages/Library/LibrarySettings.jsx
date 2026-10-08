@@ -23,6 +23,7 @@ const FIELDS = [
     { key: 'reservation_hold_days', type: 'number', min: 1  },
     { key: 'fine_per_day',          type: 'number', min: 0, step: '0.01' },
     { key: 'currency',              type: 'text'            },
+    { key: 'bill_lost_to_finance',  type: 'checkbox'        },
 ]
 
 export function LibrarySettings() {
@@ -66,15 +67,23 @@ export function LibrarySettings() {
                                     <label className="form-label" htmlFor={`ls-${field.key}`}>
                                         {t(`library.settings.${field.key}`)}
                                     </label>
-                                    <input
-                                        id={`ls-${field.key}`}
-                                        type={field.type}
-                                        min={field.min}
-                                        step={field.step}
-                                        className="form-input"
-                                        value={form[field.key] ?? ''}
-                                        onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                                    />
+                                    {field.type === 'checkbox' ? (
+                                        <input
+                                            id={`ls-${field.key}`} type="checkbox"
+                                            checked={Boolean(form[field.key])}
+                                            onChange={e => setForm(f => ({ ...f, [field.key]: e.target.checked }))}
+                                        />
+                                    ) : (
+                                        <input
+                                            id={`ls-${field.key}`}
+                                            type={field.type}
+                                            min={field.min}
+                                            step={field.step}
+                                            className="form-input"
+                                            value={form[field.key] ?? ''}
+                                            onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
+                                        />
+                                    )}
                                     <p className="text-xs-muted">
                                         {t(`library.settings.${field.key}Hint`)}
                                     </p>

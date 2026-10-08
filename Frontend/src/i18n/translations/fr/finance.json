@@ -545,5 +545,14 @@
     "applyFailed": "Impossible d’enregistrer les paiements.",
     "unmatchedHint": "Non associée : retrouvez la famille sous Encaisser un paiement.",
     "discard": "Quitter ce rapprochement ? Rien n’a encore été enregistré."
+  },
+  "onlineReview": {
+    "title": "Paiements en ligne à placer",
+    "intro": "Ces paiements sont arrivés du téléphone d’un parent mais n’ont pu être imputés. Créditez, remboursez ou encaissez chacun, puis fermez-le.",
+    "note": "Ce qui a été fait de l’argent",
+    "close": "Clore",
+    "closed": "Clos.",
+    "failed": "Impossible de le clore.",
+    "loadFailed": "Impossible de charger les paiements en ligne."
   }
 }

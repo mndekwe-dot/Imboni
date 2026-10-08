@@ -19,6 +19,9 @@ export const getChildSummative   = (id) => client.get(`/imboni/results/students/
 export const getChildReviews     = (id) => client.get(`/imboni/results/students/${id}/reviews/`)
 export const getChildExeats    = (id)       => client.get(`/imboni/parents/${id}/exeat/`)
 export const requestChildExeat = (id, data) => client.post(`/imboni/parents/${id}/exeat/`, data)
+export const getChildPay       = (id)       => client.get(`/imboni/parents/${id}/pay/`)
+export const startChildPay     = (id, data) => client.post(`/imboni/parents/${id}/pay/`, data)
+export const getChildPayAttempt = (id, attempt) => client.get(`/imboni/parents/${id}/pay/${attempt}/`)
 export const downloadChildReportCard = (id) =>
     client.get(`/imboni/parents/${id}/report-card/`, { responseType: 'blob' })
 
