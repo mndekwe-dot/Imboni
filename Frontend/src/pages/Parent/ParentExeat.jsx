@@ -20,11 +20,14 @@ function localInput(date) {
 function RequestModal({ child, onClose, onSent }) {
     const { t } = useTranslation()
     const toast = useToast()
-    const tomorrow = new Date(Date.now() + 24 * 3600 * 1000)
-    const [form, setForm] = useState({
-        reason_type: 'weekend', reason: '',
-        departure_at: localInput(tomorrow),
-        expected_return_at: localInput(new Date(tomorrow.getTime() + 48 * 3600 * 1000)),
+    // Tomorrow, until the parent says otherwise. A lazy initial state, so "now" is read once.
+    const [form, setForm] = useState(() => {
+        const tomorrow = new Date(Date.now() + 24 * 3600 * 1000)
+        return {
+            reason_type: 'weekend', reason: '',
+            departure_at: localInput(tomorrow),
+            expected_return_at: localInput(new Date(tomorrow.getTime() + 48 * 3600 * 1000)),
+        }
     })
     const [busy, setBusy] = useState(false)
     const set = (key, value) => setForm(f => ({ ...f, [key]: value }))
