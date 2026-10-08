@@ -15,7 +15,8 @@ from rest_framework.views import APIView
 from apps.authentication.permissions import IsDisciplineOrMatron
 
 from .housing_service import HousingError, commit_housing, plan_housing
-from .models import Dormitory, DormRoom
+from .bed_layout import place_occupants
+from .models import BoardingStudent, Dormitory, DormRoom
 
 
 class DormitorySerializer(serializers.ModelSerializer):
@@ -163,3 +164,34 @@ class HousingGenerateCommitView(_HousingGenerateBase):
         except HousingError as exc:
             return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(result, status=status.HTTP_201_CREATED)
+
+
+class BedLayoutView(APIView):
+    """GET /imboni/discipline/housing/beds/ - every dormitory, room by room, bed by bed."""
+    permission_classes = [IsDisciplineOrMatron]
+
+    def get(self, request):
+        boarders = {}
+        for b in BoardingStudent.objects.filter(is_active=True).select_related('student__user'):
+            boarders.setdefault((b.dormitory, b.room_number), []).append((b.student.user.get_full_name(), b.bed_number))
+
+        out = []
+        for dorm in Dormitory.objects.prefetch_related('rooms').order_by('name'):
+            rooms, occupied, capacity = [], 0, 0
+            for room in dorm.rooms.all():
+                beds, overflow = place_occupants(room.bed_capacity, boarders.get((dorm.name, room.room_number), []))
+                taken = sum(1 for b in beds if b['occupant']) + len(overflow)
+                if room.is_active:
+                    occupied += taken
+                    capacity += room.bed_capacity
+                rooms.append({
+                    'room_number': room.room_number,
+                    'closed': not room.is_active,
+                    'capacity': room.bed_capacity,
+                    'beds': beds,
+                    'overflow': overflow,
+                    'free': 0 if not room.is_active else sum(1 for b in beds if not b['occupant']),
+                })
+            out.append({'id': str(dorm.id), 'name': dorm.name, 'gender': dorm.gender,
+                        'occupied': occupied, 'capacity': capacity, 'rooms': rooms})
+        return Response(out)

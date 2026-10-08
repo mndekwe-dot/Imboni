@@ -172,6 +172,7 @@ export function DosSettings() {
     const [rooms,     setRooms]     = useState([])
     const [roomInput, setRoomInput] = useState('')
     const [roomErr,   setRoomErr]   = useState('')
+    const [roomSeats, setRoomSeats] = useState('')
     const [timezone,  setTimezone]  = useState('Africa/Kigali')
     const [tzSaving,  setTzSaving]  = useState(false)
     const [tzSaved,   setTzSaved]   = useState(false)
@@ -192,9 +193,10 @@ export function DosSettings() {
             setRoomErr(t('settings.roomExists')); return
         }
         try {
-            const newRoom = await createDosRoom(name)
+            const newRoom = await createDosRoom(name, parseInt(roomSeats, 10) || null)
             setRooms(prev => [...prev, newRoom].sort((a, b) => a.name.localeCompare(b.name)))
             setRoomInput('')
+            setRoomSeats('')
             setRoomErr('')
         } catch (e) {
             setRoomErr(e.message || t('settings.addRoomFailed'))
@@ -430,6 +432,14 @@ export function DosSettings() {
                                             onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
                                             placeholder={t('settings.roomPlaceholder')}
                                         />
+                                        <input
+                                            className="form-input"
+                                            type="number" min="1"
+                                            value={roomSeats}
+                                            onChange={e => setRoomSeats(e.target.value)}
+                                            placeholder={t('settings.roomCapacityPlaceholder')}
+                                            aria-label={t('settings.roomCapacityPlaceholder')}
+                                        />
                                         <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                                         </button>
@@ -441,7 +451,7 @@ export function DosSettings() {
                                     {rooms.map(r => (
                                         <span key={r.id} className="tag-chip">
                                             <span className="material-symbols-rounded dset-room-icon" aria-hidden="true">meeting_room</span>
-                                            {r.name}
+                                            {r.name}{r.capacity ? ` · ${t('settings.roomSeats', { count: r.capacity })}` : ''}
                                             <button className="tag-chip-remove" onClick={() => handleDeleteRoom(r.id)} aria-label={t('common.close')}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                             </button>

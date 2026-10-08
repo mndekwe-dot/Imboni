@@ -96,6 +96,7 @@ export function StudentResults() {
     const [assessments, setAssessments] = useState([])
     const [activeTerm,  setActiveTerm]  = useState(null)
     const [loading,     setLoading]     = useState(true)
+    const [subjectFilter, setSubjectFilter] = useState('all')
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
@@ -140,9 +141,11 @@ export function StudentResults() {
         { value: activeTData?.year || '-',                  label: t('student.results.year'),         color: 'var(--success)' },
     ]
 
-    // The assessments endpoint is not term-scoped, so every row is shown
-    // regardless of the selected term tab.
-    const termAssessments = assessments
+    // Each assessment carries its term, so the table follows the term tab; the
+    // subject list is whatever the student was assessed in for that term.
+    const inTerm = assessments.filter(a => !a.term_id || a.term_id === (activeTData?.term_id))
+    const assessedSubjects = [...new Set(inTerm.map(a => a.subject_name).filter(Boolean))].sort()
+    const termAssessments = subjectFilter === 'all' ? inTerm : inTerm.filter(a => a.subject_name === subjectFilter)
 
     // Term-over-term average, oldest first (terms arrive newest-first)
     const trendData = [...terms]
@@ -188,7 +191,7 @@ export function StudentResults() {
                                         <button
                                             key={t.term_id}
                                             className={`term-tab${activeTerm === t.term_id ? ' active' : ''}`}
-                                            onClick={() => setActiveTerm(t.term_id)}
+                                            onClick={() => { setActiveTerm(t.term_id); setSubjectFilter('all') }}
                                         >
                                             {t.term}
                                         </button>
@@ -243,11 +246,21 @@ export function StudentResults() {
                                 <div className="card">
                                     <div className="card-header">
                                         <h3 className="card-title">{t('student.results.breakdown')}</h3>
-                                        {activeTData && <span className="badge badge-student">{activeTData.term}</span>}
+                                        <div className="u-row">
+                                            {assessedSubjects.length > 1 && (
+                                                <select className="form-select select-xs" value={subjectFilter}
+                                                    aria-label={t('common.subject')}
+                                                    onChange={e => setSubjectFilter(e.target.value)}>
+                                                    <option value="all">{t('materials.allSubjects')}</option>
+                                                    {assessedSubjects.map(s => <option key={s} value={s}>{s}</option>)}
+                                                </select>
+                                            )}
+                                            {activeTData && <span className="badge badge-student">{activeTData.term}</span>}
+                                        </div>
                                     </div>
                                     <div className="card-content">
                                         {termAssessments.length === 0 ? (
-                                            <p className="u-muted">{t('student.results.noAssessments')}</p>
+                                            <p className="u-muted">{t(assessments.length > 0 && inTerm.length === 0 ? 'student.results.noAssessmentsTerm' : 'student.results.noAssessments')}</p>
                                         ) : (
                                             <div className="table-responsive">
                                                 <table className="data-table">

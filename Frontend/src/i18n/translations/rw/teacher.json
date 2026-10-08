@@ -213,7 +213,9 @@
     "pickerHintAttendance": "Koresha ibiri hejuru guhitamo igice, umwaka n'ishuri kugira ngo wandike ubwitabire.",
     "saveFailed": "Kubika ubwitabire byanze. Ongera ugerageze.",
     "subtitle": "Kurikirana ubwitabire bw'abanyeshuri",
-    "title": "Andika ubwitabire"
+    "title": "Andika ubwitabire",
+    "onExeat": "Ku ruhushya",
+    "onExeatNote": "Yasohotse afite uruhushya rwo gusohoka"
   },
   "classes": {
     "assessmentNamePlaceholder": "urugero: Ikizamini cyo hagati, CAT 1…",
@@ -273,6 +275,8 @@
     "classPerformance": "Imikorere y'amashuri",
     "classesProgress": "{{done}} yarangiye, {{left}} asigaye",
     "classesToday": "Amasomo y'uyu munsi",
+    "completeTask": "Emeza ko umurimo warangiye",
+    "deleteTask": "Siba umurimo",
     "draftResults": "Amanota atarasohoka",
     "due": "Ntarengwa: {{date}}",
     "enterResults": "Injiza amanota",
@@ -297,7 +301,9 @@
     "slotInProgress": "Birakomeje",
     "slotUpcoming": "Bigiye kuba",
     "subtitle": "Incamake y'umwarimu",
+    "taskDeleteFailed": "Ntibishobotse gusiba umurimo.",
     "taskPlaceholder": "Ni iki kigomba gukorwa?",
+    "taskUpdateFailed": "Ntibishobotse guhindura umurimo.",
     "thisTerm": "Iki gihembwe",
     "titleRequiredError": "Umutwe urakenewe.",
     "todaySchedule": "Gahunda y'uyu munsi",
@@ -403,10 +409,21 @@
   "publishFailed": "Kutangaza byanze.",
   "results": {
     "commentPlaceholder": "urugero: Yakoze neza, akeneye kwisubiramo…",
+    "discardConfirm": "Wahagarika amanota wanditse?",
+    "downloadTemplate": "Kuramo urugero",
     "enterNew": "Andika amanota mashya",
+    "importBadFile": "Iyi dosiye igomba kugira inkingi “student_code” na “score”. Kuramo urugero urwuzuze.",
+    "importDone": "Amanota {{count}} yashyizwemo.",
+    "importFailed": "Ntibishobotse gusoma iyo dosiye.",
+    "importInvalid": "Amanota atemewe: {{list}}",
+    "importNeedsMax": "banza wandike amanota ntarengwa, kugira ngo amanota yashyizwemo asuzumwe.",
+    "importNone": "Nta manota yabonetse muri iyo dosiye.",
+    "importScores": "Shyiramo CSV",
+    "importUnknown": "Ntibari muri iri shuri: {{list}}",
     "noneFound": "Nta manota yabonetse",
     "pickerHintResults": "Koresha ibiri hejuru guhitamo igice, umwaka n'ishuri kugira ngo urebe cyangwa wandike amanota.",
     "subtitle": "Reba kandi wandike amanota y'abanyeshuri",
+    "templateName": "amanota-{{class}}",
     "title": "Amanota"
   },
   "students": {

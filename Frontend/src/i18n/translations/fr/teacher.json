@@ -213,7 +213,9 @@
     "pickerHintAttendance": "Utilisez le sélecteur ci-dessus pour choisir une section, une année et une classe où faire l'appel.",
     "saveFailed": "Échec de l'enregistrement des présences. Veuillez réessayer.",
     "subtitle": "Suivez les présences des élèves de vos classes",
-    "title": "Faire l'appel"
+    "title": "Faire l'appel",
+    "onExeat": "En permission",
+    "onExeatNote": "Sorti avec une permission de sortie"
   },
   "classes": {
     "assessmentNamePlaceholder": "ex. Examen de mi-trimestre, contrôle continu 1, quiz 3…",
@@ -273,6 +275,8 @@
     "classPerformance": "Performance des classes",
     "classesProgress": "{{done}} terminés, {{left}} restants",
     "classesToday": "Cours aujourd'hui",
+    "completeTask": "Marquer la tâche comme faite",
+    "deleteTask": "Supprimer la tâche",
     "draftResults": "Résultats en brouillon",
     "due": "Échéance : {{date}}",
     "enterResults": "Saisir les résultats",
@@ -297,7 +301,9 @@
     "slotInProgress": "En cours",
     "slotUpcoming": "À venir",
     "subtitle": "Vue d'ensemble de l'enseignant",
+    "taskDeleteFailed": "Impossible de supprimer la tâche.",
     "taskPlaceholder": "Qu'y a-t-il à faire ?",
+    "taskUpdateFailed": "Impossible de mettre à jour la tâche.",
     "thisTerm": "Ce trimestre",
     "titleRequiredError": "Le titre est obligatoire.",
     "todaySchedule": "Emploi du temps du jour",
@@ -403,10 +409,21 @@
   "publishFailed": "Échec de la publication.",
   "results": {
     "commentPlaceholder": "ex. Bon travail, à revoir…",
+    "discardConfirm": "Abandonner les notes saisies ?",
+    "downloadTemplate": "Télécharger le modèle",
     "enterNew": "Saisir de nouveaux résultats",
+    "importBadFile": "Ce fichier doit contenir les colonnes « student_code » et « score ». Téléchargez le modèle et remplissez-le.",
+    "importDone": "{{count}} notes importées.",
+    "importFailed": "Impossible de lire ce fichier.",
+    "importInvalid": "Note non valide : {{list}}",
+    "importNeedsMax": "Saisissez d’abord la note maximale, pour pouvoir vérifier les notes importées.",
+    "importNone": "Aucune note trouvée dans ce fichier.",
+    "importScores": "Importer un CSV",
+    "importUnknown": "Absents de cette classe : {{list}}",
     "noneFound": "Aucun résultat trouvé",
     "pickerHintResults": "Utilisez le sélecteur ci-dessus pour choisir une section, une année et une classe dont consulter ou saisir les résultats.",
     "subtitle": "Consultez et saisissez les résultats d'évaluation des élèves",
+    "templateName": "notes-{{class}}",
     "title": "Résultats"
   },
   "students": {

@@ -16,6 +16,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { StatCard } from '../../components/layout/StatCard'
+import { formatBytes } from '../../components/materials/MaterialList'
 
 const STATUS_TABS = ['All', 'Pending', 'Submitted', 'Overdue']
 
@@ -113,6 +114,9 @@ function AssignmentStat({ iconClass, icon, value, label }) {
 function AssignmentCard({ assignment, onSubmit, onOpenQuiz }) {
     const { t } = useTranslation()
     const fileRef = useRef(null)
+    // A chosen file waits here until the student confirms; picking used to hand it in at once.
+    const [picked, setPicked] = useState(null)
+    const [sending, setSending] = useState(false)
     const {
         id, title, subject, teacher, due_date, status: rawStatus, grade, max_score: maxScore,
         feedback, attachment, mode, submission_method: method, allow_backtracking: canGoBack,
@@ -191,14 +195,33 @@ function AssignmentCard({ assignment, onSubmit, onOpenQuiz }) {
                             aria-label={t('student.assignments.chooseFile')}
                             onChange={e => {
                                 const file = e.target.files?.[0]
-                                if (file) onSubmit(id, file)
+                                if (file) setPicked(file)
                                 // Cleared so picking the same file again still fires.
                                 e.target.value = ''
                             }} />
-                        <button className={actionClass} onClick={() => fileRef.current?.click()}>
-                            <span className="material-symbols-rounded" aria-hidden="true">upload_file</span>
-                            {t('student.assignments.uploadSubmit')}
-                        </button>
+                        {picked ? (
+                            <>
+                                <span className="assignment-note">{picked.name} · {formatBytes(picked.size)}</span>
+                                <button className={actionClass} disabled={sending}
+                                    onClick={async () => {
+                                        setSending(true)
+                                        // Kept on failure so the student can retry without re-picking.
+                                        try { if (await onSubmit(id, picked)) setPicked(null) } finally { setSending(false) }
+                                    }}>
+                                    <span className="material-symbols-rounded" aria-hidden="true">upload_file</span>
+                                    {t('student.assignments.confirmSubmit')}
+                                </button>
+                                <button className="btn btn-sm btn-outline" disabled={sending}
+                                    onClick={() => setPicked(null)}>
+                                    {t('common.cancel')}
+                                </button>
+                            </>
+                        ) : (
+                            <button className={actionClass} onClick={() => fileRef.current?.click()}>
+                                <span className="material-symbols-rounded" aria-hidden="true">upload_file</span>
+                                {t('student.assignments.uploadSubmit')}
+                            </button>
+                        )}
                     </>
                 )}
                 {open && !online && method !== 'upload' && (
@@ -273,11 +296,13 @@ export function StudentAssignments() {
             const updated = await getStudentAssignments().catch(() => assignments)
             setAssignments(Array.isArray(updated) ? updated : assignments)
             toast.success(t('student.assignments.submittedToast'))
+            return true
         } catch (e) {
             /* This used to swallow the error. Handing work in is the one action
                on this page a student needs confirmation of - failing quietly
                leaves them believing it went in. */
             toast.error(errorMessage(e, t('student.assignments.submitFailed')))
+            return false
         }
     }
 

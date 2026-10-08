@@ -1,5 +1,5 @@
 from django.urls import path
-from . import housing_api, views
+from . import exeat_api, housing_api, views
 
 urlpatterns = [
     # Current term
@@ -30,6 +30,13 @@ urlpatterns = [
     path('discipline/boarding/',                            views.BoardingStudentListView.as_view(),         name='discipline-boarding'),
     path('discipline/boarding/<uuid:pk>/',                  views.BoardingStudentDetailView.as_view(),       name='discipline-boarding-detail'),
 
+    # Demerit escalation ladder
+    path('discipline/ladder/',                              views.DisciplineLadderView.as_view(),            name='discipline-ladder'),
+
+    # Exeat (gate pass) register
+    path('discipline/exeat/',                               exeat_api.ExeatListCreateView.as_view(),         name='discipline-exeat'),
+    path('discipline/exeat/<uuid:pk>/',                     exeat_api.ExeatActionView.as_view(),             name='discipline-exeat-action'),
+
     # Dining
     path('discipline/dining/',                              views.DiningPlanListView.as_view(),              name='discipline-dining'),
     path('discipline/dining/<uuid:pk>/',                    views.DiningPlanDetailView.as_view(),            name='discipline-dining-detail'),
@@ -55,6 +62,7 @@ urlpatterns = [
 
     # Dormitories, rooms and the housing (bin-packing) generator.
     # Literal paths come before the <uuid:pk> routes so they are not eaten as pks.
+    path('discipline/housing/beds/',                  housing_api.BedLayoutView.as_view(),             name='discipline-housing-beds'),
     path('discipline/housing/generate/',              housing_api.HousingGenerateView.as_view(),       name='discipline-housing-generate'),
     path('discipline/housing/generate/commit/',       housing_api.HousingGenerateCommitView.as_view(), name='discipline-housing-generate-commit'),
     path('discipline/dormitories/',                   housing_api.DormitoryListView.as_view(),         name='discipline-dormitories'),

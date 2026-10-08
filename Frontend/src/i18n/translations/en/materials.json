@@ -47,5 +47,7 @@
   "saveFailed": "Could not save the material.",
   "deleteFailed": "Could not delete the material.",
   "loadFailed": "Could not load the materials.",
-  "confirmDelete": "Delete \"{{title}}\"? Students will no longer see it."
+  "confirmDelete": "Delete \"{{title}}\"? Students will no longer see it.",
+  "searchPlaceholder": "Search materials",
+  "noMatches": "No materials match your search."
 }

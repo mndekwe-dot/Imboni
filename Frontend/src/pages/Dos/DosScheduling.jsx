@@ -26,6 +26,7 @@ import { formatDateWithWeekday, formatWeekdayShort, monthName, weekdayShortNames
 import { PRINT_FONT_STACK, printFontFace } from '../../utils/printFont'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { saveWithClashCheck } from '../../utils/examClash'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -379,8 +380,11 @@ export function DosScheduling() {
 
     async function handleExamSave(formData) {
         try {
-            if (editingExam) await updateDosExamSchedule(editingExam.id, formData)
-            else             await createDosExamSchedule(formData)
+            const saved = await saveWithClashCheck(extra => (
+                editingExam ? updateDosExamSchedule(editingExam.id, { ...formData, ...extra })
+                            : createDosExamSchedule({ ...formData, ...extra })
+            ), t)
+            if (saved === null) return       // a clash the user chose not to keep
             setShowExamForm(false); setEditingExam(null); setDefaultSession(''); setDefaultDate('')
             getDosExamSchedule().then(setExams).catch(loadFailed)
         } catch(e) { toast.error(errorMessage(e, t('dos.examSchedule.saveFailed'))) }
@@ -395,7 +399,8 @@ export function DosScheduling() {
 
     async function handleExamReschedule(id, newDate) {
         try {
-            await updateDosExamSchedule(id, { exam_date: newDate })
+            const saved = await saveWithClashCheck(extra => updateDosExamSchedule(id, { exam_date: newDate, ...extra }), t)
+            if (saved === null) return
             getDosExamSchedule().then(setExams).catch(loadFailed)
         } catch(e) { toast.error(errorMessage(e, t('dos.examSchedule.rescheduleFailed'))) }
     }

@@ -61,7 +61,13 @@ describe('dos api', () => {
     expect(client.patch).toHaveBeenCalledWith('/imboni/dos/results/2/approve/')
 
     dos.rejectResult(2, 'bad')
-    expect(client.patch).toHaveBeenCalledWith('/imboni/dos/results/2/reject/', { reason: 'bad' })
+    expect(client.patch).toHaveBeenCalledWith('/imboni/dos/results/2/reject/', { rejection_reason: 'bad' })
+
+    dos.bulkApproveResults([1, 2])
+    expect(client.post).toHaveBeenCalledWith('/imboni/dos/results/bulk-approve/', { ids: [1, 2] })
+
+    dos.bulkRejectResults([1, 2], 'bad')
+    expect(client.post).toHaveBeenCalledWith('/imboni/dos/results/bulk-reject/', { ids: [1, 2], reason: 'bad' })
   })
 
   it('exam schedule CRUD', () => {

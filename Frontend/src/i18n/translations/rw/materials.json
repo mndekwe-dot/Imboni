@@ -47,5 +47,7 @@
   "saveFailed": "Ntibyashobotse kubika imfashanyigisho.",
   "deleteFailed": "Ntibyashobotse gusiba imfashanyigisho.",
   "loadFailed": "Ntibyashobotse gufungura imfashanyigisho.",
-  "confirmDelete": "Gusiba \"{{title}}\"? Abanyeshuri ntibazongera kuyibona."
+  "confirmDelete": "Gusiba \"{{title}}\"? Abanyeshuri ntibazongera kuyibona.",
+  "searchPlaceholder": "Shakisha ibikoresho",
+  "noMatches": "Nta bikoresho bihuye n’ibyo washakishije."
 }

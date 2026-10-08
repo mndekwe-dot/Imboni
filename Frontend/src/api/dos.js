@@ -21,7 +21,9 @@ export const assignDosTeacherClasses = (id, classes) => client.patch(`/imboni/do
 //  Results 
 export const getDosResults = (params) => client.get("/imboni/dos/results/", { params });
 export const approveResult = (id) => client.patch(`/imboni/dos/results/${id}/approve/`);
-export const rejectResult = (id, reason) => client.patch(`/imboni/dos/results/${id}/reject/`, { reason });
+export const rejectResult = (id, reason) => client.patch(`/imboni/dos/results/${id}/reject/`, { rejection_reason: reason });
+export const bulkApproveResults = (ids) => client.post("/imboni/dos/results/bulk-approve/", { ids });
+export const bulkRejectResults = (ids, reason) => client.post("/imboni/dos/results/bulk-reject/", { ids, reason });
 
 //  Exam Schedule 
 export const getDosExamSchedule    = ()         => client.get('/imboni/dos/exam-schedule/')
@@ -86,7 +88,7 @@ export const removeStudentLeader    = (id, role)  => client.delete(`/imboni/dos/
 
 // Timetable
 export const getDosRooms     = ()           => client.get('/imboni/dos/rooms/')
-export const createDosRoom   = (name)       => client.post('/imboni/dos/rooms/', { name })
+export const createDosRoom   = (name, capacity) => client.post('/imboni/dos/rooms/', capacity ? { name, capacity } : { name })
 export const deleteDosRoom   = (id)         => client.delete(`/imboni/dos/rooms/${id}/`)
 export const getDosTimetable = (classId) => client.get('/imboni/dos/timetable/',{params :{class_id : classId}})
 export const saveDosSlot = (data) => client.post('/imboni/dos/timetable/',data)
