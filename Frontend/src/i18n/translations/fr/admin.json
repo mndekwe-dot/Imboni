@@ -99,5 +99,25 @@
   },
   "support": {
     "subtitle": "Obtenez de l'aide auprès de l'équipe Imboni"
+  },
+  "audit": {
+    "title": "Journal d’audit",
+    "subtitle": "Qui a fait quoi, et quand. Les entrées ne peuvent être ni modifiées ni supprimées.",
+    "action": "Action",
+    "allActions": "Toutes les actions",
+    "actor": "Qui",
+    "actorPlaceholder": "Rechercher un nom…",
+    "target": "Concerne",
+    "targetPlaceholder": "Élève, résultat, facture…",
+    "from": "Du",
+    "to": "Au",
+    "when": "Quand",
+    "role": "Rôle",
+    "detail": "Détail",
+    "empty": "Aucune entrée.",
+    "emptyDesc": "Essayez une période plus large ou moins de filtres.",
+    "loadFailed": "Impossible de charger le journal d’audit.",
+    "showing": "{{shown}} sur {{count}}",
+    "more": "Charger plus"
   }
 }

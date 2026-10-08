@@ -26,6 +26,14 @@ class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
+    def perform_destroy(self, instance):
+        # Deleting a student takes their results and attendance with them; the audit trail is
+        # the only place that remembers there was one.
+        label = f"{instance.user.get_full_name()} ({instance.student_id})"
+        detail = {'grade': instance.grade, 'section': instance.section}
+        super().perform_destroy(instance)
+        audit(self.request.user, 'student.deleted', label, detail)
+
 
 def _verify_parent_owns_student(request, student_pk):
     """
