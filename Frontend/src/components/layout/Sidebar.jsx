@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth'
 import logo from '../../assets/images/imboni-logo.webp'
 import { useSchoolBranding } from '../../hooks/useSchoolBranding'
 import { useLibraryFeature } from '../../hooks/useLibraryFeature'
+import { useSchoolModules } from '../../hooks/useSchoolModules'
 import { useNavBadges } from '../../hooks/useNavBadges'
 
 /* Every page mounts its own <Sidebar> — 64 of them — so component state alone
@@ -25,8 +26,16 @@ export function Sidebar({ navItems, secondaryItems }) {
      pages ask. `enabled` is null until the answer arrives, and a link is not
      shown on a maybe. */
   const { enabled: libraryEnabled } = useLibraryFeature()
-  const visible = items => items.filter(
-    item => item.feature !== 'library' || libraryEnabled === true)
+  /* `feature: 'matron'` / `'boarding'` are parts an operator can switch off for a
+     school (a day school has no use for them). Those are hidden only on an
+     explicit `false`, never on a maybe: a failed check must not take a part of
+     the product away from a school that is using it. */
+  const { modules } = useSchoolModules()
+  const visible = items => items.filter(item => {
+    if (item.feature === 'library') return libraryEnabled === true
+    if (item.feature) return modules?.[item.feature] !== false
+    return true
+  })
   const [mobileOpen, setMobileOpen] = useState(false)
   const badges = useNavBadges(navItems)
   const { logout } = useAuth()

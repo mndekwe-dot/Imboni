@@ -6,6 +6,8 @@ import { Sidebar } from './Sidebar'
 const mockLogout = vi.fn()
 const mockBadges = vi.fn()
 vi.mock('../../api/navBadges', () => ({ getNavBadges: (...a) => mockBadges(...a) }))
+let schoolModules = null
+vi.mock('../../hooks/useSchoolModules', () => ({ useSchoolModules: () => ({ modules: schoolModules }) }))
 vi.mock('../../hooks/useAuth', () => ({
   useAuth: () => ({ logout: mockLogout }),
 }))
@@ -34,6 +36,7 @@ describe('Sidebar', () => {
     mockLogout.mockClear()
     localStorage.clear()   // the collapse choice persists between mounts now
     branding = { schoolName: '', logo: null, loaded: true }
+    schoolModules = null
   })
 
   it('renders nav items and secondary items', () => {
@@ -181,5 +184,20 @@ describe('Sidebar', () => {
       expect(await screen.findByText('Messages')).toBeInTheDocument()
       expect(screen.queryByText(/waiting/)).not.toBeInTheDocument()
     })
+  })
+
+  it('hides a part the operator switched off, but not on a maybe', () => {
+    const items = [
+      { to: '/discipline', labelKey: 'nav.dashboard', icon: 'dashboard', end: true },
+      { to: '/discipline/boarding', labelKey: 'nav.boarding', icon: 'hotel', feature: 'boarding' },
+    ]
+    const { unmount } = renderWithRouter(<Sidebar navItems={items} secondaryItems={[]} />)
+    expect(screen.getByText('Boarding')).toBeInTheDocument()   // answer unknown: stay visible
+    unmount()
+
+    schoolModules = { boarding: false, matron: true, library: true }
+    renderWithRouter(<Sidebar navItems={items} secondaryItems={[]} />)
+    expect(screen.queryByText('Boarding')).not.toBeInTheDocument()
+    expect(screen.getByText('Dashboard')).toBeInTheDocument()
   })
 })

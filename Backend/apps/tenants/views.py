@@ -58,7 +58,7 @@ class SchoolViewSet(AuditedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     # route, and silently ignored by any other mounting -- `as_view({...})` in
     # a test, or a hand-written path(). Deciding who may switch a school off is
     # not somewhere to depend on how the view happened to be wired up.
-    OPERATIONS_ACTIONS = frozenset({'restrict', 'suspend', 'reactivate'})
+    OPERATIONS_ACTIONS = frozenset({'restrict', 'suspend', 'reactivate', 'modules'})
 
     def get_permissions(self):
         if self.action in self.OPERATIONS_ACTIONS:
@@ -98,6 +98,28 @@ class SchoolViewSet(AuditedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     def reactivate(self, request, pk=None):
         """Reactivate a restricted or suspended school. Sets status='active'."""
         return self._set_status(request, 'active', 'reactivate')
+
+    @action(detail=True, methods=['post'])
+    def modules(self, request, pk=None):
+        """
+        Switch parts of the product off (or back on) for one school.
+
+        Body: ``{"disabled": ["matron", "boarding"]}`` - the full list of what
+        is off; anything not named is on. Nothing is deleted either way.
+        """
+        from .modules import TOGGLEABLE
+        school = self.get_object()
+        wanted = request.data.get('disabled')
+        if not isinstance(wanted, list) or any(m not in TOGGLEABLE for m in wanted):
+            return Response(
+                {'detail': f'disabled must be a list drawn from: {", ".join(TOGGLEABLE)}.'},
+                status=http_status.HTTP_400_BAD_REQUEST)
+        was = list(school.disabled_modules or [])
+        school.disabled_modules = [m for m in TOGGLEABLE if m in wanted]
+        school.save(update_fields=['disabled_modules'])
+        self.audit('modules', school, client=school, label=school.name,
+                   changes={'disabled_modules': [was, school.disabled_modules]})
+        return Response(self.get_serializer(school).data)
 
     @action(detail=True, methods=['get'])
     def overview(self, request, pk=None):

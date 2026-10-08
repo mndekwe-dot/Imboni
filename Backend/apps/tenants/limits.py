@@ -150,8 +150,9 @@ class FeatureNotInPlan(APIException):
 
 
 def tenant_has_feature(feature):
-    """Whether the ACTIVE tenant's plan includes ``feature``."""
-    return has_feature(current_plan(), feature)
+    """Whether the ACTIVE tenant has ``feature``: in its plan, and not switched off by the operator."""
+    from .modules import module_enabled
+    return has_feature(current_plan(), feature) and module_enabled(feature)
 
 
 def enforce_feature(feature, label=None):
@@ -163,5 +164,9 @@ def enforce_feature(feature, label=None):
     """
     if not tenant_has_feature(feature):
         name = label or feature
+        from .modules import module_enabled
+        if has_feature(current_plan(), feature) and not module_enabled(feature):
+            # Paid for, but switched off for this school: an upgrade would not help.
+            raise FeatureNotInPlan(f'{name} has been switched off for your school.')
         raise FeatureNotInPlan(
             f'{name} is part of the Premium plan. Upgrade to switch it on.')

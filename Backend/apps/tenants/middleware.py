@@ -101,6 +101,13 @@ def subscription_decision(schema_name, status, path, method='GET'):
     return ALLOW
 
 
+def module_blocked(path):
+    """The switched-off module this path belongs to, or None when it may proceed."""
+    from .modules import disabled_modules, module_for_path
+    module = module_for_path(path)
+    return module if module and module in disabled_modules() else None
+
+
 class SubscriptionStatusMiddleware:
     """
     New-style callable middleware. Must be listed AFTER
@@ -142,6 +149,15 @@ class SubscriptionStatusMiddleware:
                 },
                 status=402,  # 402 Payment Required
             )
+
+        if schema_name != get_public_schema_name():
+            off = module_blocked(request.path)
+            if off:
+                return JsonResponse(
+                    {'detail': f'This part of Imboni ({off}) is switched off for your school.',
+                     'code': 'module_disabled', 'module': off},
+                    status=403,
+                )
 
         response = self.get_response(request)
 
