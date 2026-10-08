@@ -125,7 +125,12 @@
     "fullTime": "Full-Time",
     "partTime": "Part-Time",
     "studentTeacher": "Student:Teacher",
-    "noInvitationsHint": "to get started."
+    "noInvitationsHint": "to get started.",
+    "rolesTitle": "Extra roles for {{name}}",
+    "rolesHint": "Besides being a {{role}}, they can also open these portals. Give only what the job needs: each one hands over its powers.",
+    "rolesSave": "Save roles",
+    "rolesSaved": "Roles saved.",
+    "rolesFailed": "Could not save the roles."
   },
   "students": {
     "subtitle": "Enrollment, admissions and student records",

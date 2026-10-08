@@ -200,4 +200,19 @@ describe('Sidebar', () => {
     expect(screen.queryByText('Boarding')).not.toBeInTheDocument()
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
   })
+
+  it('offers a switch to each other portal a person holds, and not to the one they are in', () => {
+    localStorage.setItem('imboni_user', JSON.stringify({ role: 'teacher', extra_roles: ['dos'], first_name: 'A' }))
+    renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />, { route: '/teacher/classes' })
+    expect(screen.getByText('Switch to Director of Studies')).toBeInTheDocument()
+    expect(screen.queryByText('Switch to Teacher')).not.toBeInTheDocument()
+    localStorage.removeItem('imboni_user')
+  })
+
+  it('shows no switcher to someone with a single role', () => {
+    localStorage.setItem('imboni_user', JSON.stringify({ role: 'teacher', first_name: 'A' }))
+    renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
+    expect(screen.queryByText(/^Switch to/)).not.toBeInTheDocument()
+    localStorage.removeItem('imboni_user')
+  })
 })

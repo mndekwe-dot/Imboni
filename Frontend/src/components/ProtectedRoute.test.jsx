@@ -156,4 +156,18 @@ describe('PlatformLayout guard', () => {
     renderPlatform()
     expect(screen.getByText('Console Body')).toBeInTheDocument()
   })
+
+  it('lets in someone whose SECONDARY role owns the route', () => {
+    localStorage.setItem('imboni_access', 'some-token')
+    localStorage.setItem('imboni_user', JSON.stringify({ role: 'teacher', extra_roles: ['dos'], first_name: 'A' }))
+    renderAt('/teacher', { role: 'dos' })
+    expect(screen.getByText('Teacher Dashboard')).toBeInTheDocument()
+  })
+
+  it('still turns away a secondary role that belongs to a different portal', () => {
+    localStorage.setItem('imboni_access', 'some-token')
+    localStorage.setItem('imboni_user', JSON.stringify({ role: 'teacher', extra_roles: ['matron'], first_name: 'A' }))
+    renderAt('/teacher', { role: 'dos' })
+    expect(screen.queryByText('Teacher Dashboard')).not.toBeInTheDocument()
+  })
 })

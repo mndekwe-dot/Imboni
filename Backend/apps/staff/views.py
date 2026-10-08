@@ -124,3 +124,38 @@ class StaffMemberDetailView(StaffView):
             return _fail('This worker has been paid through payroll. Mark them as left instead.')
         member.delete()
         return Response(status=204)
+
+
+class StaffExtraRolesView(APIView):
+    """
+    PATCH /imboni/staff/members/<pk>/roles/   {extra_roles: ['dos', 'matron']}
+
+    Let a member of staff open another portal besides their own: the teacher who
+    is also the assistant DOS, the matron who is also the discipline master.
+    Only the administrator may do it, because it hands over real powers; it is
+    recorded in the audit log; and it is the full list, so an empty one takes
+    every extra away. It can never add 'admin', and never to a student or parent.
+    """
+    from apps.authentication.permissions import IsAdminRole
+    permission_classes = [IsAdminRole]
+
+    def patch(self, request, pk):
+        from apps.audit.services import audit
+        from apps.authentication.permissions import SECONDARY_ROLES
+
+        member = get_object_or_404(StaffMember.objects.select_related('user'), pk=pk)
+        user = member.user
+        if user is None:
+            return _fail('This person has no login yet. Invite them first.')
+        if user.role not in SECONDARY_ROLES and user.role != 'admin':
+            return _fail('Students and parents cannot hold a staff role.')
+        wanted = request.data.get('extra_roles')
+        if not isinstance(wanted, list) or any(r not in SECONDARY_ROLES for r in wanted):
+            return _fail(f'extra_roles must be a list drawn from: {", ".join(SECONDARY_ROLES)}.')
+        clean = [r for r in SECONDARY_ROLES if r in wanted and r != user.role]
+        was = list(user.extra_roles or [])
+        user.extra_roles = clean
+        user.save(update_fields=['extra_roles'])
+        audit(request.user, 'user.extra_roles_changed', user.get_full_name() or user.username,
+              {'extra_roles': [was, clean]})
+        return Response({'extra_roles': clean})
