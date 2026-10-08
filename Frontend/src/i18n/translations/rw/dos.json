@@ -13,8 +13,35 @@
     "weekOf": "Icyumweru cyo kuwa"
   },
   "dashboard": {
+    "activeTeachers": "abarimu bakora",
+    "activityCount": "{{shown}} kuri {{total}}",
+    "allLoaded": "Ibikorwa byose {{count}} byarakuwe",
+    "approveResults": "Emeza amanota",
+    "attendance": "Kuboneka",
+    "avgPerformance": "Impuzandengo y’amanota",
+    "avgScore": "Impuzandengo",
+    "changeThisTerm": "{{value}}% muri iki gihembwe",
+    "errorPrefix": "Ikosa: {{message}}",
+    "loadMoreRemaining": "Erekana ibindi ({{count}} bisigaye)",
+    "manageStudents": "Gucunga abanyeshuri",
+    "newThisTerm": "+{{count}} muri iki gihembwe",
+    "overview": "Incamake",
+    "pendingApprovals": "Ibitegereje kwemezwa",
+    "performance": "Amanota",
+    "performanceByGrade": "Amanota ku rwego",
+    "performanceByGradeSubtitle": "Impuzandengo ku rwego, igihembwe kiriho",
+    "quickActions": "Ibikorwa byihuse",
+    "recentActivity": "Ibyakozwe vuba",
+    "requiresAction": "Bisaba igikorwa",
+    "saveTaskFailed": "Ntibishobotse kubika umurimo.",
     "subtitle": "Ubwitabire, amanota n'abarimu mu ncamake",
-    "title": "Imbonerahamwe y'Umuyobozi w'Amasomo"
+    "teachingStaff": "Abarimu",
+    "termTrend": "Uko igihembwe kigenda",
+    "title": "Imbonerahamwe y'Umuyobozi w'Amasomo",
+    "totalStudents": "Abanyeshuri bose",
+    "viewTeachers": "Reba abarimu",
+    "vsTerm1": "{{value}}% ugereranyije n’igihembwe cya 1",
+    "weeklyTrendSubtitle": "Kuboneka n’amanota buri cyumweru"
   },
   "dining": {
     "addSittingFailed": "Kongeraho icyiciro byanze",
@@ -146,7 +173,15 @@
     "tableView": "Imbonerahamwe",
     "title": "Gahunda y'ibizamini",
     "unplaced": "{{count}} bitabonewe umwanya",
-    "weightShort": "Ub"
+    "weightShort": "Ub",
+    "clashBadge": "Ihuzagurika",
+    "clashConfirm": "Iri suzuma rihuzagurika:\n{{details}}\n\nWarbika uko ryakabaye?",
+    "clash": {
+      "class": "Iri shuri rifite irindi suzuma icyo gihe ({{with}})",
+      "venue": "Icyumba cyamaze gufatwa icyo gihe ({{with}})",
+      "invigilator": "Umugenzuzi arimo kugenzura icyo gihe ({{with}})",
+      "capacity": "Icyumba ni gito: abakora {{needed}} ku ntebe {{seats}}"
+    }
   },
   "leaders": {
     "catArt": "Ubugeni n'ubukorikori",
@@ -190,7 +225,19 @@
     "attentionNone": "Nta munyeshuri wagaragajwe: impuzandengo ziri hejuru ya 50% kandi kwitabira kuri hejuru ya 80%.",
     "attentionScore": "Impuzandengo {{avg}}% · amasomo {{failing}} yatsinzwe",
     "attentionAbsence": "Kwitabira {{rate}}% · iminsi {{days}} yo gusiba",
-    "attentionLoadFailed": "Ntibyashobotse kubona abanyeshuri bakeneye gukurikiranwa."
+    "attentionLoadFailed": "Ntibyashobotse kubona abanyeshuri bakeneye gukurikiranwa.",
+    "approveAll": "Emeza byose bitegereje",
+    "approveAllConfirm": "Wemeza ibyatanzwe {{count}} bitegereje bigaragara?",
+    "approvedAll": "Ibisubizo {{count}} byemejwe.",
+    "rejectTitle": "Subiza ngo bikosorwe",
+    "rejectReasonLabel": "Ni iki gikwiye gukosorwa? Umwarimu azabimenyeshwa.",
+    "rejectReasonPlaceholder": "urugero: Igiteranyo ntigihuye n’urupapuro rw’amanota",
+    "rejectConfirm": "Subiza",
+    "rejectNeedsReason": "Banza wandike impamvu ngufi kugira ngo umwarimu amenye icyo akosora.",
+    "rejectedDone": "Byasubijwe umwarimu.",
+    "approveFailed": "Ntibishobotse kwemeza ibyo bisubizo.",
+    "rejectFailed": "Ntibishobotse kwanga ibyo bisubizo.",
+    "attentionSeeAll": "Reba bose {{count}}"
   },
   "scheduling": {
     "addExam": "Ongeraho ikizamini",
@@ -304,7 +351,10 @@
     "template": "Icyitegererezo",
     "title": "Gucunga abanyeshuri",
     "yearRequired": "Umwaka *",
-    "yearStream": "Umwaka/Ishami"
+    "yearStream": "Umwaka/Ishami",
+    "downloadFailedRows": "Kuramo imirongo itagenze neza",
+    "failedRowsName": "ubutumire-butagenze-neza",
+    "errorColumn": "ikosa"
   },
   "teachers": {
     "allSubjects": "Amasomo yose",
@@ -333,7 +383,19 @@
     "subjectRequired": "Isomo *",
     "subtitle": "Reba, ongeraho, uhindure abarimu kandi ucunge amashuri bahawe",
     "teacherDetails": "Amakuru y'umwarimu",
-    "title": "Gucunga abarimu"
+    "title": "Gucunga abarimu",
+    "workload": "Umutwaro w’akazi",
+    "periodsOfCapacity": "Amasomo {{periods}} muri {{capacity}}",
+    "doubleBooked": "{{count}} yatanzwe kabiri",
+    "doubleBookedHint": "Ateganyirijwe amashuri abiri atandukanye icyarimwe.",
+    "levels": {
+      "none": "Nta masomo",
+      "light": "Woroheje",
+      "normal": "Uringaniye",
+      "heavy": "Uremereye",
+      "over": "Urenze ubushobozi",
+      "unknown": "Nta gahunda y’inzogera"
+    }
   },
   "timetable": {
     "academicTerm": "Igihembwe *",

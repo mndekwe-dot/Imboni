@@ -1028,6 +1028,9 @@ class TeacherAttendanceStudentsView(APIView):
             )
         }
 
+        from apps.discipline.exeat_service import students_away
+        away = students_away([enr.student_id for enr in enrollments], target_date)
+
         data = []
         for enr in enrollments:
             student = enr.student
@@ -1041,6 +1044,7 @@ class TeacherAttendanceStudentsView(APIView):
                 'initials':     initials,
                 'status':       record.status if record else None,
                 'notes':        record.notes  if record else '',
+                'on_exeat':     student.id in away,
             })
 
         return Response(TeacherAttendanceStudentSerializer(data, many=True).data)

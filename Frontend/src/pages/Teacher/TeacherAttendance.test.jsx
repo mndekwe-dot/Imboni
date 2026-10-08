@@ -51,6 +51,15 @@ describe('TeacherAttendance', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: /Mark Attendance/ })).toBeInTheDocument())
   })
 
+  it('opens the register for the class it was sent from', async () => {
+    getTeacherMyClasses.mockResolvedValue(CLASSES)
+    getTeacherAttendanceStudents.mockResolvedValue([])
+    getTeacherAttendanceStats.mockResolvedValue({})
+    renderWithRouter(<TeacherAttendance />, { route: { pathname: '/teacher/attendance', state: { grade: 'S1', section: 'A' } } })
+
+    await waitFor(() => expect(getTeacherAttendanceStudents).toHaveBeenCalledWith(expect.objectContaining({ class_id: 1 })))
+  })
+
   it('shows O-Level as a section option once classes with grade 1-3 load', async () => {
     getTeacherMyClasses.mockResolvedValue(CLASSES)
     renderWithRouter(<TeacherAttendance />)
@@ -84,5 +93,18 @@ describe('TeacherAttendance', () => {
     expect(markTeacherAttendance).toHaveBeenCalledWith(expect.objectContaining({
       records: [expect.objectContaining({ student_id: 's1' })],
     }))
+  })
+
+  it('starts a student who is signed out on an exéat as excused, not absent or present', async () => {
+    getTeacherMyClasses.mockResolvedValue(CLASSES)
+    getTeacherAttendanceStats.mockResolvedValue({})
+    getTeacherAttendanceStudents.mockResolvedValue([
+      { student_id: 'a', student_code: 'ADM1', full_name: 'Amina Uwase', initials: 'AU', status: null, notes: '', on_exeat: true },
+      { student_id: 'b', student_code: 'ADM2', full_name: 'Eric Habimana', initials: 'EH', status: null, notes: '', on_exeat: false },
+    ])
+    renderWithRouter(<TeacherAttendance />, { route: { pathname: '/teacher/attendance', state: { grade: 'S1', section: 'A' } } })
+
+    expect(await screen.findByText('On exéat')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Signed out on an exéat pass')).toBeInTheDocument()
   })
 })

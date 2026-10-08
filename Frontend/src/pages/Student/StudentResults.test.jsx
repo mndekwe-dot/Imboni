@@ -66,6 +66,28 @@ describe('StudentResults', () => {
     expect(within(screen.getByRole('main')).getByText('English', { selector: '.subject-name-label' })).toBeInTheDocument()
   })
 
+  it("shows only the selected term's assessments and can narrow them to one subject", async () => {
+    getStudentProfile.mockResolvedValue(PROFILE)
+    getStudentResults.mockResolvedValue(TERMS)
+    getStudentAssessments.mockResolvedValue([
+      { term_id: 1, subject_name: 'Mathematics', title: 'Algebra quiz', max_score: 20, score_obtained: 15, percentage: 75, grade: 'B', date: '2026-02-01' },
+      { term_id: 1, subject_name: 'Physics', title: 'Optics lab', max_score: 20, score_obtained: 18, percentage: 90, grade: 'A', date: '2026-02-08' },
+      { term_id: 2, subject_name: 'English', title: 'Essay', max_score: 50, score_obtained: 40, percentage: 80, grade: 'A', date: '2026-05-01' },
+    ])
+
+    renderWithRouter(<StudentResults />)
+    await waitFor(() => expect(screen.getByText('Algebra quiz')).toBeInTheDocument())
+    expect(screen.queryByText('Essay')).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Subject' }), { target: { value: 'Physics' } })
+    expect(screen.queryByText('Algebra quiz')).not.toBeInTheDocument()
+    expect(screen.getByText('Optics lab')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByText('Term 2'))
+    expect(screen.getByText('Essay')).toBeInTheDocument()
+    expect(screen.queryByText('Optics lab')).not.toBeInTheDocument()
+  })
+
   it('shows the term-over-term trend chart when at least two terms have averages', async () => {
     getStudentProfile.mockResolvedValue(PROFILE)
     getStudentResults.mockResolvedValue(TERMS)

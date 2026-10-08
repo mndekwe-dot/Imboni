@@ -2,14 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, screen, waitFor, fireEvent, within } from '../../test/test-utils'
 import { StudentActivities } from './StudentActivities'
 import {
-    getStudentProfile, getStudentDiscipline,
+    getStudentProfile,
     getStudentActivities, getStudentActivityEvents,
     joinActivity, withdrawActivity,
 } from '../../api/student'
 
 vi.mock('../../api/student', () => ({
     getStudentProfile: vi.fn(),
-    getStudentDiscipline: vi.fn(),
     getStudentActivities: vi.fn(),
     getStudentActivityEvents: vi.fn(),
     joinActivity: vi.fn(),
@@ -17,15 +16,6 @@ vi.mock('../../api/student', () => ({
 }))
 
 const PROFILE = { grade: 'S4', section: 'A' }
-
-const DISCIPLINE = {
-    conduct_grade: 'B',
-    conduct_label: 'Good Standing',
-    reports: [
-        { id: 1, report_type: 'positive', description: 'Helped organize event', reported_by: 'Mr. X', date: '2024-03-01' },
-        { id: 2, report_type: 'incident', description: 'Late to class', reported_by: 'Ms. Y', date: '2024-03-05' },
-    ],
-}
 
 const ACTIVITIES = {
     enrolled: [
@@ -41,6 +31,12 @@ const EVENTS = [
     { id: 1, title: 'Chess Tournament', activity_name: 'Chess Club', venue: 'Room 5', date: '2026-04-01', start_time: '14:00:00', end_time: '16:00:00' },
 ]
 
+function loadAll() {
+    getStudentProfile.mockResolvedValue(PROFILE)
+    getStudentActivities.mockResolvedValue(ACTIVITIES)
+    getStudentActivityEvents.mockResolvedValue(EVENTS)
+}
+
 beforeEach(() => {
     vi.clearAllMocks()
 })
@@ -48,53 +44,29 @@ beforeEach(() => {
 describe('StudentActivities', () => {
     it('shows loading state while data is being fetched', () => {
         getStudentProfile.mockReturnValue(new Promise(() => {}))
-        getStudentDiscipline.mockReturnValue(new Promise(() => {}))
         getStudentActivities.mockReturnValue(new Promise(() => {}))
         getStudentActivityEvents.mockReturnValue(new Promise(() => {}))
 
         renderWithRouter(<StudentActivities />)
 
-        expect(screen.getByText('Loading records…')).toBeInTheDocument()
+        expect(screen.getByText('Loading activities…')).toBeInTheDocument()
     })
 
-    it('renders discipline records by default once loaded', async () => {
-        getStudentProfile.mockResolvedValue(PROFILE)
-        getStudentDiscipline.mockResolvedValue(DISCIPLINE)
-        getStudentActivities.mockResolvedValue(ACTIVITIES)
-        getStudentActivityEvents.mockResolvedValue(EVENTS)
-
+    it('opens on the extracurricular activities, not discipline records', async () => {
+        loadAll()
         renderWithRouter(<StudentActivities />)
 
-        await waitFor(() => expect(screen.getByText('Helped organize event')).toBeInTheDocument())
-        expect(screen.getByText('Late to class')).toBeInTheDocument()
-        expect(screen.getByText('Good Standing')).toBeInTheDocument()
-    })
-
-    it('switches to the Extracurricular Activities tab and shows enrolled/available lists', async () => {
-        getStudentProfile.mockResolvedValue(PROFILE)
-        getStudentDiscipline.mockResolvedValue(DISCIPLINE)
-        getStudentActivities.mockResolvedValue(ACTIVITIES)
-        getStudentActivityEvents.mockResolvedValue(EVENTS)
-
-        renderWithRouter(<StudentActivities />)
-        await waitFor(() => expect(screen.getByText('Helped organize event')).toBeInTheDocument())
-
-        fireEvent.click(screen.getByRole('button', { name: 'Extracurricular Activities' }))
-
-        expect(screen.getByText('Chess Club')).toBeInTheDocument()
+        await waitFor(() => expect(screen.getByText('Chess Club')).toBeInTheDocument())
         expect(screen.getByText('Debate Club')).toBeInTheDocument()
         expect(screen.getByText('Drama Club')).toBeInTheDocument()
         expect(screen.getByText('Full')).toBeInTheDocument()
+        expect(screen.queryByText(/Conduct Grade/)).not.toBeInTheDocument()
     })
 
     it('shows the Upcoming Events tab content', async () => {
-        getStudentProfile.mockResolvedValue(PROFILE)
-        getStudentDiscipline.mockResolvedValue(DISCIPLINE)
-        getStudentActivities.mockResolvedValue(ACTIVITIES)
-        getStudentActivityEvents.mockResolvedValue(EVENTS)
-
+        loadAll()
         renderWithRouter(<StudentActivities />)
-        await waitFor(() => expect(screen.getByText('Helped organize event')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText('Chess Club')).toBeInTheDocument())
 
         fireEvent.click(screen.getByRole('button', { name: 'Upcoming Events' }))
 
@@ -102,15 +74,10 @@ describe('StudentActivities', () => {
     })
 
     it('joins an available activity when Join is clicked', async () => {
-        getStudentProfile.mockResolvedValue(PROFILE)
-        getStudentDiscipline.mockResolvedValue(DISCIPLINE)
-        getStudentActivities.mockResolvedValue(ACTIVITIES)
-        getStudentActivityEvents.mockResolvedValue(EVENTS)
+        loadAll()
         joinActivity.mockResolvedValue({})
-
         renderWithRouter(<StudentActivities />)
-        await waitFor(() => expect(screen.getByText('Helped organize event')).toBeInTheDocument())
-        fireEvent.click(screen.getByRole('button', { name: 'Extracurricular Activities' }))
+        await waitFor(() => expect(screen.getByText('Drama Club')).toBeInTheDocument())
 
         const dramaCard = screen.getByText('Drama Club').closest('.card')
         fireEvent.click(within(dramaCard).getByRole('button', { name: /Join/i }))
@@ -119,15 +86,10 @@ describe('StudentActivities', () => {
     })
 
     it('withdraws from an enrolled activity when Withdraw is clicked', async () => {
-        getStudentProfile.mockResolvedValue(PROFILE)
-        getStudentDiscipline.mockResolvedValue(DISCIPLINE)
-        getStudentActivities.mockResolvedValue(ACTIVITIES)
-        getStudentActivityEvents.mockResolvedValue(EVENTS)
+        loadAll()
         withdrawActivity.mockResolvedValue({})
-
         renderWithRouter(<StudentActivities />)
-        await waitFor(() => expect(screen.getByText('Helped organize event')).toBeInTheDocument())
-        fireEvent.click(screen.getByRole('button', { name: 'Extracurricular Activities' }))
+        await waitFor(() => expect(screen.getByText('Chess Club')).toBeInTheDocument())
 
         const chessCard = screen.getByText('Chess Club').closest('.card')
         fireEvent.click(within(chessCard).getByRole('button', { name: /Withdraw/i }))
@@ -135,18 +97,16 @@ describe('StudentActivities', () => {
         await waitFor(() => expect(withdrawActivity).toHaveBeenCalledWith(10))
     })
 
-    it('filters discipline records by type tab', async () => {
-        getStudentProfile.mockResolvedValue(PROFILE)
-        getStudentDiscipline.mockResolvedValue(DISCIPLINE)
-        getStudentActivities.mockResolvedValue(ACTIVITIES)
-        getStudentActivityEvents.mockResolvedValue(EVENTS)
-
+    it('says so when joining fails, and reloads nothing', async () => {
+        loadAll()
+        joinActivity.mockRejectedValue({ response: { data: { detail: 'Activity is full.' } } })
         renderWithRouter(<StudentActivities />)
-        await waitFor(() => expect(screen.getByText('Helped organize event')).toBeInTheDocument())
+        await waitFor(() => expect(screen.getByText('Drama Club')).toBeInTheDocument())
 
-        fireEvent.click(screen.getByRole('button', { name: /Positive/ }))
+        const dramaCard = screen.getByText('Drama Club').closest('.card')
+        fireEvent.click(within(dramaCard).getByRole('button', { name: /Join/i }))
 
-        expect(screen.getByText('Helped organize event')).toBeInTheDocument()
-        expect(screen.queryByText('Late to class')).not.toBeInTheDocument()
+        await waitFor(() => expect(screen.getByText('Activity is full.')).toBeInTheDocument())
+        expect(getStudentActivities).toHaveBeenCalledTimes(1)
     })
 })

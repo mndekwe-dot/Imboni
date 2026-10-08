@@ -47,5 +47,7 @@
   "saveFailed": "Impossible d'enregistrer le support.",
   "deleteFailed": "Impossible de supprimer le support.",
   "loadFailed": "Impossible de charger les supports.",
-  "confirmDelete": "Supprimer « {{title}} » ? Les élèves ne le verront plus."
+  "confirmDelete": "Supprimer « {{title}} » ? Les élèves ne le verront plus.",
+  "searchPlaceholder": "Rechercher des supports",
+  "noMatches": "Aucun support ne correspond à votre recherche."
 }

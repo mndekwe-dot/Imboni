@@ -13,8 +13,35 @@
     "weekOf": "Week of"
   },
   "dashboard": {
+    "activeTeachers": "active teachers",
+    "activityCount": "{{shown}} of {{total}}",
+    "allLoaded": "All {{count}} activities loaded",
+    "approveResults": "Approve Results",
+    "attendance": "Attendance",
+    "avgPerformance": "Avg Performance",
+    "avgScore": "Avg Score",
+    "changeThisTerm": "{{value}}% this term",
+    "errorPrefix": "Error: {{message}}",
+    "loadMoreRemaining": "Load more ({{count}} remaining)",
+    "manageStudents": "Manage Students",
+    "newThisTerm": "+{{count}} this term",
+    "overview": "Overview",
+    "pendingApprovals": "Pending Approvals",
+    "performance": "Performance",
+    "performanceByGrade": "Performance by Grade",
+    "performanceByGradeSubtitle": "Average score per grade, current term",
+    "quickActions": "Quick Actions",
+    "recentActivity": "Recent Activity",
+    "requiresAction": "Requires action",
+    "saveTaskFailed": "Failed to save task.",
     "subtitle": "Attendance, results and staffing at a glance",
-    "title": "DOS Dashboard"
+    "teachingStaff": "Teaching Staff",
+    "termTrend": "Term Trend",
+    "title": "DOS Dashboard",
+    "totalStudents": "Total Students",
+    "viewTeachers": "View Teachers",
+    "vsTerm1": "{{value}}% vs Term 1",
+    "weeklyTrendSubtitle": "Weekly attendance & performance"
   },
   "dining": {
     "addSittingFailed": "Could not add sitting",
@@ -146,7 +173,15 @@
     "tableView": "Table",
     "title": "Exam Schedule",
     "unplaced": "{{count}} unplaced",
-    "weightShort": "Wt"
+    "weightShort": "Wt",
+    "clashBadge": "Clash",
+    "clashConfirm": "This paper clashes:\n{{details}}\n\nSave it anyway?",
+    "clash": {
+      "class": "The same class already has a paper then ({{with}})",
+      "venue": "The room is already booked then ({{with}})",
+      "invigilator": "The invigilator is already supervising then ({{with}})",
+      "capacity": "The room is too small: {{needed}} candidates for {{seats}} seats"
+    }
   },
   "leaders": {
     "catArt": "Arts & Crafts",
@@ -190,7 +225,19 @@
     "attentionNone": "No students flagged: averages are above 50% and attendance above 80%.",
     "attentionScore": "Avg {{avg}}% · {{failing}} failing",
     "attentionAbsence": "Attendance {{rate}}% · {{days}} days absent",
-    "attentionLoadFailed": "Could not load the students needing attention."
+    "attentionLoadFailed": "Could not load the students needing attention.",
+    "approveAll": "Approve all pending",
+    "approveAllConfirm": "Approve all {{count}} pending submissions shown?",
+    "approvedAll": "{{count}} results approved.",
+    "rejectTitle": "Send back for correction",
+    "rejectReasonLabel": "What needs fixing? The teacher will be told.",
+    "rejectReasonPlaceholder": "e.g. Totals do not match the marks sheet",
+    "rejectConfirm": "Send back",
+    "rejectNeedsReason": "Write a short reason first so the teacher knows what to fix.",
+    "rejectedDone": "Sent back to the teacher.",
+    "approveFailed": "Could not approve those results.",
+    "rejectFailed": "Could not reject those results.",
+    "attentionSeeAll": "See all {{count}}"
   },
   "scheduling": {
     "addExam": "Add Exam",
@@ -304,7 +351,10 @@
     "template": "Template",
     "title": "Student Management",
     "yearRequired": "Year *",
-    "yearStream": "Year/Stream"
+    "yearStream": "Year/Stream",
+    "downloadFailedRows": "Download failed rows",
+    "failedRowsName": "failed-invitations",
+    "errorColumn": "error"
   },
   "teachers": {
     "allSubjects": "All Subjects",
@@ -333,7 +383,19 @@
     "subjectRequired": "Subject *",
     "subtitle": "View, add, update teachers and manage class assignments",
     "teacherDetails": "Teacher Details",
-    "title": "Teacher Management"
+    "title": "Teacher Management",
+    "workload": "Workload",
+    "periodsOfCapacity": "{{periods}} of {{capacity}} periods",
+    "doubleBooked": "{{count}} double-booked",
+    "doubleBookedHint": "Timetabled for two different classes at the same time.",
+    "levels": {
+      "none": "No lessons",
+      "light": "Light",
+      "normal": "Balanced",
+      "heavy": "Heavy",
+      "over": "Over capacity",
+      "unknown": "No bell schedule"
+    }
   },
   "timetable": {
     "academicTerm": "Academic Term *",

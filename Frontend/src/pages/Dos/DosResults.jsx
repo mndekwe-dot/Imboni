@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
-import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
+import { getDosResults, bulkApproveResults, bulkRejectResults, getDosAnalytics } from '../../api/dos'
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
     PieChart, Pie, Legend, AreaChart, Area,
@@ -163,6 +163,43 @@ function ResultCard({ result, onReview, onView }) {
 // ── Grade helper ──────────────────────────────────────────────────────────────
 function gradeColor(g) {
     return { A: '#10b981', B: '#003d7a', C: '#3b82f6', D: '#f59e0b', F: '#ef4444' }[g] ?? 'var(--muted-foreground)'
+}
+
+// ── Reject Modal ──────────────────────────────────────────────────────────────
+// Sending work back without saying why leaves the teacher guessing, so the
+// reason is required and goes to them in a notification.
+function RejectModal({ card, onClose, onConfirm }) {
+    const { t } = useTranslation()
+    const [reason, setReason] = useState('')
+    const [busy, setBusy] = useState(false)
+    const [error, setError] = useState(null)
+
+    async function submit() {
+        if (!reason.trim()) return setError(t('dos.results.rejectNeedsReason'))
+        setBusy(true)
+        const ok = await onConfirm(card, reason.trim())
+        setBusy(false)
+        if (ok) onClose()
+    }
+
+    return (
+        <Modal title={t('dos.results.rejectTitle')} icon="undo" onClose={onClose}
+            footer={
+                <div className="modal-confirm-actions">
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
+                    <button className="btn btn-primary" onClick={submit} disabled={busy}>{t('dos.results.rejectConfirm')}</button>
+                </div>
+            }
+        >
+            <div className="form-group">
+                <label className="form-label" htmlFor="reject-reason">{t('dos.results.rejectReasonLabel')}</label>
+                <textarea id="reject-reason" className="form-control" rows={4} value={reason}
+                    placeholder={t('dos.results.rejectReasonPlaceholder')}
+                    onChange={e => { setReason(e.target.value); setError(null) }} />
+                {error && <p className="form-error">{error}</p>}
+            </div>
+        </Modal>
+    )
 }
 
 // ── Review Modal ──────────────────────────────────────────────────────────────
@@ -400,6 +437,7 @@ export function DosResults() {
     // reviewing = the card currently open in the Review modal
     const [reviewing, setReviewing] = useState(null)
     const [viewing, setViewing] = useState(null)
+    const [rejecting, setRejecting] = useState(null)
 
     // Analytics tab state
     const [analyticsData,    setAnalyticsData]    = useState(null)
@@ -464,19 +502,35 @@ export function DosResults() {
     // Promise.all runs all the API calls at the same time (parallel), not one by one.
     async function handleApprove(card) {
         try {
-            await Promise.all(card.ids.map(id => approveResult(id)))
+            await bulkApproveResults(card.ids)
             // Update the card's status in local state so UI reflects change immediately
             // without needing to refetch from the API
             setCards(prev => prev.map(c => c.key === card.key ? { ...c, status: 'approved' } : c))
-        } catch (err) { toast.error(errorMessage(err, 'Could not approve those results.')) }
+        } catch (err) { toast.error(errorMessage(err, t('dos.results.approveFailed'))) }
     }
 
-    // Same pattern as approve — reject all results in this card group
-    async function handleReject(card) {
+    // Rejecting asks for a reason first (RejectModal), then sends the whole card back.
+    async function confirmReject(card, reason) {
         try {
-            await Promise.all(card.ids.map(id => rejectResult(id, '')))
+            await bulkRejectResults(card.ids, reason)
             setCards(prev => prev.map(c => c.key === card.key ? { ...c, status: 'rejected' } : c))
-        } catch (err) { toast.error(errorMessage(err, 'Could not reject those results.')) }
+            toast.success(t('dos.results.rejectedDone'))
+            return true
+        } catch (err) {
+            toast.error(errorMessage(err, t('dos.results.rejectFailed')))
+            return false
+        }
+    }
+
+    // Every pending card the filters currently show, in one request.
+    async function approveAllShown() {
+        if (!window.confirm(t('dos.results.approveAllConfirm', { count: pendingShown.length }))) return
+        try {
+            await bulkApproveResults(pendingShown.flatMap(c => c.ids))
+            const done = new Set(pendingShown.map(c => c.key))
+            setCards(prev => prev.map(c => done.has(c.key) ? { ...c, status: 'approved' } : c))
+            toast.success(t('dos.results.approvedAll', { count: pendingShown.length }))
+        } catch (err) { toast.error(errorMessage(err, t('dos.results.approveFailed'))) }
     }
 
     // Add a count badge to each filter tab (e.g. "Pending 3")
@@ -492,6 +546,7 @@ export function DosResults() {
         if (search && !`${c.title} ${c.submittedBy}`.toLowerCase().includes(search.toLowerCase())) return false
         return true
     })
+    const pendingShown = filtered.filter(c => c.status === 'pending')
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
     // Changing a filter can shrink the list past the current page. Clamping on
@@ -557,6 +612,12 @@ export function DosResults() {
                                         placeholder={t('dos.results.search')}
                                     />
                                     <FilterBar options={statusTabsWithCount} active={statusFilter} onChange={k => { setStatusFilter(k); setPage(1) }} />
+                                    {pendingShown.length > 1 && (
+                                        <button className="btn btn-primary btn-sm" onClick={approveAllShown}>
+                                            <span className="material-symbols-rounded icon-sm" aria-hidden="true">done_all</span>
+                                            {t('dos.results.approveAll')} ({pendingShown.length})
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* Result cards */}
@@ -573,7 +634,7 @@ export function DosResults() {
                                                     onReview={setReviewing}
                                                     onView={setViewing}
                                                     onApprove={handleApprove}
-                                                    onReject={handleReject}
+                                                    onReject={setRejecting}
                                                 />
                                             ))}
                                         </div>
@@ -772,8 +833,11 @@ export function DosResults() {
                     result={reviewing}
                     onClose={() => setReviewing(null)}
                     onApprove={handleApprove}
-                    onReject={handleReject}
+                    onReject={setRejecting}
                 />
+            )}
+            {rejecting && (
+                <RejectModal card={rejecting} onClose={() => setRejecting(null)} onConfirm={confirmReject} />
             )}
             {viewing && (
                 <ViewModal result={viewing} onClose={() => setViewing(null)} />
