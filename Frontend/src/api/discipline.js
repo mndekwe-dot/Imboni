@@ -59,8 +59,15 @@ export const createDormRoom    = (d)      => client.post('/imboni/discipline/dor
 export const patchDormRoom     = (id, d)  => client.patch(`/imboni/discipline/dorm-rooms/${id}/`, d)
 export const deleteDormRoom    = (id)     => client.delete(`/imboni/discipline/dorm-rooms/${id}/`)
 
+export const getBedLayout     = ()       => client.get('/imboni/discipline/housing/beds/')
 export const generateHousing   = (d)      => client.post('/imboni/discipline/housing/generate/', d)
 export const commitHousing     = (d)      => client.post('/imboni/discipline/housing/generate/commit/', d)
+
+// Exeat (gate pass) register
+export const getExeats   = (params) => client.get('/imboni/discipline/exeat/', { params })
+export const createExeat = (d)      => client.post('/imboni/discipline/exeat/', d)
+export const actOnExeat  = (id, d)  => client.patch(`/imboni/discipline/exeat/${id}/`, d)
+export const getDisLadder = ()      => client.get('/imboni/discipline/ladder/')
 
 // Dining
 export const getDisDining    = ()      => client.get('/imboni/discipline/dining/')
@@ -92,8 +99,6 @@ export const getStudentBehaviorStats   = (id) => client.get(`/imboni/behavior/st
 export const getStudentBehaviorReports = (id, params) => client.get(`/imboni/behavior/students/${id}/reports/`, { params })
 
 // Messages
-export const getDisMessages = () => client.get('/imboni/discipline/messages/')
-export const sendDisMessage = (d) => client.post('/imboni/discipline/messages/', d)
 
 // Tasks
 export const getDisTasks    = ()      => client.get('/imboni/tasks/')

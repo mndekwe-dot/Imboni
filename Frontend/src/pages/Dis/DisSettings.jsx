@@ -17,6 +17,8 @@ import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { StatCard } from '../../components/layout/StatCard'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -343,6 +345,7 @@ function FacilityCard({ facility, sections, onEdit, onDelete }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function DisSettings() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -370,9 +373,9 @@ export function DisSettings() {
                 setFacilities(Array.isArray(facs) ? facs : [])
                 setSections(Array.isArray(secs) ? secs : [])
             })
-            .catch(console.error)
+            .catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
             .finally(() => setFacLoading(false))
-    }, [activeTab, facLoaded])
+    }, [activeTab, facLoaded, toast])
 
     // ── Facility CRUD ──
     async function handleCreateFacility(data) {

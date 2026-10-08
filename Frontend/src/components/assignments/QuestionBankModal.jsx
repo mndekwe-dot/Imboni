@@ -6,11 +6,14 @@ import {
     getQuestionBank, patchQuestionBank, deleteFromQuestionBank,
 } from '../../api/teacher'
 import { QUESTION_TYPES } from './quizModel'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 /**
  * The teacher's saved questions, for reuse across assignments.
  */
 export function QuestionBankModal({ onClose, onImport }) {
+    const toast = useToast()
     const { t } = useTranslation()
     const [bank,    setBank]    = useState([])
     const [loading, setLoading] = useState(true)
@@ -22,9 +25,9 @@ export function QuestionBankModal({ onClose, onImport }) {
     useEffect(() => {
         getQuestionBank(scope ? { scope } : undefined)
             .then(data => setBank(Array.isArray(data) ? data : []))
-            .catch(() => {})
+            .catch(e => toast.error(errorMessage(e, 'Could not load the question bank.')))
             .finally(() => setLoading(false))
-    }, [scope])
+    }, [scope, toast])
 
     const filtered = bank.filter(q => {
         if (typeF && q.question_type !== typeF) return false
@@ -33,7 +36,8 @@ export function QuestionBankModal({ onClose, onImport }) {
     })
 
     async function toggleShare(q) {
-        const updated = await patchQuestionBank(q.id, { is_shared: !q.is_shared }).catch(() => null)
+        const updated = await patchQuestionBank(q.id, { is_shared: !q.is_shared })
+            .catch(e => { toast.error(errorMessage(e, 'Could not change sharing for that question.')); return null })
         if (updated) setBank(prev => prev.map(b => b.id === q.id ? { ...b, is_shared: updated.is_shared } : b))
     }
 
@@ -46,7 +50,8 @@ export function QuestionBankModal({ onClose, onImport }) {
     }
 
     async function handleDelete(id) {
-        await deleteFromQuestionBank(id).catch(() => {})
+        try { await deleteFromQuestionBank(id) }
+        catch (e) { toast.error(errorMessage(e, 'Could not delete that question.')); return }
         setBank(prev => prev.filter(q => q.id !== id))
         setSelected(prev => { const s = new Set(prev); s.delete(id); return s })
     }

@@ -52,6 +52,18 @@ describe('api/client.js interceptors', () => {
     responseRejected = mockInstance.interceptors.response.use.mock.calls[0][1]
   })
 
+  it('drops the JSON content type for a FormData body so it goes as multipart', () => {
+    const form = new FormData()
+    form.append('file', new Blob(['x']), 'notes.pdf')
+    const config = requestFulfilled({ data: form, headers: { 'Content-Type': 'application/json' } })
+    expect(config.headers['Content-Type']).toBeUndefined()
+  })
+
+  it('keeps the JSON content type for an ordinary body', () => {
+    const config = requestFulfilled({ data: { title: 'x' }, headers: { 'Content-Type': 'application/json' } })
+    expect(config.headers['Content-Type']).toBe('application/json')
+  })
+
   it('attaches a Bearer token from localStorage to the request', () => {
     localStorage.setItem('imboni_access', 'abc123')
     const config = requestFulfilled({ headers: {} })

@@ -7,6 +7,8 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DataTable } from '../../components/ui/DataTable'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { DormPlannerTab } from './DormPlannerTab'
+import { ExeatTab } from './ExeatTab'
+import { BedGridTab } from './BedGridTab'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
     getDisFacilities, getDisOccupancy,
@@ -20,6 +22,8 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
 import { TabGroup } from '../../components/ui/TabGroup'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage, partialLoad } from '../../utils/errors'
 
 const BOARDING_TYPE_LABEL = {
     full_boarder:   'Full Boarder',
@@ -252,6 +256,7 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export function DisBoarding() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -268,17 +273,17 @@ export function DisBoarding() {
         Promise.all([
             getDisBoarding(),
             getDisFacilities({ type: 'dormitory' }),
-            getDisOccupancy().catch(() => null),
+            getDisOccupancy().catch(partialLoad(toast, null)),
         ]).then(([boarding, dorms, occ]) => {
             setStudents(Array.isArray(boarding) ? boarding : [])
             setDormitories(Array.isArray(dorms) ? dorms : [])
             setOccupancy(occ)
         })
-    ), [])
+    ), [toast])
 
     useEffect(() => {
-        loadBoarding().catch(console.error).finally(() => setLoading(false))
-    }, [loadBoarding])
+        loadBoarding().catch(e => toast.error(errorMessage(e, "Could not load this page's data."))).finally(() => setLoading(false))
+    }, [loadBoarding, toast])
 
     // Section-grouped filter data
     const sectionNames  = [...new Set(dormitories.map(d => d.section_name).filter(Boolean))]
@@ -360,6 +365,8 @@ export function DisBoarding() {
                             tabs={[
                                 { key: 'records', label: t('dis.boarding.records'),     icon: 'hotel' },
                                 { key: 'planner', label: t('dis.boarding.dormPlanner'), icon: 'auto_awesome' },
+                                { key: 'beds',    label: t('dis.boarding.floorPlan'),    icon: 'bed' },
+                                { key: 'exeat',   label: t('dis.boarding.exeat'),       icon: 'badge' },
                             ]}
                             value={tab}
                             onChange={setTab}
@@ -367,9 +374,13 @@ export function DisBoarding() {
                             idPrefix="dis-boarding-"
                         />
 
+                        {tab === 'beds' && <BedGridTab />}
+
+                        {tab === 'exeat' && <ExeatTab />}
+
                         {tab === 'planner' && (
                             <DormPlannerTab
-                                onCommitted={() => loadBoarding().catch(console.error)}
+                                onCommitted={() => loadBoarding().catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))}
                             />
                         )}
 

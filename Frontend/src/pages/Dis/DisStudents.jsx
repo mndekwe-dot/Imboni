@@ -5,18 +5,21 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { FilterBar } from '../../components/ui/FilterBar'
 import { ClassPicker } from '../../components/ui/ClassPicker'
 import { StudentConductModal } from '../../components/modals/StudentConductModal'
+import { Student360Modal } from '../../components/modals/Student360Modal'
 import { DataTable } from '../../components/ui/DataTable'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { disNavItems, disSecondaryItems } from './disNav'
-import { getDisStudents, getDisReports, updateDisReport, reviewDisReport } from '../../api/discipline'
+import { getDisStudents, getDisReports, updateDisReport, reviewDisReport, getDisLadder } from '../../api/discipline'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
 import { TabGroup } from '../../components/ui/TabGroup'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -152,9 +155,44 @@ function PendingCard({ report, onReview }) {
     )
 }
 
+// ── The escalation ladder ─────────────────────────────────────────────────────
+// The steps come from the server so the screen and the rule can never disagree.
+
+function LadderCard() {
+    const { t } = useTranslation()
+    const toast = useToast()
+    const [ladder, setLadder] = useState(null)
+
+    useEffect(() => {
+        getDisLadder()
+            .then(setLadder)
+            .catch(e => toast.error(errorMessage(e, t('dis.students.ladderLoadFailed'))))
+    }, [toast, t])
+
+    if (!ladder) return null
+    return (
+        <div className="card mb-1-5">
+            <div className="card-header">
+                <h3 className="card-title">{t('dis.students.ladderTitle')}</h3>
+                <span className="u-muted u-sm">{t('dis.students.ladderHint', { budget: ladder.budget })}</span>
+            </div>
+            <div className="card-content">
+                <ol className="u-row u-wrap">
+                    {ladder.steps.map(step => (
+                        <li key={step.code} className="badge badge-soft-warning">
+                            {t('dis.students.ladderAt', { count: step.threshold })}: {t(`dis.students.ladderSteps.${step.code}`)}
+                        </li>
+                    ))}
+                </ol>
+            </div>
+        </div>
+    )
+}
+
 // ── Row components ────────────────────────────────────────────────────────────
 
-function StudentRow({ student, onView }) {
+function StudentRow({ student, onView, onOverview }) {
+    const { t } = useTranslation()
     const ini  = initials(student.name)
     const cls  = `${student.grade}${student.section}`
     const { label, cls: conductCls } = conductInfo(student.conduct_grade)
@@ -179,8 +217,21 @@ function StudentRow({ student, onView }) {
                     {student.incident_count}
                 </span>
             </td>
+            <td>
+                {student.marks_deducted > 0 ? (
+                    <>
+                        {student.marks_deducted}
+                        {student.ladder_step && (
+                            <span className="badge badge-soft-destructive">
+                                {t(`dis.students.ladderSteps.${student.ladder_step}`)}
+                            </span>
+                        )}
+                    </>
+                ) : <span className="dis-dash">-</span>}
+            </td>
             <td className="action-cell">
                 <button className="btn btn-primary btn-sm" onClick={() => onView(student)}>View</button>
+                <button className="btn btn-outline btn-sm" onClick={() => onOverview(student)}>{t('common.student360.open')}</button>
             </td>
         </tr>
     )
@@ -231,6 +282,7 @@ function ReportRow({ report, onMarkComplete }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function DisStudents() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -255,6 +307,7 @@ export function DisStudents() {
     const [year,          setYear]          = useState('')
     const [classVal,      setClassVal]      = useState('')
     const [modal,         setModal]         = useState(null)
+    const [overviewId,    setOverviewId]    = useState(null)
 
     // ── Reports tab ──
     const [reports,      setReports]      = useState([])
@@ -267,20 +320,20 @@ export function DisStudents() {
     useEffect(() => {
         if (activeTab !== 'students' || studLoaded) return
         setStudLoaded(true); setStudLoading(true)
-        getDisStudents().then(setStudents).catch(console.error).finally(() => setStudLoading(false))
-    }, [activeTab, studLoaded])
+        getDisStudents().then(setStudents).catch(e => toast.error(errorMessage(e, "Could not load this page's data."))).finally(() => setStudLoading(false))
+    }, [activeTab, studLoaded, toast])
 
     useEffect(() => {
         if (activeTab !== 'reports' || repLoaded) return
         setRepLoaded(true); setRepLoading(true)
-        getDisReports().then(setReports).catch(console.error).finally(() => setRepLoading(false))
-    }, [activeTab, repLoaded])
+        getDisReports().then(setReports).catch(e => toast.error(errorMessage(e, "Could not load this page's data."))).finally(() => setRepLoading(false))
+    }, [activeTab, repLoaded, toast])
 
     async function handleMarkComplete(id) {
         try {
             await updateDisReport(id, { follow_up_completed: true })
             setReports(prev => prev.map(r => r.id === id ? { ...r, follow_up_completed: true } : r))
-        } catch(e) { console.error(e) }
+        } catch (e) { toast.error(errorMessage(e, 'Could not mark that follow-up complete.')) }
     }
 
     async function handleReview(id, action, notes) {
@@ -289,7 +342,7 @@ export function DisStudents() {
             setReports(prev => prev.map(r =>
                 r.id === id ? { ...r, status: updated.status, reviewed_by: updated.reviewed_by, reviewed_at: updated.reviewed_at } : r
             ))
-        } catch(e) { console.error(e) }
+        } catch (e) { toast.error(errorMessage(e, 'Could not review that report.')) }
     }
 
     // ── Filters ──
@@ -317,6 +370,7 @@ export function DisStudents() {
     return (
         <>
             <StudentConductModal student={modal} onClose={() => setModal(null)} />
+            {overviewId && <Student360Modal studentId={overviewId} onClose={() => setOverviewId(null)} />}
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
@@ -355,6 +409,8 @@ export function DisStudents() {
                                     classVal={classVal} onClassChange={setClassVal}
                                 />
 
+                                <LadderCard />
+
                                 <div className="card mb-1-5">
                                     <div className="card-content">
                                         <div className="filter-tabs-bar mt-0">
@@ -380,8 +436,8 @@ export function DisStudents() {
                                     <DataTable
                                         title={t('dis.students.studentConductRecords')}
                                         data={visibleStudents}
-                                        columns={[t('common.student'), t('common.class'), t('dis.students.studentIdColumn'), t('dis.students.conductColumn'), t('dis.students.incidentsColumn'), t('common.actions')]}
-                                        renderRow={(s, i) => <StudentRow key={s.id || i} student={s} onView={setModal} />}
+                                        columns={[t('common.student'), t('common.class'), t('dis.students.studentIdColumn'), t('dis.students.conductColumn'), t('dis.students.incidentsColumn'), t('dis.students.marksColumn'), t('common.actions')]}
+                                        renderRow={(s, i) => <StudentRow key={s.id || i} student={s} onView={setModal} onOverview={st => setOverviewId(st.id)} />}
                                         emptyIcon="people"
                                         emptyTitle={t('dis.students.noStudents')}
                                         emptyDesc={t('dis.students.noStudentsFiltered')}

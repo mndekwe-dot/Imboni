@@ -15,6 +15,8 @@ import { getAdminDashboardStats, getAdminRecentActivity } from '../../api/admin'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 function barColor(value) {
     if (value >= 90) return '#10b981'
@@ -34,12 +36,13 @@ function OverviewTooltip({ active, payload }) {
 }
 
 const ACTIVITY_ICON = {
-    result_approved: { icon: 'check_circle', cls: 'success' },
-    teacher_added:   { icon: 'person_add',   cls: 'info'    },
-    pending_summary: { icon: 'pending',       cls: 'warning' },
+    approval: { icon: 'check_circle', cls: 'success' },
+    staff:    { icon: 'person_add',   cls: 'info'    },
+    pending:  { icon: 'pending',      cls: 'warning' },
 }
 
 export function AdminDashboard() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { setting } = useSchoolSettings()
     const { term } = useCurrentTerm()
@@ -52,13 +55,13 @@ export function AdminDashboard() {
 
     useEffect(() => {
         Promise.all([
-            getAdminDashboardStats().catch(() => null),
-            getAdminRecentActivity({ limit: 5 }).catch(() => []),
+            getAdminDashboardStats().catch(partialLoad(toast, null)),
+            getAdminRecentActivity({ limit: 5 }).catch(partialLoad(toast, [])),
         ]).then(([s, a]) => {
             setStats(s)
             setActivities(Array.isArray(a) ? a : (a?.results ?? []))
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const statCards = stats ? [
         { icon: 'groups',          value: stats.total_students,    label: 'Total Students',    trend: `+${stats.new_students} this term`, trendClass: 'positive', colorClass: ''        },
@@ -121,15 +124,15 @@ export function AdminDashboard() {
                                         <p className="adm-dash-note">No recent activity.</p>
                                     ) : (
                                         activities.map((item, i) => {
-                                            const meta = ACTIVITY_ICON[item.type] || { icon: 'info', cls: 'info' }
+                                            const meta = ACTIVITY_ICON[item.activity_type] || { icon: 'info', cls: 'info' }
                                             return (
                                                 <div key={i} className="activity-item">
                                                     <span className={`activity-icon ${meta.cls}`}>
-                                                        <span className="material-symbols-rounded" aria-hidden="true">{item.icon || meta.icon}</span>
+                                                        <span className="material-symbols-rounded" aria-hidden="true">{meta.icon}</span>
                                                     </span>
                                                     <div className="activity-details">
-                                                        <p className="activity-title">{item.text || item.message}</p>
-                                                        <p className="activity-time">{item.time || item.time_ago}</p>
+                                                        <p className="activity-title">{item.description}</p>
+                                                        <p className="activity-time">{item.time_ago}</p>
                                                     </div>
                                                 </div>
                                             )

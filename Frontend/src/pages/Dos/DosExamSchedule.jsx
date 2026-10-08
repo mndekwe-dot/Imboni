@@ -1,4 +1,6 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
+import { useState, useEffect } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
@@ -19,11 +21,11 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { formatSchoolDate } from '../../utils/date'
 import { Modal } from '../../components/ui/Modal'
-import { useToast } from '../../context/ToastContext'
+import { saveWithClashCheck, clashLines } from '../../utils/examClash'
 
 
 
-function ExamRow({ num, subject, code, classes, date, time, duration, rooms, invigilator, statusClass, statusKey, id, onDelete }) {
+function ExamRow({ num, subject, code, classes, date, time, duration, rooms, invigilator, statusClass, statusKey, id, conflicts = [], onDelete }) {
     const { t } = useTranslation()
     return (
         <tr>
@@ -42,7 +44,14 @@ function ExamRow({ num, subject, code, classes, date, time, duration, rooms, inv
             <td>{duration}</td>
             <td>{rooms.map((r, i) => <span key={i} className="es-room-chip">{r}</span>)}</td>
             <td>{invigilator}</td>
-            <td><span className={`badge ${statusClass}`}>{t(statusKey)}</span></td>
+            <td>
+                <span className={`badge ${statusClass}`}>{t(statusKey)}</span>
+                {conflicts.length > 0 && (
+                    <span className="badge badge-soft-destructive" title={clashLines(conflicts, t)}>
+                        {t('dos.examSchedule.clashBadge')}
+                    </span>
+                )}
+            </td>
             <td>
                 <div className="es-row-actions">
                     <button className="es-icon-btn" aria-label={t('common.edit')}><span className="material-symbols-rounded" aria-hidden="true">edit</span></button>
@@ -64,7 +73,7 @@ const EXAM_TYPES = [
 
 // Auto-scheduler modal: collect a window, preview the DSatur-generated plan,
 // then commit it. Nothing is written until the DOS confirms the preview.
-function ExamGenerateModal({ onClose, onCommitted }) {
+export function ExamGenerateModal({ onClose, onCommitted }) {
     const { t } = useTranslation()
     const toast = useToast()
     const [terms,     setTerms]     = useState([])
@@ -254,6 +263,7 @@ export function DosExamSchedule() {
                         statusClass: 'badge-upcoming',
                         statusKey:   'common.upcoming',
                         id:          e.id,
+                        conflicts:   e.conflicts || [],
                 })))
             })
     }
@@ -277,7 +287,7 @@ export function DosExamSchedule() {
             await deleteDosExamSchedule(id)
             setExams(prev => prev.filter(e => e.id !== id))
             setRawExams(prev => prev.filter(e => e.id !== id))
-        } catch (err) { console.error(err) }
+        } catch (err) { toast.error(errorMessage(err, 'Could not delete that exam.')) }
     }
 
     // Drag-and-drop reschedule: move optimistically, roll back if the PATCH fails.
@@ -285,7 +295,8 @@ export function DosExamSchedule() {
         const before = rawExams
         setRawExams(prev => prev.map(e => (e.id === id ? { ...e, ...patch } : e)))
         try {
-            await updateDosExamSchedule(id, patch)
+            const saved = await saveWithClashCheck(extra => updateDosExamSchedule(id, { ...patch, ...extra }), t)
+            if (saved === null) { setRawExams(before); return }
             await loadExams()
             toast.success(t('dos.examSchedule.rescheduled'))
         } catch (err) {

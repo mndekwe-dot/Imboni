@@ -1,4 +1,6 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
+import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
@@ -271,6 +273,7 @@ function MedicationChecklist({ students }) {
 }
 
 export const MatronHealth = () => {
+    const toast = useToast()
     const { t } = useTranslation()
     const dormitory = useMatronDormitory()
     const sessionUser = useSessionUser()
@@ -303,8 +306,8 @@ export const MatronHealth = () => {
 
     useEffect(() => {
         load(historyFilter)
-        getMatronStudents().then(s => setStudents(Array.isArray(s) ? s : [])).catch(() => {})
-    }, [historyFilter])
+        getMatronStudents().then(s => setStudents(Array.isArray(s) ? s : [])).catch(e => toast.error(errorMessage(e, 'Could not load the student list.')))
+    }, [historyFilter, toast])
 
     function resetForm() {
         setStudentId(''); setVisitType('sickbay_admission'); setVisitDateTime('')

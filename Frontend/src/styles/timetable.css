@@ -634,12 +634,13 @@
 /* ─── Period manager (PeriodManager.jsx) ────────────────── */
 .tt-period-row {
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: 1fr 1fr auto auto;
     gap: 0.75rem;
     align-items: center;
 }
 .tt-period-row .form-label { margin: 0; }
 .tt-period-spacer  { width: 5rem; }
+.tt-period-break   { justify-self: center; width: 1.1rem; height: 1.1rem; }
 .tt-period-confirm { display: flex; gap: 0.25rem; }
 .tt-btn-danger     { color: var(--destructive); border-color: var(--destructive); }
 .tt-form-actions--split { justify-content: space-between; }
@@ -753,3 +754,17 @@
 
 /* Inside a toolbar card (the attendance registers) the card sets the spacing. */
 .toolbar-card .tt-toolbar { margin-bottom: 0; flex: 1 1 auto; }
+
+/* ── Timetable notice banner ── */
+.tt-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--teacher-light, rgba(20,184,166,0.1));
+  border: 1px solid var(--teacher, #0d9488);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-size: var(--text-sm);
+  color: var(--teacher-hover, #0f766e);
+}
+.tt-notice .material-symbols-rounded { font-size: var(--icon-md); flex-shrink: 0; }

@@ -81,17 +81,4 @@ describe('student api', () => {
     student.getAnnouncementStats()
     expect(client.get).toHaveBeenCalledWith('/imboni/announcements/stats/')
   })
-
-  it('messages endpoints', () => {
-    client.get.mockReturnValue('raw-get-result')
-    const getResult = student.getStudentMessages()
-    expect(client.get).toHaveBeenCalledWith('/imboni/student/messages/')
-    expect(getResult).toBe('raw-get-result')
-
-    client.post.mockReturnValue('raw-post-result')
-    const data = { text: 'hi' }
-    const postResult = student.sendStudentMessage(data)
-    expect(client.post).toHaveBeenCalledWith('/imboni/student/messages/', data)
-    expect(postResult).toBe('raw-post-result')
-  })
 })

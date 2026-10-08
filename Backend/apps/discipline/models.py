@@ -320,3 +320,66 @@ class ExtracurricularEntry(models.Model):
             'room':          self.room,
             'label':         self.label,
         }
+
+
+class ExeatPass(models.Model):
+    """A boarder's permission to leave school, and the record of their return.
+
+    The lifecycle is requested -> approved -> out -> returned (or declined). A
+    pass cannot go ``out`` until a parent has approved it and the gate has
+    verified the departure; ``actual_return_at`` is what turns "expected back
+    Sunday" into a fact, and lets the school see who is overdue.
+    """
+
+    REASON_CHOICES = [
+        ('weekend', 'Weekend leave'),
+        ('medical', 'Medical / hospital'),
+        ('family', 'Family matter'),
+        ('event', 'Event or competition'),
+        ('other', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('requested', 'Requested'),
+        ('approved', 'Approved'),
+        ('declined', 'Declined'),
+        ('out', 'Out of school'),
+        ('returned', 'Returned'),
+    ]
+    PARENT_CHOICES = [
+        ('pending', 'Awaiting parent'),
+        ('approved', 'Parent approved'),
+        ('declined', 'Parent declined'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey('student.Student', on_delete=models.CASCADE, related_name='exeat_passes')
+    reason_type = models.CharField(max_length=20, choices=REASON_CHOICES, default='weekend')
+    reason = models.TextField(blank=True)
+    departure_at = models.DateTimeField()
+    expected_return_at = models.DateTimeField()
+    actual_return_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='requested')
+    parent_approval = models.CharField(max_length=20, choices=PARENT_CHOICES, default='pending')
+    parent_note = models.CharField(max_length=200, blank=True)
+    gate_verified_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='exeat_gate_checks',
+    )
+    gate_verified_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='exeat_passes_created',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'exeat_passes'
+        ordering = ['-departure_at']
+        indexes = [models.Index(fields=['status', 'departure_at'])]
+
+    def __str__(self):
+        return f"{self.student} exeat {self.departure_at:%Y-%m-%d} ({self.status})"
+
+    @property
+    def is_overdue(self):
+        from django.utils import timezone
+        return self.status == 'out' and self.expected_return_at < timezone.now()

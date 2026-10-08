@@ -13,6 +13,8 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 function formatTime(timeStr) {
     if (!timeStr) return ''
@@ -111,6 +113,7 @@ function GradeRow({ subject, grade, final_score, term }) {
 }
 
 export function StudentDashboard() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [profile,   setProfile]   = useState(null)
@@ -125,13 +128,13 @@ export function StudentDashboard() {
 
     useEffect(() => {
         Promise.all([
-            getStudentProfile().catch(() => null),
-            getStudentDashboard().catch(() => null),
+            getStudentProfile().catch(partialLoad(toast, null)),
+            getStudentDashboard().catch(partialLoad(toast, null)),
         ]).then(([prof, dash]) => {
             setProfile(prof)
             setDashboard(dash)
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
     const studentCode  = profile?.student_code || ''

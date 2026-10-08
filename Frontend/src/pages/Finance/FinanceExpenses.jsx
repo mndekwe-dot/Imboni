@@ -7,8 +7,6 @@ import { ListSection } from '../../components/ui/ListSection'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Modal } from '../../components/ui/Modal'
 import { StatCard } from '../../components/layout/StatCard'
-import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { readStoredUser } from '../../utils/roles'
 import {
@@ -18,6 +16,8 @@ import { TabGroup } from '../../components/ui/TabGroup'
 import { FinanceShell, Money } from './FinanceShell'
 import { BudgetPanel } from './FinanceBudget'
 import { badge } from '../../utils/tone'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 const FILTERS = ['all', 'pending', 'approved', 'paid', 'rejected']
 const METHODS = ['cash', 'momo', 'bank', 'cheque', 'other']
@@ -80,8 +80,8 @@ export function ExpensesPanel() {
 
     useEffect(() => { load() }, [load])
     useEffect(() => {
-        getExpenseCategories().then(d => setCategories(Array.isArray(d) ? d : [])).catch(() => {})
-    }, [])
+        getExpenseCategories().then(d => setCategories(Array.isArray(d) ? d : [])).catch(e => toast.error(errorMessage(e, 'Could not load expense categories.')))
+    }, [toast])
 
     async function handleCreate(form) {
         try {

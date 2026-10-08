@@ -197,7 +197,7 @@ class StudentTimetableView(APIView):
 
         current_term = AcademicTerm.objects.filter(is_current=True).first()
         if not current_term:
-            return Response({'timetable': {}})
+            return Response({'timetable': {}, 'slots': []})
 
         student_class_assignment = (
             ClassAssignment.objects
@@ -206,12 +206,12 @@ class StudentTimetableView(APIView):
             .first()
         )
         if not student_class_assignment:
-            return Response({'timetable': {}})
+            return Response({'timetable': {}, 'slots': []})
 
         periods = (
             Timetable.objects
             .filter(class_obj=student_class_assignment.class_obj, term=current_term)
-            .select_related('subject', 'teacher')
+            .select_related('subject', 'teacher', 'class_obj')
             .order_by('day', 'start_time')
         )
 
@@ -228,10 +228,14 @@ class StudentTimetableView(APIView):
                 'room': p.room_number,
             })
 
+        from apps.teacher.serializers import TimetableSerializer
         return Response({
             'class': student_class_assignment.class_obj.name,
             'term': current_term.name,
             'timetable': timetable,
+            # The same flat rows the teacher's timetable uses, so every portal
+            # renders its week through one adapter.
+            'slots': TimetableSerializer(periods, many=True).data,
         })
 
 

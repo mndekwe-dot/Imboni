@@ -3,7 +3,7 @@ import { renderWithRouter, screen, fireEvent, waitFor, within } from '../../test
 import { TeacherDashboard } from './TeacherDashboard'
 import {
     getTeacherDashboardStats, getTeacherTodaySchedule, getTeacherTasks,
-    createTeacherTask, getTeacherClassPerformance, getTeacherRecentActivities,
+    createTeacherTask, updateTeacherTask, deleteTeacherTask, getTeacherClassPerformance, getTeacherRecentActivities,
 } from '../../api/teacher'
 
 vi.mock('../../api/teacher', () => ({
@@ -11,6 +11,8 @@ vi.mock('../../api/teacher', () => ({
     getTeacherTodaySchedule: vi.fn(),
     getTeacherTasks: vi.fn(),
     createTeacherTask: vi.fn(),
+    updateTeacherTask: vi.fn(),
+    deleteTeacherTask: vi.fn(),
     getTeacherClassPerformance: vi.fn(),
     getTeacherRecentActivities: vi.fn(),
 }))
@@ -106,6 +108,32 @@ describe('TeacherDashboard', () => {
         fireEvent.click(screen.getByTitle('Add task'))
         expect(screen.getByRole('button', { name: /Save Task/ })).toBeDisabled()
         expect(createTeacherTask).not.toHaveBeenCalled()
+    })
+
+    it('marks a task done and drops it from the pending list', async () => {
+        updateTeacherTask.mockResolvedValue({})
+        renderWithRouter(<TeacherDashboard />)
+        await waitFor(() => expect(screen.getByText('Grade quizzes')).toBeInTheDocument())
+
+        fireEvent.click(screen.getByRole('button', { name: 'Mark task as done' }))
+
+        await waitFor(() => expect(updateTeacherTask).toHaveBeenCalledWith(1, { is_completed: true }))
+        await waitFor(() => expect(screen.queryByText('Grade quizzes')).not.toBeInTheDocument())
+    })
+
+    it('deletes a task, and keeps it with a message when the delete fails', async () => {
+        deleteTeacherTask.mockRejectedValue({ response: { data: { detail: 'Not allowed.' } } })
+        renderWithRouter(<TeacherDashboard />)
+        await waitFor(() => expect(screen.getByText('Grade quizzes')).toBeInTheDocument())
+
+        fireEvent.click(screen.getByRole('button', { name: 'Delete task' }))
+
+        await waitFor(() => expect(screen.getByText('Not allowed.')).toBeInTheDocument())
+        expect(screen.getByText('Grade quizzes')).toBeInTheDocument()
+
+        deleteTeacherTask.mockResolvedValue({})
+        fireEvent.click(screen.getByRole('button', { name: 'Delete task' }))
+        await waitFor(() => expect(screen.queryByText('Grade quizzes')).not.toBeInTheDocument())
     })
 
     it('loads more activities when "Load More" is clicked', async () => {

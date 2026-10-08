@@ -17,7 +17,6 @@ from apps.finance import services
 from apps.finance.models import (
     CashAccount, CashMovement, Expense, ExpenseCategory, FinanceSettings, PayrollRun, StaffSalary,
 )
-from apps.finance.test_operations import account, student, term  # noqa: F401 - fixtures
 from apps.student.models import Fee
 
 pytestmark = pytest.mark.django_db

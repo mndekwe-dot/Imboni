@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { toCsv, fileStamp, downloadCsv, printTable } from './exportTable'
+import { toCsv, fileStamp, downloadCsv, printTable, failedRowsTable } from './exportTable'
 
 describe('toCsv', () => {
     it('writes the header and one line per row, CRLF separated', () => {
@@ -149,5 +149,19 @@ describe('printTable', () => {
     it('returns false when the print window is blocked', () => {
         vi.spyOn(window, 'open').mockReturnValue(null)
         expect(printTable({ title: 'Roll', columns: [], rows: [] })).toBe(false)
+    })
+})
+
+describe('failedRowsTable', () => {
+    const csv = 'student_first_name,student_email\r\nAmina,amina@x.com\r\nEric,not-an-email\r\nJoy,joy@x.com\r\nSam,\r\n'
+
+    it('keeps only the rows the server refused, with the reason added last', () => {
+        const t = failedRowsTable(csv, [{ row: 3, error: 'Invalid email' }, { row: 5, error: 'Email required' }], 'error')
+        expect(t.columns).toEqual(['student_first_name', 'student_email', 'error'])
+        expect(t.rows).toEqual([['Eric', 'not-an-email', 'Invalid email'], ['Sam', '', 'Email required']])
+    })
+
+    it('gives an empty table when nothing failed', () => {
+        expect(failedRowsTable(csv, []).rows).toEqual([])
     })
 })

@@ -33,9 +33,11 @@ import timetable from './timetable.json'
 import welcome from './welcome.json'
 import attendance from './attendance.json'
 import staff from './staff.json'
+import materials from './materials.json'
 
 export default {
     staff,
+    materials,
     attendance,
     acceptInvite,
     account,

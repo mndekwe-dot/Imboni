@@ -63,6 +63,10 @@ class TeacherListSerializer(serializers.Serializer):
     employment_type = serializers.CharField()   # full_time | part_time
     subjects        = serializers.ListField(child=serializers.CharField())
     class_count     = serializers.IntegerField()
+    periods_per_week = serializers.IntegerField()
+    weekly_capacity  = serializers.IntegerField()
+    workload_level   = serializers.CharField()
+    double_booked    = serializers.IntegerField()
     joined_at       = serializers.DateTimeField()
 
 
@@ -281,6 +285,8 @@ class ExamScheduleSerializer(serializers.Serializer):
     invigilator    = serializers.CharField(allow_null=True)
     invigilator_id = serializers.UUIDField(allow_null=True)
     notes          = serializers.CharField()
+    # Present on the list only: the clashes this paper is part of (see exam_conflicts).
+    conflicts      = serializers.ListField(child=serializers.DictField(), required=False)
 
 class SchoolSectionSerializer(serializers.ModelSerializer):
     """
@@ -322,7 +328,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Room
-        fields = ['id', 'name', 'is_active']
+        fields = ['id', 'name', 'capacity', 'is_active']
 
 class SchoolSettingSerializer(serializers.ModelSerializer):
     # Same rules as the profile avatar - JPG/PNG, 2MB - so a school cannot

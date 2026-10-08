@@ -8,7 +8,7 @@ import { AttendanceRecord } from '../../components/attendance/AttendanceRecord'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentAttendanceStats, getStudentAttendanceCalendar } from '../../api/student'
 import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
+import { errorMessage, partialLoad } from '../../utils/errors'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
@@ -33,7 +33,7 @@ export function StudentAttendance() {
 
     useEffect(() => {
         Promise.all([
-            getStudentProfile().catch(() => null),
+            getStudentProfile().catch(partialLoad(toast, null)),
             getStudentAttendanceStats().catch(e => {
                 toast.error(errorMessage(e, t('attendance.loadFailed')))
                 return null

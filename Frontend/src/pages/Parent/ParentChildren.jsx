@@ -3,7 +3,7 @@ import { SkeletonList } from '../../components/ui/Skeleton'
 import { ListSection } from '../../components/ui/ListSection'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
+import { errorMessage, partialLoad } from '../../utils/errors'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Sidebar } from '../../components/layout/Sidebar'
@@ -252,9 +252,9 @@ export function ParentChildren() {
                 setChildren(list)
                 list.forEach(c => {
                     Promise.all([
-                        getChildCard(c.id).catch(() => null),
-                        getChildFees(c.id).catch(() => []),
-                        getChildDocuments(c.id).catch(() => []),
+                        getChildCard(c.id).catch(partialLoad(toast, null)),
+                        getChildFees(c.id).catch(partialLoad(toast, [])),
+                        getChildDocuments(c.id).catch(partialLoad(toast, [])),
                     ]).then(([card, feeData, docData]) => {
                         if (card) setCards(prev => ({ ...prev, [c.id]: card }))
                         setFees(prev => ({ ...prev, [c.id]: toList(feeData) }))

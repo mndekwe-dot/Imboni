@@ -8,6 +8,8 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
 import { getMyChildren, getChildBehaviourStats, getChildBehaviourReports } from '../../api/parent'
 import { formatDateLong } from '../../utils/date'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage, partialLoad } from '../../utils/errors'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 import '../../styles/layout.css'
@@ -73,6 +75,7 @@ function BehaviourCard({ title, reported_by_display, badge, report_type, descrip
 const FILTERS = ['all', 'positive', 'achievement', 'warning', 'incident']
 
 export function ParentBehaviour() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -87,9 +90,9 @@ export function ParentBehaviour() {
     useEffect(() => {
         getMyChildren()
             .then(d => setChildren(toList(d)))
-            .catch(console.error)
+            .catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
             .finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     useEffect(() => {
         if (!children.length) return
@@ -100,13 +103,13 @@ export function ParentBehaviour() {
         setReports([])
         setFilter('all')
         Promise.all([
-            getChildBehaviourStats(child.id).catch(() => null),
-            getChildBehaviourReports(child.id).catch(() => []),
+            getChildBehaviourStats(child.id).catch(partialLoad(toast, null)),
+            getChildBehaviourReports(child.id).catch(partialLoad(toast, [])),
         ]).then(([s, r]) => {
             setStats(s)
             setReports(toList(r))
         }).finally(() => setLoadingData(false))
-    }, [children, activeIdx])
+    }, [children, activeIdx, toast])
 
     const child = children[activeIdx]
 

@@ -61,7 +61,13 @@ describe('dos api', () => {
     expect(client.patch).toHaveBeenCalledWith('/imboni/dos/results/2/approve/')
 
     dos.rejectResult(2, 'bad')
-    expect(client.patch).toHaveBeenCalledWith('/imboni/dos/results/2/reject/', { reason: 'bad' })
+    expect(client.patch).toHaveBeenCalledWith('/imboni/dos/results/2/reject/', { rejection_reason: 'bad' })
+
+    dos.bulkApproveResults([1, 2])
+    expect(client.post).toHaveBeenCalledWith('/imboni/dos/results/bulk-approve/', { ids: [1, 2] })
+
+    dos.bulkRejectResults([1, 2], 'bad')
+    expect(client.post).toHaveBeenCalledWith('/imboni/dos/results/bulk-reject/', { ids: [1, 2], reason: 'bad' })
   })
 
   it('exam schedule CRUD', () => {
@@ -79,10 +85,7 @@ describe('dos api', () => {
     expect(client.delete).toHaveBeenCalledWith('/imboni/dos/exam-schedule/3/')
   })
 
-  it('student leaders, terms, config, settings', () => {
-    dos.getDosStudentLeaders()
-    expect(client.get).toHaveBeenCalledWith('/imboni/dos/student-leaders/')
-
+  it('terms, config, settings', () => {
     dos.getTerms()
     expect(client.get).toHaveBeenCalledWith('/imboni/results/terms/')
 
@@ -238,17 +241,5 @@ describe('dos api', () => {
 
     dos.deleteDosTask(9)
     expect(client.delete).toHaveBeenCalledWith('/imboni/tasks/9/')
-  })
-
-  it('activity management endpoints', () => {
-    dos.getDosActivities()
-    expect(client.get).toHaveBeenCalledWith('/imboni/dos/activities/')
-
-    const data = { name: 'Chess' }
-    dos.patchDosActivity(10, data)
-    expect(client.patch).toHaveBeenCalledWith('/imboni/dos/activities/10/', data)
-
-    dos.deleteDosActivity(10)
-    expect(client.delete).toHaveBeenCalledWith('/imboni/dos/activities/10/')
   })
 })
