@@ -10,6 +10,7 @@ export const getMatronDashboard = () => client.get('/imboni/matron/dashboard/')
 // class runs across every house), had no way to see them.
 export const getMatronStudents = (params) => client.get('/imboni/matron/students/', { params })
 export const getMatronStudent  = (id) => client.get(`/imboni/matron/students/${id}/`)
+export const updateMatronMedical = (id, data) => client.patch(`/imboni/matron/students/${id}/medical/`, data)
 // Scoped to the matron's own dormitory by the server, not by the caller.
 export const searchMatronStudents = (q) => getMatronStudents({ search: q })
 

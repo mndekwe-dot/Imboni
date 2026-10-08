@@ -126,5 +126,23 @@
     "subtitle": "{{house}}, abanyeshuri {{count}}",
     "subtitleNoHouse": "abanyeshuri {{count}}",
     "title": "Abanyeshuri banjye"
+  },
+  "medical": {
+    "title": "Ibimenyetso by’ubuzima",
+    "hint": "Indwara abakozi bagomba kubona ako kanya. Bigaragara ku rutonde, ku mafunguro no ku bitaro by’ishuri.",
+    "save": "Bika ibimenyetso",
+    "saved": "Ibimenyetso by’ubuzima byabitswe.",
+    "saveFailed": "Ntibishobotse kubika ibimenyetso by’ubuzima.",
+    "allergies": "Allergie",
+    "alert": "Ikimenyetso cy’ubuzima",
+    "flags": {
+      "asthma": "Asima (inhaler)",
+      "epilepsy": "Igicuri",
+      "diabetes_insulin": "Diyabete (insuline)",
+      "severe_allergy": "Allergie ikomeye",
+      "sickle_cell": "Indwara y’amaraso ya sickle cell",
+      "heart_condition": "Indwara y’umutima",
+      "other": "Indi ndwara"
+    }
   }
 }

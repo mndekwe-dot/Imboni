@@ -8,6 +8,7 @@ urlpatterns = [
     # My Students
     path('matron/students/',                views.MatronStudentListView.as_view(),      name='matron-students'),
     path('matron/students/<uuid:pk>/',      views.MatronStudentDetailView.as_view(),    name='matron-student-detail'),
+    path('matron/students/<uuid:pk>/medical/', views.MatronMedicalAlertsView.as_view(), name='matron-student-medical'),
 
     # Incidents
     path('matron/incidents/',               views.MatronIncidentListView.as_view(),     name='matron-incidents'),

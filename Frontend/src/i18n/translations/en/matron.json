@@ -126,5 +126,23 @@
     "subtitle": "{{house}}, {{count}} students",
     "subtitleNoHouse": "{{count}} students",
     "title": "My Students"
+  },
+  "medical": {
+    "title": "Health alerts",
+    "hint": "Conditions staff must see at a glance. Shown on the roll, the dining list and the sick bay.",
+    "save": "Save alerts",
+    "saved": "Health alerts saved.",
+    "saveFailed": "Could not save the health alerts.",
+    "allergies": "Allergies",
+    "alert": "Health alert",
+    "flags": {
+      "asthma": "Asthma (inhaler)",
+      "epilepsy": "Epilepsy",
+      "diabetes_insulin": "Diabetes (insulin)",
+      "severe_allergy": "Severe allergy",
+      "sickle_cell": "Sickle cell",
+      "heart_condition": "Heart condition",
+      "other": "Other condition"
+    }
   }
 }
