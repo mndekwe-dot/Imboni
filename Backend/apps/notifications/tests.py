@@ -499,3 +499,43 @@ class TestResendEmailBackend:
         assert captured['html'] == '<b>rich</b>'
         assert captured['text'] == 'plain'
         assert captured['to'] == ['to@x.com']
+
+
+@pytest.mark.django_db
+class TestNavBadges:
+    URL = '/imboni/nav-badges/'
+
+    def test_requires_authentication(self, api_client):
+        assert api_client.get(self.URL).status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_counts_only_unread_messages_from_other_people(self, make_authenticated_client):
+        from apps.messages.models import Conversation, Message
+        client, user = make_authenticated_client('teacher')
+        other = UserFactory(role='dos')
+        conv = Conversation.objects.create()
+        conv.participants.add(user, other)
+        Message.objects.create(conversation=conv, sender=other, content='one')
+        Message.objects.create(conversation=conv, sender=other, content='two', is_read=True)
+        Message.objects.create(conversation=conv, sender=user, content='mine')
+
+        assert client.get(self.URL).data['messages'] == 1
+
+    def test_counts_published_announcements_the_user_has_not_opened(self, make_authenticated_client):
+        from apps.announcements.models import Announcement, AnnouncementRead
+        client, user = make_authenticated_client('teacher')
+        seen = Announcement.objects.create(title='a', content='x', category='general', target_audience='all', status='published')
+        Announcement.objects.create(title='b', content='x', category='general', target_audience='all', status='published')
+        Announcement.objects.create(title='c', content='x', category='general', target_audience='all', status='draft')
+        AnnouncementRead.objects.create(announcement=seen, user=user)
+
+        assert client.get(self.URL).data['announcements'] == 1
+
+    def test_only_teachers_get_a_grading_count_and_only_students_an_assignment_count(self, make_authenticated_client):
+        client, _ = make_authenticated_client('teacher')
+        data = client.get(self.URL).data
+        assert data['grading'] == 0 and 'assignments' not in data
+
+        client, _ = make_authenticated_client('student')
+        data = client.get(self.URL).data
+        assert 'grading' not in data
+

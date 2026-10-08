@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor, setSessionUser, within } from '../../test/test-utils'
 import { DosResults } from './DosResults'
-import { getDosResults, approveResult, rejectResult, getDosAnalytics, getAtRiskStudents, getChronicAbsence } from '../../api/dos'
+import { getDosResults, bulkApproveResults, bulkRejectResults, getDosAnalytics, getAtRiskStudents, getChronicAbsence } from '../../api/dos'
 
 beforeAll(() => {
   // jsdom doesn't implement <dialog> showModal/close natively. A no-op stub
@@ -16,8 +16,8 @@ beforeAll(() => {
 
 vi.mock('../../api/dos', () => ({
   getDosResults: vi.fn(),
-  approveResult: vi.fn(),
-  rejectResult: vi.fn(),
+  bulkApproveResults: vi.fn(),
+  bulkRejectResults: vi.fn(),
   getDosAnalytics: vi.fn(),
   getAtRiskStudents: vi.fn().mockResolvedValue([]),
   getChronicAbsence: vi.fn().mockResolvedValue([]),
@@ -83,9 +83,9 @@ describe('DosResults', () => {
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
   })
 
-  it('approves a pending card: calls approveResult for every grouped id and flips card status to Approved', async () => {
+  it('approves a pending card: sends every grouped id in one bulk request and flips card status to Approved', async () => {
     getDosResults.mockResolvedValue(rawResults)
-    approveResult.mockResolvedValue({})
+    bulkApproveResults.mockResolvedValue({})
     renderWithRouter(<DosResults />)
 
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
@@ -99,16 +99,13 @@ describe('DosResults', () => {
     const approveBtn = within(dialog).getByRole('button', { name: /Approve/i })
     fireEvent.click(approveBtn)
 
-    await waitFor(() => {
-      expect(approveResult).toHaveBeenCalledWith(1)
-      expect(approveResult).toHaveBeenCalledWith(2)
-    })
-    expect(approveResult).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(bulkApproveResults).toHaveBeenCalledWith([1, 2]))
+    expect(bulkApproveResults).toHaveBeenCalledTimes(1)
   })
 
   it('after approving, the card no longer shows the Review action (status flipped)', async () => {
     getDosResults.mockResolvedValue(rawResults)
-    approveResult.mockResolvedValue({})
+    bulkApproveResults.mockResolvedValue({})
     renderWithRouter(<DosResults />)
 
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
@@ -121,25 +118,24 @@ describe('DosResults', () => {
     })
   })
 
-  it('rejects a pending card: calls rejectResult for every grouped id and flips card status to Rejected', async () => {
+  it('rejecting asks for a reason, then sends the whole card back with it', async () => {
     getDosResults.mockResolvedValue(rawResults)
-    rejectResult.mockResolvedValue({})
+    bulkRejectResults.mockResolvedValue({})
     renderWithRouter(<DosResults />)
 
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
+    fireEvent.click(screen.getAllByText('Review')[0])
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /Reject/i }))
 
-    const reviewButtons = screen.getAllByText('Review')
-    fireEvent.click(reviewButtons[0])
+    // No reason yet: nothing is sent and the form says why.
+    fireEvent.click(await screen.findByRole('button', { name: 'Send back' }))
+    expect(bulkRejectResults).not.toHaveBeenCalled()
+    expect(screen.getByText('Write a short reason first so the teacher knows what to fix.')).toBeInTheDocument()
 
-    const dialog = screen.getByRole('dialog')
-    const rejectBtn = within(dialog).getByRole('button', { name: /Reject/i })
-    fireEvent.click(rejectBtn)
+    fireEvent.change(screen.getByLabelText(/What needs fixing/), { target: { value: 'Totals are wrong' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send back' }))
 
-    await waitFor(() => {
-      expect(rejectResult).toHaveBeenCalledWith(1, '')
-      expect(rejectResult).toHaveBeenCalledWith(2, '')
-    })
-    expect(rejectResult).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(bulkRejectResults).toHaveBeenCalledWith([1, 2], 'Totals are wrong'))
   })
 
   it('search box narrows visible cards by teacher/subject/class text', async () => {

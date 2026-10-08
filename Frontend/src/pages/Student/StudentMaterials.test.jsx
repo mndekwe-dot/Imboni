@@ -57,4 +57,20 @@ describe('StudentMaterials', () => {
     renderWithRouter(<StudentMaterials />)
     expect((await screen.findAllByText('Server down')).length).toBeGreaterThan(0)
   })
+
+  it('searches titles and descriptions, and says when nothing matches', async () => {
+    getStudentMaterials.mockResolvedValue([
+      material('a', 'Fractions notes', 'Mathematics'),
+      material('b', 'Cells video', 'Biology', { description: 'Mitosis walkthrough' }),
+    ])
+    renderWithRouter(<StudentMaterials />)
+    await screen.findByRole('link', { name: 'Fractions notes' })
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'mitosis' } })
+    expect(screen.queryByRole('link', { name: 'Fractions notes' })).not.toBeInTheDocument()
+    expect(screen.getByText('Cells video')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'zzz' } })
+    expect(screen.getByText('No materials match your search.')).toBeInTheDocument()
+  })
 })

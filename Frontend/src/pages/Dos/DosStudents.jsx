@@ -23,7 +23,8 @@ import '../../styles/tables.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { formatDate } from '../../utils/date'
-import { downloadCsv } from '../../utils/exportTable'
+import { downloadCsv, failedRowsTable } from '../../utils/exportTable'
+import { Student360Modal } from '../../components/modals/Student360Modal'
 import { SearchBar } from '../../components/ui/SearchBar'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -59,7 +60,7 @@ function apiToStudent(s) {
 }
 
 // ── Student Row ───────────────────────────────────────────────────────────────
-function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, standing, status, onView }) {
+function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, standing, status, onView, onOverview }) {
     const { t } = useTranslation()
     return (
         <tr>
@@ -76,7 +77,10 @@ function StudentRow({ initials, name, adm, house, t1, t2, curr, standClass, stan
             </td>
             <td>{adm}</td><td>{house}</td><td>{t1}</td><td>{t2}</td><td>{curr}</td>
             <td><span className={standClass}>{standing}</span></td>
-            <td><button className="tm-btn" onClick={onView}>{t('common.view')}</button></td>
+            <td>
+                <button className="tm-btn" onClick={onView}>{t('common.view')}</button>
+                <button className="tm-btn" onClick={onOverview}>{t('common.student360.open')}</button>
+            </td>
         </tr>
     )
 }
@@ -124,6 +128,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
     const [preview,     setPreview]     = useState([])
     const [bulkSending, setBulkSending] = useState(false)
     const [bulkResult,  setBulkResult]  = useState(null)  // {created, failed, errors}
+    const [fileText,    setFileText]    = useState('')
 
     const studentValid = student.first_name.trim() && student.last_name.trim() && student.email.trim() && student.year && student.stream
     const parentValid  = parent.first_name.trim() && parent.last_name.trim() && (parent.email.trim() || parent.phone_number.trim())
@@ -145,7 +150,10 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
         setFile(f)
         setBulkResult(null)
         const reader = new FileReader()
-        reader.onload = (ev) => setPreview(parseCSV(ev.target.result).slice(0, 5))
+        reader.onload = (ev) => {
+            setFileText(ev.target.result)
+            setPreview(parseCSV(ev.target.result).slice(0, 5))
+        }
         reader.readAsText(f)
     }
 
@@ -338,6 +346,14 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                             <ul className="dos-bulk-errors">
                                 {bulkResult.errors.map((e, i) => <li key={i}>Row {e.row}: {e.error}</li>)}
                             </ul>
+                        )}
+                        {bulkResult.errors.length > 0 && fileText && (
+                            <button className="btn btn-outline btn-sm" onClick={() =>
+                                downloadCsv(t('dos.students.failedRowsName'),
+                                    failedRowsTable(fileText, bulkResult.errors, t('dos.students.errorColumn')))}>
+                                <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
+                                {t('dos.students.downloadFailedRows')}
+                            </button>
                         )}
                     </div>
                 )}
@@ -761,6 +777,7 @@ export function DosStudents() {
     const [inviteOpen,        setInviteOpen]        = useState(false)
     const [invitations,       setInvitations]       = useState([])
     const [selectedStudentId, setSelectedStudentId] = useState(null)
+    const [overviewId,          setOverviewId]          = useState(null)
 
     async function loadData(params) {
         const [list, stats, invList] = await Promise.all([getDosStudents(params), getDosStudentStats(), getInvitations()])
@@ -911,7 +928,7 @@ export function DosStudents() {
                             data={filtered}
                             columns={[t('common.student'), t('common.admNo'), t('common.dormitory'),
                                 ...pastTerms, t('common.current'), t('common.standing'), t('common.actions')]}
-                            renderRow={s => <StudentRow key={s.adm} {...s} onView={() => setSelectedStudentId(s.id)} />}
+                            renderRow={s => <StudentRow key={s.adm} {...s} onView={() => setSelectedStudentId(s.id)} onOverview={() => setOverviewId(s.id)} />}
                             emptyIcon="people"
                             emptyTitle={t('common.noStudentsFound')}
                             emptyDesc={search
@@ -922,6 +939,8 @@ export function DosStudents() {
                     </DashboardContent>
                 </main>
             </div>
+
+            {overviewId && <Student360Modal studentId={overviewId} onClose={() => setOverviewId(null)} />}
 
             {inviteOpen && (
                 <InviteStudentModal

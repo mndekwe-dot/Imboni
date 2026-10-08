@@ -7,6 +7,8 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DataTable } from '../../components/ui/DataTable'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { DormPlannerTab } from './DormPlannerTab'
+import { ExeatTab } from './ExeatTab'
+import { BedGridTab } from './BedGridTab'
 import {
     getDisBoarding, createDisBoarding, patchDisBoarding, deleteDisBoarding,
     getDisFacilities, getDisOccupancy,
@@ -363,12 +365,18 @@ export function DisBoarding() {
                             tabs={[
                                 { key: 'records', label: t('dis.boarding.records'),     icon: 'hotel' },
                                 { key: 'planner', label: t('dis.boarding.dormPlanner'), icon: 'auto_awesome' },
+                                { key: 'beds',    label: t('dis.boarding.floorPlan'),    icon: 'bed' },
+                                { key: 'exeat',   label: t('dis.boarding.exeat'),       icon: 'badge' },
                             ]}
                             value={tab}
                             onChange={setTab}
                             label={t('dis.boarding.title')}
                             idPrefix="dis-boarding-"
                         />
+
+                        {tab === 'beds' && <BedGridTab />}
+
+                        {tab === 'exeat' && <ExeatTab />}
 
                         {tab === 'planner' && (
                             <DormPlannerTab

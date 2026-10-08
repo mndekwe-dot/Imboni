@@ -132,4 +132,29 @@ describe('StudentAssignments', () => {
     expect(screen.getByRole('button', { name: /Upload & submit/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Mark as done/i })).not.toBeInTheDocument()
   })
+
+  it('holds a chosen file until the student confirms, and lets them back out', async () => {
+    getStudentProfile.mockResolvedValue(PROFILE)
+    getStudentAssignments.mockResolvedValue([
+      { id: 8, title: 'Design Brief', subject: 'Computer Science', due_date: '2099-01-01', status: 'pending',
+        submission_method: 'upload' },
+    ])
+    submitAssignment.mockResolvedValue({})
+
+    renderWithRouter(<StudentAssignments />)
+    await waitFor(() => expect(screen.getByText('Design Brief')).toBeInTheDocument())
+
+    const file = new File(['x'], 'brief.pdf', { type: 'application/pdf' })
+    fireEvent.change(screen.getByLabelText('Choose a file to hand in'), { target: { files: [file] } })
+
+    expect(submitAssignment).not.toHaveBeenCalled()
+    expect(screen.getByText(/brief\.pdf/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.getByRole('button', { name: /Upload & submit/ })).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('Choose a file to hand in'), { target: { files: [file] } })
+    fireEvent.click(screen.getByRole('button', { name: /Confirm & submit/ }))
+    await waitFor(() => expect(submitAssignment).toHaveBeenCalledTimes(1))
+  })
 })
