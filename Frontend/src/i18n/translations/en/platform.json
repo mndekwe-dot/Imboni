@@ -1,0 +1,609 @@
+{
+  "layout": {
+    "skip": "Skip to content",
+    "logoAlt": "Imboni logo",
+    "tagline": "Operator Console",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu",
+    "navLabel": "Platform navigation",
+    "signOut": "Sign out",
+    "operator": "Operator",
+    "platform": "Platform",
+    "nav": {
+      "overview": "Overview",
+      "applications": "Applications",
+      "schools": "Schools",
+      "contracts": "Contracts",
+      "revenue": "Revenue",
+      "expenses": "Expenses",
+      "support": "Support",
+      "activity": "Activity",
+      "health": "Health",
+      "operators": "Operators"
+    },
+    "roles": {
+      "support": "Support",
+      "commercial": "Commercial",
+      "operations": "Operations"
+    },
+    "mfaTitle": "Two-factor is not set up yet",
+    "mfaBody": "Your account holds the Operations role, so provisioning, restricting and suspending schools stay closed until you enrol. Set it up under <ops>Operators</ops>.",
+    "titles": {
+      "overview": "Overview",
+      "applications": "Applications",
+      "schools": "Schools",
+      "contracts": "Contracts",
+      "revenue": "Revenue",
+      "expenses": "Expenses",
+      "support": "Support",
+      "activity": "Activity",
+      "health": "Health",
+      "operators": "Operators"
+    },
+    "subtitles": {
+      "overview": "Your platform at a glance",
+      "applications": "Schools applying to join Imboni",
+      "schools": "All tenant schools",
+      "contracts": "Agreements & their lifecycle",
+      "revenue": "Payments received from schools",
+      "expenses": "Services & bills you pay for",
+      "support": "Tickets raised by schools",
+      "activity": "Who did what, above the schools",
+      "health": "Health of all of Imboni",
+      "operators": "Who works here, and what they may do"
+    }
+  },
+  "login": {
+    "logoAlt": "Imboni",
+    "twoFactorTitle": "Two-factor code",
+    "twoFactorIntro": "Open your authenticator app for {{email}}",
+    "codeLabel": "6-digit code",
+    "verify": "Verify and sign in",
+    "checking": "Checking…",
+    "back": "Back",
+    "title": "Imboni Platform",
+    "subtitle": "Operator console for all schools",
+    "email": "Email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "togglePassword": "Toggle password visibility",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "note": "Restricted to Imboni platform operators. School staff sign in on their school’s own address.",
+    "signInFailed": "Could not sign in. Check your credentials.",
+    "codeWrong": "That code is not right. Try the current one."
+  },
+  "common": {
+    "refresh": "Refresh",
+    "refreshing": "Refreshing…",
+    "view": "View",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "none": "None",
+    "status": {
+      "active": "Active",
+      "trial": "Trial",
+      "past_due": "Past due",
+      "read_only": "Read-only",
+      "suspended": "Suspended"
+    },
+    "plan": {
+      "free": "Free",
+      "basic": "Basic",
+      "premium": "Premium"
+    },
+    "interval": {
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "yearly": "Yearly",
+      "one_time": "One-time"
+    },
+    "actionFailed": "Action failed."
+  },
+  "overview": {
+    "loadFailed": "Could not load the overview.",
+    "loading": "Loading overview…",
+    "moneyIn": "Money in",
+    "totalRevenue": "Total revenue",
+    "payments": "{{count}} payment(s)",
+    "receivedMonth": "Received this month",
+    "moneyOut": "Money out",
+    "billsDue": "Bills due",
+    "overdue": "Overdue",
+    "due30": "Due in 30 days",
+    "support": "Support",
+    "openTickets": "Open tickets",
+    "ticketTrend": "{{open}} new · {{progress}} in progress"
+  },
+  "activity": {
+    "title": "Activity",
+    "recent": "{{count}} recent",
+    "empty": "Nothing recorded yet. Operator actions appear here as they happen.",
+    "loadFailed": "Could not load the activity log.",
+    "automatic": "Imboni (automatic)",
+    "filters": {
+      "all": "Everything",
+      "school": "Schools",
+      "application": "Applications",
+      "contract": "Contracts",
+      "payment": "Payments",
+      "ticket": "Support",
+      "operator": "Operators"
+    },
+    "cols": {
+      "when": "When",
+      "who": "Who",
+      "what": "What",
+      "school": "School",
+      "detail": "Detail"
+    },
+    "actions": {
+      "school": {
+        "suspend": "Suspended a school",
+        "restrict": "Made a school read-only",
+        "reactivate": "Reactivated a school",
+        "auto_suspend": "Suspended automatically (contract expired)",
+        "auto_restrict": "Made read-only automatically (contract in grace)",
+        "demo_expired": "Demo expired",
+        "invitation_accepted": "A school accepted its invitation"
+      },
+      "application": {
+        "approved": "Approved an application",
+        "rejected": "Rejected an application",
+        "provision": "Provisioned a school",
+        "resend_invitation": "Re-sent an invitation"
+      },
+      "contract": {
+        "sign": "Signed a contract",
+        "terminate": "Terminated a contract",
+        "renew": "Renewed a contract",
+        "create": "Drafted a contract"
+      },
+      "payment": {
+        "create": "Recorded a payment",
+        "delete": "Removed a payment"
+      },
+      "expense": {
+        "create": "Recorded a bill"
+      },
+      "ticket": {
+        "reply": "Replied to a ticket",
+        "set_status": "Changed a ticket status"
+      },
+      "operator": {
+        "login": "Signed in",
+        "create": "Added an operator",
+        "update": "Changed an operator",
+        "mfa_enabled": "Turned on two-factor",
+        "mfa_failed": "Failed a two-factor code",
+        "reset_mfa": "Reset an operator two-factor"
+      }
+    }
+  },
+  "schools": {
+    "title": "Schools",
+    "loading": "Loading schools…",
+    "loadFailed": "Could not load schools.",
+    "empty": "No schools yet. Provision one with the <code>provision_school</code> command.",
+    "cols": {
+      "school": "School",
+      "domain": "Domain",
+      "plan": "Plan",
+      "status": "Status",
+      "students": "Students",
+      "staff": "Staff",
+      "action": "Action"
+    },
+    "reactivate": "Reactivate",
+    "restrict": "Restrict",
+    "suspend": "Suspend",
+    "restrictHint": "Reads and exports keep working; nothing new can be saved",
+    "confirmSuspend": "Suspend {{name}}? Nobody at the school will be able to sign in. To apply pressure without closing the doors, use Restrict instead.",
+    "done": {
+      "restrict": "{{name}} is now read-only.",
+      "suspend": "{{name}} suspended.",
+      "reactivate": "{{name}} reactivated."
+    },
+    "failed": {
+      "restrict": "Could not restrict {{name}}.",
+      "suspend": "Could not suspend {{name}}.",
+      "reactivate": "Could not reactivate {{name}}."
+    }
+  },
+  "applications": {
+    "title": "School applications",
+    "loadFailed": "Could not load applications.",
+    "empty": "No applications. Prospective schools apply at <code>/apply</code>.",
+    "filterLabel": "Filter by status",
+    "open": "Open",
+    "status": {
+      "all": "All",
+      "pending": "Pending",
+      "approved": "Approved",
+      "provisioned": "Provisioned",
+      "rejected": "Rejected"
+    },
+    "cols": {
+      "school": "School",
+      "address": "Address",
+      "contact": "Contact",
+      "received": "Received",
+      "status": "Status",
+      "review": "Review"
+    },
+    "fields": {
+      "address": "Desired address",
+      "contact": "Contact",
+      "email": "Email",
+      "phone": "Phone",
+      "location": "Location",
+      "students": "Est. students",
+      "plan": "Plan interest",
+      "loginUrl": "Login URL",
+      "sentTo": "Invitation sent to"
+    },
+    "reject": "Reject",
+    "approve": "Approve",
+    "provision": "Provision school",
+    "provisioning": "Provisioning…",
+    "resend": "Re-send invitation",
+    "sending": "Sending…",
+    "rejected": "Application rejected.",
+    "approved": "Application approved.",
+    "provisioned": "School provisioned. Invitation sent.",
+    "resent": "A fresh invitation is on its way.",
+    "deliveredNote": "School provisioned. We have emailed them a link to set their own password.",
+    "undeliveredNote": "School provisioned, but the invitation email could not be sent.",
+    "linkHint": "The link works once and expires. Nobody can sign in until they open it, so there is nothing for you to pass on.",
+    "mailRefused": "The mail server refused it.",
+    "resendHint": "Use Re-send invitation once it is working.",
+    "notes": "Review notes",
+    "notesPlaceholder": "Optional notes…",
+    "wasRejected": "This application was rejected."
+  },
+  "contracts": {
+    "title": "Contracts",
+    "newContract": "+ New contract",
+    "newTitle": "New contract",
+    "loadFailed": "Could not load contracts.",
+    "pickSchool": "Pick a school for the contract.",
+    "created": "Contract created (draft). Sign it to activate.",
+    "createFailed": "Could not create the contract.",
+    "deleted": "Contract deleted.",
+    "deleteFailed": "Could not delete the contract.",
+    "signed": "Contract signed & active.",
+    "renewed": "Contract renewed.",
+    "terminated": "Contract terminated.",
+    "empty": "No contracts yet. Create one and sign it to start tracking its lifecycle.",
+    "create": "Create contract",
+    "saving": "Saving…",
+    "form": {
+      "school": "School",
+      "select": "Select",
+      "title": "Title",
+      "titlePlaceholder": "2026 Annual, Basic",
+      "plan": "Plan",
+      "amount": "Amount",
+      "currency": "Currency",
+      "billing": "Billing",
+      "start": "Start",
+      "end": "End",
+      "grace": "Grace (days)"
+    },
+    "cols": {
+      "school": "School",
+      "contract": "Contract",
+      "amount": "Amount",
+      "term": "Term",
+      "remaining": "Remaining",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "sign": "Sign",
+    "renew": "Renew",
+    "terminate": "Terminate",
+    "delete": "Delete",
+    "chip": {
+      "expired_grace": "Expired (grace)",
+      "expiring": "Expiring soon",
+      "draft": "Draft",
+      "active": "Active",
+      "expired": "Expired",
+      "terminated": "Terminated"
+    },
+    "endsToday": "Ends today",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left",
+    "daysOverdue_one": "{{count}} day overdue",
+    "daysOverdue_other": "{{count}} days overdue"
+  },
+  "expenses": {
+    "title": "Services & bills",
+    "add": "+ Add bill",
+    "addTitle": "Add a bill",
+    "loadFailed": "Could not load expenses.",
+    "added": "Bill added.",
+    "addFailed": "Could not add the bill.",
+    "paid": "{{name}} marked paid.",
+    "updateFailed": "Could not update the bill.",
+    "removed": "Bill removed.",
+    "removeFailed": "Could not remove the bill.",
+    "empty": "No bills tracked yet. Add the services you pay for to see upcoming and overdue amounts.",
+    "save": "Save bill",
+    "saving": "Saving…",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. AWS hosting",
+      "vendor": "Vendor",
+      "vendorPlaceholder": "e.g. Amazon",
+      "category": "Category",
+      "amount": "Amount",
+      "currency": "Currency",
+      "recurrence": "Recurrence",
+      "due": "Due date"
+    },
+    "categories": {
+      "hosting": "Hosting / Infrastructure",
+      "payments": "Payment processing",
+      "domain": "Domain / DNS",
+      "email": "Email / Messaging",
+      "saas": "SaaS / Tools",
+      "other": "Other"
+    },
+    "cols": {
+      "service": "Service",
+      "vendor": "Vendor",
+      "amount": "Amount",
+      "recurs": "Recurs",
+      "due": "Due date",
+      "status": "Status",
+      "action": "Action"
+    },
+    "chip": {
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "due": "Due"
+    },
+    "markPaid": "Mark paid",
+    "delete": "Delete"
+  },
+  "revenue": {
+    "totalReceived": "Total received",
+    "thisMonth": "This month",
+    "title": "Payments received",
+    "record": "+ Record payment",
+    "recordTitle": "Record a payment",
+    "loadFailed": "Could not load revenue.",
+    "recorded": "Payment recorded.",
+    "recordFailed": "Could not record the payment.",
+    "removed": "Payment removed.",
+    "removeFailed": "Could not remove the payment.",
+    "empty": "No payments yet. They’ll appear automatically once Stripe is live, or record one manually.",
+    "save": "Record payment",
+    "saving": "Saving…",
+    "form": {
+      "school": "School",
+      "select": "Select",
+      "amount": "Amount",
+      "currency": "Currency",
+      "plan": "Plan",
+      "status": "Status",
+      "date": "Date"
+    },
+    "status": {
+      "succeeded": "Succeeded",
+      "pending": "Pending",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    },
+    "cols": {
+      "date": "Date",
+      "school": "School",
+      "plan": "Plan",
+      "amount": "Amount",
+      "status": "Status",
+      "action": "Action"
+    },
+    "delete": "Delete"
+  },
+  "health": {
+    "checking": "Checking health…",
+    "loadFailed": "Could not load health.",
+    "infrastructure": "Infrastructure",
+    "operational": "Operational",
+    "down": "Down",
+    "schools": "Schools",
+    "total": "Total",
+    "active": "Active",
+    "trial": "Trial",
+    "suspended": "Suspended",
+    "pastDue": "Past due",
+    "queue": "Provisioning queue",
+    "pending": "Pending",
+    "failed": "Failed",
+    "attention": "Needs attention",
+    "applicationsPending": "Applications pending",
+    "expiring30": "Contracts expiring (30d)",
+    "inGrace": "Contracts in grace",
+    "billsOverdue": "Bills overdue",
+    "ticketsUnresolved": "Tickets unresolved"
+  },
+  "operators": {
+    "roles": {
+      "support": {
+        "label": "Support",
+        "blurb": "Answer tickets and read a school. Cannot change money or infrastructure."
+      },
+      "commercial": {
+        "label": "Commercial",
+        "blurb": "Contracts, payments and plans, plus everything Support can do."
+      },
+      "operations": {
+        "label": "Operations",
+        "blurb": "Provision, restrict and suspend schools, and manage operators. Requires two-factor."
+      }
+    },
+    "loadFailed": "Could not load the operator list.",
+    "setupFailed": "Could not start two-factor setup.",
+    "mfaOn": "Two-factor is on. Your operations tools are unlocked.",
+    "codeWrong": "That code is not right. Try the current one.",
+    "added": "Operator added.",
+    "addFailed": "Could not add the operator.",
+    "roleChanged": "{{email}} is now {{role}}.",
+    "roleFailed": "Could not change the role.",
+    "accountFailed": "Could not change the account.",
+    "mfaReset": "{{email}} can enrol a new device.",
+    "mfaResetFailed": "Could not reset two-factor.",
+    "yourMfa": "Your two-factor",
+    "on": "On",
+    "off": "Off",
+    "mfaOnNote": "Your account asks for a code from your authenticator app at every sign-in.",
+    "mfaOpsNote": "Your account holds the Operations role, so provisioning, restricting and suspending stay closed until you enrol a second factor.",
+    "mfaOtherNote": "Add a second factor so a stolen password is not enough to reach the console.",
+    "setUp": "Set up two-factor",
+    "cancel": "Cancel",
+    "checking": "Checking…",
+    "turnOn": "Turn it on",
+    "setupIntro": "Add this key to your authenticator app, then type the code it shows.",
+    "code": "6-digit code",
+    "managedByOps": "The operator list is managed by Operations. Ask them to add or change an account.",
+    "title": "Operators",
+    "add": "+ Add operator",
+    "addTitle": "Add an operator",
+    "saving": "Saving…",
+    "addSubmit": "Add operator",
+    "form": {
+      "email": "Email",
+      "name": "Name",
+      "role": "Role",
+      "password": "Password"
+    },
+    "cols": {
+      "operator": "Operator",
+      "role": "Role",
+      "mfa": "Two-factor",
+      "lastSeen": "Last seen",
+      "action": "Action"
+    },
+    "disabled": "Disabled",
+    "reset": "Reset 2FA",
+    "disable": "Disable",
+    "enable": "Enable",
+    "roleOf": "Role of {{email}}"
+  },
+  "tickets": {
+    "title": "Support",
+    "loadFailed": "Could not load tickets.",
+    "openFailed": "Could not open the ticket.",
+    "replySent": "Reply sent.",
+    "replyFailed": "Could not send the reply.",
+    "marked": "Marked {{status}}.",
+    "statusFailed": "Could not change the status.",
+    "none": "No tickets.",
+    "select": "Select a ticket to view the conversation.",
+    "filterLabel": "Filter by status",
+    "writeReply": "Write a reply…",
+    "sendReply": "Send reply",
+    "resolve": "Resolve",
+    "close": "Close",
+    "reopen": "Re-open",
+    "filters": {
+      "all": "All",
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "status": {
+      "open": "open",
+      "in_progress": "in progress",
+      "resolved": "resolved",
+      "closed": "closed"
+    },
+    "priority": {
+      "low": "low",
+      "normal": "normal",
+      "high": "high",
+      "urgent": "urgent"
+    },
+    "replies_one": "{{count}} reply",
+    "replies_other": "{{count}} replies",
+    "school": "School",
+    "you": "You",
+    "ctx": {
+      "loading": "Loading the school…",
+      "gone": "This school no longer exists.",
+      "plan": "Plan",
+      "demo": " (demo)",
+      "standing": "Standing",
+      "students": "Students",
+      "staff": "Staff",
+      "contract": "Contract",
+      "lastPayment": "Last payment",
+      "lastLogin": "Last staff sign-in",
+      "openTickets": "Open tickets",
+      "never": "never",
+      "noLimit": "{{used}} (no limit)",
+      "usedOf": "{{used}} of {{limit}}",
+      "contractEnds": "ends {{date}} ({{days}} days)",
+      "noContract": "none active",
+      "paid": "{{currency}} {{amount}}, {{days}} days ago",
+      "none": "none",
+      "neverSetPassword": "This school has never set a password. Its invitation {{state}} -- re-send it from Applications.",
+      "inviteIs": "is {{state}}",
+      "inviteNever": "was never sent",
+      "uncovered": "No active contract covers this school.",
+      "unreachable": "This school’s data could not be read. Check Health before replying."
+    }
+  },
+  "schoolModal": {
+    "fallbackTitle": "School",
+    "loadFailed": "Could not load the school.",
+    "updateFailed": "Could not update the school.",
+    "moduleFailed": "Could not change the modules.",
+    "suspended": "{{name}} suspended.",
+    "reactivated": "{{name}} reactivated.",
+    "moduleOn": "{{module}} switched on for {{name}}.",
+    "moduleOff": "{{module}} switched off for {{name}}.",
+    "supportOpened": "Read-only session for {{minutes}} minutes, as {{as}}. The school can see this in its audit log.",
+    "supportFailed": "Could not open the support session.",
+    "reactivate": "Reactivate",
+    "suspend": "Suspend",
+    "domain": "Domain",
+    "plan": "Plan",
+    "created": "Created",
+    "students": "Students",
+    "staff": "Staff",
+    "supportTitle": "Support session",
+    "supportOpen": "Open a read-only view as the school administrator",
+    "supportNote": "Read-only, time-limited, and recorded: the school sees the reason in its own audit log.",
+    "why": "Why do you need to look?",
+    "minutes": "Minutes (5 to 30)",
+    "openSession": "Open session",
+    "cancel": "Cancel",
+    "modulesTitle": "Modules",
+    "modulesNote": "Switch off what this school does not use. Nothing is deleted; switching it back on restores it.",
+    "modules": {
+      "boarding": {
+        "label": "Boarding",
+        "note": "Dormitories, exeat passes and dining plans"
+      },
+      "matron": {
+        "label": "Infirmary",
+        "note": "Sick bay, medication and parent calls"
+      },
+      "library": {
+        "label": "Library",
+        "note": "Catalogue, loans and fines"
+      }
+    },
+    "contracts": "Contracts",
+    "noContracts": "No contracts.",
+    "payments": "Recent payments",
+    "noPayments": "No payments.",
+    "tickets": "Tickets",
+    "noTickets": "No tickets."
+  }
+}

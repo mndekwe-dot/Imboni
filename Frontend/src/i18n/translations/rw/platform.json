@@ -1,0 +1,609 @@
+{
+  "layout": {
+    "skip": "Simbukira ku bikubiyemo",
+    "logoAlt": "Ikirango cya Imboni",
+    "tagline": "Ikibaho cy’abakoresha",
+    "closeMenu": "Funga menu",
+    "openMenu": "Fungura menu",
+    "navLabel": "Kuyobora urubuga",
+    "signOut": "Sohoka",
+    "operator": "Umukoresha",
+    "platform": "Urubuga",
+    "nav": {
+      "overview": "Incamake",
+      "applications": "Ubusabe",
+      "schools": "Ibigo",
+      "contracts": "Amasezerano",
+      "revenue": "Amafaranga yinjiye",
+      "expenses": "Ibyakoreshejwe",
+      "support": "Ubufasha",
+      "activity": "Ibikorwa",
+      "health": "Imiterere",
+      "operators": "Abakoresha"
+    },
+    "roles": {
+      "support": "Ubufasha",
+      "commercial": "Ubucuruzi",
+      "operations": "Imikorere"
+    },
+    "mfaTitle": "Kwemeza kabiri ntikurashyirwaho",
+    "mfaBody": "Konti yawe ifite inshingano y’Imikorere, bityo gutangiza, kugabanya no guhagarika ibigo birafunze kugeza ubishyizeho. Bishyireho muri <ops>Abakoresha</ops>.",
+    "titles": {
+      "overview": "Incamake",
+      "applications": "Ubusabe",
+      "schools": "Ibigo",
+      "contracts": "Amasezerano",
+      "revenue": "Amafaranga yinjiye",
+      "expenses": "Ibyakoreshejwe",
+      "support": "Ubufasha",
+      "activity": "Ibikorwa",
+      "health": "Imiterere",
+      "operators": "Abakoresha"
+    },
+    "subtitles": {
+      "overview": "Urubuga rwawe mu make magambo",
+      "applications": "Ibigo bisaba kwinjira muri Imboni",
+      "schools": "Ibigo byose bikoresha urubuga",
+      "contracts": "Amasezerano n’uko agenda",
+      "revenue": "Ubwishyu bwakiriwe buvuye mu bigo",
+      "expenses": "Serivisi na fagitire wishyura",
+      "support": "Ibibazo byatanzwe n’ibigo",
+      "activity": "Uwakoze iki, hejuru y’ibigo",
+      "health": "Imiterere ya Imboni yose",
+      "operators": "Ukorera hano n’ibyo yemerewe gukora"
+    }
+  },
+  "login": {
+    "logoAlt": "Imboni",
+    "twoFactorTitle": "Kode yo kwemeza kabiri",
+    "twoFactorIntro": "Fungura porogaramu yawe yo kwemeza ya {{email}}",
+    "codeLabel": "Kode y’imibare 6",
+    "verify": "Emeza winjire",
+    "checking": "Biragenzurwa…",
+    "back": "Subira inyuma",
+    "title": "Urubuga rwa Imboni",
+    "subtitle": "Ikibaho cy’abakoresha ku bigo byose",
+    "email": "Imeri",
+    "password": "Ijambobanga",
+    "passwordPlaceholder": "Andika ijambobanga ryawe",
+    "togglePassword": "Erekana cyangwa uhishe ijambobanga",
+    "signIn": "Injira",
+    "signingIn": "Kwinjira…",
+    "note": "Ni iy’abakoresha urubuga rwa Imboni gusa. Abakozi b’ibigo binjirira ku rubuga rw’ikigo cyabo.",
+    "signInFailed": "Ntibishobotse kwinjira. Reba amakuru yawe.",
+    "codeWrong": "Iyo kode si yo. Gerageza iriho ubu."
+  },
+  "common": {
+    "refresh": "Vugurura",
+    "refreshing": "Biravugururwa…",
+    "view": "Reba",
+    "loading": "Birimo gufungurwa…",
+    "save": "Bika",
+    "cancel": "Hagarika",
+    "close": "Funga",
+    "none": "Nta na kimwe",
+    "status": {
+      "active": "Rirakora",
+      "trial": "Igerageza",
+      "past_due": "Ryatinze kwishyura",
+      "read_only": "Gusoma gusa",
+      "suspended": "Ryahagaritswe"
+    },
+    "plan": {
+      "free": "Ubuntu",
+      "basic": "Isanzwe",
+      "premium": "Yihariye"
+    },
+    "interval": {
+      "monthly": "Buri kwezi",
+      "quarterly": "Buri mezi atatu",
+      "yearly": "Buri mwaka",
+      "one_time": "Rimwe gusa"
+    },
+    "actionFailed": "Igikorwa ntikibashije."
+  },
+  "overview": {
+    "loadFailed": "Ntibishobotse gukura incamake.",
+    "loading": "Incamake irimo gufungurwa…",
+    "moneyIn": "Amafaranga yinjiye",
+    "totalRevenue": "Amafaranga yose yinjiye",
+    "payments": "Ubwishyu: {{count}}",
+    "receivedMonth": "Yakiriwe muri uku kwezi",
+    "moneyOut": "Amafaranga asohoka",
+    "billsDue": "Fagitire zigomba kwishyurwa",
+    "overdue": "Zatinze",
+    "due30": "Zigomba kwishyurwa mu minsi 30",
+    "support": "Ubufasha",
+    "openTickets": "Ibibazo bifunguye",
+    "ticketTrend": "{{open}} bishya · {{progress}} biri gukorwaho"
+  },
+  "activity": {
+    "title": "Ibikorwa",
+    "recent": "Ibigezweho: {{count}}",
+    "empty": "Nta cyanditswe. Ibikorwa by’abakoresha bigaragara hano uko bibaye.",
+    "loadFailed": "Ntibishobotse gukura amateka y’ibikorwa.",
+    "automatic": "Imboni (mu buryo bwikora)",
+    "filters": {
+      "all": "Byose",
+      "school": "Ibigo",
+      "application": "Ubusabe",
+      "contract": "Amasezerano",
+      "payment": "Ubwishyu",
+      "ticket": "Ubufasha",
+      "operator": "Abakoresha"
+    },
+    "cols": {
+      "when": "Igihe",
+      "who": "Nde",
+      "what": "Iki",
+      "school": "Ikigo",
+      "detail": "Ibisobanuro"
+    },
+    "actions": {
+      "school": {
+        "suspend": "Yahagaritse ikigo",
+        "restrict": "Yashyize ikigo mu gusoma gusa",
+        "reactivate": "Yongeye gukoresha ikigo",
+        "auto_suspend": "Cyahagaritswe mu buryo bwikora (amasezerano yarangiye)",
+        "auto_restrict": "Cyashyizwe mu gusoma gusa mu buryo bwikora (amasezerano mu gihe cy’imbabazi)",
+        "demo_expired": "Igerageza ryarangiye",
+        "invitation_accepted": "Ikigo cyemeye ubutumire bwacyo"
+      },
+      "application": {
+        "approved": "Yemeje ubusabe",
+        "rejected": "Yanze ubusabe",
+        "provision": "Yatangije ikigo",
+        "resend_invitation": "Yongeye kohereza ubutumire"
+      },
+      "contract": {
+        "sign": "Yasinye amasezerano",
+        "terminate": "Yasheshe amasezerano",
+        "renew": "Yongeye amasezerano",
+        "create": "Yateguye amasezerano"
+      },
+      "payment": {
+        "create": "Yanditse ubwishyu",
+        "delete": "Yakuyeho ubwishyu"
+      },
+      "expense": {
+        "create": "Yanditse fagitire"
+      },
+      "ticket": {
+        "reply": "Yasubije ikibazo",
+        "set_status": "Yahinduye imiterere y’ikibazo"
+      },
+      "operator": {
+        "login": "Yinjiye",
+        "create": "Yongeyeho umukoresha",
+        "update": "Yahinduye umukoresha",
+        "mfa_enabled": "Yashyizeho kwemeza kabiri",
+        "mfa_failed": "Kode yo kwemeza kabiri yanze",
+        "reset_mfa": "Yasubizaho kwemeza kabiri k’umukoresha"
+      }
+    }
+  },
+  "schools": {
+    "title": "Ibigo",
+    "loading": "Ibigo birimo gufungurwa…",
+    "loadFailed": "Ntibishobotse gukura ibigo.",
+    "empty": "Nta kigo kirabaho. Tangiza kimwe ukoresheje itegeko <code>provision_school</code>.",
+    "cols": {
+      "school": "Ikigo",
+      "domain": "Aderesi",
+      "plan": "Gahunda",
+      "status": "Imiterere",
+      "students": "Abanyeshuri",
+      "staff": "Abakozi",
+      "action": "Igikorwa"
+    },
+    "reactivate": "Ongera ukoreshe",
+    "restrict": "Gabanya",
+    "suspend": "Hagarika",
+    "restrictHint": "Gusoma no kohereza hanze biracyakora; nta gishya gishobora kubikwa",
+    "confirmSuspend": "Wahagarika {{name}}? Nta muntu wo muri iki kigo uzashobora kwinjira. Kugira ngo ushyireho igitutu utafunze imiryango, koresha Gabanya.",
+    "done": {
+      "restrict": "{{name}} kiri mu gusoma gusa.",
+      "suspend": "{{name}} cyahagaritswe.",
+      "reactivate": "{{name}} cyongeye gukora."
+    },
+    "failed": {
+      "restrict": "Ntibishobotse kugabanya {{name}}.",
+      "suspend": "Ntibishobotse guhagarika {{name}}.",
+      "reactivate": "Ntibishobotse kongera gukoresha {{name}}."
+    }
+  },
+  "applications": {
+    "title": "Ubusabe bw’ibigo",
+    "loadFailed": "Ntibishobotse gukura ubusabe.",
+    "empty": "Nta busabe. Ibigo bishaka kwinjira bisaba kuri <code>/apply</code>.",
+    "filterLabel": "Shungura ukurikije imiterere",
+    "open": "Fungura",
+    "status": {
+      "all": "Byose",
+      "pending": "Bitegereje",
+      "approved": "Bwemewe",
+      "provisioned": "Cyatangijwe",
+      "rejected": "Bwanzwe"
+    },
+    "cols": {
+      "school": "Ikigo",
+      "address": "Aderesi",
+      "contact": "Umuntu wo kuvugisha",
+      "received": "Bwakiriwe",
+      "status": "Imiterere",
+      "review": "Isuzuma"
+    },
+    "fields": {
+      "address": "Aderesi wifuza",
+      "contact": "Umuntu wo kuvugisha",
+      "email": "Imeri",
+      "phone": "Telefone",
+      "location": "Aho giherereye",
+      "students": "Abanyeshuri (ukurikije igereranya)",
+      "plan": "Gahunda yifuzwa",
+      "loginUrl": "Aderesi yo kwinjiriraho",
+      "sentTo": "Ubutumire bwoherejwe kuri"
+    },
+    "reject": "Anga",
+    "approve": "Emeza",
+    "provision": "Tangiza ikigo",
+    "provisioning": "Birimo gutangizwa…",
+    "resend": "Ongera wohereze ubutumire",
+    "sending": "Birimo koherezwa…",
+    "rejected": "Ubusabe bwanzwe.",
+    "approved": "Ubusabe bwemewe.",
+    "provisioned": "Ikigo cyatangijwe. Ubutumire bwoherejwe.",
+    "resent": "Ubutumire bushya buri mu nzira.",
+    "deliveredNote": "Ikigo cyatangijwe. Twabohereje ihuza ryo kwishyiriraho ijambobanga ryabo.",
+    "undeliveredNote": "Ikigo cyatangijwe, ariko imeri y’ubutumire ntiyashoboye kohereza.",
+    "linkHint": "Ihuza rikora rimwe gusa kandi rirangira. Nta wushobora kwinjira atarifunguye, nta cyo ukwiye kubaha.",
+    "mailRefused": "Seriveri y’imeri yarabyanze.",
+    "resendHint": "Koresha Ongera wohereze ubutumire igihe bimaze gukora.",
+    "notes": "Inyandiko z’isuzuma",
+    "notesPlaceholder": "Inyandiko zitari ngombwa…",
+    "wasRejected": "Ubu busabe bwanzwe."
+  },
+  "contracts": {
+    "title": "Amasezerano",
+    "newContract": "+ Isezerano rishya",
+    "newTitle": "Isezerano rishya",
+    "loadFailed": "Ntibishobotse gukura amasezerano.",
+    "pickSchool": "Hitamo ikigo cy’isezerano.",
+    "created": "Isezerano ryaremwe (ritarasinywa). Risinye kugira ngo rikore.",
+    "createFailed": "Ntibishobotse kurema isezerano.",
+    "deleted": "Isezerano ryasibwe.",
+    "deleteFailed": "Ntibishobotse gusiba isezerano.",
+    "signed": "Isezerano ryasinywe kandi rirakora.",
+    "renewed": "Isezerano ryongerewe.",
+    "terminated": "Isezerano ryasheshwe.",
+    "empty": "Nta masezerano ariho. Rema rimwe urisinye kugira ngo utangire kuryakurikirana.",
+    "create": "Rema isezerano",
+    "saving": "Birimo kubikwa…",
+    "form": {
+      "school": "Ikigo",
+      "select": "Hitamo",
+      "title": "Umutwe",
+      "titlePlaceholder": "2026 y’umwaka, Isanzwe",
+      "plan": "Gahunda",
+      "amount": "Amafaranga",
+      "currency": "Ifaranga",
+      "billing": "Kwishyuza",
+      "start": "Itangira",
+      "end": "Irangira",
+      "grace": "Igihe cy’imbabazi (iminsi)"
+    },
+    "cols": {
+      "school": "Ikigo",
+      "contract": "Isezerano",
+      "amount": "Amafaranga",
+      "term": "Igihe",
+      "remaining": "Asigaye",
+      "status": "Imiterere",
+      "actions": "Ibikorwa"
+    },
+    "sign": "Sinya",
+    "renew": "Ongera",
+    "terminate": "Shesha",
+    "delete": "Siba",
+    "chip": {
+      "expired_grace": "Ryarangiye (igihe cy’imbabazi)",
+      "expiring": "Rigiye kurangira",
+      "draft": "Ritarasinywa",
+      "active": "Rirakora",
+      "expired": "Ryarangiye",
+      "terminated": "Ryasheshwe"
+    },
+    "endsToday": "Rirangira uyu munsi",
+    "daysLeft_one": "Hasigaye umunsi {{count}}",
+    "daysLeft_other": "Hasigaye iminsi {{count}}",
+    "daysOverdue_one": "Ryatinze umunsi {{count}}",
+    "daysOverdue_other": "Ryatinze iminsi {{count}}"
+  },
+  "expenses": {
+    "title": "Serivisi na fagitire",
+    "add": "+ Ongeraho fagitire",
+    "addTitle": "Ongeraho fagitire",
+    "loadFailed": "Ntibishobotse gukura ibyakoreshejwe.",
+    "added": "Fagitire yongeweho.",
+    "addFailed": "Ntibishobotse kongeraho fagitire.",
+    "paid": "{{name}} cyashyizwe nk’icyishyuwe.",
+    "updateFailed": "Ntibishobotse kuvugurura fagitire.",
+    "removed": "Fagitire yakuweho.",
+    "removeFailed": "Ntibishobotse gukuraho fagitire.",
+    "empty": "Nta fagitire zikurikiranwa. Ongeraho serivisi wishyura kugira ngo ubone amafaranga ategerejwe n’ayatinze.",
+    "save": "Bika fagitire",
+    "saving": "Birimo kubikwa…",
+    "form": {
+      "name": "Izina",
+      "namePlaceholder": "urugero: hosting ya AWS",
+      "vendor": "Utanga serivisi",
+      "vendorPlaceholder": "urugero: Amazon",
+      "category": "Icyiciro",
+      "amount": "Amafaranga",
+      "currency": "Ifaranga",
+      "recurrence": "Uko isubiramo",
+      "due": "Itariki yo kwishyuriraho"
+    },
+    "categories": {
+      "hosting": "Hosting / Ibikorwaremezo",
+      "payments": "Gutunganya ubwishyu",
+      "domain": "Domaine / DNS",
+      "email": "Imeri / Ubutumwa",
+      "saas": "SaaS / Ibikoresho",
+      "other": "Ibindi"
+    },
+    "cols": {
+      "service": "Serivisi",
+      "vendor": "Utanga serivisi",
+      "amount": "Amafaranga",
+      "recurs": "Isubiramo",
+      "due": "Itariki yo kwishyura",
+      "status": "Imiterere",
+      "action": "Igikorwa"
+    },
+    "chip": {
+      "paid": "Yishyuwe",
+      "overdue": "Yatinze",
+      "due": "Igomba kwishyurwa"
+    },
+    "markPaid": "Shyira nk’icyishyuwe",
+    "delete": "Siba"
+  },
+  "revenue": {
+    "totalReceived": "Yose yakiriwe",
+    "thisMonth": "Muri uku kwezi",
+    "title": "Ubwishyu bwakiriwe",
+    "record": "+ Andika ubwishyu",
+    "recordTitle": "Andika ubwishyu",
+    "loadFailed": "Ntibishobotse gukura amafaranga yinjiye.",
+    "recorded": "Ubwishyu bwanditswe.",
+    "recordFailed": "Ntibishobotse kwandika ubwishyu.",
+    "removed": "Ubwishyu bwakuweho.",
+    "removeFailed": "Ntibishobotse gukuraho ubwishyu.",
+    "empty": "Nta bwishyu burabaho. Buzagaragara ubwabwo Stripe nikora, cyangwa wandike bumwe ubwawe.",
+    "save": "Andika ubwishyu",
+    "saving": "Birimo kubikwa…",
+    "form": {
+      "school": "Ikigo",
+      "select": "Hitamo",
+      "amount": "Amafaranga",
+      "currency": "Ifaranga",
+      "plan": "Gahunda",
+      "status": "Imiterere",
+      "date": "Itariki"
+    },
+    "status": {
+      "succeeded": "Bwagenze neza",
+      "pending": "Butegereje",
+      "failed": "Bwanze",
+      "refunded": "Bwasubijwe"
+    },
+    "cols": {
+      "date": "Itariki",
+      "school": "Ikigo",
+      "plan": "Gahunda",
+      "amount": "Amafaranga",
+      "status": "Imiterere",
+      "action": "Igikorwa"
+    },
+    "delete": "Siba"
+  },
+  "health": {
+    "checking": "Imiterere irimo kugenzurwa…",
+    "loadFailed": "Ntibishobotse gukura imiterere.",
+    "infrastructure": "Ibikorwaremezo",
+    "operational": "Birakora",
+    "down": "Ntibikora",
+    "schools": "Ibigo",
+    "total": "Byose",
+    "active": "Birakora",
+    "trial": "Bigerageza",
+    "suspended": "Byahagaritswe",
+    "pastDue": "Byatinze kwishyura",
+    "queue": "Ibigo bitegereje gutangizwa",
+    "pending": "Bitegereje",
+    "failed": "Byanze",
+    "attention": "Bikeneye kwitabwaho",
+    "applicationsPending": "Ubusabe butegereje",
+    "expiring30": "Amasezerano arangira (iminsi 30)",
+    "inGrace": "Amasezerano mu gihe cy’imbabazi",
+    "billsOverdue": "Fagitire zatinze",
+    "ticketsUnresolved": "Ibibazo bitarakemuka"
+  },
+  "operators": {
+    "roles": {
+      "support": {
+        "label": "Ubufasha",
+        "blurb": "Subiza ibibazo no gusoma ikigo. Ntashobora guhindura amafaranga cyangwa ibikorwaremezo."
+      },
+      "commercial": {
+        "label": "Ubucuruzi",
+        "blurb": "Amasezerano, ubwishyu na gahunda, hamwe n’ibyo Ubufasha bushobora gukora byose."
+      },
+      "operations": {
+        "label": "Imikorere",
+        "blurb": "Gutangiza, kugabanya no guhagarika ibigo, no gucunga abakoresha. Bisaba kwemeza kabiri."
+      }
+    },
+    "loadFailed": "Ntibishobotse gukura urutonde rw’abakoresha.",
+    "setupFailed": "Ntibishobotse gutangira gushyiraho kwemeza kabiri.",
+    "mfaOn": "Kwemeza kabiri kwashyizweho. Ibikoresho byawe by’imikorere byafunguwe.",
+    "codeWrong": "Iyo kode si yo. Gerageza iriho ubu.",
+    "added": "Umukoresha yongeweho.",
+    "addFailed": "Ntibishobotse kongeraho umukoresha.",
+    "roleChanged": "{{email}} ubu ni {{role}}.",
+    "roleFailed": "Ntibishobotse guhindura inshingano.",
+    "accountFailed": "Ntibishobotse guhindura konti.",
+    "mfaReset": "{{email}} ashobora gushyiraho igikoresho gishya.",
+    "mfaResetFailed": "Ntibishobotse gusubizaho kwemeza kabiri.",
+    "yourMfa": "Kwemeza kabiri kwawe",
+    "on": "Kurakora",
+    "off": "Ntikurakora",
+    "mfaOnNote": "Konti yawe isaba kode ivuye muri porogaramu yawe yo kwemeza igihe cyose winjiye.",
+    "mfaOpsNote": "Konti yawe ifite inshingano y’Imikorere, bityo gutangiza, kugabanya no guhagarika birafunze kugeza ushyizeho ikindi cyemezo.",
+    "mfaOtherNote": "Shyiraho ikindi cyemezo kugira ngo ijambobanga ryibwe ridahagije ngo umuntu agere ku kibaho.",
+    "setUp": "Shyiraho kwemeza kabiri",
+    "cancel": "Hagarika",
+    "checking": "Biragenzurwa…",
+    "turnOn": "Gishyireho",
+    "setupIntro": "Ongera uyu muhuzo muri porogaramu yawe yo kwemeza, hanyuma wandike kode igaragaza.",
+    "code": "Kode y’imibare 6",
+    "managedByOps": "Urutonde rw’abakoresha rucungwa n’Imikorere. Basabe kongeraho cyangwa guhindura konti.",
+    "title": "Abakoresha",
+    "add": "+ Ongeraho umukoresha",
+    "addTitle": "Ongeraho umukoresha",
+    "saving": "Birimo kubikwa…",
+    "addSubmit": "Ongeraho umukoresha",
+    "form": {
+      "email": "Imeri",
+      "name": "Izina",
+      "role": "Inshingano",
+      "password": "Ijambobanga"
+    },
+    "cols": {
+      "operator": "Umukoresha",
+      "role": "Inshingano",
+      "mfa": "Kwemeza kabiri",
+      "lastSeen": "Yaherukaga kugaragara",
+      "action": "Igikorwa"
+    },
+    "disabled": "Yahagaritswe",
+    "reset": "Subizaho 2FA",
+    "disable": "Hagarika",
+    "enable": "Ongera ukoreshe",
+    "roleOf": "Inshingano ya {{email}}"
+  },
+  "tickets": {
+    "title": "Ubufasha",
+    "loadFailed": "Ntibishobotse gukura ibibazo.",
+    "openFailed": "Ntibishobotse gufungura ikibazo.",
+    "replySent": "Igisubizo cyoherejwe.",
+    "replyFailed": "Ntibishobotse kohereza igisubizo.",
+    "marked": "Cyashyizwe nka {{status}}.",
+    "statusFailed": "Ntibishobotse guhindura imiterere.",
+    "none": "Nta bibazo.",
+    "select": "Hitamo ikibazo urebe ibiganiro.",
+    "filterLabel": "Shungura ukurikije imiterere",
+    "writeReply": "Andika igisubizo…",
+    "sendReply": "Ohereza igisubizo",
+    "resolve": "Gikemure",
+    "close": "Funga",
+    "reopen": "Ongera ufungure",
+    "filters": {
+      "all": "Byose",
+      "open": "Bifunguye",
+      "in_progress": "Biri gukorwaho",
+      "resolved": "Byakemutse",
+      "closed": "Byafunzwe"
+    },
+    "status": {
+      "open": "gifunguye",
+      "in_progress": "kiri gukorwaho",
+      "resolved": "cyakemutse",
+      "closed": "cyafunzwe"
+    },
+    "priority": {
+      "low": "gito",
+      "normal": "bisanzwe",
+      "high": "hejuru",
+      "urgent": "byihutirwa"
+    },
+    "replies_one": "Igisubizo {{count}}",
+    "replies_other": "Ibisubizo {{count}}",
+    "school": "Ikigo",
+    "you": "Wowe",
+    "ctx": {
+      "loading": "Ikigo kirimo gufungurwa…",
+      "gone": "Iki kigo ntikikiriho.",
+      "plan": "Gahunda",
+      "demo": " (igerageza)",
+      "standing": "Imiterere",
+      "students": "Abanyeshuri",
+      "staff": "Abakozi",
+      "contract": "Isezerano",
+      "lastPayment": "Ubwishyu bwa nyuma",
+      "lastLogin": "Kwinjira kwa nyuma k’umukozi",
+      "openTickets": "Ibibazo bifunguye",
+      "never": "nta narimwe",
+      "noLimit": "{{used}} (nta mupaka)",
+      "usedOf": "{{used}} kuri {{limit}}",
+      "contractEnds": "rirangira {{date}} (iminsi {{days}})",
+      "noContract": "nta rikora",
+      "paid": "{{currency}} {{amount}}, hashize iminsi {{days}}",
+      "none": "nta bwishyu",
+      "neverSetPassword": "Iki kigo nticyigeze gishyiraho ijambobanga. Ubutumire bwacyo {{state}} -- ongera ubwohereze uhereye ku Busabe.",
+      "inviteIs": "ni {{state}}",
+      "inviteNever": "ntibwigeze bwoherezwa",
+      "uncovered": "Nta masezerano akora agikubiyemo.",
+      "unreachable": "Amakuru y’iki kigo ntiyashoboye gusomwa. Reba Imiterere mbere yo gusubiza."
+    }
+  },
+  "schoolModal": {
+    "fallbackTitle": "Ikigo",
+    "loadFailed": "Ntibishobotse gukura ikigo.",
+    "updateFailed": "Ntibishobotse kuvugurura ikigo.",
+    "moduleFailed": "Ntibishobotse guhindura ibice.",
+    "suspended": "{{name}} cyahagaritswe.",
+    "reactivated": "{{name}} cyongeye gukora.",
+    "moduleOn": "{{module}} cyafunguriwe {{name}}.",
+    "moduleOff": "{{module}} cyahagaritswe kuri {{name}}.",
+    "supportOpened": "Igihe cyo gusoma gusa cy’iminota {{minutes}}, nka {{as}}. Ikigo kibibona mu mateka yacyo y’igenzura.",
+    "supportFailed": "Ntibishobotse gufungura igihe cy’ubufasha.",
+    "reactivate": "Ongera ukoreshe",
+    "suspend": "Hagarika",
+    "domain": "Aderesi",
+    "plan": "Gahunda",
+    "created": "Cyaremwe",
+    "students": "Abanyeshuri",
+    "staff": "Abakozi",
+    "supportTitle": "Igihe cy’ubufasha",
+    "supportOpen": "Fungura uburyo bwo gusoma gusa nk’umuyobozi w’ikigo",
+    "supportNote": "Gusoma gusa, igihe kigenwe kandi kiranditswe: ikigo kibona impamvu mu mateka yacyo y’igenzura.",
+    "why": "Ni iki gituma ukeneye kureba?",
+    "minutes": "Iminota (5 kugeza kuri 30)",
+    "openSession": "Fungura igihe",
+    "cancel": "Hagarika",
+    "modulesTitle": "Ibice",
+    "modulesNote": "Hagarika ibyo iki kigo gikoresha. Nta kintu gisibwa; kongera kugikoresha kirugarura.",
+    "modules": {
+      "boarding": {
+        "label": "Icumbi",
+        "note": "Amacumbi, impushya zo gusohoka na gahunda y’ifunguro"
+      },
+      "matron": {
+        "label": "Ivuriro",
+        "note": "Ivuriro, imiti no guhamagara ababyeyi"
+      },
+      "library": {
+        "label": "Isomero",
+        "note": "Urutonde rw’ibitabo, ubusabe n’amande"
+      }
+    },
+    "contracts": "Amasezerano",
+    "noContracts": "Nta masezerano.",
+    "payments": "Ubwishyu bwa vuba",
+    "noPayments": "Nta bwishyu.",
+    "tickets": "Ibibazo",
+    "noTickets": "Nta bibazo."
+  }
+}

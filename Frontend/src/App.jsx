@@ -257,16 +257,16 @@ function App() {
       } />
       {/* ── Platform (vendor) console — all schools; served on the bare domain ── */}
       <Route path="/platform/login" element={<PlatformLogin />} />
-      <Route path="/platform" element={<PlatformLayout title="Overview" subtitle="Your platform at a glance"><OverviewSection /></PlatformLayout>} />
-      <Route path="/platform/applications" element={<PlatformLayout title="Applications" subtitle="Schools applying to join Imboni"><ApplicationsSection /></PlatformLayout>} />
-      <Route path="/platform/schools" element={<PlatformLayout title="Schools" subtitle="All tenant schools"><SchoolsSection /></PlatformLayout>} />
-      <Route path="/platform/contracts" element={<PlatformLayout title="Contracts" subtitle="Agreements & their lifecycle"><ContractsSection /></PlatformLayout>} />
-      <Route path="/platform/revenue" element={<PlatformLayout title="Revenue" subtitle="Payments received from schools"><RevenueSection /></PlatformLayout>} />
-      <Route path="/platform/expenses" element={<PlatformLayout title="Expenses" subtitle="Services & bills you pay for"><ExpensesSection /></PlatformLayout>} />
-      <Route path="/platform/support" element={<PlatformLayout title="Support" subtitle="Tickets raised by schools"><TicketsSection /></PlatformLayout>} />
-      <Route path="/platform/activity" element={<PlatformLayout title="Activity" subtitle="Who did what, above the schools"><ActivitySection /></PlatformLayout>} />
-      <Route path="/platform/health" element={<PlatformLayout title="Health" subtitle="Health of all of Imboni"><HealthSection /></PlatformLayout>} />
-      <Route path="/platform/operators" element={<PlatformLayout title="Operators" subtitle="Who works here, and what they may do"><OperatorsSection /></PlatformLayout>} />
+      <Route path="/platform" element={<PlatformLayout section="overview"><OverviewSection /></PlatformLayout>} />
+      <Route path="/platform/applications" element={<PlatformLayout section="applications"><ApplicationsSection /></PlatformLayout>} />
+      <Route path="/platform/schools" element={<PlatformLayout section="schools"><SchoolsSection /></PlatformLayout>} />
+      <Route path="/platform/contracts" element={<PlatformLayout section="contracts"><ContractsSection /></PlatformLayout>} />
+      <Route path="/platform/revenue" element={<PlatformLayout section="revenue"><RevenueSection /></PlatformLayout>} />
+      <Route path="/platform/expenses" element={<PlatformLayout section="expenses"><ExpensesSection /></PlatformLayout>} />
+      <Route path="/platform/support" element={<PlatformLayout section="support"><TicketsSection /></PlatformLayout>} />
+      <Route path="/platform/activity" element={<PlatformLayout section="activity"><ActivitySection /></PlatformLayout>} />
+      <Route path="/platform/health" element={<PlatformLayout section="health"><HealthSection /></PlatformLayout>} />
+      <Route path="/platform/operators" element={<PlatformLayout section="operators"><OperatorsSection /></PlatformLayout>} />
 
       {/* ── Public registration routes ── */}
       <Route path="/register/:uid/:token" element={<TeacherRegistration />} />
