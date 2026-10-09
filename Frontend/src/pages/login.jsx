@@ -8,6 +8,7 @@ import '../styles/login.css'
 import '../styles/components.css'
 import '../styles/public-pages.css'
 import { useSchoolBranding } from '../hooks/useSchoolBranding'
+import { useBrandedTab } from '../hooks/useBrandedTab'
 import { ModalOverlay } from '../components/ui/ModalOverlay'
 
 function ForgotPasswordModal({ onClose }) {
@@ -56,6 +57,7 @@ export function LogIn() {
     const { t } = useTranslation()
     const { login, completeTwoFactor } = useAuth()
     const { schoolName, logo: schoolLogo } = useSchoolBranding()
+    useBrandedTab()
     // Decorative only: null on the bare domain or if the lookup fails.
     const { school } = useSchoolIdentity()
     const [email,      setEmail]      = useState('')

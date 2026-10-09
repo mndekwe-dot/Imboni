@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import logo from '../../assets/images/imboni-logo.webp'
 import { useSchoolBranding } from '../../hooks/useSchoolBranding'
+import { useBrandedTab } from '../../hooks/useBrandedTab'
 import { useLibraryFeature } from '../../hooks/useLibraryFeature'
 import { useSchoolModules } from '../../hooks/useSchoolModules'
 import { ROLE_HOME, readStoredUser } from '../../utils/roles'
@@ -42,6 +43,7 @@ export function Sidebar({ navItems, secondaryItems }) {
   const badges = useNavBadges(navItems)
   const { logout } = useAuth()
   const { schoolName, logo: schoolLogo } = useSchoolBranding()
+  useBrandedTab()
   const { t } = useTranslation()
 
   const location = useLocation()
