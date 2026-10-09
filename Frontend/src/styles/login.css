@@ -593,7 +593,8 @@
 /* Then scale the whole card down as the window gets shorter, so it reads as
    smaller and not only tighter. `zoom` changes layout size (unlike a
    transform), so the card genuinely takes less room. */
-@media (max-height: 820px) { .login-card { zoom: 0.92; } }
-@media (max-height: 760px) { .login-card { zoom: 0.84; } }
-@media (max-height: 700px) { .login-card { zoom: 0.76; } }
-@media (max-height: 620px) { .login-card { zoom: 0.68; } }
+@media (max-height: 920px) { .login-card { zoom: 0.9; } }
+@media (max-height: 840px) { .login-card { zoom: 0.8; } }
+@media (max-height: 760px) { .login-card { zoom: 0.72; } }
+@media (max-height: 680px) { .login-card { zoom: 0.65; } }
+@media (max-height: 600px) { .login-card { zoom: 0.58; } }
