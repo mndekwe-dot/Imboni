@@ -10,6 +10,7 @@ import { useSchoolModules } from '../../hooks/useSchoolModules'
 import { ROLE_HOME, readStoredUser } from '../../utils/roles'
 import { useLocation } from 'react-router'
 import { useNavBadges } from '../../hooks/useNavBadges'
+import { useTransitionNavigate } from '../../hooks/useTransitionNavigate'
 
 /* Every page mounts its own <Sidebar> — 64 of them — so component state alone
    meant collapsing it and then clicking any nav item sprang it back open. The
@@ -22,6 +23,7 @@ function readCollapsed() {
 
 export function Sidebar({ navItems, secondaryItems }) {
   const [collapsed, setCollapsed] = useState(readCollapsed)
+  const transitionClick = useTransitionNavigate()
   /* A nav item may declare `feature: 'library'`, and it appears only for a
      school whose plan includes it. The filter lives HERE rather than in each
      portal's nav file because those files are plain arrays imported by ten
@@ -154,7 +156,7 @@ export function Sidebar({ navItems, secondaryItems }) {
                   className={({ isActive }) =>
                     'sidebar-nav-item' + (isActive ? ' active' : '')
                   }
-                  onClick={() => setMobileOpen(false)}
+                  onClick={transitionClick(item.to, () => setMobileOpen(false))}
                 >
                   {row(item)}
                 </NavLink>
@@ -185,7 +187,7 @@ export function Sidebar({ navItems, secondaryItems }) {
                     className={({ isActive }) =>
                       'sidebar-nav-item' + (isActive ? ' active' : '')
                     }
-                    onClick={() => setMobileOpen(false)}
+                    onClick={transitionClick(item.to, () => setMobileOpen(false))}
                   >
                     {row(item)}
                   </NavLink>

@@ -15,6 +15,7 @@ import './index.css'
    still wins an equal-specificity match. */
 import './styles/portal-theme.css'
 import './styles/utilities.css'
+import './styles/motion.css'
 import App from './App.jsx'
 
 // No-op unless VITE_SENTRY_DSN is set (dev/tests send nothing).
