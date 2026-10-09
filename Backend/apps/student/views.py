@@ -2,6 +2,8 @@ import logging
 from datetime import date
 from django.db.models import Avg
 from rest_framework import generics
+from rest_framework.exceptions import ValidationError as DRFValidationError
+from apps.common.uploads import validate_document
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.authentication.permissions import IsStudent
@@ -833,6 +835,11 @@ class StudentAssignmentSubmitView(APIView):
         # with no file leaves nothing to mark. A physical hand-in needs no file,
         # though a photo of the work is still kept if one is sent.
         upload = request.FILES.get('file')
+        if upload:
+            try:
+                validate_document(upload)
+            except DRFValidationError as exc:
+                return Response({'error': ' '.join(str(m) for m in exc.detail)}, status=400)
         if assignment.submission_method == 'upload' and not upload:
             return Response(
                 {'error': 'This assignment needs a file uploaded.'},

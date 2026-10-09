@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from apps.common.uploads import validate_document
 from .models import Conversation, Message
 
 # Roles considered "staff". Students and parents may only message staff.
@@ -20,6 +21,7 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = ['id', 'sender', 'sender_name', 'is_mine', 'content', 'attachment',
                   'attachment_name', 'is_read', 'read_at', 'created_at']
         read_only_fields = ['id', 'sender', 'is_read', 'read_at', 'created_at']
+        extra_kwargs = {'attachment': {'validators': [validate_document]}}
 
     def get_is_mine(self, obj):
         request = self.context.get('request')

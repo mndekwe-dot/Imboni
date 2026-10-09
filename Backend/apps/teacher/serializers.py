@@ -1,5 +1,6 @@
 from django.utils import timezone
 from rest_framework import serializers
+from apps.common.uploads import validate_document
 from apps.authentication.models import User
 from apps.results.models import AcademicTerm
 from .models import (Timetable, Task, Reminder, Assignment, AssignmentSubmission,
@@ -313,6 +314,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             'release_marks_immediately', 'submission_method', 'allow_backtracking',
         ]
         read_only_fields = ['id', 'created_at', 'published_at']
+        extra_kwargs = {'attachment': {'validators': [validate_document]}}
 
     def get_class_id(self, obj):
         return str(obj.class_obj_id)
@@ -357,6 +359,7 @@ class AssignmentWriteSerializer(serializers.ModelSerializer):
             'release_marks_immediately', 'submission_method', 'allow_backtracking',
         ]
         read_only_fields = ['id']
+        extra_kwargs = {'attachment': {'validators': [validate_document]}}
 
 
 # Update AssignmentSerializer to include new fields and real submission counts
