@@ -1,6 +1,8 @@
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { newStimulus } from './examModel'
+import { useToast } from '../../context/ToastContext'
+import { readImageAsDataUrl, imageErrorText } from '../../utils/imageData'
 
 /**
  * The passage, source or data a whole section refers to.
@@ -17,6 +19,7 @@ import { newStimulus } from './examModel'
  */
 export function StimulusEditor({ stimulus, onChange }) {
     const { t } = useTranslation()
+    const toast = useToast()
     const fileRef = useRef(null)
     const value = stimulus || newStimulus()
     const has = Boolean(value.text || value.image || value.title)
@@ -26,11 +29,15 @@ export function StimulusEditor({ stimulus, onChange }) {
     /* Stored as a data URI, the same way question images already are: an exam
        paper has to print identically wherever it is opened, and a link to a
        file that moves is a paper that prints with a hole in it. */
-    function pickImage(file) {
+    async function pickImage(file) {
         if (!file) return
-        const reader = new FileReader()
-        reader.onload = () => set('image', String(reader.result))
-        reader.readAsDataURL(file)
+        try {
+            set('image', await readImageAsDataUrl(file))
+        } catch (err) {
+            toast.error(imageErrorText(err, t))
+        } finally {
+            if (fileRef.current) fileRef.current.value = ''
+        }
     }
 
     if (!has) {
