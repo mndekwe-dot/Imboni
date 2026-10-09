@@ -14,6 +14,7 @@ import { parentNavItems, parentSecondaryItems } from './parentNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /** What each child's teachers have shared this term, so it can be revised at home. */
 export function ParentMaterials() {
@@ -69,7 +70,7 @@ export function ParentMaterials() {
                     />
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : children.length === 0 ? (
                             <p className="u-pad u-muted">{t('materials.noChildren')}</p>
                         ) : (
@@ -90,7 +91,7 @@ export function ParentMaterials() {
                                     </div>
                                 )}
                                 {materials === null ? (
-                                    <p className="u-pad u-muted">{t('common.loading')}</p>
+                                    <SkeletonList items={3} />
                                 ) : (
                                     <ClassMaterials key={child.id} materials={materials} />
                                 )}

@@ -24,6 +24,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
 import '../../styles/pages.css'
+import { asRow } from '../../utils/a11y'
 
 /**
  * The boarding roll.
@@ -66,7 +67,7 @@ function StudentRow({ student, onOpen }) {
             data-year={year}
             data-name={name.toLowerCase()}
             className="row-clickable"
-            onClick={() => onOpen(student)}
+            {...asRow(() => onOpen(student))}
         >
             <td>
                 <div className="stu-cell">

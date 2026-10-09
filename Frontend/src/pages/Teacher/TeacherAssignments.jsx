@@ -379,14 +379,14 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                         </button>
                     )}
                     {a.status !== 'closed' && (
-                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(a)} title={t('common.edit')}>
+                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(a)} title={t('common.edit')} aria-label={t('common.edit')}>
                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span>
                         </button>
                     )}
-                    <button className="btn btn-outline btn-sm" onClick={() => onDuplicate(a)} title={t('common.duplicate')}>
+                    <button className="btn btn-outline btn-sm" onClick={() => onDuplicate(a)} title={t('common.duplicate')} aria-label={t('common.duplicate')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">content_copy</span>
                     </button>
-                    <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onDelete(a.id)} title={t('common.delete')}>
+                    <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onDelete(a.id)} title={t('common.delete')} aria-label={t('common.delete')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                     </button>
                 </div>

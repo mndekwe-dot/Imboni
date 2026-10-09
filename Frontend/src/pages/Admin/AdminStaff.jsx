@@ -279,10 +279,10 @@ export function AdminStaff() {
                                                                 <td>
                                                                     {!inv.is_used && inv.status !== 'cancelled' && (
                                                                         <div className="u-flex u-gap-035">
-                                                                            <button className="adm-btn" title={t('admin.staff.resend')} onClick={() => handleResend(inv.id)}>
+                                                                            <button className="adm-btn" title={t('admin.staff.resend')} onClick={() => handleResend(inv.id)} aria-label={t('admin.staff.resend')}>
                                                                                 <span className="material-symbols-rounded" aria-hidden="true">forward_to_inbox</span>
                                                                             </button>
-                                                                            <button className="adm-btn u-destructive" title={t('admin.staff.cancel')} onClick={() => handleCancel(inv.id)}>
+                                                                            <button className="adm-btn u-destructive" title={t('admin.staff.cancel')} onClick={() => handleCancel(inv.id)} aria-label={t('admin.staff.cancel')}>
                                                                                 <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
                                                                             </button>
                                                                         </div>

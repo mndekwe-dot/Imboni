@@ -14,6 +14,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { Money, formatAmount } from './FinanceShell'
 import { pill } from '../../utils/tone'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * What the school planned to spend, against what it actually has.
@@ -139,7 +140,7 @@ export function BudgetPanel() {
                         {t('finance.budget.setLine')}
                     </button>
                 )}>
-                {loading ? <p className="u-muted">{t('common.loading')}</p>
+                {loading ? <SkeletonList items={3} />
                     : !budget ? (
                         <EmptyState icon="request_quote" title={t('finance.budget.none')}
                             description={t('finance.budget.noneDesc')}

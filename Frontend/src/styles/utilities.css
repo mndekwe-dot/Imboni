@@ -83,7 +83,7 @@
 .u-label       { font-size: var(--text-sm); color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; }
 
 /* ── Chips (status pills) ───────────────────────────────────────────────────── */
-.u-chip           { display: inline-block; padding: 0.28rem 0.7rem; border-radius: 999px; font-size: var(--text-sm); font-weight: 600; }
+.u-chip           { display: inline-block; padding: 0.28rem 0.7rem; border-radius: var(--radius-full); font-size: var(--text-sm); font-weight: 600; }
 .u-chip--primary  { background: var(--primary-light); color: var(--primary); }
 .u-chip--success  { background: rgba(22, 163, 74, 0.12); color: var(--success, #16a34a); }
 .u-chip--warn     { background: rgba(217, 119, 6, 0.14); color: #d97706; }
@@ -97,8 +97,8 @@
 .u-banner-icon     { color: var(--u-accent); font-size: var(--icon-lg); }
 
 /* ── Meter / progress bar ───────────────────────────────────────────────────── */
-.u-meter        { height: 8px; border-radius: 999px; background: var(--muted, rgba(0, 0, 0, 0.08)); overflow: hidden; }
-.u-meter-fill   { height: 100%; border-radius: 999px; background: var(--primary); transition: width 0.3s ease; }
+.u-meter        { height: 8px; border-radius: var(--radius-full); background: var(--muted, rgba(0, 0, 0, 0.08)); overflow: hidden; }
+.u-meter-fill   { height: 100%; border-radius: var(--radius-full); background: var(--primary); transition: width 0.3s ease; }
 .u-meter-fill.warn      { background: #d97706; }
 .u-meter-fill.full      { background: var(--danger, #dc2626); }
 .u-meter-fill.unlimited { background: var(--primary-light); }

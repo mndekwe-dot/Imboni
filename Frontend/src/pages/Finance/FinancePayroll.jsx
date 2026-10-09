@@ -22,6 +22,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { FinanceShell, Money, formatAmount } from './FinanceShell'
 import { pill } from '../../utils/tone'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
     'august', 'september', 'october', 'november', 'december']
@@ -145,7 +146,7 @@ export function FinancePayroll() {
 
                         <ListSection icon="event_repeat" title={t('finance.payroll.runs')}
                             count={loading ? null : runs.length}>
-                            {loading ? <p className="u-muted">{t('common.loading')}</p>
+                            {loading ? <SkeletonList items={3} />
                                 : runs.length === 0 ? (
                                     <EmptyState icon="payments" title={t('finance.payroll.noRuns')}
                                         description={t('finance.payroll.noRunsDesc')} />
@@ -232,7 +233,7 @@ function RunModal({ id, accounts, onClose, onChanged }) {
     return (
         <Modal onClose={onClose} title={run?.period_label || t('finance.payroll.title')}
             size="lg">
-            {!data ? <p className="u-muted">{t('common.loading')}</p> : (
+            {!data ? <SkeletonList items={3} /> : (
                 <div className="u-stack-1">
                     <div className="figure-strip">
                         <div>

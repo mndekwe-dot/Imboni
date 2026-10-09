@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDateTime } from '../../utils/date'
 import '../../styles/components.css'
+import { SkeletonList } from '../ui/Skeleton'
 
 function Panel({ icon, title, children }) {
     return (
@@ -61,7 +62,7 @@ export function Student360Modal({ studentId, onClose }) {
     return (
         <Modal title={data ? data.name : t('common.student360.title')} icon="person" onClose={onClose} size="wide">
             {!data ? (
-                <p className="u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : (
                 <div className="u-stack-1">
                     <p className="u-muted u-sm">

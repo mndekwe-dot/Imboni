@@ -1,0 +1,107 @@
+{
+  "notFound": {
+    "title": "Page introuvable",
+    "subtitle": "La page que vous cherchez n’existe pas. Voici quelques liens utiles :",
+    "back": "Retour",
+    "home": "Retour à l’accueil"
+  },
+  "about": {
+    "title": "À propos d’Imboni",
+    "subtitle": "Un logiciel de gestion scolaire conçu spécialement pour les écoles secondaires rwandaises.",
+    "whyTitle": "Pourquoi nous l’avons créé",
+    "why1": "La plupart des écoles secondaires rwandaises fonctionnent avec du papier et des tableurs. Un emploi du temps prend des jours à construire et s’effondre dès qu’un enseignant change. Les notes passent de l’enseignant au directeur des études sur papier, puis sont contestées, recopiées ou perdues. Les présences dorment dans des registres que personne ne peut totaliser avant la fin du trimestre. Les dossiers d’internat, de santé et de conduite sont répartis dans trois cahiers différents.",
+    "why2": "Rien de tout cela n’est un problème technologique en soi. Ce sont des tâches précises, accomplies chaque semaine par des personnes précises, et elles sont entièrement automatisables. Imboni existe pour les automatiser sans demander à l’école de changer sa façon de travailler.",
+    "differentTitle": "Ce qui le distingue",
+    "different": "Imboni est construit autour de la structure d’une école secondaire rwandaise plutôt qu’adapté d’un produit générique. Les sections O-Level et A-Level, les filières, les trois trimestres, l’évaluation continue sur 30 et les examens sur 70, les internes et les externes, les matrones et les directeurs de la discipline : ce sont des éléments à part entière du système, pas des champs personnalisés greffés sur un produit conçu ailleurs.",
+    "values": {
+      "children": {
+        "title": "Les enfants d’abord",
+        "body": "Ce système contient les notes, les dossiers médicaux et les dossiers disciplinaires de mineurs. Chaque décision de conception part de là, pas de ce qui est commode à développer."
+      },
+      "offline": {
+        "title": "Conçu pour la connexion réelle",
+        "body": "Les registres, les tournées de médicaments et les contrôles de nuit sont enregistrés hors ligne et synchronisés au retour de la connexion. Une coupure réseau ne doit jamais signifier un registre perdu."
+      },
+      "time": {
+        "title": "Redonner du temps",
+        "body": "Les emplois du temps, les calendriers d’examens, les rôles de service et l’affectation des dortoirs sont générés plutôt qu’assemblés à la main. Ce sont des jours rendus à chaque trimestre."
+      },
+      "separate": {
+        "title": "Séparé par défaut",
+        "body": "Chaque école dispose de son propre schéma de base de données isolé. Une école ne peut jamais voir les dossiers d’une autre, car les données ne sont pas dans les mêmes tables."
+      }
+    },
+    "whereTitle": "Où nous sommes",
+    "where": "Imboni est développé à Musanze, dans la Province du Nord, au Rwanda. Nous travaillons directement avec les écoles qui utilisent le système, et la feuille de route est guidée par leurs demandes plutôt que par ce qui impressionne dans une démonstration.",
+    "talkTitle": "Parlons-en",
+    "talk": "Si vous dirigez une école et souhaitez voir le système chargé avec vos propres classes et matières, <contact>contactez-nous</contact>. Si vous préférez l’essayer d’abord vous-même, le <pricing>forfait Gratuit</pricing> est le système complet et se configure en quelques minutes."
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Des questions sur le système, les tarifs ou la mise en place de votre école ? Parlez à une personne.",
+    "email": "E-mail",
+    "emailNote": "Idéal pour les questions détaillées. Nous répondons sous un jour ouvrable.",
+    "phone": "Téléphone",
+    "phoneNote": "Du lundi au vendredi, de 08h00 à 17h00 (heure de Kigali).",
+    "office": "Bureau",
+    "officeAddress": "Musanze, Province du Nord, Rwanda",
+    "officeNote": "Visites sur rendez-vous.",
+    "joinTitle": "Vous voulez votre école sur Imboni ?",
+    "joinIntro": "Il y a deux façons de commencer, selon ce que vous voulez faire vous-même.",
+    "selfTitle": "Configurer maintenant",
+    "self": "<signup>Inscrivez votre école</signup> et votre propre sous-domaine est créé automatiquement, sur le forfait Gratuit, avec un compte administrateur pour vous. Vous pouvez importer les classes et les élèves tout de suite. Aucune conversation nécessaire.",
+    "assistedTitle": "Le faire avec nous",
+    "assisted": "<apply>Demandez à nous rejoindre</apply> et nous examinerons vos informations, vous contacterons et configurerons l’école avec vos vraies classes, matières et personnel, pour que vous voyiez votre propre école plutôt qu’une démonstration.",
+    "existingTitle": "Vous utilisez déjà Imboni ?",
+    "existing": "Les demandes d’assistance se font dans le système plutôt qu’ici, afin qu’elles arrivent rattachées à votre école et au membre du personnel qui les signale. Connectez-vous et utilisez l’option d’assistance de votre portail. Si vous ne pouvez pas du tout vous connecter, écrivez-nous en précisant votre école.",
+    "dataTitle": "Demandes relatives aux données",
+    "data": "Les demandes concernant les dossiers d’élèves, l’accès, la correction ou l’effacement sont traitées selon notre <privacy>politique de confidentialité</privacy>. Écrivez-nous avec « demande de données » en objet et nous répondrons dans le délai qui y est indiqué."
+  },
+  "pricing": {
+    "title": "Des forfaits adaptés à votre école",
+    "subtitle": "Commencez gratuitement et passez au niveau supérieur quand vos effectifs augmentent. Les comptes parents sont gratuits sur tous les forfaits et ne comptent jamais dans votre limite.",
+    "students": "élèves",
+    "staff": "personnel",
+    "unlimited": "Illimité",
+    "free": {
+      "name": "Gratuit",
+      "for": "Petites écoles qui démarrent, ou toute personne qui veut essayer le système complet avec de vraies données.",
+      "cta": "Commencer gratuitement",
+      "f1": "Les sept portails",
+      "f2": "Résultats, présences et conduite",
+      "f3": "Générateurs d’emplois du temps et d’examens",
+      "f4": "Comptes parents illimités"
+    },
+    "basic": {
+      "name": "Basique",
+      "for": "Écoles secondaires établies avec un effectif complet O-Level ou A-Level.",
+      "cta": "Inscrire votre école",
+      "badge": "La plupart des écoles",
+      "f1": "Tout ce qui est dans Gratuit",
+      "f2": "Internat, restauration et rôles de service",
+      "f3": "Import en masse des classes et emplois du temps",
+      "f4": "Sauvegardes automatiques",
+      "f5": "Invitations par e-mail et SMS"
+    },
+    "premium": {
+      "name": "Premium",
+      "for": "Grandes écoles et groupes gérant plusieurs campus ou filières.",
+      "cta": "Parlez-nous",
+      "f1": "Tout ce qui est dans Basique",
+      "f2": "Élèves et personnel illimités",
+      "f3": "Assistance prioritaire",
+      "f4": "Aide à la mise en route"
+    },
+    "faqTitle": "Questions fréquentes",
+    "q1": "Les parents paient-ils ?",
+    "a1": "Non. Les comptes parents sont gratuits sur tous les forfaits et ne comptent pas dans votre limite de personnel ou d’élèves. Seuls les élèves et le personnel occupent des places.",
+    "q2": "Qu’est-ce qui compte comme place de personnel ?",
+    "a2": "Les enseignants, le directeur des études, la matrone, le personnel de discipline et les administrateurs. Les parents et les élèves sont comptés séparément.",
+    "q3": "Que se passe-t-il si nous dépassons un forfait ?",
+    "a3": "Rien n’est supprimé. Vous ne pouvez plus ajouter d’élèves ou de personnel au-delà de la limite tant que vous ne passez pas au forfait supérieur, et tout ce qui est déjà dans le système continue de fonctionner.",
+    "q4": "Pouvons-nous l’essayer d’abord avec nos vraies données ?",
+    "a4": "Oui. Le forfait Gratuit est le système complet, pas une démonstration. Importez quelques classes, faites passer un trimestre de notes, puis décidez.",
+    "q5": "Où sont stockées nos données ?",
+    "a5": "Chaque école a son propre schéma de base de données isolé, jamais une table partagée. Consultez notre <privacy>politique de confidentialité</privacy> pour le traitement des dossiers d’élèves."
+  }
+}

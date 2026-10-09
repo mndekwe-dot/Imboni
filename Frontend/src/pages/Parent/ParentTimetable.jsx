@@ -15,6 +15,7 @@ import '../../styles/components.css'
 import '../../styles/parent.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /** Each linked child's class week, read from the timetable the DOS built. */
 export function ParentTimetable() {
@@ -73,7 +74,7 @@ export function ParentTimetable() {
                     />
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : children.length === 0 ? (
                             <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
@@ -102,7 +103,7 @@ export function ParentTimetable() {
                                 </div>
                                 <div className="card-content">
                                     {slots === null ? (
-                                        <p className="u-pad u-muted">{t('common.loading')}</p>
+                                        <SkeletonList items={3} />
                                     ) : (
                                         <Timetable
                                             type="teacher"

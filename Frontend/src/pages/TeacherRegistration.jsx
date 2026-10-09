@@ -106,7 +106,7 @@ export function TeacherRegistration() {
                             <input className="form-control" placeholder="e.g. j.habimana"
                                 value={form.username}
                                 onChange={e => setForm(p => ({ ...p, username: e.target.value }))}
-                                required autoFocus />
+                                required autoFocus  aria-label="e.g. j.habimana"/>
                         </div>
 
                         <div className="form-group u-mb">
@@ -114,7 +114,7 @@ export function TeacherRegistration() {
                             <input className="form-control" type="password" placeholder="Choose a strong password"
                                 value={form.password}
                                 onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-                                required />
+                                required  aria-label="Choose a strong password"/>
                         </div>
 
                         <div className="form-group u-mb-lg">
@@ -122,7 +122,7 @@ export function TeacherRegistration() {
                             <input className="form-control" type="password" placeholder="Repeat your password"
                                 value={form.password2}
                                 onChange={e => setForm(p => ({ ...p, password2: e.target.value }))}
-                                required />
+                                required  aria-label="Repeat your password"/>
                         </div>
 
                         {formError && (

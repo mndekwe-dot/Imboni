@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getAuditLog } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 // The verbs worth filtering by, in the order an operator would look for them.
 const FILTERS = [
@@ -98,7 +99,7 @@ export function ActivitySection() {
                 </div>
 
                 {loading ? (
-                    <p className="platform-muted">Loading…</p>
+                    <SkeletonList items={3} />
                 ) : entries.length === 0 ? (
                     <p className="platform-muted">
                         Nothing recorded yet. Operator actions appear here as they happen.

@@ -320,7 +320,7 @@ export function TeacherAttendance() {
                                                             placeholder={t('common.notesOptional')}
                                                             value={getNotes(s.student_id)}
                                                             onChange={e => setStudentNotes(s.student_id, e.target.value)}
-                                                        />
+                                                         aria-label={t('common.notesOptional')}/>
                                                     </td>
                                                 </tr>
                                             )}

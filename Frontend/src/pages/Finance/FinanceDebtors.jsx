@@ -16,6 +16,7 @@ import { getDebtors, getStudentFinance, saveStudentAccount } from '../../api/fin
 import { Money, formatAmount, categoryName } from './FinanceShell'
 import { badge } from '../../utils/tone'
 import { RemindersModal } from './FinanceReminders'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /** Who owes what, worst first — the list the office actually works from. */
 export function DebtorsPanel() {
@@ -102,7 +103,7 @@ export function DebtorsPanel() {
                 count={loading ? null : t('finance.familyCount', { count: visible.length })}
             >
                 {loading ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : visible.length === 0 ? (
                     <EmptyState
                         icon={search ? 'search_off' : 'task_alt'}
@@ -194,7 +195,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
                 </>
             }
         >
-            {!data ? <p className="u-muted">{t('common.loading')}</p> : (
+            {!data ? <SkeletonList items={3} /> : (
                 <>
                     <div className="figure-strip">
                         <div>

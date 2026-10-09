@@ -88,12 +88,12 @@ export function AdminAudit() {
                                     <label className="form-group">
                                         <span className="form-label">{t('admin.audit.actor')}</span>
                                         <input className="form-input" value={filters.actor} placeholder={t('admin.audit.actorPlaceholder')}
-                                            onChange={e => set('actor', e.target.value)} />
+                                            onChange={e => set('actor', e.target.value)}  aria-label={t('admin.audit.actorPlaceholder')}/>
                                     </label>
                                     <label className="form-group">
                                         <span className="form-label">{t('admin.audit.target')}</span>
                                         <input className="form-input" value={filters.q} placeholder={t('admin.audit.targetPlaceholder')}
-                                            onChange={e => set('q', e.target.value)} />
+                                            onChange={e => set('q', e.target.value)}  aria-label={t('admin.audit.targetPlaceholder')}/>
                                     </label>
                                     <label className="form-group">
                                         <span className="form-label">{t('admin.audit.from')}</span>

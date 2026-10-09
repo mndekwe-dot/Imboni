@@ -8,7 +8,7 @@ import i18n from '../i18n'
  * false on Cancel, Escape or a click outside. Built on a native <dialog>, so
  * focus is trapped, the page behind is inert and focus returns to where it was.
  *
- *   if (!(await confirmDialog(t('x.deleteConfirm'), { danger: true }))) return
+ *   if (!(await confirmDialog(message, { danger: true }))) return
  */
 export function confirmDialog(message, { confirmLabel, danger = false } = {}) {
     return new Promise(resolve => {

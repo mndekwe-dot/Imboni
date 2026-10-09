@@ -475,11 +475,11 @@ export const MatronHealth = () => {
                                     </div>
                                     <div>
                                         <label>{t('matron.health.temperature')}</label>
-                                        <input type="number" step="0.1" min="35" max="42" placeholder={t('matron.health.egTemperature')} value={temperature} onChange={e => setTemperature(e.target.value)} />
+                                        <input type="number" step="0.1" min="35" max="42" placeholder={t('matron.health.egTemperature')} value={temperature} onChange={e => setTemperature(e.target.value)}  aria-label={t('matron.health.egTemperature')}/>
                                     </div>
                                     <div className="full">
                                         <label>{t('matron.health.complaint')}</label>
-                                        <input type="text" placeholder={t('matron.health.complaintPlaceholder')} value={complaint} onChange={e => setComplaint(e.target.value)} />
+                                        <input type="text" placeholder={t('matron.health.complaintPlaceholder')} value={complaint} onChange={e => setComplaint(e.target.value)}  aria-label={t('matron.health.complaintPlaceholder')}/>
                                     </div>
                                     <div className="full">
                                         <label>{t('matron.health.actionTaken')}</label>
@@ -487,7 +487,7 @@ export const MatronHealth = () => {
                                             placeholder={t('matron.health.actionPlaceholder')}
                                             value={actionTaken}
                                             onChange={e => setActionTaken(e.target.value)}
-                                        />
+                                         aria-label={t('matron.health.actionPlaceholder')}/>
                                     </div>
                                     <div>
                                         <label>{t('matron.health.admitToSickBay')}</label>

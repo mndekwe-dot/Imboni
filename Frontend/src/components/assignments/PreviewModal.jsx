@@ -129,7 +129,7 @@ export function PreviewModal({ assignment, questions, onClose }) {
                                 <div>
                                     <input className="form-control" placeholder={t('teacher.assignments.studentAnswerPlaceholder')}
                                         value={answers[q.id] || ''}
-                                        onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))} />
+                                        onChange={e => setAnswers(a => ({ ...a, [q.id]: e.target.value }))}  aria-label={t('teacher.assignments.studentAnswerPlaceholder')}/>
                                     {revealed && q.correct && (
                                         <div className="preview-model-answer">
                                             {t('teacher.assignments.modelAnswerLabel')} <strong>{q.correct}</strong>

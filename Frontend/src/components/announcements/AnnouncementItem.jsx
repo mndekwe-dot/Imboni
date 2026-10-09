@@ -1,3 +1,4 @@
+import { asButton } from '../../utils/a11y'
 export function AnnouncementItem({
     type = 'general',
     icon = 'campaign',
@@ -14,7 +15,7 @@ export function AnnouncementItem({
         + (onClick ? ' is-clickable' : '')
 
     return (
-        <div className={itemClass} onClick={onClick}>
+        <div className={itemClass} {...asButton(onClick)}>
             <div className="ann-item-top">
                 <div className={`ann-item-icon ${type}`}>
                     <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>

@@ -21,6 +21,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/tables.css'
 import '../../styles/library.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * The library, as a student sees it: what is on the shelf, and what they have.
@@ -117,7 +118,7 @@ export function StudentLibrary() {
                                 description={t('library.student.unavailableDesc')}
                             />
                         ) : checking ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : (
                             <>
                                 <div className="portal-stat-grid mb-1-5">
@@ -172,7 +173,7 @@ export function StudentLibrary() {
                                                 : t('library.titleCount', { count: visible.length })}
                                         >
                                             {loading ? (
-                                                <p className="u-muted">{t('common.loading')}</p>
+                                                <SkeletonList items={3} />
                                             ) : visible.length === 0 ? (
                                                 <EmptyState
                                                     icon={search ? 'search_off' : 'menu_book'}
@@ -217,7 +218,7 @@ function MyLoans({ loans, loading }) {
             count={loading ? null : t('library.loanCount', { count: loans.length })}
         >
             {loading ? (
-                <p className="u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : loans.length === 0 ? (
                 <EmptyState
                     icon="book"

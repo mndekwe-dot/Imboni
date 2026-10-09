@@ -19,6 +19,7 @@ const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -219,7 +220,7 @@ export function ParentResults() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : !child ? (
                             <p className="u-pad u-muted">{t('parent.results.noChildren')}</p>
                         ) : (
@@ -235,7 +236,7 @@ export function ParentResults() {
                                     </div>
                                     <div className="card-content">
                                         {loadingData ? (
-                                            <p className="u-muted">{t('common.loading')}</p>
+                                            <SkeletonList items={3} />
                                         ) : assessments.length === 0 ? (
                                             <p className="u-muted">{t('parent.results.noAssessments')}</p>
                                         ) : (

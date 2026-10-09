@@ -13,6 +13,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate, formatWeekday, weekdayShortNames } from '../../utils/date'
 import '../../styles/timetable.css'
+import { SkeletonList } from '../ui/Skeleton'
 
 /**
  * One person's attendance: the term figures, then a week or a month of days,
@@ -198,7 +199,7 @@ export function AttendanceRecord({ stats, loading = false, loadMonth }) {
                         <span className="att-records-summary">{t('attendance.summary', counts)}</span>
                     </div>
                     {busy ? (
-                        <p className="empty-note">{t('common.loading')}</p>
+                        <SkeletonList items={3} />
                     ) : records.length === 0 ? (
                         <p className="empty-note">
                             {t(view === 'month' ? 'attendance.noRecordsMonth' : 'attendance.noRecordsWeek')}

@@ -15,6 +15,7 @@ const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -158,7 +159,7 @@ export function ParentBehaviour() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">Loading…</p>
+                            <SkeletonList items={3} />
                         ) : !child ? (
                             <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (

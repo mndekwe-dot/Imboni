@@ -104,7 +104,7 @@ export function MessagesPage({
                                 <div className="conv-search">
                                     <div className="conv-search-inner">
                                         <span className="material-symbols-rounded" aria-hidden="true">search</span>
-                                        <input type="text" placeholder={t('messaging.search')} />
+                                        <input type="text" placeholder={t('messaging.search')}  aria-label={t('messaging.search')}/>
                                     </div>
                                 </div>
 
@@ -157,10 +157,10 @@ export function MessagesPage({
                                             </div>
                                         </div>
                                         <div className="thread-actions">
-                                            <button className="thread-action-btn" title={t('messaging.viewProfile')}>
+                                            <button className="thread-action-btn" title={t('messaging.viewProfile')} aria-label={t('messaging.viewProfile')}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">person</span>
                                             </button>
-                                            <button className="thread-action-btn" title={t('messaging.moreOptions')}>
+                                            <button className="thread-action-btn" title={t('messaging.moreOptions')} aria-label={t('messaging.moreOptions')}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">more_vert</span>
                                             </button>
                                         </div>
@@ -175,18 +175,18 @@ export function MessagesPage({
 
                                     {/* Composer */}
                                     <div className="thread-composer">
-                                        <button className="composer-icon-btn" title={t('messaging.attachFile')}>
+                                        <button className="composer-icon-btn" title={t('messaging.attachFile')} aria-label={t('messaging.attachFile')}>
                                             <span className="material-symbols-rounded" aria-hidden="true">attach_file</span>
                                         </button>
                                         <input
                                             type="text"
                                             className="composer-input"
                                             placeholder={composerPlaceholder}
-                                        />
-                                        <button className="composer-icon-btn" title={t('messaging.emoji')}>
+                                         aria-label={composerPlaceholder}/>
+                                        <button className="composer-icon-btn" title={t('messaging.emoji')} aria-label={t('messaging.emoji')}>
                                             <span className="material-symbols-rounded" aria-hidden="true">emoji_emotions</span>
                                         </button>
-                                        <button className="btn btn-primary send-btn" title={t('common.send')}>
+                                        <button className="btn btn-primary send-btn" title={t('common.send')} aria-label={t('common.send')}>
                                             <span className="material-symbols-rounded" aria-hidden="true">send</span>
                                         </button>
                                     </div>

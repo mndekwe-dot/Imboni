@@ -47,7 +47,7 @@ export function ChatBubble({
                                 </div>
                                 <div className="msg-attach-size">{attachment.fileSize}</div>
                             </div>
-                            <button type="button" className="msg-attach-btn" title="Download">
+                            <button type="button" className="msg-attach-btn" title="Download" aria-label="Download">
                                 <span className="material-symbols-rounded" aria-hidden="true">download</span>
                             </button>
                         </div>

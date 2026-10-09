@@ -309,9 +309,9 @@ export function LiveMessages({
                                                     value={draft}
                                                     onChange={e => setDraft(e.target.value)}
                                                     onKeyDown={e => { if (e.key === 'Enter') handleSend() }}
-                                                />
+                                                 aria-label={t('messaging.typeMessage')}/>
                                                 <button className="btn btn-primary send-btn" title={t('common.send')}
-                                                    onClick={handleSend} disabled={sending || !draft.trim()}>
+                                                    onClick={handleSend} disabled={sending || !draft.trim()} aria-label={t('common.send')}>
                                                     <span className="material-symbols-rounded" aria-hidden="true">send</span>
                                                 </button>
                                             </div>
@@ -344,7 +344,7 @@ export function LiveMessages({
                                 value={contactSearch}
                                 onChange={e => setContactSearch(e.target.value)}
                                 autoFocus
-                            />
+                             aria-label={t('messaging.searchPeople')}/>
                             <div className="lm-contact-list">
                                 {contacts.length === 0 ? (
                                     <p className="lm-contact-empty">No contacts found.</p>

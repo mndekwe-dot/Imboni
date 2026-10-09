@@ -22,6 +22,7 @@ import portalLogin from './portalLogin.json'
 import privacy from './privacy.json'
 import publicLayout from './publicLayout.json'
 import publicNav from './publicNav.json'
+import publicPages from './publicPages.json'
 import roles from './roles.json'
 import settings from './settings.json'
 import sidebar from './sidebar.json'
@@ -63,6 +64,7 @@ export default {
     privacy,
     publicLayout,
     publicNav,
+    publicPages,
     roles,
     settings,
     sidebar,

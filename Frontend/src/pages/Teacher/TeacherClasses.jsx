@@ -20,6 +20,7 @@ import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { sectionsFromClasses } from '../../utils/classes'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const CARD_BG = ['#eef6ff', '#edfaf4', '#f3f0ff', '#fff7ed', '#e8f8fb', '#fff0f3']
 
@@ -337,7 +338,7 @@ function ResultsModal({ cls, onClose }) {
         <Modal title={t('teacher.classes.enterResultsFor', { class: cls.class_name })} icon="edit_note" onClose={onClose} size="wide">
             <p className="modal-desc">{t('teacher.classes.pickIntro')} <strong>{cls.class_name}</strong>.</p>
             {loadingInit ? (
-                <p className="u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : (
                 <div className="asgn-pick-list">
                     <button className="asgn-pick-btn" onClick={openNew}>
@@ -420,7 +421,7 @@ function ResultsModal({ cls, onClose }) {
                                             className="score-input"
                                             value={scoreVal}
                                             onChange={e => setScores(prev => ({ ...prev, [student.student_id]: e.target.value }))}
-                                        />
+                                         aria-label="-"/>
                                         {grade && (
                                             <span className="grade-badge tc-grade-badge" style={{ color: grade.color, background: `${grade.color}18` }}>
                                                 {grade.label}
@@ -470,7 +471,7 @@ function ResultsModal({ cls, onClose }) {
                         placeholder={t('teacher.classes.assessmentNamePlaceholder')}
                         value={newForm.assessment_title}
                         onChange={e => setNewForm(p => ({ ...p, assessment_title: e.target.value }))}
-                    />
+                     aria-label={t('teacher.classes.assessmentNamePlaceholder')}/>
                 </div>
                 <div className="form-group">
                     <label className="form-label">{t('teacher.classes.typeRequired')}</label>
@@ -484,7 +485,7 @@ function ResultsModal({ cls, onClose }) {
                 </div>
                 <div className="form-group">
                     <label className="form-label">{t('teacher.classes.maxScoreRequired')}</label>
-                    <input className="form-control" type="number" min="1" placeholder={t('teacher.classes.egHundred')} value={newForm.max_score} onChange={e => setNewForm(p => ({ ...p, max_score: e.target.value }))} />
+                    <input className="form-control" type="number" min="1" placeholder={t('teacher.classes.egHundred')} value={newForm.max_score} onChange={e => setNewForm(p => ({ ...p, max_score: e.target.value }))}  aria-label={t('teacher.classes.egHundred')}/>
                 </div>
             </div>
 
@@ -514,7 +515,7 @@ function ResultsModal({ cls, onClose }) {
                                     className="score-input"
                                     value={scoreVal}
                                     onChange={e => setScores(prev => ({ ...prev, [student.student_id]: e.target.value }))}
-                                />
+                                 aria-label="-"/>
                                 {grade && (
                                     <span className="grade-badge tc-grade-badge" style={{ color: grade.color, background: `${grade.color}18` }}>
                                         {grade.label}

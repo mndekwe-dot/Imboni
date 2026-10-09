@@ -9,16 +9,6 @@
     overflow: hidden;
 }
 
-.not-found-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(to right, var(--muted) 1px, transparent 1px),
-        linear-gradient(to bottom, var(--muted) 1px, transparent 1px);
-    background-size: 80px 80px;
-    -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, transparent 65%);
-    mask-image: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, transparent 65%);
-}
 
 .not-found-content {
     position: relative;

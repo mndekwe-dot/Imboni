@@ -92,11 +92,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                     <>
                         <span className="adm-type-title">{typeName}</span>
                         <span className="adm-set-count u-fs-075">{t('settings.lessonCount', { count: subjects.length })}</span>
-                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')}>
+                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')} aria-label={t('settings.renameType')}>
                             <span className="material-symbols-rounded u-fs-1" aria-hidden="true">edit</span>
                         </button>
                         <div className="adm-spacer" />
-                        <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title={t('settings.deleteType')}>
+                        <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title={t('settings.deleteType')} aria-label={t('settings.deleteType')}>
                             <span className="material-symbols-rounded u-fs-1" aria-hidden="true">delete</span>
                         </button>
                     </>
@@ -118,10 +118,10 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                         <>
                             <span className="adm-lesson-name">{s.name}</span>
                             <span className="adm-lesson-code">{s.code}</span>
-                            <button className="btn-icon-clean adm-icon-muted" onClick={() => { setEditingLesson(s.id); setLessonDraft(s.name) }} title={t('common.rename')}>
+                            <button className="btn-icon-clean adm-icon-muted" onClick={() => { setEditingLesson(s.id); setLessonDraft(s.name) }} title={t('common.rename')} aria-label={t('common.rename')}>
                                 <span className="material-symbols-rounded u-fs-095" aria-hidden="true">edit</span>
                             </button>
-                            <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')}>
+                            <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')} aria-label={t('common.delete')}>
                                 <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                             </button>
                         </>
@@ -135,11 +135,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 <input className="form-input adm-input-lesson"
                     value={lessonName} onChange={e => setLessonName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder={t('settings.lessonNamePlaceholder')} />
+                    placeholder={t('settings.lessonNamePlaceholder')}  aria-label={t('settings.lessonNamePlaceholder')}/>
                 <input className="form-input adm-input-code"
                     value={lessonCode} onChange={e => setLessonCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder={t('settings.lessonCodePlaceholder')} />
+                    placeholder={t('settings.lessonCodePlaceholder')}  aria-label={t('settings.lessonCodePlaceholder')}/>
                 <button className="btn btn-outline btn-sm" onClick={handleAddLesson}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.lesson')}
                 </button>
@@ -196,7 +196,7 @@ function SchoolInfoSection() {
                         value={schoolName}
                         onChange={e => { setSchoolName(e.target.value); setSaved(false) }}
                         placeholder={t('admin.settings.schoolNamePlaceholder')}
-                    />
+                     aria-label={t('admin.settings.schoolNamePlaceholder')}/>
                 </div>
             </div>
 
@@ -352,7 +352,7 @@ function SubjectsSection() {
                         onChange={e => setNewTypeName(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleAddType()}
                         placeholder={t('settings.egSciences')}
-                    />
+                     aria-label={t('settings.egSciences')}/>
                     <button className="btn btn-primary btn-sm" onClick={handleAddType}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.addType')}
                     </button>
@@ -429,7 +429,7 @@ function RoomsSection() {
                         onChange={e => { setRoomInput(e.target.value); setRoomErr('') }}
                         onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
                         placeholder={t('settings.roomPlaceholder')}
-                    />
+                     aria-label={t('settings.roomPlaceholder')}/>
                     <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                     </button>

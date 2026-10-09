@@ -11,6 +11,7 @@ import { getStudentTimetable } from '../../api/student'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * The student's class week, as the DOS built it. It used to render the static
@@ -65,7 +66,7 @@ export function StudentTimetable() {
                         <div className="card">
                             <div className="card-content">
                                 {loading ? (
-                                    <p className="u-pad u-muted">{t('common.loading')}</p>
+                                    <SkeletonList items={3} />
                                 ) : error ? (
                                     <p className="u-pad u-muted">{t('student.timetable.loadError')}</p>
                                 ) : (

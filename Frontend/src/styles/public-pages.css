@@ -185,7 +185,7 @@
     color: var(--primary, #003d7a);
     background: rgba(0, 61, 122, .08);
     padding: .25rem .6rem;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     margin-bottom: .75rem;
 }
 
@@ -315,7 +315,7 @@
 
 .pub-find-done {
     border: 1px solid var(--border, #e5e7eb);
-    border-radius: 10px;
+    border-radius: var(--radius);
     padding: 1.5rem;
     max-width: 520px;
     margin-bottom: 2rem;

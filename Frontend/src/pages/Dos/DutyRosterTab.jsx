@@ -61,7 +61,7 @@ function PostManager({ posts, onCreate, onUpdate, onDelete }) {
                             {t('common.active')}
                         </label>
                         <button className="btn-icon-clean dos-danger-text" title={t('dos.duty.deletePost')}
-                                onClick={() => onDelete(p.id)}>
+                                onClick={() => onDelete(p.id)} aria-label={t('dos.duty.deletePost')}>
                             <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                         </button>
                     </div>
@@ -69,7 +69,7 @@ function PostManager({ posts, onCreate, onUpdate, onDelete }) {
 
                 <div className="dset-lesson-add mt-1">
                     <input className="form-input dset-input-lesson" placeholder={t('dos.duty.namePlaceholder')}
-                           value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} />
+                           value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })}  aria-label={t('dos.duty.namePlaceholder')}/>
                     <input type="time" className="form-input" aria-label={t('common.startTime')}
                            value={draft.start_time} onChange={e => setDraft({ ...draft, start_time: e.target.value })} />
                     <input type="time" className="form-input" aria-label={t('common.endTime')}

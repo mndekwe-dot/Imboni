@@ -13,6 +13,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/tables.css'
 import '../../styles/library.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * The frame every librarian page sits in: rail, header, content — and the
@@ -47,7 +48,7 @@ export function LibraryShell({ title, subtitle, actions, children }) {
                     <DashboardContent>
                         {enabled === false
                             ? <LibraryNotInPlan />
-                            : loading ? <p className="u-pad u-muted">{t('common.loading')}</p>
+                            : loading ? <SkeletonList items={3} />
                                 : children}
                     </DashboardContent>
                 </main>

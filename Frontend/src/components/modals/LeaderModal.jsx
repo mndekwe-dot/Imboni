@@ -99,7 +99,7 @@ export function LeaderModal({ leader, onClose, onSave }) {
                     {/* Notes */}
                     <div className="form-group">
                         <label className="form-label">{t('modals.leader.notesOptional')}</label>
-                        <input className="form-input" value={notes} onChange={e => setNotes(e.target.value)} placeholder={t('modals.leader.notesPlaceholder')} />
+                        <input className="form-input" value={notes} onChange={e => setNotes(e.target.value)} placeholder={t('modals.leader.notesPlaceholder')}  aria-label={t('modals.leader.notesPlaceholder')}/>
                     </div>
 
                     {error && <p className="dmod-error">{error}</p>}

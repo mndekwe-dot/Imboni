@@ -18,6 +18,7 @@ import { BudgetPanel } from './FinanceBudget'
 import { badge } from '../../utils/tone'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const FILTERS = ['all', 'pending', 'approved', 'paid', 'rejected']
 const METHODS = ['cash', 'momo', 'bank', 'cheque', 'other']
@@ -150,7 +151,7 @@ export function ExpensesPanel() {
                 count={loading ? null : t('finance.expenseCount', { count: rows.length })}
             >
                 {loading ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : rows.length === 0 ? (
                     <EmptyState
                         icon="shopping_bag"

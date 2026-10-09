@@ -39,8 +39,8 @@
 .tt-icon-btn .material-symbols-rounded { font-size: var(--icon-md, 20px); }
 .tt-today-btn,
 .tt-view-btn { padding: 0 var(--space-4); }
-.tt-today-btn { border-radius: 999px; }
-.tt-view-btn  { border-radius: 999px; }
+.tt-today-btn { border-radius: var(--radius-full); }
+.tt-view-btn  { border-radius: var(--radius-full); }
 
 .tt-icon-btn:hover,
 .tt-today-btn:hover:not(:disabled),
@@ -146,7 +146,7 @@
     width: 2.1rem;
     height: 2.1rem;
     border: none;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: transparent;
     color: var(--foreground);
     font-size: var(--text-sm);
@@ -160,7 +160,7 @@
 .tt-cal-day.is-selected {
     background: var(--portal-accent, var(--primary));
     color: #fff;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-weight: 700;
 }
 
@@ -173,7 +173,7 @@
 }
 .day-tab {
     padding: 0.3rem 0.75rem;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: 1px solid var(--border);
     font-size: var(--text-sm);
     font-weight: 500;
@@ -363,7 +363,7 @@
     flex-shrink: 0;
     margin-left: auto;
     padding: 0 0.35rem;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--surface-3);
     color: var(--muted-foreground);
     font-size: var(--text-caption);
@@ -378,15 +378,7 @@
    turning the grid into a quilt). Assignment lives in timetableDisplay.js.
 ─────────────────────────────────────────────────────────────────────────── */
 .tt-cell.tt-lesson { background-color: var(--tt-tint); }
-.tt-cell.tt-lesson::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--tt-bar);
-}
+.tt-cell.tt-lesson { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tt-bar) 45%, transparent); }
 .tt-tone-1  { --tt-tint: #dceafa; --tt-bar: #1f6fb2; }   /* blue      */
 .tt-tone-2  { --tt-tint: #e2e2f8; --tt-bar: #4f56b8; }   /* indigo    */
 .tt-tone-3  { --tt-tint: #ebdff7; --tt-bar: #7a4bb0; }   /* violet    */
@@ -416,7 +408,7 @@
     display: inline-block;
     margin-top: 2px;
     padding: 0 0.3rem;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--portal-accent, var(--primary));
     color: #fff;
     font-size: var(--text-caption);
@@ -695,7 +687,7 @@
 }
 .tt-agenda-today {
     padding: 0.1rem 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--portal-accent, var(--primary));
     color: #fff;
     font-size: var(--text-caption);
@@ -712,7 +704,7 @@
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius);
 }
-.tt-agenda-item { border-left: 4px solid var(--border); }
+.tt-agenda-item { box-shadow: inset 0 0 0 1px var(--border); }
 /* Only a toned (academic) item takes the wash here. A boarding item gets its
    background from its .tt-<type> class above, which a background set on every
    .tt-agenda-item would override. */

@@ -89,7 +89,7 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
                                 name="name" value={form.name} onChange={handleChange}
                                 placeholder={t('modals.student.egStudentName')}
                                 readOnly={readOnly}
-                            />
+                             aria-label={t('modals.student.egStudentName')}/>
                             {errors.name && <span className="field-error">{errors.name}</span>}
                         </div>
                         <div className="form-group">
@@ -99,7 +99,7 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
                                 name="adm" value={form.adm} onChange={handleChange}
                                 placeholder={t('modals.student.egAdmission')}
                                 readOnly={readOnly}
-                            />
+                             aria-label={t('modals.student.egAdmission')}/>
                         </div>
                     </div>
                     <div className="form-row-2">

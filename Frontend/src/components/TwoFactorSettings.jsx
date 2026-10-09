@@ -110,7 +110,7 @@ export function TwoFactorSettings() {
                             className="form-input" type="text" inputMode="numeric"
                             placeholder="123456" value={code} autoFocus
                             onChange={e => setCode(e.target.value)}
-                        />
+                         aria-label="123456"/>
                     </div>
                     <div className="form-actions tfa-actions">
                         <button className="btn btn-primary" onClick={confirmCode} disabled={busy || !code}>
@@ -147,7 +147,7 @@ export function TwoFactorSettings() {
                             className="form-input" type="password" placeholder="Your password"
                             value={password} autoFocus
                             onChange={e => setPassword(e.target.value)}
-                        />
+                         aria-label="Your password"/>
                     </div>
                     <div className="form-actions tfa-actions">
                         <button className="btn btn-primary btn-destructive" onClick={confirmDisable} disabled={busy || !password}>

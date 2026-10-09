@@ -8,6 +8,8 @@ import {
 import { QUESTION_TYPES } from './quizModel'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { asButton } from '../../utils/a11y'
+import { SkeletonList } from '../ui/Skeleton'
 
 /**
  * The teacher's saved questions, for reuse across assignments.
@@ -92,7 +94,7 @@ export function QuestionBankModal({ onClose, onImport }) {
             }>
             <div className="bank-filter-row">
                 <input className="form-control bank-search-input" placeholder={t('teacher.assignments.searchQuestions')}
-                    value={search} onChange={e => setSearch(e.target.value)} />
+                    value={search} onChange={e => setSearch(e.target.value)}  aria-label={t('teacher.assignments.searchQuestions')}/>
                 <select className="form-control bank-select-scope" value={scope} onChange={e => setScope(e.target.value)}
                     aria-label={t('teacher.assignments.questionScope')}>
                     <option value="">{t('teacher.assignments.allQuestions')}</option>
@@ -105,7 +107,7 @@ export function QuestionBankModal({ onClose, onImport }) {
                 </select>
             </div>
             {loading ? (
-                <p className="u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : filtered.length === 0 ? (
                 <p className="u-muted">{search || typeF
                     ? t('teacher.assignments.noMatchingQuestions')
@@ -113,7 +115,7 @@ export function QuestionBankModal({ onClose, onImport }) {
             ) : (
                 <div className="bank-list">
                     {filtered.map(q => (
-                        <div key={q.id} onClick={() => toggle(q.id)}
+                        <div key={q.id} {...asButton(() => toggle(q.id))}
                             className={`bank-item${selected.has(q.id) ? ' selected' : ''}`}>
                             <input type="checkbox" readOnly checked={selected.has(q.id)} className="bank-item-check" />
                             <div className="bank-item-body">
@@ -136,7 +138,9 @@ export function QuestionBankModal({ onClose, onImport }) {
                                     title={q.is_shared
                                         ? t('teacher.assignments.stopSharing')
                                         : t('teacher.assignments.startSharing')}
-                                    className={`bank-item-icon-btn${q.is_shared ? ' shared' : ''}`}>
+                                    className={`bank-item-icon-btn${q.is_shared ? ' shared' : ''}`} aria-label={q.is_shared
+                                        ? t('teacher.assignments.stopSharing')
+                                        : t('teacher.assignments.startSharing')}>
                                     <span className="material-symbols-rounded" aria-hidden="true">
                                         {q.is_shared ? 'group' : 'group_off'}
                                     </span>

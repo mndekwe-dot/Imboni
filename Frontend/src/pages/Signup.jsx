@@ -193,7 +193,7 @@ export function Signup() {
                             <input className="form-control" placeholder="e.g. Green Hills Academy"
                                 value={form.school_name}
                                 onChange={e => update('school_name', e.target.value)}
-                                autoFocus />
+                                autoFocus  aria-label="e.g. Green Hills Academy"/>
                         </Field>
 
                         <Field
@@ -203,7 +203,7 @@ export function Signup() {
                             <input className="form-control" placeholder="greenhills"
                                 value={form.subdomain}
                                 onChange={e => update('subdomain', sanitizeSubdomain(e.target.value))}
-                                autoCapitalize="none" autoCorrect="off" spellCheck="false" />
+                                autoCapitalize="none" autoCorrect="off" spellCheck="false"  aria-label="greenhills"/>
                             <div className="sgn-preview">
                                 Your school will live at{' '}
                                 <strong className="sgn-primary">{previewHost}</strong>
@@ -214,12 +214,12 @@ export function Signup() {
                             <Field label="Admin first name *" error={fieldErrors.admin_first_name} noMargin>
                                 <input className="form-control" placeholder="Jane"
                                     value={form.admin_first_name}
-                                    onChange={e => update('admin_first_name', e.target.value)} />
+                                    onChange={e => update('admin_first_name', e.target.value)}  aria-label="Jane"/>
                             </Field>
                             <Field label="Admin last name *" error={fieldErrors.admin_last_name} noMargin>
                                 <input className="form-control" placeholder="Doe"
                                     value={form.admin_last_name}
-                                    onChange={e => update('admin_last_name', e.target.value)} />
+                                    onChange={e => update('admin_last_name', e.target.value)}  aria-label="Doe"/>
                             </Field>
                         </div>
 
@@ -227,14 +227,14 @@ export function Signup() {
                             <input className="form-control" type="email" placeholder="jane@greenhills.edu"
                                 value={form.admin_email}
                                 onChange={e => update('admin_email', e.target.value)}
-                                autoComplete="email" />
+                                autoComplete="email"  aria-label="jane@greenhills.edu"/>
                         </Field>
 
                         <Field label="Admin password *" error={fieldErrors.admin_password} help="At least 8 characters.">
                             <input className="form-control" type="password" placeholder="Choose a strong password"
                                 value={form.admin_password}
                                 onChange={e => update('admin_password', e.target.value)}
-                                autoComplete="new-password" />
+                                autoComplete="new-password"  aria-label="Choose a strong password"/>
                         </Field>
 
                         {generalError && (
