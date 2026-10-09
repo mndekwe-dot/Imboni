@@ -1,0 +1,609 @@
+{
+  "layout": {
+    "skip": "Aller au contenu",
+    "logoAlt": "Logo Imboni",
+    "tagline": "Console opérateur",
+    "closeMenu": "Fermer le menu",
+    "openMenu": "Ouvrir le menu",
+    "navLabel": "Navigation de la plateforme",
+    "signOut": "Se déconnecter",
+    "operator": "Opérateur",
+    "platform": "Plateforme",
+    "nav": {
+      "overview": "Vue d’ensemble",
+      "applications": "Candidatures",
+      "schools": "Écoles",
+      "contracts": "Contrats",
+      "revenue": "Revenus",
+      "expenses": "Dépenses",
+      "support": "Assistance",
+      "activity": "Activité",
+      "health": "Santé",
+      "operators": "Opérateurs"
+    },
+    "roles": {
+      "support": "Assistance",
+      "commercial": "Commercial",
+      "operations": "Exploitation"
+    },
+    "mfaTitle": "La double authentification n’est pas encore configurée",
+    "mfaBody": "Votre compte a le rôle Exploitation : la création, la restriction et la suspension d’écoles restent fermées tant que vous ne l’avez pas activée. Configurez-la sous <ops>Opérateurs</ops>.",
+    "titles": {
+      "overview": "Vue d’ensemble",
+      "applications": "Candidatures",
+      "schools": "Écoles",
+      "contracts": "Contrats",
+      "revenue": "Revenus",
+      "expenses": "Dépenses",
+      "support": "Assistance",
+      "activity": "Activité",
+      "health": "Santé",
+      "operators": "Opérateurs"
+    },
+    "subtitles": {
+      "overview": "Votre plateforme en un coup d’œil",
+      "applications": "Écoles qui demandent à rejoindre Imboni",
+      "schools": "Toutes les écoles clientes",
+      "contracts": "Les accords et leur cycle de vie",
+      "revenue": "Paiements reçus des écoles",
+      "expenses": "Services et factures que vous payez",
+      "support": "Tickets ouverts par les écoles",
+      "activity": "Qui a fait quoi, au-dessus des écoles",
+      "health": "État de santé de tout Imboni",
+      "operators": "Qui travaille ici et ce qu’ils peuvent faire"
+    }
+  },
+  "login": {
+    "logoAlt": "Imboni",
+    "twoFactorTitle": "Code à deux facteurs",
+    "twoFactorIntro": "Ouvrez votre application d’authentification pour {{email}}",
+    "codeLabel": "Code à 6 chiffres",
+    "verify": "Vérifier et se connecter",
+    "checking": "Vérification…",
+    "back": "Retour",
+    "title": "Plateforme Imboni",
+    "subtitle": "Console opérateur pour toutes les écoles",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Saisissez votre mot de passe",
+    "togglePassword": "Afficher ou masquer le mot de passe",
+    "signIn": "Se connecter",
+    "signingIn": "Connexion…",
+    "note": "Réservé aux opérateurs de la plateforme Imboni. Le personnel des écoles se connecte à l’adresse propre de son école.",
+    "signInFailed": "Connexion impossible. Vérifiez vos identifiants.",
+    "codeWrong": "Ce code est incorrect. Essayez le code actuel."
+  },
+  "common": {
+    "refresh": "Actualiser",
+    "refreshing": "Actualisation…",
+    "view": "Voir",
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "none": "Aucun",
+    "status": {
+      "active": "Actif",
+      "trial": "Essai",
+      "past_due": "En retard",
+      "read_only": "Lecture seule",
+      "suspended": "Suspendu"
+    },
+    "plan": {
+      "free": "Gratuit",
+      "basic": "Basique",
+      "premium": "Premium"
+    },
+    "interval": {
+      "monthly": "Mensuel",
+      "quarterly": "Trimestriel",
+      "yearly": "Annuel",
+      "one_time": "Unique"
+    },
+    "actionFailed": "L’action a échoué."
+  },
+  "overview": {
+    "loadFailed": "Impossible de charger la vue d’ensemble.",
+    "loading": "Chargement de la vue d’ensemble…",
+    "moneyIn": "Entrées d’argent",
+    "totalRevenue": "Revenus totaux",
+    "payments": "{{count}} paiement(s)",
+    "receivedMonth": "Reçu ce mois-ci",
+    "moneyOut": "Sorties d’argent",
+    "billsDue": "Factures à payer",
+    "overdue": "En retard",
+    "due30": "À payer sous 30 jours",
+    "support": "Assistance",
+    "openTickets": "Tickets ouverts",
+    "ticketTrend": "{{open}} nouveaux · {{progress}} en cours"
+  },
+  "activity": {
+    "title": "Activité",
+    "recent": "{{count}} récent(s)",
+    "empty": "Rien d’enregistré pour l’instant. Les actions des opérateurs apparaissent ici au fur et à mesure.",
+    "loadFailed": "Impossible de charger le journal d’activité.",
+    "automatic": "Imboni (automatique)",
+    "filters": {
+      "all": "Tout",
+      "school": "Écoles",
+      "application": "Candidatures",
+      "contract": "Contrats",
+      "payment": "Paiements",
+      "ticket": "Assistance",
+      "operator": "Opérateurs"
+    },
+    "cols": {
+      "when": "Quand",
+      "who": "Qui",
+      "what": "Quoi",
+      "school": "École",
+      "detail": "Détail"
+    },
+    "actions": {
+      "school": {
+        "suspend": "A suspendu une école",
+        "restrict": "A mis une école en lecture seule",
+        "reactivate": "A réactivé une école",
+        "auto_suspend": "Suspendue automatiquement (contrat expiré)",
+        "auto_restrict": "Mise en lecture seule automatiquement (contrat en délai de grâce)",
+        "demo_expired": "Démonstration expirée",
+        "invitation_accepted": "Une école a accepté son invitation"
+      },
+      "application": {
+        "approved": "A approuvé une candidature",
+        "rejected": "A rejeté une candidature",
+        "provision": "A créé une école",
+        "resend_invitation": "A renvoyé une invitation"
+      },
+      "contract": {
+        "sign": "A signé un contrat",
+        "terminate": "A résilié un contrat",
+        "renew": "A renouvelé un contrat",
+        "create": "A rédigé un contrat"
+      },
+      "payment": {
+        "create": "A enregistré un paiement",
+        "delete": "A supprimé un paiement"
+      },
+      "expense": {
+        "create": "A enregistré une facture"
+      },
+      "ticket": {
+        "reply": "A répondu à un ticket",
+        "set_status": "A changé le statut d’un ticket"
+      },
+      "operator": {
+        "login": "Connexion",
+        "create": "A ajouté un opérateur",
+        "update": "A modifié un opérateur",
+        "mfa_enabled": "A activé la double authentification",
+        "mfa_failed": "Code à deux facteurs refusé",
+        "reset_mfa": "A réinitialisé la double authentification d’un opérateur"
+      }
+    }
+  },
+  "schools": {
+    "title": "Écoles",
+    "loading": "Chargement des écoles…",
+    "loadFailed": "Impossible de charger les écoles.",
+    "empty": "Aucune école pour l’instant. Créez-en une avec la commande <code>provision_school</code>.",
+    "cols": {
+      "school": "École",
+      "domain": "Domaine",
+      "plan": "Forfait",
+      "status": "Statut",
+      "students": "Élèves",
+      "staff": "Personnel",
+      "action": "Action"
+    },
+    "reactivate": "Réactiver",
+    "restrict": "Restreindre",
+    "suspend": "Suspendre",
+    "restrictHint": "La lecture et les exports continuent de fonctionner ; rien de nouveau ne peut être enregistré",
+    "confirmSuspend": "Suspendre {{name}} ? Personne dans l’école ne pourra se connecter. Pour faire pression sans fermer les portes, utilisez plutôt Restreindre.",
+    "done": {
+      "restrict": "{{name}} est maintenant en lecture seule.",
+      "suspend": "{{name}} suspendue.",
+      "reactivate": "{{name}} réactivée."
+    },
+    "failed": {
+      "restrict": "Impossible de restreindre {{name}}.",
+      "suspend": "Impossible de suspendre {{name}}.",
+      "reactivate": "Impossible de réactiver {{name}}."
+    }
+  },
+  "applications": {
+    "title": "Candidatures d’écoles",
+    "loadFailed": "Impossible de charger les candidatures.",
+    "empty": "Aucune candidature. Les écoles intéressées postulent sur <code>/apply</code>.",
+    "filterLabel": "Filtrer par statut",
+    "open": "Ouvrir",
+    "status": {
+      "all": "Toutes",
+      "pending": "En attente",
+      "approved": "Approuvée",
+      "provisioned": "Créée",
+      "rejected": "Rejetée"
+    },
+    "cols": {
+      "school": "École",
+      "address": "Adresse",
+      "contact": "Contact",
+      "received": "Reçue",
+      "status": "Statut",
+      "review": "Examen"
+    },
+    "fields": {
+      "address": "Adresse souhaitée",
+      "contact": "Contact",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "location": "Lieu",
+      "students": "Élèves (estimation)",
+      "plan": "Forfait envisagé",
+      "loginUrl": "URL de connexion",
+      "sentTo": "Invitation envoyée à"
+    },
+    "reject": "Rejeter",
+    "approve": "Approuver",
+    "provision": "Créer l’école",
+    "provisioning": "Création…",
+    "resend": "Renvoyer l’invitation",
+    "sending": "Envoi…",
+    "rejected": "Candidature rejetée.",
+    "approved": "Candidature approuvée.",
+    "provisioned": "École créée. Invitation envoyée.",
+    "resent": "Une nouvelle invitation est en route.",
+    "deliveredNote": "École créée. Nous lui avons envoyé par e-mail un lien pour choisir son propre mot de passe.",
+    "undeliveredNote": "École créée, mais l’e-mail d’invitation n’a pas pu être envoyé.",
+    "linkHint": "Le lien ne fonctionne qu’une fois et expire. Personne ne peut se connecter avant de l’ouvrir, donc vous n’avez rien à transmettre.",
+    "mailRefused": "Le serveur de messagerie l’a refusé.",
+    "resendHint": "Utilisez Renvoyer l’invitation une fois qu’il fonctionne.",
+    "notes": "Notes d’examen",
+    "notesPlaceholder": "Notes facultatives…",
+    "wasRejected": "Cette candidature a été rejetée."
+  },
+  "contracts": {
+    "title": "Contrats",
+    "newContract": "+ Nouveau contrat",
+    "newTitle": "Nouveau contrat",
+    "loadFailed": "Impossible de charger les contrats.",
+    "pickSchool": "Choisissez une école pour le contrat.",
+    "created": "Contrat créé (brouillon). Signez-le pour l’activer.",
+    "createFailed": "Impossible de créer le contrat.",
+    "deleted": "Contrat supprimé.",
+    "deleteFailed": "Impossible de supprimer le contrat.",
+    "signed": "Contrat signé et actif.",
+    "renewed": "Contrat renouvelé.",
+    "terminated": "Contrat résilié.",
+    "empty": "Aucun contrat pour l’instant. Créez-en un et signez-le pour suivre son cycle de vie.",
+    "create": "Créer le contrat",
+    "saving": "Enregistrement…",
+    "form": {
+      "school": "École",
+      "select": "Choisir",
+      "title": "Titre",
+      "titlePlaceholder": "2026 Annuel, Basique",
+      "plan": "Forfait",
+      "amount": "Montant",
+      "currency": "Devise",
+      "billing": "Facturation",
+      "start": "Début",
+      "end": "Fin",
+      "grace": "Délai de grâce (jours)"
+    },
+    "cols": {
+      "school": "École",
+      "contract": "Contrat",
+      "amount": "Montant",
+      "term": "Durée",
+      "remaining": "Restant",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "sign": "Signer",
+    "renew": "Renouveler",
+    "terminate": "Résilier",
+    "delete": "Supprimer",
+    "chip": {
+      "expired_grace": "Expiré (délai de grâce)",
+      "expiring": "Expire bientôt",
+      "draft": "Brouillon",
+      "active": "Actif",
+      "expired": "Expiré",
+      "terminated": "Résilié"
+    },
+    "endsToday": "Se termine aujourd’hui",
+    "daysLeft_one": "{{count}} jour restant",
+    "daysLeft_other": "{{count}} jours restants",
+    "daysOverdue_one": "{{count}} jour de retard",
+    "daysOverdue_other": "{{count}} jours de retard"
+  },
+  "expenses": {
+    "title": "Services et factures",
+    "add": "+ Ajouter une facture",
+    "addTitle": "Ajouter une facture",
+    "loadFailed": "Impossible de charger les dépenses.",
+    "added": "Facture ajoutée.",
+    "addFailed": "Impossible d’ajouter la facture.",
+    "paid": "{{name}} marquée comme payée.",
+    "updateFailed": "Impossible de mettre à jour la facture.",
+    "removed": "Facture supprimée.",
+    "removeFailed": "Impossible de supprimer la facture.",
+    "empty": "Aucune facture suivie pour l’instant. Ajoutez les services que vous payez pour voir les montants à venir et en retard.",
+    "save": "Enregistrer la facture",
+    "saving": "Enregistrement…",
+    "form": {
+      "name": "Nom",
+      "namePlaceholder": "ex. hébergement AWS",
+      "vendor": "Fournisseur",
+      "vendorPlaceholder": "ex. Amazon",
+      "category": "Catégorie",
+      "amount": "Montant",
+      "currency": "Devise",
+      "recurrence": "Récurrence",
+      "due": "Date d’échéance"
+    },
+    "categories": {
+      "hosting": "Hébergement / Infrastructure",
+      "payments": "Traitement des paiements",
+      "domain": "Domaine / DNS",
+      "email": "E-mail / Messagerie",
+      "saas": "SaaS / Outils",
+      "other": "Autre"
+    },
+    "cols": {
+      "service": "Service",
+      "vendor": "Fournisseur",
+      "amount": "Montant",
+      "recurs": "Récurrence",
+      "due": "Échéance",
+      "status": "Statut",
+      "action": "Action"
+    },
+    "chip": {
+      "paid": "Payée",
+      "overdue": "En retard",
+      "due": "À payer"
+    },
+    "markPaid": "Marquer payée",
+    "delete": "Supprimer"
+  },
+  "revenue": {
+    "totalReceived": "Total reçu",
+    "thisMonth": "Ce mois-ci",
+    "title": "Paiements reçus",
+    "record": "+ Enregistrer un paiement",
+    "recordTitle": "Enregistrer un paiement",
+    "loadFailed": "Impossible de charger les revenus.",
+    "recorded": "Paiement enregistré.",
+    "recordFailed": "Impossible d’enregistrer le paiement.",
+    "removed": "Paiement supprimé.",
+    "removeFailed": "Impossible de supprimer le paiement.",
+    "empty": "Aucun paiement pour l’instant. Ils apparaîtront automatiquement quand Stripe sera actif, ou enregistrez-en un manuellement.",
+    "save": "Enregistrer le paiement",
+    "saving": "Enregistrement…",
+    "form": {
+      "school": "École",
+      "select": "Choisir",
+      "amount": "Montant",
+      "currency": "Devise",
+      "plan": "Forfait",
+      "status": "Statut",
+      "date": "Date"
+    },
+    "status": {
+      "succeeded": "Réussi",
+      "pending": "En attente",
+      "failed": "Échoué",
+      "refunded": "Remboursé"
+    },
+    "cols": {
+      "date": "Date",
+      "school": "École",
+      "plan": "Forfait",
+      "amount": "Montant",
+      "status": "Statut",
+      "action": "Action"
+    },
+    "delete": "Supprimer"
+  },
+  "health": {
+    "checking": "Vérification de l’état…",
+    "loadFailed": "Impossible de charger l’état.",
+    "infrastructure": "Infrastructure",
+    "operational": "Opérationnel",
+    "down": "Hors service",
+    "schools": "Écoles",
+    "total": "Total",
+    "active": "Actives",
+    "trial": "En essai",
+    "suspended": "Suspendues",
+    "pastDue": "En retard",
+    "queue": "File de création",
+    "pending": "En attente",
+    "failed": "Échouées",
+    "attention": "À surveiller",
+    "applicationsPending": "Candidatures en attente",
+    "expiring30": "Contrats expirant (30 j)",
+    "inGrace": "Contrats en délai de grâce",
+    "billsOverdue": "Factures en retard",
+    "ticketsUnresolved": "Tickets non résolus"
+  },
+  "operators": {
+    "roles": {
+      "support": {
+        "label": "Assistance",
+        "blurb": "Répondre aux tickets et consulter une école. Ne peut modifier ni l’argent ni l’infrastructure."
+      },
+      "commercial": {
+        "label": "Commercial",
+        "blurb": "Contrats, paiements et forfaits, plus tout ce que peut faire l’Assistance."
+      },
+      "operations": {
+        "label": "Exploitation",
+        "blurb": "Créer, restreindre et suspendre des écoles, et gérer les opérateurs. Exige la double authentification."
+      }
+    },
+    "loadFailed": "Impossible de charger la liste des opérateurs.",
+    "setupFailed": "Impossible de démarrer la configuration de la double authentification.",
+    "mfaOn": "La double authentification est activée. Vos outils d’exploitation sont déverrouillés.",
+    "codeWrong": "Ce code est incorrect. Essayez le code actuel.",
+    "added": "Opérateur ajouté.",
+    "addFailed": "Impossible d’ajouter l’opérateur.",
+    "roleChanged": "{{email}} est maintenant {{role}}.",
+    "roleFailed": "Impossible de changer le rôle.",
+    "accountFailed": "Impossible de modifier le compte.",
+    "mfaReset": "{{email}} peut enregistrer un nouvel appareil.",
+    "mfaResetFailed": "Impossible de réinitialiser la double authentification.",
+    "yourMfa": "Votre double authentification",
+    "on": "Activée",
+    "off": "Désactivée",
+    "mfaOnNote": "Votre compte demande un code de votre application d’authentification à chaque connexion.",
+    "mfaOpsNote": "Votre compte a le rôle Exploitation : la création, la restriction et la suspension restent fermées tant que vous n’avez pas activé un second facteur.",
+    "mfaOtherNote": "Ajoutez un second facteur pour qu’un mot de passe volé ne suffise pas à accéder à la console.",
+    "setUp": "Configurer la double authentification",
+    "cancel": "Annuler",
+    "checking": "Vérification…",
+    "turnOn": "L’activer",
+    "setupIntro": "Ajoutez cette clé à votre application d’authentification, puis saisissez le code qu’elle affiche.",
+    "code": "Code à 6 chiffres",
+    "managedByOps": "La liste des opérateurs est gérée par l’Exploitation. Demandez-leur d’ajouter ou de modifier un compte.",
+    "title": "Opérateurs",
+    "add": "+ Ajouter un opérateur",
+    "addTitle": "Ajouter un opérateur",
+    "saving": "Enregistrement…",
+    "addSubmit": "Ajouter l’opérateur",
+    "form": {
+      "email": "E-mail",
+      "name": "Nom",
+      "role": "Rôle",
+      "password": "Mot de passe"
+    },
+    "cols": {
+      "operator": "Opérateur",
+      "role": "Rôle",
+      "mfa": "Double authentification",
+      "lastSeen": "Dernière connexion",
+      "action": "Action"
+    },
+    "disabled": "Désactivé",
+    "reset": "Réinitialiser la 2FA",
+    "disable": "Désactiver",
+    "enable": "Activer",
+    "roleOf": "Rôle de {{email}}"
+  },
+  "tickets": {
+    "title": "Assistance",
+    "loadFailed": "Impossible de charger les tickets.",
+    "openFailed": "Impossible d’ouvrir le ticket.",
+    "replySent": "Réponse envoyée.",
+    "replyFailed": "Impossible d’envoyer la réponse.",
+    "marked": "Marqué {{status}}.",
+    "statusFailed": "Impossible de changer le statut.",
+    "none": "Aucun ticket.",
+    "select": "Sélectionnez un ticket pour voir la conversation.",
+    "filterLabel": "Filtrer par statut",
+    "writeReply": "Écrire une réponse…",
+    "sendReply": "Envoyer la réponse",
+    "resolve": "Résoudre",
+    "close": "Fermer",
+    "reopen": "Rouvrir",
+    "filters": {
+      "all": "Tous",
+      "open": "Ouverts",
+      "in_progress": "En cours",
+      "resolved": "Résolus",
+      "closed": "Fermés"
+    },
+    "status": {
+      "open": "ouvert",
+      "in_progress": "en cours",
+      "resolved": "résolu",
+      "closed": "fermé"
+    },
+    "priority": {
+      "low": "faible",
+      "normal": "normale",
+      "high": "élevée",
+      "urgent": "urgente"
+    },
+    "replies_one": "{{count}} réponse",
+    "replies_other": "{{count}} réponses",
+    "school": "École",
+    "you": "Vous",
+    "ctx": {
+      "loading": "Chargement de l’école…",
+      "gone": "Cette école n’existe plus.",
+      "plan": "Forfait",
+      "demo": " (démo)",
+      "standing": "Situation",
+      "students": "Élèves",
+      "staff": "Personnel",
+      "contract": "Contrat",
+      "lastPayment": "Dernier paiement",
+      "lastLogin": "Dernière connexion du personnel",
+      "openTickets": "Tickets ouverts",
+      "never": "jamais",
+      "noLimit": "{{used}} (sans limite)",
+      "usedOf": "{{used}} sur {{limit}}",
+      "contractEnds": "se termine le {{date}} ({{days}} jours)",
+      "noContract": "aucun actif",
+      "paid": "{{currency}} {{amount}}, il y a {{days}} jours",
+      "none": "aucun",
+      "neverSetPassword": "Cette école n’a jamais défini de mot de passe. Son invitation {{state}} -- renvoyez-la depuis Candidatures.",
+      "inviteIs": "est {{state}}",
+      "inviteNever": "n’a jamais été envoyée",
+      "uncovered": "Aucun contrat actif ne couvre cette école.",
+      "unreachable": "Les données de cette école n’ont pas pu être lues. Vérifiez l’état avant de répondre."
+    }
+  },
+  "schoolModal": {
+    "fallbackTitle": "École",
+    "loadFailed": "Impossible de charger l’école.",
+    "updateFailed": "Impossible de mettre à jour l’école.",
+    "moduleFailed": "Impossible de modifier les modules.",
+    "suspended": "{{name}} suspendue.",
+    "reactivated": "{{name}} réactivée.",
+    "moduleOn": "{{module}} activé pour {{name}}.",
+    "moduleOff": "{{module}} désactivé pour {{name}}.",
+    "supportOpened": "Session en lecture seule pendant {{minutes}} minutes, en tant que {{as}}. L’école peut le voir dans son journal d’audit.",
+    "supportFailed": "Impossible d’ouvrir la session d’assistance.",
+    "reactivate": "Réactiver",
+    "suspend": "Suspendre",
+    "domain": "Domaine",
+    "plan": "Forfait",
+    "created": "Créée",
+    "students": "Élèves",
+    "staff": "Personnel",
+    "supportTitle": "Session d’assistance",
+    "supportOpen": "Ouvrir une vue en lecture seule en tant qu’administrateur de l’école",
+    "supportNote": "Lecture seule, limitée dans le temps et enregistrée : l’école voit le motif dans son propre journal d’audit.",
+    "why": "Pourquoi devez-vous consulter ?",
+    "minutes": "Minutes (5 à 30)",
+    "openSession": "Ouvrir la session",
+    "cancel": "Annuler",
+    "modulesTitle": "Modules",
+    "modulesNote": "Désactivez ce que cette école n’utilise pas. Rien n’est supprimé ; le réactiver le restaure.",
+    "modules": {
+      "boarding": {
+        "label": "Internat",
+        "note": "Dortoirs, sorties exéat et plans de restauration"
+      },
+      "matron": {
+        "label": "Infirmerie",
+        "note": "Infirmerie, médicaments et appels aux parents"
+      },
+      "library": {
+        "label": "Bibliothèque",
+        "note": "Catalogue, prêts et amendes"
+      }
+    },
+    "contracts": "Contrats",
+    "noContracts": "Aucun contrat.",
+    "payments": "Paiements récents",
+    "noPayments": "Aucun paiement.",
+    "tickets": "Tickets",
+    "noTickets": "Aucun ticket."
+  }
+}

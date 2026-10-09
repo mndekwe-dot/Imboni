@@ -17,6 +17,7 @@ import messaging from './messaging.json'
 import modals from './modals.json'
 import nav from './nav.json'
 import parent from './parent.json'
+import platform from './platform.json'
 import portal from './portal.json'
 import portalLogin from './portalLogin.json'
 import privacy from './privacy.json'
@@ -59,6 +60,7 @@ export default {
     modals,
     nav,
     parent,
+    platform,
     portal,
     portalLogin,
     privacy,

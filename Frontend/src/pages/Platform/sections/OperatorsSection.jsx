@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../../../components/ui/Modal'
 import {
     confirmMfaSetup, createOperator, getOperators, getPlatformMe, operatorCan,
@@ -9,13 +10,10 @@ import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { SkeletonList } from '../../../components/ui/Skeleton'
 
-// What each role may do, in the operator's own words. Shown next to the picker
-// because "commercial" means nothing until you say what it costs and grants.
-const ROLES = [
-    { value: 'support',    label: 'Support',    blurb: 'Answer tickets and read a school. Cannot change money or infrastructure.' },
-    { value: 'commercial', label: 'Commercial', blurb: 'Contracts, payments and plans, plus everything Support can do.' },
-    { value: 'operations', label: 'Operations', blurb: 'Provision, restrict and suspend schools, and manage operators. Requires two-factor.' },
-]
+// What each role may do, in the operator's own words (see the `blurb` strings).
+// Shown next to the picker because "commercial" means nothing until you say
+// what it costs and grants.
+const ROLES = ['support', 'commercial', 'operations']
 
 const emptyForm = () => ({ email: '', name: '', role: 'support', password: '' })
 
@@ -29,9 +27,12 @@ const emptyForm = () => ({ email: '', name: '', role: 'support', password: '' })
  * able to reach its own enrolment.
  */
 export function OperatorsSection() {
+    const { t } = useTranslation()
     const toast = useToast()
     const me = platformUser()
     const canManage = operatorCan('operations')
+    const o = key => t(`platform.operators.${key}`)
+    const roleLabel = r => t(`platform.operators.roles.${r}.label`, { defaultValue: r })
 
     const [operators, setOperators] = useState([])
     const [loading, setLoading] = useState(true)
@@ -49,11 +50,11 @@ export function OperatorsSection() {
         try {
             setOperators(await getOperators())
         } catch (e) {
-            toast.error(errorMessage(e, 'Could not load the operator list.'))
+            toast.error(errorMessage(e, t('platform.operators.loadFailed')))
         } finally {
             setLoading(false)
         }
-    }, [toast, canManage])
+    }, [toast, canManage, t])
 
     useEffect(() => { load() }, [load])
 
@@ -62,7 +63,7 @@ export function OperatorsSection() {
     async function beginSetup() {
         try {
             setSetup(await startMfaSetup())
-        } catch (e) { toast.error(errorMessage(e, 'Could not start two-factor setup.')) }
+        } catch (e) { toast.error(errorMessage(e, o('setupFailed'))) }
     }
 
     async function finishSetup(e) {
@@ -79,9 +80,9 @@ export function OperatorsSection() {
                 user: fresh,
             })
             setSetup(null); setCode('')
-            toast.success('Two-factor is on. Your operations tools are unlocked.')
+            toast.success(o('mfaOn'))
         } catch (err) {
-            toast.error(errorMessage(err, 'That code is not right. Try the current one.'))
+            toast.error(errorMessage(err, o('codeWrong')))
         } finally { setSaving(false) }
     }
 
@@ -90,34 +91,34 @@ export function OperatorsSection() {
         setSaving(true)
         try {
             await createOperator(form)
-            toast.success('Operator added.')
+            toast.success(o('added'))
             setForm(emptyForm()); setAdding(false)
             load()
-        } catch (err) { toast.error(errorMessage(err, 'Could not add the operator.')) }
+        } catch (err) { toast.error(errorMessage(err, o('addFailed'))) }
         finally { setSaving(false) }
     }
 
     async function changeRole(operator, role) {
         try {
             await updateOperator(operator.id, { role })
-            toast.success(`${operator.email} is now ${role}.`)
+            toast.success(t('platform.operators.roleChanged', { email: operator.email, role: roleLabel(role) }))
             load()
-        } catch (e) { toast.error(errorMessage(e, 'Could not change the role.')) }
+        } catch (e) { toast.error(errorMessage(e, o('roleFailed'))) }
     }
 
     async function toggleActive(operator) {
         try {
             await updateOperator(operator.id, { is_active: !operator.is_active })
             load()
-        } catch (e) { toast.error(errorMessage(e, 'Could not change the account.')) }
+        } catch (e) { toast.error(errorMessage(e, o('accountFailed'))) }
     }
 
     async function clearMfa(operator) {
         try {
             await resetOperatorMfa(operator.id)
-            toast.success(`${operator.email} can enrol a new device.`)
+            toast.success(t('platform.operators.mfaReset', { email: operator.email }))
             load()
-        } catch (e) { toast.error(errorMessage(e, 'Could not reset two-factor.')) }
+        } catch (e) { toast.error(errorMessage(e, o('mfaResetFailed'))) }
     }
 
     return (
@@ -126,47 +127,41 @@ export function OperatorsSection() {
             <div className="card pf-mb">
                 <div className="card-content">
                     <div className="platform-panel-head">
-                        <h2>Your two-factor</h2>
+                        <h2>{o('yourMfa')}</h2>
                         <span className={`platform-chip platform-chip-${me?.mfa_enabled ? 'ok' : 'warn'}`}>
-                            {me?.mfa_enabled ? 'On' : 'Off'}
+                            {me?.mfa_enabled ? o('on') : o('off')}
                         </span>
                     </div>
 
                     {me?.mfa_enabled ? (
-                        <p className="platform-muted">
-                            Your account asks for a code from your authenticator app at every sign-in.
-                        </p>
+                        <p className="platform-muted">{o('mfaOnNote')}</p>
                     ) : (
                         <>
                             <p className="platform-muted pf-mb">
-                                {me?.role === 'operations'
-                                    ? 'Your account holds the Operations role, so provisioning, restricting and suspending stay closed until you enrol a second factor.'
-                                    : 'Add a second factor so a stolen password is not enough to reach the console.'}
+                                {me?.role === 'operations' ? o('mfaOpsNote') : o('mfaOtherNote')}
                             </p>
                             <button className="btn btn-primary btn-sm" onClick={beginSetup}>
-                                Set up two-factor
+                                {o('setUp')}
                             </button>
                         </>
                     )}
 
                     {setup && (
-                        <Modal title="Set up two-factor" icon="lock" onClose={() => setSetup(null)} footer={
+                        <Modal title={o('setUp')} icon="lock" onClose={() => setSetup(null)} footer={
                             <>
-                                <button className="btn btn-outline" onClick={() => setSetup(null)}>Cancel</button>
+                                <button className="btn btn-outline" onClick={() => setSetup(null)}>{o('cancel')}</button>
                                 <button type="submit" form="mfa-form" className="btn btn-primary" disabled={saving}>
-                                    {saving ? 'Checking…' : 'Turn it on'}
+                                    {saving ? o('checking') : o('turnOn')}
                                 </button>
                             </>
                         }>
-                            <p className="platform-muted">
-                                Add this key to your authenticator app, then type the code it shows.
-                            </p>
+                            <p className="platform-muted">{o('setupIntro')}</p>
                             {/* The secret in text as well as the URI: not every
                                 operator can scan a QR from the machine they are
                                 signed in on. */}
                             <p className="platform-strong pf-mono">{setup.secret}</p>
                             <form id="mfa-form" onSubmit={finishSetup}>
-                                <label>6-digit code
+                                <label>{o('code')}
                                     <input className="form-input" inputMode="numeric" required autoFocus
                                            value={code} onChange={e => setCode(e.target.value)}
                                            placeholder="000000" />
@@ -181,53 +176,49 @@ export function OperatorsSection() {
             {!canManage ? (
                 <div className="card">
                     <div className="card-content">
-                        <p className="platform-muted">
-                            The operator list is managed by Operations. Ask them to add or change an account.
-                        </p>
+                        <p className="platform-muted">{o('managedByOps')}</p>
                     </div>
                 </div>
             ) : (
                 <div className="card">
                     <div className="card-content">
                         <div className="platform-panel-head">
-                            <h2>Operators</h2>
+                            <h2>{o('title')}</h2>
                             <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>
-                                + Add operator
+                                {o('add')}
                             </button>
                         </div>
 
                         {adding && (
-                            <Modal title="Add an operator" icon="person_add" size="lg" onClose={() => setAdding(false)} footer={
+                            <Modal title={o('addTitle')} icon="person_add" size="lg" onClose={() => setAdding(false)} footer={
                                 <>
-                                    <button className="btn btn-outline" onClick={() => setAdding(false)}>Cancel</button>
+                                    <button className="btn btn-outline" onClick={() => setAdding(false)}>{o('cancel')}</button>
                                     <button type="submit" form="operator-form" className="btn btn-primary" disabled={saving}>
-                                        {saving ? 'Saving…' : 'Add operator'}
+                                        {saving ? o('saving') : o('addSubmit')}
                                     </button>
                                 </>
                             }>
                                 <form id="operator-form" className="platform-form-grid" onSubmit={submit}>
-                                    <label>Email
+                                    <label>{o('form.email')}
                                         <input className="form-input" type="email" required
                                                value={form.email} onChange={e => set('email', e.target.value)} />
                                     </label>
-                                    <label>Name
+                                    <label>{o('form.name')}
                                         <input className="form-input" value={form.name}
                                                onChange={e => set('name', e.target.value)} />
                                     </label>
-                                    <label>Role
+                                    <label>{o('form.role')}
                                         <select className="form-input" value={form.role}
                                                 onChange={e => set('role', e.target.value)}>
-                                            {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                                            {ROLES.map(r => <option key={r} value={r}>{roleLabel(r)}</option>)}
                                         </select>
                                     </label>
-                                    <label>Password
+                                    <label>{o('form.password')}
                                         <input className="form-input" type="password" minLength={10} required
                                                autoComplete="new-password"
                                                value={form.password} onChange={e => set('password', e.target.value)} />
                                     </label>
-                                    <p className="platform-muted">
-                                        {ROLES.find(r => r.value === form.role)?.blurb}
-                                    </p>
+                                    <p className="platform-muted">{o(`roles.${form.role}.blurb`)}</p>
                                 </form>
                             </Modal>
                         )}
@@ -238,7 +229,10 @@ export function OperatorsSection() {
                             <div className="data-table-wrap">
                                 <table className="data-table">
                                     <thead>
-                                        <tr><th>Operator</th><th>Role</th><th>Two-factor</th><th>Last seen</th><th className="platform-col-action">Action</th></tr>
+                                        <tr>
+                                            <th>{o('cols.operator')}</th><th>{o('cols.role')}</th><th>{o('cols.mfa')}</th>
+                                            <th>{o('cols.lastSeen')}</th><th className="platform-col-action">{o('cols.action')}</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         {operators.map(op => (
@@ -246,20 +240,21 @@ export function OperatorsSection() {
                                                 <td>
                                                     <span className="platform-strong">{op.email}</span>
                                                     {!op.is_active && (
-                                                        <span className="platform-chip platform-chip-bad pf-ml">Disabled</span>
+                                                        <span className="platform-chip platform-chip-bad pf-ml">{o('disabled')}</span>
                                                     )}
                                                 </td>
                                                 <td>
                                                     <select className="form-input" value={op.role}
+                                                            aria-label={t('platform.operators.roleOf', { email: op.email })}
                                                             onChange={e => changeRole(op, e.target.value)}>
                                                         {ROLES.map(r => (
-                                                            <option key={r.value} value={r.value}>{r.label}</option>
+                                                            <option key={r} value={r}>{roleLabel(r)}</option>
                                                         ))}
                                                     </select>
                                                 </td>
                                                 <td>
                                                     <span className={`platform-chip platform-chip-${op.mfa_enabled ? 'ok' : 'warn'}`}>
-                                                        {op.mfa_enabled ? 'On' : 'Off'}
+                                                        {op.mfa_enabled ? o('on') : o('off')}
                                                     </span>
                                                 </td>
                                                 <td>{op.last_login ? new Date(op.last_login).toLocaleString() : '-'}</td>
@@ -267,12 +262,12 @@ export function OperatorsSection() {
                                                     {op.mfa_enabled && (
                                                         <button className="btn btn-outline btn-sm"
                                                                 onClick={() => clearMfa(op)}>
-                                                            Reset 2FA
+                                                            {o('reset')}
                                                         </button>
                                                     )}
                                                     <button className="btn btn-outline btn-sm pf-ml"
                                                             onClick={() => toggleActive(op)}>
-                                                        {op.is_active ? 'Disable' : 'Enable'}
+                                                        {op.is_active ? o('disable') : o('enable')}
                                                     </button>
                                                 </td>
                                             </tr>

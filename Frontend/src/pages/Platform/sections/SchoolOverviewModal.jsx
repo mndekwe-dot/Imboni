@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../../../components/ui/Modal'
 import { getSchoolOverview, suspendSchool, reactivateSchool, setSchoolModules, openSupportSession } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
@@ -10,11 +11,7 @@ const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined
 const num = v => (v === null || v === undefined ? '-' : v)
 
 // The parts of the product an operator can switch off for one school.
-const MODULES = [
-    { key: 'boarding', label: 'Boarding', note: 'Dormitories, exeat passes and dining plans' },
-    { key: 'matron',   label: 'Infirmary', note: 'Sick bay, medication and parent calls' },
-    { key: 'library',  label: 'Library',  note: 'Catalogue, loans and fines' },
-]
+const MODULE_KEYS = ['boarding', 'matron', 'library']
 
 function Field({ label, value, capitalize }) {
     return (
@@ -26,19 +23,22 @@ function Field({ label, value, capitalize }) {
 }
 
 export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [data, setData]   = useState(null)
     const [loading, setLoading] = useState(true)
     const [busy, setBusy]   = useState(false)
+    const m = key => t(`platform.schoolModal.${key}`)
+    const moduleLabel = key => t(`platform.schoolModal.modules.${key}.label`)
 
     useEffect(() => {
         let alive = true
         getSchoolOverview(schoolId)
             .then(d => { if (alive) setData(d) })
-            .catch(e => { if (alive) toast.error(errorMessage(e, 'Could not load the school.')) })
+            .catch(e => { if (alive) toast.error(errorMessage(e, t('platform.schoolModal.loadFailed'))) })
             .finally(() => { if (alive) setLoading(false) })
         return () => { alive = false }
-    }, [schoolId, toast])
+    }, [schoolId, toast, t])
 
     async function toggleStatus() {
         const s = data.school
@@ -48,8 +48,8 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
             const updated = await (suspend ? suspendSchool(s.id) : reactivateSchool(s.id))
             setData(d => ({ ...d, school: { ...d.school, ...updated } }))
             onStatusChange?.(updated)
-            toast.success(`${s.name} ${suspend ? 'suspended' : 'reactivated'}.`)
-        } catch (e) { toast.error(errorMessage(e, 'Could not update the school.')) }
+            toast.success(t(`platform.schoolModal.${suspend ? 'suspended' : 'reactivated'}`, { name: s.name }))
+        } catch (e) { toast.error(errorMessage(e, m('updateFailed'))) }
         finally { setBusy(false) }
     }
 
@@ -59,10 +59,10 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
         if (on) off.delete(key); else off.add(key)
         setBusy(true)
         try {
-            const updated = await setSchoolModules(s.id, MODULES.map(m => m.key).filter(k => off.has(k)))
+            const updated = await setSchoolModules(s.id, MODULE_KEYS.filter(k => off.has(k)))
             setData(d => ({ ...d, school: { ...d.school, ...updated } }))
-            toast.success(`${MODULES.find(m => m.key === key).label} switched ${on ? 'on' : 'off'} for ${s.name}.`)
-        } catch (e) { toast.error(errorMessage(e, 'Could not change the modules.')) }
+            toast.success(t(`platform.schoolModal.${on ? 'moduleOn' : 'moduleOff'}`, { module: moduleLabel(key), name: s.name }))
+        } catch (e) { toast.error(errorMessage(e, m('moduleFailed'))) }
         finally { setBusy(false) }
     }
 
@@ -75,16 +75,17 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
             const out = await openSupportSession(data.school.id, support.reason, Number(support.minutes))
             // The token is in the fragment of this URL; it never goes to a server in transit.
             window.open(out.url, '_blank', 'noopener')
-            toast.success(`Read-only session for ${out.minutes} minutes, as ${out.as}. The school can see this in its audit log.`)
+            toast.success(t('platform.schoolModal.supportOpened', { minutes: out.minutes, as: out.as }))
             setSupport(null)
-        } catch (err) { toast.error(errorMessage(err, 'Could not open the support session.')) }
+        } catch (err) { toast.error(errorMessage(err, m('supportFailed'))) }
         finally { setBusy(false) }
     }
 
     const s = data?.school
+    const statusWord = x => String(x).replace('_', ' ')
 
     return (
-        <Modal title={s?.name || 'School'} icon="apartment" onClose={onClose} size="lg">
+        <Modal title={s?.name || m('fallbackTitle')} icon="apartment" onClose={onClose} size="lg">
             {loading || !s ? (
                 <SkeletonList items={3} />
             ) : (
@@ -95,76 +96,76 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
                             className={`btn btn-sm pf-right ${s.status === 'suspended' ? 'btn-primary' : 'btn-outline platform-danger'}`}
                             disabled={busy} onClick={toggleStatus}
                         >
-                            {busy ? '…' : s.status === 'suspended' ? 'Reactivate' : 'Suspend'}
+                            {busy ? '…' : s.status === 'suspended' ? m('reactivate') : m('suspend')}
                         </button>
                     </div>
 
                     <div className="pf-grid pf-mb">
-                        <Field label="Domain" value={s.primary_domain || s.schema_name} />
-                        <Field label="Plan" value={s.plan} capitalize />
-                        <Field label="Created" value={s.created_on} />
-                        <Field label="Students" value={num(s.usage?.students)} />
-                        <Field label="Staff" value={num(s.usage?.staff)} />
+                        <Field label={m('domain')} value={s.primary_domain || s.schema_name} />
+                        <Field label={m('plan')} value={t(`platform.common.plan.${s.plan}`, { defaultValue: s.plan })} capitalize />
+                        <Field label={m('created')} value={s.created_on} />
+                        <Field label={m('students')} value={num(s.usage?.students)} />
+                        <Field label={m('staff')} value={num(s.usage?.staff)} />
                     </div>
 
-                    <p className="platform-section-title">Support session</p>
+                    <p className="platform-section-title">{m('supportTitle')}</p>
                     {!support ? (
                         <button className="btn btn-outline btn-sm pf-mb" onClick={() => setSupport({ reason: '', minutes: 20 })}>
-                            Open a read-only view as the school administrator
+                            {m('supportOpen')}
                         </button>
                     ) : (
                         <form className="pf-mb" onSubmit={startSupport}>
-                            <p className="platform-muted">Read-only, time-limited, and recorded: the school sees the reason in its own audit log.</p>
+                            <p className="platform-muted">{m('supportNote')}</p>
                             <label className="form-group">
-                                <span className="form-label">Why do you need to look?</span>
+                                <span className="form-label">{m('why')}</span>
                                 <textarea className="form-input form-textarea" rows="2" required minLength={10} value={support.reason}
                                     onChange={e => setSupport(x => ({ ...x, reason: e.target.value }))} />
                             </label>
                             <label className="form-group">
-                                <span className="form-label">Minutes (5 to 30)</span>
+                                <span className="form-label">{m('minutes')}</span>
                                 <input className="form-input" type="number" min="5" max="30" value={support.minutes}
                                     onChange={e => setSupport(x => ({ ...x, minutes: e.target.value }))} />
                             </label>
-                            <button type="submit" className="btn btn-primary btn-sm" disabled={busy || support.reason.trim().length < 10}>Open session</button>
+                            <button type="submit" className="btn btn-primary btn-sm" disabled={busy || support.reason.trim().length < 10}>{m('openSession')}</button>
                             {' '}
-                            <button type="button" className="btn btn-outline btn-sm" onClick={() => setSupport(null)}>Cancel</button>
+                            <button type="button" className="btn btn-outline btn-sm" onClick={() => setSupport(null)}>{m('cancel')}</button>
                         </form>
                     )}
 
-                    <p className="platform-section-title">Modules</p>
-                    <p className="platform-muted pf-mb">Switch off what this school does not use. Nothing is deleted; switching it back on restores it.</p>
-                    {MODULES.map(m => {
-                        const on = !(s.disabled_modules || []).includes(m.key)
+                    <p className="platform-section-title">{m('modulesTitle')}</p>
+                    <p className="platform-muted pf-mb">{m('modulesNote')}</p>
+                    {MODULE_KEYS.map(key => {
+                        const on = !(s.disabled_modules || []).includes(key)
                         return (
-                            <label key={m.key} className="pf-list-row">
-                                <span>{m.label} <span className="platform-muted">{m.note}</span></span>
+                            <label key={key} className="pf-list-row">
+                                <span>{moduleLabel(key)} <span className="platform-muted">{t(`platform.schoolModal.modules.${key}.note`)}</span></span>
                                 <input type="checkbox" checked={on} disabled={busy}
-                                    aria-label={m.label} onChange={e => toggleModule(m.key, e.target.checked)} />
+                                    aria-label={moduleLabel(key)} onChange={e => toggleModule(key, e.target.checked)} />
                             </label>
                         )
                     })}
 
-                    <p className="platform-section-title">Contracts</p>
-                    {data.contracts.length === 0 ? <p className="platform-muted">No contracts.</p> : data.contracts.map(c => (
+                    <p className="platform-section-title">{m('contracts')}</p>
+                    {data.contracts.length === 0 ? <p className="platform-muted">{m('noContracts')}</p> : data.contracts.map(c => (
                         <div key={c.id} className="pf-list-row">
                             <span>{c.title} <span className="platform-muted">({c.start_date} → {c.end_date})</span></span>
-                            <span className="platform-chip platform-chip-info pf-capitalize">{c.status}</span>
+                            <span className="platform-chip platform-chip-info pf-capitalize">{t(`platform.contracts.chip.${c.status}`, { defaultValue: statusWord(c.status) })}</span>
                         </div>
                     ))}
 
-                    <p className="platform-section-title">Recent payments</p>
-                    {data.payments.length === 0 ? <p className="platform-muted">No payments.</p> : data.payments.map(p => (
+                    <p className="platform-section-title">{m('payments')}</p>
+                    {data.payments.length === 0 ? <p className="platform-muted">{m('noPayments')}</p> : data.payments.map(p => (
                         <div key={p.id} className="pf-list-row">
                             <span className="platform-muted">{(p.received_at || '').slice(0, 10)}</span>
-                            <span>{money(p.amount, p.currency)} <span className="platform-muted pf-capitalize">· {p.status}</span></span>
+                            <span>{money(p.amount, p.currency)} <span className="platform-muted pf-capitalize">· {t(`platform.revenue.status.${p.status}`, { defaultValue: p.status })}</span></span>
                         </div>
                     ))}
 
-                    <p className="platform-section-title">Tickets</p>
-                    {data.tickets.length === 0 ? <p className="platform-muted">No tickets.</p> : data.tickets.map(t => (
-                        <div key={t.id} className="pf-list-row">
-                            <span>{t.subject}</span>
-                            <span className="platform-muted pf-capitalize">{t.status.replace('_', ' ')}</span>
+                    <p className="platform-section-title">{m('tickets')}</p>
+                    {data.tickets.length === 0 ? <p className="platform-muted">{m('noTickets')}</p> : data.tickets.map(tk => (
+                        <div key={tk.id} className="pf-list-row">
+                            <span>{tk.subject}</span>
+                            <span className="platform-muted pf-capitalize">{t(`platform.tickets.status.${tk.status}`, { defaultValue: statusWord(tk.status) })}</span>
                         </div>
                     ))}
                 </>
