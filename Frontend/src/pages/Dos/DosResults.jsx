@@ -27,6 +27,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { StudentsNeedingAttention } from './StudentsNeedingAttention'
 import { confirmDialog } from '../../utils/confirm'
+import { MarksProgressTab } from './MarksProgressTab'
 
 const STATUS_MAP = { submitted: 'pending', approved: 'approved', rejected: 'rejected' }
 
@@ -422,7 +423,8 @@ export function DosResults() {
     // UI tab: 'approval' shows the result cards, 'analytics' shows charts.
     // Kept in the URL so /dos/analytics can land on the charts.
     const [searchParams, setSearchParams] = useSearchParams()
-    const activeTab = searchParams.get('tab') === 'analytics' ? 'analytics' : 'approval'
+    const tabParam = searchParams.get('tab')
+    const activeTab = tabParam === 'analytics' || tabParam === 'progress' ? tabParam : 'approval'
     const setActiveTab = key => setSearchParams(key === 'approval' ? {} : { tab: key }, { replace: true })
     // Filter buttons: 'all', 'pending', 'approved', 'rejected'
     const [statusFilter, setStatusFilter] = useState('all')
@@ -582,6 +584,7 @@ export function DosResults() {
                         <div className="flex-wrap-gap-3">
                             {[
                                 { key: 'approval', icon: 'pending', label: 'Approval Queue', badge: cards.filter(c => c.status === 'pending').length },
+                                { key: 'progress', icon: 'fact_check', label: t('dos.results.progress.tab') },
                                 { key: 'analytics', icon: 'bar_chart', label: 'Analytics' },
                             ].map(t => (
                                 <button key={t.key}
@@ -598,6 +601,9 @@ export function DosResults() {
                                 </button>
                             ))}
                         </div>
+
+                        {/* ── SUBMISSIONS TAB: who has handed in their marks ── */}
+                        {activeTab === 'progress' && <MarksProgressTab />}
 
                         {/* ── APPROVAL TAB ── */}
                         {activeTab === 'approval' && (
