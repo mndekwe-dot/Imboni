@@ -192,12 +192,14 @@
   color: #fff;
   margin: 0;
 }
-.school-brand-sub {
+/* Scoped: public-pages.css defines the same class names for the light
+   marketing pages, and its grey won here, leaving this line unreadable. */
+.login-page .school-brand-sub {
   font-size: var(--text-caption);
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.82);
   margin: 0;
 }
-.school-brand-warn {
+.login-page .school-brand-warn {
   font-size: var(--text-caption);
   color: #ffd9a0;
   margin: 0.35rem 0 0;
