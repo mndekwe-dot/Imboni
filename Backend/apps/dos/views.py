@@ -675,7 +675,10 @@ class StudentListCreateView(APIView):
     Optional query params:
         ?search=name, ID or class  — filter by name, student_code, grade/section
         ?grade=6                   — filter by grade (matches Grade 12/11/10 tabs)
+        ?section=A                 — filter by stream / class letter (any case)
         ?status=active|inactive
+        ?page=2&page_size=25       — optional paging (see below)
+        ?ordering=name|grade|status|code   — prefix with - to reverse
 
     POST — Create a new student account (Add Student button).
     Body: first_name, last_name, email, grade, section, enrollment_date, password
@@ -702,6 +705,7 @@ class StudentListCreateView(APIView):
         term   = _current_term()
         search = request.query_params.get('search', '').strip()
         grade  = request.query_params.get('grade', '').strip()
+        section = request.query_params.get('section', '').strip()
         status = request.query_params.get('status', '').strip()
 
         # Ordering is a whitelist, never a raw field name from the URL: an
@@ -719,6 +723,8 @@ class StudentListCreateView(APIView):
 
         if grade:
             students = students.filter(grade=grade)
+        if section:
+            students = students.filter(section__iexact=section)
         if status:
             students = students.filter(status=status)
         if search:

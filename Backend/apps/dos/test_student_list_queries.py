@@ -185,3 +185,32 @@ class TestStudentListPagingAndSorting:
         res = self._get(client, f'?ordering={hostile}')
         assert res.status_code == 200
         assert [r['student_code'] for r in res.data] == plain
+
+
+@pytest.mark.django_db
+class TestStudentListFilters:
+    def test_section_filters_by_stream_in_any_case(self, make_authenticated_client, term):
+        client, _ = make_authenticated_client('dos')
+        for sec in ('A', 'A', 'B'):
+            StudentFactory(grade='1', section=sec)
+        assert len(client.get('/imboni/dos/students/?section=a').data) == 2
+        assert len(client.get('/imboni/dos/students/?section=B').data) == 1
+        assert len(client.get('/imboni/dos/students/?section=Z').data) == 0
+
+    def test_filters_apply_before_paging_so_the_total_is_the_filtered_total(self, make_authenticated_client, term):
+        client, _ = make_authenticated_client('dos')
+        for _i in range(7):
+            StudentFactory(grade='1', section='A')
+        for _i in range(3):
+            StudentFactory(grade='1', section='B')
+        res = client.get('/imboni/dos/students/?section=A&page_size=5')
+        assert res.data['count'] == 7 and len(res.data['results']) == 5
+
+    def test_search_works_together_with_paging(self, make_authenticated_client, term):
+        from apps.authentication.factories import UserFactory
+        client, _ = make_authenticated_client('dos')
+        for i in range(6):
+            StudentFactory(user=UserFactory(role='student', first_name='Amina', last_name=f'Zed{i}'), grade='1', section='A')
+        StudentFactory(user=UserFactory(role='student', first_name='Bosco', last_name='Other'), grade='1', section='A')
+        res = client.get('/imboni/dos/students/?search=amina&page_size=4')
+        assert res.data['count'] == 6 and len(res.data['results']) == 4
