@@ -1,0 +1,96 @@
+/* Motion: feedback, state and continuity. Nothing here decorates.
+
+   This is an Operate app - people come to finish a task - so routine motion is
+   short (under 250ms), arrives from an already-visible default, and never makes
+   anyone wait. Three jobs:
+
+     continuity   moving between pages keeps the sidebar and header put and
+                  only the content changes, so you can see where you went
+     arrival      a stat strip appears as a strip, a card at a time
+     feedback     a raised card answers the pointer; a progress bar shows work
+
+   Every rule has a reduced-motion path (end of file). Movement goes, fades and
+   state changes stay. */
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+}
+
+/* ── Continuity: page to page ────────────────────────────────────────────
+   Driven from the sidebar (hooks/useTransitionNavigate). The rail and the
+   header are named so they are held in place while the content cross-fades;
+   without names the whole screen dissolves, including the parts that did not
+   change, which reads as a reload rather than as a move. */
+.sidebar          { view-transition-name: sidebar; }
+.dashboard-header { view-transition-name: page-header; }
+.dashboard-content { view-transition-name: page-content; }
+
+::view-transition-group(sidebar),
+::view-transition-group(page-header) { animation-duration: 0s; }
+
+::view-transition-old(page-content) {
+  animation: fade-out 110ms ease-in both;
+}
+::view-transition-new(page-content) {
+  animation: rise-in 240ms var(--ease-out) both;
+}
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+/* ── Arrival: the stat strip ─────────────────────────────────────────────
+   `backwards`, not `both`: after the entrance the animation must let go of
+   `transform`, or it would keep overriding the hover lift below. Capped at six
+   so a long strip never makes you wait. */
+.portal-stat-card { animation: rise-in 320ms var(--ease-out) backwards; }
+.portal-stat-card:nth-child(2) { animation-delay: 40ms; }
+.portal-stat-card:nth-child(3) { animation-delay: 80ms; }
+.portal-stat-card:nth-child(4) { animation-delay: 120ms; }
+.portal-stat-card:nth-child(5) { animation-delay: 160ms; }
+.portal-stat-card:nth-child(6) { animation-delay: 200ms; }
+
+/* ── Feedback: a raised card answers the pointer ─────────────────────────
+   Same lift and shadow as the shared hover in index.css, so the stat tile no
+   longer lifts differently from the cards beside it. Real pointers only. */
+.portal-stat-card {
+  transition: transform var(--hover-transition), box-shadow var(--hover-transition);
+}
+@media (hover: hover) and (pointer: fine) {
+  .portal-stat-card:hover {
+    transform: translateY(var(--hover-lift));
+    box-shadow: var(--hover-shadow);
+  }
+}
+
+/* The older hand-rolled dialogs (.modal-overlay) had no entrance at all; the
+   native <dialog> one already does. Same feel, so they stop being the odd one. */
+.modal-overlay { animation: fade-in 160ms ease-out; }
+.modal-box     { animation: pop-in 220ms var(--ease-out); }
+
+/* Table rows answer the pointer with colour only: a lift on a row would move
+   the text someone is trying to read. */
+.table-row-hover tbody tr,
+table tbody tr { transition: background-color var(--duration-hover) var(--ease-hover); }
+
+/* ── Reduced motion ──────────────────────────────────────────────────────
+   index.css already collapses displacement for ordinary elements. View
+   transition pseudo-elements are not matched by `*`, so they are handled here:
+   the page simply changes, with no cross-fade and no rise. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+
+  .portal-stat-card,
+  .modal-overlay,
+  .modal-box { animation: fade-in 120ms linear backwards; }
+  .portal-stat-card { animation-delay: 0s !important; }
+}
