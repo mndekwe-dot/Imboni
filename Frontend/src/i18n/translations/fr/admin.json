@@ -177,7 +177,8 @@
       "inactive": "Inactif",
       "suspended": "Suspendu",
       "graduated": "Diplômé",
-      "transferred": "Transféré"
+      "transferred": "Transféré",
+      "pending_deposit": "En attente d'acompte"
     }
   },
   "support": {

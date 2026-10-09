@@ -553,7 +553,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated }) {
                         {infoRow('Class',       classLabel)}
                         {infoRow('Student ID',  student.student_code)}
                         {infoRow('Enrolled',    student.enrollment_date)}
-                        {infoRow('Status',      student.status.charAt(0).toUpperCase() + student.status.slice(1))}
+                        {infoRow('Status',      t(`admin.students.statuses.${student.status}`, { defaultValue: student.status.charAt(0).toUpperCase() + student.status.slice(1) }))}
                     </div>
 
                     {/* ── Leadership ── */}

@@ -107,3 +107,7 @@ export const cancelPayrollRun = (id)   => client.delete(`/imboni/finance/payroll
 // rebuild | approve | pay — the three steps a run moves through.
 export const payrollAction  = (id, action, data) =>
     client.post(`/imboni/finance/payroll/${id}/${action}/`, data || {})
+
+// Admissions: students held until the bursar confirms their deposit.
+export const getAdmissions    = ()   => client.get('/imboni/finance/admissions/')
+export const confirmAdmission = (id) => client.post(`/imboni/finance/admissions/${id}/confirm/`)

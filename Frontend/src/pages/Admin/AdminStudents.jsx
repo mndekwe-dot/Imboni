@@ -212,7 +212,8 @@ function StudentRow({ student, onView }) {
     const { t } = useTranslation()
     const name   = studentName(student)
     const cls    = gradeLabel(student.grade, student.section)
-    const active = student.status === 'active' || student.is_active !== false
+    // Awaiting-deposit is not active: it must not wear the active badge.
+    const active = student.status ? student.status === 'active' : student.is_active !== false
     const id     = studentCode(student) || '-'
 
     return (
