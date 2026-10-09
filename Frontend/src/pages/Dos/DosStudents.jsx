@@ -843,6 +843,7 @@ export function DosStudents() {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.students.title')}
             subtitle={t('dos.students.subtitle')}

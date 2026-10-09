@@ -8,6 +8,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
+import { SkeletonChart } from '../../components/ui/Skeleton'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import {
@@ -35,11 +36,7 @@ function ChartCard({ title, desc, children, loading }) {
                 {desc && <p className="card-description">{desc}</p>}
             </div>
             <div className="card-content">
-                {loading ? (
-                    <div className="adm-chart-loading">
-                        Loading…
-                    </div>
-                ) : children}
+                {loading ? <SkeletonChart /> : children}
             </div>
         </div>
     )
@@ -190,10 +187,10 @@ export function AdminReports() {
         { icon: 'badge',        value: stats.teaching_staff    || 0,     label: 'Teaching Staff',   trend: 'Active',                                colorClass: 'info'    },
         { icon: 'pending_actions', value: stats.pending_approvals || 0,  label: 'Pending Approvals',trend: 'Awaiting review',                       colorClass: 'warning' },
     ] : [
-        { icon: 'groups',       value: '-', label: 'Total Students',    trend: 'Loading…', colorClass: ''        },
-        { icon: 'trending_up',  value: '-', label: 'Avg Performance',   trend: 'Loading…', colorClass: 'success' },
-        { icon: 'badge',        value: '-', label: 'Teaching Staff',    trend: 'Loading…', colorClass: 'info'    },
-        { icon: 'pending_actions', value: '-', label: 'Pending Approvals', trend: 'Loading…', colorClass: 'warning' },
+        { icon: 'groups',       value: '-', label: 'Total Students', colorClass: ''        },
+        { icon: 'trending_up',  value: '-', label: 'Avg Performance', colorClass: 'success' },
+        { icon: 'badge',        value: '-', label: 'Teaching Staff', colorClass: 'info'    },
+        { icon: 'pending_actions', value: '-', label: 'Pending Approvals', colorClass: 'warning' },
     ]
 
     return (
@@ -213,7 +210,7 @@ export function AdminReports() {
                     <DashboardContent>
 
                         <div className="portal-stat-grid">
-                            {statCards.map((s, i) => <StatCard key={i} {...s} />)}
+                            {statCards.map((s, i) => <StatCard key={i} {...s} loading={loading && !stats} />)}
                         </div>
 
                         {/* Row 1: Performance by grade + Weekly trend */}

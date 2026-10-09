@@ -270,6 +270,7 @@ export function DosSettings() {
 
     if (loading) return (
         <PageLoading
+            variant="settings" stats={0}
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.settings.title')}
             subtitle={t('dos.settings.subtitle')}

@@ -558,6 +558,7 @@ export function DosResults() {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('nav.results')}
             subtitle={t('dos.results.subtitle')}

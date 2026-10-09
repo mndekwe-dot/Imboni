@@ -36,8 +36,11 @@ describe('AdminReports', () => {
     getTeachersBySubject.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<AdminReports />)
 
-    // 4 stat-card trends + 5 chart cards all show "Loading…" while pending.
-    expect(screen.getAllByText('Loading…').length).toBe(9)
+    // 4 stat tiles show bars where the figures go, and each of the 5 chart cards
+    // shows a chart-shaped skeleton; each chart announces its own wait.
+    expect(document.querySelectorAll('.portal-stat-card.is-loading')).toHaveLength(4)
+    expect(document.querySelectorAll('.skel-chart')).toHaveLength(5)
+    expect(screen.getAllByText('Loading…').length).toBe(5)
   })
 
   it('renders stat cards once data resolves', async () => {

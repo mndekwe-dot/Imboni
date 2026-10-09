@@ -203,6 +203,7 @@ export function DisParentComms() {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={disNavItems} secondaryItems={disSecondaryItems}
             title={t('dis.parentComms.title')}
             user={sessionUser}

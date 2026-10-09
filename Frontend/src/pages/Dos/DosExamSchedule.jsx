@@ -307,6 +307,7 @@ export function DosExamSchedule() {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.examSchedule.title')}
             subtitle={t('dos.examSchedule.subtitle')}

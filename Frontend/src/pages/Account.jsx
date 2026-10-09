@@ -181,6 +181,7 @@ export function Account() {
     // Prevents the form from flashing with empty inputs.
     if (loading) return (
         <PageLoading
+            variant="settings" stats={0}
             navItems={navItems} secondaryItems={secondaryItems}
             title={t('account.title')}
             subtitle={t('account.subtitle')}

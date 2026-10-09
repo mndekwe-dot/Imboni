@@ -34,8 +34,12 @@ describe('AdminDashboard', () => {
     getAdminRecentActivity.mockReturnValue(new Promise(() => {}))
     renderWithRouter(<AdminDashboard />)
 
-    expect(screen.getAllByText('-').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Loading…').length).toBeGreaterThan(0)
+    // The four stat tiles are real tiles with bars where the figures will be...
+    const tiles = document.querySelectorAll('.portal-stat-card.is-loading')
+    expect(tiles).toHaveLength(4)
+    // ...and the activity list is rows shaped like activity rows, not a sentence.
+    expect(document.querySelectorAll('.adm-activity-item .skel')).not.toHaveLength(0)
+    expect(screen.getAllByText('Loading…').length).toBeGreaterThan(0)   // announced to screen readers
   })
 
   it('renders stat cards and recent activity once loaded', async () => {

@@ -9,6 +9,7 @@ import { useCurrentTerm } from '../../hooks/useCurrentTerm'
 import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
+import { SkeletonActivity } from '../../components/ui/Skeleton'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { getAdminDashboardStats, getAdminRecentActivity } from '../../api/admin'
@@ -69,10 +70,10 @@ export function AdminDashboard() {
         { icon: 'trending_up',     value: `${stats.avg_performance}%`, label: 'Avg Performance', trend: stats.avg_performance_change >= 0 ? `+${stats.avg_performance_change}% vs prev term` : `${stats.avg_performance_change}% vs prev term`, trendClass: stats.avg_performance_change >= 0 ? 'positive' : 'negative', colorClass: 'success' },
         { icon: 'pending_actions', value: stats.pending_approvals, label: 'Pending Approvals', trend: 'Requires action',                  trendClass: stats.pending_approvals > 0 ? 'negative' : 'positive', colorClass: 'warning' },
     ] : [
-        { icon: 'groups',          value: '-', label: 'Total Students',    trend: 'Loading…', trendClass: 'neutral', colorClass: ''        },
-        { icon: 'badge',           value: '-', label: 'Teaching Staff',    trend: 'Loading…', trendClass: 'neutral', colorClass: 'info'    },
-        { icon: 'trending_up',     value: '-', label: 'Avg Performance',   trend: 'Loading…', trendClass: 'neutral', colorClass: 'success' },
-        { icon: 'pending_actions', value: '-', label: 'Pending Approvals', trend: 'Loading…', trendClass: 'neutral', colorClass: 'warning' },
+        { icon: 'groups',          value: '-', label: 'Total Students', colorClass: ''        },
+        { icon: 'badge',           value: '-', label: 'Teaching Staff', colorClass: 'info'    },
+        { icon: 'trending_up',     value: '-', label: 'Avg Performance', colorClass: 'success' },
+        { icon: 'pending_actions', value: '-', label: 'Pending Approvals', colorClass: 'warning' },
     ]
 
     const performanceData = stats ? [
@@ -107,7 +108,7 @@ export function AdminDashboard() {
                         />
 
                         <div className="portal-stat-grid">
-                            {statCards.map((s, i) => <StatCard key={i} {...s} />)}
+                            {statCards.map((s, i) => <StatCard key={i} {...s} loading={loading && !stats} />)}
                         </div>
 
                         <div className="cards-grid">
@@ -119,7 +120,7 @@ export function AdminDashboard() {
                                 </div>
                                 <div className="card-content">
                                     {loading ? (
-                                        <p className="adm-dash-note">Loading…</p>
+                                        <SkeletonActivity />
                                     ) : activities.length === 0 ? (
                                         <p className="adm-dash-note">No recent activity.</p>
                                     ) : (
