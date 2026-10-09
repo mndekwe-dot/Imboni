@@ -311,6 +311,9 @@ REST_FRAMEWORK = {
         # per IP — this endpoint queues a lookup across every tenant schema and
         # can send mail, so it is both expensive and abusable as a mailer.
         'school_lookup': None if TESTING else '3/min',
+        # per IP — confirms a school code exists, so it must not be sweepable.
+        # Generous enough for a person mistyping a few times.
+        'school_code':    None if TESTING else '20/min',
         'two_factor':     None if TESTING else '10/min',  # per IP — stops OTP brute force
         # per IP — each accepted signup creates a schema and migrates every
         # TENANT_APP into it, so this endpoint spends real resources per call

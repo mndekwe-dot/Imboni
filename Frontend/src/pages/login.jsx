@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { useSchoolIdentity } from '../hooks/useSchoolIdentity'
+import { switchSchoolUrl } from '../utils/schoolHost'
 import '../styles/login.css'
 import '../styles/components.css'
 import '../styles/public-pages.css'
@@ -268,6 +269,16 @@ export function LogIn() {
                         {t('auth.contactOffice', { email: 'admin@imboni.edu', extension: '100' })}
                     </div>
                 </div>
+
+                {/* The installed app has no address bar, so this is the only way
+                    out of the wrong school. Only on a school's own host: on the
+                    bare domain there is no school to leave. A plain link, not a
+                    router one - it goes to a different host. */}
+                {school && (
+                    <div className="login-footer">
+                        <a href={switchSchoolUrl()}>{t('start.notYourSchool')}</a>
+                    </div>
+                )}
 
                 <div className="login-footer">
                     {t('auth.footerCopyright', { year: new Date().getFullYear() })}{' '}

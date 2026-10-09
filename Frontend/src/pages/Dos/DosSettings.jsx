@@ -440,6 +440,14 @@ export function DosSettings() {
                                             placeholder={t('settings.roomCapacityPlaceholder')}
                                             aria-label={t('settings.roomCapacityPlaceholder')}
                                         />
+                                        <input
+                                            className="form-input"
+                                            type="number" min="1"
+                                            value={roomSeats}
+                                            onChange={e => setRoomSeats(e.target.value)}
+                                            placeholder={t('settings.roomCapacityPlaceholder')}
+                                            aria-label={t('settings.roomCapacityPlaceholder')}
+                                        />
                                         <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                                         </button>

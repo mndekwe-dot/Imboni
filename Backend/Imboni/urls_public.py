@@ -7,11 +7,12 @@ Only endpoints that operate on the public schema belong here — the tenant
 registry (Client/Domain) lives in the public schema, so onboarding + platform
 admin are served from here, NOT from a school subdomain.
 """
+from django.conf import settings
 from django.urls import path, include
 
 from apps.tenants.onboarding import SchoolSignupView, ProvisionStatusView, SchoolApplyView
 from apps.tenants.billing import StripeWebhookView
-from apps.tenants.discovery import FindMySchoolView
+from apps.tenants.discovery import FindMySchoolView, SchoolByCodeView
 from apps.tenants.identity import SchoolIdentityView
 
 urlpatterns = [
@@ -19,6 +20,9 @@ urlpatterns = [
     # Public schema only: the bare domain is where a lost user ends up, and the
     # tenant registry it searches lives here.
     path('imboni/find-school/', FindMySchoolView.as_view(), name='find-my-school'),
+
+    # School code -> host, for the installed desktop app's entry screen.
+    path('imboni/school-by-code/', SchoolByCodeView.as_view(), name='school-by-code'),
 
     # Answers on the bare domain too, so the frontend can use one code path and
     # render unbranded when there is no school behind the hostname.
@@ -37,3 +41,9 @@ urlpatterns = [
     # Platform super-admin API (Phase 5) — IsAdminUser.
     path('imboni/', include('apps.tenants.urls')),
 ]
+
+if settings.DEBUG:
+    # DEBUG adds the toolbar middleware to every request, the bare domain
+    # included, and it reverses 'djdt:' URLs while rendering. Without them here
+    # every platform console call on http://localhost 500s with NoReverseMatch.
+    urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]

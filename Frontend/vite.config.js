@@ -28,6 +28,11 @@ export default defineConfig(({ mode }) => {
     proxy.on('proxyReq', proxyReq => proxyReq.setHeader('Host', devTenantHost))
   }
 
+  // The public domain schools hang off (demo.imboni.tech -> imboni.tech). Only
+  // the manifest's scope_extensions reads it; override in Frontend/.env for a
+  // deployment on another domain.
+  const publicDomain = env.VITE_PUBLIC_DOMAIN || 'imboni.tech'
+
   return {
   server: {
     port: 5174,
@@ -75,8 +80,27 @@ export default defineConfig(({ mode }) => {
         name: 'Imboni School',
         short_name: 'Imboni',
         description: 'School management portals for students, parents and staff',
-        start_url: '/',
+        // A stable identity, so an installed copy (and the Microsoft Store
+        // package) stays the same app if start_url ever changes.
+        id: '/',
+        // The app opens on the bare domain's /start, which finds the school and
+        // hands over to its subdomain. On a school's own host it goes straight
+        // on to the portal or the login page. See pages/Start.jsx.
+        start_url: '/start',
+        scope: '/',
+        // Keeps the hop from the bare domain to a school subdomain inside the
+        // app window instead of bouncing out to the browser. Each school host
+        // confirms the link via /.well-known/web-app-origin-association, which
+        // nginx serves on every host (see nginx.prod.conf.template). Browsers
+        // without support ignore this member and open the school normally.
+        scope_extensions: [{ type: 'origin', origin: `https://*.${publicDomain}` }],
         display: 'standalone',
+        // One window; opening the app again focuses it instead of stacking.
+        launch_handler: { client_mode: 'navigate-existing' },
+        categories: ['education', 'productivity'],
+        lang: 'en',
+        dir: 'ltr',
+        orientation: 'any',
         theme_color: '#003d7a',
         background_color: '#ffffff',
         icons: [
