@@ -272,6 +272,13 @@ AUTH_USER_MODEL = 'authentication.User'  # label stays 'authentication' — no c
 
 # REST Framework configuration
 REST_FRAMEWORK = {
+    # How many reverse proxies sit in front of Django (nginx = 1). Without this
+    # DRF identifies a client by the WHOLE X-Forwarded-For header, which the
+    # client can start with anything it likes - so every throttle (login, 2FA,
+    # password reset) could be sidestepped by sending a different fake address
+    # on each request. With it, only the address nginx itself appended is used.
+    # Set to 2 if a CDN or load balancer is ever put in front of nginx.
+    'NUM_PROXIES': config('NUM_PROXIES', cast=int, default=1),
     'DEFAULT_AUTO_FIELD': 'django.db.models.BigAutoField',
     'COERCE_DECIMAL_TO_STRING': False,
     # Not stock JWTAuthentication: it resolves a token's user_id in whichever

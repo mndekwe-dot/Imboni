@@ -14,6 +14,7 @@ import logging
 
 from django_tenants.utils import schema_context, get_public_schema_name
 
+from apps.common.network import client_ip
 from .models import PlatformAuditLog, PlatformUser
 
 logger = logging.getLogger(__name__)
@@ -54,13 +55,9 @@ def _stringify(value):
 
 
 def _client_ip(request):
-    if request is None:
-        return None
-    forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
-    if forwarded:
-        # Left-most entry is the original client; the rest are proxies.
-        return forwarded.split(',')[0].strip() or None
-    return request.META.get('REMOTE_ADDR') or None
+    # Not the left-most X-Forwarded-For entry: that is the part the CLIENT
+    # supplies, so anyone could choose what the audit trail says about them.
+    return client_ip(request)
 
 
 def record(action, *, actor=None, request=None, target=None, target_type='',
