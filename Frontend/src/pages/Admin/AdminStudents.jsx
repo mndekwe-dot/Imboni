@@ -21,6 +21,7 @@ import '../../styles/discipline.css'
 import { SearchBar } from '../../components/ui/SearchBar'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -92,7 +93,7 @@ function StudentDetailModal({ student, onClose }) {
     const attRate    = attendance?.attendance_rate    ?? presentPct              ?? null
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box adm-student-modal" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="u-row">
@@ -188,7 +189,7 @@ function StudentDetailModal({ student, onClose }) {
                     </div>
                 )}
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

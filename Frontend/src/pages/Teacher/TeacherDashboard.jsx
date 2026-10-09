@@ -28,6 +28,7 @@ import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad, errorMessage } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 function barColor(v) {
     if (v >= 80) return '#10b981'
@@ -173,7 +174,7 @@ function CreateTaskModal({ onClose, onCreated }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -230,7 +231,7 @@ function CreateTaskModal({ onClose, onCreated }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

@@ -6,6 +6,7 @@ import { formatDate } from '../../utils/date'
 import '../../styles/components.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 const TABS = [
     { key: 'profile', labelKey: 'modals.conduct.tabProfile', icon: 'person' },
@@ -386,7 +387,7 @@ export function StudentConductModal({ student, onClose }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box" onClick={e => e.stopPropagation()}>
 
                 {/* Header */}
@@ -432,6 +433,6 @@ export function StudentConductModal({ student, onClose }) {
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

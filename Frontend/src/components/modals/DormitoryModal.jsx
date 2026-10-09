@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 function slugify(name) {
     return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
@@ -69,7 +70,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
     const canSave = form.name.trim() && form.staff.trim() && Number(form.totalRooms) > 0 && Number(form.bedsPerRoom) > 0
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm dmod-box" onClick={e => e.stopPropagation()}>
 
                 <div className="modal-header">
@@ -237,6 +238,6 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

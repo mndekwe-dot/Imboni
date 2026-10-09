@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 export function StaffModal({ staff, onClose, onSave }) {
     const { t } = useTranslation()
@@ -30,7 +31,7 @@ export function StaffModal({ staff, onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
 
                 <div className="modal-header">
@@ -83,6 +84,6 @@ export function StaffModal({ staff, onClose, onSave }) {
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

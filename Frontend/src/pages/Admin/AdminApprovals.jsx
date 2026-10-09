@@ -17,6 +17,7 @@ import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
 import '../../styles/discipline.css'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 const STATUS_TABS = ['pending', 'approved', 'rejected']
 
@@ -55,7 +56,7 @@ function RejectModal({ result, onClose, onDone }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2 className="modal-title">{t('admin.approvals.rejectTitle')}</h2>
@@ -88,7 +89,7 @@ function RejectModal({ result, onClose, onDone }) {
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

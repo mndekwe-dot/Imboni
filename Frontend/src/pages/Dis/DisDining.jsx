@@ -16,6 +16,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 const PLAN_TYPES = [
     { value: 'full_board',  labelKey: 'dis.dining.fullBoard'  },
@@ -69,7 +70,7 @@ function DiningModal({ plan, onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -146,7 +147,7 @@ function DiningModal({ plan, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

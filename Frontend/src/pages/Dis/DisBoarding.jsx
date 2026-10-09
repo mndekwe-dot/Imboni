@@ -24,6 +24,7 @@ import { TabGroup } from '../../components/ui/TabGroup'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage, partialLoad } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 const BOARDING_TYPE_LABEL = {
     full_boarder:   'Full Boarder',
@@ -96,7 +97,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
         : record ? `${record.grade || ''}${record.section || ''}` : ''
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -206,7 +207,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

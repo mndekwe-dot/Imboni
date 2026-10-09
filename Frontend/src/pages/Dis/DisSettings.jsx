@@ -19,6 +19,7 @@ import { disNavItems, disSecondaryItems } from './disNav'
 import { StatCard } from '../../components/layout/StatCard'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -76,7 +77,7 @@ function SectionModal({ section, onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -118,7 +119,7 @@ function SectionModal({ section, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -207,7 +208,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -280,7 +281,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
