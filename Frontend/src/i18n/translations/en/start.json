@@ -1,0 +1,14 @@
+{
+  "checking": "Checking…",
+  "codeHint": "It is the first part of your school's address, for example greenhills.imboni.tech.",
+  "codeLabel": "School code",
+  "codePlaceholder": "e.g. greenhills",
+  "connectFailed": "Could not reach Imboni. Check your connection and try again.",
+  "continue": "Continue",
+  "forgotCode": "Don't know your school code?",
+  "notFound": "We could not find a school with that code. Check it and try again.",
+  "notYourSchool": "Not your school?",
+  "opening": "Opening {{school}}…",
+  "subtitle": "Enter your school code to continue.",
+  "title": "Open your school"
+}
