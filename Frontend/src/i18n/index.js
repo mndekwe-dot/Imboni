@@ -22,9 +22,15 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
+// English is the fallback every other language leans on, so it ships in the
+// main bundle. Kinyarwanda and French are fetched only when someone uses them:
+// they are ~130 KB gzipped that an English-only school never needs.
 import en from './translations/en'
-import rw from './translations/rw'
-import fr from './translations/fr'
+
+const LAZY = {
+    rw: () => import('./translations/rw'),
+    fr: () => import('./translations/fr'),
+}
 
 export const SUPPORTED_LANGUAGES = [
     { code: 'en', label: 'English',     nativeLabel: 'English'     },
@@ -50,12 +56,8 @@ export function detectLanguage() {
 }
 
 i18n.use(initReactI18next).init({
-    resources: {
-        en: { translation: en },
-        rw: { translation: rw },
-        fr: { translation: fr },
-    },
-    lng: detectLanguage(),
+    resources: { en: { translation: en } },
+    lng: FALLBACK,
     fallbackLng: FALLBACK,
     // A missing translation key falls back to the English string rather than
     // rendering the raw key at the user.
@@ -66,13 +68,28 @@ i18n.use(initReactI18next).init({
     },
 })
 
+/** Fetch a language's strings once. English is already there. */
+export async function loadLanguage(code) {
+    if (!LAZY[code] || i18n.hasResourceBundle(code, 'translation')) return
+    const mod = await LAZY[code]()
+    i18n.addResourceBundle(code, 'translation', mod.default, true, true)
+}
+
+/** Resolves once the starting language is ready, so the first paint is not English. */
+export const i18nReady = loadLanguage(detectLanguage())
+    .catch(() => {})
+    .then(() => i18n.changeLanguage(detectLanguage()))
+    .then(() => document.documentElement.setAttribute('lang', i18n.language || FALLBACK))
+
 /**
  * Switch language and remember it. Persisting to the server is the caller's
  * job (see `useLanguage`), so this stays usable before sign-in.
  */
 export function setLanguage(code) {
     if (!isSupported(code)) return
-    i18n.changeLanguage(code)
+    // Bundles already loaded switch at once; otherwise load first, then switch.
+    if (i18n.hasResourceBundle(code, 'translation')) i18n.changeLanguage(code)
+    else loadLanguage(code).then(() => i18n.changeLanguage(code)).catch(() => {})
     try {
         localStorage.setItem(LANGUAGE_STORAGE_KEY, code)
     } catch { /* storage unavailable — the in-memory change still applies */ }

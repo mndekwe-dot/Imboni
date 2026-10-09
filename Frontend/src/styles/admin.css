@@ -132,9 +132,9 @@
   margin-right: 0.25rem;
 }
 
-.adm-btn:hover { background: var(--muted); }
+@media (hover: hover) { .adm-btn:hover { background: var(--muted); } }
 .adm-btn.danger { border-color: var(--destructive); color: var(--destructive); }
-.adm-btn.danger:hover { background: var(--destructive-light); }
+@media (hover: hover) { .adm-btn.danger:hover { background: var(--destructive-light); } }
 .adm-btn .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* ===============================================
@@ -209,7 +209,7 @@
   transition: box-shadow 0.15s;
 }
 
-.adm-report-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+@media (hover: hover) { .adm-report-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.08); } }
 
 .adm-report-icon {
   width: 42px;
@@ -271,7 +271,7 @@
 }
 
 .adm-settings-nav-item:last-child { border-bottom: none; }
-.adm-settings-nav-item:hover { background: var(--muted); color: var(--foreground); }
+@media (hover: hover) { .adm-settings-nav-item:hover { background: var(--muted); color: var(--foreground); } }
 .adm-settings-nav-item.active { background: var(--admin-light); color: var(--admin); font-weight: 600; }
 .adm-settings-nav-item .material-symbols-rounded { font-size: var(--icon-sm); }
 

@@ -3,7 +3,7 @@
    =============================================== */
 
 .landing-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #fff;
   color: #0f172a;
   overflow-x: hidden;
@@ -73,7 +73,7 @@
   text-decoration: none;
   transition: color 0.15s;
 }
-.landing-nav-links a:hover { color: #0f172a; }
+@media (hover: hover) { .landing-nav-links a:hover { color: #0f172a; } }
 
 .landing-nav-signin {
   display: inline-flex;
@@ -90,10 +90,10 @@
   box-shadow: 0 4px 12px rgba(0, 61, 122, 0.28);
 }
 .landing-nav-signin .material-symbols-rounded { font-size: var(--icon-sm); }
-.landing-nav-signin:hover {
+@media (hover: hover) { .landing-nav-signin:hover {
   opacity: 0.9;
   box-shadow: 0 6px 20px rgba(0, 61, 122, 0.38);
-}
+} }
 
 /* ══════════════════════════════════════
          HERO
@@ -250,10 +250,10 @@
   padding-bottom: 1px;
   transition: color 0.15s, border-color 0.15s;
 }
-.hero-secondary:hover {
+@media (hover: hover) { .hero-secondary:hover {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.55);
-}
+} }
 
 /* stats removed — no sensitive numbers exposed */
 
@@ -480,7 +480,7 @@
   opacity: 0;
   transition: opacity 0.25s;
 }
-.portal-card:hover .portal-card-top-bar { opacity: 1; }
+@media (hover: hover) { .portal-card:hover .portal-card-top-bar { opacity: 1; } }
 /* Gated: on a touchscreen :hover latches after a tap and holds until
    the user taps elsewhere, so a moved element stays moved. */
 @media (hover: hover) and (pointer: fine) {
@@ -1053,7 +1053,7 @@
   align-items: center;
   gap: 0.25rem;
 }
-.footer-col-list a:hover { color: #fb923c; }
+@media (hover: hover) { .footer-col-list a:hover { color: #fb923c; } }
 
 /* Bottom bar */
 .footer-bottom {
@@ -1080,7 +1080,7 @@
   text-decoration: none;
   transition: color 0.15s;
 }
-.footer-bottom-links a:hover { color: #f97316; }
+@media (hover: hover) { .footer-bottom-links a:hover { color: #f97316; } }
 
 /* ══════════════════════════════════════
          RESPONSIVE

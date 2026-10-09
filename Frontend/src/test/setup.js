@@ -1,12 +1,19 @@
 import '@testing-library/jest-dom/vitest'
-import { afterEach } from 'vitest'
+import { afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 
 // Initialise i18next for every test. Components call t() directly, and without
 // this an untranslated instance returns the raw key ('nav.dashboard') instead of
 // the English string, so any test asserting on visible text fails. Tests run in
 // English because that is i18n's fallback and no stored preference exists.
-import '../i18n'
+import i18n from '../i18n'
+import rw from '../i18n/translations/rw'
+import fr from '../i18n/translations/fr'
+
+// In production Kinyarwanda and French load on demand. Tests switch language
+// synchronously, so they get them up front.
+i18n.addResourceBundle('rw', 'translation', rw, true, true)
+i18n.addResourceBundle('fr', 'translation', fr, true, true)
 
 // The school structure is cached at module scope so that a page and the
 // <ClassPicker> inside it do not each fetch it. A module cache outlives a
@@ -44,6 +51,13 @@ if (typeof HTMLDialogElement !== 'undefined') {
     }
   }
 }
+
+// The app asks "are you sure" through confirmDialog (a real dialog). Most tests
+// only care about the answer, so they stub window.confirm; route the app's
+// dialog through it. utils/confirm.test.jsx exercises the real one.
+vi.mock('../utils/confirm', () => ({
+  confirmDialog: message => Promise.resolve(window.confirm(message)),
+}))
 
 afterEach(() => {
   cleanup()

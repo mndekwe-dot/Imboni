@@ -16,6 +16,7 @@ import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import { confirmDialog } from '../../utils/confirm'
 
 /**
  * The teacher's own exam papers, and where each one has got to.
@@ -64,7 +65,7 @@ export function TeacherExams() {
     }
 
     async function remove(paper) {
-        if (!window.confirm(t('teacher.exams.confirmDelete', { title: paper.title }))) return
+        if (!await confirmDialog(t('teacher.exams.confirmDelete', { title: paper.title }))) return
         setBusyId(paper.id)
         try {
             await deleteTeacherExamPaper(paper.id)

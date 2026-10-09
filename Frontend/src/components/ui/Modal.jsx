@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { confirmDialog } from '../../utils/confirm'
+
 /*
   Global Modal — wraps native <dialog> for use across all portals.
 
@@ -20,15 +22,20 @@ export function Modal({ title, icon, onClose, children, footer, size = 'default'
     const messageRef = useRef(unsavedMessage)
     messageRef.current = unsavedMessage
 
-    // True when it is fine to leave: nothing unsaved, or the user said so.
-    const mayLeave = () => !messageRef.current || window.confirm(messageRef.current)
+    // Leaving with unsaved work asks first, in the app's own dialog. The
+    // question is asynchronous, so the native close is always refused and the
+    // modal is closed by hand once the user has answered.
+    const leaveOrAsk = () => {
+        if (!messageRef.current) return onClose()
+        confirmDialog(messageRef.current).then(ok => { if (ok) onClose() })
+    }
 
     useEffect(() => {
         const dialog = dialogRef.current
         dialog.showModal()
         const handleClose = () => onClose()
         // ESC arrives as 'cancel' before the dialog closes, so it can be refused.
-        const handleCancel = e => { if (!mayLeave()) e.preventDefault() }
+        const handleCancel = e => { if (messageRef.current) { e.preventDefault(); leaveOrAsk() } }
         dialog.addEventListener('close', handleClose)
         dialog.addEventListener('cancel', handleCancel)
         return () => {
@@ -38,7 +45,7 @@ export function Modal({ title, icon, onClose, children, footer, size = 'default'
     }, [onClose])
 
     function requestClose() {
-        if (mayLeave()) onClose()
+        leaveOrAsk()
     }
 
     function handleBackdropClick(e) {

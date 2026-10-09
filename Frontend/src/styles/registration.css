@@ -4,13 +4,13 @@
    signup page pattern; kept as its own file (like login/signup css).
    NB: bare var(--muted) as text colour is faithful to the original.
    ============================================================ */
-.reg-center { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center; padding: 2rem; }
+.reg-center { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center; padding: 2rem; }
 .reg-icon-danger  { font-size: 3rem; color: var(--danger); }
 .reg-icon-success { font-size: 4rem; color: var(--success); }
 .reg-msg     { color: var(--muted); max-width: 24rem; }
 .reg-msg-sm  { color: var(--muted); font-size: var(--text-sm); }
 
-.reg-page   { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--background); padding: 2rem; }
+.reg-page   { min-height: 100dvh; display: flex; align-items: center; justify-content: center; background: var(--background); padding: 2rem; }
 .reg-wrap   { width: 100%; max-width: 440px; }
 .reg-header { text-align: center; margin-bottom: 2rem; }
 .reg-header-icon { font-size: 2.5rem; color: var(--primary); }

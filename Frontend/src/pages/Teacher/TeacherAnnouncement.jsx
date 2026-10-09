@@ -20,6 +20,7 @@ import '../../styles/teacher.css'
 import '../../styles/pages.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { confirmDialog } from '../../utils/confirm'
 
 const CATEGORY_OPTIONS = [
     { value: 'academic', label: 'Academic' },
@@ -220,7 +221,7 @@ export function TeacherAnnouncement() {
     }
 
     async function handleDelete(ann) {
-        if (!window.confirm(t('teacher.announcements.confirmDelete', { title: ann.title }))) return
+        if (!await confirmDialog(t('teacher.announcements.confirmDelete', { title: ann.title }))) return
         setBusyId(ann.id)
         try {
             await deleteTeacherAnnouncement(ann.id)

@@ -18,6 +18,7 @@ import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { formatDateShort } from '../../utils/date'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { confirmDialog } from '../../utils/confirm'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -249,7 +250,7 @@ export function DosAnnouncement() {
     }
 
     async function handleDelete(id) {
-        if (!window.confirm(t('announcements.deleteConfirm'))) return
+        if (!await confirmDialog(t('announcements.deleteConfirm'))) return
         try {
             await deleteDosAnnouncement(id)
             setAnnouncements(prev => prev.filter(a => a.id !== id))

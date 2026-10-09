@@ -27,6 +27,7 @@ import { PRINT_FONT_STACK, printFontFace } from '../../utils/printFont'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { saveWithClashCheck } from '../../utils/examClash'
+import { confirmDialog } from '../../utils/confirm'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -203,7 +204,7 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                     ) : (
                         <>
                             <button className="btn btn-outline btn-destructive-outline"
-                                onClick={() => { if(window.confirm(t('dos.scheduling.deleteExamConfirm'))){ onDelete(exam.id); onClose() } }}>
+                                onClick={async () => { if(await confirmDialog(t('dos.scheduling.deleteExamConfirm'))){ onDelete(exam.id); onClose() } }}>
                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span> {t('common.delete')}
                             </button>
                             <button className="btn btn-outline" onClick={() => setRescheduling(true)}>
@@ -451,7 +452,7 @@ export function DosScheduling() {
     }
 
     async function handleDeleteSession(name) {
-        if (!window.confirm(t('dos.scheduling.deleteSessionConfirm', {
+        if (!await confirmDialog(t('dos.scheduling.deleteSessionConfirm', {
             name, count: exams.filter(e=>e.title===name).length }))) return
         const toDelete = exams.filter(e => e.title === name)
         const results = await Promise.allSettled(toDelete.map(e => deleteDosExamSchedule(e.id)))

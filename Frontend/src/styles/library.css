@@ -125,7 +125,7 @@
   overflow: hidden;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
-.lib-book-card:hover { border-color: var(--portal-accent); box-shadow: var(--shadow-sm); }
+@media (hover: hover) { .lib-book-card:hover { border-color: var(--portal-accent); box-shadow: var(--shadow-sm); } }
 
 /* The whole card is the target on the librarian's side; on the student's it is
    not clickable, so the same markup renders as a plain block there. */
@@ -225,7 +225,7 @@
   text-align: left;
   cursor: pointer;
 }
-.lib-member-name:hover { color: var(--primary); text-decoration: underline; }
+@media (hover: hover) { .lib-member-name:hover { color: var(--primary); text-decoration: underline; } }
 
 /* ── Forms and detail ────────────────────────────────────────────────────── */
 

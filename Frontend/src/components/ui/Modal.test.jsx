@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { Modal } from './Modal'
 
 beforeAll(() => {
@@ -52,18 +52,19 @@ describe('Modal', () => {
     expect(document.querySelector('dialog')).toHaveClass('tt-modal-wide')
   })
 
-  it('asks before closing when there is unsaved work, and stays open if declined', () => {
+  it('asks before closing when there is unsaved work, and stays open if declined', async () => {
     const onClose = vi.fn()
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
     render(<Modal title="T" onClose={onClose} unsavedMessage="Discard?">body</Modal>)
 
     fireEvent.click(screen.getByLabelText('Close'))
     expect(confirm).toHaveBeenCalledWith('Discard?')
+    await new Promise(r => setTimeout(r, 0))
     expect(onClose).not.toHaveBeenCalled()
 
     confirm.mockReturnValue(true)
     fireEvent.click(screen.getByLabelText('Close'))
-    expect(onClose).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
     confirm.mockRestore()
   })
 

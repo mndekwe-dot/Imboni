@@ -6,6 +6,7 @@
  * DOS sees what clashes and may still go ahead - two papers can legitimately
  * share a hall - in which case the request is sent again, acknowledged.
  */
+import { confirmDialog } from './confirm'
 
 export function clashLines(conflicts = [], t) {
     return conflicts
@@ -25,7 +26,7 @@ export async function saveWithClashCheck(send, t) {
     } catch (e) {
         const conflicts = e?.response?.status === 409 ? e.response.data?.conflicts : null
         if (!conflicts) throw e
-        const ok = window.confirm(t('dos.examSchedule.clashConfirm', { details: clashLines(conflicts, t) }))
+        const ok = await confirmDialog(t('dos.examSchedule.clashConfirm', { details: clashLines(conflicts, t) }))
         return ok ? send({ acknowledge_conflicts: true }) : null
     }
 }

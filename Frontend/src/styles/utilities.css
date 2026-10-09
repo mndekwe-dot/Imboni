@@ -183,3 +183,15 @@
 *:focus:not(:focus-visible) {
   outline: none;
 }
+
+/* ===============================================
+   TOUCH TARGETS
+   A finger is about 44px. Compact buttons stay compact for a mouse and
+   grow on a touchscreen, where teachers take the register.
+   =============================================== */
+@media (pointer: coarse) {
+  .btn, .btn-sm, .icon-btn, .tab-btn, .pagination button {
+    min-height: 44px;
+  }
+  .btn-icon, .icon-btn { min-width: 44px; }
+}

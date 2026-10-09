@@ -669,7 +669,7 @@ button.stu-name {
   gap: 1rem;
   transition: box-shadow var(--transition-base);
 }
-.health-stat-card:hover { box-shadow: var(--shadow-md); }
+@media (hover: hover) { .health-stat-card:hover { box-shadow: var(--shadow-md); } }
 .health-stat-icon {
   width: 44px;
   height: 44px;

@@ -13,6 +13,7 @@ import { DocumentActions } from '../ui/DocumentActions'
 import { Modal } from '../ui/Modal'
 import { SearchBar } from '../ui/SearchBar'
 import { departmentName } from './departmentName'
+import { confirmDialog } from '../../utils/confirm'
 
 const EMPLOYMENT = ['full_time', 'part_time', 'contract', 'casual']
 
@@ -242,7 +243,7 @@ function WorkerModal({ member, departments, onClose, onSaved }) {
     }
 
     async function remove() {
-        if (!window.confirm(t('staff.deleteConfirm', { name: member.full_name }))) return
+        if (!await confirmDialog(t('staff.deleteConfirm', { name: member.full_name }))) return
         setBusy(true)
         try {
             await deleteStaffMember(member.id)

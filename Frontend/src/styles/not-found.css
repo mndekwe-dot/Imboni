@@ -1,6 +1,6 @@
 .not-found-page {
     position: relative;
-    min-height: 100vh;
+    min-height: 100dvh;
     width: 100%;
     display: flex;
     align-items: center;
@@ -93,16 +93,16 @@
     color: var(--foreground);
 }
 
-.not-found-btn-outline:hover {
+@media (hover: hover) { .not-found-btn-outline:hover {
     background: var(--muted);
     border-color: var(--border-hover);
-}
+} }
 
 .not-found-btn-primary {
     background: var(--primary);
     color: var(--primary-foreground);
 }
 
-.not-found-btn-primary:hover {
+@media (hover: hover) { .not-found-btn-primary:hover {
     background: var(--primary-hover);
-}
+} }

@@ -17,6 +17,7 @@ import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { confirmDialog } from '../../utils/confirm'
 
 const TYPE_META = {
     incident:    { cls: 'negative', key: 'typeIncident'    },
@@ -131,7 +132,7 @@ export function DisDashboard() {
     async function handleClearCompleted() {
         const done = tasks.filter(t => t.is_completed)
         if (!done.length) return
-        if (!window.confirm(t('common.clearCompletedConfirm', { count: done.length }))) return
+        if (!await confirmDialog(t('common.clearCompletedConfirm', { count: done.length }))) return
         const previous = tasks
         setTasks(prev => prev.filter(t => !t.is_completed))
         const results = await Promise.allSettled(done.map(t => deleteDisTask(t.id)))

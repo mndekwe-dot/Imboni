@@ -53,7 +53,7 @@
   transition: background var(--transition-fast), border-color var(--transition-fast),
               box-shadow var(--transition-fast);
 }
-.search-bar:hover { background: var(--muted-hover, var(--muted)); }
+@media (hover: hover) { .search-bar:hover { background: var(--muted-hover, var(--muted)); } }
 
 /* Focus is signalled by the field LIFTING off the toolbar — muted fill to card
    fill, plus a quiet neutral edge. No brand colour: --primary is magenta on the
@@ -112,7 +112,7 @@
   cursor: pointer;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
-.search-bar-clear:hover { background: var(--surface-3, var(--muted)); color: var(--foreground); }
+@media (hover: hover) { .search-bar-clear:hover { background: var(--surface-3, var(--muted)); color: var(--foreground); } }
 .search-bar-clear .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* ── DataTable container ─────────────────────────── */
@@ -232,7 +232,7 @@
   color: var(--foreground);
 }
 .dt-table tbody tr:last-child td { border-bottom: none; }
-.dt-table tbody tr:hover { background: var(--muted); transition: background var(--transition-fast); }
+@media (hover: hover) { .dt-table tbody tr:hover { background: var(--muted); transition: background var(--transition-fast); } }
 
 /* ── Pagination footer ───────────────────────────── */
 .dt-footer {
@@ -269,10 +269,10 @@
   cursor: pointer;
   transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
-.dt-page-btn:hover:not(:disabled) {
+@media (hover: hover) { .dt-page-btn:hover:not(:disabled) {
   background: var(--muted);
   border-color: var(--border-hover);
-}
+} }
 .dt-page-btn.active {
   background: var(--primary);
   border-color: var(--primary);
@@ -429,4 +429,4 @@
   vertical-align: middle;
 }
 .data-table tbody tr:last-child td { border-bottom: none; }
-.data-table tbody tr:hover td { background: var(--muted); }
+@media (hover: hover) { .data-table tbody tr:hover td { background: var(--muted); } }
