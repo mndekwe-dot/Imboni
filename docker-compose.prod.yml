@@ -119,6 +119,8 @@ services:
       - "443:443"
     volumes:
       - ./Frontend/nginx.prod.conf.template:/etc/nginx/templates/default.conf.template:ro
+      # Rendered to /etc/nginx/conf.d/security-headers.inc and included by it.
+      - ./Frontend/nginx-security-headers.inc.template:/etc/nginx/templates/security-headers.inc.template:ro
       - certbot_certs:/etc/letsencrypt:ro
       - certbot_webroot:/var/www/certbot:ro
       # Uploaded pictures. Django only serves /media/ when DEBUG is on, so in
