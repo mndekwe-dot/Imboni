@@ -395,13 +395,19 @@ class TeacherListCreateView(APIView):
         periods_by_teacher = Counter(row[0] for row in lessons)
         clashes_by_teacher = double_bookings(lessons)
 
+        # Everyone's teaching assignments in one query, grouped here, rather than
+        # one query per teacher (a staff of 80 was 80 extra queries per load).
+        teachers = list(teachers)
+        by_teacher = {}
+        if term and teachers:
+            for a in (SubjectTeacherAssignment.objects
+                      .filter(teacher__in=teachers, term=term)
+                      .select_related('subject')):
+                by_teacher.setdefault(a.teacher_id, []).append(a)
+
         data = []
         for t in teachers:
-            assignments = (
-                SubjectTeacherAssignment.objects
-                .filter(teacher=t, term=term)
-                .select_related('subject', 'class_obj')
-            ) if term else []
+            assignments = by_teacher.get(t.id, [])
 
             subjects    = list({a.subject.name for a in assignments})
             class_count = len({a.class_obj_id for a in assignments})
@@ -575,12 +581,13 @@ class TeacherPerformanceRatingsView(APIView):
         buckets  = {'Excellent': 0, 'Good': 0, 'Average': 0, 'Needs Improvement': 0}
         total    = 0
 
-        for t in teachers:
-            avg_raw = (
-                Result.objects
-                .filter(teacher=t, term=term)
-                .aggregate(avg=Avg('final_score'))['avg']
-            )
+        averages = (
+            Result.objects
+            .filter(term=term, teacher__in=teachers)
+            .order_by().values('teacher').annotate(avg=Avg('final_score'))
+        )
+        for row in averages:
+            avg_raw = row['avg']
             if avg_raw is None:
                 continue
             avg   = float(avg_raw)

@@ -27,16 +27,21 @@ def _get_rank(student, term):
     if not class_assignment:
         return None, None
 
-    classmates = ClassAssignment.objects.filter(
+    classmates = list(ClassAssignment.objects.filter(
         class_obj=class_assignment.class_obj, term=term
-    ).values_list('student_id', flat=True)
+    ).values_list('student_id', flat=True))
 
-    scores = []
-    for sid in classmates:
-        total = Result.objects.filter(
-            student_id=sid, term=term, status='approved'
-        ).aggregate(t=Sum('final_score'))['t'] or 0
-        scores.append((sid, float(total)))
+    # Every classmate's total in ONE query. This ran one query per classmate, and
+    # the class report-card download calls it once per student, so a class of 40
+    # cost about 1,600 queries for a single ZIP. Classmates with no approved
+    # marks still count, at zero, exactly as before.
+    totals = {
+        row['student_id']: row['t']
+        for row in (Result.objects
+                    .filter(student_id__in=classmates, term=term, status='approved')
+                    .order_by().values('student_id').annotate(t=Sum('final_score')))
+    }
+    scores = [(sid, float(totals.get(sid) or 0)) for sid in classmates]
 
     scores.sort(key=lambda x: x[1], reverse=True)
     class_size = len(scores)
