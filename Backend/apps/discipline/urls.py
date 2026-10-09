@@ -1,5 +1,5 @@
 from django.urls import path
-from . import exeat_api, housing_api, views
+from . import clearance_views, exeat_api, housing_api, views
 
 urlpatterns = [
     # Current term
@@ -34,6 +34,8 @@ urlpatterns = [
     path('discipline/ladder/',                              views.DisciplineLadderView.as_view(),            name='discipline-ladder'),
 
     # Exeat (gate pass) register
+    path('discipline/clearance/',                           clearance_views.ClearanceListView.as_view(),     name='discipline-clearance'),
+    path('discipline/clearance/<uuid:pk>/',                 clearance_views.ClearanceDetailView.as_view(),   name='discipline-clearance-detail'),
     path('discipline/exeat/',                               exeat_api.ExeatListCreateView.as_view(),         name='discipline-exeat'),
     path('discipline/exeat/<uuid:pk>/',                     exeat_api.ExeatActionView.as_view(),             name='discipline-exeat-action'),
 
