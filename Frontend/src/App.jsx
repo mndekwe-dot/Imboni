@@ -131,6 +131,7 @@ const DisDining           = load(() => import('./pages/Dis/DisDining'), 'DisDini
 const DisMessages         = load(() => import('./pages/Dis/DisMessages'), 'DisMessages');
 const DisStaff            = load(() => import('./pages/Dis/DisStaff'), 'DisStaff');
 const DisTimetable        = load(() => import('./pages/Dis/DisTimetable'), 'DisTimetable');
+const DisClearance        = load(() => import('./pages/Dis/DisClearance'), 'DisClearance');
 const DisAnnouncements    = load(() => import('./pages/Dis/DisAnnouncements'), 'DisAnnouncements');
 const DisSettings         = load(() => import('./pages/Dis/DisSettings'), 'DisSettings');
 const DisParentComms      = load(() => import('./pages/Dis/DisParentComms'), 'DisParentComms');
@@ -359,6 +360,7 @@ function App() {
       <Route path="/discipline/parent-comms" element={<ProtectedRoute role="discipline"><DisParentComms /></ProtectedRoute>} />
       <Route path="/discipline/messages" element={<ProtectedRoute role="discipline"><DisMessages /></ProtectedRoute>} />
       <Route path="/discipline/timetable" element={<ProtectedRoute role="discipline"><DisTimetable /></ProtectedRoute>} />
+      <Route path="/discipline/clearance" element={<ProtectedRoute role="discipline"><DisClearance /></ProtectedRoute>} />
       {/* legacy routes kept for compatibility */}
       <Route path="/discipline/activities" element={<ProtectedRoute role="discipline"><DisActivities /></ProtectedRoute>} />
       <Route path="/discipline/dining" element={<ProtectedRoute role="discipline"><DisDining /></ProtectedRoute>} />

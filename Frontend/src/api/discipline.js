@@ -115,3 +115,7 @@ export const deleteDisExtracurricular = (id)     => client.delete(`/imboni/disci
 // Consent Requests (staff side)
 export const getConsentRequests   = ()  => client.get('/imboni/consent-requests/')
 export const createConsentRequest = (d) => client.post('/imboni/consent-requests/', d)
+
+// Clearance: who is free to leave (fees, library, sick bay, medicine).
+export const getClearance       = (params) => client.get('/imboni/discipline/clearance/', { params })
+export const getClearanceDetail = (id)     => client.get(`/imboni/discipline/clearance/${id}/`)

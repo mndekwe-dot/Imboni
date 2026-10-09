@@ -1660,3 +1660,23 @@
 .bed.closed { background: var(--muted); color: var(--muted-foreground); }
 .bed-no { opacity: 0.7; }
 .bed-legend { margin-bottom: 1rem; }
+
+/* ── Clearance (DisClearance) ─────────────────────────────────────────────
+   A tick when an office is satisfied, the one blocking fact when it is not.
+   Icon plus words, never colour alone. */
+.clr-ok, .clr-no { display: inline-flex; align-items: center; gap: 0.375rem; font-size: var(--text-sm); }
+.clr-ok .material-symbols-rounded, .clr-no .material-symbols-rounded { font-size: var(--icon-sm); }
+.clr-ok { color: var(--success); }
+.clr-no { color: var(--destructive); }
+
+.clr-verdict { margin: 0 0 1rem; padding: 0.75rem 1rem; border-radius: var(--radius); font-weight: 600; }
+.clr-verdict.is-ok      { background: var(--success-light);     color: var(--success); }
+.clr-verdict.is-blocked { background: var(--warning-light);     color: var(--foreground); }
+
+.clr-section { padding: 0.75rem 0; border-top: 1px solid var(--border); }
+.clr-section-title { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.375rem; font-size: var(--text-body); }
+.clr-section.is-ok      .clr-section-title .material-symbols-rounded { color: var(--success); }
+.clr-section.is-blocked .clr-section-title .material-symbols-rounded { color: var(--destructive); }
+.clr-section-body { color: var(--muted-foreground); font-size: var(--text-sm); }
+.clr-section-body p { margin: 0.25rem 0; }
+.clr-list { margin: 0.25rem 0; padding-left: 1.25rem; }
