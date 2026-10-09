@@ -451,7 +451,11 @@ class AccountAvatarView(APIView):
 
     def patch(self, request):
         user = request.user
-        serializer = AvatarUploadSerializer(user, data=request.data, partial=True)
+        # Not partial: the file is the whole point of this endpoint. With
+        # partial=True a request that carried no file skipped the required
+        # field, saved nothing and answered 200, so a dropped upload looked
+        # like a successful one.
+        serializer = AvatarUploadSerializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'avatar': serializer.data['avatar']})
