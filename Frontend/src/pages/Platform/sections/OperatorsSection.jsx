@@ -267,7 +267,7 @@ export function OperatorsSection() {
                                                     )}
                                                     <button className="btn btn-outline btn-sm pf-ml"
                                                             onClick={() => toggleActive(op)}>
-                                                        {op.is_active ? o('disable') : o('enable')}
+                                                        {op.is_active ? o('disable') : o('enableAccount')}
                                                     </button>
                                                 </td>
                                             </tr>

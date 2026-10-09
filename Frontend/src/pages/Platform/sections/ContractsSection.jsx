@@ -98,7 +98,7 @@ export function ContractsSection() {
                     <Modal title={p('newTitle')} icon="contract" size="lg" onClose={() => setAdding(false)} footer={
                         <>
                             <button className="btn btn-outline" onClick={() => setAdding(false)}>{t('platform.common.cancel')}</button>
-                            <button type="submit" form="contract-form" className="btn btn-primary" disabled={saving}>{saving ? p('saving') : p('create')}</button>
+                            <button type="submit" form="contract-form" className="btn btn-primary" disabled={saving}>{saving ? p('saving') : p('createSubmit')}</button>
                         </>
                     }>
                         <form id="contract-form" className="platform-form-grid" onSubmit={submit}>

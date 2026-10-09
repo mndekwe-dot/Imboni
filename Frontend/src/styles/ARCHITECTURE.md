@@ -5,7 +5,7 @@ one that fits.
 
 ## 0. Is it type — a size, a weight, a case?
 
-**One typeface: Inter.** Never write a `font-family` other than
+**One typeface: Geist.** Never write a `font-family` other than
 `var(--font-family)` — not for headings, not for codes or receipt numbers
 (use `font-variant-numeric: tabular-nums` so digits line up), not for print
 sheets (`utils/printFont.js`). Form controls inherit it from a single rule in

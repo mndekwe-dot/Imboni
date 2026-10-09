@@ -277,7 +277,6 @@
     "renewed": "Contrat renouvelé.",
     "terminated": "Contrat résilié.",
     "empty": "Aucun contrat pour l’instant. Créez-en un et signez-le pour suivre son cycle de vie.",
-    "create": "Créer le contrat",
     "saving": "Enregistrement…",
     "form": {
       "school": "École",
@@ -317,7 +316,8 @@
     "daysLeft_one": "{{count}} jour restant",
     "daysLeft_other": "{{count}} jours restants",
     "daysOverdue_one": "{{count}} jour de retard",
-    "daysOverdue_other": "{{count}} jours de retard"
+    "daysOverdue_other": "{{count}} jours de retard",
+    "createSubmit": "Créer le contrat"
   },
   "expenses": {
     "title": "Services et factures",
@@ -420,7 +420,6 @@
     "trial": "En essai",
     "suspended": "Suspendues",
     "pastDue": "En retard",
-    "queue": "File de création",
     "pending": "En attente",
     "failed": "Échouées",
     "attention": "À surveiller",
@@ -428,7 +427,8 @@
     "expiring30": "Contrats expirant (30 j)",
     "inGrace": "Contrats en délai de grâce",
     "billsOverdue": "Factures en retard",
-    "ticketsUnresolved": "Tickets non résolus"
+    "ticketsUnresolved": "Tickets non résolus",
+    "provisioningQueue": "File de création"
   },
   "operators": {
     "roles": {
@@ -490,8 +490,8 @@
     "disabled": "Désactivé",
     "reset": "Réinitialiser la 2FA",
     "disable": "Désactiver",
-    "enable": "Activer",
-    "roleOf": "Rôle de {{email}}"
+    "roleOf": "Rôle de {{email}}",
+    "enableAccount": "Activer"
   },
   "tickets": {
     "title": "Assistance",
@@ -502,7 +502,6 @@
     "marked": "Marqué {{status}}.",
     "statusFailed": "Impossible de changer le statut.",
     "none": "Aucun ticket.",
-    "select": "Sélectionnez un ticket pour voir la conversation.",
     "filterLabel": "Filtrer par statut",
     "writeReply": "Écrire une réponse…",
     "sendReply": "Envoyer la réponse",
@@ -556,7 +555,8 @@
       "inviteNever": "n’a jamais été envoyée",
       "uncovered": "Aucun contrat actif ne couvre cette école.",
       "unreachable": "Les données de cette école n’ont pas pu être lues. Vérifiez l’état avant de répondre."
-    }
+    },
+    "pickOne": "Sélectionnez un ticket pour voir la conversation."
   },
   "schoolModal": {
     "fallbackTitle": "École",

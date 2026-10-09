@@ -303,7 +303,7 @@
 /* ── The scan box ─────────────────────────────────────────────────────────────
    Wider than a normal input because what goes in it is a code, and a code that
    scrolls out of sight cannot be checked by eye when the label is creased and
-   somebody has to read it out. Inter like everything else, with tabular
+   somebody has to read it out. Geist like everything else, with tabular
    figures so digits line up and the letter-spacing keeps characters apart. */
 .scan-field {
   min-width: 16rem;

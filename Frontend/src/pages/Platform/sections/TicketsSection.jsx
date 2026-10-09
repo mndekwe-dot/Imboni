@@ -190,7 +190,7 @@ export function TicketsSection() {
             <div className="card platform-ticket-detail">
                 <div className="card-content">
                     {!selected ? (
-                        <p className="platform-muted">{k('select')}</p>
+                        <p className="platform-muted">{k('pickOne')}</p>
                     ) : (
                         <>
                             <div className="platform-panel-head">

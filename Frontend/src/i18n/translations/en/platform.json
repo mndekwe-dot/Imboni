@@ -277,7 +277,6 @@
     "renewed": "Contract renewed.",
     "terminated": "Contract terminated.",
     "empty": "No contracts yet. Create one and sign it to start tracking its lifecycle.",
-    "create": "Create contract",
     "saving": "Saving…",
     "form": {
       "school": "School",
@@ -317,7 +316,8 @@
     "daysLeft_one": "{{count}} day left",
     "daysLeft_other": "{{count}} days left",
     "daysOverdue_one": "{{count}} day overdue",
-    "daysOverdue_other": "{{count}} days overdue"
+    "daysOverdue_other": "{{count}} days overdue",
+    "createSubmit": "Create contract"
   },
   "expenses": {
     "title": "Services & bills",
@@ -420,7 +420,6 @@
     "trial": "Trial",
     "suspended": "Suspended",
     "pastDue": "Past due",
-    "queue": "Provisioning queue",
     "pending": "Pending",
     "failed": "Failed",
     "attention": "Needs attention",
@@ -428,7 +427,8 @@
     "expiring30": "Contracts expiring (30d)",
     "inGrace": "Contracts in grace",
     "billsOverdue": "Bills overdue",
-    "ticketsUnresolved": "Tickets unresolved"
+    "ticketsUnresolved": "Tickets unresolved",
+    "provisioningQueue": "Provisioning queue"
   },
   "operators": {
     "roles": {
@@ -490,8 +490,8 @@
     "disabled": "Disabled",
     "reset": "Reset 2FA",
     "disable": "Disable",
-    "enable": "Enable",
-    "roleOf": "Role of {{email}}"
+    "roleOf": "Role of {{email}}",
+    "enableAccount": "Enable"
   },
   "tickets": {
     "title": "Support",
@@ -502,7 +502,6 @@
     "marked": "Marked {{status}}.",
     "statusFailed": "Could not change the status.",
     "none": "No tickets.",
-    "select": "Select a ticket to view the conversation.",
     "filterLabel": "Filter by status",
     "writeReply": "Write a reply…",
     "sendReply": "Send reply",
@@ -556,7 +555,8 @@
       "inviteNever": "was never sent",
       "uncovered": "No active contract covers this school.",
       "unreachable": "This school’s data could not be read. Check Health before replying."
-    }
+    },
+    "pickOne": "Select a ticket to view the conversation."
   },
   "schoolModal": {
     "fallbackTitle": "School",

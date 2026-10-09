@@ -277,7 +277,6 @@
     "renewed": "Isezerano ryongerewe.",
     "terminated": "Isezerano ryasheshwe.",
     "empty": "Nta masezerano ariho. Rema rimwe urisinye kugira ngo utangire kuryakurikirana.",
-    "create": "Rema isezerano",
     "saving": "Birimo kubikwa…",
     "form": {
       "school": "Ikigo",
@@ -317,7 +316,8 @@
     "daysLeft_one": "Hasigaye umunsi {{count}}",
     "daysLeft_other": "Hasigaye iminsi {{count}}",
     "daysOverdue_one": "Ryatinze umunsi {{count}}",
-    "daysOverdue_other": "Ryatinze iminsi {{count}}"
+    "daysOverdue_other": "Ryatinze iminsi {{count}}",
+    "createSubmit": "Rema isezerano"
   },
   "expenses": {
     "title": "Serivisi na fagitire",
@@ -420,7 +420,6 @@
     "trial": "Bigerageza",
     "suspended": "Byahagaritswe",
     "pastDue": "Byatinze kwishyura",
-    "queue": "Ibigo bitegereje gutangizwa",
     "pending": "Bitegereje",
     "failed": "Byanze",
     "attention": "Bikeneye kwitabwaho",
@@ -428,7 +427,8 @@
     "expiring30": "Amasezerano arangira (iminsi 30)",
     "inGrace": "Amasezerano mu gihe cy’imbabazi",
     "billsOverdue": "Fagitire zatinze",
-    "ticketsUnresolved": "Ibibazo bitarakemuka"
+    "ticketsUnresolved": "Ibibazo bitarakemuka",
+    "provisioningQueue": "Ibigo bitegereje gutangizwa"
   },
   "operators": {
     "roles": {
@@ -490,8 +490,8 @@
     "disabled": "Yahagaritswe",
     "reset": "Subizaho 2FA",
     "disable": "Hagarika",
-    "enable": "Ongera ukoreshe",
-    "roleOf": "Inshingano ya {{email}}"
+    "roleOf": "Inshingano ya {{email}}",
+    "enableAccount": "Ongera ukoreshe"
   },
   "tickets": {
     "title": "Ubufasha",
@@ -502,7 +502,6 @@
     "marked": "Cyashyizwe nka {{status}}.",
     "statusFailed": "Ntibishobotse guhindura imiterere.",
     "none": "Nta bibazo.",
-    "select": "Hitamo ikibazo urebe ibiganiro.",
     "filterLabel": "Shungura ukurikije imiterere",
     "writeReply": "Andika igisubizo…",
     "sendReply": "Ohereza igisubizo",
@@ -556,7 +555,8 @@
       "inviteNever": "ntibwigeze bwoherezwa",
       "uncovered": "Nta masezerano akora agikubiyemo.",
       "unreachable": "Amakuru y’iki kigo ntiyashoboye gusomwa. Reba Imiterere mbere yo gusubiza."
-    }
+    },
+    "pickOne": "Hitamo ikibazo urebe ibiganiro."
   },
   "schoolModal": {
     "fallbackTitle": "Ikigo",
