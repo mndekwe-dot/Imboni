@@ -121,6 +121,10 @@ services:
       - ./Frontend/nginx.prod.conf.template:/etc/nginx/templates/default.conf.template:ro
       - certbot_certs:/etc/letsencrypt:ro
       - certbot_webroot:/var/www/certbot:ro
+      # Uploaded pictures. Django only serves /media/ when DEBUG is on, so in
+      # production every logo and avatar was a 404. nginx reads the same volume
+      # the backend writes to, read-only, and serves just the public folders.
+      - imboni_media:/srv/media:ro
     # Two jobs in one command, and the order matters.
     #
     # 1. Render the template. The nginx image only runs its envsubst step when
