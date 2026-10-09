@@ -3,8 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import { ToastProvider } from './context/ToastContext'
 import { AnnouncementsProvider } from './context/AnnouncementsContext'
-import { initSentry, Sentry } from './utils/sentry'
-import { ErrorFallback } from './components/ErrorFallback'
+import { initSentry } from './utils/sentry'
+import { AppErrorBoundary } from './components/AppErrorBoundary'
 // Imported for its side effect: initialises i18next before the first render, so
 // the very first paint is already in the user's language.
 import { i18nReady } from './i18n'
@@ -18,13 +18,14 @@ import './styles/utilities.css'
 import './styles/motion.css'
 import App from './App.jsx'
 
-// No-op unless VITE_SENTRY_DSN is set (dev/tests send nothing).
+// No-op unless VITE_SENTRY_DSN is set (dev/tests send nothing). When it is set
+// the SDK is fetched in the background, off the path to first paint.
 initSentry()
 
 // Wait for the user's language so the first paint is not a flash of English.
 i18nReady.finally(() => createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Sentry.ErrorBoundary fallback={ErrorFallback}>
+    <AppErrorBoundary>
       <BrowserRouter>
         <ToastProvider>
           <AnnouncementsProvider>
@@ -32,6 +33,6 @@ i18nReady.finally(() => createRoot(document.getElementById('root')).render(
           </AnnouncementsProvider>
         </ToastProvider>
       </BrowserRouter>
-    </Sentry.ErrorBoundary>
+    </AppErrorBoundary>
   </StrictMode>,
 ))

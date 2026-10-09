@@ -13,32 +13,9 @@ import { NotFound } from './pages/NotFound';
 import { SupportSession } from './pages/SupportSession';
 import { SupportBanner } from './components/SupportBanner';
 import { PortalLogin } from './pages/PortalLogin';
-import { PlatformLogin } from './pages/Platform/PlatformLogin';
-import { PlatformLayout } from './pages/Platform/PlatformLayout';
-import { OverviewSection } from './pages/Platform/sections/OverviewSection';
-import { ApplicationsSection } from './pages/Platform/sections/ApplicationsSection';
-import { SchoolsSection } from './pages/Platform/sections/SchoolsSection';
-import { ContractsSection } from './pages/Platform/sections/ContractsSection';
-import { Apply } from './pages/Apply';
-import { RevenueSection } from './pages/Platform/sections/RevenueSection';
-import { ExpensesSection } from './pages/Platform/sections/ExpensesSection';
-import { TicketsSection } from './pages/Platform/sections/TicketsSection';
-import { ActivitySection } from './pages/Platform/sections/ActivitySection';
-import { OperatorsSection } from './pages/Platform/sections/OperatorsSection';
-import { HealthSection } from './pages/Platform/sections/HealthSection';
-import { ResetPassword } from './pages/ResetPassword';
-import { AcceptInvite } from './pages/AcceptInvite';
-import { Signup } from './pages/Signup';
-import { TeacherRegistration } from './pages/TeacherRegistration';
 // Public marketing pages. Eager like the other entry-path pages: a visitor
 // arriving on /pricing from a search result should not wait on a second
 // round-trip before seeing anything.
-import { Pricing } from './pages/Pricing';
-import { About } from './pages/About';
-import { Contact } from './pages/Contact';
-import { Privacy } from './pages/Privacy';
-import { Terms } from './pages/Terms';
-import { FindSchool } from './pages/FindSchool';
 // The installed desktop app's start_url. Eager: it is the first thing that
 // app ever paints, so it must not wait on a second chunk.
 import { Start } from './pages/Start';
@@ -48,6 +25,35 @@ import { TransferTray } from './components/ui/TransferTray';
 // Lazy helper for named exports (React.lazy expects a default export).
 // The import string stays static so the bundler can split each page out.
 const load = (factory, name) => lazy(() => factory().then(m => ({ default: m[name] })));
+
+// ── Public and operator pages: fetched on demand ──
+// A teacher or parent on their school's address never opens the platform
+// operator console or the marketing and sign-up pages, yet all of it was in the
+// first download. These stay out of it until their route is visited. The pages
+// every visitor lands on (landing, sign-in, /start) remain eager.
+const PlatformLogin = load(() => import('./pages/Platform/PlatformLogin'), 'PlatformLogin');
+const PlatformLayout = load(() => import('./pages/Platform/PlatformLayout'), 'PlatformLayout');
+const OverviewSection = load(() => import('./pages/Platform/sections/OverviewSection'), 'OverviewSection');
+const ApplicationsSection = load(() => import('./pages/Platform/sections/ApplicationsSection'), 'ApplicationsSection');
+const SchoolsSection = load(() => import('./pages/Platform/sections/SchoolsSection'), 'SchoolsSection');
+const ContractsSection = load(() => import('./pages/Platform/sections/ContractsSection'), 'ContractsSection');
+const RevenueSection = load(() => import('./pages/Platform/sections/RevenueSection'), 'RevenueSection');
+const ExpensesSection = load(() => import('./pages/Platform/sections/ExpensesSection'), 'ExpensesSection');
+const TicketsSection = load(() => import('./pages/Platform/sections/TicketsSection'), 'TicketsSection');
+const ActivitySection = load(() => import('./pages/Platform/sections/ActivitySection'), 'ActivitySection');
+const OperatorsSection = load(() => import('./pages/Platform/sections/OperatorsSection'), 'OperatorsSection');
+const HealthSection = load(() => import('./pages/Platform/sections/HealthSection'), 'HealthSection');
+const Apply = load(() => import('./pages/Apply'), 'Apply');
+const Signup = load(() => import('./pages/Signup'), 'Signup');
+const Pricing = load(() => import('./pages/Pricing'), 'Pricing');
+const About = load(() => import('./pages/About'), 'About');
+const Contact = load(() => import('./pages/Contact'), 'Contact');
+const Privacy = load(() => import('./pages/Privacy'), 'Privacy');
+const Terms = load(() => import('./pages/Terms'), 'Terms');
+const FindSchool = load(() => import('./pages/FindSchool'), 'FindSchool');
+const ResetPassword = load(() => import('./pages/ResetPassword'), 'ResetPassword');
+const AcceptInvite = load(() => import('./pages/AcceptInvite'), 'AcceptInvite');
+const TeacherRegistration = load(() => import('./pages/TeacherRegistration'), 'TeacherRegistration');
 
 // ── Student ──
 const StudentDashboard    = load(() => import('./pages/Student/StudentDashboard'), 'StudentDashboard');
