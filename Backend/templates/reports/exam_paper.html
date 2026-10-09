@@ -104,6 +104,7 @@
         — page <pdf:pagenumber> of <pdf:pagecount>
     </div>
 
+    {% if school_logo %}<div style="text-align: center; margin-bottom: 4px;"><img src="{{ school_logo }}" alt="" style="height: 52px;"></div>{% endif %}
     <div class="school">{{ school_name }}</div>
     <div class="school-sub">{{ paper.term.term }} {{ paper.term.year }}</div>
 

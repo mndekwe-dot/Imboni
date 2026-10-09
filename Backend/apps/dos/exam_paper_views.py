@@ -24,6 +24,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.audit.services import audit
+from apps.common.branding import branding_context
 from apps.authentication.permissions import IsDOSOrAdmin
 from apps.notifications.models import Notification
 from apps.teacher.models import ExamPaper
@@ -199,7 +200,7 @@ class DosExamPaperPrintView(APIView):
             })
 
         html = render_to_string('reports/exam_paper.html', {
-            'school_name': getattr(settings, 'SCHOOL_NAME', 'Imboni School'),
+            **branding_context(),
             'paper':       paper,
             'sections':    sections,
             'scheme':      want_scheme,

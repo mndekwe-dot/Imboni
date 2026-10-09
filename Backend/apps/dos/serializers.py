@@ -337,7 +337,7 @@ class SchoolSettingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SchoolSetting
-        fields = ['timezone', 'school_name', 'terms', 'currency', 'logo']
+        fields = ['timezone', 'school_name', 'terms', 'currency', 'logo', 'contact_email', 'contact_phone']
 
     def validate_currency(self, value):
         # ISO 4217 is three uppercase letters. Stored uppercase so the UI can

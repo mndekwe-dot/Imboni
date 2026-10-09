@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 
 vi.mock('../api/branding', () => ({ getSchoolBranding: vi.fn() }))
 
 import { getSchoolBranding } from '../api/branding'
-import { useSchoolBranding, __resetBrandingCache } from './useSchoolBranding'
+import { useSchoolBranding, refreshSchoolBranding, __resetBrandingCache } from './useSchoolBranding'
 
 describe('useSchoolBranding', () => {
     beforeEach(() => {
@@ -64,5 +64,19 @@ describe('useSchoolBranding', () => {
         renderHook(() => useSchoolBranding())   // a later navigation
 
         expect(getSchoolBranding).toHaveBeenCalledTimes(1)
+    })
+
+    it('shows a new logo the moment the branding is refreshed', async () => {
+        getSchoolBranding
+            .mockResolvedValueOnce({ school_name: 'Green Hills', logo: null })
+            .mockResolvedValueOnce({ school_name: 'Green Hills', logo: 'https://x/new.png' })
+
+        const { result } = renderHook(() => useSchoolBranding())
+        await waitFor(() => expect(result.current.loaded).toBe(true))
+        expect(result.current.logo).toBeNull()
+
+        await act(async () => { await refreshSchoolBranding() })
+
+        expect(result.current.logo).toBe('https://x/new.png')
     })
 })

@@ -7,6 +7,7 @@ import {Link} from 'react-router'
 import '../styles/login.css'
 import '../styles/components.css'
 import { useSchoolBranding } from '../hooks/useSchoolBranding'
+import { useBrandedTab } from '../hooks/useBrandedTab'
 import { ModalOverlay } from '../components/ui/ModalOverlay'
 
 function ForgotPasswordModal({ onClose }) {
@@ -116,6 +117,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
     const { t } = useTranslation()
     const {login, completeTwoFactor} = useAuth()
     const { schoolName, logo: schoolLogo } = useSchoolBranding()
+    useBrandedTab()
     const label    = t(`portal.${portal}`)
     const subtitle = t(`portalLogin.${portal}`)
     const [email,      setEmail]      = useState('')

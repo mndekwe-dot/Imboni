@@ -60,7 +60,7 @@ describe('AdminSettings', () => {
     fireEvent.click(screen.getByRole('button', { name: /Save Changes/ }))
 
     await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith(
-      { school_name: 'New Name Academy', timezone: 'Africa/Kigali', currency: 'RWF' }))
+      { school_name: 'New Name Academy', timezone: 'Africa/Kigali', currency: 'RWF', contact_email: '', contact_phone: '' }))
     expect(await screen.findByText('Saved!')).toBeInTheDocument()
   })
 

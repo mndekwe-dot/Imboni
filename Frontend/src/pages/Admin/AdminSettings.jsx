@@ -5,6 +5,8 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
+import { SchoolBrandingBlock } from '../../components/settings/SchoolBrandingBlock'
+import { refreshSchoolBranding } from '../../hooks/useSchoolBranding'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { yearsFromConfig } from '../../utils/classes'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
@@ -158,6 +160,8 @@ function SchoolInfoSection() {
     const [schoolName, setSchoolName] = useState('')
     const [timezone,   setTimezone]   = useState('Africa/Kigali')
     const [currency,   setCurrency]   = useState('RWF')
+    const [contactEmail, setContactEmail] = useState('')
+    const [contactPhone, setContactPhone] = useState('')
     const [saving,     setSaving]     = useState(false)
     const [saved,      setSaved]      = useState(false)
 
@@ -166,13 +170,16 @@ function SchoolInfoSection() {
             setSchoolName(setting.school_name || '')
             setTimezone(setting.timezone || 'Africa/Kigali')
             setCurrency(setting.currency || 'RWF')
+            setContactEmail(setting.contact_email || '')
+            setContactPhone(setting.contact_phone || '')
         }
     }, [settingsLoading, setting])
 
     async function handleSave() {
         setSaving(true)
         try {
-            await updateSchoolSettings({ school_name: schoolName, timezone, currency })
+            await updateSchoolSettings({ school_name: schoolName, timezone, currency, contact_email: contactEmail, contact_phone: contactPhone })
+            refreshSchoolBranding()
             setSaved(true)
             setTimeout(() => setSaved(false), 3000)
         } catch (e) {
@@ -197,6 +204,34 @@ function SchoolInfoSection() {
                         onChange={e => { setSchoolName(e.target.value); setSaved(false) }}
                         placeholder={t('admin.settings.schoolNamePlaceholder')}
                      aria-label={t('admin.settings.schoolNamePlaceholder')}/>
+                </div>
+            </div>
+
+            <SchoolBrandingBlock />
+
+            <div className="settings-block">
+                <div className="settings-block-label">
+                    <p className="settings-block-title">{t('admin.settings.contactEmail')}</p>
+                    <p className="settings-block-desc">{t('admin.settings.contactEmailDesc')}</p>
+                </div>
+                <div className="settings-block-input-row">
+                    <input className="form-input flex-1" type="email" value={contactEmail}
+                        onChange={e => { setContactEmail(e.target.value); setSaved(false) }}
+                        placeholder={t('admin.settings.contactEmailPlaceholder')}
+                        aria-label={t('admin.settings.contactEmail')} />
+                </div>
+            </div>
+
+            <div className="settings-block">
+                <div className="settings-block-label">
+                    <p className="settings-block-title">{t('admin.settings.contactPhone')}</p>
+                    <p className="settings-block-desc">{t('admin.settings.contactPhoneDesc')}</p>
+                </div>
+                <div className="settings-block-input-row">
+                    <input className="form-input flex-1" type="tel" value={contactPhone}
+                        onChange={e => { setContactPhone(e.target.value); setSaved(false) }}
+                        placeholder={t('admin.settings.contactPhonePlaceholder')}
+                        aria-label={t('admin.settings.contactPhone')} />
                 </div>
             </div>
 

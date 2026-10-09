@@ -10,9 +10,7 @@ from apps.student.models import Student
 from apps.results.models import Result, AcademicTerm
 from apps.behavior.models import ConductGrade
 
-SCHOOL_NAME  = getattr(settings, 'SCHOOL_NAME',  'Imboni School')
-SCHOOL_EMAIL = getattr(settings, 'SCHOOL_EMAIL', '')
-SCHOOL_PHONE = getattr(settings, 'SCHOOL_PHONE', '')
+from apps.common.branding import branding_context
 
 def _get_rank(student, term):
     """
@@ -160,9 +158,7 @@ class StudentReportCardView(APIView):
 
         # ── Render HTML template ─────────────────────────────────────────
         context = {
-            'school_name':  SCHOOL_NAME,
-            'school_email': SCHOOL_EMAIL,
-            'school_phone': SCHOOL_PHONE,
+            **branding_context(),
             'stamp_url':    None,
 
             'term_label':   term_label,
@@ -281,9 +277,7 @@ class ClassReportCardsView(APIView):
                 term_label = term.name
 
                 context = {
-                    'school_name':  SCHOOL_NAME,
-                    'school_email': SCHOOL_EMAIL,
-                    'school_phone': SCHOOL_PHONE,
+                    **branding_context(),
                     'stamp_url':    None,
                     'term_label':   term_label,
                     'school_year':  f"{term.year}-{term.year + 1}",
