@@ -75,6 +75,26 @@
 .modal-overlay { animation: fade-in 160ms ease-out; }
 .modal-box     { animation: pop-in 220ms var(--ease-out); }
 
+/* ── Bars grow in ────────────────────────────────────────────────────────
+   An attendance rate, a dormitory's capacity, a mark: each is a bar whose width
+   the page sets inline from real data. Revealing it left to right (a clip, not
+   a width change) shows the value arriving without reflowing anything, and the
+   bar still ends exactly where the data says. */
+@keyframes bar-reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+.att-bar-fill,
+.bar-fill,
+.progress-fill,
+.stat-bar-fill,
+.u-meter-fill,
+.disc-progress-fill,
+.house-capacity-fill-inner,
+.scm-marks-fill {
+  animation: bar-reveal 650ms var(--ease-out) backwards;
+}
+
 /* Table rows answer the pointer with colour only: a lift on a row would move
    the text someone is trying to read. */
 .table-row-hover tbody tr,
@@ -93,4 +113,8 @@ table tbody tr { transition: background-color var(--duration-hover) var(--ease-h
   .modal-overlay,
   .modal-box { animation: fade-in 120ms linear backwards; }
   .portal-stat-card { animation-delay: 0s !important; }
+  .att-bar-fill, .bar-fill, .progress-fill, .stat-bar-fill, .u-meter-fill,
+  .disc-progress-fill, .house-capacity-fill-inner, .scm-marks-fill {
+    animation: fade-in 120ms linear backwards;
+  }
 }
