@@ -5,6 +5,7 @@ export const disNavItems = [
     { to: '/discipline/students',      icon: 'people',         labelKey: 'nav.students'               },
     { to: '/discipline/student-life',  icon: 'emoji_events',   labelKey: 'nav.studentLife'           },
     { to: '/discipline/boarding',      icon: 'hotel',          labelKey: 'nav.boarding', feature: 'boarding' },
+    { to: '/discipline/clearance',     icon: 'verified_user',  labelKey: 'nav.clearance'              },
     /* Dining plans and activity consent requests were routed but listed
        nowhere: two working features with no way into them short of typing the
        URL. Nothing else in the app links to either. */
