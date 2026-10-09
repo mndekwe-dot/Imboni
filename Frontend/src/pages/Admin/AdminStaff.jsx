@@ -21,6 +21,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 // Every role that signs in. The librarian and the bursar were missing, so a
 // school could not invite the two people who run the library and the money.
@@ -74,7 +75,7 @@ function InviteModal({ onClose, onSent }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2 className="modal-title">{t('admin.staff.inviteMember')}</h2>
@@ -129,7 +130,7 @@ function InviteModal({ onClose, onSent }) {
                     </form>
                 )}
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

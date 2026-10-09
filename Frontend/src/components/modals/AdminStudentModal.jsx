@@ -4,6 +4,7 @@ import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { ClassPicker, splitClassLabel } from '../ui/ClassPicker'
 import { useDormitories } from '../../hooks/useDormitories'
 import { useTranslation } from 'react-i18next'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 const FEE_STATUSES = [
     { value: 'Paid',    labelKey: 'modals.student.feePaid'    },
@@ -64,7 +65,7 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
 
                 <div className="modal-header">
@@ -143,6 +144,6 @@ export function AdminStudentModal({ student, onClose, onSave, readOnly = false }
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

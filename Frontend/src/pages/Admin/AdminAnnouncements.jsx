@@ -23,6 +23,7 @@ import '../../styles/admin.css'
 import '../../styles/tables.css'
 import { SearchBar } from '../../components/ui/SearchBar'
 import '../../styles/announcements.css'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -77,7 +78,7 @@ function audienceLabel(ann, t) {
 function DeleteModal({ target, onClose, onConfirm }) {
     const { t } = useTranslation()
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm modal-confirm" onClick={e => e.stopPropagation()}>
                 <h2 className="modal-confirm-title">{t('announcements.deleteTitle')}</h2>
                 <p className="modal-confirm-desc">
@@ -90,7 +91,7 @@ function DeleteModal({ target, onClose, onConfirm }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 export function NewActivityModal({ onClose, onSave }) {
     const { t } = useTranslation()
@@ -38,7 +39,7 @@ export function NewActivityModal({ onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-lg" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -99,6 +100,6 @@ export function NewActivityModal({ onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

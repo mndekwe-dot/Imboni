@@ -7,6 +7,7 @@ import {Link} from 'react-router'
 import '../styles/login.css'
 import '../styles/components.css'
 import { useSchoolBranding } from '../hooks/useSchoolBranding'
+import { ModalOverlay } from '../components/ui/ModalOverlay'
 
 function ForgotPasswordModal({ onClose }) {
     const { t } = useTranslation()
@@ -32,7 +33,7 @@ function ForgotPasswordModal({ onClose }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -96,7 +97,7 @@ function ForgotPasswordModal({ onClose }) {
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

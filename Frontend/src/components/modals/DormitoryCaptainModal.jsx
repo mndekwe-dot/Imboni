@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
 import { StudentSearchPicker } from '../ui/StudentSearchPicker'
 import { searchDisStudents } from '../../api/discipline'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 // Must match the key useDormitories derives, so a stored display name and a
 // fetched dormitory resolve to the same <option> value.
@@ -58,7 +59,7 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
     const cls = selectedStudent ? `${selectedStudent.grade || ''}${selectedStudent.section || ''}` : ''
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -135,6 +136,6 @@ export function DormitoryCaptainModal({ captain, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
