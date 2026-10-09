@@ -74,7 +74,7 @@ export function HealthSection() {
                 <Metric label={m('pastDue')} value={h.schools.past_due} tone={h.schools.past_due ? 'warn' : ''} />
             </div>
 
-            <p className="platform-section-title">{m('queue')}</p>
+            <p className="platform-section-title">{m('provisioningQueue')}</p>
             <div className="platform-cards">
                 <Metric label={m('pending')} value={h.provisioning.pending} tone={h.provisioning.pending ? 'warn' : ''} />
                 <Metric label={m('failed')} value={h.provisioning.failed} tone={h.provisioning.failed ? 'bad' : ''} />

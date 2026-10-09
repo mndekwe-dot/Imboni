@@ -42,7 +42,7 @@ registerRoute(
   })
 )
 
-// Google Fonts (Inter + Material Symbols) — needed for offline icons.
+// Google Fonts (Geist + Material Symbols) — needed for offline icons.
 registerRoute(
   ({ url }) => url.origin === 'https://fonts.googleapis.com'
     || url.origin === 'https://fonts.gstatic.com',
