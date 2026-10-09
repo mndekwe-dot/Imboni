@@ -1,4 +1,5 @@
 import client from './client'
+import { sendBody } from './upload'
 
 // Dashboard
 export const getTeacherDashboardStats   = ()       => client.get('/imboni/teacher/dashboard/stats/')
@@ -74,8 +75,8 @@ function assignmentBody(d) {
     return form
 }
 
-export const createTeacherAssignment  = d           => client.post('/imboni/teacher/assignments/', assignmentBody(d))
-export const updateTeacherAssignment  = (id, d)    => client.patch(`/imboni/teacher/assignments/${id}/`, assignmentBody(d))
+export const createTeacherAssignment  = d           => sendBody('post', '/imboni/teacher/assignments/', assignmentBody(d))
+export const updateTeacherAssignment  = (id, d)    => sendBody('patch', `/imboni/teacher/assignments/${id}/`, assignmentBody(d))
 export const deleteTeacherAssignment  = id          => client.delete(`/imboni/teacher/assignments/${id}/`)
 
 // Teaching materials: notes, slides and video links shared with a class.
@@ -94,8 +95,8 @@ function materialBody(d) {
     return form
 }
 export const getTeacherMaterials      = params      => client.get('/imboni/teacher/materials/', { params })
-export const createTeacherMaterial    = d           => client.post('/imboni/teacher/materials/', materialBody(d))
-export const updateTeacherMaterial    = (id, d)     => client.patch(`/imboni/teacher/materials/${id}/`, materialBody(d))
+export const createTeacherMaterial    = d           => sendBody('post', '/imboni/teacher/materials/', materialBody(d))
+export const updateTeacherMaterial    = (id, d)     => sendBody('patch', `/imboni/teacher/materials/${id}/`, materialBody(d))
 export const deleteTeacherMaterial    = id          => client.delete(`/imboni/teacher/materials/${id}/`)
 // Stop / resume accepting submissions. `closed` was a status the model declared
 // but nothing could reach, so an assignment stayed open indefinitely.

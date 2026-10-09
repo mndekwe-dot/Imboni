@@ -1,4 +1,5 @@
 import client from './client'
+import { withTransfer } from '../utils/transfers'
 
 /**
  * The library API.
@@ -95,7 +96,8 @@ export const importBooks = (file) => {
     body.append('file', file)
     // Let the browser set the multipart boundary; naming the content type by
     // hand omits it and the server sees an empty upload.
-    return client.post('/imboni/library/import/', body)
+    return withTransfer({ direction: 'upload', name: file?.name }, progress =>
+        client.post('/imboni/library/import/', body, progress))
 }
 
 // ── What the collection does ──────────────────────────────────────────────────

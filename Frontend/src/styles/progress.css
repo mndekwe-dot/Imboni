@@ -1,0 +1,109 @@
+/* Progress: work in flight, shown as it happens.
+
+   Two bars, one idea. A determinate bar fills as bytes move; an indeterminate
+   one (the size is unknown, or nothing has been sent yet) slides a highlight
+   across so it never looks frozen. The fill moves with transform, not width, so
+   the animation stays on the compositor and never reflows the row it sits in. */
+
+.pbar {
+  --pbar-h: 8px;
+  --pbar-fill: var(--primary);
+  position: relative;
+  height: var(--pbar-h);
+  border-radius: var(--radius-full);
+  background: var(--muted-hover);
+  overflow: hidden;
+}
+.pbar-sm { --pbar-h: 4px; }
+.pbar-lg { --pbar-h: 12px; }
+.pbar-success { --pbar-fill: var(--success); }
+.pbar-error   { --pbar-fill: var(--destructive); }
+
+.pbar-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--pbar-fill);
+  transform-origin: left center;
+  transform: scaleX(var(--pbar-value, 0));
+  /* Short: a byte counter should look like it is following the transfer, not
+     performing for it. Easing a step that arrives every 100ms only makes it lag. */
+  transition: transform 220ms var(--ease-out), background-color 200ms var(--ease-out);
+}
+
+/* The moving highlight rides on the fill while it is working, and stops the
+   moment it finishes or fails - a finished bar that still shimmers reads as
+   unfinished. */
+.pbar-active .pbar-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: pbar-sheen 1.3s ease-in-out infinite;
+}
+@keyframes pbar-sheen { to { transform: translateX(100%); } }
+
+/* Unknown size: a short segment travelling the whole track. */
+.pbar-indeterminate .pbar-fill {
+  inset: 0 auto 0 0;
+  width: 38%;
+  transform: translateX(-100%);
+  transition: none;
+  animation: pbar-slide 1.15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes pbar-slide { to { transform: translateX(270%); } }
+
+/* ── Transfer tray ───────────────────────────────────────────────────────
+   Every upload and download in the app reports here, so a transfer is visible
+   wherever you are rather than only on the page that started it. */
+.xfer-tray {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: var(--z-toast, 1100);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(22rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;           /* the gaps never block the page behind */
+}
+.xfer-item {
+  pointer-events: auto;
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  /* Enters from below and fades; leaves the same way. A transition with
+     @starting-style, not keyframes, so an update mid-entrance retargets
+     instead of restarting. */
+  transition: opacity var(--duration-pop) var(--ease-out), transform var(--duration-pop) var(--ease-out);
+}
+@starting-style {
+  .xfer-item { opacity: 0; transform: translateY(12px); }
+}
+.xfer-item.is-leaving { opacity: 0; transform: translateY(8px); }
+
+.xfer-row { display: flex; align-items: center; gap: 0.625rem; min-width: 0; }
+.xfer-icon { flex: none; color: var(--primary); }
+.xfer-item.is-done  .xfer-icon { color: var(--success); }
+.xfer-item.is-error .xfer-icon { color: var(--destructive); }
+.xfer-text { min-width: 0; flex: 1; }
+.xfer-title { font-size: var(--text-sm); font-weight: 600; color: var(--foreground); }
+.xfer-name  { font-size: var(--text-caption); color: var(--muted-foreground);
+              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xfer-pct   { flex: none; font-size: var(--text-sm); font-weight: 600;
+              color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.xfer-close { flex: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pbar-active .pbar-fill::after { animation: none; display: none; }
+  /* Unknown-size still has to say "working": a static, partial segment. */
+  .pbar-indeterminate .pbar-fill { animation: none; transform: none; width: 38%; opacity: 0.8; }
+}

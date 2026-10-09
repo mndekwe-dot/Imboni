@@ -1,4 +1,5 @@
 import client from './client'
+import { withTransfer } from '../utils/transfers'
 
 /**
  * The school's name and logo. Unauthenticated on purpose — the sign-in screen
@@ -13,7 +14,8 @@ export const getSchoolBranding = () => client.get('/imboni/dos/branding/')
 export const setSchoolLogo = file => {
     const form = new FormData()
     form.append('logo', file)
-    return client.patch('/imboni/dos/school-settings/', form)
+    return withTransfer({ direction: 'upload', name: file?.name }, progress =>
+        client.patch('/imboni/dos/school-settings/', form, progress))
 }
 
 /** Take the logo off; the sidebar goes back to the product's own mark. */

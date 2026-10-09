@@ -42,6 +42,8 @@ import { FindSchool } from './pages/FindSchool';
 // The installed desktop app's start_url. Eager: it is the first thing that
 // app ever paints, so it must not wait on a second chunk.
 import { Start } from './pages/Start';
+// Every upload and download reports here, whatever page started it.
+import { TransferTray } from './components/ui/TransferTray';
 
 // Lazy helper for named exports (React.lazy expects a default export).
 // The import string stays static so the bundler can split each page out.
@@ -190,6 +192,7 @@ function App() {
     {/* Keyboard users can jump past the sidebar straight to page content.
         Every portal page renders <main id="main-content">. */}
     <a href="#main-content" className="skip-link">Skip to main content</a>
+    <TransferTray />
     <SupportBanner />
     <Suspense fallback={<RouteFallback />}>
     <Routes>
